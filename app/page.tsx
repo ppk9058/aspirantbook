@@ -70,31 +70,31 @@ export default function LandingHomePage() {
                 </div>
 
                 {/* Mobile Sub-Navigation Bar */}
-                <div className="md:hidden flex items-center gap-5 px-4 py-2.5 overflow-x-auto no-scrollbar border-t border-gray-100 bg-gray-50/80 text-xs font-semibold text-gray-700">
+                <div data-scroll-x="true" className="md:hidden flex items-center gap-5 px-4 py-2.5 overflow-x-auto no-scrollbar border-t border-gray-100 bg-gray-50/80 text-xs font-semibold text-gray-700">
                     <Link
                         href="/dashboard"
-                        className="text-[#F26522] font-bold flex items-center gap-1 shrink-0"
+                        className="text-orange-700 font-bold flex items-center gap-1 shrink-0"
                     >
                         <span>Skills</span>
-                        <span className="text-[9px] bg-orange-100 text-[#F26522] px-1.5 py-0.2 rounded-full font-bold">
+                        <span className="text-[9px] bg-orange-100 text-orange-800 px-1.5 py-0.2 rounded-full font-bold">
                             App
                         </span>
                     </Link>
-                    <Link href="#all-courses-container" className="hover:text-[#F26522] transition-colors shrink-0">
+                    <Link href="#all-courses-container" className="hover:text-orange-700 transition-colors shrink-0">
                         School Prep
                     </Link>
-                    <Link href="#section-upsc" className="hover:text-[#F26522] transition-colors shrink-0">
+                    <Link href="#section-upsc" className="hover:text-orange-700 transition-colors shrink-0">
                         UPSC
                     </Link>
-                    <Link href="#section-bpsc" className="hover:text-[#F26522] transition-colors shrink-0">
+                    <Link href="#section-bpsc" className="hover:text-orange-700 transition-colors shrink-0">
                         BPSC
                     </Link>
                     <Link
                         href="/practice"
-                        className="text-[#5B47FB] font-bold flex items-center gap-1 shrink-0"
+                        className="text-indigo-700 font-bold flex items-center gap-1 shrink-0"
                     >
                         <span>Coding Practice</span>
-                        <span className="text-[9px] bg-[#EEECFF] text-[#5B47FB] px-1.5 py-0.2 rounded-full font-bold">
+                        <span className="text-[9px] bg-indigo-100 text-indigo-800 px-1.5 py-0.2 rounded-full font-bold">
                             Live
                         </span>
                     </Link>

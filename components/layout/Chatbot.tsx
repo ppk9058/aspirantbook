@@ -2,9 +2,11 @@
 
 import { MessageSquare, X, Send, Sparkles, Bot } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 export function Chatbot() {
+    const pathname = usePathname()
     const [isOpen, setIsOpen] = useState(false)
     const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([
         {
@@ -16,6 +18,19 @@ export function Chatbot() {
     const [isTyping, setIsTyping] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
+    // Hide AI floating button on full-screen / examination flows
+    const isHiddenFlow = Boolean(
+        pathname && (
+            pathname.includes("/attempt") ||
+            pathname.includes("/result") ||
+            pathname.includes("/solutions") ||
+            pathname.includes("/declaration") ||
+            pathname.includes("/instructions") ||
+            pathname.includes("/take") ||
+            pathname.startsWith("/test-execution")
+        )
+    )
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }
@@ -25,6 +40,10 @@ export function Chatbot() {
             scrollToBottom()
         }
     }, [messages, isOpen])
+
+    if (isHiddenFlow) {
+        return null
+    }
 
     const handleSend = () => {
         if (!input.trim() || isTyping) return
@@ -52,15 +71,25 @@ export function Chatbot() {
         }, 800)
     }
 
+    const isStickyBarPage = Boolean(
+        pathname &&
+        pathname.startsWith("/test-series/") &&
+        !pathname.includes("/my-tests") &&
+        !pathname.includes("/leaderboard")
+    )
+
     return (
         <>
             {/* Floating Chat Action Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-4 sm:right-6 z-40 h-12 w-12 sm:h-13 sm:w-13 p-3 rounded-full bg-gradient-to-r from-[#3AAFA9] to-[#1DB954] text-white shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
+                data-ai-button="true"
+                className={`fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-3 sm:right-5 z-40 h-10 w-10 sm:h-12 sm:w-12 p-2 sm:p-2.5 rounded-full bg-gradient-to-r from-[#3AAFA9] to-[#1DB954] text-white shadow-lg hover:shadow-xl items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation ${
+                    isStickyBarPage ? "hidden sm:flex" : "flex"
+                }`}
                 aria-label="Open AI Learning Assistant"
             >
-                {isOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />}
+                {isOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />}
             </button>
 
             {/* Chat Drawer / Window */}

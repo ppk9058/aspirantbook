@@ -74,13 +74,13 @@ export default async function TracksPage({
     const displayedTracks = activeTab === "skills" ? skillTracks : careerTracks
 
     return (
-        <div className="space-y-6 sm:space-y-8 pb-12">
+        <div className="space-y-6 sm:space-y-8 pb-32 sm:pb-24 lg:pb-12">
             {/* Hero Header */}
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#05192D] via-[#0a2540] to-[#0d2f52] p-6 sm:p-10 text-white border border-gray-800 shadow-xl">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-[#3AAFA9]/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-0 right-0 w-80 h-80 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative z-10 max-w-3xl">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1DB954]/20 border border-[#1DB954]/30 text-emerald-300 text-xs font-semibold mb-3">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-3">
                         <Compass className="h-3.5 w-3.5" />
                         <span>Curated Structured Paths</span>
                     </div>
@@ -93,12 +93,12 @@ export default async function TracksPage({
                     </p>
 
                     {/* Integrated Switcher Tabs */}
-                    <div className="flex items-center gap-3 mt-6">
+                    <div className="flex flex-wrap items-center gap-3 mt-6">
                         <Link
                             href="/tracks?tab=career"
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                            className={`flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-xs font-bold transition-all shadow-xs ${
                                 activeTab === "career"
-                                    ? "bg-[#3AAFA9] text-white"
+                                    ? "bg-teal-700 hover:bg-teal-800 text-white"
                                     : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
                             }`}
                         >
@@ -108,9 +108,9 @@ export default async function TracksPage({
 
                         <Link
                             href="/tracks?tab=skills"
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                            className={`flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-xs font-bold transition-all shadow-xs ${
                                 activeTab === "skills"
-                                    ? "bg-[#3AAFA9] text-white"
+                                    ? "bg-teal-700 hover:bg-teal-800 text-white"
                                     : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
                             }`}
                         >
@@ -128,7 +128,7 @@ export default async function TracksPage({
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                             {activeTab === "career" ? "Career Tracks (Job-Ready Roadmaps)" : "Skill Tracks (Focused Mastery)"}
                         </h2>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
                             {activeTab === "career"
                                 ? "Comprehensive programs taking you from foundational concepts to production-grade applications."
                                 : "Modular tracks focused on mastering specific frameworks, libraries, or workflows."}
@@ -142,28 +142,28 @@ export default async function TracksPage({
                             <Link
                                 key={track.id}
                                 href={`/tracks/${track.slug}`}
-                                className="group flex flex-col justify-between bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-[#3AAFA9]/50 shadow-xs hover:shadow-lg transition-all p-5"
+                                className="group flex flex-col justify-between bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-teal-500/50 shadow-xs hover:shadow-lg transition-all p-5"
                             >
                                 <div>
                                     <div className="flex items-center justify-between gap-2 mb-3">
-                                        <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#3AAFA9]/15 text-[#3AAFA9] uppercase">
+                                        <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 uppercase">
                                             {track.type}
                                         </span>
-                                        <span className="text-xs font-medium text-gray-400 flex items-center gap-1">
+                                        <span className="text-xs font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1">
                                             <BookOpen className="h-3.5 w-3.5" />
                                             {track._count.courses} Courses
                                         </span>
                                     </div>
 
-                                    <h3 className="font-bold text-base text-gray-900 dark:text-white group-hover:text-[#3AAFA9] transition-colors">
+                                    <h3 className="font-bold text-base text-gray-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors">
                                         {track.title}
                                     </h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2 leading-relaxed">
+                                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 line-clamp-2 leading-relaxed">
                                         {track.description}
                                     </p>
                                 </div>
 
-                                <div className="mt-5 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-[#3AAFA9]">
+                                <div className="mt-5 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-teal-700 dark:text-teal-400">
                                     <span>Explore Track</span>
                                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                                 </div>
@@ -171,18 +171,18 @@ export default async function TracksPage({
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-10 text-center text-gray-500">
-                        <BookOpen className="h-10 w-10 mx-auto text-gray-400 mb-2 stroke-[1.5]" />
+                    <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-10 text-center text-slate-600 dark:text-slate-400">
+                        <BookOpen className="h-10 w-10 mx-auto text-slate-400 dark:text-slate-500 mb-2 stroke-[1.5]" />
                         <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">
                             No {activeTab === "career" ? "Career" : "Skill"} Tracks currently published
                         </h3>
-                        <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 max-w-sm mx-auto">
                             Check back shortly or browse our full individual course catalog.
                         </p>
                         <div className="mt-4">
                             <Link
                                 href="/courses"
-                                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-semibold rounded-xl transition-colors"
+                                className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold rounded-xl transition-colors"
                             >
                                 <span>Browse Courses</span>
                                 <ArrowRight className="h-3.5 w-3.5" />

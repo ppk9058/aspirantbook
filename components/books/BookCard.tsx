@@ -37,11 +37,11 @@ export default function BookCard({ book }: BookCardProps) {
   }
 
   return (
-    <div className="group relative bg-white border border-gray-200/90 hover:border-gray-300 rounded-2xl p-3 sm:p-4 flex flex-col justify-between transition-all duration-200 hover:shadow-md">
+    <div className="group relative bg-white dark:bg-slate-800 border border-gray-200/90 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600 rounded-2xl p-3 sm:p-4 flex flex-col justify-between transition-all duration-200 hover:shadow-md">
       {/* Clickable Area linking to Book Details */}
       <Link href={`/books/${book.slug}`} className="block flex-1">
         {/* Book Cover Container */}
-        <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center p-2 mb-3">
+        <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-gray-50 dark:bg-slate-900 flex items-center justify-center p-2 mb-3">
           <img
             src={book.coverImage}
             alt={book.title}
@@ -56,22 +56,22 @@ export default function BookCard({ book }: BookCardProps) {
                   e.preventDefault()
                   e.stopPropagation()
                 }}
-                className="flex items-center gap-1.5 bg-white border-2 border-indigo-600 rounded-xl px-2 py-1 shadow-md"
+                className="flex items-center gap-1.5 bg-white dark:bg-slate-800 border-2 border-indigo-600 rounded-xl px-2 py-1 shadow-md"
               >
                 <button
                   type="button"
                   onClick={handleDecrement}
-                  className="w-5 h-5 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 rounded font-bold"
+                  className="w-5 h-5 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded font-bold"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
-                <span className="text-xs font-black text-indigo-950 px-1">
+                <span className="text-xs font-black text-indigo-950 dark:text-indigo-200 px-1">
                   {cartItem.quantity}
                 </span>
                 <button
                   type="button"
                   onClick={handleIncrement}
-                  className="w-5 h-5 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 rounded font-bold"
+                  className="w-5 h-5 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded font-bold"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -80,7 +80,7 @@ export default function BookCard({ book }: BookCardProps) {
               <button
                 type="button"
                 onClick={handleAdd}
-                className="px-3.5 py-1.5 rounded-xl border-2 border-indigo-600 bg-white hover:bg-indigo-600 text-indigo-600 hover:text-white font-extrabold text-xs transition-all shadow-sm active:scale-95 flex items-center gap-1"
+                className="px-3.5 py-1.5 rounded-xl border-2 border-indigo-600 bg-white dark:bg-slate-800 hover:bg-indigo-600 text-indigo-600 dark:text-indigo-300 hover:text-white font-extrabold text-xs transition-all shadow-sm active:scale-95 flex items-center gap-1 min-h-[36px]"
               >
                 <span>ADD</span>
               </button>
@@ -89,34 +89,34 @@ export default function BookCard({ book }: BookCardProps) {
         </div>
 
         {/* Book Title matching Image 1 (2-line truncate) */}
-        <h3 className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">
+        <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">
           {book.title}
         </h3>
 
         {/* Edition Pill / Badge */}
         <div className="mt-2">
-          <span className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">
+          <span className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
             {book.edition}
           </span>
         </div>
       </Link>
 
       {/* Pricing & Rating Row matching Image 1 */}
-      <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between gap-1 flex-wrap">
+      <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-slate-700 flex items-center justify-between gap-1 flex-wrap">
         <div className="flex items-baseline gap-1.5 flex-wrap">
-          <span className="text-sm sm:text-base font-black text-gray-950">
+          <span className="text-sm sm:text-base font-black text-gray-950 dark:text-white">
             ₹{book.price.toLocaleString("en-IN")}
           </span>
-          <span className="text-xs text-gray-400 line-through">
+          <span className="text-xs text-slate-600 dark:text-slate-400 line-through">
             M.R.P ₹{book.originalPrice.toLocaleString("en-IN")}
           </span>
-          <span className="text-xs font-bold text-emerald-600">
+          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
             ({book.discountPercent}% off)
           </span>
         </div>
 
         {/* Rating Badge */}
-        <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[11px] font-extrabold shrink-0 shadow-2xs">
+        <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-700 text-white text-[11px] font-extrabold shrink-0 shadow-2xs">
           <span>{book.rating}</span>
           <Star className="w-2.5 h-2.5 fill-white" />
         </div>

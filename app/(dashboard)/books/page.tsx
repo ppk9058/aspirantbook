@@ -93,7 +93,7 @@ function BooksCatalogContent() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50/60 font-sans pb-16">
+    <div className="space-y-6 pb-32 sm:pb-24 lg:pb-16 font-sans">
       {/* Store Header matching Image 1 */}
       <BookStoreHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
@@ -105,8 +105,8 @@ function BooksCatalogContent() {
           {/* ======================================================== */}
           <aside className="w-full lg:w-64 xl:w-72 shrink-0 space-y-6">
             {/* Category Tree Box */}
-            <div className="bg-white border border-gray-200/90 rounded-2xl p-4 shadow-2xs">
-              <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-3">
+            <div className="bg-white dark:bg-slate-800 border border-gray-200/90 dark:border-slate-700 rounded-2xl p-4 shadow-2xs">
+              <h3 className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
                 Browse Categories
               </h3>
 
@@ -117,14 +117,14 @@ function BooksCatalogContent() {
                     setSelectedCategory("All Books")
                     setSelectedSubcategory("")
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-xl font-bold flex items-center justify-between transition-colors ${
+                  className={`w-full text-left px-3 py-2 min-h-[44px] rounded-xl font-bold flex items-center justify-between transition-colors ${
                     selectedCategory === "All Books"
-                      ? "bg-sky-50 text-sky-700"
-                      : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50"
                   }`}
                 >
                   <span>All eBooks</span>
-                  <span className="text-[11px] text-gray-400">{BOOKS_DATA.length}</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400">{BOOKS_DATA.length}</span>
                 </button>
 
                 {CATEGORIES_TREE.map((cat) => {
@@ -138,10 +138,10 @@ function BooksCatalogContent() {
                           setSelectedCategory(cat.name)
                           toggleCategoryExpand(cat.name)
                         }}
-                        className={`px-3 py-2 rounded-xl cursor-pointer flex items-center justify-between transition-colors ${
+                        className={`px-3 py-2 min-h-[44px] rounded-xl cursor-pointer flex items-center justify-between transition-colors ${
                           isSelected
-                            ? "bg-sky-50/80 text-sky-800 font-extrabold"
-                            : "text-gray-700 hover:bg-gray-50 font-semibold"
+                            ? "bg-sky-50/80 dark:bg-sky-950/50 text-sky-800 dark:text-sky-300 font-extrabold"
+                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 font-semibold"
                         }`}
                       >
                         <div className="flex items-center gap-1.5 min-w-0">
@@ -178,8 +178,8 @@ function BooksCatalogContent() {
                                 }}
                                 className={`block w-full text-left py-1 px-2 rounded-lg text-[11px] transition-colors ${
                                   isSubActive
-                                    ? "text-sky-700 font-extrabold bg-sky-100/50"
-                                    : "text-gray-500 hover:text-gray-900"
+                                    ? "text-sky-800 dark:text-sky-300 font-extrabold bg-sky-100/50 dark:bg-sky-950/60"
+                                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                                 }`}
                               >
                                 {sub}
@@ -195,15 +195,15 @@ function BooksCatalogContent() {
             </div>
 
             {/* Subject Checkboxes Filter matching Image 1 */}
-            <div className="bg-white border border-gray-200/90 rounded-2xl p-4 shadow-2xs space-y-3">
+            <div className="bg-white dark:bg-slate-800 border border-gray-200/90 dark:border-slate-700 rounded-2xl p-4 shadow-2xs space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black text-gray-700 uppercase tracking-wider">
+                <h3 className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Subject
                 </h3>
                 {selectedSubjects.length > 0 && (
                   <button
                     onClick={() => setSelectedSubjects([])}
-                    className="text-[11px] font-bold text-sky-600 hover:underline"
+                    className="text-[11px] font-bold text-sky-700 dark:text-sky-400 hover:underline"
                   >
                     Clear
                   </button>
@@ -216,13 +216,13 @@ function BooksCatalogContent() {
                   return (
                     <label
                       key={subj}
-                      className="flex items-center gap-2.5 text-xs text-gray-700 cursor-pointer hover:text-gray-950 font-medium select-none"
+                      className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer hover:text-slate-950 dark:hover:text-white font-medium select-none min-h-[36px]"
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => toggleSubject(subj)}
-                        className="rounded border-gray-300 text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer"
+                        className="rounded border-gray-300 dark:border-slate-600 text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer"
                       />
                       <span>{subj}</span>
                     </label>
@@ -232,11 +232,11 @@ function BooksCatalogContent() {
             </div>
 
             {/* eBook Delivery Guarantee Banner */}
-            <div className="p-4 bg-gradient-to-br from-sky-50 to-indigo-50 border border-sky-200/80 rounded-2xl text-xs space-y-2">
-              <span className="font-extrabold text-sky-950 flex items-center gap-1.5">
+            <div className="p-4 bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/80 border border-sky-200/80 dark:border-slate-700 rounded-2xl text-xs space-y-2">
+              <span className="font-extrabold text-sky-950 dark:text-sky-200 flex items-center gap-1.5">
                 ⚡ 100% Digital eBooks
               </span>
-              <p className="text-sky-800 text-[11px] leading-relaxed">
+              <p className="text-sky-800 dark:text-sky-300 text-[11px] leading-relaxed">
                 Instant delivery directly to your account. No delivery charges, no shipping waiting period. Read on Web, Tablet, or Mobile!
               </p>
             </div>
@@ -247,13 +247,13 @@ function BooksCatalogContent() {
           {/* ======================================================== */}
           <main className="flex-1 space-y-8">
             {/* Category Breadcrumb / Title Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 dark:border-slate-700 pb-3">
               <div>
-                <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                   {selectedCategory}
                   {selectedSubcategory ? ` &bull; ${selectedSubcategory}` : ""}
                 </h1>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                   Showing {filteredBooks.length} verified {filteredBooks.length === 1 ? "eBook" : "eBooks"}
                 </p>
               </div>
@@ -265,7 +265,7 @@ function BooksCatalogContent() {
                     <span
                       key={s}
                       onClick={() => toggleSubject(s)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800 cursor-pointer hover:bg-sky-200 transition-colors"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-300 cursor-pointer hover:bg-sky-200 transition-colors"
                     >
                       {s} &times;
                     </span>
@@ -282,10 +282,10 @@ function BooksCatalogContent() {
                 ))}
               </div>
             ) : (
-              <div className="p-12 text-center bg-white border border-gray-200 rounded-2xl space-y-3">
-                <BookOpen className="w-12 h-12 text-gray-300 mx-auto" />
-                <h3 className="text-base font-bold text-gray-800">No eBooks found</h3>
-                <p className="text-xs text-gray-500">
+              <div className="p-12 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl space-y-3">
+                <BookOpen className="w-12 h-12 text-slate-400 dark:text-slate-500 mx-auto" />
+                <h3 className="text-base font-bold text-gray-800 dark:text-gray-200">No eBooks found</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
                   Try adjusting your subject filters or search terms.
                 </p>
                 <button
@@ -294,7 +294,7 @@ function BooksCatalogContent() {
                     setSelectedSubjects([])
                     setSearchQuery("")
                   }}
-                  className="px-4 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold hover:bg-sky-500 transition-colors"
+                  className="px-4 py-2.5 min-h-[44px] rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold transition-colors"
                 >
                   View All eBooks
                 </button>
@@ -304,20 +304,20 @@ function BooksCatalogContent() {
             {/* ======================================================== */}
             {/* SECONDARY ROW: "R.D. Sharma & more" matching Image 1 */}
             {/* ======================================================== */}
-            <div className="p-6 bg-sky-50/50 border border-sky-100 rounded-3xl space-y-5">
+            <div className="p-6 bg-sky-50/50 dark:bg-slate-800/60 border border-sky-100 dark:border-slate-700 rounded-3xl space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-black text-gray-900">
+                  <h2 className="text-lg font-black text-gray-900 dark:text-white">
                     R.D. Sharma &amp; Toppers' Recommended Books
                   </h2>
-                  <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                    Powered by <strong className="text-gray-800 font-extrabold">Prepmarket &bull; aspirantbook</strong>
+                  <span className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                    Powered by <strong className="text-gray-800 dark:text-gray-200 font-extrabold">Prepmarket &bull; aspirantbook</strong>
                   </span>
                 </div>
 
                 <Link
                   href="/books"
-                  className="text-xs font-bold text-sky-700 hover:text-sky-900 flex items-center gap-1 hover:underline"
+                  className="text-xs font-bold text-sky-700 dark:text-sky-400 hover:underline flex items-center gap-1 min-h-[44px]"
                 >
                   <span>View All</span>
                   <ExternalLink className="w-3.5 h-3.5" />

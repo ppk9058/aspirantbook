@@ -55,7 +55,7 @@ export default function Breadcrumbs() {
     if (breadcrumbs.length === 0) return null
 
     return (
-        <nav className="flex items-center space-x-1.5 text-xs text-gray-500 dark:text-gray-400 mb-4 overflow-x-auto whitespace-nowrap py-1">
+        <nav className="hidden sm:flex items-center space-x-1.5 text-xs text-gray-500 dark:text-gray-400 mb-4 overflow-x-auto whitespace-nowrap py-1">
             <Link
                 href="/"
                 className="hover:text-[#3AAFA9] dark:hover:text-[#3AAFA9] transition-colors flex items-center p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5"

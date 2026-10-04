@@ -328,23 +328,23 @@ export default function TestSeriesPage() {
     }
 
     return (
-        <div className="space-y-6 sm:space-y-8 pb-16">
+        <div className="space-y-6 sm:space-y-8 pb-36 sm:pb-28 lg:pb-12">
             {/* Top Navigation Bar: Explore vs My Tests vs Leaderboards */}
             <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-gray-800">
-                <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-gray-100 dark:bg-gray-800/80">
-                    <span className="px-5 py-2 rounded-xl text-xs font-black bg-white dark:bg-[#071d33] text-[#00A8FF] shadow-xs cursor-default">
+                <div data-scroll-x="true" className="w-full sm:w-auto flex items-center gap-1.5 p-1 rounded-2xl bg-gray-100 dark:bg-gray-800/80 overflow-x-auto no-scrollbar snap-x">
+                    <span className="shrink-0 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-black bg-white dark:bg-[#071d33] text-sky-700 dark:text-sky-400 shadow-xs cursor-default whitespace-nowrap snap-start">
                         Explore Test Series
                     </span>
                     <Link
                         href="/test-series/my-tests"
-                        className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                        className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap snap-start"
                     >
                         <span>My Tests &amp; Performance</span>
                         <span className="w-2 h-2 rounded-full bg-emerald-500" />
                     </Link>
                     <Link
                         href="/test-series/bpsc-72nd-2026/leaderboard"
-                        className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                        className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap snap-start"
                     >
                         <span>Live AIR Leaderboards</span>
                     </Link>
@@ -352,173 +352,110 @@ export default function TestSeriesPage() {
 
                 <Link
                     href="/my-tests"
-                    className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                    className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline shrink-0"
                 >
                     <span>My Mistake Notebook →</span>
                 </Link>
             </div>
 
-            {/* Active Goal Dynamic Banner */}
-            <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#3AAFA9] to-[#1DB954] text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
-                        <GoalIcon name={selectedGoal.icon} className="h-6 w-6" />
+            {/* Active Goal Compact Dynamic Banner */}
+            <div className="p-3.5 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-[#3AAFA9] to-[#1DB954] text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-xs shrink-0">
+                        <GoalIcon name={selectedGoal.icon} className="h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-500/30">
-                                Active Goal Mocks
+                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-800 dark:text-teal-300 border border-teal-500/30">
+                                {selectedGoal.name}
                             </span>
-                            <h2 className="text-sm sm:text-base font-extrabold text-gray-900 dark:text-white">
-                                {selectedGoal.fullName || selectedGoal.name}
-                            </h2>
+                            <button
+                                onClick={openGoalModal}
+                                className="text-xs font-bold text-teal-700 dark:text-teal-400 hover:underline flex items-center gap-0.5 cursor-pointer"
+                            >
+                                Change
+                                <ChevronRight className="h-3 w-3" />
+                            </button>
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                            {filterByGoal
-                                ? `Displaying test series and practice mocks curated for ${selectedGoal.name}.`
-                                : `Displaying all exam test series across all domains.`}
-                        </p>
+                        <h2 className="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate mt-0.5">
+                            {selectedGoal.fullName || selectedGoal.name} Curated Mocks
+                        </h2>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#00A8FF] to-[#0ea5e9] hover:from-[#0096e6] hover:to-[#0284c7] text-white text-xs font-extrabold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-black shadow-xs transition-all flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
                     >
-                        <Plus className="h-3.5 w-3.5 stroke-[3]" />
+                        <Plus className="h-4 w-4 stroke-[3]" />
                         <span>Create Series Package</span>
                     </button>
                     <button
                         onClick={() => setFilterByGoal(!filterByGoal)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                            filterByGoal
-                                ? "bg-white dark:bg-slate-800 text-teal-700 dark:text-teal-300 border-teal-300 shadow-2xs hover:bg-slate-50"
-                                : "bg-teal-600 text-white border-teal-600 shadow-sm hover:bg-teal-700"
-                        }`}
+                        className="text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-300 text-center py-1 sm:px-2 cursor-pointer"
                     >
-                        {filterByGoal ? "Show All Tests" : `Show Only ${selectedGoal.name}`}
-                    </button>
-                    <button
-                        onClick={openGoalModal}
-                        className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5"
-                    >
-                        <span>Change Goal</span>
-                        <ChevronRight className="h-3.5 w-3.5 text-teal-500" />
+                        {filterByGoal ? "Show all exam tests →" : `Show only ${selectedGoal.name} →`}
                     </button>
                 </div>
             </div>
 
             {/* Teacher Authored Tests Available Notification Banner */}
             {customTests.length > 0 && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs animate-in fade-in-50">
-                    <div className="flex items-center gap-3.5">
-                        <div className="w-11 h-11 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-md">
+                <div className="p-3.5 sm:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-in fade-in-50">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black text-lg shrink-0 shadow-md">
                             📝
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                                 <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 uppercase tracking-wider">
-                                    Draft (only on this device)
+                                    Draft
                                 </span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+                                <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold truncate">
                                     {customTests.length} Unsaved Local Draft{customTests.length > 1 ? "s" : ""}
                                 </span>
                             </div>
-                            <h3 className="text-sm sm:text-base font-black text-gray-900 dark:text-white mt-0.5">
+                            <h3 className="text-xs sm:text-sm font-black text-gray-900 dark:text-white mt-0.5 truncate">
                                 {customTests[0].title}
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {customTests[0].questions || (customTests[0].questionsList ? customTests[0].questionsList.length : 5)} Questions • {customTests[0].durationMinutes || 10} Mins • Unsaved author draft
-                            </p>
                         </div>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                        <span className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-bold text-xs select-none cursor-not-allowed">
-                            Draft (only on this device)
-                        </span>
                     </div>
                 </div>
             )}
 
-            {/* Top Pass Hero Banner - Exact Testbook Pass Style */}
-            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#003B73] via-[#005B96] to-[#00A896] text-white shadow-xl p-5 sm:p-7 border border-white/10">
-                {/* Background ambient lighting */}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-10 left-1/3 w-60 h-60 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
-
-                {/* NEW Pill on top */}
-                <div className="mb-3">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#FF6A00] text-white uppercase tracking-wider shadow-xs">
-                        NEW
-                    </span>
-                </div>
-
-                {/* Main banner row */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
-                    <div className="space-y-2">
+            {/* Top Pass Hero Banner - Compact & Clean */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#003B73] via-[#005B96] to-[#00A896] text-white shadow-lg p-4 sm:p-6 border border-white/10">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+                    <div className="space-y-1.5 min-w-0">
                         <div className="flex items-center gap-2">
-                            <span className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center">
-                                aspirantbook
-                            </span>
-                            <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-xs text-[11px] font-black text-white tracking-widest border border-white/30 uppercase">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-700 text-white uppercase tracking-wider">
                                 PASS
                             </span>
+                            <span className="text-sm sm:text-base font-extrabold text-white tracking-tight">
+                                Unlock All Exam Test Series with Pass
+                            </span>
                         </div>
-                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
-                            Unlock All Test Series of All Exams with Pass!
-                        </h2>
+                        <p className="text-xs text-white/80 line-clamp-1">
+                            Full-length mocks, sectional tests, AI analytics, AIR leaderboards
+                        </p>
                     </div>
 
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                         <button
                             onClick={() => setIsPassModalOpen(true)}
-                            className="w-full sm:w-auto px-7 py-3 rounded-xl bg-[#00D084] hover:bg-[#00BA76] text-white font-extrabold text-sm sm:text-base shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"
+                            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
                         >
                             <span>Get Pass</span>
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRight className="h-3.5 w-3.5" />
                         </button>
-                    </div>
-                </div>
-
-                {/* Feature checkmark pills divider & list */}
-                <div className="mt-5 pt-4 border-t border-white/20 relative z-10">
-                    <div className="flex flex-wrap items-center gap-x-5 sm:gap-x-7 gap-y-2 text-xs sm:text-sm font-semibold text-white/95">
-                        <span className="flex items-center gap-1.5">
-                            <Check className="h-4 w-4 text-[#00D084] stroke-[3]" />
-                            Mock Tests
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                            <Check className="h-4 w-4 text-[#00D084] stroke-[3]" />
-                            Live Tests
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                            <Check className="h-4 w-4 text-[#00D084] stroke-[3]" />
-                            Study Notes
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                            <Check className="h-4 w-4 text-[#00D084] stroke-[3]" />
-                            Doubt Support
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                            <Check className="h-4 w-4 text-[#00D084] stroke-[3]" />
-                            PYPs
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                            <Check className="h-4 w-4 text-[#00D084] stroke-[3]" />
-                            Re-Attempt Mode
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                            <Check className="h-4 w-4 text-[#00D084] stroke-[3]" />
-                            Unlimited Practice
-                        </span>
                     </div>
                 </div>
             </div>
 
             {/* Section Header with Search Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
-                <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                <h1 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                     Test Series by Categories
                 </h1>
 
@@ -529,7 +466,7 @@ export default function TestSeriesPage() {
                         placeholder="Search Test Series"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#071d33] text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00A8FF]/40 shadow-2xs transition-all"
+                        className="w-full pl-10 pr-9 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#071d33] text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00A8FF]/40 shadow-2xs transition-all"
                     />
                     {searchQuery && (
                         <button
@@ -542,8 +479,8 @@ export default function TestSeriesPage() {
                 </div>
             </div>
 
-            {/* Category Pills Row */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            {/* Category Pills Row with data-scroll-x */}
+            <div data-scroll-x="true" className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
                 {CATEGORIES.map((cat) => {
                     const isSelected = selectedCategory === cat
                     return (
@@ -578,7 +515,7 @@ export default function TestSeriesPage() {
                                     setSelectedCategory("All")
                                     setSearchQuery("")
                                 }}
-                                className="mt-4 px-4 py-2 bg-[#00A8FF] text-white text-xs font-bold rounded-xl"
+                                className="mt-4 px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold rounded-xl"
                             >
                                 Reset Filters
                             </button>
@@ -608,7 +545,7 @@ export default function TestSeriesPage() {
                                             </div>
 
                                             {/* Title */}
-                                            <h3 className="text-sm sm:text-[15px] font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 min-h-[42px] group-hover:text-[#00A8FF] transition-colors">
+                                            <h3 className="text-sm sm:text-[15px] font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 min-h-[42px] group-hover:text-sky-700 dark:group-hover:text-sky-400 transition-colors">
                                                 {item.title}
                                             </h3>
 
@@ -616,13 +553,13 @@ export default function TestSeriesPage() {
                                             <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mt-2 flex items-center gap-1.5 flex-wrap">
                                                 <span>{item.totalTests} Total Tests</span>
                                                 <span className="text-gray-400">|</span>
-                                                <span className="text-[#00A86B] font-extrabold">
+                                                <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">
                                                     {item.freeTests} Free Tests
                                                 </span>
                                             </div>
 
                                             {/* Language Indicator */}
-                                            <div className="flex items-center gap-1.5 text-xs text-[#0070E0] font-medium mt-2">
+                                            <div className="flex items-center gap-1.5 text-xs text-sky-700 dark:text-sky-400 font-semibold mt-2">
                                                 <Globe className="h-3.5 w-3.5 flex-shrink-0" />
                                                 <span className="truncate">{item.languages}</span>
                                             </div>
@@ -638,7 +575,7 @@ export default function TestSeriesPage() {
                                                     </li>
                                                 ))}
                                                 <li className="pt-0.5">
-                                                    <span className="text-[#00A86B] font-bold text-xs">
+                                                    <span className="text-emerald-700 dark:text-emerald-400 font-bold text-xs">
                                                         +{item.moreTestsCount} more tests
                                                     </span>
                                                 </li>
@@ -648,7 +585,7 @@ export default function TestSeriesPage() {
                                             <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-800/80">
                                                 <Link
                                                     href={`/test-series/${item.id}`}
-                                                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] active:bg-[#0087cf] text-white font-bold text-xs sm:text-sm text-center shadow-xs transition-colors cursor-pointer flex items-center justify-center"
+                                                    className="flex-1 py-2.5 px-4 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs sm:text-sm text-center shadow-xs transition-colors cursor-pointer flex items-center justify-center min-h-[44px]"
                                                 >
                                                     View Test Series
                                                 </Link>
@@ -657,8 +594,8 @@ export default function TestSeriesPage() {
                                                     onClick={(e) => toggleSave(item.id, e)}
                                                     className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer flex-shrink-0 ${
                                                         isSaved
-                                                            ? "border-[#00D084] bg-[#00D084]/10 text-[#00D084]"
-                                                            : "border-[#00A8FF] text-[#00A8FF] hover:bg-[#00A8FF]/10"
+                                                            ? "border-emerald-700 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                                                            : "border-sky-700 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/20"
                                                     }`}
                                                     title={isSaved ? "Saved to your list" : "Save Test Series"}
                                                     aria-label="Add to saved test series"
@@ -686,7 +623,7 @@ export default function TestSeriesPage() {
                             <div className="flex items-center gap-3">
                                 <ExamLogo logoType={activeModalSeries.logoType} />
                                 <div>
-                                    <span className="text-[10px] font-black uppercase text-[#00A8FF] tracking-wider">
+                                    <span className="text-[10px] font-black uppercase text-sky-700 dark:text-sky-400 tracking-wider">
                                         {activeModalSeries.category}
                                     </span>
                                     <h3 className="text-lg font-black text-gray-900 dark:text-white leading-tight">
@@ -712,8 +649,8 @@ export default function TestSeriesPage() {
                                 <p className="text-lg font-black text-gray-900 dark:text-white">{activeModalSeries.totalTests}</p>
                             </div>
                             <div>
-                                <span className="text-[10px] text-emerald-600 font-bold uppercase">Free Tests</span>
-                                <p className="text-lg font-black text-emerald-600">{activeModalSeries.freeTests}</p>
+                                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase">Free Tests</span>
+                                <p className="text-lg font-black text-emerald-700 dark:text-emerald-400">{activeModalSeries.freeTests}</p>
                             </div>
                             <div>
                                 <span className="text-[10px] text-gray-400 font-bold uppercase">Active Learners</span>
@@ -731,7 +668,7 @@ export default function TestSeriesPage() {
                                         key={i}
                                         className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 text-xs font-semibold text-gray-800 dark:text-gray-200"
                                     >
-                                        <Check className="h-4 w-4 text-[#00A86B]" />
+                                        <Check className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
                                         <span>{h}</span>
                                     </div>
                                 ))}
@@ -741,7 +678,7 @@ export default function TestSeriesPage() {
                         <div className="flex items-center gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
                             <Link
                                 href={`/test-series/${activeModalSeries.id}`}
-                                className="flex-1 py-3 px-4 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-sm text-center shadow-md transition-colors"
+                                className="flex-1 py-3 px-4 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-sm text-center shadow-md transition-colors"
                             >
                                 Start Free Mock Test
                             </Link>
@@ -750,7 +687,7 @@ export default function TestSeriesPage() {
                                     setActiveModalSeries(null)
                                     setIsPassModalOpen(true)
                                 }}
-                                className="py-3 px-5 rounded-xl bg-[#00D084] hover:bg-[#00BA76] text-white font-bold text-sm text-center shadow-md transition-colors"
+                                className="py-3 px-5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm text-center shadow-md transition-colors"
                             >
                                 Unlock Full Pass
                             </button>
@@ -766,7 +703,7 @@ export default function TestSeriesPage() {
                         <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2">
                                 <span className="text-xl font-black text-gray-900 dark:text-white">aspirantbook</span>
-                                <span className="px-2 py-0.5 rounded-md bg-[#00A86B] text-[10px] font-black text-white tracking-widest uppercase">
+                                <span className="px-2 py-0.5 rounded-md bg-emerald-700 text-[10px] font-black text-white tracking-widest uppercase">
                                     PASS PRO
                                 </span>
                             </div>
@@ -805,7 +742,7 @@ export default function TestSeriesPage() {
 
                         <Link
                             href="/subscription"
-                            className="block w-full py-3.5 px-4 rounded-xl bg-[#00D084] hover:bg-[#00BA76] text-white font-extrabold text-sm text-center shadow-lg transition-transform active:scale-[0.99]"
+                            className="block w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm text-center shadow-lg transition-transform active:scale-[0.99]"
                         >
                             Subscribe Now - ₹399
                         </Link>

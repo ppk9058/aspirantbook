@@ -24,18 +24,18 @@ export default function BookStoreHeader({
   const userInitial = userName.charAt(0).toUpperCase()
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-gray-200/90 shadow-2xs">
+    <header className="sticky top-0 z-40 bg-white dark:bg-slate-800 border-b border-gray-200/90 dark:border-slate-700 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-6">
         {/* Brand / Logo */}
         <Link
           href="/books"
-          className="flex items-center gap-2.5 shrink-0 group focus:outline-none"
+          className="flex items-center gap-2.5 shrink-0 group focus:outline-none min-h-[44px]"
         >
           <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center font-black text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform">
             <span className="text-amber-400 font-serif text-base">T</span>S
           </div>
           <div className="hidden xs:flex flex-col">
-            <span className="text-lg font-black tracking-tight text-gray-900 group-hover:text-sky-600 transition-colors">
+            <span className="text-lg font-black tracking-tight text-gray-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
               Store
             </span>
           </div>
@@ -49,11 +49,11 @@ export default function BookStoreHeader({
               value={searchQuery}
               onChange={(e) => onSearchChange?.(e.target.value)}
               placeholder="Search Products..."
-              className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 bg-gray-50/70 focus:bg-white text-xs sm:text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-2xs"
+              className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/70 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-900 text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-2xs min-h-[44px]"
             />
             <button
               type="button"
-              className="absolute right-3 text-gray-400 hover:text-gray-700 transition-colors"
+              className="absolute right-3 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
             >
               <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </button>
@@ -65,13 +65,13 @@ export default function BookStoreHeader({
           {/* My Orders Button */}
           <Link
             href="/books/orders"
-            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 rounded-xl text-gray-700 hover:text-black hover:bg-gray-100 transition-all text-xs sm:text-sm font-bold relative group"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 min-h-[44px] rounded-xl text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 transition-all text-xs sm:text-sm font-bold relative group"
             title="View My Purchased eBooks & Orders"
           >
             <div className="relative">
-              <PackageCheck className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 group-hover:text-sky-600 transition-colors" />
+              <PackageCheck className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 dark:text-slate-300 group-hover:text-sky-600 transition-colors" />
               {orders.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-600 text-white rounded-full text-[10px] font-extrabold flex items-center justify-center">
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-700 text-white rounded-full text-[10px] font-extrabold flex items-center justify-center">
                   {orders.length}
                 </span>
               )}
@@ -82,13 +82,13 @@ export default function BookStoreHeader({
           {/* My Cart Button (User requirement: "My cart (instead of My bag)") */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 rounded-xl text-gray-700 hover:text-sky-700 hover:bg-sky-50 transition-all text-xs sm:text-sm font-bold relative group border border-transparent hover:border-sky-200"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 min-h-[44px] rounded-xl text-slate-700 dark:text-slate-300 hover:text-sky-700 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-slate-700 transition-all text-xs sm:text-sm font-bold relative group border border-transparent hover:border-sky-200"
             title="Open Flipkart-style My Cart"
           >
             <div className="relative">
-              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 group-hover:text-sky-600 transition-colors" />
+              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 dark:text-slate-300 group-hover:text-sky-600 transition-colors" />
               {totalCount > 0 && (
-                <span className="absolute -top-2 -right-2.5 min-w-5 h-5 px-1 bg-sky-600 text-white rounded-full text-[11px] font-extrabold flex items-center justify-center animate-in zoom-in-75 shadow-xs">
+                <span className="absolute -top-2 -right-2.5 min-w-5 h-5 px-1 bg-sky-700 text-white rounded-full text-[11px] font-extrabold flex items-center justify-center animate-in zoom-in-75 shadow-xs">
                   {totalCount}
                 </span>
               )}
@@ -99,7 +99,7 @@ export default function BookStoreHeader({
           {/* User Initial Avatar */}
           <Link
             href="/profile"
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold flex items-center justify-center text-xs sm:text-sm shadow-2xs hover:scale-105 transition-transform"
+            className="w-8 h-8 sm:w-9 sm:h-9 min-h-[36px] min-w-[36px] rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 font-extrabold flex items-center justify-center text-xs sm:text-sm shadow-2xs hover:scale-105 transition-transform"
             title={userName}
           >
             {userInitial}

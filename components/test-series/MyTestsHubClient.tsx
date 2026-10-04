@@ -254,7 +254,7 @@ export default function MyTestsHubClient({
                     </div>
                     <Link
                         href="/test-series"
-                        className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline"
+                        className="text-xs font-bold text-teal-700 dark:text-teal-400 hover:underline"
                     >
                         Browse all →
                     </Link>
@@ -274,7 +274,7 @@ export default function MyTestsHubClient({
                         </div>
                         <Link
                             href="/test-series"
-                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm transition-colors min-h-[44px]"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm transition-colors min-h-[44px]"
                         >
                             <Compass className="w-4 h-4" />
                             Browse Tests
@@ -303,7 +303,7 @@ export default function MyTestsHubClient({
                                                         {series.enrollType === "PASS" ? "✦ PASS" : "PURCHASED"}
                                                     </span>
                                                 )}
-                                                <span className="text-[11px] text-slate-400">
+                                                <span className="text-[11px] text-slate-600 dark:text-slate-400">
                                                     {series.languages}
                                                 </span>
                                             </div>
@@ -315,13 +315,13 @@ export default function MyTestsHubClient({
                                                 <div className="flex-1 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                                                     <div className="h-full bg-teal-500 rounded-full" style={{ width: `${Math.max(pct, 2)}%` }} />
                                                 </div>
-                                                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold whitespace-nowrap">
+                                                <span className="text-[11px] text-slate-600 dark:text-slate-400 font-semibold whitespace-nowrap">
                                                     {series.completedTests}/{series.totalTests} done
                                                 </span>
                                             </div>
                                             {series.nextTestTitle !== "No upcoming test" && (
-                                                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                                                    Next: <span className="font-semibold text-teal-600 dark:text-teal-400">{series.nextTestTitle}</span>
+                                                <p className="text-[11px] text-slate-600 dark:text-slate-400 truncate">
+                                                    Next: <span className="font-semibold text-teal-700 dark:text-teal-400">{series.nextTestTitle}</span>
                                                 </p>
                                             )}
                                         </div>
@@ -331,7 +331,7 @@ export default function MyTestsHubClient({
                                     <div className="flex items-center gap-2 shrink-0 sm:flex-col sm:items-end lg:flex-row">
                                         <Link
                                             href={series.nextTestUrl}
-                                            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs transition-all active:scale-[0.98] min-h-[40px] whitespace-nowrap"
+                                            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs transition-all active:scale-[0.98] min-h-[40px] whitespace-nowrap"
                                         >
                                             <Play className="w-3.5 h-3.5 fill-current" />
                                             Start Next Test
@@ -362,21 +362,21 @@ export default function MyTestsHubClient({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <span className="px-2 py-0.5 rounded bg-[#00A8FF]/10 text-[#00A8FF] text-[11px] font-bold uppercase tracking-wider">
+                            <span className="px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300 text-[11px] font-bold uppercase tracking-wider">
                                 STUDENT PERFORMANCE HUB
                             </span>
-                            <span className="text-xs text-slate-400">• Analytics &amp; Reports</span>
+                            <span className="text-xs text-slate-600 dark:text-slate-400">• Analytics &amp; Reports</span>
                         </div>
                         <h2 id="heading-perf" className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
                             My Test Series &amp; Attempt History
                         </h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                             Track your score progression, benchmark against All-India toppers, and review your Mistake Notebook.
                         </p>
                     </div>
                     <Link
                         href="/test-series"
-                        className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-sm shadow-md transition-all min-h-[44px]"
+                        className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-sm shadow-md transition-all min-h-[44px]"
                     >
                         <Play className="w-4 h-4 fill-current" />
                         Take More Mocks
@@ -384,69 +384,69 @@ export default function MyTestsHubClient({
                 </div>
 
                 {/* KPI Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tests Attempted</span>
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-[#00A8FF] flex items-center justify-center">
-                                <BookOpen className="w-4 h-4" />
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3 sm:p-5 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider truncate">Tests Attempted</span>
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-sky-800 dark:text-sky-300 flex items-center justify-center shrink-0">
+                                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </div>
                         </div>
-                        <div className="mt-2 flex items-baseline gap-1.5">
-                            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">{totalTestsTaken}</span>
-                            <span className="text-xs text-slate-400 font-semibold">Completed</span>
+                        <div className="mt-2 flex flex-wrap items-baseline gap-1.5">
+                            <span className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white">{totalTestsTaken}</span>
+                            <span className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 font-semibold">Completed</span>
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Average Percentile</span>
-                            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center justify-center">
-                                <TrendingUp className="w-4 h-4" />
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3 sm:p-5 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider truncate">Avg Percentile</span>
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 flex items-center justify-center shrink-0">
+                                <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </div>
                         </div>
-                        <div className="mt-2 flex items-baseline gap-1.5">
-                            <span className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
+                        <div className="mt-2 flex flex-wrap items-baseline gap-1.5">
+                            <span className="text-xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-400">
                                 {totalTestsTaken ? `${avgPercentile}%ile` : "—"}
                             </span>
-                            {totalTestsTaken > 0 && <span className="text-xs text-emerald-500 font-bold">Top Tier</span>}
+                            {totalTestsTaken > 0 && <span className="text-[11px] sm:text-xs text-emerald-700 dark:text-emerald-400 font-bold">Top Tier</span>}
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Best All India Rank</span>
-                            <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-500 flex items-center justify-center">
-                                <Trophy className="w-4 h-4" />
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3 sm:p-5 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider truncate">Best AIR</span>
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-500 flex items-center justify-center shrink-0">
+                                <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </div>
                         </div>
-                        <div className="mt-2 flex items-baseline gap-1.5">
-                            <span className="text-2xl sm:text-3xl font-black text-amber-500">
+                        <div className="mt-2 flex flex-wrap items-baseline gap-1.5">
+                            <span className="text-xl sm:text-3xl font-black text-amber-500">
                                 {bestRank > 0 ? `#${bestRank}` : "—"}
                             </span>
-                            {bestRank > 0 && <span className="text-xs text-slate-400">out of {recentAttempts[0]?.totalCandidates?.toLocaleString() ?? "—"}</span>}
+                            {bestRank > 0 && <span className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400">Rank</span>}
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mistake Notebook</span>
-                            <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center">
-                                <XCircle className="w-4 h-4" />
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3 sm:p-5 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider truncate">Mistakes</span>
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center shrink-0">
+                                <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </div>
                         </div>
-                        <div className="mt-2 flex items-baseline gap-1.5">
-                            <span className="text-2xl sm:text-3xl font-black text-red-500">{totalMistakes}</span>
-                            <span className="text-xs text-slate-400 font-semibold">Questions to Re-learn</span>
+                        <div className="mt-2 flex flex-wrap items-baseline gap-1.5">
+                            <span className="text-xl sm:text-3xl font-black text-red-600 dark:text-red-400">{totalMistakes}</span>
+                            <span className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 font-semibold">Review</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Performance sub-tabs */}
-                <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/60 max-w-md">
+                <div data-scroll-x="true" className="w-full sm:w-auto flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/60 max-w-md overflow-x-auto no-scrollbar snap-x">
                     {(["ATTEMPTS", "WEAK_AREAS", "BOOKMARKS"] as const).map((tab) => {
                         const labels: Record<string, string> = {
-                            ATTEMPTS: `Attempted Mocks (${recentAttempts.length})`,
+                            ATTEMPTS: `Attempted (${recentAttempts.length})`,
                             WEAK_AREAS: `Weak Areas (${WEAK_TOPICS.length})`,
                             BOOKMARKS: "Bookmarks (14)",
                         }
@@ -454,10 +454,10 @@ export default function MyTestsHubClient({
                             <button
                                 key={tab}
                                 onClick={() => setPerfTab(tab)}
-                                className={`flex-1 py-2 px-3 rounded-xl text-xs font-extrabold transition-all min-h-[44px] flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                                className={`shrink-0 flex-1 py-2 px-3 rounded-xl text-xs font-extrabold transition-all min-h-[44px] flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer snap-start ${
                                     perfTab === tab
                                         ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs"
-                                        : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                                        : "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                                 }`}
                             >
                                 {tab === "WEAK_AREAS" && <Sparkles className="w-3.5 h-3.5 text-amber-500" />}
@@ -471,12 +471,12 @@ export default function MyTestsHubClient({
                 {perfTab === "ATTEMPTS" && (
                     recentAttempts.length === 0 ? (
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-10 text-center space-y-3">
-                            <BookOpen className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto" />
+                            <BookOpen className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto" />
                             <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No test attempts yet</p>
-                            <p className="text-xs text-slate-500 max-w-xs mx-auto">
+                            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-xs mx-auto">
                                 Attempt a mock test to see your score, percentile, and All-India Rank here.
                             </p>
-                            <Link href="/test-series" className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#00A8FF] text-white text-xs font-bold min-h-[44px]">
+                            <Link href="/test-series" className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold min-h-[44px]">
                                 Take a Mock Test
                             </Link>
                         </div>
@@ -485,15 +485,15 @@ export default function MyTestsHubClient({
                             {recentAttempts.map((attempt) => (
                                 <div
                                     key={attempt.id}
-                                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xs hover:border-[#00A8FF]/40 transition-all space-y-4"
+                                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xs hover:border-sky-500/40 transition-all space-y-4"
                                 >
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="space-y-1 min-w-0">
                                             <div className="flex items-center gap-2">
-                                                <span className="px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-[#00A8FF] text-[10px] font-black uppercase">
+                                                <span className="px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-sky-800 dark:text-sky-300 text-[10px] font-black uppercase">
                                                     {attempt.examName}
                                                 </span>
-                                                <span className="text-xs text-slate-400">• Completed on {attempt.date}</span>
+                                                <span className="text-xs text-slate-500 dark:text-slate-400">• Completed on {attempt.date}</span>
                                             </div>
                                             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white line-clamp-2">
                                                 {attempt.title}
@@ -503,10 +503,10 @@ export default function MyTestsHubClient({
                                             <Link href={attempt.solutionUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors min-h-[44px] flex items-center">
                                                 Mistake Notebook
                                             </Link>
-                                            <Link href={attempt.leaderboardUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-purple-600 dark:text-purple-400 transition-colors min-h-[44px] flex items-center">
+                                            <Link href={attempt.leaderboardUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-purple-700 dark:text-purple-400 transition-colors min-h-[44px] flex items-center">
                                                 View AIR #{attempt.rank || "—"}
                                             </Link>
-                                            <Link href={attempt.reportUrl} className="px-4 py-2 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white text-xs font-extrabold transition-all min-h-[44px] flex items-center">
+                                            <Link href={attempt.reportUrl} className="px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-extrabold transition-all min-h-[44px] flex items-center">
                                                 Full Report →
                                             </Link>
                                         </div>
@@ -514,9 +514,9 @@ export default function MyTestsHubClient({
 
                                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-400">SCORE</p>
+                                            <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">SCORE</p>
                                             <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">
-                                                {attempt.score} <span className="text-xs text-slate-400 font-normal">/ {attempt.totalMarks}</span>
+                                                {attempt.score} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">/ {attempt.totalMarks}</span>
                                             </p>
                                         </div>
                                         <div>
@@ -526,23 +526,23 @@ export default function MyTestsHubClient({
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-400">ALL INDIA RANK</p>
+                                            <p className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">ALL INDIA RANK</p>
                                             <p className="text-base font-black text-amber-500 mt-0.5">
-                                                {attempt.rank > 0 ? <>#{attempt.rank} <span className="text-xs text-slate-400 font-normal">/ {attempt.totalCandidates}</span></> : "—"}
+                                                {attempt.rank > 0 ? <>#{attempt.rank} <span className="text-xs text-slate-600 dark:text-slate-400 font-normal">/ {attempt.totalCandidates}</span></> : "—"}
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-400">ACCURACY</p>
+                                            <p className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">ACCURACY</p>
                                             <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">{attempt.accuracy}%</p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-400">BREAKDOWN</p>
+                                            <p className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">BREAKDOWN</p>
                                             <p className="text-xs font-bold mt-1">
-                                                <span className="text-emerald-600 font-extrabold">+{attempt.correct}</span>
+                                                <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">+{attempt.correct}</span>
                                                 <span className="text-slate-300 mx-1">/</span>
-                                                <span className="text-rose-500 font-extrabold">-{attempt.wrong}</span>
+                                                <span className="text-rose-600 dark:text-rose-400 font-extrabold">-{attempt.wrong}</span>
                                                 <span className="text-slate-300 mx-1">/</span>
-                                                <span className="text-slate-400">{attempt.skipped} skip</span>
+                                                <span className="text-slate-600 dark:text-slate-400">{attempt.skipped} skip</span>
                                             </p>
                                         </div>
                                     </div>
@@ -556,9 +556,9 @@ export default function MyTestsHubClient({
                 {perfTab === "WEAK_AREAS" && (
                     recentAttempts.length === 0 ? (
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-10 text-center">
-                            <Sparkles className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                            <Sparkles className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto mb-3" />
                             <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No weak areas identified yet</p>
-                            <p className="text-xs text-slate-500 mt-1">Attempt tests for AI to diagnose your knowledge gaps.</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Attempt tests for AI to diagnose your knowledge gaps.</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -575,16 +575,16 @@ export default function MyTestsHubClient({
                                 {WEAK_TOPICS.map((item, i) => (
                                     <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 space-y-3">
                                         <div className="flex items-center justify-between">
-                                            <span className="px-2 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-600 text-[10px] font-black uppercase">
+                                            <span className="px-2 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-[10px] font-black uppercase">
                                                 Accuracy: {item.accuracy}%
                                             </span>
-                                            <span className="text-xs font-bold text-slate-400">{item.subject}</span>
+                                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">{item.subject}</span>
                                         </div>
                                         <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-snug">{item.topic}</h4>
-                                        <p className="text-xs text-red-500">Lost marks on {item.mistakes} questions</p>
+                                        <p className="text-xs text-red-600 dark:text-red-400">Lost marks on {item.mistakes} questions</p>
                                         <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-xs">
                                             <p className="font-bold text-slate-700 dark:text-slate-300">Action:</p>
-                                            <p className="text-slate-500 mt-0.5">{item.recAction}</p>
+                                            <p className="text-slate-600 dark:text-slate-400 mt-0.5">{item.recAction}</p>
                                         </div>
                                         <Link href="/test-series" className="block text-center py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors min-h-[40px] flex items-center justify-center">
                                             Practice Drills →
@@ -628,10 +628,10 @@ export default function MyTestsHubClient({
                 <section className="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4" aria-labelledby="heading-browse">
                     <div className="flex items-center justify-between">
                         <div>
-                            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Discover More Mocks</span>
+                            <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Discover More Mocks</span>
                             <h2 id="heading-browse" className="text-base font-black text-slate-900 dark:text-white mt-0.5">Browse Test Series</h2>
                         </div>
-                        <Link href="/test-series" className="inline-flex items-center gap-1 text-xs font-bold text-[#00A8FF] hover:underline">
+                        <Link href="/test-series" className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 dark:text-sky-400 hover:underline">
                             Full Catalog <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                     </div>
@@ -646,11 +646,11 @@ export default function MyTestsHubClient({
                                     </span>
                                 </div>
                                 <div className="flex-1">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase">{item.category}</span>
+                                    <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase">{item.category}</span>
                                     <h3 className="text-xs font-extrabold text-slate-900 dark:text-white line-clamp-2 mt-0.5">{item.title}</h3>
-                                    <p className="text-[11px] text-slate-500 mt-1">{item.totalTests} tests • {item.users} enrolled</p>
+                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{item.totalTests} tests • {item.users} enrolled</p>
                                 </div>
-                                <Link href={item.url} className="w-full inline-flex items-center justify-center gap-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-600 dark:hover:bg-emerald-600 text-slate-800 dark:text-slate-200 hover:text-white text-xs font-bold transition-all min-h-[40px]">
+                                <Link href={item.url} className="w-full inline-flex items-center justify-center gap-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-700 dark:hover:bg-emerald-700 text-slate-800 dark:text-slate-200 hover:text-white text-xs font-bold transition-all min-h-[44px]">
                                     Explore <ChevronRight className="w-3.5 h-3.5" />
                                 </Link>
                             </div>

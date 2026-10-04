@@ -135,7 +135,7 @@ export default async function ProfilePage() {
         : "FREE"
 
     return (
-        <div className="space-y-6 sm:space-y-8 pb-12">
+        <div className="space-y-6 sm:space-y-8 pb-32 sm:pb-24 lg:pb-12">
             {isDbError && (
                 <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs sm:text-sm flex items-center justify-between">
                     <span>⚠️ Database server is temporarily unreachable or waking up. Displaying your active session profile.</span>
@@ -144,27 +144,31 @@ export default async function ProfilePage() {
 
             {/* Header / Hero Profile Banner */}
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#05192D] via-[#0a2540] to-[#0d2f52] p-6 sm:p-8 text-white border border-gray-800 shadow-xl">
-                <div className="absolute top-0 right-0 w-72 h-72 bg-[#3AAFA9]/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-0 right-0 w-72 h-72 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
 
-                <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] text-white flex items-center justify-center font-extrabold text-3xl shadow-lg border-2 border-white/20 flex-shrink-0">
+                <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left min-w-0">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center font-extrabold text-3xl shadow-lg border-2 border-white/20 flex-shrink-0">
                         {userData.name?.[0]?.toUpperCase() || "U"}
                     </div>
 
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
-                            <h1 className="text-2xl sm:text-3xl font-black text-white">{userData.name || "Learner"}</h1>
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#3AAFA9]/20 text-[#3AAFA9] border border-[#3AAFA9]/30 uppercase tracking-wider">
+                            <h1 className="text-2xl sm:text-3xl font-black text-white truncate max-w-full">{userData.name || "Learner"}</h1>
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-teal-500/20 text-teal-300 border border-teal-500/30 uppercase tracking-wider">
                                 {userData.role === "ADMIN" ? "Admin" : subscriptionPlan}
                             </span>
                         </div>
 
-                        <p className="text-xs sm:text-sm text-gray-300 flex items-center justify-center sm:justify-start gap-2">
-                            <Mail className="h-3.5 w-3.5 text-gray-400" />
-                            <span>{userData.email}</span>
-                            <span className="text-gray-500">•</span>
-                            <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                            <span>Member since {new Date(userData.createdAt).getFullYear()}</span>
+                        <p className="text-xs sm:text-sm text-gray-300 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                            <span className="flex items-center gap-1.5 truncate max-w-full">
+                                <Mail className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                                <span className="truncate">{userData.email}</span>
+                            </span>
+                            <span className="text-gray-500 hidden sm:inline">•</span>
+                            <span className="flex items-center gap-1.5">
+                                <Calendar className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                                <span>Member since {new Date(userData.createdAt).getFullYear()}</span>
+                            </span>
                         </p>
 
                         {/* Gamification Strip */}
@@ -179,7 +183,7 @@ export default async function ProfilePage() {
                                 <span className="font-bold text-white">{userData.streak} Day Streak</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <Award className="h-4 w-4 text-[#1DB954]" />
+                                <Award className="h-4 w-4 text-emerald-400" />
                                 <span className="font-bold text-white">{totalAchievements} Badges</span>
                             </div>
                         </div>
@@ -187,13 +191,13 @@ export default async function ProfilePage() {
 
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 self-center sm:self-start">
                         <Link href="/purchases">
-                            <button className="px-4 py-2 bg-[#3AAFA9] hover:bg-[#2d8a85] text-white rounded-xl text-xs font-bold shadow-md shadow-[#3AAFA9]/25 transition-all flex items-center gap-1.5 hover:scale-102">
+                            <button className="px-4 py-2.5 min-h-[44px] bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5">
                                 <ShoppingBag className="h-3.5 w-3.5" />
                                 <span>My Purchases</span>
                             </button>
                         </Link>
                         <Link href="/settings">
-                            <button className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold border border-white/10 transition-colors">
+                            <button className="px-4 py-2.5 min-h-[44px] bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold border border-white/10 transition-colors">
                                 Edit Profile
                             </button>
                         </Link>
@@ -244,7 +248,7 @@ export default async function ProfilePage() {
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">Active Courses</h2>
-                    <Link href="/courses" className="text-xs font-semibold text-[#3AAFA9] hover:underline flex items-center gap-1">
+                    <Link href="/courses" className="text-xs font-semibold text-teal-700 dark:text-teal-400 hover:underline flex items-center gap-1 min-h-[44px]">
                         <span>Browse Catalog</span>
                         <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
@@ -262,24 +266,24 @@ export default async function ProfilePage() {
                                         <h3 className="font-bold text-sm text-gray-900 dark:text-white line-clamp-1">
                                             {enrollment.course.title}
                                         </h3>
-                                        <span className="text-xs font-bold text-[#3AAFA9]">
+                                        <span className="text-xs font-bold text-teal-700 dark:text-teal-400">
                                             {Math.round(enrollment.progressPercentage)}%
                                         </span>
                                     </div>
 
                                     <div className="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden mb-3">
                                         <div
-                                            className="bg-gradient-to-r from-[#3AAFA9] to-[#1DB954] h-full rounded-full"
+                                            className="bg-gradient-to-r from-teal-600 to-emerald-600 h-full rounded-full"
                                             style={{ width: `${enrollment.progressPercentage}%` }}
                                         />
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-800/80">
+                                <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 pt-2 border-t border-gray-100 dark:border-gray-800/80">
                                     <span>{enrollment.completedLessons} / {enrollment.totalLessons} lessons</span>
                                     <Link
                                         href={`/learn/${enrollment.course.slug}`}
-                                        className="text-[#3AAFA9] font-semibold hover:underline"
+                                        className="text-teal-700 dark:text-teal-400 font-semibold hover:underline min-h-[44px] flex items-center"
                                     >
                                         Continue →
                                     </Link>
@@ -288,10 +292,10 @@ export default async function ProfilePage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="p-10 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#05192D] text-center text-gray-500">
-                        <BookOpen className="h-8 w-8 mx-auto mb-2 text-gray-400 stroke-[1.5]" />
+                    <div className="p-10 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#05192D] text-center text-slate-600 dark:text-slate-400">
+                        <BookOpen className="h-8 w-8 mx-auto mb-2 text-slate-400 stroke-[1.5]" />
                         <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">No active course enrollments</p>
-                        <p className="text-xs text-gray-400 mt-1">Start your journey by enrolling in an interactive track.</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Start your journey by enrolling in an interactive track.</p>
                     </div>
                 )}
             </div>

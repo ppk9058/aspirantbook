@@ -302,9 +302,9 @@ export default function TestSeriesDetailPage() {
         }))
 
     return (
-        <div className="space-y-6 sm:space-y-8 pb-20">
-            {/* Breadcrumb Navigation */}
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+        <div className="space-y-6 sm:space-y-8 pb-40 sm:pb-32 lg:pb-12">
+            {/* Breadcrumb Navigation - hidden on mobile */}
+            <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                 <Link href="/" className="hover:text-gray-900 dark:hover:text-white transition-colors">
                     Home
                 </Link>
@@ -321,12 +321,12 @@ export default function TestSeriesDetailPage() {
             {/* Hero Card & Pass Widget Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 {/* Left Hero Card */}
-                <div className="lg:col-span-8 bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
-                    {/* Header Title & Seal */}
-                    <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-full bg-white dark:bg-gray-800 border-2 border-emerald-600/30 flex items-center justify-center p-1.5 shadow-xs flex-shrink-0">
+                <div className="lg:col-span-8 bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl p-5 sm:p-8 shadow-xs space-y-5">
+                    {/* Header Title & Seal: Stack vertically under sm (640px) */}
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+                        <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white dark:bg-gray-800 border-2 border-emerald-600/30 flex items-center justify-center p-1 sm:p-1.5 shadow-xs flex-shrink-0">
                             {currentSeries.logoType === "upsc" ? (
-                                <svg className="w-9 h-9" viewBox="0 0 100 100">
+                                <svg className="w-7 h-7 sm:w-9 sm:h-9" viewBox="0 0 100 100">
                                     <circle cx="50" cy="50" r="47" fill="#FFFDF5" stroke="#1F2937" strokeWidth="2.5" />
                                     <path d="M50 14 C44 14 40 18 40 23 C40 27 43 30 45 32 C41 33 37 37 37 42 C37 47 41 51 45 53 L45 61 L33 61 C31 61 30 63 30 65 L30 68 L70 68 L70 65 C70 63 69 61 67 61 L55 61 L55 53 C59 51 63 47 63 42 C63 37 59 33 55 32 C57 30 60 27 60 23 C60 18 56 14 50 14 Z" fill="#1F2937" />
                                     <circle cx="50" cy="74" r="5" fill="none" stroke="#003B73" strokeWidth="2" />
@@ -334,14 +334,14 @@ export default function TestSeriesDetailPage() {
                                     <text x="50" y="95" textAnchor="middle" fontSize="9" fontWeight="900" fill="#111827">UPSC</text>
                                 </svg>
                             ) : currentSeries.logoType === "ncert" ? (
-                                <svg className="w-9 h-9" viewBox="0 0 100 100">
+                                <svg className="w-7 h-7 sm:w-9 sm:h-9" viewBox="0 0 100 100">
                                     <circle cx="50" cy="50" r="47" fill="#F8FAFC" stroke="#2563EB" strokeWidth="2.5" />
                                     <path d="M25 65 L50 25 L75 65 Z" fill="#2563EB" />
                                     <circle cx="50" cy="48" r="8" fill="#FBBF24" />
                                     <text x="50" y="85" textAnchor="middle" fontSize="9" fontWeight="900" fill="#1E40AF">NCERT</text>
                                 </svg>
                             ) : (
-                                <svg className="w-9 h-9" viewBox="0 0 100 100">
+                                <svg className="w-7 h-7 sm:w-9 sm:h-9" viewBox="0 0 100 100">
                                     <circle cx="50" cy="50" r="47" fill="#F8FAFC" stroke="#047857" strokeWidth="2.5" />
                                     <path d="M50 16 C38 23 34 36 41 48 C43 52 47 55 49 60 C51 55 55 52 57 48 C64 36 60 23 50 16 Z" fill="#047857" />
                                     <circle cx="33" cy="38" r="4.5" fill="#D97706" />
@@ -353,12 +353,12 @@ export default function TestSeriesDetailPage() {
                             )}
                         </div>
 
-                        <div className="space-y-1">
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-900 dark:text-white leading-tight">
+                        <div className="space-y-1 min-w-0 flex-1">
+                            <h1 className="text-lg sm:text-2xl lg:text-3xl font-black text-gray-900 dark:text-white leading-snug break-words">
                                 {seriesData.title}
                             </h1>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5 pt-1">
-                                <Clock className="h-3.5 w-3.5 text-gray-400" />
+                            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5 pt-0.5">
+                                <Clock className="h-3.5 w-3.5 text-gray-400 shrink-0" />
                                 <span>Last updated on {seriesData.lastUpdated}</span>
                             </p>
                         </div>
@@ -368,7 +368,7 @@ export default function TestSeriesDetailPage() {
                     <div className="flex flex-wrap items-center gap-3 pt-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
                         <span className="font-bold text-gray-900 dark:text-white">{seriesData.totalTests} Total Tests</span>
                         <span className="text-gray-300 dark:text-gray-700">|</span>
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#00D084]/15 text-[#00A86B] font-extrabold border border-[#00D084]/30 text-xs">
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-extrabold border border-emerald-500/30 text-xs">
                             {seriesData.freeTests} FREE TESTS
                         </span>
                         <span className="text-gray-300 dark:text-gray-700">|</span>
@@ -424,7 +424,7 @@ export default function TestSeriesDetailPage() {
                 {/* Right Sticky Pass Widget (Exact Testbook Pass Style) */}
                 <div className="lg:col-span-4 bg-gradient-to-b from-[#003B73] via-[#005B96] to-[#00A896] text-white rounded-3xl p-6 shadow-xl relative overflow-hidden border border-white/10 sticky top-[76px]">
                     <div className="mb-3">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#FF6A00] text-white uppercase tracking-wider shadow-xs">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-700 text-white uppercase tracking-wider shadow-xs">
                             NEW
                         </span>
                     </div>
@@ -474,7 +474,7 @@ export default function TestSeriesDetailPage() {
 
                     <button
                         onClick={() => setIsPassModalOpen(true)}
-                        className="w-full mt-4 py-3 rounded-xl bg-[#00D084] hover:bg-[#00BA76] text-white font-extrabold text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer text-center"
+                        className="w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer text-center"
                     >
                         Get Pass
                     </button>
@@ -498,7 +498,7 @@ export default function TestSeriesDetailPage() {
                                     onClick={() => setActiveTab("mock")}
                                     className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
                                         activeTab === "mock"
-                                            ? "bg-[#00A8FF] text-white shadow-xs"
+                                            ? "bg-sky-700 text-white shadow-xs"
                                             : "bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/15"
                                     }`}
                                 >
@@ -509,7 +509,7 @@ export default function TestSeriesDetailPage() {
                                     onClick={() => setActiveTab("pyp")}
                                     className={`px-5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
                                         activeTab === "pyp"
-                                            ? "bg-[#00A8FF] text-white shadow-xs"
+                                            ? "bg-sky-700 text-white shadow-xs"
                                             : "bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/15"
                                     }`}
                                 >
@@ -567,7 +567,7 @@ export default function TestSeriesDetailPage() {
                                                     ({section.count})
                                                 </span>
                                                 {section.id === "teacher-tests" && (
-                                                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 uppercase">
+                                                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 uppercase">
                                                         Faculty Authored
                                                     </span>
                                                 )}
@@ -604,23 +604,23 @@ export default function TestSeriesDetailPage() {
                                                                     </h4>
                                                                     {isLocal ? (
                                                                         <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 uppercase">
-                                                                            Draft (only on this device)
+                                                                             Draft (only on this device)
                                                                         </span>
                                                                     ) : section.id === "teacher-tests" ? (
-                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-black bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 uppercase">
+                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-black bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-500/30 uppercase">
                                                                             Live Test
                                                                         </span>
                                                                     ) : (
-                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-gray-400 uppercase">
+                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 uppercase">
                                                                             Curriculum Sample
                                                                         </span>
                                                                     )}
                                                                     {test.isFree ? (
-                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#00D084]/15 text-[#00A86B] border border-[#00D084]/30 uppercase">
+                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 uppercase">
                                                                             Free
                                                                         </span>
                                                                     ) : (
-                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1 uppercase">
+                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1 uppercase">
                                                                             <Lock className="h-2.5 w-2.5" />
                                                                             Pro
                                                                         </span>
@@ -641,7 +641,7 @@ export default function TestSeriesDetailPage() {
                                                             <div className="flex items-center gap-2 flex-shrink-0">
                                                                 {section.id === "teacher-tests" ? (
                                                                     isLocal ? (
-                                                                        <span className="px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-xs font-semibold select-none cursor-not-allowed">
+                                                                        <span className="px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-semibold select-none cursor-not-allowed">
                                                                             Draft (only on this device)
                                                                         </span>
                                                                     ) : (
@@ -649,7 +649,7 @@ export default function TestSeriesDetailPage() {
                                                                             {canViewSolutions && (
                                                                                 <Link
                                                                                     href={solutionsHref}
-                                                                                    className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-emerald-500 hover:border-emerald-500/40 transition-colors flex items-center justify-center cursor-pointer"
+                                                                                    className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-emerald-600 hover:border-emerald-500/40 transition-colors flex items-center justify-center cursor-pointer"
                                                                                     title="View Solutions"
                                                                                     aria-label="View Solutions"
                                                                                 >
@@ -658,7 +658,7 @@ export default function TestSeriesDetailPage() {
                                                                             )}
                                                                             <Link
                                                                                 href={`/test-series/${test.id}/leaderboard`}
-                                                                                className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-[#00A8FF] hover:border-[#00A8FF]/40 transition-colors flex items-center justify-center cursor-pointer"
+                                                                                className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-sky-600 hover:border-sky-500/40 transition-colors flex items-center justify-center cursor-pointer"
                                                                                 title="View Leaderboard"
                                                                                 aria-label="View Leaderboard"
                                                                             >
@@ -667,7 +667,7 @@ export default function TestSeriesDetailPage() {
                                                                             {test.isFree ? (
                                                                                 <button
                                                                                     onClick={() => setSelectedTestToAttempt(test)}
-                                                                                    className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                                                                                    className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                                                                                 >
                                                                                     <Play className="h-3.5 w-3.5 fill-current" />
                                                                                     <span>Start Now</span>
@@ -675,7 +675,7 @@ export default function TestSeriesDetailPage() {
                                                                             ) : (
                                                                                 <button
                                                                                     onClick={() => setIsPassModalOpen(true)}
-                                                                                    className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl border border-[#00A8FF] text-[#00A8FF] hover:bg-[#00A8FF]/10 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                                                                                    className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl border border-sky-600 dark:border-sky-500 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-950/30 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                                                                                 >
                                                                                     <Lock className="h-3.5 w-3.5" />
                                                                                     <span>Unlock with Pass</span>
@@ -684,7 +684,7 @@ export default function TestSeriesDetailPage() {
                                                                         </>
                                                                     )
                                                                 ) : (
-                                                                    <span className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-gray-500 text-xs font-semibold select-none">
+                                                                    <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold select-none">
                                                                         Upcoming / Outline
                                                                     </span>
                                                                 )}
@@ -721,12 +721,12 @@ export default function TestSeriesDetailPage() {
                                         <p className="text-xs text-gray-500 dark:text-gray-400">
                                             <span>{item.totalTests} Total Tests</span>
                                             <span className="mx-1.5">•</span>
-                                            <span className={item.freeTests > 0 ? "text-[#00A86B] font-bold" : ""}>
+                                            <span className={item.freeTests > 0 ? "text-emerald-700 dark:text-emerald-400 font-bold" : ""}>
                                                 {item.freeTests} Free Tests
                                             </span>
                                         </p>
                                     </div>
-                                    <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-[#00A8FF] transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
+                                    <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-sky-600 transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
                                 </div>
                             </Link>
                         ))}
@@ -740,7 +740,7 @@ export default function TestSeriesDetailPage() {
                     <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5">
                         <div className="flex items-start justify-between">
                             <div>
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#00A8FF]">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-sky-700 dark:text-sky-400">
                                     Live Test Simulation
                                 </span>
                                 <h3 className="text-lg font-black text-gray-900 dark:text-white leading-tight">
@@ -794,7 +794,7 @@ export default function TestSeriesDetailPage() {
                             </button>
                             <Link
                                 href={`/test-series/${seriesId}/instructions?testId=${encodeURIComponent(selectedTestToAttempt?.id ?? "")}`}
-                                className="flex-1 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-xs text-center shadow-md transition-colors"
+                                className="flex-1 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs text-center shadow-md transition-colors"
                             >
                                 Start Test Now →
                             </Link>
@@ -810,7 +810,7 @@ export default function TestSeriesDetailPage() {
                         <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2">
                                 <span className="text-xl font-black text-gray-900 dark:text-white">aspirantbook</span>
-                                <span className="px-2 py-0.5 rounded-md bg-[#00A86B] text-[10px] font-black text-white tracking-widest uppercase">
+                                <span className="px-2 py-0.5 rounded-md bg-emerald-700 text-[10px] font-black text-white tracking-widest uppercase">
                                     PASS PRO
                                 </span>
                             </div>
@@ -849,13 +849,32 @@ export default function TestSeriesDetailPage() {
 
                         <Link
                             href="/subscription"
-                            className="block w-full py-3.5 px-4 rounded-xl bg-[#00D084] hover:bg-[#00BA76] text-white font-extrabold text-sm text-center shadow-lg transition-transform active:scale-[0.99]"
+                            className="block w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm text-center shadow-lg transition-transform active:scale-[0.99]"
                         >
                             Subscribe Now - ₹399
                         </Link>
                     </div>
                 </div>
             )}
+
+            {/* Mobile Sticky Action Bar above bottom nav */}
+            <div className="sm:hidden fixed bottom-[calc(3.75rem+env(safe-area-inset-bottom,0px))] left-0 right-0 p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-30 shadow-lg flex items-center justify-between gap-3 select-none">
+                <div className="min-w-0 flex-1">
+                    <div className="text-xs font-black truncate text-slate-900 dark:text-white">
+                        {seriesData.title}
+                    </div>
+                    <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">
+                        {seriesData.freeTests} Free Tests Available
+                    </div>
+                </div>
+                <div className="shrink-0">
+                    <EnrollButton
+                        seriesId={seriesId}
+                        isFree={currentSeries?.freeTests ? currentSeries.freeTests > 0 : false}
+                        size="sm"
+                    />
+                </div>
+            </div>
         </div>
     )
 }

@@ -69,7 +69,7 @@ export default function EnrollButton({
     }
 
     const sizeClasses = {
-        sm: "px-4 py-2 text-xs min-h-[36px]",
+        sm: "px-4 py-2 text-xs min-h-[44px]",
         md: "px-6 py-2.5 text-sm min-h-[44px]",
         lg: "px-8 py-3 text-base min-h-[48px]",
     }
@@ -90,7 +90,7 @@ export default function EnrollButton({
         return (
             <button
                 disabled
-                className={`rounded-xl font-extrabold flex items-center justify-center gap-2 bg-emerald-500 text-white cursor-default ${sizeClasses[size]} ${className}`}
+                className={`rounded-xl font-extrabold flex items-center justify-center gap-2 bg-emerald-700 text-white cursor-default ${sizeClasses[size]} ${className}`}
                 aria-label="Already enrolled"
             >
                 <CheckCheck className="w-4 h-4 stroke-[2.5]" />
@@ -105,8 +105,8 @@ export default function EnrollButton({
             disabled={enrolling}
             className={`rounded-xl font-extrabold flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
                 isFree
-                    ? "bg-[#00A8FF] hover:bg-[#0096e6] text-white shadow-md"
-                    : "bg-[#00D084] hover:bg-[#00BA76] text-white shadow-md"
+                    ? "bg-sky-700 hover:bg-sky-800 text-white shadow-md"
+                    : "bg-emerald-700 hover:bg-emerald-800 text-white shadow-md"
             } ${sizeClasses[size]} ${className}`}
             aria-label={isFree ? "Enroll Free" : "Get Pass"}
         >

@@ -29,7 +29,7 @@ export default function HomeHeaderUserCTA() {
                 <Link
                     href={dashboardHref}
                     prefetch={true}
-                    className="px-3.5 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-[#F26522] to-[#FF7A00] text-white font-bold text-xs sm:text-sm hover:opacity-95 transition-all shadow-xs flex items-center gap-1.5"
+                    className="hidden sm:flex px-3.5 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold text-xs sm:text-sm hover:opacity-95 transition-all shadow-xs items-center gap-1.5"
                 >
                     <span>Dashboard</span>
                     <ArrowRight className="h-3.5 w-3.5" />

@@ -91,6 +91,7 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
     return (
         <nav
             aria-label="Mobile Bottom Navigation"
+            data-mobile-bottom-nav="true"
             className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] select-none safe-area-bottom"
         >
             <div className="flex items-center justify-around h-15 px-2">
@@ -106,8 +107,8 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
                             aria-current={active ? "page" : undefined}
                             className={`flex flex-col items-center justify-center flex-1 h-full min-h-[44px] py-1 text-xs transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:rounded-lg ${
                                 active
-                                    ? "text-teal-600 dark:text-teal-400 font-extrabold"
-                                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-medium"
+                                    ? "text-teal-700 dark:text-teal-400 font-extrabold"
+                                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-medium"
                             }`}
                         >
                             <div className="relative">
@@ -117,14 +118,14 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
                                     }`}
                                 />
                                 {tab.badge && (
-                                    <span className="absolute -top-1 -right-2 text-[8px] font-black px-1 rounded-full bg-emerald-500 text-white leading-tight">
+                                    <span className="absolute -top-1 -right-2 text-[8px] font-black px-1 rounded-full bg-emerald-700 text-white leading-tight">
                                         {tab.badge}
                                     </span>
                                 )}
                                 {active && (
                                     <span
                                         aria-hidden="true"
-                                        className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-teal-600 dark:bg-teal-400 rounded-full"
+                                        className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-teal-700 dark:bg-teal-400 rounded-full"
                                     />
                                 )}
                             </div>

@@ -147,7 +147,7 @@ export default function ClassesTabsClient({ tabs, children }: ClassesTabsClientP
             <div className="sticky top-20 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-2xs py-3.5 mb-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     {/* Horizontal Class Pills List */}
-                    <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-1">
+                    <div data-scroll-x="true" className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-1">
                         {tabs.map((tab, idx) => {
                             const isSelected = selectedTab === tab.id
                             return (

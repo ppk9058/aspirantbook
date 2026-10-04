@@ -1027,23 +1027,23 @@ export default function PreviousYearQuestionsPage() {
     }
 
     return (
-        <div className="space-y-8 sm:space-y-10 pb-20 text-gray-900 dark:text-gray-100 font-sans">
+        <div className="space-y-8 sm:space-y-10 pb-32 sm:pb-24 lg:pb-12 text-gray-900 dark:text-gray-100 font-sans">
             {/* ── TOP UTILITY SEARCH & PASS HEADER (Matches Image 1) ── */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-1">
                 {/* Search Bar */}
                 <div className="relative flex-1 max-w-xl">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search for UPSC, BPSC, Class 10th, 12th papers, subjects..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-2xs transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 min-h-[44px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-2xs transition-all"
                     />
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery("")}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
                         >
                             <X className="h-4 w-4" />
                         </button>
@@ -1051,14 +1051,14 @@ export default function PreviousYearQuestionsPage() {
                 </div>
 
                 {/* Right Quick Controls: Language & Get Pass */}
-                <div className="flex items-center gap-3 self-end sm:self-auto">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
+                    <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-slate-700 dark:text-slate-300">
                         <span>🇮🇳 English / हिंदी</span>
                     </div>
 
                     <Link
                         href="/pricing"
-                        className="px-5 py-2 rounded-xl bg-[#00C853] hover:bg-[#00B248] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all flex items-center gap-1.5 shrink-0"
+                        className="px-5 py-2.5 min-h-[44px] rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all flex items-center gap-1.5 shrink-0"
                     >
                         <Zap className="h-3.5 w-3.5 fill-current" />
                         <span>Get Pass</span>
@@ -1069,14 +1069,14 @@ export default function PreviousYearQuestionsPage() {
             {/* ── PROMOTIONAL TRANSLUCENT GRADIENT BANNER (Exact Style from Image 1) ── */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#03346E] via-[#02569B] to-[#0288D1] text-white p-6 sm:p-8 shadow-lg">
                 {/* Decorative Background Circles */}
-                <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute right-0 bottom-0 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
                 <div className="absolute right-40 top-0 w-32 h-32 bg-cyan-400/20 rounded-full blur-xl pointer-events-none" />
 
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="space-y-3 max-w-2xl">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 min-w-0">
+                    <div className="space-y-3 max-w-2xl min-w-0">
                         {/* New Badge & Pass Logo */}
                         <div className="flex items-center gap-2.5">
-                            <span className="bg-[#FF9100] text-gray-900 text-[11px] font-black uppercase px-2.5 py-0.5 rounded-md tracking-wider">
+                            <span className="bg-amber-400 text-gray-950 text-[11px] font-black uppercase px-2.5 py-0.5 rounded-md tracking-wider">
                                 NEW
                             </span>
                             <div className="flex items-center gap-1 text-lg font-black tracking-tight">
@@ -1088,30 +1088,30 @@ export default function PreviousYearQuestionsPage() {
                         </div>
 
                         {/* Banner Main Title */}
-                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white leading-snug">
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white leading-snug break-words">
                             Unlock All Previous Year Papers of All Exams with Pass!
                         </h1>
 
                         {/* Feature Checklist Pills matching screenshot */}
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs font-semibold text-cyan-100">
                             <span className="flex items-center gap-1.5">
-                                <Check className="h-4 w-4 text-[#00E676] stroke-[3]" />
+                                <Check className="h-4 w-4 text-emerald-400 stroke-[3]" />
                                 Actual Official Papers
                             </span>
                             <span className="flex items-center gap-1.5">
-                                <Check className="h-4 w-4 text-[#00E676] stroke-[3]" />
+                                <Check className="h-4 w-4 text-emerald-400 stroke-[3]" />
                                 Step-by-Step Solutions
                             </span>
                             <span className="flex items-center gap-1.5">
-                                <Check className="h-4 w-4 text-[#00E676] stroke-[3]" />
+                                <Check className="h-4 w-4 text-emerald-400 stroke-[3]" />
                                 CBT Re-Attempt Mode
                             </span>
                             <span className="flex items-center gap-1.5">
-                                <Check className="h-4 w-4 text-[#00E676] stroke-[3]" />
+                                <Check className="h-4 w-4 text-emerald-400 stroke-[3]" />
                                 Bilingual (Hindi & English)
                             </span>
                             <span className="flex items-center gap-1.5">
-                                <Check className="h-4 w-4 text-[#00E676] stroke-[3]" />
+                                <Check className="h-4 w-4 text-emerald-400 stroke-[3]" />
                                 Unlimited Practice
                             </span>
                         </div>
@@ -1121,7 +1121,7 @@ export default function PreviousYearQuestionsPage() {
                     <div className="shrink-0">
                         <Link
                             href="/pricing"
-                            className="inline-flex items-center justify-center px-7 py-3 rounded-xl bg-[#00C853] hover:bg-[#00B248] text-white font-black text-sm tracking-wide shadow-md hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+                            className="inline-flex items-center justify-center px-7 py-3 min-h-[44px] rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm tracking-wide shadow-md hover:shadow-xl transition-all duration-200"
                         >
                             Get Pass
                         </Link>
@@ -1135,7 +1135,7 @@ export default function PreviousYearQuestionsPage() {
                     <h2 className="text-lg sm:text-xl font-black tracking-tight text-gray-900 dark:text-white">
                         Your Enrolled Exams
                     </h2>
-                    <span className="text-xs font-semibold text-gray-500">
+                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
                         {enrolledExams.length} Active Targets
                     </span>
                 </div>

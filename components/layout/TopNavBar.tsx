@@ -27,9 +27,9 @@ export default function TopNavBar() {
 
     return (
         <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/95 dark:bg-[#05192D]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 z-50 transition-colors">
-            <div className="h-full px-4 sm:px-6 flex items-center justify-between">
+            <div className="h-full px-2.5 sm:px-6 flex items-center justify-between gap-2 min-w-0">
                 {/* Logo & Goal Context Selector */}
-                <div className="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
+                <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink-0">
                     <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0">
                         <div className="w-8 h-8 bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] rounded-lg flex items-center justify-center shadow-sm">
                             <span className="text-white font-bold text-lg">T</span>

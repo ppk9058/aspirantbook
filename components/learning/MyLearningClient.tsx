@@ -152,14 +152,14 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                     </div>
 
                     {/* View Switcher: Cards vs List */}
-                    <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-xl self-start sm:self-center border border-gray-200">
+                    <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-xl self-start sm:self-center border border-gray-200 dark:border-slate-700">
                         <button
                             type="button"
                             onClick={() => setViewMode("cards")}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer min-h-[40px] ${
                                 viewMode === "cards"
-                                    ? "bg-white text-[#10162F] shadow-xs"
-                                    : "text-gray-500 hover:text-gray-800"
+                                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs"
+                                    : "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                             }`}
                         >
                             <LayoutGrid className="w-3.5 h-3.5" />
@@ -168,10 +168,10 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                         <button
                             type="button"
                             onClick={() => setViewMode("list")}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer min-h-[40px] ${
                                 viewMode === "list"
-                                    ? "bg-white text-[#10162F] shadow-xs"
-                                    : "text-gray-500 hover:text-gray-800"
+                                    ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs"
+                                    : "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                             }`}
                         >
                             <List className="w-3.5 h-3.5" />

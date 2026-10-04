@@ -57,7 +57,7 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                                 <span className="text-white font-extrabold text-sm">T</span>
                             </div>
                             <span className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight">
-                                aspirant<span className="text-teal-600 dark:text-teal-400">book</span>
+                                aspirant<span className="text-teal-700 dark:text-teal-400">book</span>
                             </span>
                         </Link>
                     </div>

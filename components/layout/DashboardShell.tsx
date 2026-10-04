@@ -32,12 +32,15 @@ export default function DashboardShell({
     }, [])
 
     const effectiveRole = session?.user?.role || demoRole || "STUDENT"
-    // Pass and student status check
-    const isStudent = effectiveRole === "STUDENT" || effectiveRole === "FREE"
+    // Pass and student status check - learners include FREE, PREMIUM, or STUDENT
+    const isStudent = effectiveRole !== "TEACHER" && effectiveRole !== "ADMIN"
     const isMobileNativeActive = IS_MOBILE_NATIVE_SHELL_ENABLED && isStudent
 
     // Check pass status from session if available
-    const hasActivePass = session?.user?.subscriptionStatus === "ACTIVE"
+    const hasActivePass =
+        session?.user?.subscriptionStatus === "ACTIVE" ||
+        effectiveRole === "PREMIUM" ||
+        (session?.user as any)?.role === "PREMIUM"
 
     // Completely hide leftsidebar on video course pages to prevent distraction
     const isVideoCoursePage = Boolean(
@@ -107,11 +110,11 @@ export default function DashboardShell({
                         ? "lg:ml-0 pt-0 p-0"
                         : isBooksPage
                         ? isCollapsed
-                            ? "lg:ml-[68px] pt-0 p-0"
-                            : "lg:ml-[240px] pt-0 p-0"
+                            ? "lg:ml-[68px] pt-0 pb-32 sm:pb-24 lg:pb-8 px-0"
+                            : "lg:ml-[240px] pt-0 pb-32 sm:pb-24 lg:pb-8 px-0"
                         : isCollapsed
-                        ? "lg:ml-[68px] pt-[60px] pb-20 lg:pb-8 px-4 sm:px-6 lg:px-8 py-6"
-                        : "lg:ml-[240px] pt-[60px] pb-20 lg:pb-8 px-4 sm:px-6 lg:px-8 py-6"
+                        ? "lg:ml-[68px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8"
+                        : "lg:ml-[240px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8"
                 }`}
             >
                 <div className={isVideoCoursePage || isBooksPage ? "w-full mx-auto" : "max-w-7xl mx-auto space-y-6"}>

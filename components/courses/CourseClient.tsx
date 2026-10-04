@@ -310,7 +310,7 @@ export default function CourseClient({
                     {filterByGoal && (
                         <button
                             onClick={() => setFilterByGoal(false)}
-                            className="text-xs font-semibold text-teal-600 hover:underline"
+                            className="text-xs font-semibold text-teal-700 dark:text-teal-400 hover:underline"
                         >
                             View all courses
                         </button>

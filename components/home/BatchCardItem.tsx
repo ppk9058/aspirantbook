@@ -136,28 +136,28 @@ export default function BatchCardItem({ batch, liveDemoBadge }: BatchCardItemPro
                 <div className="p-5 space-y-4">
                     {/* Class Tag and Language Tag Row */}
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#F26522]">
+                        <span className="text-xs font-bold text-orange-700">
                             {batch.classTag}
                         </span>
-                        <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded uppercase tracking-wider">
+                        <span className="text-[10px] font-bold text-gray-700 bg-gray-100 px-2.5 py-0.5 rounded uppercase tracking-wider">
                             {batch.language}
                         </span>
                     </div>
 
                     {/* Course Title */}
-                    <h3 className="font-extrabold text-base sm:text-lg text-gray-900 group-hover:text-[#5B47FB] transition-colors line-clamp-1 leading-snug">
+                    <h3 className="font-extrabold text-base sm:text-lg text-gray-900 group-hover:text-indigo-700 transition-colors line-clamp-1 leading-snug">
                         {batch.title}
                     </h3>
 
                     {/* Syllabus / Target Meta */}
                     <div className="space-y-2 text-xs text-gray-600">
                         <div className="flex items-start gap-2.5">
-                            <BookOpen className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                            <BookOpen className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
                             <span className="leading-tight">{batch.targetText}</span>
                         </div>
                         <div className="flex items-start gap-2.5">
-                            <Calendar className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                            <span className="leading-tight text-gray-500">{batch.scheduleText}</span>
+                            <Calendar className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <span className="leading-tight text-gray-600">{batch.scheduleText}</span>
                         </div>
                     </div>
                 </div>
@@ -172,13 +172,13 @@ export default function BatchCardItem({ batch, liveDemoBadge }: BatchCardItemPro
                             {batch.price}
                         </span>
                         {batch.originalPrice && (
-                            <span className="text-xs text-gray-400 line-through">
+                            <span className="text-xs text-gray-600 line-through">
                                 {batch.originalPrice}
                             </span>
                         )}
                     </div>
                     {batch.discount && (
-                        <span className="text-[11px] font-bold text-emerald-600 block -mt-0.5">
+                        <span className="text-[11px] font-bold text-emerald-700 block -mt-0.5">
                             {batch.discount}
                         </span>
                     )}
@@ -194,8 +194,8 @@ export default function BatchCardItem({ batch, liveDemoBadge }: BatchCardItemPro
                             isComingSoon
                                 ? "bg-amber-500 hover:bg-amber-600 text-gray-950 font-black shadow-amber-200"
                                 : isFree
-                                ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200"
-                                : "bg-[#5B47FB] hover:bg-[#4A38E8] text-white shadow-indigo-200"
+                                ? "bg-emerald-700 hover:bg-emerald-800 text-white shadow-emerald-200"
+                                : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200"
                         }`}
                     >
                         {isEnrolling ? (
