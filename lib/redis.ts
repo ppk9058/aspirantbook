@@ -1,44 +1,55 @@
 import Redis from 'ioredis'
 
-// Create Redis client
-const getRedisUrl = () => {
-    if (process.env.REDIS_URL) {
-        return process.env.REDIS_URL
-    }
+// In-memory fallback stores when REDIS_URL is not configured
+const memoryCache = new Map<string, { value: string; expiresAt: number }>()
+const memoryLeaderboard = new Map<string, number>()
+const memoryRateLimits = new Map<string, { count: number; resetAt: number }>()
 
-    // Default to local Redis for development
-    return 'redis://localhost:6379'
+const getRedisUrl = () => {
+    return process.env.REDIS_URL || null
 }
 
-// Singleton pattern for Redis client
 class RedisClient {
     private static instance: Redis | null = null
+    private static hasAttemptedConnect = false
 
-    static getInstance(): Redis {
-        if (!RedisClient.instance) {
-            RedisClient.instance = new Redis(getRedisUrl(), {
-                maxRetriesPerRequest: 3,
-                retryStrategy(times) {
-                    const delay = Math.min(times * 50, 2000)
-                    return delay
-                },
-                reconnectOnError(err) {
-                    const targetError = 'READONLY'
-                    if (err.message.includes(targetError)) {
-                        // Reconnect on READONLY errors
-                        return true
+    static getInstance(): Redis | null {
+        const url = getRedisUrl()
+        if (!url) {
+            return null
+        }
+
+        if (!RedisClient.instance && !RedisClient.hasAttemptedConnect) {
+            RedisClient.hasAttemptedConnect = true
+            try {
+                RedisClient.instance = new Redis(url, {
+                    lazyConnect: true,
+                    enableOfflineQueue: false,
+                    maxRetriesPerRequest: 1,
+                    connectTimeout: 500,
+                    retryStrategy(times) {
+                        if (times > 1) return null
+                        return 100
+                    },
+                    reconnectOnError(err) {
+                        return err.message.includes('READONLY')
+                    },
+                })
+
+                RedisClient.instance.on('error', (err) => {
+                    // Log warning without flooding console
+                    if (process.env.NODE_ENV !== 'production') {
+                        console.warn('[Redis] Connection warning:', err?.message || err)
                     }
-                    return false
-                },
-            })
+                })
 
-            RedisClient.instance.on('error', (err) => {
-                console.error('Redis Client Error:', err)
-            })
-
-            RedisClient.instance.on('connect', () => {
-                console.log('Redis Client Connected')
-            })
+                RedisClient.instance.on('connect', () => {
+                    console.log('[Redis] Connected successfully')
+                })
+            } catch (initErr) {
+                console.warn('[Redis] Failed to initialize client:', initErr)
+                RedisClient.instance = null
+            }
         }
 
         return RedisClient.instance
@@ -46,8 +57,11 @@ class RedisClient {
 
     static async disconnect() {
         if (RedisClient.instance) {
-            await RedisClient.instance.quit()
+            try {
+                await RedisClient.instance.quit()
+            } catch {}
             RedisClient.instance = null
+            RedisClient.hasAttemptedConnect = false
         }
     }
 }
@@ -56,11 +70,25 @@ export const redis = RedisClient.getInstance()
 
 // Cache helper functions
 export async function getCached<T>(key: string): Promise<T | null> {
+    const client = RedisClient.getInstance()
+    if (client) {
+        try {
+            const cached = await client.get(key)
+            return cached ? JSON.parse(cached) : null
+        } catch {
+            // Fall back to memory cache
+        }
+    }
+
+    const item = memoryCache.get(key)
+    if (!item) return null
+    if (Date.now() > item.expiresAt) {
+        memoryCache.delete(key)
+        return null
+    }
     try {
-        const cached = await redis.get(key)
-        return cached ? JSON.parse(cached) : null
-    } catch (error) {
-        console.error('Redis get error:', error)
+        return JSON.parse(item.value)
+    } catch {
         return null
     }
 }
@@ -70,80 +98,116 @@ export async function setCache(
     value: any,
     ttlSeconds: number = 1800 // 30 minutes default
 ): Promise<void> {
-    try {
-        await redis.setex(key, ttlSeconds, JSON.stringify(value))
-    } catch (error) {
-        console.error('Redis set error:', error)
+    const serialized = JSON.stringify(value)
+    const client = RedisClient.getInstance()
+    if (client) {
+        try {
+            await client.setex(key, ttlSeconds, serialized)
+            return
+        } catch {}
     }
+
+    memoryCache.set(key, {
+        value: serialized,
+        expiresAt: Date.now() + ttlSeconds * 1000,
+    })
 }
 
 export async function deleteCache(key: string): Promise<void> {
-    try {
-        await redis.del(key)
-    } catch (error) {
-        console.error('Redis delete error:', error)
+    const client = RedisClient.getInstance()
+    if (client) {
+        try {
+            await client.del(key)
+        } catch {}
     }
+    memoryCache.delete(key)
 }
 
 export async function deleteCachePattern(pattern: string): Promise<void> {
-    try {
-        const keys = await redis.keys(pattern)
-        if (keys.length > 0) {
-            await redis.del(...keys)
-        }
-    } catch (error) {
-        console.error('Redis delete pattern error:', error)
+    const client = RedisClient.getInstance()
+    if (client) {
+        try {
+            const keys = await client.keys(pattern)
+            if (keys.length > 0) {
+                await client.del(...keys)
+            }
+        } catch {}
     }
+
+    const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$')
+    Array.from(memoryCache.keys()).forEach((k) => {
+        if (regex.test(k)) {
+            memoryCache.delete(k)
+        }
+    })
 }
 
-// Leaderboard functions using Redis Sorted Sets
+// Leaderboard functions
 export async function updateLeaderboard(
     userId: string,
     xp: number
 ): Promise<void> {
-    try {
-        await redis.zadd('leaderboard:global', xp, userId)
-    } catch (error) {
-        console.error('Redis leaderboard update error:', error)
+    const client = RedisClient.getInstance()
+    if (client) {
+        try {
+            await client.zadd('leaderboard:global', xp, userId)
+            return
+        } catch {}
     }
+
+    memoryLeaderboard.set(userId, xp)
 }
 
 export async function getLeaderboard(
     limit: number = 100,
     offset: number = 0
 ): Promise<Array<{ userId: string; xp: number; rank: number }>> {
-    try {
-        const results = await redis.zrevrange(
-            'leaderboard:global',
-            offset,
-            offset + limit - 1,
-            'WITHSCORES'
-        )
+    const client = RedisClient.getInstance()
+    if (client) {
+        try {
+            const results = await client.zrevrange(
+                'leaderboard:global',
+                offset,
+                offset + limit - 1,
+                'WITHSCORES'
+            )
 
-        const leaderboard: Array<{ userId: string; xp: number; rank: number }> = []
-        for (let i = 0; i < results.length; i += 2) {
-            leaderboard.push({
-                userId: results[i],
-                xp: parseInt(results[i + 1]),
-                rank: offset + i / 2 + 1,
-            })
-        }
+            const leaderboard: Array<{ userId: string; xp: number; rank: number }> = []
+            for (let i = 0; i < results.length; i += 2) {
+                leaderboard.push({
+                    userId: results[i],
+                    xp: parseInt(results[i + 1]),
+                    rank: offset + i / 2 + 1,
+                })
+            }
 
-        return leaderboard
-    } catch (error) {
-        console.error('Redis leaderboard get error:', error)
-        return []
+            return leaderboard
+        } catch {}
     }
+
+    const sorted = Array.from(memoryLeaderboard.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(offset, offset + limit)
+
+    return sorted.map(([userId, xp], idx) => ({
+        userId,
+        xp,
+        rank: offset + idx + 1,
+    }))
 }
 
 export async function getUserRank(userId: string): Promise<number | null> {
-    try {
-        const rank = await redis.zrevrank('leaderboard:global', userId)
-        return rank !== null ? rank + 1 : null
-    } catch (error) {
-        console.error('Redis get rank error:', error)
-        return null
+    const client = RedisClient.getInstance()
+    if (client) {
+        try {
+            const rank = await client.zrevrank('leaderboard:global', userId)
+            return rank !== null ? rank + 1 : null
+        } catch {}
     }
+
+    const sorted = Array.from(memoryLeaderboard.entries()).sort((a, b) => b[1] - a[1])
+    const index = sorted.findIndex(([id]) => id === userId)
+    return index !== -1 ? index + 1 : null
 }
 
 // Rate limiting
@@ -152,23 +216,30 @@ export async function checkRateLimit(
     limit: number,
     windowSeconds: number
 ): Promise<{ allowed: boolean; remaining: number }> {
-    try {
-        const current = await redis.incr(key)
-
-        if (current === 1) {
-            // First request, set expiry
-            await redis.expire(key, windowSeconds)
-        }
-
-        const allowed = current <= limit
-        const remaining = Math.max(0, limit - current)
-
-        return { allowed, remaining }
-    } catch (error) {
-        console.error('Redis rate limit error:', error)
-        // Allow request on error
-        return { allowed: true, remaining: limit }
+    const client = RedisClient.getInstance()
+    if (client) {
+        try {
+            const current = await client.incr(key)
+            if (current === 1) {
+                await client.expire(key, windowSeconds)
+            }
+            const allowed = current <= limit
+            const remaining = Math.max(0, limit - current)
+            return { allowed, remaining }
+        } catch {}
     }
+
+    const now = Date.now()
+    const record = memoryRateLimits.get(key)
+    if (!record || now > record.resetAt) {
+        memoryRateLimits.set(key, { count: 1, resetAt: now + windowSeconds * 1000 })
+        return { allowed: true, remaining: limit - 1 }
+    }
+
+    record.count++
+    const allowed = record.count <= limit
+    const remaining = Math.max(0, limit - record.count)
+    return { allowed, remaining }
 }
 
 // Session storage
@@ -177,29 +248,15 @@ export async function setSession(
     data: any,
     ttlSeconds: number = 604800 // 7 days
 ): Promise<void> {
-    try {
-        await redis.setex(`session:${sessionId}`, ttlSeconds, JSON.stringify(data))
-    } catch (error) {
-        console.error('Redis session set error:', error)
-    }
+    await setCache(`session:${sessionId}`, data, ttlSeconds)
 }
 
 export async function getSession(sessionId: string): Promise<any | null> {
-    try {
-        const session = await redis.get(`session:${sessionId}`)
-        return session ? JSON.parse(session) : null
-    } catch (error) {
-        console.error('Redis session get error:', error)
-        return null
-    }
+    return getCached(`session:${sessionId}`)
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {
-    try {
-        await redis.del(`session:${sessionId}`)
-    } catch (error) {
-        console.error('Redis session delete error:', error)
-    }
+    await deleteCache(`session:${sessionId}`)
 }
 
 export default redis

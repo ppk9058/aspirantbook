@@ -21,7 +21,10 @@ export async function GET() {
                 const latestEnrollment = await prisma.enrollment.findFirst({
                     where: { userId: session.user.id },
                     orderBy: { enrolledAt: "desc" },
-                    include: { course: { select: { slug: true, title: true } } },
+                    select: {
+                        id: true,
+                        course: { select: { slug: true, title: true } },
+                    },
                 })
 
                 if (latestEnrollment?.course) {
@@ -37,10 +40,17 @@ export async function GET() {
             }
         }
 
-        return NextResponse.json({
-            success: true,
-            goal: saved || null,
-        })
+        return NextResponse.json(
+            {
+                success: true,
+                goal: saved || null,
+            },
+            {
+                headers: {
+                    "Cache-Control": "private, max-age=60, stale-while-revalidate=300",
+                },
+            }
+        )
     } catch (error) {
         return NextResponse.json({ success: false, error: "Failed to fetch user goal" }, { status: 500 })
     }

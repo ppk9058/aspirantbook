@@ -1,7 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import TopNavBar from "@/components/layout/TopNavBar"
@@ -12,7 +12,10 @@ import MobileNativeBottomBar from "@/components/layout/MobileNativeBottomBar"
 import Breadcrumbs from "@/components/layout/Breadcrumbs"
 import { IS_MOBILE_NATIVE_SHELL_ENABLED } from "@/lib/config/mobile-shell"
 
-import { Chatbot } from "@/components/layout/Chatbot"
+const Chatbot = dynamic(
+    () => import("@/components/layout/Chatbot").then((m) => m.Chatbot),
+    { ssr: false }
+)
 
 export default function DashboardShell({
     children,
@@ -119,7 +122,16 @@ export default function DashboardShell({
             >
                 <div className={isVideoCoursePage || isBooksPage ? "w-full mx-auto" : "max-w-7xl mx-auto space-y-6"}>
                     {!isVideoCoursePage && !isBooksPage && <Breadcrumbs />}
-                    {children}
+                    <Suspense
+                        fallback={
+                            <div className="space-y-6 animate-pulse py-4">
+                                <div className="h-8 w-48 bg-gray-200 dark:bg-slate-800 rounded-lg"></div>
+                                <div className="h-44 bg-gray-200 dark:bg-slate-800 rounded-2xl"></div>
+                            </div>
+                        }
+                    >
+                        {children}
+                    </Suspense>
                 </div>
             </main>
 

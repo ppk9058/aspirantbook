@@ -229,6 +229,7 @@ model Enrollment {
   @@unique([userId, courseId])
   @@index([userId])
   @@index([courseId])
+  @@index([userId, enrolledAt(sort: Desc)])
 }
 
 // Tracks student bookings for live demo classes
@@ -836,6 +837,7 @@ model ExamTest {
   @@index([seriesId])
   @@index([testType])
   @@index([isPublished])
+  @@index([seriesId, isPublished])
 }
 
 model ExamSection {
@@ -914,6 +916,8 @@ model ExamAttempt {
   @@index([testId])
   @@index([status])
   @@index([startedAt])
+  @@index([userId, status])
+  @@index([testId, status])
 }
 
 model ExamAttemptAnswer {

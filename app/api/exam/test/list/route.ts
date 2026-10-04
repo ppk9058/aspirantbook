@@ -152,7 +152,9 @@ export async function GET(req: NextRequest) {
       { success: true, data: mapped },
       {
         headers: {
-          "Cache-Control": "private, no-store",
+          "Cache-Control": includeQuestions
+            ? "private, no-store"
+            : "public, max-age=60, stale-while-revalidate=300",
         },
       }
     );

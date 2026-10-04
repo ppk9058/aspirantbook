@@ -112,18 +112,28 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
                 applyGoalById(savedGoalId, savedSubGoalId)
             }
 
-            // Sync with backend (deduplicated across component lifecycle)
-            if (!cachedUserGoalPromise) {
-                cachedUserGoalPromise = fetch("/api/user/goal")
-                    .then((res) => res.json())
-                    .catch(() => null)
-            }
-            cachedUserGoalPromise.then((data) => {
-                if (data?.goal?.goalId) {
-                    applyGoalById(data.goal.goalId, data.goal.subGoalId)
-                    localStorage.setItem(STORAGE_GOAL_KEY, data.goal.goalId)
+            // Sync with backend in idle time (off critical rendering path)
+            const scheduleSync = () => {
+                if (!cachedUserGoalPromise) {
+                    cachedUserGoalPromise = fetch("/api/user/goal")
+                        .then((res) => res.json())
+                        .catch(() => null)
                 }
-            })
+                cachedUserGoalPromise.then((data) => {
+                    if (data?.goal?.goalId) {
+                        applyGoalById(data.goal.goalId, data.goal.subGoalId)
+                        try {
+                            localStorage.setItem(STORAGE_GOAL_KEY, data.goal.goalId)
+                        } catch {}
+                    }
+                })
+            }
+
+            if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+                (window as any).requestIdleCallback(scheduleSync, { timeout: 2000 })
+            } else {
+                setTimeout(scheduleSync, 500)
+            }
         } catch (e) {
             console.warn("Failed to load saved goal from localStorage:", e)
         }

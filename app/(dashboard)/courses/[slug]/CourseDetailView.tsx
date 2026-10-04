@@ -36,13 +36,23 @@ import {
 } from "lucide-react"
 import { cleanDescriptionSnippet, safeParseJson } from "@/lib/utils"
 import { inlineFmt } from "@/lib/rosera/inline"
-import "@/components/editor/rosera.css"
+import dynamic from "next/dynamic"
 import { CodecademyContentRenderer } from "@/components/editor/CodecademyContentRenderer"
 import { RoseraRenderer } from "@/components/editor/RoseraRenderer"
-import { RoseraEditor } from "@/components/editor/RoseraEditor"
+
+const RoseraEditor = dynamic(
+    () => import("@/components/editor/RoseraEditor").then((m) => m.RoseraEditor),
+    { ssr: false, loading: () => <div className="p-8 text-center text-sm text-gray-500 animate-pulse">Loading Editor...</div> }
+)
+const UniversalEditor = dynamic(
+    () => import("@/components/editor/UniversalEditor").then((m) => m.UniversalEditor),
+    { ssr: false, loading: () => <div className="p-8 text-center text-sm text-gray-500 animate-pulse">Loading Editor...</div> }
+)
+const TutorialImportModal = dynamic(
+    () => import("@/components/editor/TutorialImportModal").then((m) => m.TutorialImportModal),
+    { ssr: false }
+)
 import { AspirantbookTutorialView } from "@/components/editor/AspirantbookTutorialView"
-import { UniversalEditor } from "@/components/editor/UniversalEditor"
-import { TutorialImportModal } from "@/components/editor/TutorialImportModal"
 import { EditableInlineField } from "@/components/editor/EditableInlineField"
 import { ContextToolbar } from "@/components/editor/ContextToolbar"
 import EnrollButton from "@/components/courses/EnrollButton"
