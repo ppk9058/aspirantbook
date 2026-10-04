@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 780" width="100%" height="100%">
+  <defs>
+    <filter id="pageShadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Clean White Book Page -->
+  <rect x="10" y="10" width="580" height="760" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#pageShadow)"/>
+
+  <!-- Top Teal Banner matching Image 2 -->
+  <rect x="25" y="25" width="550" height="50" rx="4" fill="#0f766e"/>
+  <text x="300" y="58" fill="#ffffff" font-family="Arial, sans-serif" font-weight="900" font-size="24" text-anchor="middle" letter-spacing="1">Contents</text>
+
+  <!-- Left Column: SCIENCE -->
+  <g transform="translate(35, 95)">
+    <!-- Section Header Box -->
+    <rect x="0" y="0" width="250" height="24" fill="#0284c7" rx="3"/>
+    <text x="125" y="16" fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="12" text-anchor="middle">SCIENCE</text>
+
+    <!-- Topics List -->
+    <text x="5" y="42" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">1. CBSE Sample Question Paper (30th July, 2025)</text>
+    <text x="5" y="62" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">2. CBSE Solved Paper 2026 (Delhi 31/1/1)</text>
+    <text x="5" y="82" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">3. CBSE Solved Paper 2026 (Outside Delhi 31/2/1)</text>
+    <text x="5" y="102" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">4. CBSE Solved Paper 2025 (Delhi Term I &amp; II)</text>
+    <text x="5" y="122" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">5. CBSE Solved Paper 2025 (Outside Delhi)</text>
+    <text x="5" y="142" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">6. CBSE Solved Paper 2024 (Delhi/Outside Delhi)</text>
+    <text x="5" y="162" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">7. CBSE Solved Paper 2023 (Delhi/Outside Delhi)</text>
+    <text x="5" y="182" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">8. CBSE Solved Paper 2022 (Term-I &amp; Term-II)</text>
+    <text x="5" y="202" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">9. CBSE Solved Paper 2020 (Delhi 31/1/1)</text>
+    <text x="5" y="222" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">10. CBSE Solved Paper 2019 (Outside Delhi)</text>
+    <text x="5" y="242" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">11. CBSE Solved Paper 2018 (All India)</text>
+    <text x="5" y="262" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">12. CBSE Solved Paper 2017 (Delhi/All India)</text>
+  </g>
+
+  <!-- Right Column: SOCIAL SCIENCE -->
+  <g transform="translate(315, 95)">
+    <!-- Section Header Box -->
+    <rect x="0" y="0" width="250" height="24" fill="#059669" rx="3"/>
+    <text x="125" y="16" fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="12" text-anchor="middle">SOCIAL SCIENCE</text>
+
+    <!-- Topics List -->
+    <text x="5" y="42" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">1. CBSE Sample Question Paper (30th July, 2025)</text>
+    <text x="5" y="62" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">2. CBSE Solved Paper 2026 (Delhi 32/1/1)</text>
+    <text x="5" y="82" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">3. CBSE Solved Paper 2026 (Outside Delhi 32/2/1)</text>
+    <text x="5" y="102" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">4. CBSE Solved Paper 2025 (Delhi Term I &amp; II)</text>
+    <text x="5" y="122" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">5. CBSE Solved Paper 2025 (Outside Delhi)</text>
+    <text x="5" y="142" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">6. CBSE Solved Paper 2024 (History/Geography)</text>
+    <text x="5" y="162" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">7. CBSE Solved Paper 2023 (Civics/Economics)</text>
+    <text x="5" y="182" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">8. CBSE Solved Paper 2022 (Term-I &amp; Term-II)</text>
+    <text x="5" y="202" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">9. CBSE Solved Paper 2020 (Delhi 32/1/1)</text>
+    <text x="5" y="222" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">10. CBSE Solved Paper 2019 (Outside Delhi)</text>
+    <text x="5" y="242" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">11. CBSE Solved Paper 2018 (All India)</text>
+    <text x="5" y="262" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">12. CBSE Solved Paper 2017 (Delhi/All India)</text>
+  </g>
+
+  <!-- Horizontal Divider Line -->
+  <line x1="35" y1="385" x2="565" y2="385" stroke="#cbd5e1" stroke-width="1.5"/>
+
+  <!-- Lower Left Column: MATHEMATICS -->
+  <g transform="translate(35, 405)">
+    <!-- Section Header Box -->
+    <rect x="0" y="0" width="250" height="24" fill="#d97706" rx="3"/>
+    <text x="125" y="16" fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="11.5" text-anchor="middle">MATHEMATICS (STANDARD)</text>
+
+    <!-- Topics List -->
+    <text x="5" y="42" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">1. CBSE Sample Question Paper (30th July, 2025)</text>
+    <text x="5" y="62" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">2. CBSE Solved Paper 2026 (Delhi 30/1/1)</text>
+    <text x="5" y="82" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">3. CBSE Solved Paper 2026 (Outside Delhi 30/2/1)</text>
+    <text x="5" y="102" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">4. CBSE Solved Paper 2025 (Delhi Term I &amp; II)</text>
+    <text x="5" y="122" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">5. CBSE Solved Paper 2025 (Outside Delhi)</text>
+    <text x="5" y="142" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">6. CBSE Solved Paper 2024 to 2017 Solved</text>
+    <text x="5" y="162" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">7. Step-by-Step Geometrical Constructions</text>
+  </g>
+
+  <!-- Lower Right Column: ENGLISH -->
+  <g transform="translate(315, 405)">
+    <!-- Section Header Box -->
+    <rect x="0" y="0" width="250" height="24" fill="#7c3aed" rx="3"/>
+    <text x="125" y="16" fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="11.5" text-anchor="middle">ENGLISH (LANGUAGE &amp; LITERATURE)</text>
+
+    <!-- Topics List -->
+    <text x="5" y="42" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">1. CBSE Sample Question Paper (30th July, 2025)</text>
+    <text x="5" y="62" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">2. CBSE Solved Paper 2026 (Delhi &amp; Outside Delhi)</text>
+    <text x="5" y="82" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">3. Section A: Reading Skills (Passages)</text>
+    <text x="5" y="102" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">4. Section B: Writing &amp; Integrated Grammar</text>
+    <text x="5" y="122" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">5. Section C: Literature Textbook &amp; Reader</text>
+    <text x="5" y="142" fill="#334155" font-family="Arial, sans-serif" font-size="10.5">6. CBSE Solved Papers 2024 to 2017</text>
+  </g>
+
+  <!-- Bottom Watermark & Verification Footer -->
+  <rect x="35" y="700" width="530" height="40" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="300" y="725" fill="#64748b" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" font-weight="600">aspirantbook eBook Verified Edition &bull; High Resolution Searchable PDF</text>
+</svg>

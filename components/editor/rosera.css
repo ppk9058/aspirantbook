@@ -1,0 +1,32 @@
+.rosera-interactive-canvas {
+  --rz-bg: var(--tutorial-bg, #e4efff);
+  --rz-card: var(--tutorial-card, #f5f9ff);
+  --rz-ink: var(--tutorial-ink, #1f2a6b);
+  --rz-primary: var(--tutorial-primary, #3b2fd6);
+  --rz-green: var(--tutorial-green, #0e9f78);
+  --rz-yellow: var(--tutorial-yellow, #ffe066);
+  --rz-soft: var(--tutorial-soft, #d3e3ff);
+  --rz-code: var(--tutorial-code, #26338a);
+  --rz-lav: color-mix(in srgb, var(--rz-primary) 18%, white);
+  background: var(--rz-bg);
+  color: var(--rz-ink);
+  font-family: var(--tutorial-font-body, system-ui, sans-serif);
+}
+
+.rz-mark {
+  background: linear-gradient(transparent 12%, var(--rz-yellow) 12%, var(--rz-yellow) 92%, transparent 92%);
+  color: inherit;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-weight: inherit;
+}
+
+.rz-code {
+  background: var(--rz-lav);
+  color: var(--rz-ink);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-weight: 700;
+  font-size: 0.88em;
+  font-family: var(--tutorial-font-mono, ui-monospace, monospace);
+}

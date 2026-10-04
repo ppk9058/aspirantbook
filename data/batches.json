@@ -1,0 +1,1635 @@
+[
+  {
+    "id": "upsc-foundation",
+    "slug": "upsc-foundation",
+    "title": "UPSC FOUNDATION 2026-27",
+    "classTag": "GS Paper II - Polity",
+    "category": "upsc",
+    "language": "ENGLISH / HINDI",
+    "targetText": "Targeted for UPSC CSE 2026 & 2027 Aspirants",
+    "scheduleText": "Starts on 15 Aug, 2026 Ends on 30 Jun, 2027",
+    "startDate": "15 Aug 2026",
+    "endDate": "30 Jun 2027",
+    "durationText": "15 August 2026 - 30 June 2027",
+    "validityText": "30 June 2027",
+    "price": "₹14,999",
+    "originalPrice": "₹24,999",
+    "discount": "40% OFF",
+    "image": "/batch-green.svg",
+    "badge": "LIVE BATCH",
+    "buttonText": "Join Live Class",
+    "buttonLink": "/classroom/upsc-foundation",
+    "isPrimaryAction": true,
+    "teachers": [
+      {
+        "name": "Rahul Sharma",
+        "role": "Senior Faculty & UPSC Mentor",
+        "subject": "Indian Polity & Governance",
+        "experience": "12+ Years",
+        "qualification": "Ex-Civil Servant • M.A. Public Administration",
+        "avatar": "/curious-avatar.svg",
+        "bio": "Mentored 150+ selected officers in UPSC CSE with deep expertise in Constitutional Law."
+      }
+    ],
+    "tiers": [
+      {
+        "id": "tier-pre-mains",
+        "name": "Prelims + Mains Live",
+        "price": "₹14,999",
+        "isPopular": true,
+        "features": [
+          "Daily Live Interactive WebRTC Masterclasses",
+          "One-on-One Doubt Clearing via Stage Hand Raise",
+          "Daily Practice Problems (DPP) & Answer Writing",
+          "Weekly Prelims Mock Tests with All India Ranking",
+          "Classroom PDF Notes & Handwritten Key Case Summaries"
+        ]
+      }
+    ],
+    "aboutHighlights": [
+      "Live interactive lectures with real-time audio/video participation",
+      "Comprehensive coverage of Article 14 to Article 32 Fundamental Rights",
+      "Landmark Judgments, Current Legal Doctrines & Answer Writing"
+    ],
+    "schedule": [
+      {
+        "day": "Monday - Friday",
+        "subjects": "Indian Polity & Constitution",
+        "time": "06:00 PM - 07:30 PM",
+        "type": "Live Interactive Lecture"
+      }
+    ]
+  },
+  {
+    "id": "champs-6",
+    "slug": "champs-6",
+    "title": "Champs 2.0 2027 (Class 6)",
+    "classTag": "Class 6",
+    "category": "school-prep",
+    "language": "HINGLISH",
+    "targetText": "Targeted for students of Class 6th",
+    "scheduleText": "Starts on 13 Jul, 2026 Ends on 31 Mar, 2027",
+    "startDate": "13 Jul 2026",
+    "endDate": "31 Mar 2027",
+    "durationText": "13 July 2026 - 31 December 2026",
+    "validityText": "31 March 2027",
+    "price": "₹3,000",
+    "originalPrice": "₹4,000",
+    "discount": "25% OFF",
+    "image": "/batch-green.svg",
+    "badge": "ONLINE",
+    "buttonText": "Buy Now",
+    "buttonLink": "/batches/champs-6",
+    "isPrimaryAction": true,
+    "tiers": [
+      {
+        "id": "tier-regular",
+        "name": "Regular",
+        "price": "₹3,000",
+        "isPopular": false,
+        "features": [
+          "Live lectures by top expert faculties",
+          "Daily Home Assignments with detailed video solutions",
+          "24x7 In-app Doubt Support by dedicated mentors",
+          "Regular periodic & full syllabus tests with ranking",
+          "Subjective Home Assignments & personalized analysis",
+          "Classroom PDF Notes + Handwritten Teacher Notes",
+          "Revision Marathon & Term-end crash course access",
+          "All-India Test Series with detailed performance report"
+        ]
+      },
+      {
+        "id": "tier-infinity",
+        "name": "Infinity Pro",
+        "price": "₹8,500",
+        "isPopular": true,
+        "features": [
+          "Everything in Regular Batch",
+          "Khazana (5000+ Recorded Lecture Library & Concepts)",
+          "Free Access to all Upcoming Revision & Crash Batches",
+          "Comprehensive NCERT Line-by-Line Video Solutions",
+          "NCERT Practical Experiment & Lab Simulation Videos",
+          "1:1 Personalized Homework & Doubt Assistance Session",
+          "Printed School Ready Study Kit delivered at doorstep",
+          "Full Module Workbooks + Previous 10 Years Question Bank",
+          "Special Olympiad, NTSE & Foundation Competitive Content",
+          "Monthly 1-on-1 Academic Counseling & Parent Meeting"
+        ]
+      }
+    ],
+    "aboutHighlights": [
+      "Course Duration: 13 July 2026 - 31 December 2026",
+      "Validity: 31 March 2027 (Access available till final exams)",
+      "Exam guidance & offline doubt sessions at our Offline centers",
+      "One-to-one emotional well-being and stress management support by Prerna counselors",
+      "Complete CBSE, ICSE, and State Board mapped syllabus coverage"
+    ],
+    "schedules": [
+      {
+        "id": "sch-notices",
+        "name": "Notices & Announcements",
+        "lectureCount": 14,
+        "teacherName": "Academic Team",
+        "accentColor": "blue",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-science",
+        "name": "Science (Physics, Chemistry & Biology)",
+        "lectureCount": 45,
+        "teacherName": "Shubhang Kumar Patel Sir",
+        "accentColor": "purple",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-maths",
+        "name": "Mathematics",
+        "lectureCount": 50,
+        "teacherName": "Divyansh Verma Sir",
+        "accentColor": "amber",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-english",
+        "name": "English Literature & Grammar",
+        "lectureCount": 30,
+        "teacherName": "Rinku Bisht Sir",
+        "accentColor": "emerald",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-social",
+        "name": "Social Science (History, Civics & Geography)",
+        "lectureCount": 35,
+        "teacherName": "Bhuvanesh Sir",
+        "accentColor": "rose",
+        "downloadUrl": "#"
+      }
+    ],
+    "teachers": [
+      {
+        "id": "t-shubhang",
+        "name": "Shubhang Kumar Patel Sir",
+        "subject": "Science",
+        "experience": "5+ Years Exp",
+        "image": "/curious-hero-child.svg"
+      },
+      {
+        "id": "t-divyansh",
+        "name": "Divyansh Verma Sir",
+        "subject": "Mathematics",
+        "experience": "4+ Years Exp",
+        "image": "/curious-avatar.svg"
+      },
+      {
+        "id": "t-rinku",
+        "name": "Rinku Bisht Sir",
+        "subject": "English",
+        "experience": "6+ Years Exp",
+        "image": "/batch-blue.svg"
+      },
+      {
+        "id": "t-aman",
+        "name": "Aman Sir",
+        "subject": "Sanskrit & Hindi",
+        "experience": "4+ Years Exp",
+        "image": "/batch-green.svg"
+      },
+      {
+        "id": "t-nikita",
+        "name": "Nikita Ma'am",
+        "subject": "Computer Science & Coding",
+        "experience": "5+ Years Exp",
+        "image": "/batch-purple.svg"
+      }
+    ],
+    "demoContent": [
+      {
+        "id": "d-math",
+        "title": "Introduction to Integers & Number Line",
+        "teacherName": "By Divyansh Verma Sir",
+        "date": "1 Jul, 2026",
+        "subject": "Mathematics",
+        "image": "/batch-amber.svg"
+      },
+      {
+        "id": "d-sci",
+        "title": "Components of Food & Balanced Diet",
+        "teacherName": "By Shubhang Kumar Patel Sir",
+        "date": "2 Jul, 2026",
+        "subject": "Science",
+        "image": "/batch-emerald.svg"
+      },
+      {
+        "id": "d-comp",
+        "title": "Computer Basics & Logic Building",
+        "teacherName": "By Nikita Ma'am",
+        "date": "30 Jun, 2026",
+        "subject": "Computer",
+        "image": "/batch-purple.svg"
+      },
+      {
+        "id": "d-eng",
+        "title": "Mastering Tenses & Sentence Structure",
+        "teacherName": "By Rinku Bisht Sir",
+        "date": "28 Jun, 2026",
+        "subject": "English",
+        "image": "/batch-blue.svg"
+      }
+    ],
+    "faqs": [
+      {
+        "id": "faq-1",
+        "question": "Who can join this batch?",
+        "answer": "This batch is specifically designed for students studying in school curriculum aiming to score 95%+ in their school exams while building a strong foundation for future competitive exams (Olympiads, NTSE, JEE, NEET)."
+      },
+      {
+        "id": "faq-2",
+        "question": "Can I watch recorded lectures if I miss a live class?",
+        "answer": "Yes! Every single live lecture is recorded and uploaded to your dashboard within 2 hours of completion. You can watch it unlimited times at 1x, 1.25x, 1.5x or 2x speed until your validity expires."
+      },
+      {
+        "id": "faq-3",
+        "question": "How will my academic doubts be resolved?",
+        "answer": "You get 24x7 dedicated doubt support inside the app. Students can take a photo of any question or write their query to receive instant step-by-step video & text solutions from expert teaching assistants."
+      },
+      {
+        "id": "faq-4",
+        "question": "Will I get physical books or only PDF notes?",
+        "answer": "The Regular plan includes high-quality downloadable & printable classroom PDF notes and formula sheets. The Infinity Pro plan includes complete physical printed book kits delivered to your doorstep."
+      },
+      {
+        "id": "faq-5",
+        "question": "Is there a refund policy available?",
+        "answer": "Yes, we offer a 100% money-back guarantee within 7 days of batch commencement if you are not fully satisfied with the teaching."
+      }
+    ]
+  },
+  {
+    "id": "half-yearly-6",
+    "slug": "half-yearly-6",
+    "title": "Half Yearly Marathon Class 6",
+    "classTag": "Class 6",
+    "category": "school-prep",
+    "language": "HINGLISH",
+    "targetText": "School Exam Rapid Revision & Practice",
+    "scheduleText": "Starts on 7 Sep, 2026 Ends on 1 Apr, 2027",
+    "startDate": "7 Sep 2026",
+    "endDate": "1 Apr 2027",
+    "durationText": "7 Sep 2026 - 15 Nov 2026",
+    "validityText": "1 Apr 2027",
+    "price": "Free",
+    "originalPrice": "₹1,500",
+    "discount": "100% FREE",
+    "image": "/batch-purple.svg",
+    "badge": "FREE",
+    "buttonText": "Enroll Now",
+    "buttonLink": "/batches/half-yearly-6",
+    "tiers": [
+      {
+        "id": "tier-free",
+        "name": "Free Marathon",
+        "price": "Free",
+        "isPopular": true,
+        "features": [
+          "Complete Half Yearly Syllabus Coverage",
+          "Daily Live Rapid Revision Classes",
+          "Chapterwise formula sheets & summary notes",
+          "Previous 5 years question paper discussions",
+          "Sample Mock Papers with live analysis"
+        ]
+      }
+    ],
+    "aboutHighlights": [
+      "Course Duration: 13 July 2026 - 31 December 2026",
+      "Validity: 31 March 2027 (Access available till final exams)",
+      "Exam guidance & offline doubt sessions at our Offline centers",
+      "One-to-one emotional well-being and stress management support by Prerna counselors",
+      "Complete CBSE, ICSE, and State Board mapped syllabus coverage"
+    ],
+    "schedules": [
+      {
+        "id": "sch-notices",
+        "name": "Notices & Announcements",
+        "lectureCount": 14,
+        "teacherName": "Academic Team",
+        "accentColor": "blue",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-science",
+        "name": "Science (Physics, Chemistry & Biology)",
+        "lectureCount": 45,
+        "teacherName": "Shubhang Kumar Patel Sir",
+        "accentColor": "purple",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-maths",
+        "name": "Mathematics",
+        "lectureCount": 50,
+        "teacherName": "Divyansh Verma Sir",
+        "accentColor": "amber",
+        "downloadUrl": "#"
+      }
+    ],
+    "teachers": [
+      {
+        "id": "t-shubhang",
+        "name": "Shubhang Kumar Patel Sir",
+        "subject": "Science",
+        "experience": "5+ Years Exp",
+        "image": "/curious-hero-child.svg"
+      },
+      {
+        "id": "t-divyansh",
+        "name": "Divyansh Verma Sir",
+        "subject": "Mathematics",
+        "experience": "4+ Years Exp",
+        "image": "/curious-avatar.svg"
+      },
+      {
+        "id": "t-rinku",
+        "name": "Rinku Bisht Sir",
+        "subject": "English",
+        "experience": "6+ Years Exp",
+        "image": "/batch-blue.svg"
+      }
+    ],
+    "demoContent": [
+      {
+        "id": "d-math",
+        "title": "Introduction to Integers & Number Line",
+        "teacherName": "By Divyansh Verma Sir",
+        "date": "1 Jul, 2026",
+        "subject": "Mathematics",
+        "image": "/batch-amber.svg"
+      },
+      {
+        "id": "d-sci",
+        "title": "Components of Food & Balanced Diet",
+        "teacherName": "By Shubhang Kumar Patel Sir",
+        "date": "2 Jul, 2026",
+        "subject": "Science",
+        "image": "/batch-emerald.svg"
+      }
+    ],
+    "faqs": [
+      {
+        "id": "faq-1",
+        "question": "Who can join this batch?",
+        "answer": "This batch is specifically designed for students studying in school curriculum aiming to score 95%+ in their school exams while building a strong foundation for future competitive exams (Olympiads, NTSE, JEE, NEET)."
+      },
+      {
+        "id": "faq-2",
+        "question": "Can I watch recorded lectures if I miss a live class?",
+        "answer": "Yes! Every single live lecture is recorded and uploaded to your dashboard within 2 hours of completion. You can watch it unlimited times at 1x, 1.25x, 1.5x or 2x speed until your validity expires."
+      },
+      {
+        "id": "faq-3",
+        "question": "How will my academic doubts be resolved?",
+        "answer": "You get 24x7 dedicated doubt support inside the app. Students can take a photo of any question or write their query to receive instant step-by-step video & text solutions from expert teaching assistants."
+      },
+      {
+        "id": "faq-4",
+        "question": "Will I get physical books or only PDF notes?",
+        "answer": "The Regular plan includes high-quality downloadable & printable classroom PDF notes and formula sheets. The Infinity Pro plan includes complete physical printed book kits delivered to your doorstep."
+      },
+      {
+        "id": "faq-5",
+        "question": "Is there a refund policy available?",
+        "answer": "Yes, we offer a 100% money-back guarantee within 7 days of batch commencement if you are not fully satisfied with the teaching."
+      }
+    ]
+  },
+  {
+    "id": "junoon-7",
+    "slug": "junoon-7",
+    "title": "Junoon 2.0 2027 (Class 7)",
+    "classTag": "Class 7",
+    "category": "school-prep",
+    "language": "HINGLISH",
+    "targetText": "Targeted for students of Class 7th",
+    "scheduleText": "Starts on 13 Jul, 2026 Ends on 1 Apr, 2027",
+    "startDate": "13 Jul 2026",
+    "endDate": "1 Apr 2027",
+    "durationText": "13 July 2026 - 31 Dec 2026",
+    "validityText": "1 April 2027",
+    "price": "₹3,000",
+    "originalPrice": "₹4,000",
+    "discount": "25% OFF",
+    "image": "/batch-blue.svg",
+    "badge": "ONLINE",
+    "buttonText": "Buy Now",
+    "buttonLink": "/batches/junoon-7",
+    "isPrimaryAction": true,
+    "tiers": [
+      {
+        "id": "tier-regular",
+        "name": "Regular",
+        "price": "₹3,000",
+        "isPopular": false,
+        "features": [
+          "Live lectures by top expert faculties",
+          "Daily Home Assignments with detailed video solutions",
+          "24x7 In-app Doubt Support by dedicated mentors",
+          "Regular periodic & full syllabus tests with ranking",
+          "Subjective Home Assignments & personalized analysis",
+          "Classroom PDF Notes + Handwritten Teacher Notes",
+          "Revision Marathon & Term-end crash course access",
+          "All-India Test Series with detailed performance report"
+        ]
+      },
+      {
+        "id": "tier-infinity",
+        "name": "Infinity Pro",
+        "price": "₹8,500",
+        "isPopular": true,
+        "features": [
+          "Everything in Regular Batch",
+          "Khazana (5000+ Recorded Lecture Library & Concepts)",
+          "Free Access to all Upcoming Revision & Crash Batches",
+          "Comprehensive NCERT Line-by-Line Video Solutions",
+          "NCERT Practical Experiment & Lab Simulation Videos",
+          "1:1 Personalized Homework & Doubt Assistance Session",
+          "Printed School Ready Study Kit delivered at doorstep",
+          "Full Module Workbooks + Previous 10 Years Question Bank",
+          "Special Olympiad, NTSE & Foundation Competitive Content",
+          "Monthly 1-on-1 Academic Counseling & Parent Meeting"
+        ]
+      }
+    ],
+    "aboutHighlights": [
+      "Course Duration: 13 July 2026 - 31 December 2026",
+      "Validity: 31 March 2027 (Access available till final exams)",
+      "Exam guidance & offline doubt sessions at our Offline centers",
+      "One-to-one emotional well-being and stress management support by Prerna counselors",
+      "Complete CBSE, ICSE, and State Board mapped syllabus coverage"
+    ],
+    "schedules": [
+      {
+        "id": "sch-notices",
+        "name": "Notices & Announcements",
+        "lectureCount": 14,
+        "teacherName": "Academic Team",
+        "accentColor": "blue",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-science",
+        "name": "Science (Physics, Chemistry & Biology)",
+        "lectureCount": 45,
+        "teacherName": "Shubhang Kumar Patel Sir",
+        "accentColor": "purple",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-maths",
+        "name": "Mathematics",
+        "lectureCount": 50,
+        "teacherName": "Divyansh Verma Sir",
+        "accentColor": "amber",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-english",
+        "name": "English Literature & Grammar",
+        "lectureCount": 30,
+        "teacherName": "Rinku Bisht Sir",
+        "accentColor": "emerald",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-social",
+        "name": "Social Science (History, Civics & Geography)",
+        "lectureCount": 35,
+        "teacherName": "Bhuvanesh Sir",
+        "accentColor": "rose",
+        "downloadUrl": "#"
+      }
+    ],
+    "teachers": [
+      {
+        "id": "t-shubhang",
+        "name": "Shubhang Kumar Patel Sir",
+        "subject": "Science",
+        "experience": "5+ Years Exp",
+        "image": "/curious-hero-child.svg"
+      },
+      {
+        "id": "t-divyansh",
+        "name": "Divyansh Verma Sir",
+        "subject": "Mathematics",
+        "experience": "4+ Years Exp",
+        "image": "/curious-avatar.svg"
+      },
+      {
+        "id": "t-rinku",
+        "name": "Rinku Bisht Sir",
+        "subject": "English",
+        "experience": "6+ Years Exp",
+        "image": "/batch-blue.svg"
+      },
+      {
+        "id": "t-aman",
+        "name": "Aman Sir",
+        "subject": "Sanskrit & Hindi",
+        "experience": "4+ Years Exp",
+        "image": "/batch-green.svg"
+      },
+      {
+        "id": "t-nikita",
+        "name": "Nikita Ma'am",
+        "subject": "Computer Science & Coding",
+        "experience": "5+ Years Exp",
+        "image": "/batch-purple.svg"
+      }
+    ],
+    "demoContent": [
+      {
+        "id": "d-math",
+        "title": "Introduction to Integers & Number Line",
+        "teacherName": "By Divyansh Verma Sir",
+        "date": "1 Jul, 2026",
+        "subject": "Mathematics",
+        "image": "/batch-amber.svg"
+      },
+      {
+        "id": "d-sci",
+        "title": "Components of Food & Balanced Diet",
+        "teacherName": "By Shubhang Kumar Patel Sir",
+        "date": "2 Jul, 2026",
+        "subject": "Science",
+        "image": "/batch-emerald.svg"
+      },
+      {
+        "id": "d-comp",
+        "title": "Computer Basics & Logic Building",
+        "teacherName": "By Nikita Ma'am",
+        "date": "30 Jun, 2026",
+        "subject": "Computer",
+        "image": "/batch-purple.svg"
+      },
+      {
+        "id": "d-eng",
+        "title": "Mastering Tenses & Sentence Structure",
+        "teacherName": "By Rinku Bisht Sir",
+        "date": "28 Jun, 2026",
+        "subject": "English",
+        "image": "/batch-blue.svg"
+      }
+    ],
+    "faqs": [
+      {
+        "id": "faq-1",
+        "question": "Who can join this batch?",
+        "answer": "This batch is specifically designed for students studying in school curriculum aiming to score 95%+ in their school exams while building a strong foundation for future competitive exams (Olympiads, NTSE, JEE, NEET)."
+      },
+      {
+        "id": "faq-2",
+        "question": "Can I watch recorded lectures if I miss a live class?",
+        "answer": "Yes! Every single live lecture is recorded and uploaded to your dashboard within 2 hours of completion. You can watch it unlimited times at 1x, 1.25x, 1.5x or 2x speed until your validity expires."
+      },
+      {
+        "id": "faq-3",
+        "question": "How will my academic doubts be resolved?",
+        "answer": "You get 24x7 dedicated doubt support inside the app. Students can take a photo of any question or write their query to receive instant step-by-step video & text solutions from expert teaching assistants."
+      },
+      {
+        "id": "faq-4",
+        "question": "Will I get physical books or only PDF notes?",
+        "answer": "The Regular plan includes high-quality downloadable & printable classroom PDF notes and formula sheets. The Infinity Pro plan includes complete physical printed book kits delivered to your doorstep."
+      },
+      {
+        "id": "faq-5",
+        "question": "Is there a refund policy available?",
+        "answer": "Yes, we offer a 100% money-back guarantee within 7 days of batch commencement if you are not fully satisfied with the teaching."
+      }
+    ]
+  },
+  {
+    "id": "umang-8",
+    "slug": "umang-8",
+    "title": "Umang 2.0 2027 (Class 8)",
+    "classTag": "Class 8",
+    "category": "school-prep",
+    "language": "HINGLISH",
+    "targetText": "Foundation for Olympiads & School Exams",
+    "scheduleText": "Starts on 20 Jul, 2026 Ends on 1 Apr, 2027",
+    "startDate": "20 Jul 2026",
+    "endDate": "1 Apr 2027",
+    "durationText": "20 Jul 2026 - 15 Jan 2027",
+    "validityText": "1 April 2027",
+    "price": "₹3,500",
+    "originalPrice": "₹5,000",
+    "discount": "30% OFF",
+    "image": "/batch-amber.svg",
+    "badge": "ONLINE",
+    "buttonText": "Buy Now",
+    "buttonLink": "/batches/umang-8",
+    "isPrimaryAction": true,
+    "tiers": [
+      {
+        "id": "tier-regular",
+        "name": "Regular",
+        "price": "₹3,500",
+        "isPopular": false,
+        "features": [
+          "Live lectures by top expert faculties",
+          "Daily Home Assignments with detailed video solutions",
+          "24x7 In-app Doubt Support by dedicated mentors",
+          "Regular periodic & full syllabus tests with ranking",
+          "Subjective Home Assignments & personalized analysis",
+          "Classroom PDF Notes + Handwritten Teacher Notes",
+          "Revision Marathon & Term-end crash course access",
+          "All-India Test Series with detailed performance report"
+        ]
+      },
+      {
+        "id": "tier-infinity",
+        "name": "Infinity Pro",
+        "price": "₹9,000",
+        "isPopular": true,
+        "features": [
+          "Everything in Regular Batch",
+          "Khazana (5000+ Recorded Lecture Library & Concepts)",
+          "Free Access to all Upcoming Revision & Crash Batches",
+          "Comprehensive NCERT Line-by-Line Video Solutions",
+          "NCERT Practical Experiment & Lab Simulation Videos",
+          "1:1 Personalized Homework & Doubt Assistance Session",
+          "Printed School Ready Study Kit delivered at doorstep",
+          "Full Module Workbooks + Previous 10 Years Question Bank",
+          "Special Olympiad, NTSE & Foundation Competitive Content",
+          "Monthly 1-on-1 Academic Counseling & Parent Meeting"
+        ]
+      }
+    ],
+    "aboutHighlights": [
+      "Course Duration: 13 July 2026 - 31 December 2026",
+      "Validity: 31 March 2027 (Access available till final exams)",
+      "Exam guidance & offline doubt sessions at our Offline centers",
+      "One-to-one emotional well-being and stress management support by Prerna counselors",
+      "Complete CBSE, ICSE, and State Board mapped syllabus coverage"
+    ],
+    "schedules": [
+      {
+        "id": "sch-notices",
+        "name": "Notices & Announcements",
+        "lectureCount": 14,
+        "teacherName": "Academic Team",
+        "accentColor": "blue",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-science",
+        "name": "Science (Physics, Chemistry & Biology)",
+        "lectureCount": 45,
+        "teacherName": "Shubhang Kumar Patel Sir",
+        "accentColor": "purple",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-maths",
+        "name": "Mathematics",
+        "lectureCount": 50,
+        "teacherName": "Divyansh Verma Sir",
+        "accentColor": "amber",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-english",
+        "name": "English Literature & Grammar",
+        "lectureCount": 30,
+        "teacherName": "Rinku Bisht Sir",
+        "accentColor": "emerald",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-social",
+        "name": "Social Science (History, Civics & Geography)",
+        "lectureCount": 35,
+        "teacherName": "Bhuvanesh Sir",
+        "accentColor": "rose",
+        "downloadUrl": "#"
+      }
+    ],
+    "teachers": [
+      {
+        "id": "t-shubhang",
+        "name": "Shubhang Kumar Patel Sir",
+        "subject": "Science",
+        "experience": "5+ Years Exp",
+        "image": "/curious-hero-child.svg"
+      },
+      {
+        "id": "t-divyansh",
+        "name": "Divyansh Verma Sir",
+        "subject": "Mathematics",
+        "experience": "4+ Years Exp",
+        "image": "/curious-avatar.svg"
+      },
+      {
+        "id": "t-rinku",
+        "name": "Rinku Bisht Sir",
+        "subject": "English",
+        "experience": "6+ Years Exp",
+        "image": "/batch-blue.svg"
+      },
+      {
+        "id": "t-aman",
+        "name": "Aman Sir",
+        "subject": "Sanskrit & Hindi",
+        "experience": "4+ Years Exp",
+        "image": "/batch-green.svg"
+      },
+      {
+        "id": "t-nikita",
+        "name": "Nikita Ma'am",
+        "subject": "Computer Science & Coding",
+        "experience": "5+ Years Exp",
+        "image": "/batch-purple.svg"
+      }
+    ],
+    "demoContent": [
+      {
+        "id": "d-math",
+        "title": "Introduction to Integers & Number Line",
+        "teacherName": "By Divyansh Verma Sir",
+        "date": "1 Jul, 2026",
+        "subject": "Mathematics",
+        "image": "/batch-amber.svg"
+      },
+      {
+        "id": "d-sci",
+        "title": "Components of Food & Balanced Diet",
+        "teacherName": "By Shubhang Kumar Patel Sir",
+        "date": "2 Jul, 2026",
+        "subject": "Science",
+        "image": "/batch-emerald.svg"
+      },
+      {
+        "id": "d-comp",
+        "title": "Computer Basics & Logic Building",
+        "teacherName": "By Nikita Ma'am",
+        "date": "30 Jun, 2026",
+        "subject": "Computer",
+        "image": "/batch-purple.svg"
+      },
+      {
+        "id": "d-eng",
+        "title": "Mastering Tenses & Sentence Structure",
+        "teacherName": "By Rinku Bisht Sir",
+        "date": "28 Jun, 2026",
+        "subject": "English",
+        "image": "/batch-blue.svg"
+      }
+    ],
+    "faqs": [
+      {
+        "id": "faq-1",
+        "question": "Who can join this batch?",
+        "answer": "This batch is specifically designed for students studying in school curriculum aiming to score 95%+ in their school exams while building a strong foundation for future competitive exams (Olympiads, NTSE, JEE, NEET)."
+      },
+      {
+        "id": "faq-2",
+        "question": "Can I watch recorded lectures if I miss a live class?",
+        "answer": "Yes! Every single live lecture is recorded and uploaded to your dashboard within 2 hours of completion. You can watch it unlimited times at 1x, 1.25x, 1.5x or 2x speed until your validity expires."
+      },
+      {
+        "id": "faq-3",
+        "question": "How will my academic doubts be resolved?",
+        "answer": "You get 24x7 dedicated doubt support inside the app. Students can take a photo of any question or write their query to receive instant step-by-step video & text solutions from expert teaching assistants."
+      },
+      {
+        "id": "faq-4",
+        "question": "Will I get physical books or only PDF notes?",
+        "answer": "The Regular plan includes high-quality downloadable & printable classroom PDF notes and formula sheets. The Infinity Pro plan includes complete physical printed book kits delivered to your doorstep."
+      },
+      {
+        "id": "faq-5",
+        "question": "Is there a refund policy available?",
+        "answer": "Yes, we offer a 100% money-back guarantee within 7 days of batch commencement if you are not fully satisfied with the teaching."
+      }
+    ]
+  },
+  {
+    "id": "udaan-9",
+    "slug": "udaan-9",
+    "title": "Udaan 2.0 2027 (Class 9)",
+    "classTag": "Class 9",
+    "category": "school-prep",
+    "language": "HINGLISH",
+    "targetText": "Complete Class 9 CBSE / ICSE Syllabus",
+    "scheduleText": "Starts on 15 Jul, 2026 Ends on 28 Feb, 2027",
+    "startDate": "15 Jul 2026",
+    "endDate": "28 Feb 2027",
+    "durationText": "15 Jul 2026 - 15 Feb 2027",
+    "validityText": "31 March 2027",
+    "price": "₹4,000",
+    "originalPrice": "₹6,000",
+    "discount": "33% OFF",
+    "image": "/batch-blue.svg",
+    "badge": "ONLINE",
+    "buttonText": "Buy Now",
+    "buttonLink": "/batches/udaan-9",
+    "isPrimaryAction": true,
+    "tiers": [
+      {
+        "id": "tier-regular",
+        "name": "Regular",
+        "price": "₹4,000",
+        "isPopular": false,
+        "features": [
+          "Live lectures by top expert faculties",
+          "Daily Home Assignments with detailed video solutions",
+          "24x7 In-app Doubt Support by dedicated mentors",
+          "Regular periodic & full syllabus tests with ranking",
+          "Subjective Home Assignments & personalized analysis",
+          "Classroom PDF Notes + Handwritten Teacher Notes",
+          "Revision Marathon & Term-end crash course access",
+          "All-India Test Series with detailed performance report"
+        ]
+      },
+      {
+        "id": "tier-infinity",
+        "name": "Infinity Pro",
+        "price": "₹9,500",
+        "isPopular": true,
+        "features": [
+          "Everything in Regular Batch",
+          "Khazana (5000+ Recorded Lecture Library & Concepts)",
+          "Free Access to all Upcoming Revision & Crash Batches",
+          "Comprehensive NCERT Line-by-Line Video Solutions",
+          "NCERT Practical Experiment & Lab Simulation Videos",
+          "1:1 Personalized Homework & Doubt Assistance Session",
+          "Printed School Ready Study Kit delivered at doorstep",
+          "Full Module Workbooks + Previous 10 Years Question Bank",
+          "Special Olympiad, NTSE & Foundation Competitive Content",
+          "Monthly 1-on-1 Academic Counseling & Parent Meeting"
+        ]
+      }
+    ],
+    "aboutHighlights": [
+      "Course Duration: 13 July 2026 - 31 December 2026",
+      "Validity: 31 March 2027 (Access available till final exams)",
+      "Exam guidance & offline doubt sessions at our Offline centers",
+      "One-to-one emotional well-being and stress management support by Prerna counselors",
+      "Complete CBSE, ICSE, and State Board mapped syllabus coverage"
+    ],
+    "schedules": [
+      {
+        "id": "sch-notices",
+        "name": "Notices & Announcements",
+        "lectureCount": 14,
+        "teacherName": "Academic Team",
+        "accentColor": "blue",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-science",
+        "name": "Science (Physics, Chemistry & Biology)",
+        "lectureCount": 45,
+        "teacherName": "Shubhang Kumar Patel Sir",
+        "accentColor": "purple",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-maths",
+        "name": "Mathematics",
+        "lectureCount": 50,
+        "teacherName": "Divyansh Verma Sir",
+        "accentColor": "amber",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-english",
+        "name": "English Literature & Grammar",
+        "lectureCount": 30,
+        "teacherName": "Rinku Bisht Sir",
+        "accentColor": "emerald",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-social",
+        "name": "Social Science (History, Civics & Geography)",
+        "lectureCount": 35,
+        "teacherName": "Bhuvanesh Sir",
+        "accentColor": "rose",
+        "downloadUrl": "#"
+      }
+    ],
+    "teachers": [
+      {
+        "id": "t-shubhang",
+        "name": "Shubhang Kumar Patel Sir",
+        "subject": "Science",
+        "experience": "5+ Years Exp",
+        "image": "/curious-hero-child.svg"
+      },
+      {
+        "id": "t-divyansh",
+        "name": "Divyansh Verma Sir",
+        "subject": "Mathematics",
+        "experience": "4+ Years Exp",
+        "image": "/curious-avatar.svg"
+      },
+      {
+        "id": "t-rinku",
+        "name": "Rinku Bisht Sir",
+        "subject": "English",
+        "experience": "6+ Years Exp",
+        "image": "/batch-blue.svg"
+      },
+      {
+        "id": "t-aman",
+        "name": "Aman Sir",
+        "subject": "Sanskrit & Hindi",
+        "experience": "4+ Years Exp",
+        "image": "/batch-green.svg"
+      },
+      {
+        "id": "t-nikita",
+        "name": "Nikita Ma'am",
+        "subject": "Computer Science & Coding",
+        "experience": "5+ Years Exp",
+        "image": "/batch-purple.svg"
+      }
+    ],
+    "demoContent": [
+      {
+        "id": "d-math",
+        "title": "Introduction to Integers & Number Line",
+        "teacherName": "By Divyansh Verma Sir",
+        "date": "1 Jul, 2026",
+        "subject": "Mathematics",
+        "image": "/batch-amber.svg"
+      },
+      {
+        "id": "d-sci",
+        "title": "Components of Food & Balanced Diet",
+        "teacherName": "By Shubhang Kumar Patel Sir",
+        "date": "2 Jul, 2026",
+        "subject": "Science",
+        "image": "/batch-emerald.svg"
+      },
+      {
+        "id": "d-comp",
+        "title": "Computer Basics & Logic Building",
+        "teacherName": "By Nikita Ma'am",
+        "date": "30 Jun, 2026",
+        "subject": "Computer",
+        "image": "/batch-purple.svg"
+      },
+      {
+        "id": "d-eng",
+        "title": "Mastering Tenses & Sentence Structure",
+        "teacherName": "By Rinku Bisht Sir",
+        "date": "28 Jun, 2026",
+        "subject": "English",
+        "image": "/batch-blue.svg"
+      }
+    ],
+    "faqs": [
+      {
+        "id": "faq-1",
+        "question": "Who can join this batch?",
+        "answer": "This batch is specifically designed for students studying in school curriculum aiming to score 95%+ in their school exams while building a strong foundation for future competitive exams (Olympiads, NTSE, JEE, NEET)."
+      },
+      {
+        "id": "faq-2",
+        "question": "Can I watch recorded lectures if I miss a live class?",
+        "answer": "Yes! Every single live lecture is recorded and uploaded to your dashboard within 2 hours of completion. You can watch it unlimited times at 1x, 1.25x, 1.5x or 2x speed until your validity expires."
+      },
+      {
+        "id": "faq-3",
+        "question": "How will my academic doubts be resolved?",
+        "answer": "You get 24x7 dedicated doubt support inside the app. Students can take a photo of any question or write their query to receive instant step-by-step video & text solutions from expert teaching assistants."
+      },
+      {
+        "id": "faq-4",
+        "question": "Will I get physical books or only PDF notes?",
+        "answer": "The Regular plan includes high-quality downloadable & printable classroom PDF notes and formula sheets. The Infinity Pro plan includes complete physical printed book kits delivered to your doorstep."
+      },
+      {
+        "id": "faq-5",
+        "question": "Is there a refund policy available?",
+        "answer": "Yes, we offer a 100% money-back guarantee within 7 days of batch commencement if you are not fully satisfied with the teaching."
+      }
+    ]
+  },
+  {
+    "id": "udaan-10",
+    "slug": "udaan-10",
+    "title": "Lakshya 2.0 2027 (Class 10 Boards)",
+    "classTag": "Class 10",
+    "category": "school-prep",
+    "language": "HINGLISH",
+    "targetText": "Board Exam Mastery with Previous Year Papers",
+    "scheduleText": "Starts on 1 Jul, 2026 Ends on 15 Mar, 2027",
+    "startDate": "1 Jul 2026",
+    "endDate": "15 Mar 2027",
+    "durationText": "1 Jul 2026 - 28 Feb 2027",
+    "validityText": "30 April 2027",
+    "price": "₹4,500",
+    "originalPrice": "₹6,500",
+    "discount": "30% OFF",
+    "image": "/batch-amber.svg",
+    "badge": "ONLINE",
+    "buttonText": "Buy Now",
+    "buttonLink": "/batches/udaan-10",
+    "isPrimaryAction": true,
+    "tiers": [
+      {
+        "id": "tier-regular",
+        "name": "Regular",
+        "price": "₹4,500",
+        "isPopular": false,
+        "features": [
+          "Live lectures by top expert faculties",
+          "Daily Home Assignments with detailed video solutions",
+          "24x7 In-app Doubt Support by dedicated mentors",
+          "Regular periodic & full syllabus tests with ranking",
+          "Subjective Home Assignments & personalized analysis",
+          "Classroom PDF Notes + Handwritten Teacher Notes",
+          "Revision Marathon & Term-end crash course access",
+          "All-India Test Series with detailed performance report"
+        ]
+      },
+      {
+        "id": "tier-infinity",
+        "name": "Infinity Pro",
+        "price": "₹10,500",
+        "isPopular": true,
+        "features": [
+          "Everything in Regular Batch",
+          "Khazana (5000+ Recorded Lecture Library & Concepts)",
+          "Free Access to all Upcoming Revision & Crash Batches",
+          "Comprehensive NCERT Line-by-Line Video Solutions",
+          "NCERT Practical Experiment & Lab Simulation Videos",
+          "1:1 Personalized Homework & Doubt Assistance Session",
+          "Printed School Ready Study Kit delivered at doorstep",
+          "Full Module Workbooks + Previous 10 Years Question Bank",
+          "Special Olympiad, NTSE & Foundation Competitive Content",
+          "Monthly 1-on-1 Academic Counseling & Parent Meeting"
+        ]
+      }
+    ],
+    "aboutHighlights": [
+      "Course Duration: 13 July 2026 - 31 December 2026",
+      "Validity: 31 March 2027 (Access available till final exams)",
+      "Exam guidance & offline doubt sessions at our Offline centers",
+      "One-to-one emotional well-being and stress management support by Prerna counselors",
+      "Complete CBSE, ICSE, and State Board mapped syllabus coverage"
+    ],
+    "schedules": [
+      {
+        "id": "sch-notices",
+        "name": "Notices & Announcements",
+        "lectureCount": 14,
+        "teacherName": "Academic Team",
+        "accentColor": "blue",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-science",
+        "name": "Science (Physics, Chemistry & Biology)",
+        "lectureCount": 45,
+        "teacherName": "Shubhang Kumar Patel Sir",
+        "accentColor": "purple",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-maths",
+        "name": "Mathematics",
+        "lectureCount": 50,
+        "teacherName": "Divyansh Verma Sir",
+        "accentColor": "amber",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-english",
+        "name": "English Literature & Grammar",
+        "lectureCount": 30,
+        "teacherName": "Rinku Bisht Sir",
+        "accentColor": "emerald",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-social",
+        "name": "Social Science (History, Civics & Geography)",
+        "lectureCount": 35,
+        "teacherName": "Bhuvanesh Sir",
+        "accentColor": "rose",
+        "downloadUrl": "#"
+      }
+    ],
+    "teachers": [
+      {
+        "id": "t-shubhang",
+        "name": "Shubhang Kumar Patel Sir",
+        "subject": "Science",
+        "experience": "5+ Years Exp",
+        "image": "/curious-hero-child.svg"
+      },
+      {
+        "id": "t-divyansh",
+        "name": "Divyansh Verma Sir",
+        "subject": "Mathematics",
+        "experience": "4+ Years Exp",
+        "image": "/curious-avatar.svg"
+      },
+      {
+        "id": "t-rinku",
+        "name": "Rinku Bisht Sir",
+        "subject": "English",
+        "experience": "6+ Years Exp",
+        "image": "/batch-blue.svg"
+      },
+      {
+        "id": "t-aman",
+        "name": "Aman Sir",
+        "subject": "Sanskrit & Hindi",
+        "experience": "4+ Years Exp",
+        "image": "/batch-green.svg"
+      },
+      {
+        "id": "t-nikita",
+        "name": "Nikita Ma'am",
+        "subject": "Computer Science & Coding",
+        "experience": "5+ Years Exp",
+        "image": "/batch-purple.svg"
+      }
+    ],
+    "demoContent": [
+      {
+        "id": "d-math",
+        "title": "Introduction to Integers & Number Line",
+        "teacherName": "By Divyansh Verma Sir",
+        "date": "1 Jul, 2026",
+        "subject": "Mathematics",
+        "image": "/batch-amber.svg"
+      },
+      {
+        "id": "d-sci",
+        "title": "Components of Food & Balanced Diet",
+        "teacherName": "By Shubhang Kumar Patel Sir",
+        "date": "2 Jul, 2026",
+        "subject": "Science",
+        "image": "/batch-emerald.svg"
+      },
+      {
+        "id": "d-comp",
+        "title": "Computer Basics & Logic Building",
+        "teacherName": "By Nikita Ma'am",
+        "date": "30 Jun, 2026",
+        "subject": "Computer",
+        "image": "/batch-purple.svg"
+      },
+      {
+        "id": "d-eng",
+        "title": "Mastering Tenses & Sentence Structure",
+        "teacherName": "By Rinku Bisht Sir",
+        "date": "28 Jun, 2026",
+        "subject": "English",
+        "image": "/batch-blue.svg"
+      }
+    ],
+    "faqs": [
+      {
+        "id": "faq-1",
+        "question": "Who can join this batch?",
+        "answer": "This batch is specifically designed for students studying in school curriculum aiming to score 95%+ in their school exams while building a strong foundation for future competitive exams (Olympiads, NTSE, JEE, NEET)."
+      },
+      {
+        "id": "faq-2",
+        "question": "Can I watch recorded lectures if I miss a live class?",
+        "answer": "Yes! Every single live lecture is recorded and uploaded to your dashboard within 2 hours of completion. You can watch it unlimited times at 1x, 1.25x, 1.5x or 2x speed until your validity expires."
+      },
+      {
+        "id": "faq-3",
+        "question": "How will my academic doubts be resolved?",
+        "answer": "You get 24x7 dedicated doubt support inside the app. Students can take a photo of any question or write their query to receive instant step-by-step video & text solutions from expert teaching assistants."
+      },
+      {
+        "id": "faq-4",
+        "question": "Will I get physical books or only PDF notes?",
+        "answer": "The Regular plan includes high-quality downloadable & printable classroom PDF notes and formula sheets. The Infinity Pro plan includes complete physical printed book kits delivered to your doorstep."
+      },
+      {
+        "id": "faq-5",
+        "question": "Is there a refund policy available?",
+        "answer": "Yes, we offer a 100% money-back guarantee within 7 days of batch commencement if you are not fully satisfied with the teaching."
+      }
+    ]
+  },
+  {
+    "id": "arjuna-jee-11",
+    "slug": "arjuna-jee-11",
+    "title": "Arjuna JEE 2028 (Class 11 PCM)",
+    "classTag": "Class 11",
+    "category": "upsc",
+    "language": "HINGLISH",
+    "targetText": "Complete 11th Syllabus for JEE Main & Advanced",
+    "scheduleText": "Starts on 25 May, 2026 Ends on 15 Apr, 2027",
+    "startDate": "25 May 2026",
+    "endDate": "15 Apr 2027",
+    "durationText": "25 May 2026 - 31 Mar 2027",
+    "validityText": "30 June 2028",
+    "price": "₹5,500",
+    "originalPrice": "₹8,000",
+    "discount": "31% OFF",
+    "image": "/batch-rose.svg",
+    "badge": "ONLINE",
+    "buttonText": "Buy Now",
+    "buttonLink": "/batches/arjuna-jee-11",
+    "isPrimaryAction": true,
+    "tiers": [
+      {
+        "id": "tier-regular",
+        "name": "Regular",
+        "price": "₹5,500",
+        "isPopular": false,
+        "features": [
+          "Live lectures by top expert faculties",
+          "Daily Home Assignments with detailed video solutions",
+          "24x7 In-app Doubt Support by dedicated mentors",
+          "Regular periodic & full syllabus tests with ranking",
+          "Subjective Home Assignments & personalized analysis",
+          "Classroom PDF Notes + Handwritten Teacher Notes",
+          "Revision Marathon & Term-end crash course access",
+          "All-India Test Series with detailed performance report"
+        ]
+      },
+      {
+        "id": "tier-infinity",
+        "name": "Infinity Pro",
+        "price": "₹12,000",
+        "isPopular": true,
+        "features": [
+          "Everything in Regular Batch",
+          "Khazana (5000+ Recorded Lecture Library & Concepts)",
+          "Free Access to all Upcoming Revision & Crash Batches",
+          "Comprehensive NCERT Line-by-Line Video Solutions",
+          "NCERT Practical Experiment & Lab Simulation Videos",
+          "1:1 Personalized Homework & Doubt Assistance Session",
+          "Printed School Ready Study Kit delivered at doorstep",
+          "Full Module Workbooks + Previous 10 Years Question Bank",
+          "Special Olympiad, NTSE & Foundation Competitive Content",
+          "Monthly 1-on-1 Academic Counseling & Parent Meeting"
+        ]
+      }
+    ],
+    "aboutHighlights": [
+      "Course Duration: 13 July 2026 - 31 December 2026",
+      "Validity: 31 March 2027 (Access available till final exams)",
+      "Exam guidance & offline doubt sessions at our Offline centers",
+      "One-to-one emotional well-being and stress management support by Prerna counselors",
+      "Complete CBSE, ICSE, and State Board mapped syllabus coverage"
+    ],
+    "schedules": [
+      {
+        "id": "sch-notices",
+        "name": "Notices & Announcements",
+        "lectureCount": 14,
+        "teacherName": "Academic Team",
+        "accentColor": "blue",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-science",
+        "name": "Science (Physics, Chemistry & Biology)",
+        "lectureCount": 45,
+        "teacherName": "Shubhang Kumar Patel Sir",
+        "accentColor": "purple",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-maths",
+        "name": "Mathematics",
+        "lectureCount": 50,
+        "teacherName": "Divyansh Verma Sir",
+        "accentColor": "amber",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-english",
+        "name": "English Literature & Grammar",
+        "lectureCount": 30,
+        "teacherName": "Rinku Bisht Sir",
+        "accentColor": "emerald",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-social",
+        "name": "Social Science (History, Civics & Geography)",
+        "lectureCount": 35,
+        "teacherName": "Bhuvanesh Sir",
+        "accentColor": "rose",
+        "downloadUrl": "#"
+      }
+    ],
+    "teachers": [
+      {
+        "id": "t-shubhang",
+        "name": "Shubhang Kumar Patel Sir",
+        "subject": "Science",
+        "experience": "5+ Years Exp",
+        "image": "/curious-hero-child.svg"
+      },
+      {
+        "id": "t-divyansh",
+        "name": "Divyansh Verma Sir",
+        "subject": "Mathematics",
+        "experience": "4+ Years Exp",
+        "image": "/curious-avatar.svg"
+      },
+      {
+        "id": "t-rinku",
+        "name": "Rinku Bisht Sir",
+        "subject": "English",
+        "experience": "6+ Years Exp",
+        "image": "/batch-blue.svg"
+      },
+      {
+        "id": "t-aman",
+        "name": "Aman Sir",
+        "subject": "Sanskrit & Hindi",
+        "experience": "4+ Years Exp",
+        "image": "/batch-green.svg"
+      },
+      {
+        "id": "t-nikita",
+        "name": "Nikita Ma'am",
+        "subject": "Computer Science & Coding",
+        "experience": "5+ Years Exp",
+        "image": "/batch-purple.svg"
+      }
+    ],
+    "demoContent": [
+      {
+        "id": "d-math",
+        "title": "Introduction to Integers & Number Line",
+        "teacherName": "By Divyansh Verma Sir",
+        "date": "1 Jul, 2026",
+        "subject": "Mathematics",
+        "image": "/batch-amber.svg"
+      },
+      {
+        "id": "d-sci",
+        "title": "Components of Food & Balanced Diet",
+        "teacherName": "By Shubhang Kumar Patel Sir",
+        "date": "2 Jul, 2026",
+        "subject": "Science",
+        "image": "/batch-emerald.svg"
+      },
+      {
+        "id": "d-comp",
+        "title": "Computer Basics & Logic Building",
+        "teacherName": "By Nikita Ma'am",
+        "date": "30 Jun, 2026",
+        "subject": "Computer",
+        "image": "/batch-purple.svg"
+      },
+      {
+        "id": "d-eng",
+        "title": "Mastering Tenses & Sentence Structure",
+        "teacherName": "By Rinku Bisht Sir",
+        "date": "28 Jun, 2026",
+        "subject": "English",
+        "image": "/batch-blue.svg"
+      }
+    ],
+    "faqs": [
+      {
+        "id": "faq-1",
+        "question": "Who can join this batch?",
+        "answer": "This batch is specifically designed for students studying in school curriculum aiming to score 95%+ in their school exams while building a strong foundation for future competitive exams (Olympiads, NTSE, JEE, NEET)."
+      },
+      {
+        "id": "faq-2",
+        "question": "Can I watch recorded lectures if I miss a live class?",
+        "answer": "Yes! Every single live lecture is recorded and uploaded to your dashboard within 2 hours of completion. You can watch it unlimited times at 1x, 1.25x, 1.5x or 2x speed until your validity expires."
+      },
+      {
+        "id": "faq-3",
+        "question": "How will my academic doubts be resolved?",
+        "answer": "You get 24x7 dedicated doubt support inside the app. Students can take a photo of any question or write their query to receive instant step-by-step video & text solutions from expert teaching assistants."
+      },
+      {
+        "id": "faq-4",
+        "question": "Will I get physical books or only PDF notes?",
+        "answer": "The Regular plan includes high-quality downloadable & printable classroom PDF notes and formula sheets. The Infinity Pro plan includes complete physical printed book kits delivered to your doorstep."
+      },
+      {
+        "id": "faq-5",
+        "question": "Is there a refund policy available?",
+        "answer": "Yes, we offer a 100% money-back guarantee within 7 days of batch commencement if you are not fully satisfied with the teaching."
+      }
+    ]
+  },
+  {
+    "id": "lakshya-jee-12",
+    "slug": "lakshya-jee-12",
+    "title": "Lakshya JEE 2027 (Class 12 PCM)",
+    "classTag": "Class 12",
+    "category": "bpsc",
+    "language": "HINGLISH",
+    "targetText": "Class 12 + Complete 11th Revision for JEE",
+    "scheduleText": "Starts on 10 Apr, 2026 Ends on 15 May, 2027",
+    "startDate": "10 Apr 2026",
+    "endDate": "15 May 2027",
+    "durationText": "10 Apr 2026 - 30 Apr 2027",
+    "validityText": "30 June 2027",
+    "price": "₹6,000",
+    "originalPrice": "₹9,000",
+    "discount": "33% OFF",
+    "image": "/batch-amber.svg",
+    "badge": "ONLINE",
+    "buttonText": "Buy Now",
+    "buttonLink": "/batches/lakshya-jee-12",
+    "isPrimaryAction": true,
+    "tiers": [
+      {
+        "id": "tier-regular",
+        "name": "Regular",
+        "price": "₹6,000",
+        "isPopular": false,
+        "features": [
+          "Live lectures by top expert faculties",
+          "Daily Home Assignments with detailed video solutions",
+          "24x7 In-app Doubt Support by dedicated mentors",
+          "Regular periodic & full syllabus tests with ranking",
+          "Subjective Home Assignments & personalized analysis",
+          "Classroom PDF Notes + Handwritten Teacher Notes",
+          "Revision Marathon & Term-end crash course access",
+          "All-India Test Series with detailed performance report"
+        ]
+      },
+      {
+        "id": "tier-infinity",
+        "name": "Infinity Pro",
+        "price": "₹13,500",
+        "isPopular": true,
+        "features": [
+          "Everything in Regular Batch",
+          "Khazana (5000+ Recorded Lecture Library & Concepts)",
+          "Free Access to all Upcoming Revision & Crash Batches",
+          "Comprehensive NCERT Line-by-Line Video Solutions",
+          "NCERT Practical Experiment & Lab Simulation Videos",
+          "1:1 Personalized Homework & Doubt Assistance Session",
+          "Printed School Ready Study Kit delivered at doorstep",
+          "Full Module Workbooks + Previous 10 Years Question Bank",
+          "Special Olympiad, NTSE & Foundation Competitive Content",
+          "Monthly 1-on-1 Academic Counseling & Parent Meeting"
+        ]
+      }
+    ],
+    "aboutHighlights": [
+      "Course Duration: 13 July 2026 - 31 December 2026",
+      "Validity: 31 March 2027 (Access available till final exams)",
+      "Exam guidance & offline doubt sessions at our Offline centers",
+      "One-to-one emotional well-being and stress management support by Prerna counselors",
+      "Complete CBSE, ICSE, and State Board mapped syllabus coverage"
+    ],
+    "schedules": [
+      {
+        "id": "sch-notices",
+        "name": "Notices & Announcements",
+        "lectureCount": 14,
+        "teacherName": "Academic Team",
+        "accentColor": "blue",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-science",
+        "name": "Science (Physics, Chemistry & Biology)",
+        "lectureCount": 45,
+        "teacherName": "Shubhang Kumar Patel Sir",
+        "accentColor": "purple",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-maths",
+        "name": "Mathematics",
+        "lectureCount": 50,
+        "teacherName": "Divyansh Verma Sir",
+        "accentColor": "amber",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-english",
+        "name": "English Literature & Grammar",
+        "lectureCount": 30,
+        "teacherName": "Rinku Bisht Sir",
+        "accentColor": "emerald",
+        "downloadUrl": "#"
+      },
+      {
+        "id": "sch-social",
+        "name": "Social Science (History, Civics & Geography)",
+        "lectureCount": 35,
+        "teacherName": "Bhuvanesh Sir",
+        "accentColor": "rose",
+        "downloadUrl": "#"
+      }
+    ],
+    "teachers": [
+      {
+        "id": "t-shubhang",
+        "name": "Shubhang Kumar Patel Sir",
+        "subject": "Science",
+        "experience": "5+ Years Exp",
+        "image": "/curious-hero-child.svg"
+      },
+      {
+        "id": "t-divyansh",
+        "name": "Divyansh Verma Sir",
+        "subject": "Mathematics",
+        "experience": "4+ Years Exp",
+        "image": "/curious-avatar.svg"
+      },
+      {
+        "id": "t-rinku",
+        "name": "Rinku Bisht Sir",
+        "subject": "English",
+        "experience": "6+ Years Exp",
+        "image": "/batch-blue.svg"
+      },
+      {
+        "id": "t-aman",
+        "name": "Aman Sir",
+        "subject": "Sanskrit & Hindi",
+        "experience": "4+ Years Exp",
+        "image": "/batch-green.svg"
+      },
+      {
+        "id": "t-nikita",
+        "name": "Nikita Ma'am",
+        "subject": "Computer Science & Coding",
+        "experience": "5+ Years Exp",
+        "image": "/batch-purple.svg"
+      }
+    ],
+    "demoContent": [
+      {
+        "id": "d-math",
+        "title": "Introduction to Integers & Number Line",
+        "teacherName": "By Divyansh Verma Sir",
+        "date": "1 Jul, 2026",
+        "subject": "Mathematics",
+        "image": "/batch-amber.svg"
+      },
+      {
+        "id": "d-sci",
+        "title": "Components of Food & Balanced Diet",
+        "teacherName": "By Shubhang Kumar Patel Sir",
+        "date": "2 Jul, 2026",
+        "subject": "Science",
+        "image": "/batch-emerald.svg"
+      },
+      {
+        "id": "d-comp",
+        "title": "Computer Basics & Logic Building",
+        "teacherName": "By Nikita Ma'am",
+        "date": "30 Jun, 2026",
+        "subject": "Computer",
+        "image": "/batch-purple.svg"
+      },
+      {
+        "id": "d-eng",
+        "title": "Mastering Tenses & Sentence Structure",
+        "teacherName": "By Rinku Bisht Sir",
+        "date": "28 Jun, 2026",
+        "subject": "English",
+        "image": "/batch-blue.svg"
+      }
+    ],
+    "faqs": [
+      {
+        "id": "faq-1",
+        "question": "Who can join this batch?",
+        "answer": "This batch is specifically designed for students studying in school curriculum aiming to score 95%+ in their school exams while building a strong foundation for future competitive exams (Olympiads, NTSE, JEE, NEET)."
+      },
+      {
+        "id": "faq-2",
+        "question": "Can I watch recorded lectures if I miss a live class?",
+        "answer": "Yes! Every single live lecture is recorded and uploaded to your dashboard within 2 hours of completion. You can watch it unlimited times at 1x, 1.25x, 1.5x or 2x speed until your validity expires."
+      },
+      {
+        "id": "faq-3",
+        "question": "How will my academic doubts be resolved?",
+        "answer": "You get 24x7 dedicated doubt support inside the app. Students can take a photo of any question or write their query to receive instant step-by-step video & text solutions from expert teaching assistants."
+      },
+      {
+        "id": "faq-4",
+        "question": "Will I get physical books or only PDF notes?",
+        "answer": "The Regular plan includes high-quality downloadable & printable classroom PDF notes and formula sheets. The Infinity Pro plan includes complete physical printed book kits delivered to your doorstep."
+      },
+      {
+        "id": "faq-5",
+        "question": "Is there a refund policy available?",
+        "answer": "Yes, we offer a 100% money-back guarantee within 7 days of batch commencement if you are not fully satisfied with the teaching."
+      }
+    ]
+  }
+]

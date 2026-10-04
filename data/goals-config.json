@@ -1,0 +1,267 @@
+{
+  "popularGoals": [
+    {
+      "id": "upsc",
+      "name": "UPSC",
+      "fullName": "UPSC Civil Services Examination",
+      "icon": "Landmark",
+      "color": "from-amber-500 to-orange-600",
+      "category": "Civil Services",
+      "tags": ["upsc", "civil-services", "general-studies"],
+      "hasDrillDown": false
+    },
+    {
+      "id": "bpsc",
+      "name": "BPSC",
+      "fullName": "Bihar Public Service Commission",
+      "icon": "Building",
+      "color": "from-blue-600 to-indigo-600",
+      "category": "Civil Services",
+      "tags": ["bpsc", "state-psc", "bihar-gk"],
+      "hasDrillDown": false
+    },
+    {
+      "id": "class-10",
+      "name": "Class 10th",
+      "fullName": "Class 10th Boards & NTSE",
+      "icon": "GraduationCap",
+      "color": "from-emerald-500 to-teal-600",
+      "category": "School & Boards",
+      "tags": ["school-prep", "class-10", "cbse", "icse", "state-boards"],
+      "hasDrillDown": false
+    },
+    {
+      "id": "class-9",
+      "name": "Class 9th",
+      "fullName": "Class 9th School Foundation",
+      "icon": "BookOpen",
+      "color": "from-teal-500 to-cyan-600",
+      "category": "School & Boards",
+      "tags": ["school-prep", "class-9", "cbse"],
+      "hasDrillDown": false
+    },
+    {
+      "id": "class-8",
+      "name": "Class 8th",
+      "fullName": "Class 8th Junior Foundation",
+      "icon": "BookMarked",
+      "color": "from-sky-500 to-blue-600",
+      "category": "School & Boards",
+      "tags": ["school-prep", "class-8", "junior-foundation"],
+      "hasDrillDown": false
+    },
+    {
+      "id": "class-7",
+      "name": "Class 7th",
+      "fullName": "Class 7th Middle School Foundation",
+      "icon": "BookOpen",
+      "color": "from-indigo-500 to-blue-600",
+      "category": "School & Boards",
+      "tags": ["school-prep", "class-7", "middle-school"],
+      "hasDrillDown": false
+    },
+    {
+      "id": "class-6",
+      "name": "Class 6th",
+      "fullName": "Class 6th Junior School Foundation",
+      "icon": "BookOpen",
+      "color": "from-emerald-500 to-teal-600",
+      "category": "School & Boards",
+      "tags": ["school-prep", "class-6", "junior-school"],
+      "hasDrillDown": false
+    },
+    {
+      "id": "skills",
+      "name": "Skills & Tech",
+      "fullName": "Programming, AI & Tech Skills",
+      "icon": "Code2",
+      "color": "from-purple-500 to-indigo-600",
+      "category": "Tech & Coding",
+      "tags": ["skills", "coding", "data-science", "ai", "python"],
+      "hasDrillDown": false
+    },
+    {
+      "id": "govt-exams",
+      "name": "Govt. Exams",
+      "fullName": "SSC, Banking, Railways & Defence",
+      "icon": "ShieldCheck",
+      "color": "from-rose-500 to-red-600",
+      "category": "Govt. Job Exams",
+      "tags": ["govt-exams", "ssc", "banking", "railway"],
+      "hasDrillDown": false
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat-civil-services",
+      "title": "Civil Services & State PSCs",
+      "description": "UPSC CSE, State PSCs with top civil servant mentors",
+      "icon": "Landmark",
+      "goals": [
+        {
+          "id": "upsc",
+          "name": "UPSC CSE",
+          "tagline": "Prelims, Mains & Foundation",
+          "tags": ["upsc", "civil-services"]
+        },
+        {
+          "id": "bpsc",
+          "name": "BPSC (Bihar)",
+          "tagline": "71st & 72nd CCE Exam Series",
+          "tags": ["bpsc", "state-psc"]
+        },
+        {
+          "id": "uppsc",
+          "name": "UPPSC (Uttar Pradesh)",
+          "tagline": "PCS Prelims & Mains Complete",
+          "tags": ["uppsc", "state-psc"]
+        },
+        {
+          "id": "mppsc",
+          "name": "MPPSC (Madhya Pradesh)",
+          "tagline": "State Services Exam Track",
+          "tags": ["mppsc", "state-psc"]
+        }
+      ]
+    },
+    {
+      "id": "cat-school-boards",
+      "title": "Schools, Boards & Olympiads",
+      "description": "NCERT-aligned interactive classes for Classes 6th - 12th",
+      "icon": "GraduationCap",
+      "goals": [
+        {
+          "id": "class-12",
+          "name": "Class 12th",
+          "tagline": "Board Exam Prep & CUET",
+          "tags": ["school-prep", "class-12"]
+        },
+        {
+          "id": "class-11",
+          "name": "Class 11th",
+          "tagline": "Science & Arts Foundation",
+          "tags": ["school-prep", "class-11"]
+        },
+        {
+          "id": "class-10",
+          "name": "Class 10th",
+          "tagline": "Super 50 Board Toppers",
+          "tags": ["school-prep", "class-10"]
+        },
+        {
+          "id": "class-9",
+          "name": "Class 9th",
+          "tagline": "Core STEM & Social Studies",
+          "tags": ["school-prep", "class-9"]
+        },
+        {
+          "id": "class-8",
+          "name": "Class 8th",
+          "tagline": "Junior Science & Maths",
+          "tags": ["school-prep", "class-8"]
+        },
+        {
+          "id": "class-7",
+          "name": "Class 7th",
+          "tagline": "Middle School Concept Booster",
+          "tags": ["school-prep", "class-7"]
+        },
+        {
+          "id": "class-6",
+          "name": "Class 6th",
+          "tagline": "Junior School Foundation & Half Yearly",
+          "tags": ["school-prep", "class-6"]
+        }
+      ]
+    },
+    {
+      "id": "cat-eng-medical",
+      "title": "Engineering & Medical Exams",
+      "description": "Targeted masterclasses for IIT JEE & NEET UG",
+      "icon": "Atom",
+      "goals": [
+        {
+          "id": "jee",
+          "name": "IIT JEE",
+          "tagline": "JEE Main & Advanced 2026/27",
+          "tags": ["jee", "engineering"]
+        },
+        {
+          "id": "neet",
+          "name": "NEET UG",
+          "tagline": "Medical Entrance Prep",
+          "tags": ["neet", "medical"]
+        }
+      ]
+    },
+    {
+      "id": "cat-govt-exams",
+      "title": "Government Job Exams",
+      "description": "SSC CGL, Banking, Railways & Defence tests",
+      "icon": "ShieldCheck",
+      "goals": [
+        {
+          "id": "ssc",
+          "name": "SSC Exams",
+          "tagline": "CGL, CHSL, MTS, Selection Post",
+          "tags": ["ssc", "govt-exams"]
+        },
+        {
+          "id": "banking",
+          "name": "Banking Exams",
+          "tagline": "IBPS PO, Clerk, SBI, RBI",
+          "tags": ["banking", "govt-exams"]
+        },
+        {
+          "id": "railways",
+          "name": "Railways",
+          "tagline": "RRB NTPC, Group D, Technician",
+          "tags": ["railway", "govt-exams"]
+        }
+      ]
+    },
+    {
+      "id": "cat-tech-skills",
+      "title": "Tech, Coding & AI",
+      "description": "Full-stack development, Python, DSA, AI & Data Science",
+      "icon": "Code2",
+      "goals": [
+        {
+          "id": "data-science",
+          "name": "Data Science & AI",
+          "tagline": "Python, Machine Learning, Deep Learning",
+          "tags": ["skills", "data-science", "ai", "machine-learning"]
+        },
+        {
+          "id": "dsa-interview",
+          "name": "DSA & Coding Interviews",
+          "tagline": "LeetCode style problem solving",
+          "tags": ["skills", "coding", "dsa", "algorithms"]
+        }
+      ]
+    }
+  ],
+  "otherOfferings": [
+    {
+      "id": "ncert-foundation",
+      "title": "Free NCERT Foundation Series",
+      "description": "6th to 12th General Studies summary lectures & notes",
+      "badge": "Free Access",
+      "icon": "BookOpen"
+    },
+    {
+      "id": "career-guidance",
+      "title": "Career Counseling & Mentorship",
+      "description": "1-on-1 guidance sessions with rankers & industry leads",
+      "badge": "Mentorship",
+      "icon": "Users"
+    },
+    {
+      "id": "spoken-english",
+      "title": "Spoken English & Personality",
+      "description": "Communication masterclass for interviews and corporate life",
+      "badge": "Certification",
+      "icon": "Sparkles"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF2E5"/>
+      <stop offset="100%" stop-color="#FFE0C2"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="250" cy="250" r="220" fill="url(#bgGrad)" />
+  
+  <!-- Desk/surface -->
+  <ellipse cx="250" cy="420" rx="190" ry="25" fill="#E8D4C0" opacity="0.6"/>
+
+  <!-- Girl / Child Character -->
+  <!-- Body / Clothes -->
+  <path d="M170 380 Q250 340 330 380 L340 460 L160 460 Z" fill="#2D2B3A" />
+  <rect x="235" y="320" width="30" height="40" fill="#E8B08B" rx="8"/>
+  
+  <!-- Head -->
+  <circle cx="250" cy="240" r="85" fill="#F2C2A0" />
+  <!-- Hair (Ponytails & volume) -->
+  <path d="M165 240 C140 160 210 120 250 120 C290 120 360 160 335 240 C320 180 300 170 250 170 C200 170 180 180 165 240 Z" fill="#1C1818"/>
+  <ellipse cx="150" cy="250" rx="25" ry="45" fill="#1C1818"/>
+  <ellipse cx="350" cy="250" rx="25" ry="45" fill="#1C1818"/>
+
+  <!-- Face features (Smiling child) -->
+  <!-- Happy Eyes -->
+  <path d="M210 230 Q225 215 240 230" fill="none" stroke="#222" stroke-width="4" stroke-linecap="round"/>
+  <path d="M260 230 Q275 215 290 230" fill="none" stroke="#222" stroke-width="4" stroke-linecap="round"/>
+  <!-- Cheeks -->
+  <circle cx="205" cy="255" r="10" fill="#FF8D7B" opacity="0.5"/>
+  <circle cx="295" cy="255" r="10" fill="#FF8D7B" opacity="0.5"/>
+  <!-- Smile -->
+  <path d="M225 270 Q250 300 275 270" fill="#B32B1A" stroke="#901E10" stroke-width="2"/>
+  <path d="M235 272 Q250 282 265 272" fill="#FFFFFF"/>
+
+  <!-- Mobile phone device held in hands -->
+  <rect x="215" y="300" width="70" height="120" rx="14" fill="#585273" stroke="#3D3855" stroke-width="3" transform="rotate(-6 250 360)"/>
+  <rect x="220" y="310" width="60" height="98" rx="8" fill="#5EEAD4" transform="rotate(-6 250 360)"/>
+  <circle cx="248" cy="412" r="3" fill="#DDD" transform="rotate(-6 250 360)"/>
+  
+  <!-- Hands holding phone -->
+  <circle cx="205" cy="360" r="18" fill="#F2C2A0"/>
+  <circle cx="290" cy="350" r="18" fill="#F2C2A0"/>
+
+  <!-- Floating study doodles -->
+  <g stroke="#F97316" stroke-width="2.5" fill="none" opacity="0.7">
+    <!-- Atom symbol -->
+    <ellipse cx="90" cy="330" rx="20" ry="7" transform="rotate(30 90 330)"/>
+    <ellipse cx="90" cy="330" rx="20" ry="7" transform="rotate(-30 90 330)"/>
+    <circle cx="90" cy="330" r="3" fill="#F97316"/>
+    <!-- Flask/Beaker -->
+    <path d="M400 310 L415 310 L425 335 L390 335 Z"/>
+    <line x1="407" y1="310" x2="407" y2="300"/>
+    <!-- Cube -->
+    <polygon points="100,160 120,150 140,160 120,170"/>
+    <polygon points="100,160 120,170 120,190 100,180"/>
+    <polygon points="140,160 120,170 120,190 140,180"/>
+  </g>
+</svg>

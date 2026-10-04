@@ -1,0 +1,62 @@
+{
+  "cmtyxmxpb000gxponiujipccr": {
+    "courseId": "cmtyxmxpb000gxponiujipccr",
+    "featuresTitle": "This course includes",
+    "features": [
+      "AI assistance for guided coding help ok",
+      "Projects to apply new skills thik",
+      "Quizzes to test your knowledge hai",
+      "A certificate of completion"
+    ],
+    "projectCount": 14,
+    "skillsTitle": "Skills you'll gain",
+    "skills": [
+      "Build core programming concepts aa",
+      "Write modular, object-oriented software bb",
+      "Implement efficient data structures and cc algorithms",
+      "Debug code and fix complex runtime exceptions",
+      "Publish completed capstone portfolio projects"
+    ],
+    "updatedAt": "2026-09-12T22:09:38.427Z"
+  },
+  "cmupyp8dw0000xp6bo59i4cdj": {
+    "courseId": "cmupyp8dw0000xp6bo59i4cdj",
+    "featuresTitle": "This course includes",
+    "features": [
+      "AI assistance for guided coding help",
+      "Projects to apply new skills",
+      "Quizzes to test your knowledge",
+      "A certificate of completion"
+    ],
+    "projectCount": 2,
+    "skillsTitle": "Skills you'll gain",
+    "skills": [
+      "Build core programming concepts",
+      "Write modular, object-oriented software",
+      "Implement efficient data structures and algorithms",
+      "Debug code and fix complex runtime exceptions",
+      "Publish completed capstone portfolio projects"
+    ],
+    "updatedAt": "2026-10-01T20:03:42.113Z"
+  },
+  "test-genai-masterclass": {
+    "courseId": "test-genai-masterclass",
+    "featuresTitle": "This course includes",
+    "features": [
+      "AI assistance for guided coding help",
+      "Projects to apply new skills",
+      "Quizzes to test your knowledge",
+      "A certificate of completion"
+    ],
+    "projectCount": 2,
+    "skillsTitle": "Skills you'll gain",
+    "skills": [
+      "Build core programming concepts",
+      "Write modular, object-oriented software",
+      "Implement efficient data structures and algorithms",
+      "Debug code and fix complex runtime exceptions",
+      "Publish completed capstone portfolio projects"
+    ],
+    "updatedAt": "2026-10-01T20:03:42.116Z"
+  }
+}

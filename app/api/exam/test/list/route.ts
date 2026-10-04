@@ -1,0 +1,116 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+
+function mapQuestion(q: any, idx: number) {
+  return {
+    id: idx + 1,
+    text: q.questionEn,
+    textHi: q.questionHi,
+    options: [q.optionAEn, q.optionBEn, q.optionCEn, q.optionDEn].filter(Boolean),
+    optionsHi: [q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi].filter(Boolean),
+    subject: q.subject || "General Studies",
+  };
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const seriesId = searchParams.get("seriesId");
+    const category = searchParams.get("category");
+    const includeQuestions = searchParams.get("includeQuestions") === "1";
+
+    const conditions: any[] = [{ isPublished: true }];
+
+    if (seriesId) {
+      conditions.push({
+        OR: [
+          { seriesId: seriesId },
+          { series: { slug: seriesId } },
+          { id: seriesId },
+        ],
+      });
+    }
+
+    if (category) {
+      conditions.push({
+        OR: [
+          { series: { category: { contains: category, mode: "insensitive" } } },
+          { series: { slug: { contains: category, mode: "insensitive" } } },
+          { series: { title: { contains: category, mode: "insensitive" } } },
+          { title: { contains: category, mode: "insensitive" } },
+        ],
+      });
+    }
+
+    const tests = await prisma.examTest.findMany({
+      where: { AND: conditions },
+      select: {
+        id: true,
+        seriesId: true,
+        title: true,
+        titleHi: true,
+        testType: true,
+        totalQuestions: true,
+        totalMarks: true,
+        durationMinutes: true,
+        accessMode: true,
+        series: {
+          select: { title: true, category: true, slug: true },
+        },
+        ...(includeQuestions
+          ? {
+              sections: {
+                orderBy: { order: "asc" as const },
+                include: {
+                  questions: {
+                    orderBy: { order: "asc" as const },
+                  },
+                },
+              },
+            }
+          : {}),
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const mapped = tests.map((t: any) => {
+      const qCount = includeQuestions
+        ? (t.sections || []).reduce((acc: number, s: any) => acc + (s.questions?.length || 0), 0)
+        : 0;
+      return {
+        id: t.id,
+        seriesId: t.seriesId,
+        seriesSlug: t.series?.slug || t.seriesId,
+        seriesTitle: t.series?.title || "Test Series",
+        category: t.series?.category || "General Studies",
+        title: t.title,
+        titleHi: t.titleHi,
+        testType: t.testType,
+        questions: t.totalQuestions || qCount || 5,
+        marks: t.totalMarks || qCount || 5,
+        durationMinutes: t.durationMinutes || 10,
+        languages: "English, Hindi",
+        isFree: t.accessMode === "FREE",
+        attempts: 120,
+        isNew: true,
+        questionsList: includeQuestions
+          ? (t.sections || []).flatMap((s: any) => (s.questions || []).map(mapQuestion))
+          : [],
+      };
+    });
+
+    return NextResponse.json(
+      { success: true, data: mapped },
+      {
+        headers: {
+          "Cache-Control": includeQuestions
+            ? "private, no-store"
+            : "public, s-maxage=30, stale-while-revalidate=60",
+        },
+      }
+    );
+  } catch (error) {
+    console.error("[GET /api/exam/test/list]", error);
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
+  }
+}

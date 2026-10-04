@@ -1,0 +1,33 @@
+{
+  "platformName": "aspirantbook",
+  "tagline": "Master high-demand tech skills with interactive coding courses & live mentorship.",
+  "supportEmail": "support@aspirantbook.com",
+  "supportPhone": "+918340665934",
+  "defaultLanguage": "English (US)",
+  "timezone": "Asia/Kolkata (IST)",
+  "maintenanceMode": false,
+  "announcement": {
+    "enabled": true,
+    "text": "🚀 New Generative AI & Python Career Tracks are now live! Enroll today to claim early-bird certification.",
+    "badge": "NEW RELEASE",
+    "linkUrl": "/courses"
+  },
+  "passingGradePercent": 75,
+  "allowFreePreview": true,
+  "autoIssueCertificates": true,
+  "aiTutorEnabled": true,
+  "maxVideoUploadMb": 500,
+  "proMonthlyPrice": 9.99,
+  "proYearlyPrice": 99,
+  "currency": "USD ($)",
+  "paymentGatewayMode": "sandbox",
+  "stripeEnabled": true,
+  "razorpayEnabled": true,
+  "allowDiscounts": true,
+  "defaultClassResolution": "1080p",
+  "defaultWhiteboardEnabled": true,
+  "studentScreenShareAllowed": false,
+  "chatModerationEnabled": true,
+  "maxClassParticipants": 100,
+  "recordingRetentionDays": 60
+}

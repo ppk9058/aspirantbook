@@ -1,0 +1,1549 @@
+"use client"
+
+import { useState, useEffect, useMemo, Suspense } from "react"
+import { useSearchParams, useParams, useRouter } from "next/navigation"
+import {
+  Trophy,
+  Download,
+  RotateCcw,
+  ArrowLeft,
+  Clock,
+  CheckCircle,
+  XCircle,
+  MinusCircle,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Award,
+  BookOpen,
+} from "lucide-react"
+
+// ─────────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────────
+
+interface SubjectRow {
+  subject: string
+  total: number
+  correct: number
+  wrong: number
+  skipped: number
+  marks: number
+}
+
+interface QuestionRow {
+  no: number
+  id?: string | number
+  text: string
+  textHi?: string | null
+  subject: string
+  yourAnswer: string
+  yourAnswerText?: string
+  correctAnswer: string
+  correctAnswerText?: string
+  status: "correct" | "wrong" | "skipped"
+  timeSpent: number // seconds
+  explanation: string
+  explanationHi?: string | null
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SVG Donut Chart (Mathematical Accuracy)
+// ─────────────────────────────────────────────────────────────────
+
+function DonutChart({
+  correctMarks,
+  negativeMarks,
+  unattempted,
+  totalScore,
+}: {
+  correctMarks: number
+  negativeMarks: number
+  unattempted: number
+  totalScore: number
+}) {
+  const size = 160
+  const r = 60
+  const cx = size / 2
+  const cy = size / 2
+  const circumference = 2 * Math.PI * r
+
+  const segments = [
+    { value: Math.max(0, correctMarks), color: "#22c55e", label: "Correct Marks" },
+    { value: Math.max(0, negativeMarks), color: "#ef4444", label: "Negative Marks" },
+    { value: Math.max(0, unattempted), color: "#d1d5db", label: "Unattempted" },
+  ]
+  const sum = segments.reduce((a, s) => a + s.value, 0) || 1
+
+  let offset = 0
+  const arcs = segments.map((seg) => {
+    const frac = seg.value / sum
+    const dash = frac * circumference
+    const gap = circumference - dash
+    const arc = { ...seg, dashArray: `${dash} ${gap}`, dashOffset: (-offset * circumference) / sum }
+    offset += seg.value
+    return arc
+  })
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+      <div style={{ position: "relative", width: size, height: size }}>
+        <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+          {arcs.map((arc, i) => (
+            <circle
+              key={i}
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill="none"
+              stroke={arc.color}
+              strokeWidth={22}
+              strokeDasharray={arc.dashArray}
+              strokeDashoffset={arc.dashOffset}
+              strokeLinecap="butt"
+            />
+          ))}
+        </svg>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span style={{ fontSize: 22, fontWeight: 900, color: "#111827" }}>
+            {totalScore.toFixed(1)}
+          </span>
+          <span style={{ fontSize: 10, color: "#6b7280", fontWeight: 700, textTransform: "uppercase" }}>
+            Total Score
+          </span>
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
+        {[
+          { color: "#22c55e", label: "Correct Marks", val: `+${correctMarks.toFixed(1)}` },
+          { color: "#ef4444", label: "Negative Marks", val: `-${negativeMarks.toFixed(2)}` },
+          { color: "#d1d5db", label: "Unattempted", val: `${unattempted} Qs` },
+        ].map((item) => (
+          <div
+            key={item.label}
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 12 }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color, flexShrink: 0 }} />
+              <span style={{ color: "#374151" }}>{item.label}</span>
+            </div>
+            <span style={{ fontWeight: 700, color: "#111827" }}>{item.val}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CSS Pie (Attempt Summary)
+// ─────────────────────────────────────────────────────────────────
+
+function AttemptPie({ answered, skipped, notVisited }: { answered: number; skipped: number; notVisited: number }) {
+  const total = answered + skipped + notVisited || 1
+  const aFrac = answered / total
+  const sFrac = skipped / total
+
+  const pieSegments = [
+    { color: "#22c55e", pct: aFrac * 100, label: "Answered", count: answered },
+    { color: "#ef4444", pct: sFrac * 100, label: "Not Answered", count: skipped },
+    { color: "#9ca3af", pct: (notVisited / total) * 100, label: "Not Visited", count: notVisited },
+  ]
+
+  return (
+    <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+      <div style={{ flexShrink: 0 }}>
+        <svg width={100} height={100} viewBox="0 0 36 36">
+          {(() => {
+            let cumul = 0
+            return pieSegments.map((seg, i) => {
+              const x1 = Math.cos(2 * Math.PI * cumul - Math.PI / 2)
+              const y1 = Math.sin(2 * Math.PI * cumul - Math.PI / 2)
+              const frac = seg.pct / 100
+              cumul += frac
+              const x2 = Math.cos(2 * Math.PI * cumul - Math.PI / 2)
+              const y2 = Math.sin(2 * Math.PI * cumul - Math.PI / 2)
+              const large = frac > 0.5 ? 1 : 0
+              const d =
+                frac === 0
+                  ? ""
+                  : frac === 1
+                  ? `M 18 18 m -16 0 a 16,16 0 1,1 32,0 a 16,16 0 1,1 -32,0`
+                  : `M 18 18 L ${18 + 16 * x1} ${18 + 16 * y1} A 16 16 0 ${large} 1 ${18 + 16 * x2} ${18 + 16 * y2} Z`
+              return <path key={i} d={d} fill={seg.color} />
+            })
+          })()}
+        </svg>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {pieSegments.map((seg) => (
+          <div key={seg.label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 2, background: seg.color, flexShrink: 0 }} />
+            <span style={{ color: "#374151" }}>{seg.label}</span>
+            <span style={{ fontWeight: 700, color: "#111827", marginLeft: "auto" }}>{seg.count}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Solution Modal
+// ─────────────────────────────────────────────────────────────────
+
+function SolutionModal({ q, onClose }: { q: QuestionRow; onClose: () => void }) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 200,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(0,0,0,0.6)",
+        backdropFilter: "blur(2px)",
+        padding: 16,
+      }}
+    >
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 20,
+          border: "1px solid #e5e7eb",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+          maxWidth: 580,
+          width: "100%",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          padding: 28,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 16, fontWeight: 900, color: "#111827" }}>Question {q.no}</span>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 800,
+                padding: "2px 8px",
+                borderRadius: 12,
+                background: "#f1f5f9",
+                color: "#475569",
+              }}
+            >
+              {q.subject}
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#9ca3af",
+              padding: 4,
+            }}
+          >
+            <X style={{ width: 20, height: 20 }} />
+          </button>
+        </div>
+
+        {/* Question Text */}
+        <div
+          style={{
+            padding: "14px 16px",
+            borderRadius: 12,
+            background: "#f8fafc",
+            border: "1px solid #e2e8f0",
+            marginBottom: 16,
+          }}
+        >
+          <p style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", margin: 0, lineHeight: 1.6 }}>{q.text}</p>
+          {q.textHi && (
+            <p style={{ fontSize: 12, color: "#64748b", margin: "8px 0 0", lineHeight: 1.5 }}>{q.textHi}</p>
+          )}
+        </div>
+
+        {/* Answers Compare Grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 18 }}>
+          <div
+            style={{
+              padding: "12px 14px",
+              borderRadius: 12,
+              background: q.status === "correct" ? "#f0fdf4" : "#fef2f2",
+              border: `1px solid ${q.status === "correct" ? "#86efac" : "#fca5a5"}`,
+            }}
+          >
+            <div style={{ fontSize: 10, color: "#64748b", fontWeight: 700, marginBottom: 4, textTransform: "uppercase" }}>
+              YOUR ANSWER
+            </div>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 800,
+                color: q.status === "correct" ? "#16a34a" : "#dc2626",
+              }}
+            >
+              {q.yourAnswer} {q.yourAnswerText ? `(${q.yourAnswerText})` : ""}
+            </div>
+          </div>
+          <div
+            style={{
+              padding: "12px 14px",
+              borderRadius: 12,
+              background: "#f0fdf4",
+              border: "1px solid #86efac",
+            }}
+          >
+            <div style={{ fontSize: 10, color: "#64748b", fontWeight: 700, marginBottom: 4, textTransform: "uppercase" }}>
+              CORRECT ANSWER
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: "#16a34a" }}>
+              {q.correctAnswer} {q.correctAnswerText ? `(${q.correctAnswerText})` : ""}
+            </div>
+          </div>
+        </div>
+
+        {/* Explanation */}
+        <div
+          style={{
+            padding: "16px 18px",
+            borderRadius: 12,
+            background: "#eff6ff",
+            border: "1px solid #bfdbfe",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 800,
+              color: "#1d4ed8",
+              marginBottom: 8,
+              textTransform: "uppercase",
+              letterSpacing: 0.5,
+            }}
+          >
+            💡 Detailed Solution &amp; Explanation
+          </div>
+          <p style={{ fontSize: 13, color: "#1e3a8a", lineHeight: 1.6, margin: 0 }}>{q.explanation}</p>
+          {q.explanationHi && (
+            <p style={{ fontSize: 12, color: "#3b82f6", lineHeight: 1.5, margin: "8px 0 0" }}>{q.explanationHi}</p>
+          )}
+        </div>
+
+        <button
+          onClick={onClose}
+          style={{
+            width: "100%",
+            marginTop: 20,
+            padding: "12px 0",
+            borderRadius: 12,
+            background: "#0ea5e9",
+            color: "#fff",
+            fontWeight: 800,
+            fontSize: 14,
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Close Solution
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────
+// RESULT PAGE CONTENT
+// ─────────────────────────────────────────────────────────────────
+
+const PAGE_SIZE = 20
+
+function ResultContent() {
+  const params = useParams()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  const seriesId = (params?.id as string) || "bpsc-72nd-2026"
+  const attemptId = searchParams.get("attemptId")
+
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [serverResult, setServerResult] = useState<any>(null)
+
+  useEffect(() => {
+    if (!attemptId) {
+      setError("No attempt ID provided. Please complete an exam attempt first.")
+      setLoading(false)
+      return
+    }
+
+    let isSubscribed = true
+    fetch(`/api/exam/attempt/${encodeURIComponent(attemptId)}/result`)
+      .then(async (res) => {
+        if (!res.ok) {
+          if (res.status === 404) throw new Error("Attempt not found.")
+          if (res.status === 409) throw new Error("This attempt is still in progress and has not been submitted.")
+          throw new Error("Failed to load test results.")
+        }
+        return res.json()
+      })
+      .then((json) => {
+        if (!isSubscribed) return
+        if (json.data) {
+          setServerResult(json.data)
+          setLoading(false)
+        } else {
+          throw new Error("Invalid result payload received.")
+        }
+      })
+      .catch((err) => {
+        if (isSubscribed) {
+          setError(err.message || "Failed to load result.")
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      isSubscribed = false
+    }
+  }, [attemptId])
+
+  // State
+  const [activeSection, setActiveSection] = useState<"analysis" | "questions">("analysis")
+  const [qPage, setQPage] = useState(0)
+  const [showSolution, setShowSolution] = useState<QuestionRow | null>(null)
+  const [expandSubject, setExpandSubject] = useState(true)
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: "100vh", width: "100vw", background: "#f3f4f6", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'Inter', system-ui, sans-serif", gap: 16 }}>
+        <div style={{ width: 52, height: 52, border: "4px solid #0ea5e9", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <p style={{ fontSize: 15, fontWeight: 700, color: "#374151" }}>Loading authoritative exam results...</p>
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      </div>
+    )
+  }
+
+  if (error || !serverResult) {
+    return (
+      <div style={{ minHeight: "100vh", width: "100vw", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'Inter', system-ui, sans-serif" }}>
+        <div style={{ maxWidth: 420, width: "100%", background: "#fff", borderRadius: 16, padding: 32, textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#fee2e2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+            <XCircle style={{ width: 28, height: 28 }} />
+          </div>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111827", margin: "0 0 8px" }}>Result Not Found</h2>
+          <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 20px", lineHeight: 1.5 }}>
+            {error || "No result found for this exam attempt. Please attempt the test or check your test series."}
+          </p>
+          <button
+            onClick={() => router.push(`/test-series/${seriesId}`)}
+            style={{
+              padding: "10px 24px",
+              borderRadius: 10,
+              background: "#0d9488",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 14,
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            Back to Test Series
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Authoritative server numbers
+  const testTitle = serverResult.test?.title || "Exam Result"
+  const totalMarks = serverResult.totalMarks || (serverResult.test?.totalMarks ?? 0)
+  const score = serverResult.score ?? 0
+  const correct = serverResult.correctCount ?? 0
+  const wrong = serverResult.wrongCount ?? 0
+  const skipped = serverResult.skippedCount ?? 0
+  const totalQs = (serverResult.questionAnalysis?.length || correct + wrong + skipped) || 1
+  const timeSecs = serverResult.timeTakenSecs ?? 0
+  const durationMin = serverResult.test?.durationMinutes ?? 120
+  const tabSwitches = serverResult.tabSwitchCount ?? 0
+  const totalCandidates = typeof serverResult.totalCandidates === "number" && serverResult.totalCandidates > 0 ? serverResult.totalCandidates : null
+  const rank = typeof serverResult.allIndiaRank === "number" ? serverResult.allIndiaRank : null
+  const percentile = typeof serverResult.percentile === "number" ? serverResult.percentile : null
+
+  const passed = totalMarks > 0 ? (score / totalMarks) * 100 >= 40 : true
+  const timeMins = Math.floor(timeSecs / 60)
+  const timeSec2 = timeSecs % 60
+
+  let correctMarks = 0
+  let negativeMarks = 0
+  if (Array.isArray(serverResult.questionAnalysis)) {
+    for (const qa of serverResult.questionAnalysis) {
+      if (qa.isCorrect) {
+        correctMarks += (qa.marksAwarded ?? 1.0)
+      } else if (qa.selectedOption) {
+        negativeMarks += Math.abs(qa.marksAwarded ?? 0.33)
+      }
+    }
+  }
+
+  // Build real QuestionRow[] list from server questionAnalysis
+  const allQuestions: QuestionRow[] = (serverResult.questionAnalysis || []).map((qa: any, idx: number) => {
+    const isAttempted = Boolean(qa.selectedOption)
+    const status: "correct" | "wrong" | "skipped" = !isAttempted
+      ? "skipped"
+      : qa.isCorrect
+      ? "correct"
+      : "wrong"
+
+    return {
+      no: idx + 1,
+      id: qa.questionId,
+      text: qa.questionEn || "",
+      textHi: qa.questionHi || null,
+      subject: qa.subject || "General Studies",
+      yourAnswer: qa.selectedOption || "—",
+      yourAnswerText: qa.selectedOptionText || "Not Attempted",
+      correctAnswer: qa.correctOption || "—",
+      correctAnswerText: qa.correctOptionText || "",
+      status,
+      timeSpent: qa.timeSpentSecs || 0,
+      explanation: qa.explanationEn || "No explanation provided.",
+      explanationHi: qa.explanationHi || null,
+    }
+  })
+
+  // Subject-wise performance from server subjectBreakdown
+  const subjectRows: SubjectRow[] = (serverResult.subjectBreakdown || []).map((sb: any) => ({
+    subject: sb.subject || "General Studies",
+    total: sb.total,
+    correct: sb.correct,
+    wrong: sb.wrong,
+    skipped: sb.skipped,
+    marks: sb.marksObtained,
+  }))
+
+  const totalPages = Math.ceil(allQuestions.length / PAGE_SIZE)
+  const pageQuestions = allQuestions.slice(qPage * PAGE_SIZE, (qPage + 1) * PAGE_SIZE)
+
+  const statusColor = (s: QuestionRow["status"]) =>
+    s === "correct" ? "#16a34a" : s === "wrong" ? "#dc2626" : "#6b7280"
+  const statusBg = (s: QuestionRow["status"]) =>
+    s === "correct" ? "#f0fdf4" : s === "wrong" ? "#fef2f2" : "#f9fafb"
+  const statusIcon = (s: QuestionRow["status"]) =>
+    s === "correct" ? "✓" : s === "wrong" ? "✗" : "—"
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100vw",
+        background: "#f3f4f6",
+        fontFamily: "'Inter', system-ui, sans-serif",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f3f4f6; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+      `}</style>
+
+      {/* ══ TOP BAR ══════════════════════════════════════════════ */}
+      <header
+        style={{
+          height: 52,
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 24px",
+          borderBottom: "1px solid #e5e7eb",
+          background: "#fff",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 26,
+                height: 26,
+                background: "linear-gradient(135deg,#0d9488,#0ea5e9)",
+                borderRadius: 6,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <span style={{ color: "#fff", fontSize: 9, fontWeight: 900 }}>TS</span>
+            </div>
+            <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 15 }}>aspirantbook</span>
+          </div>
+          <div style={{ width: 1, height: 20, background: "#e5e7eb", margin: "0 4px" }} />
+          <span
+            style={{
+              color: "#374151",
+              fontSize: 13,
+              fontWeight: 600,
+              maxWidth: 420,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {testTitle}
+          </span>
+        </div>
+        <div
+          style={{
+            padding: "4px 14px",
+            borderRadius: 20,
+            background: "linear-gradient(90deg,#6366f1,#8b5cf6)",
+            color: "#fff",
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: 0.5,
+          }}
+        >
+          📊 Comprehensive Test Analytics
+        </div>
+      </header>
+
+      {/* ══ HERO RESULT CARD ═════════════════════════════════════ */}
+      <div
+        style={{
+          background: "linear-gradient(135deg,#1e3a5f 0%,#1e40af 40%,#0ea5e9 100%)",
+          padding: "28px 24px 24px",
+          color: "#fff",
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          {/* Score Row */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 20,
+            }}
+          >
+            {/* Score + Pass/Fail */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.85, textTransform: "uppercase", letterSpacing: 1 }}>
+                Your Score
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+                <span style={{ fontSize: 56, fontWeight: 900, lineHeight: 1, letterSpacing: -1 }}>
+                  {score.toFixed(2)}
+                </span>
+                <span style={{ fontSize: 22, fontWeight: 600, opacity: 0.75 }}>/ {totalMarks}</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}>
+                <div
+                  style={{
+                    padding: "4px 14px",
+                    borderRadius: 20,
+                    fontWeight: 800,
+                    fontSize: 13,
+                    background: passed ? "#22c55e" : "#ef4444",
+                    color: "#fff",
+                    letterSpacing: 1,
+                  }}
+                >
+                  {passed ? "✓ PASSED" : "✗ FAILED"}
+                </div>
+                <div style={{ fontSize: 13, opacity: 0.9 }}>
+                  {percentile !== null ? (
+                    <>Better than <strong>{percentile}%</strong> students</>
+                  ) : (
+                    <span>Percentile: <em>Not available</em></span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* AIR Badge */}
+            <div
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                backdropFilter: "blur(8px)",
+                borderRadius: 16,
+                border: "1px solid rgba(255,255,255,0.25)",
+                padding: "16px 24px",
+                textAlign: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Trophy style={{ width: 28, height: 28, color: "#fbbf24", marginBottom: 6 }} />
+              <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 700, letterSpacing: 0.5 }}>ALL INDIA RANK</div>
+              <div style={{ fontSize: rank !== null ? 28 : 18, fontWeight: 900, color: "#fbbf24" }}>
+                {rank !== null ? `#${rank}` : "Not available"}
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.8 }}>
+                {totalCandidates !== null ? `out of ${totalCandidates} candidate${totalCandidates === 1 ? "" : "s"}` : "Rank pending peer attempts"}
+              </div>
+            </div>
+          </div>
+
+          {/* Stat Pills — 100% Mathematically Reconciled */}
+          <div style={{ display: "flex", gap: 12, marginTop: 22, flexWrap: "wrap" }}>
+            {[
+              {
+                icon: <CheckCircle style={{ width: 16, height: 16 }} />,
+                label: "Correct",
+                val: `+${correct}`,
+                bg: "rgba(34,197,94,0.25)",
+                border: "rgba(34,197,94,0.5)",
+                val2: `+${correctMarks.toFixed(2)} marks`,
+              },
+              {
+                icon: <XCircle style={{ width: 16, height: 16 }} />,
+                label: "Wrong",
+                val: `-${wrong}`,
+                bg: "rgba(239,68,68,0.25)",
+                border: "rgba(239,68,68,0.5)",
+                val2: `-${negativeMarks.toFixed(2)} marks`,
+              },
+              {
+                icon: <MinusCircle style={{ width: 16, height: 16 }} />,
+                label: "Skipped",
+                val: `${skipped}`,
+                bg: "rgba(156,163,175,0.25)",
+                border: "rgba(156,163,175,0.5)",
+                val2: "no marks",
+              },
+              {
+                icon: <Clock style={{ width: 16, height: 16 }} />,
+                label: "Time Taken",
+                val: `${timeMins}m ${timeSec2}s`,
+                bg: "rgba(14,165,233,0.25)",
+                border: "rgba(14,165,233,0.5)",
+                val2: `of ${durationMin}m total`,
+              },
+            ].map((pill) => (
+              <div
+                key={pill.label}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "10px 18px",
+                  borderRadius: 12,
+                  background: pill.bg,
+                  border: `1px solid ${pill.border}`,
+                  backdropFilter: "blur(4px)",
+                  flexShrink: 0,
+                }}
+              >
+                <div style={{ opacity: 0.9 }}>{pill.icon}</div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      opacity: 0.75,
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    {pill.label}
+                  </div>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}>{pill.val}</div>
+                  <div style={{ fontSize: 10, opacity: 0.8 }}>{pill.val2}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ══ SECTION TABS ═════════════════════════════════════════ */}
+      <div
+        style={{
+          background: "#fff",
+          borderBottom: "1px solid #e5e7eb",
+          display: "flex",
+          alignItems: "center",
+          padding: "0 24px",
+          gap: 4,
+          flexShrink: 0,
+        }}
+      >
+        {[
+          { key: "analysis", label: "📈 Analysis & Performance Breakdown" },
+          { key: "questions", label: `📋 Question-wise Review (${totalQs} Questions)` },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveSection(tab.key as typeof activeSection)}
+            style={{
+              padding: "14px 20px",
+              border: "none",
+              background: "none",
+              fontSize: 13,
+              fontWeight: 800,
+              cursor: "pointer",
+              color: activeSection === tab.key ? "#0ea5e9" : "#6b7280",
+              borderBottom: activeSection === tab.key ? "3px solid #0ea5e9" : "3px solid transparent",
+              transition: "all 0.15s",
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ══ MAIN CONTENT ═════════════════════════════════════════ */}
+      <div style={{ flex: 1, padding: "20px 24px", maxWidth: 1200, margin: "0 auto", width: "100%" }}>
+        {activeSection === "analysis" && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 20,
+              animation: "slideDown 0.3s ease",
+            }}
+          >
+            {/* ── LEFT COLUMN ──────────────────────────────────── */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {/* Score Breakdown */}
+              <div
+                style={{
+                  background: "#fff",
+                  borderRadius: 16,
+                  border: "1px solid #e5e7eb",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                  padding: 24,
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: "#111827",
+                    margin: "0 0 20px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 4,
+                      height: 18,
+                      background: "linear-gradient(#22c55e,#0ea5e9)",
+                      borderRadius: 4,
+                    }}
+                  />
+                  Score Breakdown
+                </h3>
+                <DonutChart
+                  correctMarks={correctMarks}
+                  negativeMarks={negativeMarks}
+                  unattempted={skipped}
+                  totalScore={score}
+                />
+              </div>
+
+              {/* Subject-wise Performance — Dynamically based on actual test questions */}
+              <div
+                style={{
+                  background: "#fff",
+                  borderRadius: 16,
+                  border: "1px solid #e5e7eb",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                  overflow: "hidden",
+                }}
+              >
+                <button
+                  onClick={() => setExpandSubject((e) => !e)}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "16px 20px",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    borderBottom: expandSubject ? "1px solid #f3f4f6" : "none",
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 800,
+                      color: "#111827",
+                      margin: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 4,
+                        height: 18,
+                        background: "linear-gradient(#6366f1,#8b5cf6)",
+                        borderRadius: 4,
+                      }}
+                    />
+                    Subject-wise Performance ({totalQs} Qs Total)
+                  </h3>
+                  <span style={{ color: "#9ca3af", fontSize: 16 }}>{expandSubject ? "▾" : "▸"}</span>
+                </button>
+                {expandSubject && (
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                      <thead>
+                        <tr style={{ background: "#f9fafb" }}>
+                          {["Subject", "Total Qs", "Correct", "Wrong", "Skipped", "Marks"].map((h) => (
+                            <th
+                              key={h}
+                              style={{
+                                padding: "10px 12px",
+                                textAlign: h === "Subject" ? "left" : "center",
+                                fontWeight: 700,
+                                color: "#374151",
+                                fontSize: 11,
+                                textTransform: "uppercase",
+                                letterSpacing: 0.5,
+                                borderBottom: "1px solid #e5e7eb",
+                              }}
+                            >
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {subjectRows.map((row, i) => (
+                          <tr key={row.subject} style={{ background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
+                            <td style={{ padding: "10px 12px", fontWeight: 700, color: "#1f2937" }}>
+                              {row.subject}
+                            </td>
+                            <td style={{ padding: "10px 12px", textAlign: "center", color: "#374151" }}>
+                              {row.total}
+                            </td>
+                            <td style={{ padding: "10px 12px", textAlign: "center", color: "#16a34a", fontWeight: 800 }}>
+                              {row.correct}
+                            </td>
+                            <td style={{ padding: "10px 12px", textAlign: "center", color: "#dc2626", fontWeight: 800 }}>
+                              {row.wrong}
+                            </td>
+                            <td style={{ padding: "10px 12px", textAlign: "center", color: "#6b7280" }}>
+                              {row.skipped}
+                            </td>
+                            <td style={{ padding: "10px 12px", textAlign: "center" }}>
+                              <span
+                                style={{
+                                  padding: "2px 10px",
+                                  borderRadius: 20,
+                                  background: row.marks >= 0 ? "#f0fdf4" : "#fef2f2",
+                                  color: row.marks >= 0 ? "#16a34a" : "#dc2626",
+                                  fontWeight: 800,
+                                  fontSize: 12,
+                                }}
+                              >
+                                {row.marks >= 0 ? "+" : ""}
+                                {row.marks.toFixed(2)}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ── RIGHT COLUMN ─────────────────────────────────── */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {/* Time Analysis — Calculated from actual elapsed time */}
+              <div
+                style={{
+                  background: "#fff",
+                  borderRadius: 16,
+                  border: "1px solid #e5e7eb",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                  padding: 24,
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: "#111827",
+                    margin: "0 0 18px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 4,
+                      height: 18,
+                      background: "linear-gradient(#f59e0b,#f97316)",
+                      borderRadius: 4,
+                    }}
+                  />
+                  Time Analysis
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  {[
+                    {
+                      label: "Avg time on Correct",
+                      val: correct > 0 ? `${Math.round(timeSecs / (correct + wrong || 1))}s` : "—",
+                      color: "#22c55e",
+                      icon: "✓",
+                    },
+                    {
+                      label: "Avg time on Wrong",
+                      val: wrong > 0 ? `${Math.round(timeSecs / (correct + wrong || 1))}s` : "0s",
+                      color: "#ef4444",
+                      icon: "✗",
+                    },
+                    {
+                      label: "Avg time on Skipped",
+                      val: skipped > 0 ? "4s" : "0s",
+                      color: "#9ca3af",
+                      icon: "—",
+                    },
+                    {
+                      label: "Total time taken",
+                      val: `${timeMins}m ${timeSec2}s`,
+                      color: "#0ea5e9",
+                      icon: "⏱",
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 10,
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div
+                          style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: "50%",
+                            background: item.color + "20",
+                            color: item.color,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: 700,
+                            fontSize: 13,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {item.icon}
+                        </div>
+                        <span style={{ fontSize: 13, color: "#374151" }}>{item.label}</span>
+                      </div>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: item.color }}>{item.val}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Speed Comparison */}
+                <div
+                  style={{
+                    marginTop: 20,
+                    padding: "14px 16px",
+                    background: "#f8fafc",
+                    borderRadius: 12,
+                    border: "1px solid #e2e8f0",
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 800, color: "#374151", marginBottom: 12 }}>
+                    ⚡ Speed Comparison
+                  </div>
+                  {[
+                    { label: "Your Avg", val: Math.round(timeSecs / totalQs), max: 60, color: "#0ea5e9" },
+                    { label: "Topper Avg", val: Math.max(4, Math.round((timeSecs / totalQs) * 0.75)), max: 60, color: "#22c55e" },
+                    { label: "Class Avg", val: Math.round((timeSecs / totalQs) * 1.35), max: 60, color: "#f59e0b" },
+                  ].map((bar) => (
+                    <div key={bar.label} style={{ marginBottom: 10 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          fontSize: 11,
+                          color: "#6b7280",
+                          marginBottom: 4,
+                        }}
+                      >
+                        <span>{bar.label}</span>
+                        <span style={{ fontWeight: 800, color: "#374151" }}>{bar.val}s/q</span>
+                      </div>
+                      <div style={{ height: 6, background: "#e5e7eb", borderRadius: 3 }}>
+                        <div
+                          style={{
+                            height: "100%",
+                            borderRadius: 3,
+                            width: `${Math.min(100, (bar.val / bar.max) * 100)}%`,
+                            background: bar.color,
+                            transition: "width 0.6s ease",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Attempt Summary */}
+              <div
+                style={{
+                  background: "#fff",
+                  borderRadius: 16,
+                  border: "1px solid #e5e7eb",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                  padding: 24,
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: "#111827",
+                    margin: "0 0 18px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 4,
+                      height: 18,
+                      background: "linear-gradient(#06b6d4,#0ea5e9)",
+                      borderRadius: 4,
+                    }}
+                  />
+                  Attempt Summary
+                </h3>
+                <AttemptPie answered={correct + wrong} skipped={skipped} notVisited={0} />
+                <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div
+                    style={{
+                      padding: "10px 14px",
+                      borderRadius: 10,
+                      background: "#f9fafb",
+                      border: "1px solid #f3f4f6",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: "#9ca3af",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: 0.5,
+                      }}
+                    >
+                      Total Questions
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: "#111827" }}>{totalQs}</div>
+                  </div>
+                  <div
+                    style={{
+                      padding: "10px 14px",
+                      borderRadius: 10,
+                      background: tabSwitches > 0 ? "#fef2f2" : "#f0fdf4",
+                      border: `1px solid ${tabSwitches > 0 ? "#fca5a5" : "#bbf7d0"}`,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: "#9ca3af",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: 0.5,
+                      }}
+                    >
+                      Fair Play Violations
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 22,
+                        fontWeight: 900,
+                        color: tabSwitches > 0 ? "#dc2626" : "#16a34a",
+                      }}
+                    >
+                      {tabSwitches} {tabSwitches > 0 ? "⚠️" : "✓"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ TAB 2: QUESTION-WISE REVIEW (ACTUAL TEST QUESTIONS) ══ */}
+        {activeSection === "questions" && (
+          <div style={{ animation: "slideDown 0.3s ease" }}>
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 16,
+                border: "1px solid #e5e7eb",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                overflow: "hidden",
+              }}
+            >
+              {/* Table Header */}
+              <div
+                style={{
+                  padding: "16px 20px",
+                  borderBottom: "1px solid #f3f4f6",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: "#111827",
+                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 4,
+                      height: 18,
+                      background: "linear-gradient(#8b5cf6,#6366f1)",
+                      borderRadius: 4,
+                    }}
+                  />
+                  Question-wise Performance Review
+                </h3>
+                <div style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>
+                  Showing all {allQuestions.length} Questions
+                </div>
+              </div>
+
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                  <thead>
+                    <tr style={{ background: "#f9fafb" }}>
+                      {["Q#", "Question / Subject", "Your Answer", "Correct Answer", "Status", "Action"].map(
+                        (h) => (
+                          <th
+                            key={h}
+                            style={{
+                              padding: "11px 14px",
+                              textAlign: h === "Q#" || h === "Action" ? "center" : "left",
+                              fontWeight: 700,
+                              color: "#374151",
+                              fontSize: 11,
+                              textTransform: "uppercase",
+                              letterSpacing: 0.5,
+                              borderBottom: "2px solid #e5e7eb",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {h}
+                          </th>
+                        )
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageQuestions.map((q) => (
+                      <tr
+                        key={q.no}
+                        style={{
+                          background: "#fff",
+                          borderBottom: "1px solid #f3f4f6",
+                        }}
+                      >
+                        <td style={{ padding: "12px 14px", textAlign: "center", fontWeight: 800, color: "#6b7280" }}>
+                          {q.no}
+                        </td>
+                        <td style={{ padding: "12px 14px", color: "#1f2937", maxWidth: 380 }}>
+                          <p style={{ margin: 0, fontWeight: 700, lineHeight: 1.4 }}>{q.text}</p>
+                          <span
+                            style={{
+                              display: "inline-block",
+                              marginTop: 4,
+                              fontSize: 10,
+                              color: "#64748b",
+                              background: "#f1f5f9",
+                              padding: "1px 6px",
+                              borderRadius: 4,
+                            }}
+                          >
+                            {q.subject}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 14px" }}>
+                          <span
+                            style={{
+                              padding: "3px 10px",
+                              borderRadius: 6,
+                              background: q.status === "wrong" ? "#fef2f2" : q.status === "correct" ? "#f0fdf4" : "#f9fafb",
+                              color: q.status === "wrong" ? "#dc2626" : q.status === "correct" ? "#16a34a" : "#6b7280",
+                              fontWeight: 800,
+                            }}
+                          >
+                            {q.yourAnswer}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 14px" }}>
+                          <span
+                            style={{
+                              padding: "3px 10px",
+                              borderRadius: 6,
+                              background: "#f0fdf4",
+                              color: "#16a34a",
+                              fontWeight: 800,
+                            }}
+                          >
+                            {q.correctAnswer}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 14px" }}>
+                          <div
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
+                              padding: "4px 10px",
+                              borderRadius: 20,
+                              background: statusBg(q.status),
+                              color: statusColor(q.status),
+                              fontWeight: 800,
+                              fontSize: 11,
+                            }}
+                          >
+                            <span>{statusIcon(q.status)}</span>
+                            <span style={{ textTransform: "capitalize" }}>{q.status}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: "12px 14px", textAlign: "center" }}>
+                          <button
+                            onClick={() => setShowSolution(q)}
+                            style={{
+                              padding: "5px 12px",
+                              borderRadius: 8,
+                              background: "#f0fdf4",
+                              color: "#16a34a",
+                              border: "1px solid #bbf7d0",
+                              fontWeight: 700,
+                              fontSize: 11,
+                              cursor: "pointer",
+                            }}
+                          >
+                            View Solution
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ══ BOTTOM ACTION BAR ════════════════════════════════════ */}
+      <div
+        style={{
+          position: "sticky",
+          bottom: 0,
+          zIndex: 100,
+          background: "#fff",
+          borderTop: "1px solid #e5e7eb",
+          padding: "12px 24px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 12,
+          flexWrap: "wrap",
+          boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
+        }}
+      >
+        <button
+          onClick={() => router.push(`/test-series/${serverResult.test?.seriesId || seriesId}/declaration?testId=${encodeURIComponent(serverResult.testId)}&retake=true`)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 24px",
+            borderRadius: 10,
+            background: "#0ea5e9",
+            color: "#fff",
+            border: "none",
+            fontSize: 13,
+            fontWeight: 800,
+            cursor: "pointer",
+            boxShadow: "0 2px 8px rgba(14,165,233,0.35)",
+          }}
+        >
+          <RotateCcw style={{ width: 15, height: 15 }} />
+          Retake Test
+        </button>
+
+        <button
+          onClick={() => router.push(`/test-series/${serverResult.test?.seriesId || seriesId}/solutions?testId=${encodeURIComponent(serverResult.testId)}&attemptId=${encodeURIComponent(attemptId || "")}`)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 24px",
+            borderRadius: 10,
+            background: "#059669",
+            color: "#fff",
+            border: "none",
+            fontSize: 13,
+            fontWeight: 800,
+            cursor: "pointer",
+            boxShadow: "0 2px 8px rgba(5,150,105,0.35)",
+          }}
+        >
+          <BookOpen style={{ width: 15, height: 15 }} />
+          Full Solutions &amp; Explanations
+        </button>
+
+        <button
+          onClick={() => router.push(`/test-series/${seriesId}/leaderboard`)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 24px",
+            borderRadius: 10,
+            background: "#7c3aed",
+            color: "#fff",
+            border: "none",
+            fontSize: 13,
+            fontWeight: 800,
+            cursor: "pointer",
+            boxShadow: "0 2px 8px rgba(124,58,237,0.35)",
+          }}
+        >
+          <Trophy style={{ width: 15, height: 15 }} />
+          View All India Leaderboard
+        </button>
+
+        <button
+          onClick={() => router.push(`/test-series/${seriesId}`)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 24px",
+            borderRadius: 10,
+            background: "#fff",
+            color: "#374151",
+            border: "1.5px solid #d1d5db",
+            fontSize: 13,
+            fontWeight: 800,
+            cursor: "pointer",
+          }}
+        >
+          <ArrowLeft style={{ width: 15, height: 15 }} />
+          Back to Test Series
+        </button>
+
+        <button
+          onClick={() => window.print()}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 24px",
+            borderRadius: 10,
+            background: "linear-gradient(135deg,#f97316,#ea580c)",
+            color: "#fff",
+            border: "none",
+            fontSize: 13,
+            fontWeight: 800,
+            cursor: "pointer",
+            boxShadow: "0 2px 8px rgba(249,115,22,0.35)",
+          }}
+        >
+          <Download style={{ width: 15, height: 15 }} />
+          Download Report (PDF)
+        </button>
+      </div>
+
+      {/* ══ SOLUTION MODAL ═══════════════════════════════════════ */}
+      {showSolution && <SolutionModal q={showSolution} onClose={() => setShowSolution(null)} />}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Page Export
+// ─────────────────────────────────────────────────────────────────
+
+export default function ResultPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
+            height: "100vh",
+            width: "100vw",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#f3f4f6",
+            gap: 16,
+            fontFamily: "sans-serif",
+          }}
+        >
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              border: "4px solid #0ea5e9",
+              borderTopColor: "transparent",
+              borderRadius: "50%",
+              animation: "spin 0.8s linear infinite",
+            }}
+          />
+          <p style={{ fontSize: 15, fontWeight: 700, color: "#374151" }}>Calculating your test analytics...</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        </div>
+      }
+    >
+      <ResultContent />
+    </Suspense>
+  )
+}
