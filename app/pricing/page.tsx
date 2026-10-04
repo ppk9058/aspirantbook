@@ -54,7 +54,7 @@ export default async function PricingPage() {
                 "Early access to new content",
             ],
             limitations: [],
-            buttonText: "Upgrade to Premium",
+            buttonText: "Get Pass",
             buttonLink: "/checkout?plan=monthly",
             variant: "default" as const,
         },

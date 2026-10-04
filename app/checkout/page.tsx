@@ -276,13 +276,14 @@ function CheckoutContent() {
                                 window.dispatchEvent(new CustomEvent("goalChange", { detail: { goalId: verifyData.goalId } }))
                             } catch {}
                         }
+                        const fallbackRedirect = course ? "/my-learning" : "/my-tests"
                         if (verifyRes.ok && verifyData.success) {
-                            router.push(verifyData.redirectUrl || "/my-learning")
+                            router.push(verifyData.redirectUrl || fallbackRedirect)
                         } else {
-                            router.push("/my-learning")
+                            router.push(fallbackRedirect)
                         }
                     } catch {
-                        router.push("/my-learning")
+                        router.push(course ? "/my-learning" : "/my-tests")
                     }
                 },
                 prefill: {

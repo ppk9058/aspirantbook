@@ -94,13 +94,16 @@ export default async function SubscriptionPage() {
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 pt-4">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-4">
                                 <Link href="/pricing">
                                     <Button variant="outline">Change Plan</Button>
                                 </Link>
-                                <Button variant="destructive" disabled>
-                                    Cancel Subscription
-                                </Button>
+                                <a
+                                    href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "contact.aspirantbook@gmail.com"}?subject=${encodeURIComponent(`Plan help - ${activeSubscription.plan || "Pass"}`)}`}
+                                    className="inline-flex items-center justify-center text-center min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground border border-border hover:bg-muted/50 transition-colors"
+                                >
+                                    Need to cancel or change your plan? Contact customer support
+                                </a>
                             </div>
                         </div>
                     ) : (
@@ -110,7 +113,7 @@ export default async function SubscriptionPage() {
                                 You're currently on the free plan
                             </p>
                             <Link href="/pricing">
-                                <Button>Upgrade to Premium</Button>
+                                <Button>Get Pass</Button>
                             </Link>
                         </div>
                     )}

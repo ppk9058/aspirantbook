@@ -140,12 +140,12 @@ export default async function SubscriptionPage() {
 
                         {hasActiveSubscription && (
                             <div className="pt-2 sm:pt-0 shrink-0">
-                                <Button
-                                    variant="outline"
-                                    className="w-full sm:w-auto min-h-[44px] text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-700 font-bold text-xs sm:text-sm"
+                                <a
+                                    href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "contact.aspirantbook@gmail.com"}?subject=${encodeURIComponent(`Plan help - ${activeSubscription.plan || "Pass"}`)}`}
+                                    className="inline-flex items-center justify-center text-center w-full sm:w-auto min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                                 >
-                                    Cancel Subscription
-                                </Button>
+                                    Need to cancel or change your plan? Contact customer support
+                                </a>
                             </div>
                         )}
                     </div>
@@ -230,7 +230,7 @@ export default async function SubscriptionPage() {
                                     ) : plan.name === "PREMIUM" ? (
                                         <Link href="/pricing" className="block w-full">
                                             <Button className="w-full min-h-[44px] bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm shadow-md transition-all">
-                                                Upgrade to Premium
+                                                Get Pass
                                             </Button>
                                         </Link>
                                     ) : (

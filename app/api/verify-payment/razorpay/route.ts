@@ -187,10 +187,11 @@ export async function POST(request: NextRequest) {
             data: { role: "PREMIUM" },
         })
 
+        revalidatePath("/my-tests")
         revalidatePath("/my-learning")
         revalidatePath("/dashboard")
 
-        return NextResponse.json({ success: true, type: "subscription", redirectUrl: "/subscription?success=true" })
+        return NextResponse.json({ success: true, type: "subscription", redirectUrl: "/my-tests" })
     } catch (error) {
         console.error("Payment verification error:", error)
         return NextResponse.json(
