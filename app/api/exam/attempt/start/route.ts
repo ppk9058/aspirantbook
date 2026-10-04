@@ -87,102 +87,104 @@ export async function POST(req: NextRequest) {
     const nowMs = Date.now();
     const serverNow = new Date();
 
-    // 2. Use transaction with sensible timeout and PostgreSQL advisory lock to serialize start requests
+    // 2. OUTSIDE the transaction: find and grade/finalize any expired or retaken attempts first.
+    // Keeping grading outside avoids holding PgBouncer connections and transactions open during grading.
+    try {
+      const openAttempts = await prisma.examAttempt.findMany({
+        where: {
+          userId,
+          testId,
+          status: "IN_PROGRESS",
+        },
+        select: {
+          id: true,
+          startedAt: true,
+        },
+      });
+
+      for (const oa of openAttempts) {
+        const startedAtMs = oa.startedAt.getTime();
+        const deadlineMs = startedAtMs + durationMinutes * 60 * 1000;
+        const graceDeadlineMs = deadlineMs + 30 * 1000;
+
+        if (retake || nowMs > graceDeadlineMs) {
+          try {
+            await gradeExamAttempt(oa.id, serverNow);
+          } catch (gradeErr) {
+            console.error(`[start] Graceful fallback: failed to grade attempt ${oa.id}:`, gradeErr);
+            // Ensure status is marked SUBMITTED so it never stays stuck in IN_PROGRESS
+            await prisma.examAttempt
+              .update({
+                where: { id: oa.id },
+                data: { status: "SUBMITTED", submittedAt: serverNow },
+              })
+              .catch((e) => console.error(`[start] Fallback status update failed for ${oa.id}:`, e));
+          }
+        }
+      }
+    } catch (cleanupErr) {
+      console.error("[start] Failed to inspect or finalize prior attempts (continuing):", cleanupErr);
+    }
+
+    // 3. Short, lean transaction: Take advisory lock, verify/resume active attempt or create brand new one.
+    // No grading or heavy queries inside this transaction.
     const result = await prisma.$transaction(
       async (tx) => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId + ":" + testId}))`;
 
-        // If retake requested, grade or finalize any existing open attempt first
-        if (retake) {
-          const openAttempts = await tx.examAttempt.findMany({
-            where: {
-              userId,
-              testId,
-              status: "IN_PROGRESS",
-            },
-            select: { id: true },
-          });
-
-          for (const oa of openAttempts) {
-            try {
-              await gradeExamAttempt(oa.id, serverNow);
-            } catch (err) {
-              console.error(`[start] Graceful fallback on retake for attempt ${oa.id}:`, err);
-              await tx.examAttempt.update({
-                where: { id: oa.id },
-                data: { status: "SUBMITTED", submittedAt: serverNow },
-              });
-            }
-          }
-        } else {
-          // Check for an existing IN_PROGRESS attempt
-          const existing = await tx.examAttempt.findFirst({
-            where: {
-              userId,
-              testId,
-              status: "IN_PROGRESS",
-            },
-            select: {
-              id: true,
-              startedAt: true,
-              testId: true,
-              tabSwitchCount: true,
-              answers: {
-                select: {
-                  questionId: true,
-                  selectedOption: true,
-                  isMarked: true,
-                  timeSpentSecs: true,
-                  clientSeq: true,
-                },
+        // Check for an existing active IN_PROGRESS attempt
+        const existing = await tx.examAttempt.findFirst({
+          where: {
+            userId,
+            testId,
+            status: "IN_PROGRESS",
+          },
+          select: {
+            id: true,
+            startedAt: true,
+            testId: true,
+            tabSwitchCount: true,
+            answers: {
+              select: {
+                questionId: true,
+                selectedOption: true,
+                isMarked: true,
+                timeSpentSecs: true,
+                clientSeq: true,
               },
             },
-            orderBy: { startedAt: "desc" },
-          });
+          },
+          orderBy: { startedAt: "desc" },
+        });
 
-          if (existing) {
-            const startedAtMs = existing.startedAt.getTime();
-            const deadlineMs = startedAtMs + durationMinutes * 60 * 1000;
-            const graceDeadlineMs = deadlineMs + 30 * 1000;
+        if (existing) {
+          const startedAtMs = existing.startedAt.getTime();
+          const deadlineMs = startedAtMs + durationMinutes * 60 * 1000;
+          const graceDeadlineMs = deadlineMs + 30 * 1000;
 
-            // Never resume an expired attempt; grade it or gracefully finalize it
-            if (nowMs > graceDeadlineMs) {
-              try {
-                await gradeExamAttempt(existing.id, serverNow);
-              } catch (gradeErr) {
-                console.error(
-                  `[start] Graceful fallback: failed to grade expired attempt ${existing.id}:`,
-                  gradeErr
-                );
-                await tx.examAttempt.update({
-                  where: { id: existing.id },
-                  data: { status: "SUBMITTED", submittedAt: serverNow },
-                });
-              }
-            } else {
-              // Valid active attempt: resume preserving original startedAt
-              const deadline = new Date(deadlineMs).toISOString();
-              const maxClientSeq = existing.answers.reduce(
-                (max, a) => Math.max(max, a.clientSeq || 0),
-                0
-              );
+          // If still within deadline and not retake, resume active attempt
+          if (Date.now() <= graceDeadlineMs && !retake) {
+            const deadline = new Date(deadlineMs).toISOString();
+            const maxClientSeq = existing.answers.reduce(
+              (max, a) => Math.max(max, a.clientSeq || 0),
+              0
+            );
 
-              return {
-                resumed: true,
-                attemptId: existing.id,
-                startedAt: existing.startedAt,
-                deadline,
-                serverNow: serverNow.toISOString(),
-                durationMinutes,
-                testId: existing.testId,
-                seriesId: test.seriesId,
-                seriesSlug: test.series?.slug,
-                tabSwitchCount: existing.tabSwitchCount,
-                answers: existing.answers,
-                maxClientSeq,
-                status: 200,
-              };
-            }
+            return {
+              resumed: true,
+              attemptId: existing.id,
+              startedAt: existing.startedAt,
+              deadline,
+              serverNow: serverNow.toISOString(),
+              durationMinutes,
+              testId: existing.testId,
+              seriesId: test.seriesId,
+              seriesSlug: test.series?.slug,
+              tabSwitchCount: existing.tabSwitchCount,
+              answers: existing.answers,
+              maxClientSeq,
+              status: 200,
+            };
           }
         }
 
@@ -220,8 +222,8 @@ export async function POST(req: NextRequest) {
         };
       },
       {
-        maxWait: 10000,
-        timeout: 15000,
+        maxWait: 5000,
+        timeout: 10000,
       }
     );
 

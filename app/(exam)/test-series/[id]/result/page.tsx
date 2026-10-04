@@ -382,6 +382,8 @@ function ResultContent() {
   const [error, setError] = useState<string | null>(null)
   const [serverResult, setServerResult] = useState<any>(null)
 
+  const [retryTrigger, setRetryTrigger] = useState(0)
+
   useEffect(() => {
     if (!attemptId) {
       setError("No attempt ID provided. Please complete an exam attempt first.")
@@ -390,35 +392,57 @@ function ResultContent() {
     }
 
     let isSubscribed = true
-    fetch(`/api/exam/attempt/${encodeURIComponent(attemptId)}/result`)
-      .then(async (res) => {
-        if (!res.ok) {
-          if (res.status === 404) throw new Error("Attempt not found.")
-          if (res.status === 409) throw new Error("This attempt is still in progress and has not been submitted.")
-          throw new Error("Failed to load test results.")
-        }
-        return res.json()
-      })
-      .then((json) => {
-        if (!isSubscribed) return
-        if (json.data) {
-          setServerResult(json.data)
-          setLoading(false)
-        } else {
-          throw new Error("Invalid result payload received.")
-        }
-      })
-      .catch((err) => {
-        if (isSubscribed) {
+    setLoading(true)
+    setError(null)
+
+    const fetchResultWithRetry = async () => {
+      const startTime = Date.now()
+      let delay = 1000
+
+      while (isSubscribed) {
+        try {
+          const res = await fetch(`/api/exam/attempt/${encodeURIComponent(attemptId)}/result`)
+          if (res.status === 202) {
+            // Grading is currently in flight: poll with backoff up to 15s
+            if (Date.now() - startTime > 15000) {
+              throw new Error("Result calculation is taking longer than expected. Your submission is safe. Please click Retry.")
+            }
+            await new Promise((r) => setTimeout(r, delay))
+            delay = Math.min(3000, delay * 1.5)
+            continue
+          }
+
+          if (!res.ok) {
+            const errJson = await res.json().catch(() => ({}))
+            if (res.status === 404) throw new Error("Attempt not found.")
+            if (res.status === 409) throw new Error("This attempt is still in progress and has not been submitted.")
+            throw new Error(errJson.error || "Failed to load test results.")
+          }
+
+          const json = await res.json()
+          if (!isSubscribed) return
+          if (json.data) {
+            setServerResult(json.data)
+            setLoading(false)
+            return
+          } else {
+            throw new Error("Invalid result payload received.")
+          }
+        } catch (err: any) {
+          if (!isSubscribed) return
           setError(err.message || "Failed to load result.")
           setLoading(false)
+          return
         }
-      })
+      }
+    }
+
+    fetchResultWithRetry()
 
     return () => {
       isSubscribed = false
     }
-  }, [attemptId])
+  }, [attemptId, retryTrigger])
 
   // State
   const [activeSection, setActiveSection] = useState<"analysis" | "questions">("analysis")
@@ -430,38 +454,65 @@ function ResultContent() {
     return (
       <div style={{ minHeight: "100vh", width: "100vw", background: "#f3f4f6", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'Inter', system-ui, sans-serif", gap: 16 }}>
         <div style={{ width: 52, height: 52, border: "4px solid #0ea5e9", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-        <p style={{ fontSize: 15, fontWeight: 700, color: "#374151" }}>Loading authoritative exam results...</p>
+        <p style={{ fontSize: 15, fontWeight: 700, color: "#374151" }}>Calculating and loading exam results...</p>
+        <p style={{ fontSize: 12, color: "#6b7280" }}>Finalizing scoring and leaderboards...</p>
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     )
   }
 
   if (error || !serverResult) {
+    const isPending = error?.includes("taking longer") || error?.includes("in progress")
     return (
       <div style={{ minHeight: "100vh", width: "100vw", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'Inter', system-ui, sans-serif" }}>
-        <div style={{ maxWidth: 420, width: "100%", background: "#fff", borderRadius: 16, padding: 32, textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
-          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#fee2e2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-            <XCircle style={{ width: 28, height: 28 }} />
+        <div style={{ maxWidth: 440, width: "100%", background: "#fff", borderRadius: 16, padding: 32, textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: isPending ? "#fef3c7" : "#fee2e2", color: isPending ? "#d97706" : "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+            {isPending ? <Clock style={{ width: 28, height: 28 }} /> : <XCircle style={{ width: 28, height: 28 }} />}
           </div>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111827", margin: "0 0 8px" }}>Result Not Found</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111827", margin: "0 0 8px" }}>
+            {isPending ? "Result Calculation Pending" : "Unable to Open Result"}
+          </h2>
           <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 20px", lineHeight: 1.5 }}>
-            {error || "No result found for this exam attempt. Please attempt the test or check your test series."}
+            {error || "No result found for this exam attempt. Please check your network and retry."}
           </p>
-          <button
-            onClick={() => router.push(`/test-series/${seriesId}`)}
-            style={{
-              padding: "10px 24px",
-              borderRadius: 10,
-              background: "#0d9488",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 14,
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Back to Test Series
-          </button>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <button
+              onClick={() => {
+                setError(null)
+                setLoading(true)
+                setRetryTrigger((c) => c + 1)
+              }}
+              style={{
+                minHeight: 44,
+                padding: "10px 22px",
+                borderRadius: 10,
+                background: "#0284c7",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 14,
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => router.push(`/test-series/${seriesId}`)}
+              style={{
+                minHeight: 44,
+                padding: "10px 22px",
+                borderRadius: 10,
+                background: "#f3f4f6",
+                color: "#374151",
+                fontWeight: 700,
+                fontSize: 14,
+                border: "1px solid #d1d5db",
+                cursor: "pointer",
+              }}
+            >
+              Back to Test Series
+            </button>
+          </div>
         </div>
       </div>
     )
