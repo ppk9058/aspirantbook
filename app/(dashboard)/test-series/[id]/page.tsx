@@ -68,42 +68,36 @@ export default function TestSeriesDetailPage() {
     const [seriesNotFound, setSeriesNotFound] = useState(false)
     const [seriesLoading, setSeriesLoading] = useState(true)
     const [customSeriesPackage, setCustomSeriesPackage] = useState<TestSeriesItem | null>(null)
+    const [allSeriesList, setAllSeriesList] = useState<any[]>([])
     const [submittedAttempts, setSubmittedAttempts] = useState<Record<string, string>>({})
 
     useEffect(() => {
         let isMounted = true
         try {
-            const stored = localStorage.getItem("ts_custom_series_packages")
-            if (stored) {
-                const list: TestSeriesItem[] = JSON.parse(stored)
-                const found = list.find((s) => s.id === seriesId || s.id.toLowerCase() === seriesId.toLowerCase())
-                if (found) {
-                    setCustomSeriesPackage(found)
-                    setSeriesLoading(false)
-                    return
-                }
-            }
-
-            const staticSeries = getTestSeriesById(seriesId)
-            if (staticSeries) {
-                setCustomSeriesPackage(staticSeries)
-                setSeriesLoading(false)
-                return
-            }
-
             fetch("/api/exam/series/list")
                 .then((res) => res.json())
                 .then((json) => {
                     if (!isMounted) return
                     if (json.success && Array.isArray(json.data)) {
+                        setAllSeriesList(json.data)
                         const found = json.data.find((s: any) => s.id === seriesId || s.id.toLowerCase() === seriesId.toLowerCase() || s.slug === seriesId)
                         if (found) {
                             setCustomSeriesPackage(found)
                         } else {
-                            setSeriesNotFound(true)
+                            const staticSeries = getTestSeriesById(seriesId)
+                            if (staticSeries) {
+                                setCustomSeriesPackage(staticSeries)
+                            } else {
+                                setSeriesNotFound(true)
+                            }
                         }
                     } else {
-                        setSeriesNotFound(true)
+                        const staticSeries = getTestSeriesById(seriesId)
+                        if (staticSeries) {
+                            setCustomSeriesPackage(staticSeries)
+                        } else {
+                            setSeriesNotFound(true)
+                        }
                     }
                     setSeriesLoading(false)
                 })
@@ -290,15 +284,15 @@ export default function TestSeriesDetailPage() {
 
     const testSections: TestSection[] = getDefaultTestSectionsForSeries(seriesId)
 
-    const moreTestSeries = TEST_SERIES_DATA
-        .filter((s) => s.id !== currentSeries.id)
+    const moreTestSeries = (allSeriesList.length > 0 ? allSeriesList : TEST_SERIES_DATA)
+        .filter((s) => s.id !== currentSeries.id && (s.slug ? s.slug !== seriesId : true))
         .slice(0, 4)
         .map((s) => ({
             id: s.id,
             title: s.title,
-            totalTests: s.totalTests,
-            freeTests: s.freeTests,
-            href: `/test-series/${s.id}`
+            totalTests: s.totalTests || 10,
+            freeTests: s.freeTests || 2,
+            href: `/test-series/${s.slug || s.id}`
         }))
 
     return (

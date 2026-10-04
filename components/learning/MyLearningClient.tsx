@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import {
     Pencil,
     ChevronDown,
@@ -82,6 +83,7 @@ interface MyLearningClientProps {
 }
 
 export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLearningClientProps) {
+    const router = useRouter()
     const [viewMode, setViewMode] = useState<"cards" | "list">("cards")
     const [activeTab, setActiveTab] = useState<"in-progress" | "completed">("in-progress")
     const [sortBy, setSortBy] = useState<"last-added" | "title" | "progress">("last-added")
@@ -144,7 +146,7 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                             <span>My Enrolled &amp; Active Batches</span>
                         </div>
                         <h1 className="text-3xl sm:text-4xl font-extrabold text-[#10162F] tracking-tight">
-                            My Batches
+                            My Batches &amp; enrollment
                         </h1>
                         <p className="text-xs sm:text-sm text-gray-500 mt-1">
                             All video courses and classroom batches you have enrolled in or are actively watching.
@@ -323,7 +325,16 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                             return (
                                 <div
                                     key={item.id}
-                                    className="group bg-white rounded-2xl border border-gray-200/90 hover:border-[#5B47FB]/50 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                                    onClick={() => router.push(continueHref)}
+                                    role="link"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            e.preventDefault()
+                                            router.push(continueHref)
+                                        }
+                                    }}
+                                    className="group bg-white rounded-2xl border border-gray-200/90 hover:border-[#5B47FB]/50 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer focus-visible:ring-2 focus-visible:ring-[#5B47FB]"
                                 >
                                     <div>
                                         {/* Top Banner Graphic with Badges */}

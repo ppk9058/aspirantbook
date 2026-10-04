@@ -321,7 +321,13 @@ function SolutionsContent() {
             <header className="flex items-center justify-between px-3 sm:px-5 py-2 border-b border-gray-200 bg-white shrink-0 min-h-[52px]">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => {
+                            if (typeof window !== "undefined" && window.history.length > 1) {
+                                router.back()
+                            } else {
+                                router.push(`/test-series/${seriesId}`)
+                            }
+                        }}
                         className="min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-600 transition-colors flex items-center justify-center shrink-0 cursor-pointer"
                         title="Back to Test Series"
                         aria-label="Back"

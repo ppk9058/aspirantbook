@@ -632,6 +632,14 @@ function ResultContent() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flex: 1 }}>
+          <button
+            onClick={() => router.push(`/test-series/${seriesId}`)}
+            className="min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-600 transition-colors flex items-center justify-center shrink-0 cursor-pointer"
+            title="Back to Test Series"
+            aria-label="Back to Test Series"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
             <div
               style={{

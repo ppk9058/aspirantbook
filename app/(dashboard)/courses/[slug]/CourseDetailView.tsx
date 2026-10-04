@@ -155,6 +155,8 @@ export function CourseDetailView({
     const router = useRouter()
     const [course, setCourse] = useState(initialCourse)
     const [chapters, setChapters] = useState<any[]>(initialCourse.chapters || [])
+    const [activeTab, setActiveTab] = useState<any>({ type: "overview", mode: "view" })
+    const [isTabsCollapsed, setIsTabsCollapsed] = useState<boolean>(false)
 
     const { data: session } = useSession()
     const { openMobileAuth } = useMobileAuth()
@@ -240,7 +242,7 @@ export function CourseDetailView({
 
                     // If user is at top of page (hero area / overview), activeTab is overview
                     if (window.scrollY < 260) {
-                        setActiveTab((prev) => (prev.type === "overview" ? prev : { type: "overview" }))
+                        setActiveTab((prev: any) => (prev.type === "overview" ? prev : { type: "overview" }))
                         return
                     }
 
@@ -290,7 +292,7 @@ export function CourseDetailView({
                     }
 
                     if (current) {
-                        setActiveTab((prev) => {
+                        setActiveTab((prev: any) => {
                             if (
                                 prev.type === current!.tab.type &&
                                 prev.chapterId === current!.tab.chapterId &&
@@ -1094,6 +1096,7 @@ export function CourseDetailView({
                                             isPremium={course.isPremium}
                                             courseSlug={course.slug}
                                             courseTitle={course.title}
+                                            isEnrolled={isEnrolled}
                                         />
                                         {studentDemoBooking ? (
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-500 shadow-xs">

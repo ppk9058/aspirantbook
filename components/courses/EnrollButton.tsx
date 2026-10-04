@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { enrollInCourse } from "@/lib/actions/course/enrollment"
 import { toast } from "sonner"
-import { Loader2, Lock, ShoppingCart, Sparkles } from "lucide-react"
+import { Loader2, Lock, ShoppingCart, Sparkles, CheckCheck } from "lucide-react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 
 interface EnrollButtonProps {
@@ -14,6 +14,7 @@ interface EnrollButtonProps {
     isPremium: boolean
     courseSlug?: string
     courseTitle?: string
+    isEnrolled?: boolean
 }
 
 export default function EnrollButton({
@@ -21,6 +22,7 @@ export default function EnrollButton({
     isPremium,
     courseSlug,
     courseTitle,
+    isEnrolled = false,
 }: EnrollButtonProps) {
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
@@ -91,6 +93,18 @@ export default function EnrollButton({
                 actionType: "enroll",
             })
         }
+    }
+
+    if (isEnrolled) {
+        return (
+            <Button
+                onClick={() => router.push(`/courses/${courseSlug || courseId}/learn`)}
+                className="font-black text-sm sm:text-base px-8 py-6 rounded-xl border-2 border-emerald-700 bg-emerald-600 hover:bg-emerald-700 text-white shadow-[3px_3px_0px_0px_#065f46] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer"
+            >
+                <CheckCheck className="mr-2 h-4 w-4 stroke-[2.5]" />
+                Enrolled • Continue Learning
+            </Button>
+        )
     }
 
     return (

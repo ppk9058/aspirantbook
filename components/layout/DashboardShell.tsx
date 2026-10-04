@@ -76,7 +76,7 @@ export default function DashboardShell({
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
             {/* Header: Desktop always gets TopNavBar (>= 1024px); Mobile gets MobileAppHeader if flag on, else TopNavBar */}
-            {!isVideoWatchPage && !isBooksPage && !isVideoCoursePage && (
+            {!isVideoWatchPage && !isBooksPage && (
                 <>
                     {/* Desktop header: exactly as before */}
                     <div className="hidden lg:block">
@@ -94,10 +94,10 @@ export default function DashboardShell({
                 </>
             )}
 
-            {!isVideoCoursePage && <LeftSidebar />}
+            {!isVideoWatchPage && <LeftSidebar />}
 
             {/* Bottom Nav: native 4-tab bar if active student, else legacy BottomNavBar */}
-            {!isVideoCoursePage && (
+            {!isVideoWatchPage && (
                 isMobileNativeActive ? (
                     <MobileNativeBottomBar hasActivePass={hasActivePass} />
                 ) : (
@@ -109,8 +109,6 @@ export default function DashboardShell({
                 className={`transition-all duration-300 ${
                     isVideoWatchPage
                         ? "lg:ml-0 p-0"
-                        : isVideoCoursePage
-                        ? "lg:ml-0 pt-0 p-0"
                         : isBooksPage
                         ? isCollapsed
                             ? "lg:ml-[68px] pt-0 pb-32 sm:pb-24 lg:pb-8 px-0"
@@ -120,8 +118,8 @@ export default function DashboardShell({
                         : "lg:ml-[240px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8"
                 }`}
             >
-                <div className={isVideoCoursePage || isBooksPage ? "w-full mx-auto" : "max-w-7xl mx-auto space-y-6"}>
-                    {!isVideoCoursePage && !isBooksPage && <Breadcrumbs />}
+                <div className={isVideoWatchPage || isBooksPage ? "w-full mx-auto" : "max-w-7xl mx-auto space-y-6"}>
+                    {!isVideoWatchPage && !isBooksPage && <Breadcrumbs />}
                     <Suspense
                         fallback={
                             <div className="space-y-6 animate-pulse py-4">
@@ -135,7 +133,7 @@ export default function DashboardShell({
                 </div>
             </main>
 
-            {!isVideoWatchPage && !isVideoCoursePage && <Chatbot />}
+            {!isVideoWatchPage && <Chatbot />}
         </div>
     )
 }

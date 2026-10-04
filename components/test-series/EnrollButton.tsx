@@ -39,7 +39,7 @@ export default function EnrollButton({
 
     const handleEnroll = async () => {
         if (!session?.user?.id) {
-            router.push("/sign-in")
+            router.push("/login")
             return
         }
         if (enrolled || enrolling) return

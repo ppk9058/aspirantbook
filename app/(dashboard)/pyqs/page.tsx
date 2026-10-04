@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useGoal } from "@/components/providers/GoalProvider"
 import {
     Search,
     Check,
@@ -25,7 +26,8 @@ import {
     Building2,
     Layers,
     BookMarked,
-    BookmarkCheck
+    BookmarkCheck,
+    Plus
 } from "lucide-react"
 
 // Types
@@ -986,10 +988,23 @@ const SIDEBAR_CATEGORIES = [
 
 export default function PreviousYearQuestionsPage() {
     const router = useRouter()
+    const { selectedGoal, openGoalModal } = useGoal()
+    const [dbSeries, setDbSeries] = useState<any[]>([])
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("all")
     const [selectedPaperForModal, setSelectedPaperForModal] = useState<ExamPaperItem | null>(null)
     const [downloadingYear, setDownloadingYear] = useState<string | null>(null)
+
+    useEffect(() => {
+        fetch("/api/exam/series/list")
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success && Array.isArray(data.data)) {
+                    setDbSeries(data.data)
+                }
+            })
+            .catch(() => {})
+    }, [])
 
     // Filter cards for the lower Explore Section
     const filteredPapers = useMemo(() => {
@@ -1007,10 +1022,34 @@ export default function PreviousYearQuestionsPage() {
         })
     }, [selectedCategory, searchQuery])
 
-    // Top Enrolled Exams cards matching Image 1
+    // Top Enrolled Exams cards matching Image 1 + dynamic real DB series
     const enrolledExams = useMemo(() => {
-        return PREVIOUS_YEAR_PAPERS_DATA.filter(p => p.isEnrolled)
-    }, [])
+        const list = [...PREVIOUS_YEAR_PAPERS_DATA.filter((p) => p.isEnrolled)]
+        const currentGoalKey = selectedGoal.id.toLowerCase()
+
+        // Highlight exams relevant to user's targeted goal
+        dbSeries.forEach((s) => {
+            const seriesCat = (s.category || "").toLowerCase()
+            const isMatch = seriesCat.includes(currentGoalKey) || currentGoalKey.includes(seriesCat)
+            if (isMatch && !list.some((item) => item.id === s.id || item.shortCode === s.title)) {
+                list.unshift({
+                    id: s.id,
+                    title: s.title,
+                    shortCode: s.title.length > 25 ? s.title.slice(0, 22) + "..." : s.title,
+                    category: currentGoalKey.includes("bpsc") ? "bpsc" : currentGoalKey.includes("upsc") ? "upsc" : currentGoalKey.includes("10") ? "class-10" : "upsc",
+                    categoryLabel: s.category || "Official Series",
+                    papersCount: s.totalTests || 10,
+                    yearsCovered: "2024 - 2026",
+                    logoType: s.logoType || (currentGoalKey.includes("bpsc") ? "bpsc" : "upsc"),
+                    isEnrolled: true,
+                    description: s.description || "Official verified previous year exam series and mock papers.",
+                    subjects: s.highlights || ["All Subjects", "Full Mock"],
+                    years: [],
+                })
+            }
+        })
+        return list
+    }, [selectedGoal.id, dbSeries])
 
     const handleDownload = (yearItem: PaperYearDetail, e: React.MouseEvent) => {
         e.stopPropagation()
@@ -1131,13 +1170,26 @@ export default function PreviousYearQuestionsPage() {
 
             {/* ── SECTION 1: YOUR ENROLLED EXAMS (Matches Image 1) ── */}
             <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-lg sm:text-xl font-black tracking-tight text-gray-900 dark:text-white">
-                        Your Enrolled Exams
-                    </h2>
-                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                        {enrolledExams.length} Active Targets
-                    </span>
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div>
+                        <h2 className="text-lg sm:text-xl font-black tracking-tight text-gray-900 dark:text-white">
+                            Your Enrolled Exams
+                        </h2>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            Active Target: <span className="font-bold text-sky-600 dark:text-sky-400">{selectedGoal.name}</span> &bull; {enrolledExams.length} Active Targets
+                        </p>
+                    </div>
+
+                    {/* "+ Add exam" button connected to GoalModal via useGoal().openGoalModal() */}
+                    <button
+                        type="button"
+                        onClick={openGoalModal}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800 text-xs font-bold transition-all shadow-2xs hover:scale-102"
+                        aria-label="Add or change targeted exam"
+                    >
+                        <Plus className="h-4 w-4" />
+                        <span>+ Add exam</span>
+                    </button>
                 </div>
 
                 {/* 4-Column Grid of Enrolled Cards */}
@@ -1145,7 +1197,7 @@ export default function PreviousYearQuestionsPage() {
                     {enrolledExams.map((item) => (
                         <div
                             key={item.id}
-                            onClick={() => router.push(`/pyqs/${item.category}`)}
+                            onClick={() => router.push(item.years && item.years.length > 0 ? `/pyqs/${item.category}` : `/test-series/${item.id}`)}
                             className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/90 dark:border-gray-700/80 p-4 flex items-center justify-between shadow-2xs hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group"
                         >
                             <div className="flex items-center gap-3 overflow-hidden">
@@ -1162,6 +1214,17 @@ export default function PreviousYearQuestionsPage() {
                             <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
                         </div>
                     ))}
+
+                    {/* Interactive + Add Exam card */}
+                    <button
+                        type="button"
+                        onClick={openGoalModal}
+                        className="rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-sky-500 dark:hover:border-sky-400 bg-gray-50/60 dark:bg-gray-800/40 hover:bg-sky-50/40 dark:hover:bg-sky-950/20 p-4 min-h-[76px] flex items-center justify-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 transition-all cursor-pointer group"
+                        aria-label="Add another exam target"
+                    >
+                        <Plus className="h-4 w-4 text-slate-400 group-hover:text-sky-600 transition-colors" />
+                        <span>+ Add exam target</span>
+                    </button>
                 </div>
 
                 <div className="text-center pt-1">

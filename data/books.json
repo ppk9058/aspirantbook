@@ -562,5 +562,243 @@
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": true,
     "isFeatured": true
+  },
+  {
+    "id": "cbse-9-ncert-exemplar-maths-science",
+    "slug": "cbse-class-9th-ncert-exemplar-solutions-maths-science",
+    "title": "NCERT Class 9 Mathematics & Science Exemplar Problems with Detailed Solutions",
+    "subtitle": "Chapterwise concept breakdown & higher order thinking skills (HOTS) questions",
+    "author": "aspirantbook Academic Team",
+    "publisher": "aspirantbook Publications",
+    "category": "Class 9th Books",
+    "subcategory": "NCERT Solutions",
+    "subject": "Mathematics",
+    "edition": "2026 Edition",
+    "price": 399,
+    "originalPrice": 599,
+    "discountPercent": 33,
+    "rating": 4.7,
+    "ratingCount": 18,
+    "reviewCount": 14,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "thumbnails": [
+      {
+        "id": "c9-1",
+        "label": "Front Cover",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Comprehensive NCERT Exemplar Solutions for Class 9 students covering both Mathematics and Science. Includes step-by-step solutions to HOTS questions.",
+    "shortDescription": "Class 9 NCERT Exemplar Problems & Solutions with step-by-step methods.",
+    "features": [
+      "Covers all Class 9 Maths and Science NCERT Exemplar chapters",
+      "Point-by-point formulas and diagrams",
+      "Instant eBook download"
+    ],
+    "tableOfContents": [
+      {
+        "section": "MATHEMATICS",
+        "topics": [
+          "Number Systems",
+          "Polynomials",
+          "Coordinate Geometry",
+          "Linear Equations"
+        ]
+      },
+      {
+        "section": "SCIENCE",
+        "topics": [
+          "Matter in Our Surroundings",
+          "Is Matter Around Us Pure",
+          "Atoms & Molecules",
+          "Motion"
+        ]
+      }
+    ],
+    "pages": 320,
+    "fileSize": "18.4 MB",
+    "language": "English",
+    "format": "eBook (PDF + Smart Reader)",
+    "isBestseller": false,
+    "isFeatured": false
+  },
+  {
+    "id": "class-8-foundation-maths-science",
+    "slug": "class-8th-foundation-mathematics-science-olympiad",
+    "title": "Class 8th Foundation Course: Mathematics, Science & NMMS Guide",
+    "subtitle": "Essential conceptual groundwork for board preparation & scholarship exams",
+    "author": "aspirantbook Junior Faculty",
+    "publisher": "aspirantbook Publications",
+    "category": "Class 8th Books",
+    "subcategory": "Foundation Course",
+    "subject": "Science",
+    "edition": "2026 Edition",
+    "price": 349,
+    "originalPrice": 499,
+    "discountPercent": 30,
+    "rating": 4.8,
+    "ratingCount": 22,
+    "reviewCount": 19,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "thumbnails": [
+      {
+        "id": "c8-1",
+        "label": "Front Cover",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Foundation guide for Class 8 students aiming for excellence in school finals, NMMS scholarship, and early Olympiads.",
+    "shortDescription": "Class 8 Foundation Mathematics and Science for school finals and Olympiads.",
+    "features": [
+      "Rigorous concept practice with illustrated diagrams",
+      "NMMS and Olympiad sample questions",
+      "Instant offline PDF access"
+    ],
+    "tableOfContents": [
+      {
+        "section": "FOUNDATION MATHEMATICS",
+        "topics": [
+          "Rational Numbers",
+          "Linear Equations",
+          "Understanding Quadrilaterals",
+          "Mensuration"
+        ]
+      },
+      {
+        "section": "FOUNDATION SCIENCE",
+        "topics": [
+          "Crop Production",
+          "Microorganisms",
+          "Force and Pressure",
+          "Friction"
+        ]
+      }
+    ],
+    "pages": 280,
+    "fileSize": "16.1 MB",
+    "language": "English",
+    "format": "eBook (PDF + Smart Reader)",
+    "isBestseller": false,
+    "isFeatured": false
+  },
+  {
+    "id": "skills-fullstack-system-design-handbook",
+    "slug": "full-stack-web-development-system-design-handbook-2026",
+    "title": "Full-Stack Web Development & System Design Engineering Handbook",
+    "subtitle": "Modern React, Next.js, Node.js, PostgreSQL, Docker, and Scalable Architecture",
+    "author": "TrillionSkill Tech Engineering Team",
+    "publisher": "TrillionSkill Publications",
+    "category": "Skills",
+    "subcategory": "Tech & Software Engineering",
+    "subject": "Computer",
+    "edition": "2026 Edition",
+    "price": 599,
+    "originalPrice": 999,
+    "discountPercent": 40,
+    "rating": 4.9,
+    "ratingCount": 68,
+    "reviewCount": 51,
+    "coverImage": "/images/books/indian-polity.svg",
+    "thumbnails": [
+      {
+        "id": "skill-1",
+        "label": "Front Cover",
+        "url": "/images/books/indian-polity.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "The definitive engineering reference for modern full-stack web development, distributed systems, REST/GraphQL APIs, database indexing, and cloud deployment.",
+    "shortDescription": "Comprehensive full-stack engineering and system design guide with real architectures.",
+    "features": [
+      "Full-stack Next.js 15, React 19, TypeScript, PostgreSQL blueprints",
+      "System design trade-offs: Caching, sharding, message queues",
+      "Hands-on coding patterns with clean code practices"
+    ],
+    "tableOfContents": [
+      {
+        "section": "FRONTEND & FULLSTACK ARCHITECTURE",
+        "topics": [
+          "Modern React & SSR",
+          "Next.js App Router Internals",
+          "State Management & Performance"
+        ]
+      },
+      {
+        "section": "SYSTEM DESIGN & BACKEND",
+        "topics": [
+          "Database Schema & Indexing",
+          "Redis Caching Strategies",
+          "Authentication & Security",
+          "High-Availability Deployment"
+        ]
+      }
+    ],
+    "pages": 440,
+    "fileSize": "24.5 MB",
+    "language": "English",
+    "format": "eBook (PDF + Smart Reader)",
+    "isBestseller": true,
+    "isFeatured": true
+  },
+  {
+    "id": "modern-history-topper-handwritten-notes",
+    "slug": "modern-indian-history-topper-handwritten-notes-2026",
+    "title": "Modern Indian History Topper Handwritten Revision Notes (1857 - 1947)",
+    "subtitle": "Chronological mind maps, freedom struggle timeline, Governor-Generals & Acts summary",
+    "author": "aspirantbook UPSC Toppers Collective",
+    "publisher": "aspirantbook Publications",
+    "category": "Notes",
+    "subcategory": "Civil Services Notes",
+    "subject": "Social Science",
+    "edition": "2026 Edition",
+    "price": 299,
+    "originalPrice": 499,
+    "discountPercent": 40,
+    "rating": 4.9,
+    "ratingCount": 89,
+    "reviewCount": 77,
+    "coverImage": "/images/books/indian-polity.svg",
+    "thumbnails": [
+      {
+        "id": "notes-1",
+        "label": "Front Cover",
+        "url": "/images/books/indian-polity.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Crisp, topper-verified handwritten revision notes covering the entire Modern Indian History syllabus for UPSC and BPSC Prelims & Mains.",
+    "shortDescription": "High-yield Modern Indian History handwritten revision notes with timelines & mind maps.",
+    "features": [
+      "Full chronological flowcharts from the Revolt of 1857 to Independence 1947",
+      "Table of Indian National Congress sessions, presidents, and key resolutions",
+      "Socio-religious reform movements & tribal/peasant uprisings summary",
+      "Instant high-res color PDF download"
+    ],
+    "tableOfContents": [
+      {
+        "section": "EARLY RESISTANCE & REVOLT",
+        "topics": [
+          "Decline of Mughals & Rise of Regional States",
+          "Revolt of 1857: Causes, Centers & Consequences"
+        ]
+      },
+      {
+        "section": "NATIONAL FREEDOM STRUGGLE",
+        "topics": [
+          "Moderate & Extremist Phases",
+          "Gandhian Mass Movements",
+          "Revolutionary Activities",
+          "Towards Independence & Partition"
+        ]
+      }
+    ],
+    "pages": 210,
+    "fileSize": "14.2 MB",
+    "language": "English",
+    "format": "eBook (PDF + Smart Reader)",
+    "isBestseller": true,
+    "isFeatured": true
   }
 ]

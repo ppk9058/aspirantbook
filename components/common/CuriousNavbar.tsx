@@ -13,11 +13,12 @@ interface CuriousNavbarProps {
 export default function CuriousNavbar({ activeTab }: CuriousNavbarProps) {
   const { data: session } = useSession()
   const { openMobileAuth } = useMobileAuth()
+  const logoHref = session?.user ? "/dashboard" : "/"
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
+        <Link href={logoHref} className="flex items-center gap-2.5 sm:gap-3 group">
           <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-shrink-0 bg-[#F7EFE4] border border-[#ECDCC9] shadow-xs ring-1 ring-black/5 flex items-center justify-center transition-transform group-hover:scale-105 p-0.5">
             <Image
               src="/aspirant-logo.jpg"

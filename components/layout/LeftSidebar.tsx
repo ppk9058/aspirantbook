@@ -96,7 +96,7 @@ export default function LeftSidebar() {
             { name: "Home", href: "/dashboard", icon: Home },
             { name: "Courses", href: "/courses", icon: BookOpen },
             { name: "Book", href: "/books", icon: Book },
-            { name: "My Batches", href: "/my-learning", icon: Compass },
+            { name: "My Batches & enrollment", href: "/my-learning", icon: Compass },
             { name: "Current Affairs and Quizzes", href: "/current-affairs-quizzes", icon: Newspaper },
             { name: "Tutorial", href: "/tutorials", icon: GraduationCap },
             { name: "Test Series", href: "/test-series", icon: ClipboardList },
