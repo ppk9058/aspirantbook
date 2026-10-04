@@ -44,6 +44,11 @@ export default function EnrollButton({
         }
         if (enrolled || enrolling) return
 
+        if (!isFree) {
+            router.push("/subscription")
+            return
+        }
+
         setEnrolling(true)
         try {
             const res = await fetch("/api/exam/series/enroll", {

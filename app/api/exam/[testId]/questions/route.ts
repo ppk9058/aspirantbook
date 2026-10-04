@@ -63,6 +63,14 @@ export async function GET(
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
 
+    if (!test.isPublished) {
+      const isCreator = test.createdById === session.user.id;
+      const isAdmin = (session.user as any).role === "ADMIN";
+      if (!isCreator && !isAdmin) {
+        return NextResponse.json({ error: "Test not found" }, { status: 404 });
+      }
+    }
+
     const data = {
       test: {
         id: test.id,

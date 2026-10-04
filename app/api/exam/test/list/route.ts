@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 function mapQuestion(q: any, idx: number) {
@@ -14,12 +15,36 @@ function mapQuestion(q: any, idx: number) {
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const role = (session.user as any)?.role;
+    const isAdmin = role === "ADMIN";
+    const isTeacher = role === "TEACHER";
+
     const { searchParams } = new URL(req.url);
     const seriesId = searchParams.get("seriesId");
     const category = searchParams.get("category");
     const includeQuestions = searchParams.get("includeQuestions") === "1";
 
-    const conditions: any[] = [{ isPublished: true }];
+    const conditions: any[] = [];
+
+    if (isAdmin) {
+      // Admin sees both published and drafts
+    } else if (isTeacher) {
+      // Teacher sees published + tests they created
+      conditions.push({
+        OR: [
+          { isPublished: true },
+          { createdById: session.user.id },
+        ],
+      });
+    } else {
+      // Students/free users see published only
+      conditions.push({ isPublished: true });
+    }
 
     if (seriesId) {
       conditions.push({
@@ -43,7 +68,7 @@ export async function GET(req: NextRequest) {
     }
 
     const tests = await prisma.examTest.findMany({
-      where: { AND: conditions },
+      where: conditions.length > 0 ? { AND: conditions } : {},
       select: {
         id: true,
         seriesId: true,
@@ -54,6 +79,11 @@ export async function GET(req: NextRequest) {
         totalMarks: true,
         durationMinutes: true,
         accessMode: true,
+        isPublished: true,
+        createdById: true,
+        _count: {
+          select: { attempts: true },
+        },
         series: {
           select: { title: true, category: true, slug: true },
         },
@@ -61,9 +91,25 @@ export async function GET(req: NextRequest) {
           ? {
               sections: {
                 orderBy: { order: "asc" as const },
-                include: {
+                select: {
+                  id: true,
+                  title: true,
                   questions: {
                     orderBy: { order: "asc" as const },
+                    select: {
+                      id: true,
+                      questionEn: true,
+                      questionHi: true,
+                      optionAEn: true,
+                      optionBEn: true,
+                      optionCEn: true,
+                      optionDEn: true,
+                      optionAHi: true,
+                      optionBHi: true,
+                      optionCHi: true,
+                      optionDHi: true,
+                      subject: true,
+                    },
                   },
                 },
               },
@@ -91,7 +137,8 @@ export async function GET(req: NextRequest) {
         durationMinutes: t.durationMinutes || 10,
         languages: "English, Hindi",
         isFree: t.accessMode === "FREE",
-        attempts: 120,
+        isPublished: t.isPublished,
+        attempts: t._count?.attempts ?? 0,
         isNew: true,
         questionsList: includeQuestions
           ? (t.sections || []).flatMap((s: any) => (s.questions || []).map(mapQuestion))
@@ -103,9 +150,7 @@ export async function GET(req: NextRequest) {
       { success: true, data: mapped },
       {
         headers: {
-          "Cache-Control": includeQuestions
-            ? "private, no-store"
-            : "public, s-maxage=30, stale-while-revalidate=60",
+          "Cache-Control": "private, no-store",
         },
       }
     );

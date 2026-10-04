@@ -124,22 +124,97 @@ export async function checkTestAccess(
   if (role === "ADMIN") return { allowed: true, reason: "ADMIN_OVERRIDE" }
   if (role === "TEACHER") return { allowed: true, reason: "TEACHER_ACCESS" }
 
-  // Free tests
-  if (testId.includes("free") || testId.includes("demo") || testId === "test-1") {
-    return { allowed: true, reason: "FREE" }
-  }
-
   if (!userId) {
     return {
       allowed: false,
       reason: "LOCKED",
       price: 199,
-      message: "Please login to attempt this test series",
+      message: "Please login to attempt this test",
     }
   }
 
-  // For registered users, verify enrollment
-  return { allowed: true, reason: "BATCH_ENROLLED" }
+  try {
+    const test = await prisma.examTest.findUnique({
+      where: { id: testId },
+      select: {
+        accessMode: true,
+        seriesId: true,
+        createdById: true,
+        series: {
+          select: {
+            isFree: true,
+            isPro: true,
+          },
+        },
+      },
+    })
+
+    if (!test) {
+      return { allowed: false, reason: "LOCKED", message: "Test not found" }
+    }
+
+    if (test.createdById === userId) {
+      return { allowed: true, reason: "TEACHER_ACCESS" }
+    }
+
+    // Free tests
+    if (test.accessMode === "FREE") {
+      return { allowed: true, reason: "FREE" }
+    }
+
+    // Check user role
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    })
+
+    if (user?.role === "PREMIUM" || user?.role === "ADMIN" || user?.role === "TEACHER") {
+      return { allowed: true, reason: "SUBSCRIPTION_ACTIVE" }
+    }
+
+    // Check user active subscription
+    const activeSub = await prisma.subscription.findFirst({
+      where: {
+        userId,
+        status: "ACTIVE",
+        endDate: { gt: new Date() },
+      },
+    })
+    if (activeSub) {
+      return { allowed: true, reason: "SUBSCRIPTION_ACTIVE" }
+    }
+
+    // Check enrollment in the series
+    const enrollment = await prisma.examSeriesEnrollment.findUnique({
+      where: {
+        userId_seriesId: {
+          userId,
+          seriesId: test.seriesId,
+        },
+      },
+    })
+
+    if (
+      enrollment &&
+      enrollment.status === "ACTIVE" &&
+      (!enrollment.expiresAt || enrollment.expiresAt > new Date())
+    ) {
+      return {
+        allowed: true,
+        reason: enrollment.enrollType === "PASS" ? "SUBSCRIPTION_ACTIVE" : "PURCHASED",
+      }
+    }
+
+    return {
+      allowed: false,
+      reason: "LOCKED",
+      price: 399,
+      message: "Pro test. Please purchase Pass or subscription to unlock.",
+    }
+  } catch (error) {
+    console.error("[checkTestAccess Error]", error)
+    return { allowed: false, reason: "LOCKED", message: "Failed to verify test access" }
+  }
 }
 
 /**

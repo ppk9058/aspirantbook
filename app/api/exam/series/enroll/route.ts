@@ -23,19 +23,64 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate series exists
-    const series = await prisma.examSeries.findUnique({ where: { id: seriesId } })
+    const series = await prisma.examSeries.findFirst({
+        where: {
+            OR: [
+                { id: seriesId },
+                { slug: seriesId },
+            ],
+        },
+        select: {
+            id: true,
+            slug: true,
+            isFree: true,
+            isPro: true,
+            isPublished: true,
+        },
+    })
     if (!series) {
-        // try by slug
-        const bySlug = await prisma.examSeries.findFirst({ where: { slug: seriesId } })
-        if (!bySlug) {
-            return NextResponse.json({ error: "Series not found" }, { status: 404 })
-        }
+        return NextResponse.json({ error: "Series not found" }, { status: 404 })
     }
-    const resolvedId = series?.id || seriesId
+    const resolvedId = series.id
 
     const validType = ["FREE", "PASS", "PURCHASED"].includes(enrollType)
         ? (enrollType as "FREE" | "PASS" | "PURCHASED")
         : "FREE"
+
+    if (validType === "FREE") {
+        if (!series.isFree && series.isPro) {
+            return NextResponse.json(
+                { error: "This test series requires a Pass or Purchase" },
+                { status: 403 }
+            )
+        }
+    } else {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                role: true,
+                subscriptions: {
+                    where: {
+                        status: "ACTIVE",
+                        endDate: { gt: new Date() },
+                    },
+                    take: 1,
+                },
+            },
+        })
+
+        const hasEntitlement =
+            user?.role === "ADMIN" ||
+            user?.role === "PREMIUM" ||
+            (user?.subscriptions && user.subscriptions.length > 0)
+
+        if (!hasEntitlement) {
+            return NextResponse.json(
+                { error: "Payment or active subscription required to enroll with PASS/PURCHASED" },
+                { status: 402 }
+            )
+        }
+    }
 
     // Upsert enrollment — idempotent
     const enrollment = await prisma.examSeriesEnrollment.upsert({

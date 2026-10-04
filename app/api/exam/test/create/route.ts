@@ -69,10 +69,6 @@ export async function POST(req: NextRequest) {
 
     if (existingSeries) {
       targetSeriesId = existingSeries.id;
-      await prisma.examSeries.update({
-        where: { id: targetSeriesId },
-        data: { totalTests: { increment: 1 } }
-      });
     } else {
       const createdSeries = await prisma.examSeries.create({
         data: {
@@ -84,7 +80,7 @@ export async function POST(req: NextRequest) {
           createdById: session.user.id,
           languages: "English, Hindi",
           isPublished: true,
-          totalTests: 1,
+          totalTests: 0,
         }
       });
       targetSeriesId = createdSeries.id;
