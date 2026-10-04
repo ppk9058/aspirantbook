@@ -6,7 +6,7 @@ import path from "path"
 dotenv.config({ path: ".env.test" })
 dotenv.config({ path: ".env" })
 
-const testPassword = process.env.TEST_USER_PASSWORD
+const testPassword: string = process.env.TEST_USER_PASSWORD || ""
 if (!testPassword) {
     console.error("Missing TEST_USER_PASSWORD in .env.test")
     process.exit(1)

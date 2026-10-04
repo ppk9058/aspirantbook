@@ -103,38 +103,36 @@ async function loginTeacher(page: Page) {
   })
   if (!course) throw new Error(`Course not found: ${COURSE_SLUG}`)
 
-  // Create 3 Test Students
-  const studentA = await prisma.user.upsert({
-    where: { phoneNumber: "9800000001" },
-    create: {
-      email: "rohan_stage_a@trillionskill.com",
-      phoneNumber: "9800000001",
+  // Create 3 Test Students with isolated identifiers
+  const runId = Date.now()
+  const phoneA = `98${Math.floor(10000000 + Math.random() * 90000000)}`
+  const phoneB = `98${Math.floor(10000000 + Math.random() * 90000000)}`
+  const phoneC = `98${Math.floor(10000000 + Math.random() * 90000000)}`
+  const studentA = await prisma.user.create({
+    data: {
+      email: `student_stage_a_${runId}@internal.test`,
+      phoneNumber: phoneA,
       name: "Rohan Sharma",
       role: "FREE",
     },
-    update: { name: "Rohan Sharma", role: "FREE" },
   })
 
-  const studentB = await prisma.user.upsert({
-    where: { phoneNumber: "9800000002" },
-    create: {
-      email: "priya_stage_b@trillionskill.com",
-      phoneNumber: "9800000002",
+  const studentB = await prisma.user.create({
+    data: {
+      email: `student_stage_b_${runId}@internal.test`,
+      phoneNumber: phoneB,
       name: "Priya Singh",
       role: "FREE",
     },
-    update: { name: "Priya Singh", role: "FREE" },
   })
 
-  const studentC = await prisma.user.upsert({
-    where: { phoneNumber: "9800000003" },
-    create: {
-      email: "amit_stage_c@trillionskill.com",
-      phoneNumber: "9800000003",
+  const studentC = await prisma.user.create({
+    data: {
+      email: `student_stage_c_${runId}@internal.test`,
+      phoneNumber: phoneC,
       name: "Amit Kumar",
       role: "FREE",
     },
-    update: { name: "Amit Kumar", role: "FREE" },
   })
 
   const now = new Date()

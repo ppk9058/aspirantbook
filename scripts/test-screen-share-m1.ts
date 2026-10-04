@@ -51,7 +51,7 @@ async function runM1Verification() {
       studentId: student.id,
       slotId: slot.id,
       courseId: course.id,
-      mobile: student.phoneNumber || "+919800000001",
+      mobile: student.phoneNumber || `+9198${Math.floor(10000000 + Math.random() * 90000000)}`,
       status: "BOOKED",
     },
     update: { status: "BOOKED" },

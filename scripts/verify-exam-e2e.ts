@@ -11,10 +11,11 @@ const SERIES_SLUG = "upsc-2027"
 async function runE2EVerification() {
     console.log("=== STARTING PLAYWRIGHT REAL BROWSER E2E VERIFICATION ===")
 
-    // 1. Create a dedicated test student
-    const testEmail = `test_student_e2e_${Date.now()}@aspirantbook.local`
-    const testPassword = "Password@123456"
-    const hashedPassword = await bcrypt.hash(testPassword, 10)
+    // 1. Create a dedicated test student with randomized credentials
+    const runId = `e2e_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+    const testEmail = `student_${runId}@internal.test`
+    const rawPassword = `Pass_${crypto.randomUUID()}!`
+    const hashedPassword = await bcrypt.hash(rawPassword, 10)
 
     console.log(`[Setup] Creating dedicated test user: ${testEmail}`)
     const testUser = await prisma.user.create({
@@ -23,7 +24,6 @@ async function runE2EVerification() {
             name: "E2E Candidate",
             password: hashedPassword,
             role: "FREE",
-            phoneNumber: `99${Math.floor(10000000 + Math.random() * 90000000)}`,
         },
     })
     console.log(`[Setup] Dedicated test user created with ID: ${testUser.id}`)
@@ -48,16 +48,17 @@ async function runE2EVerification() {
         const page = await desktopContext.newPage()
 
         // Step 1: Login
-        console.log(`[Desktop 1/7] Logging in via NextAuth mobile credentials (${testUser.phoneNumber})...`)
+        console.log(`[Desktop 1/7] Logging in via NextAuth credentials (${testEmail})...`)
         await page.goto("http://localhost:3000/login", { waitUntil: "domcontentloaded" })
-        const loginStatus = await page.evaluate(async (phone) => {
+        const loginStatus = await page.evaluate(async ({ email, password }) => {
             const csrfRes = await fetch("/api/auth/csrf")
             const { csrfToken } = await csrfRes.json()
-            const res = await fetch("/api/auth/callback/mobile", {
+            const res = await fetch("/api/auth/callback/credentials", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams({
-                    phoneNumber: phone,
+                    email,
+                    password,
                     csrfToken: csrfToken,
                     callbackUrl: "http://localhost:3000/dashboard",
                     json: "true",
@@ -66,7 +67,7 @@ async function runE2EVerification() {
             const sessionRes = await fetch("/api/auth/session")
             const sessionData = await sessionRes.json()
             return { status: res.status, user: sessionData?.user }
-        }, testUser.phoneNumber!)
+        }, { email: testEmail, password: rawPassword })
         console.log(`[Desktop 1/7] Auth result: status=${loginStatus.status}, user=${loginStatus.user?.name} (${loginStatus.user?.email})`)
         if (!loginStatus.user?.id) {
             throw new Error("FAILED to authenticate dedicated test user in Playwright browser!")
@@ -238,22 +239,23 @@ async function runE2EVerification() {
         const mobilePage = await mobileContext.newPage()
 
         // Login on mobile
-        console.log(`[Mobile] Logging in via NextAuth mobile credentials (${testUser.phoneNumber})...`)
+        console.log(`[Mobile] Logging in via NextAuth credentials (${testEmail})...`)
         await mobilePage.goto("http://localhost:3000/login", { waitUntil: "domcontentloaded" })
-        await mobilePage.evaluate(async (phone) => {
+        await mobilePage.evaluate(async ({ email, password }) => {
             const csrfRes = await fetch("/api/auth/csrf")
             const { csrfToken } = await csrfRes.json()
-            await fetch("/api/auth/callback/mobile", {
+            await fetch("/api/auth/callback/credentials", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams({
-                    phoneNumber: phone,
+                    email,
+                    password,
                     csrfToken: csrfToken,
                     callbackUrl: "http://localhost:3000/dashboard",
                     json: "true",
                 }),
             })
-        }, testUser.phoneNumber!)
+        }, { email: testEmail, password: rawPassword })
 
         // Retake test on mobile to generate fresh attempt
         console.log("[Mobile] Opening attempt page with retake=true...")

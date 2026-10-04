@@ -99,10 +99,18 @@ const nextAuthResult = NextAuth({
             },
         }),
 
-        // Mobile-only login — no password, no OTP, just phone number
+        // Mobile-only login — dev/test bypass only, strictly disabled in production
         Credentials({
             id: "mobile",
             async authorize(credentials) {
+                const isProduction = process.env.NODE_ENV === "production"
+                const isDevBypassEnabled = process.env.ALLOW_DEV_MOBILE_LOGIN === "true" && !isProduction
+
+                if (!isDevBypassEnabled) {
+                    console.warn("[Auth] Dev mobile login bypass is disabled or blocked in production")
+                    return null
+                }
+
                 const parsed = z
                     .object({ phoneNumber: z.string().regex(/^[0-9]{10}$/) })
                     .safeParse(credentials)

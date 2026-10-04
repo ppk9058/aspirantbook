@@ -57,7 +57,7 @@ async function runMobileAudit() {
   try {
     // 1. Setup isolated database data
     console.log("1. Setting up isolated test records in DB...");
-    const rawPassword = "AuditPassword123!";
+    const rawPassword = `Audit_${crypto.randomUUID()}!`;
     const passwordHash = await bcrypt.hash(rawPassword, 10);
 
     // Create student user with active yearly subscription & payment history

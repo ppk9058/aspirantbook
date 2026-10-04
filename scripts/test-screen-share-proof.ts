@@ -111,27 +111,26 @@ async function loginTeacher(page: Page) {
     throw new Error(`Teacher not found: ${TEACHER_EMAIL}`)
   }
 
-  // Set up 2 test students
-  const studentA = await prisma.user.upsert({
-    where: { phoneNumber: "9876543210" },
-    create: {
-      email: "aakash_screenshare@trillionskill.com",
-      phoneNumber: "9876543210",
+  // Set up 2 test students with isolated identifiers
+  const runId = Date.now()
+  const phoneA = `98${Math.floor(10000000 + Math.random() * 90000000)}`
+  const phoneB = `98${Math.floor(10000000 + Math.random() * 90000000)}`
+  const studentA = await prisma.user.create({
+    data: {
+      email: `student_a_${runId}@internal.test`,
+      phoneNumber: phoneA,
       name: "Aakash Kumar",
       role: "FREE",
     },
-    update: { name: "Aakash Kumar", role: "FREE" },
   })
 
-  const studentB = await prisma.user.upsert({
-    where: { phoneNumber: "9876543211" },
-    create: {
-      email: "sneha_screenshare@trillionskill.com",
-      phoneNumber: "9876543211",
+  const studentB = await prisma.user.create({
+    data: {
+      email: `student_b_${runId}@internal.test`,
+      phoneNumber: phoneB,
       name: "Sneha Sharma",
       role: "FREE",
     },
-    update: { name: "Sneha Sharma", role: "FREE" },
   })
 
   // Clean up any older test slots for this course

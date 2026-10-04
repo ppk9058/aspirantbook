@@ -29,12 +29,12 @@ export async function POST(req: NextRequest) {
         const { phoneNumber, courseId, otp } = await req.json()
 
         const isProduction = process.env.NODE_ENV === "production"
-        const allowTestOtp = process.env.ALLOW_TEST_OTP === "true"
+        const isDevBypassEnabled = process.env.ALLOW_DEV_MOBILE_LOGIN === "true" && !isProduction
 
-        // In production, test OTP is strictly disabled unless explicitly allowed via env flag
-        if (isProduction && !allowTestOtp) {
+        // In production or when the dev flag is off, test OTP and unverified mobile login are strictly disabled
+        if (!isDevBypassEnabled) {
             return NextResponse.json(
-                { error: "SMS OTP service is currently being configured. Test OTP is disabled in production." },
+                { error: "SMS OTP service is currently being configured. Mobile dev login is disabled." },
                 { status: 503 }
             )
         }

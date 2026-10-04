@@ -49,38 +49,36 @@ async function runSecurityTests() {
     },
   })
 
-  // 2. Create Test Users: Student 1, Student 2, Teacher
-  const student1 = await prisma.user.upsert({
-    where: { phoneNumber: "+919999900001" },
-    create: {
-      email: "student1_sec@trillionskill.com",
-      phoneNumber: "+919999900001",
+  // 2. Create Test Users: Student 1, Student 2, Teacher with isolated identifiers
+  const runId = Date.now()
+  const phone1 = `+9199${Math.floor(10000000 + Math.random() * 90000000)}`
+  const phone2 = `+9199${Math.floor(10000000 + Math.random() * 90000000)}`
+  const phone3 = `+9199${Math.floor(10000000 + Math.random() * 90000000)}`
+  const student1 = await prisma.user.create({
+    data: {
+      email: `student1_sec_${runId}@internal.test`,
+      phoneNumber: phone1,
       name: "Security Student One",
       role: "FREE",
     },
-    update: { role: "FREE" },
   })
 
-  const student2 = await prisma.user.upsert({
-    where: { phoneNumber: "+919999900002" },
-    create: {
-      email: "student2_sec@trillionskill.com",
-      phoneNumber: "+919999900002",
+  const student2 = await prisma.user.create({
+    data: {
+      email: `student2_sec_${runId}@internal.test`,
+      phoneNumber: phone2,
       name: "Security Student Two",
       role: "FREE",
     },
-    update: { role: "FREE" },
   })
 
-  const teacher = await prisma.user.upsert({
-    where: { phoneNumber: "+919999900003" },
-    create: {
-      email: "teacher_sec@trillionskill.com",
-      phoneNumber: "+919999900003",
+  const teacher = await prisma.user.create({
+    data: {
+      email: `teacher_sec_${runId}@internal.test`,
+      phoneNumber: phone3,
       name: "Security Teacher",
       role: "TEACHER",
     },
-    update: { role: "TEACHER" },
   })
 
   // 3. Create Bookings

@@ -39,7 +39,7 @@ async function main() {
 
   console.log("\n=== STEP 2: VERIFYING MILESTONE 2 (BOOKING, UTM CAPTURE, DUPLICATE PREVENTION) ===")
 
-  const testPhone = "9876543211"
+  const testPhone = `98${Math.floor(10000000 + Math.random() * 90000000)}`
   const normalizedPhone = normalizePhoneToE164(testPhone)!
   console.log(`Input Phone: ${testPhone} -> Normalized E.164: ${normalizedPhone}`)
 
