@@ -92,7 +92,7 @@ async function main() {
     channelName: slot.agoraChannelName,
     role: "publisher",
   })
-  console.log(`Teacher Agora Host Token Generated successfully: length=${hostToken.length}, role=publisher`)
+  console.log(`Teacher Agora Host Token Generated successfully: length=${hostToken?.length || 0}, role=publisher`)
 
   // Step 3C: Teacher triggers Go Live ("start" action in /api/courses/demo/status)
   const goLiveTime = new Date()

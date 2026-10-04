@@ -310,14 +310,14 @@ function StepIndicator({ current }: { current: number }) {
         { label: "Publish" },
     ]
     return (
-        <div className="flex items-center gap-0">
+        <div className="flex items-center gap-0 overflow-x-auto no-scrollbar max-w-full py-1" data-scroll-x="true">
             {steps.map((step, idx) => {
                 const num = idx + 1
                 const done = num < current
                 const active = num === current
 
                 return (
-                    <div key={idx} className="flex items-center">
+                    <div key={idx} className="flex items-center shrink-0">
                         <div className="flex flex-col items-center">
                             <div
                                 className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm border-2 transition-all ${
@@ -331,12 +331,12 @@ function StepIndicator({ current }: { current: number }) {
                                 {done ? <CheckCircle2 className="h-4 w-4" /> : num}
                             </div>
                             <span
-                                className={`text-[10px] font-semibold mt-1 ${
+                                className={`text-[10px] font-semibold mt-1 whitespace-nowrap ${
                                     done
-                                        ? "text-[#00D084]"
+                                        ? "text-emerald-700 dark:text-emerald-400"
                                         : active
-                                        ? "text-[#00A8FF]"
-                                        : "text-gray-400"
+                                        ? "text-sky-700 dark:text-sky-400 font-bold"
+                                        : "text-gray-600 dark:text-gray-400"
                                 }`}
                             >
                                 {step.label}
@@ -344,7 +344,7 @@ function StepIndicator({ current }: { current: number }) {
                         </div>
                         {idx < steps.length - 1 && (
                             <div
-                                className={`h-0.5 w-12 sm:w-20 mb-4 mx-1 transition-all ${
+                                className={`h-0.5 w-3 sm:w-10 md:w-16 mb-4 mx-1 transition-all shrink-0 ${
                                     done ? "bg-[#00D084]" : "bg-gray-200"
                                 }`}
                             />
@@ -367,9 +367,9 @@ function FieldError({ msg }: { msg?: string }) {
 
 function CardHeader({ title, subtitle }: { title: string; subtitle?: string }) {
     return (
-        <div className="px-6 py-4 bg-gradient-to-r from-[#F3ECFF] via-[#F8F5FF] to-white border-b border-purple-100 rounded-t-2xl">
-            <h2 className="text-base font-black text-gray-900">{title}</h2>
-            {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
+        <div className="px-6 py-4 bg-gradient-to-r from-[#F3ECFF] via-[#F8F5FF] to-white dark:from-[#0a1f38] dark:via-[#0c2442] dark:to-[#071d33] border-b border-purple-100 dark:border-gray-800 rounded-t-2xl">
+            <h2 className="text-base font-black text-gray-900 dark:text-white">{title}</h2>
+            {subtitle && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{subtitle}</p>}
         </div>
     )
 }
@@ -1032,7 +1032,7 @@ function CreateTestContent() {
     // ─────────────────────────────────────────────────────────────────────────
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6 pb-16">
+        <div className="max-w-5xl mx-auto space-y-6 pb-16 px-3 sm:px-6">
             {/* Toast */}
             {showToast && (
                 <div className="fixed top-20 right-6 z-[9999] bg-[#00D084] text-white px-6 py-4 rounded-2xl shadow-2xl font-bold text-sm flex flex-col sm:flex-row items-center gap-4 animate-in slide-in-from-right-5 border-2 border-white/20">
@@ -1072,11 +1072,11 @@ function CreateTestContent() {
             )}
 
             {/* Page Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <Link
                         href="/teacher/classes"
-                        className="text-xs text-gray-500 hover:text-[#00A8FF] flex items-center gap-1 mb-1"
+                        className="text-xs text-gray-600 dark:text-gray-300 hover:text-sky-700 dark:hover:text-sky-400 flex items-center gap-1 mb-1"
                     >
                         <ChevronLeft className="h-3.5 w-3.5" />
                         Back to Classes
@@ -1084,7 +1084,7 @@ function CreateTestContent() {
                     <h1 className="text-2xl font-black text-gray-900 dark:text-white">
                         Test Authoring Studio
                     </h1>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">
                         Create a new test with bilingual question support
                     </p>
                 </div>
@@ -1119,7 +1119,7 @@ function CreateTestContent() {
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                                     Test Title (Hindi){" "}
-                                    <span className="text-gray-400 font-normal">optional</span>
+                                    <span className="text-gray-500 dark:text-gray-400 font-normal">optional</span>
                                 </label>
                                 <input
                                     type="text"
@@ -1141,13 +1141,13 @@ function CreateTestContent() {
                                 <button
                                     type="button"
                                     onClick={() => setIsCreateSeriesModalOpen(true)}
-                                    className="text-xs font-bold text-[#00A8FF] hover:underline flex items-center gap-1 cursor-pointer"
+                                    className="text-xs font-bold text-sky-700 dark:text-sky-400 hover:underline flex items-center gap-1 cursor-pointer"
                                 >
                                     <Plus className="h-3 w-3" />
                                     <span>+ Create New Series Package</span>
                                 </button>
                             </div>
-                            <p className="text-[11px] text-gray-500 font-normal">Controls which public test series flash card and details page this test belongs to</p>
+                            <p className="text-[11px] text-gray-600 dark:text-gray-300 font-normal">Controls which public test series flash card and details page this test belongs to</p>
                             <select
                                 value={formData.seriesId}
                                 onChange={(e) => {
@@ -1274,8 +1274,8 @@ function CreateTestContent() {
                                         onClick={() => updateField("testType", type)}
                                         className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                                             formData.testType === type
-                                                ? "bg-[#00A8FF] border-[#00A8FF] text-white shadow-sm"
-                                                : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-[#00A8FF]/50 hover:text-[#00A8FF]"
+                                                ? "bg-sky-700 border-sky-700 text-white shadow-sm"
+                                                : "border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-sky-500/50 hover:text-sky-700 dark:hover:text-sky-400"
                                         }`}
                                     >
                                         {type}
@@ -1289,20 +1289,20 @@ function CreateTestContent() {
                             <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
                                 Access Mode
                             </label>
-                            <div className="flex items-center gap-4">
+                            <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
                                 <button
                                     type="button"
                                     onClick={() => updateField("accessMode", "free")}
-                                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                                    className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                                         formData.accessMode === "free"
-                                            ? "bg-[#00D084] border-[#00D084] text-white shadow-sm"
-                                            : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"
+                                            ? "bg-emerald-700 border-emerald-700 text-white shadow-sm"
+                                            : "border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
                                     }`}
                                 >
                                     <Circle className="h-3.5 w-3.5" />
                                     Free Test
                                     {formData.accessMode === "free" && (
-                                        <span className="ml-1 px-2 py-0.5 bg-white/20 rounded-full text-[10px]">
+                                        <span className="ml-1 px-2 py-0.5 bg-white text-emerald-950 rounded-full text-[10px] font-black">
                                             ACTIVE
                                         </span>
                                     )}
@@ -1310,28 +1310,28 @@ function CreateTestContent() {
                                 <button
                                     type="button"
                                     onClick={() => updateField("accessMode", "pro")}
-                                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                                    className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                                         formData.accessMode === "pro"
-                                            ? "bg-[#9333EA] border-[#9333EA] text-white shadow-sm"
-                                            : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"
+                                            ? "bg-purple-700 border-purple-700 text-white shadow-sm"
+                                            : "border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
                                     }`}
                                 >
                                     <BookOpen className="h-3.5 w-3.5" />
                                     Pass Pro Exclusive
                                     {formData.accessMode === "pro" && (
-                                        <span className="ml-1 px-2 py-0.5 bg-white/20 rounded-full text-[10px]">
+                                        <span className="ml-1 px-2 py-0.5 bg-white text-purple-950 rounded-full text-[10px] font-black">
                                             PRO
                                         </span>
                                     )}
                                 </button>
                             </div>
                             {formData.accessMode === "free" && (
-                                <p className="text-xs text-[#00D084] font-semibold mt-1.5">
+                                <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold mt-1.5">
                                     ✓ This test will be visible and accessible to all users for free.
                                 </p>
                             )}
                             {formData.accessMode === "pro" && (
-                                <p className="text-xs text-[#9333EA] font-semibold mt-1.5">
+                                <p className="text-xs text-purple-700 dark:text-purple-400 font-semibold mt-1.5">
                                     🔒 This test requires an active aspirantbook Pass subscription.
                                 </p>
                             )}
@@ -1393,7 +1393,7 @@ function CreateTestContent() {
                                     <p className="text-sm font-bold text-gray-800 dark:text-gray-200">
                                         Live Test
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">
                                         Schedule this as a timed live event with a start and end window.
                                     </p>
                                 </div>
@@ -1449,7 +1449,7 @@ function CreateTestContent() {
                         <div className="flex justify-end pt-2">
                             <button
                                 onClick={handleNext}
-                                className="flex items-center gap-2 px-7 py-3 bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+                                className="flex items-center gap-2 px-7 py-3 bg-sky-700 hover:bg-sky-600 text-white font-bold text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] cursor-pointer"
                             >
                                 Next
                                 <ChevronRight className="h-4 w-4" />
@@ -1709,8 +1709,8 @@ function CreateTestContent() {
                             {/* Section Tabs */}
                             {formData.sections.length > 1 && (
                                 <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
-                                    <div className="px-4 py-3 bg-gradient-to-r from-[#F3ECFF] via-[#F8F5FF] to-white border-b border-purple-100">
-                                        <p className="text-xs font-black text-gray-700">Sections</p>
+                                    <div className="px-4 py-3 bg-gradient-to-r from-[#F3ECFF] via-[#F8F5FF] to-white dark:from-[#0a1f38] dark:via-[#0c2442] dark:to-[#071d33] border-b border-purple-100 dark:border-gray-800">
+                                        <p className="text-xs font-black text-gray-700 dark:text-gray-200">Sections</p>
                                     </div>
                                     <div className="p-2 space-y-1">
                                         {formData.sections.map((sec, idx) => {
@@ -1752,8 +1752,8 @@ function CreateTestContent() {
 
                             {/* Question Navigator Palette */}
                             <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
-                                <div className="px-4 py-3 bg-gradient-to-r from-[#F3ECFF] via-[#F8F5FF] to-white border-b border-purple-100">
-                                    <p className="text-xs font-black text-gray-700">
+                                <div className="px-4 py-3 bg-gradient-to-r from-[#F3ECFF] via-[#F8F5FF] to-white dark:from-[#0a1f38] dark:via-[#0c2442] dark:to-[#071d33] border-b border-purple-100 dark:border-gray-800">
+                                    <p className="text-xs font-black text-gray-700 dark:text-gray-200">
                                         {sectionForStep3?.name || "Section"} — Navigator
                                     </p>
                                 </div>
@@ -1809,13 +1809,13 @@ function CreateTestContent() {
                         {/* Right: Question Editor */}
                         {currentQ && (
                             <div className="lg:col-span-9 bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
-                                <div className="px-6 py-4 bg-gradient-to-r from-[#F3ECFF] via-[#F8F5FF] to-white border-b border-purple-100 flex items-center justify-between">
+                                <div className="px-6 py-4 bg-gradient-to-r from-[#F3ECFF] via-[#F8F5FF] to-white dark:from-[#0a1f38] dark:via-[#0c2442] dark:to-[#071d33] border-b border-purple-100 dark:border-gray-800 flex items-center justify-between">
                                     <div>
-                                        <h3 className="text-sm font-black text-gray-800">
+                                        <h3 className="text-sm font-black text-gray-800 dark:text-white">
                                             Question {currentQIdx + 1} of{" "}
                                             {questionsForCurrentSection.length}
                                         </h3>
-                                        <p className="text-xs text-gray-500">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
                                             {sectionForStep3?.name}
                                         </p>
                                     </div>
@@ -1913,7 +1913,7 @@ function CreateTestContent() {
                                                         >
                                                             {letter}
                                                         </span>
-                                                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                        <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                             <input
                                                                 type="text"
                                                                 value={currentQ.options[oi].english}
@@ -1923,7 +1923,7 @@ function CreateTestContent() {
                                                                     })
                                                                 }
                                                                 placeholder={`Option ${letter} (English)`}
-                                                                className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-1 focus:ring-[#00A8FF]/20"
+                                                                className="w-full min-w-0 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-1 focus:ring-[#00A8FF]/20"
                                                             />
                                                             <input
                                                                 type="text"
@@ -1934,7 +1934,7 @@ function CreateTestContent() {
                                                                     })
                                                                 }
                                                                 placeholder={`विकल्प ${letter} (Hindi)`}
-                                                                className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-1 focus:ring-[#00A8FF]/20"
+                                                                className="w-full min-w-0 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-1 focus:ring-[#00A8FF]/20"
                                                             />
                                                         </div>
                                                     </div>
@@ -1985,7 +1985,7 @@ function CreateTestContent() {
                                     </div>
 
                                     {/* Meta Row */}
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-4 gap-3">
                                         <div>
                                             <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                                                 <BarChart3 className="inline h-3 w-3 mr-1" />
@@ -1998,7 +1998,7 @@ function CreateTestContent() {
                                                         difficulty: e.target.value as Question["difficulty"],
                                                     })
                                                 }
-                                                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
+                                                className="w-full min-w-0 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
                                             >
                                                 <option>Easy</option>
                                                 <option>Moderate</option>
@@ -2019,7 +2019,7 @@ function CreateTestContent() {
                                                     })
                                                 }
                                                 placeholder="e.g. History"
-                                                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
+                                                className="w-full min-w-0 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
                                             />
                                         </div>
                                         <div>
@@ -2036,7 +2036,7 @@ function CreateTestContent() {
                                                     })
                                                 }
                                                 placeholder="e.g. Maurya Period"
-                                                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
+                                                className="w-full min-w-0 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
                                             />
                                         </div>
                                         <div>
@@ -2053,17 +2053,17 @@ function CreateTestContent() {
                                                     })
                                                 }
                                                 placeholder="https://youtube.com/…"
-                                                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
+                                                className="w-full min-w-0 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Q Navigation */}
-                                    <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+                                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                                         <button
                                             disabled={currentQIdx === 0}
                                             onClick={() => setCurrentQIdx((p) => p - 1)}
-                                            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                                            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
                                         >
                                             <ChevronLeft className="h-4 w-4" />
                                             Prev
@@ -2082,7 +2082,7 @@ function CreateTestContent() {
                                                 )
                                                     setCurrentQIdx((p) => p + 1)
                                             }}
-                                            className="flex items-center gap-2 px-5 py-2.5 bg-[#00D084] hover:bg-[#00ba76] text-white font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
+                                            className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-[#00D084] hover:bg-[#00ba76] text-white font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
                                         >
                                             <Save className="h-3.5 w-3.5" />
                                             Save & Next
@@ -2093,7 +2093,7 @@ function CreateTestContent() {
                                                 currentQIdx === questionsForCurrentSection.length - 1
                                             }
                                             onClick={() => setCurrentQIdx((p) => p + 1)}
-                                            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                                            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-bold text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
                                         >
                                             Next
                                             <ChevronRight className="h-4 w-4" />
@@ -2104,17 +2104,17 @@ function CreateTestContent() {
                         )}
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                         <button
                             onClick={handleBack}
-                            className="flex items-center gap-2 px-6 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer"
+                            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-xs sm:text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer w-full sm:w-auto"
                         >
                             <ChevronLeft className="h-4 w-4" />
                             Back to Sections
                         </button>
                         <button
                             onClick={handleNext}
-                            className="flex items-center gap-2 px-7 py-3 bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+                            className="flex items-center justify-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3 bg-sky-700 hover:bg-sky-600 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] cursor-pointer w-full sm:w-auto"
                         >
                             Preview & Publish
                             <ChevronRight className="h-4 w-4" />
@@ -2350,20 +2350,24 @@ function CreateTestContent() {
             {/* BULK IMPORT / AI MODAL */}
             {/* ──────────────────────────────────────────────────────────────── */}
             {bulkImportOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="text-base font-black text-gray-900 dark:text-white">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm overflow-x-hidden">
+                    <div
+                        style={{ maxWidth: "min(32rem, calc(100vw - 32px))" }}
+                        className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl w-full p-4 sm:p-6 shadow-2xl space-y-5 max-h-[90dvh] overflow-y-auto overflow-x-hidden box-border"
+                    >
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                                <h3 className="text-base font-black text-gray-900 dark:text-white break-words">
                                     Bulk Import / AI Generate
                                 </h3>
-                                <p className="text-xs text-gray-500 mt-0.5">
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 break-words">
                                     Import from Excel/CSV or use AI to auto-generate questions
                                 </p>
                             </div>
                             <button
                                 onClick={() => setBulkImportOpen(false)}
-                                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                                className="shrink-0 p-2 rounded-lg text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                                aria-label="Close bulk import modal"
                             >
                                 <X className="h-5 w-5" />
                             </button>
@@ -2393,26 +2397,26 @@ function CreateTestContent() {
                                 <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
                                     Excel, CSV or JSON File Import
                                 </p>
-                                <span className="text-[10px] text-gray-400 font-semibold">Supports up to 150+ Qs</span>
+                                <span className="text-[10px] text-gray-500 font-semibold">Supports up to 150+ Qs</span>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <button
                                     type="button"
                                     onClick={downloadSampleCsv}
-                                    className="flex items-center justify-center gap-1.5 py-2 px-3 border border-[#00A8FF]/40 text-[#00A8FF] rounded-xl text-xs font-bold hover:bg-[#00A8FF]/5 transition-all cursor-pointer"
+                                    className="flex items-center justify-center gap-1.5 py-2 px-3 border border-[#00A8FF]/40 text-sky-700 dark:text-sky-400 rounded-xl text-xs font-bold hover:bg-[#00A8FF]/5 transition-all cursor-pointer min-w-0"
                                 >
-                                    <FileSpreadsheet className="h-3.5 w-3.5" />
-                                    <span>Download CSV Template</span>
+                                    <FileSpreadsheet className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate">Download CSV Template</span>
                                 </button>
 
                                 <button
                                     type="button"
                                     onClick={downloadSampleJson}
-                                    className="flex items-center justify-center gap-1.5 py-2 px-3 border border-purple-400 text-purple-600 dark:text-purple-400 rounded-xl text-xs font-bold hover:bg-purple-50 dark:hover:bg-purple-950/20 transition-all cursor-pointer"
+                                    className="flex items-center justify-center gap-1.5 py-2 px-3 border border-purple-400 text-purple-700 dark:text-purple-400 rounded-xl text-xs font-bold hover:bg-purple-50 dark:hover:bg-purple-950/20 transition-all cursor-pointer min-w-0"
                                 >
-                                    <Code2 className="h-3.5 w-3.5" />
-                                    <span>Download JSON Template</span>
+                                    <Code2 className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate">Download JSON Template</span>
                                 </button>
                             </div>
 
@@ -2431,7 +2435,7 @@ function CreateTestContent() {
                                             <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
                                                 Click to upload .CSV or .JSON file
                                             </span>
-                                            <span className="text-[11px] text-gray-400">
+                                            <span className="text-[11px] text-gray-600 dark:text-gray-400">
                                                 Automatically populates questions, options, and answer keys
                                             </span>
                                         </div>
@@ -2455,21 +2459,21 @@ function CreateTestContent() {
                                     AI Question Generator (By Topic)
                                 </p>
                             </div>
-                            <p className="text-[11px] text-gray-500">
+                            <p className="text-[11px] text-gray-600 dark:text-gray-300">
                                 Enter an exam topic to automatically generate 5 high-yield MCQs with bilingual options and explanations.
                             </p>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col sm:flex-row gap-2">
                                 <input
                                     type="text"
                                     value={aiPrompt}
                                     onChange={(e) => setAiPrompt(e.target.value)}
-                                    placeholder="e.g. Indian Constitution Polity or Bihar Geography"
-                                    className="flex-1 px-3 py-2 rounded-xl border border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 text-xs focus:outline-hidden focus:border-[#9333EA]"
+                                    placeholder="e.g. Indian Constitution Polity"
+                                    className="w-full min-w-0 px-3 py-2 rounded-xl border border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 text-xs focus:outline-hidden focus:border-[#9333EA]"
                                 />
                                 <button
                                     onClick={handleAiGenerate}
                                     disabled={aiLoading || !aiPrompt.trim()}
-                                    className="px-4 py-2 bg-[#9333EA] hover:bg-[#7c22d4] text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-all cursor-pointer"
+                                    className="w-full sm:w-auto shrink-0 px-4 py-2 bg-[#9333EA] hover:bg-[#7c22d4] text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                                 >
                                     {aiLoading ? (
                                         <>
@@ -2489,12 +2493,12 @@ function CreateTestContent() {
                         {/* Paste Raw Paper */}
                         <div className="p-4 bg-gradient-to-r from-blue-50/70 to-white dark:from-[#0a1c33] dark:to-[#071d33] rounded-xl border border-blue-200 dark:border-blue-900/50 space-y-3">
                             <div className="flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-[#00A8FF]" />
-                                <p className="text-xs font-bold text-[#00A8FF]">
+                                <FileText className="h-4 w-4 text-sky-700 dark:text-sky-400" />
+                                <p className="text-xs font-bold text-sky-700 dark:text-sky-400">
                                     AI Raw Paper Ingestion (Paste Exam Paper)
                                 </p>
                             </div>
-                            <p className="text-[11px] text-gray-500">
+                            <p className="text-[11px] text-gray-600 dark:text-gray-300">
                                 Paste raw questions from Word/PDF with A/B/C/D choices. The engine will auto-detect questions, options, and answer keys.
                             </p>
                             <textarea
@@ -2507,7 +2511,7 @@ function CreateTestContent() {
                             <button
                                 onClick={handleRawPaperParse}
                                 disabled={rawLoading || !rawPaperText.trim()}
-                                className="w-full py-2 bg-[#00A8FF] hover:bg-[#0096e6] text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                                className="w-full py-2 bg-sky-700 hover:bg-sky-600 text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
                             >
                                 {rawLoading ? (
                                     <>
@@ -2525,7 +2529,7 @@ function CreateTestContent() {
 
                         <button
                             onClick={() => setBulkImportOpen(false)}
-                            className="w-full py-2.5 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer"
+                            className="w-full py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer"
                         >
                             Close
                         </button>

@@ -813,14 +813,15 @@ export default function TeacherStudio({
       <TeacherScheduleModal
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
-        currentStartTime={classroom.scheduledStartTime}
-        currentTopic={classroom.topicTitle}
-        currentSubject={classroom.subject}
-        onSave={(data) => {
+        initialScheduledStartTime={classroom.scheduledStartTime}
+        initialTopicTitle={classroom.topicTitle}
+        initialSubject={classroom.subject}
+        initialDurationMinutes={classroom.durationMinutes || 60}
+        onSaveSchedule={async (data) => {
           onClassroomUpdate({
             ...classroom,
-            scheduledStartTime: `${data.date}, ${data.time}`,
-            topicTitle: data.topic,
+            scheduledStartTime: data.scheduledStartTime,
+            topicTitle: data.topicTitle,
             subject: data.subject,
             durationMinutes: data.durationMinutes,
           })

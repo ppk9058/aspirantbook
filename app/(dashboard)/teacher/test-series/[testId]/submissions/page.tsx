@@ -114,21 +114,21 @@ export default function SubmissionsPage() {
     )
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#060f1c] p-6 lg:p-10 space-y-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#060f1c] p-3 sm:p-6 lg:p-10 space-y-6 sm:space-y-8">
             {/* Top Bar */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <button
                         onClick={() => router.back()}
-                        className="text-xs text-gray-500 hover:text-[#00A8FF] flex items-center gap-1 mb-1"
+                        className="text-xs text-gray-700 dark:text-gray-300 hover:text-[#00A8FF] flex items-center gap-1 mb-1"
                     >
                         <ChevronLeft className="h-3.5 w-3.5" />
                         Back to Test Management
                     </button>
-                    <h1 className="text-2xl font-black text-gray-900 dark:text-white">
+                    <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white break-words">
                         Student Submissions &amp; Answer Sheets
                     </h1>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 break-words">
                         Test ID: <span className="font-mono font-bold text-gray-700 dark:text-gray-300">{testId}</span> • 72nd BPSC Prelims Mock Test 1
                     </p>
                 </div>
@@ -136,7 +136,7 @@ export default function SubmissionsPage() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => alert("Exporting CSV report...")}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 transition-colors"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
                         <Download className="h-4 w-4" />
                         Export Gradebook (CSV)
@@ -145,43 +145,43 @@ export default function SubmissionsPage() {
             </div>
 
             {/* Quick Metrics */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 min-[440px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div className="bg-white dark:bg-[#0a1628] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-xs">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Submissions</span>
+                    <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total Submissions</span>
                     <p className="text-2xl font-black text-gray-900 dark:text-white mt-1">{submissions.length}</p>
                 </div>
                 <div className="bg-white dark:bg-[#0a1628] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-xs">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Highest Score</span>
-                    <p className="text-2xl font-black text-emerald-500 mt-1">112.5 <span className="text-xs text-gray-400">/ 150</span></p>
+                    <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Highest Score</span>
+                    <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400 mt-1">112.5 <span className="text-xs text-gray-600 dark:text-gray-400">/ 150</span></p>
                 </div>
                 <div className="bg-white dark:bg-[#0a1628] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-xs">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Class Average</span>
-                    <p className="text-2xl font-black text-[#00A8FF] mt-1">101.6 pts</p>
+                    <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Class Average</span>
+                    <p className="text-2xl font-black text-sky-700 dark:text-sky-400 mt-1">101.6 pts</p>
                 </div>
                 <div className="bg-white dark:bg-[#0a1628] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-xs">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Integrity Alerts</span>
-                    <p className="text-2xl font-black text-amber-500 mt-1">1 Flagged</p>
+                    <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Integrity Alerts</span>
+                    <p className="text-2xl font-black text-amber-700 dark:text-amber-400 mt-1">1 Flagged</p>
                 </div>
             </div>
 
             {/* Submissions Table */}
             <div className="bg-white dark:bg-[#0a1628] rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                    <div className="relative w-64">
+                    <div className="relative w-full sm:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Search by student name or roll..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#071d33] text-xs"
+                            className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#071d33] text-xs text-gray-900 dark:text-white"
                         />
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto" data-scroll-x="true">
                     <table className="w-full text-left text-xs">
-                        <thead className="bg-gray-50/80 dark:bg-gray-900/40 text-gray-400 uppercase tracking-wider font-bold border-b border-gray-100 dark:border-gray-800">
+                        <thead className="bg-gray-50/80 dark:bg-gray-900/40 text-gray-700 dark:text-gray-300 uppercase tracking-wider font-bold border-b border-gray-100 dark:border-gray-800">
                             <tr>
                                 <th className="py-3 px-5">Candidate</th>
                                 <th className="py-3 px-4">Roll No</th>
@@ -199,20 +199,20 @@ export default function SubmissionsPage() {
                                     <td className="py-3 px-5">
                                         <div>
                                             <p className="font-extrabold text-gray-900 dark:text-white">{sub.candidateName}</p>
-                                            <p className="text-[10px] text-gray-400">{sub.email}</p>
+                                            <p className="text-[10px] text-gray-600 dark:text-gray-400">{sub.email}</p>
                                         </div>
                                     </td>
                                     <td className="py-3 px-4 font-mono font-bold text-gray-600 dark:text-gray-300">
                                         {sub.rollNo}
                                     </td>
-                                    <td className="py-3 px-4 text-gray-500">{sub.submittedAt}</td>
-                                    <td className="py-3 px-4 text-center font-black text-sm text-[#00A8FF]">
+                                    <td className="py-3 px-4 text-gray-700 dark:text-gray-300">{sub.submittedAt}</td>
+                                    <td className="py-3 px-4 text-center font-black text-sm text-sky-700 dark:text-sky-400">
                                         {sub.score}
                                     </td>
-                                    <td className="py-3 px-4 text-center font-bold text-amber-500">
+                                    <td className="py-3 px-4 text-center font-bold text-amber-800 dark:text-amber-300">
                                         #{sub.rank}
                                     </td>
-                                    <td className="py-3 px-4 text-center font-bold text-emerald-600">
+                                    <td className="py-3 px-4 text-center font-bold text-emerald-800 dark:text-emerald-300">
                                         {sub.accuracy}%
                                     </td>
                                     <td className="py-3 px-4 text-center">

@@ -191,15 +191,15 @@ export default function TeacherTestSeriesManagePage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#060f1c] p-6 lg:p-10 space-y-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#060f1c] p-3 sm:p-6 lg:p-10 space-y-8">
             {/* Top Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-1 rounded-md bg-[#00A8FF]/10 text-[#00A8FF] text-xs font-bold uppercase tracking-wider">
+                        <span className="px-2.5 py-1 rounded-md bg-sky-500/10 text-sky-700 dark:text-sky-400 text-xs font-bold uppercase tracking-wider">
                             Teacher Studio
                         </span>
-                        <span className="text-xs text-gray-400">• Exam Management</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">• Exam Management</span>
                     </div>
                     <h1 className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white mt-1">
                         Test Series Management
@@ -231,53 +231,53 @@ export default function TeacherTestSeriesManagePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white dark:bg-[#0a1628] rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-xs">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Tests</span>
+                        <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total Tests</span>
                         <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-[#00A8FF] flex items-center justify-center">
                             <BookOpen className="h-5 w-5" />
                         </div>
                     </div>
                     <div className="mt-3">
                         <span className="text-2xl font-black text-gray-900 dark:text-white">{tests.length}</span>
-                        <span className="text-xs text-emerald-500 font-semibold ml-2">Active</span>
+                        <span className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold ml-2">Active</span>
                     </div>
                 </div>
 
                 <div className="bg-white dark:bg-[#0a1628] rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-xs">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Submissions</span>
+                        <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total Submissions</span>
                         <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-[#00D084] flex items-center justify-center">
                             <Users className="h-5 w-5" />
                         </div>
                     </div>
                     <div className="mt-3">
                         <span className="text-2xl font-black text-gray-900 dark:text-white">{totalAttempts.toLocaleString()}</span>
-                        <span className="text-xs text-emerald-500 font-semibold ml-2">Students</span>
+                        <span className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold ml-2">Students</span>
                     </div>
                 </div>
 
                 <div className="bg-white dark:bg-[#0a1628] rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-xs">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Published Tests</span>
+                        <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Published Tests</span>
                         <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-900/20 text-[#9333EA] flex items-center justify-center">
                             <CheckCircle className="h-5 w-5" />
                         </div>
                     </div>
                     <div className="mt-3">
                         <span className="text-2xl font-black text-gray-900 dark:text-white">{publishedCount}</span>
-                        <span className="text-xs text-gray-400 font-semibold ml-2">Live on Student Portal</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold ml-2">Live on Student Portal</span>
                     </div>
                 </div>
 
                 <div className="bg-white dark:bg-[#0a1628] rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-xs">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Avg Class Score</span>
+                        <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Avg Class Score</span>
                         <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-[#F59E0B] flex items-center justify-center">
                             <TrendingUp className="h-5 w-5" />
                         </div>
                     </div>
                     <div className="mt-3">
                         <span className="text-2xl font-black text-gray-900 dark:text-white">68.4%</span>
-                        <span className="text-xs text-emerald-500 font-semibold ml-2">Healthy</span>
+                        <span className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold ml-2">Healthy</span>
                     </div>
                 </div>
             </div>
@@ -287,7 +287,7 @@ export default function TeacherTestSeriesManagePage() {
                 {/* Filter Toolbar */}
                 <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                     {/* Tabs */}
-                    <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 self-stretch sm:self-auto">
+                    <div className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-gray-800/80 self-stretch sm:self-auto overflow-x-auto no-scrollbar" data-scroll-x="true">
                         {(["ALL", "PUBLISHED", "LIVE", "DRAFT"] as const).map((tab) => (
                             <button
                                 key={tab}
@@ -295,7 +295,7 @@ export default function TeacherTestSeriesManagePage() {
                                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
                                     selectedTab === tab
                                         ? "bg-white dark:bg-[#071d33] text-gray-900 dark:text-white shadow-xs"
-                                        : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                                        : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                                 }`}
                             >
                                 {tab === "ALL" ? "All Tests" : tab.charAt(0) + tab.slice(1).toLowerCase()}
@@ -305,21 +305,21 @@ export default function TeacherTestSeriesManagePage() {
 
                     {/* Search */}
                     <div className="relative w-full sm:w-72">
-                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                         <input
                             type="text"
                             placeholder="Search tests or categories..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#071d33] text-xs text-gray-900 dark:text-white placeholder-gray-400 focus:outline-hidden focus:border-[#00A8FF]"
+                            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#071d33] text-xs text-gray-900 dark:text-white placeholder-gray-500 focus:outline-hidden focus:border-[#00A8FF]"
                         />
                     </div>
                 </div>
 
                 {/* Tests Table */}
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto" data-scroll-x="true">
                     <table className="w-full text-left text-xs">
-                        <thead className="bg-gray-50/80 dark:bg-gray-900/40 text-gray-400 uppercase tracking-wider font-bold border-b border-gray-100 dark:border-gray-800">
+                        <thead className="bg-gray-50/80 dark:bg-gray-900/40 text-gray-700 dark:text-gray-300 uppercase tracking-wider font-bold border-b border-gray-100 dark:border-gray-800">
                             <tr>
                                 <th className="py-4 px-6">Test Title</th>
                                 <th className="py-4 px-4">Type & Mode</th>
@@ -338,8 +338,8 @@ export default function TeacherTestSeriesManagePage() {
                                             <p className="font-extrabold text-sm text-gray-900 dark:text-white line-clamp-1">
                                                 {test.title}
                                             </p>
-                                            <div className="flex items-center gap-2 text-[11px] text-gray-400">
-                                                <span className="font-semibold text-[#00A8FF]">{test.category}</span>
+                                            <div className="flex items-center gap-2 text-[11px] text-gray-600 dark:text-gray-400">
+                                                <span className="font-semibold text-sky-700 dark:text-sky-400">{test.category}</span>
                                                 <span>•</span>
                                                 <span>Created {test.createdAt}</span>
                                             </div>
@@ -353,8 +353,8 @@ export default function TeacherTestSeriesManagePage() {
                                             <span
                                                 className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
                                                     test.accessMode === "FREE"
-                                                        ? "bg-[#00D084]/15 text-[#00D084]"
-                                                        : "bg-amber-500/15 text-amber-500"
+                                                        ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300"
+                                                        : "bg-amber-500/15 text-amber-900 dark:text-amber-300"
                                                 }`}
                                             >
                                                 {test.accessMode}

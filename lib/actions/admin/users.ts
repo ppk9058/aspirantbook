@@ -212,7 +212,7 @@ export async function cancelUserSubscription(subscriptionId: string) {
     await prisma.subscription.update({
         where: { id: subscriptionId },
         data: {
-            status: "CANCELLED",
+            status: "CANCELED",
             cancelAtPeriodEnd: true,
         },
     })

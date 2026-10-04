@@ -453,6 +453,247 @@ async function auditSinglePage({
   await context.close();
 }
 
+async function auditTeacherCreateFlow({
+  browser,
+  storageState,
+  vp,
+  theme,
+  screenshotsDir,
+  allViolations,
+}: {
+  browser: Browser;
+  storageState: any;
+  vp: ViewportConfig;
+  theme: "light" | "dark";
+  screenshotsDir: string;
+  allViolations: AuditViolation[];
+}) {
+  const runLabel = `teacher_test_create_interactive [${vp.name}, ${theme}]`;
+  const pagePath = "/teacher/test-series/create";
+
+  const context = await browser.newContext({
+    viewport: { width: vp.width, height: vp.height },
+    isMobile: vp.width < 768,
+    hasTouch: vp.width < 768,
+    colorScheme: theme,
+    storageState,
+  });
+
+  await context.addInitScript(
+    ({ curTheme, isScale200 }) => {
+      try {
+        localStorage.setItem("theme", curTheme);
+        if (curTheme === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      } catch (e) {}
+
+      const style = document.createElement("style");
+      style.textContent = `
+        nextjs-portal, [data-nextjs-toast], [data-nextjs-dev-overlay] { display: none !important; }
+        ${isScale200 ? "html { font-size: 200% !important; }" : ""}
+      `;
+      const target = document.head || document.documentElement;
+      if (target) {
+        target.appendChild(style);
+      } else {
+        document.addEventListener("DOMContentLoaded", () => {
+          (document.head || document.documentElement)?.appendChild(style);
+        });
+      }
+    },
+    { curTheme: theme, isScale200: !!vp.fontScale200 }
+  );
+
+  const page = await context.newPage();
+
+  try {
+    await page.goto(`http://localhost:3000${pagePath}`, {
+      waitUntil: "domcontentloaded",
+      timeout: 45000,
+    });
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(400);
+
+    // 1. Fill Step 1
+    const titleInput = page.locator('input[placeholder*="72nd BPSC Prelims"]').first();
+    if (await titleInput.isVisible()) {
+      await titleInput.fill("UPSC History Sectional Mock Test 2026");
+    }
+    const examNameInput = page.locator('input[placeholder*="UPSC CSE"]').first();
+    if (await examNameInput.isVisible()) {
+      await examNameInput.fill("UPSC CSE");
+    }
+
+    // Advance to Step 2
+    const nextBtn1 = page.getByRole("button", { name: "Next", exact: true });
+    if (await nextBtn1.isVisible()) {
+      await nextBtn1.click();
+      await page.waitForTimeout(400);
+    }
+
+    // Advance to Step 3
+    const nextBtn2 = page.getByRole("button", { name: "Next", exact: true });
+    if (await nextBtn2.isVisible()) {
+      await nextBtn2.click();
+      await page.waitForTimeout(400);
+    }
+
+    // In Step 3:
+    // a. Open Bulk Import Modal and verify layout
+    const bulkImportBtn = page.getByRole("button", { name: /Bulk Import/i });
+    if (await bulkImportBtn.isVisible()) {
+      await bulkImportBtn.click();
+      await page.waitForTimeout(400);
+
+      // Verify no horizontal overflow in modal
+      const modalOverflow = await page.evaluate(() => {
+        return document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
+      });
+      if (modalOverflow) {
+        allViolations.push({
+          category: "SCROLL_OVERFLOW",
+          pageUrl: `${pagePath}#bulk-import`,
+          viewport: vp.name,
+          theme,
+          userState: "TEACHER",
+          details: `Bulk Import modal caused root scrollWidth overflow`,
+        });
+      }
+
+      // Perform file upload test with Gemini JSON
+      const sampleJson = {
+        questions: [
+          {
+            id: 1,
+            topic: "Ancient History: Harappan Craft Production",
+            question: "Consider the following statements regarding Harappan crafts:\nI. Chanhudaro was dedicated to bead-making.\nII. Carnelian was obtained from Lothal.",
+            options: {
+              A: "I only",
+              B: "II only",
+              C: "Both I and II",
+              D: "Neither I nor II"
+            },
+            correct_answer: "C",
+            explanation: "Both statements are correct according to standard historical texts."
+          }
+        ]
+      };
+      const tmpJsonPath = path.join(screenshotsDir, `temp_import_${Date.now()}.json`);
+      fs.writeFileSync(tmpJsonPath, JSON.stringify(sampleJson, null, 2));
+
+      const fileInput = page.locator('input[type="file"]').first();
+      if (await fileInput.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await fileInput.setInputFiles(tmpJsonPath);
+        await page.waitForTimeout(500);
+      }
+      try { fs.unlinkSync(tmpJsonPath); } catch (e) {}
+
+      // Close modal
+      const closeBtn = page.getByRole("button", { name: "Close bulk import modal" }).or(page.locator('.fixed.inset-0 button:has(svg)').first());
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click({ force: true });
+        await page.waitForTimeout(300);
+      }
+    }
+
+    // b. Enter long English and Hindi text in Question 1
+    const engTextarea = page.locator('textarea[placeholder*="Type the question in English"]').first();
+    if (await engTextarea.isVisible()) {
+      await engTextarea.fill(
+        "Critically evaluate the socio-economic impact of the British Land Revenue settlements—namely the Permanent Settlement, the Ryotwari System, and the Mahalwari System—on the traditional agrarian structure of nineteenth-century India."
+      );
+    }
+    const hiTextarea = page.locator('textarea[placeholder*="प्रश्न हिंदी में"], textarea[placeholder*="उत्तर की व्याख्या"]').first();
+    if (await hiTextarea.isVisible()) {
+      await hiTextarea.fill(
+        "उन्नीसवीं शताब्दी के भारत में ब्रिटिश भू-राजस्व नीतियों (स्थायी बंदोबस्त, रैयतवाड़ी प्रणाली और महालवाड़ी प्रणाली) के पारंपरिक कृषि संरचना, कृषक वर्ग और ग्रामीण अर्थव्यवस्था पर पड़े सामाजिक-आर्थिक प्रभावों का आलोचनात्मक मूल्यांकन कीजिए।"
+      );
+    }
+
+    await page.waitForTimeout(400);
+
+    // c. Run mobile audit assertions on Step 3
+    const scrollInfo = await page.evaluate(() => {
+      const de = document.documentElement;
+      return { scrollWidth: de.scrollWidth, clientWidth: de.clientWidth };
+    });
+    if (scrollInfo.scrollWidth > scrollInfo.clientWidth + 1) {
+      allViolations.push({
+        category: "SCROLL_OVERFLOW",
+        pageUrl: `${pagePath}#step3`,
+        viewport: vp.name,
+        theme,
+        userState: "TEACHER",
+        details: `Step 3 document.documentElement.scrollWidth (${scrollInfo.scrollWidth}px) > clientWidth (${scrollInfo.clientWidth}px)`,
+      });
+    }
+
+    const elementIssues = await page.evaluate(() => {
+      const clientWidth = document.documentElement.clientWidth;
+      const issues: string[] = [];
+      const allElements = Array.from(document.querySelectorAll("*"));
+      for (const el of allElements) {
+        const style = window.getComputedStyle(el);
+        if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity || "1") === 0) continue;
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) continue;
+        if (rect.right > clientWidth + 1) {
+          const inScrollX = el.closest("[data-scroll-x]");
+          if (!inScrollX) {
+            const tag = el.tagName.toLowerCase();
+            const cls = typeof el.className === "string" ? el.className.split(" ").slice(0, 3).join(" ") : "";
+            issues.push(`Element overflow: <${tag} class="${cls}"> rect.right=${rect.right.toFixed(1)}px > clientWidth=${clientWidth}px`);
+          }
+        }
+      }
+      return issues;
+    });
+
+    for (const issue of elementIssues) {
+      allViolations.push({
+        category: "ELEMENT_OVERFLOW",
+        pageUrl: `${pagePath}#step3`,
+        viewport: vp.name,
+        theme,
+        userState: "TEACHER",
+        details: issue,
+      });
+    }
+
+    // Take screenshot
+    const shotName = `teacher_create_interactive_${vp.name}_${theme}.png`;
+    const shotPath = path.join(screenshotsDir, shotName);
+    await page.screenshot({ path: shotPath, fullPage: false });
+
+    const createViolations = allViolations.filter(
+      (v) => v.pageUrl.includes(pagePath) && v.viewport === vp.name && v.theme === theme && v.userState === "TEACHER"
+    );
+    if (createViolations.length === 0) {
+      console.log(`  ✓ [PASS] ${runLabel} (0 defects)`);
+    } else {
+      console.log(`  ✖ [FAIL] ${runLabel}: ${createViolations.length} defect(s) detected`);
+      for (const v of createViolations.slice(0, 3)) {
+        console.log(`      • [${v.category}] ${v.details.slice(0, 100)}...`);
+      }
+    }
+  } catch (e: any) {
+    console.error(`  ✖ Failed ${runLabel}: ${e.message}`);
+    allViolations.push({
+      category: "SCROLL_OVERFLOW",
+      pageUrl: pagePath,
+      viewport: vp.name,
+      theme,
+      userState: "TEACHER",
+      details: `Exception: ${e.message}`,
+    });
+  } finally {
+    await context.close();
+  }
+}
+
 async function runMobileAudit() {
   console.log("======================================================================");
   console.log("STRICT REAL-BROWSER MOBILE UI/UX AUDIT (PHASE 6)");
@@ -757,8 +998,9 @@ async function runMobileAudit() {
       console.log(`✓ TEACHER user logged in: ${teacherUser.email}`);
 
       const teacherPages = [
-        { path: "/test-series", name: "test_series_hub" },
-        { path: "/dashboard", name: "dashboard_home" },
+        { path: "/teacher/test-series", name: "teacher_studio" },
+        { path: "/teacher/test-series/bpsc-sectional-5q/submissions", name: "teacher_submissions" },
+        { path: "/teacher/test-series/create", name: "teacher_create_initial" },
       ];
       for (const pageItem of teacherPages) {
         for (const vp of USER_STATE_VIEWPORTS) {
@@ -775,6 +1017,20 @@ async function runMobileAudit() {
               userStateLabel: "TEACHER",
             });
           }
+        }
+      }
+
+      console.log("\nAuditing Teacher Test Authoring Studio with JSON import & bilingual questions...");
+      for (const vp of USER_STATE_VIEWPORTS) {
+        for (const theme of THEMES) {
+          await auditTeacherCreateFlow({
+            browser,
+            storageState: teacherStorage,
+            vp,
+            theme,
+            screenshotsDir,
+            allViolations,
+          });
         }
       }
     }

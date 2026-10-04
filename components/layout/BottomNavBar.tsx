@@ -64,14 +64,14 @@ export default function BottomNavBar() {
                             prefetch={true}
                             className={`flex flex-col items-center justify-center flex-1 h-full min-h-[48px] py-1 text-xs transition-all duration-150 active:scale-90 active:opacity-70 ${
                                 active
-                                    ? "text-[#3AAFA9] font-bold"
-                                    : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                                    ? "text-teal-700 dark:text-[#3AAFA9] font-bold"
+                                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                             }`}
                         >
                             <div className="relative">
                                 <Icon className={`h-5 w-5 transition-transform ${active ? "stroke-[2.5] scale-110" : "stroke-[1.75]"}`} />
                                 {active && (
-                                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#3AAFA9] rounded-full" />
+                                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-teal-700 dark:bg-[#3AAFA9] rounded-full" />
                                 )}
                             </div>
                             <span className="mt-1 text-[11px] font-medium tracking-tight">{tab.name}</span>
