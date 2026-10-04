@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { gradeExamAttempt } from "@/lib/exam-grading";
 
 interface AnswerPayload {
   questionId: string;
@@ -100,7 +101,18 @@ export async function POST(
       );
     }
 
-    // Check server deadline with ~30s grace period
+    const body = await req.json();
+    const { answers }: { answers: AnswerPayload[] } = body;
+
+    if (!Array.isArray(answers)) {
+      return NextResponse.json(
+        { error: "answers must be an array" },
+        { status: 400 }
+      );
+    }
+
+    // Check server deadline with ~30s grace period.
+    // If expired: do NOT discard answers with 410! Upsert final answers, grade the attempt, and return the result.
     const durationMinutes = attempt.test?.durationMinutes || 120;
     const testDurationSecs = durationMinutes * 60;
     const deadlineMs = attempt.startedAt.getTime() + testDurationSecs * 1000;
@@ -108,13 +120,39 @@ export async function POST(
     const now = new Date();
 
     if (now.getTime() > graceDeadlineMs) {
-      return NextResponse.json(
-        {
-          error:
-            "Submission window has closed. The test duration and grace period have expired.",
-        },
-        { status: 410 }
-      );
+      if (answers.length > 0) {
+        await prisma.$transaction(
+          answers.map((ans) =>
+            prisma.examAttemptAnswer.upsert({
+              where: {
+                attemptId_questionId: {
+                  attemptId,
+                  questionId: ans.questionId,
+                },
+              },
+              create: {
+                attemptId,
+                questionId: ans.questionId,
+                selectedOption: ans.selectedOption,
+                isMarked: ans.isMarked ?? false,
+                timeSpentSecs: 0,
+              },
+              update: {
+                selectedOption: ans.selectedOption,
+                isMarked: ans.isMarked ?? false,
+              },
+            })
+          )
+        );
+      }
+      const graded = await gradeExamAttempt(attemptId, now);
+      if (!graded) {
+        return NextResponse.json(
+          { error: "Submission calculation is in progress, please retry in a moment", retryable: true },
+          { status: 202 }
+        );
+      }
+      return NextResponse.json({ data: graded }, { status: 200 });
     }
 
     // Server owns timeTaken: ignore any client timeTakenSecs
@@ -125,16 +163,6 @@ export async function POST(
         Math.floor((now.getTime() - attempt.startedAt.getTime()) / 1000)
       )
     );
-
-    const body = await req.json();
-    const { answers }: { answers: AnswerPayload[] } = body;
-
-    if (!Array.isArray(answers)) {
-      return NextResponse.json(
-        { error: "answers must be an array" },
-        { status: 400 }
-      );
-    }
 
     // Upsert all final answers
     await prisma.$transaction(

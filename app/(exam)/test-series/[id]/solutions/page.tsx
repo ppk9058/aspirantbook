@@ -68,12 +68,17 @@ interface AttemptMeta {
     seriesId?: string
 }
 
+import { useSession } from "next-auth/react"
+
 function SolutionsContent() {
     const params = useParams()
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { data: session } = useSession()
     const seriesId = (params?.id as string) || "test-series"
     const attemptId = searchParams.get("attemptId")
+    const testId = searchParams.get("testId")
+    const isTeacherOrAdmin = (session?.user as any)?.role === "TEACHER" || (session?.user as any)?.role === "ADMIN"
 
     const [currentIdx, setCurrentIdx] = useState(0)
     const [filter, setFilter] = useState<"ALL" | "WRONG" | "SKIPPED" | "CORRECT" | "BOOKMARKED">("ALL")
@@ -100,82 +105,153 @@ function SolutionsContent() {
         let isMounted = true
 
         async function fetchRealSolutions() {
-            if (!attemptId) {
-                if (isMounted) {
-                    setError("No attempt ID provided. Solutions and answer keys are only accessible after an attempt has been completed and submitted.")
+            // Case 1: Student or Teacher with a submitted attempt
+            if (attemptId) {
+                try {
+                    const res = await fetch(`/api/exam/attempt/${encodeURIComponent(attemptId)}/result`)
+                    if (!res.ok) {
+                        if (res.status === 404) throw new Error("Attempt not found.")
+                        if (res.status === 409) throw new Error("This attempt has not been submitted yet.")
+                        throw new Error("Failed to load test solutions.")
+                    }
+
+                    const json = await res.json()
+                    if (!json.data || !Array.isArray(json.data.questionAnalysis)) {
+                        throw new Error("Invalid solutions payload received.")
+                    }
+
+                    const data = json.data
+                    const optionKeys = ["A", "B", "C", "D"]
+                    const mapped: SolutionQuestion[] = data.questionAnalysis.map((qa: any, idx: number) => {
+                        const isAttempted = Boolean(qa.selectedOption)
+                        const status: "CORRECT" | "WRONG" | "SKIPPED" = !isAttempted
+                            ? "SKIPPED"
+                            : qa.isCorrect
+                            ? "CORRECT"
+                            : "WRONG"
+
+                        const userSelected = qa.selectedOption ? optionKeys.indexOf(qa.selectedOption) : null
+                        const correctOption = qa.correctOption ? optionKeys.indexOf(qa.correctOption) : 0
+
+                        return {
+                            id: idx + 1,
+                            textEn: qa.questionEn || "",
+                            textHi: qa.questionHi || undefined,
+                            optionsEn: qa.options && qa.options.length > 0 ? qa.options : ["Option A", "Option B", "Option C", "Option D"],
+                            optionsHi: qa.optionsHi || undefined,
+                            correctOption: correctOption >= 0 ? correctOption : 0,
+                            userSelected: userSelected !== null && userSelected >= 0 ? userSelected : null,
+                            status,
+                            topperAccuracy: 85,
+                            explanationEn: qa.explanationEn || "Detailed solution not provided.",
+                            explanationHi: qa.explanationHi || undefined,
+                            videoUrl: qa.videoUrl || undefined,
+                            subject: qa.subject || "General Studies",
+                            topic: qa.topic || "Core Syllabus",
+                        }
+                    })
+
+                    if (!isMounted) return
+
+                    setQuestions(mapped)
+                    setExamTitle(data.test?.title ? `${data.test.title} — Solutions & Explanations` : "Solutions & Explanations")
+                    setAttemptMeta({
+                        hasAttempted: true,
+                        score: data.score ?? 0,
+                        totalMarks: data.totalMarks ?? 0,
+                        totalQs: mapped.length,
+                        correct: data.correctCount ?? 0,
+                        wrong: data.wrongCount ?? 0,
+                        skipped: data.skippedCount ?? 0,
+                        elapsed: data.timeTakenSecs ?? 0,
+                        percentile: data.percentile,
+                        testTitle: data.test?.title,
+                        testId: data.test?.id || data.testId,
+                        seriesId: data.test?.seriesId || seriesId,
+                    })
                     setIsLoading(false)
+                } catch (err: any) {
+                    if (isMounted) {
+                        setError(err.message || "Failed to load solutions.")
+                        setIsLoading(false)
+                    }
                 }
                 return
             }
 
-            try {
-                const res = await fetch(`/api/exam/attempt/${encodeURIComponent(attemptId)}/result`)
-                if (!res.ok) {
-                    if (res.status === 404) throw new Error("Attempt not found.")
-                    if (res.status === 409) throw new Error("This attempt has not been submitted yet.")
-                    throw new Error("Failed to load test solutions.")
-                }
-
-                const json = await res.json()
-                if (!json.data || !Array.isArray(json.data.questionAnalysis)) {
-                    throw new Error("Invalid solutions payload received.")
-                }
-
-                const data = json.data
-                const optionKeys = ["A", "B", "C", "D"]
-                const mapped: SolutionQuestion[] = data.questionAnalysis.map((qa: any, idx: number) => {
-                    const isAttempted = Boolean(qa.selectedOption)
-                    const status: "CORRECT" | "WRONG" | "SKIPPED" = !isAttempted
-                        ? "SKIPPED"
-                        : qa.isCorrect
-                        ? "CORRECT"
-                        : "WRONG"
-
-                    const userSelected = qa.selectedOption ? optionKeys.indexOf(qa.selectedOption) : null
-                    const correctOption = qa.correctOption ? optionKeys.indexOf(qa.correctOption) : 0
-
-                    return {
-                        id: idx + 1,
-                        textEn: qa.questionEn || "",
-                        textHi: qa.questionHi || undefined,
-                        optionsEn: qa.options && qa.options.length > 0 ? qa.options : ["Option A", "Option B", "Option C", "Option D"],
-                        optionsHi: qa.optionsHi || undefined,
-                        correctOption: correctOption >= 0 ? correctOption : 0,
-                        userSelected: userSelected !== null && userSelected >= 0 ? userSelected : null,
-                        status,
-                        topperAccuracy: 85,
-                        explanationEn: qa.explanationEn || "Detailed solution not provided.",
-                        explanationHi: qa.explanationHi || undefined,
-                        videoUrl: qa.videoUrl || undefined,
-                        subject: qa.subject || "General Studies",
-                        topic: qa.topic || "Core Syllabus",
+            // Case 2: Teacher or Admin previewing a test's solutions without requiring an attempt
+            if (testId && isTeacherOrAdmin) {
+                try {
+                    const res = await fetch(`/api/exam/teacher/${encodeURIComponent(testId)}/questions`)
+                    if (!res.ok) {
+                        throw new Error("Failed to load authorized teacher solutions view.")
                     }
-                })
+                    const json = await res.json()
+                    const t = json.data?.test
+                    if (!t) throw new Error("Invalid test data.")
 
-                if (!isMounted) return
+                    const allQuestions: any[] = []
+                    if (Array.isArray(t.sections)) {
+                        for (const sec of t.sections) {
+                            if (Array.isArray(sec.questions)) allQuestions.push(...sec.questions)
+                        }
+                    }
 
-                setQuestions(mapped)
-                setExamTitle(data.test?.title ? `${data.test.title} — Solutions & Explanations` : "Solutions & Explanations")
-                setAttemptMeta({
-                    hasAttempted: true,
-                    score: data.score ?? 0,
-                    totalMarks: data.totalMarks ?? 0,
-                    totalQs: mapped.length,
-                    correct: data.correctCount ?? 0,
-                    wrong: data.wrongCount ?? 0,
-                    skipped: data.skippedCount ?? 0,
-                    elapsed: data.timeTakenSecs ?? 0,
-                    percentile: data.percentile,
-                    testTitle: data.test?.title,
-                    testId: data.test?.id || data.testId,
-                    seriesId: data.test?.seriesId || seriesId,
-                })
-                setIsLoading(false)
-            } catch (err: any) {
-                if (isMounted) {
-                    setError(err.message || "Failed to load solutions.")
+                    const optionKeys = ["A", "B", "C", "D"]
+                    const mapped: SolutionQuestion[] = allQuestions.map((q, idx) => {
+                        const optionsEn = [q.optionAEn, q.optionBEn, q.optionCEn, q.optionDEn].filter(Boolean)
+                        const optionsHi = [q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi].filter(Boolean)
+                        const correctOption = q.correctOption ? optionKeys.indexOf(q.correctOption) : 0
+
+                        return {
+                            id: idx + 1,
+                            textEn: q.questionEn || "",
+                            textHi: q.questionHi || undefined,
+                            optionsEn: optionsEn.length > 0 ? optionsEn : ["Option A", "Option B", "Option C", "Option D"],
+                            optionsHi: optionsHi.length > 0 ? optionsHi : undefined,
+                            correctOption: correctOption >= 0 ? correctOption : 0,
+                            userSelected: null,
+                            status: "SKIPPED",
+                            topperAccuracy: 85,
+                            explanationEn: q.explanationEn || "Detailed solution not provided.",
+                            explanationHi: q.explanationHi || undefined,
+                            subject: q.subject || "General Studies",
+                            topic: "Core Syllabus",
+                        }
+                    })
+
+                    if (!isMounted) return
+                    setQuestions(mapped)
+                    setExamTitle(`${t.title || "Test"} — Faculty Solutions Master View`)
+                    setAttemptMeta({
+                        hasAttempted: false,
+                        score: 0,
+                        totalMarks: t.totalMarks || mapped.length,
+                        totalQs: mapped.length,
+                        correct: 0,
+                        wrong: 0,
+                        skipped: mapped.length,
+                        elapsed: 0,
+                        testTitle: t.title,
+                        testId: t.id,
+                        seriesId: t.seriesId || seriesId,
+                    })
                     setIsLoading(false)
+                } catch (err: any) {
+                    if (isMounted) {
+                        setError(err.message || "Failed to load solutions.")
+                        setIsLoading(false)
+                    }
                 }
+                return
+            }
+
+            // Case 3: Missing attempt for student
+            if (isMounted) {
+                setError(
+                    "No submitted attempt found for this test. Solutions and answer keys are only accessible after an attempt has been completed and submitted."
+                )
+                setIsLoading(false)
             }
         }
 
@@ -183,7 +259,7 @@ function SolutionsContent() {
         return () => {
             isMounted = false
         }
-    }, [attemptId, seriesId])
+    }, [attemptId, seriesId, testId, isTeacherOrAdmin])
 
     const filteredQuestions = questions.filter((q) => {
         if (filter === "WRONG") return q.status === "WRONG"

@@ -925,6 +925,7 @@ model ExamAttemptAnswer {
   isCorrect       Boolean?
   marksAwarded    Float        @default(0)
   timeSpentSecs   Int          @default(0)
+  clientSeq       Int          @default(0)
   attempt         ExamAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   question        ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 

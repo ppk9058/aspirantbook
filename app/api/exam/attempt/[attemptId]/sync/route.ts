@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
+import { gradeExamAttempt } from "@/lib/exam-grading";
+
 interface AnswerPayload {
   questionId: string;
   selectedOption: "A" | "B" | "C" | "D" | null;
   isMarked: boolean;
-  timeSpentSecs: number;
+  timeSpentSecs?: number;
 }
 
 export async function POST(
@@ -56,23 +58,17 @@ export async function POST(
       );
     }
 
-    // Check deadline + 30s grace period
-    const durationMinutes = attempt.test?.durationMinutes || 120;
-    const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
-    const graceDeadlineMs = deadlineMs + 30 * 1000;
-
-    if (Date.now() > graceDeadlineMs) {
-      return NextResponse.json(
-        { error: "Attempt window has closed. The test duration and grace period have expired." },
-        { status: 410 }
-      );
-    }
-
     const body = await req.json();
     const {
       answers,
       tabSwitchCount,
-    }: { answers: AnswerPayload[]; tabSwitchCount?: number; clientTimestamp?: number; sequence?: number } = body;
+      sequence = 0,
+    }: {
+      answers: AnswerPayload[];
+      tabSwitchCount?: number;
+      clientTimestamp?: number;
+      sequence?: number;
+    } = body;
 
     if (!Array.isArray(answers)) {
       return NextResponse.json(
@@ -81,11 +77,33 @@ export async function POST(
       );
     }
 
-    // If answers provided, upsert them
+    // Enforce sequence ordering using the dedicated clientSeq column:
+    // If existing record has newer/equal clientSeq, return storedSeq to let client catch up.
     if (answers.length > 0) {
-      await prisma.$transaction(
-        answers.map((ans) =>
-          prisma.examAttemptAnswer.upsert({
+      let maxStoredSeq = 0;
+      let hasStaleSequence = false;
+
+      await prisma.$transaction(async (tx) => {
+        for (const ans of answers) {
+          const existing = await tx.examAttemptAnswer.findUnique({
+            where: {
+              attemptId_questionId: {
+                attemptId,
+                questionId: ans.questionId,
+              },
+            },
+            select: { clientSeq: true },
+          });
+
+          if (existing && existing.clientSeq > sequence) {
+            hasStaleSequence = true;
+            maxStoredSeq = Math.max(maxStoredSeq, existing.clientSeq);
+            continue;
+          }
+
+          maxStoredSeq = Math.max(maxStoredSeq, sequence);
+
+          await tx.examAttemptAnswer.upsert({
             where: {
               attemptId_questionId: {
                 attemptId,
@@ -97,24 +115,61 @@ export async function POST(
               questionId: ans.questionId,
               selectedOption: ans.selectedOption,
               isMarked: ans.isMarked ?? false,
+              clientSeq: sequence,
               timeSpentSecs: ans.timeSpentSecs ?? 0,
             },
             update: {
               selectedOption: ans.selectedOption,
               isMarked: ans.isMarked ?? false,
+              clientSeq: sequence,
               timeSpentSecs: ans.timeSpentSecs ?? 0,
             },
-          })
-        )
-      );
-    }
+          });
+        }
 
-    // Update tabSwitchCount if provided
-    if (typeof tabSwitchCount === "number") {
+        if (typeof tabSwitchCount === "number") {
+          await tx.examAttempt.update({
+            where: { id: attemptId },
+            data: { tabSwitchCount },
+          });
+        }
+      });
+
+      if (hasStaleSequence) {
+        return NextResponse.json(
+          {
+            error: "Stale sequence: server has newer data",
+            storedSeq: maxStoredSeq,
+          },
+          { status: 409 }
+        );
+      }
+    } else if (typeof tabSwitchCount === "number") {
       await prisma.examAttempt.update({
         where: { id: attemptId },
         data: { tabSwitchCount },
       });
+    }
+
+    // Check deadline + 30s grace period:
+    // If expired, do NOT discard answers with 410; grade the attempt and finalize it!
+    const durationMinutes = attempt.test?.durationMinutes || 120;
+    const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
+    const graceDeadlineMs = deadlineMs + 30 * 1000;
+
+    if (Date.now() > graceDeadlineMs) {
+      const graded = await gradeExamAttempt(attemptId, new Date());
+      return NextResponse.json(
+        {
+          data: {
+            synced: true,
+            expired: true,
+            status: "SUBMITTED",
+            result: graded,
+          },
+        },
+        { status: 200 }
+      );
     }
 
     return NextResponse.json(

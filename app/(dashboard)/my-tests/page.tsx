@@ -171,8 +171,8 @@ export default async function MyTestsPage() {
                     correct: att.correctCount,
                     wrong: att.wrongCount,
                     skipped: att.skippedCount,
-                    solutionUrl: `/test-series/${seriesSlug}/solutions`,
-                    reportUrl: `/test-series/${seriesSlug}/result?score=${score}&totalMarks=${totalMarks}&correct=${att.correctCount}&wrong=${att.wrongCount}&skipped=${att.skippedCount}`,
+                    solutionUrl: `/test-series/${seriesSlug}/solutions?testId=${encodeURIComponent(att.testId)}&attemptId=${encodeURIComponent(att.id)}`,
+                    reportUrl: `/test-series/${seriesSlug}/result?testId=${encodeURIComponent(att.testId)}&attemptId=${encodeURIComponent(att.id)}`,
                     leaderboardUrl: `/test-series/${seriesSlug}/leaderboard`,
                 }
             })

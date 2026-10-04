@@ -351,7 +351,7 @@ export default function TestSeriesPage() {
                 </div>
 
                 <Link
-                    href={pyqSolutionLink}
+                    href="/my-tests"
                     className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
                 >
                     <span>My Mistake Notebook →</span>
@@ -411,35 +411,32 @@ export default function TestSeriesPage() {
 
             {/* Teacher Authored Tests Available Notification Banner */}
             {customTests.length > 0 && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 border-2 border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs animate-in fade-in-50">
+                <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs animate-in fade-in-50">
                     <div className="flex items-center gap-3.5">
-                        <div className="w-11 h-11 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-md">
-                            🎓
+                        <div className="w-11 h-11 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-md">
+                            📝
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <span className="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-600 text-white uppercase tracking-wider">
-                                    Faculty Mock Available
+                                <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 uppercase tracking-wider">
+                                    Draft (only on this device)
                                 </span>
                                 <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
-                                    {customTests.length} Teacher Authored Test{customTests.length > 1 ? "s" : ""}
+                                    {customTests.length} Unsaved Local Draft{customTests.length > 1 ? "s" : ""}
                                 </span>
                             </div>
                             <h3 className="text-sm sm:text-base font-black text-gray-900 dark:text-white mt-0.5">
                                 {customTests[0].title}
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {customTests[0].questions || (customTests[0].questionsList ? customTests[0].questionsList.length : 5)} Questions • {customTests[0].durationMinutes || 10} Mins • Bilingual English & Hindi
+                                {customTests[0].questions || (customTests[0].questionsList ? customTests[0].questionsList.length : 5)} Questions • {customTests[0].durationMinutes || 10} Mins • Unsaved author draft
                             </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                        <Link
-                            href={`/test-series/bpsc-72nd-2026?testId=${customTests[0].id}`}
-                            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition-colors flex items-center justify-center gap-1.5"
-                        >
-                            <span>Attempt Student View →</span>
-                        </Link>
+                        <span className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 font-bold text-xs select-none cursor-not-allowed">
+                            Draft (only on this device)
+                        </span>
                     </div>
                 </div>
             )}

@@ -1028,93 +1028,31 @@ function CreateTestContent() {
             })
 
             const json = await res.json()
-            const localId = json.data?.id || `teacher-test-${Date.now()}`
-            setSavedTestId(localId)
+            if (!res.ok || !json.data?.id) {
+                throw new Error(json.error || `Publish failed with status ${res.status}`)
+            }
 
-            // Persist to custom tests so it appears on student view immediately
+            const publishedId = json.data.id
+            setSavedTestId(publishedId)
+
+            // Clear draft from localStorage after successful publish
             try {
+                localStorage.removeItem("ts_draft_test")
                 const existingStr = localStorage.getItem("ts_custom_tests") || "[]"
                 const existing = JSON.parse(existingStr)
-                const newTestRecord = {
-                    id: localId,
-                    seriesId: activeSeriesId,
-                    title: formData.title || (isCurrentAffairs ? "Current Affairs & Quiz Test" : `${activeSeriesTitle} Authored Mock Test`),
-                    category: activeCategory,
-                    questions: formData.questions.length,
-                    marks: formData.questions.length,
-                    durationMinutes: formData.durationMinutes,
-                    languages: "English, Hindi",
-                    isFree: formData.accessMode === "free",
-                    attempts: 0,
-                    isNew: true,
-                    questionsList: formData.questions.map((q, idx) => ({
-                        id: idx + 1,
-                        text: q.textEnglish || `Question ${idx + 1}`,
-                        textHi: q.textHindi,
-                        options: q.options.map((o) => o.english || "Option"),
-                        optionsHi: q.options.map((o) => o.hindi || ""),
-                        correctIndex: q.correctAnswer ?? 0,
-                        subject: q.subject || "General Studies",
-                        explanation: q.explanationEnglish || "",
-                    })),
+                if (Array.isArray(existing)) {
+                    const filtered = existing.filter((t: any) => t.id !== publishedId && t.title !== formData.title)
+                    localStorage.setItem("ts_custom_tests", JSON.stringify(filtered))
                 }
-                const filtered = existing.filter((t: any) => t.id !== localId)
-                localStorage.setItem("ts_custom_tests", JSON.stringify([newTestRecord, ...filtered]))
-                fetch("/api/exam/test/sync-local", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ tests: [newTestRecord] }),
-                }).catch(() => {})
             } catch (storageErr) {
-                console.warn("Could not save to localStorage", storageErr)
+                console.warn("Could not clean up draft in localStorage", storageErr)
             }
 
             setPublished(true)
             setShowToast(true)
-        } catch (e) {
+        } catch (e: any) {
             console.error("Failed to publish test", e)
-            const fallbackId = `teacher-test-${Date.now()}`
-            setSavedTestId(fallbackId)
-            const isCurrentAffairs = (formData.examCategory || "").toLowerCase().includes("current affair")
-            const activeSeriesId = formData.seriesId || (isCurrentAffairs ? "current-affairs-quizzes" : (formData.examCategory?.toLowerCase().includes("upsc") ? "upsc-prelims-2026" : "bpsc-72nd-2026"))
-            const seriesMeta = TEST_SERIES_DATA.find((s) => s.id === activeSeriesId)
-            const activeCategory = isCurrentAffairs ? "Current Affairs Quizzes" : (formData.examCategory || seriesMeta?.category || "Civil Services")
-            const activeSeriesTitle = isCurrentAffairs ? "Current Affairs and Quizzes Series" : (seriesMeta?.title || `${formData.examName || activeCategory} Mock Test Series`)
-            try {
-                const existingStr = localStorage.getItem("ts_custom_tests") || "[]"
-                const existing = JSON.parse(existingStr)
-                const newTestRecord = {
-                    id: fallbackId,
-                    seriesId: activeSeriesId,
-                    title: formData.title || (isCurrentAffairs ? "Current Affairs & Quiz Test" : `${activeSeriesTitle} Authored Mock Test`),
-                    category: activeCategory,
-                    questions: formData.questions.length,
-                    marks: formData.questions.length,
-                    durationMinutes: formData.durationMinutes,
-                    languages: "English, Hindi",
-                    isFree: formData.accessMode === "free",
-                    attempts: 0,
-                    isNew: true,
-                    questionsList: formData.questions.map((q, idx) => ({
-                        id: idx + 1,
-                        text: q.textEnglish || `Question ${idx + 1}`,
-                        textHi: q.textHindi,
-                        options: q.options.map((o) => o.english || "Option"),
-                        optionsHi: q.options.map((o) => o.hindi || ""),
-                        correctIndex: q.correctAnswer ?? 0,
-                        subject: q.subject || "General Studies",
-                        explanation: q.explanationEnglish || "",
-                    })),
-                }
-                localStorage.setItem("ts_custom_tests", JSON.stringify([newTestRecord, ...existing]))
-                fetch("/api/exam/test/sync-local", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ tests: [newTestRecord] }),
-                }).catch(() => {})
-            } catch (storageErr) {}
-            setPublished(true)
-            setShowToast(true)
+            alert(e.message || "Failed to publish test to the server. Please check all fields and try again.")
         } finally {
             setIsSaving(false)
         }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { gradeExamAttempt } from "@/lib/exam-grading";
 
 export async function GET(
   _req: NextRequest,
@@ -62,10 +63,34 @@ export async function GET(
     }
 
     if (attempt.status !== "SUBMITTED") {
-      return NextResponse.json(
-        { error: "Attempt has not been submitted yet" },
-        { status: 409 }
-      );
+      const durationMinutes = attempt.test?.durationMinutes || 120;
+      const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
+      const graceDeadlineMs = deadlineMs + 30 * 1000;
+
+      // If past deadline, auto-grade the attempt and proceed
+      if (Date.now() > graceDeadlineMs) {
+        const graded = await gradeExamAttempt(attemptId, new Date());
+        if (!graded) {
+          return NextResponse.json(
+            { error: "Result is being calculated, please retry in a moment", retryable: true },
+            { status: 202 }
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { error: "Attempt has not been submitted yet" },
+          { status: 409 }
+        );
+      }
+    } else if (attempt.submittedAt === null) {
+      // Status is SUBMITTED but submittedAt is null (worker in-flight or crashed)
+      const graded = await gradeExamAttempt(attemptId, new Date());
+      if (!graded) {
+        return NextResponse.json(
+          { error: "Result is being calculated, please retry in a moment", retryable: true },
+          { status: 202 }
+        );
+      }
     }
 
     // Fetch all answers with question details

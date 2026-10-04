@@ -606,10 +606,17 @@ export default function MyTestsHubClient({
                             <h3 className="text-sm font-black text-slate-900 dark:text-white">14 Bookmarked Questions</h3>
                             <p className="text-xs text-slate-500 mt-1">Questions you bookmarked during CBT attempts, saved for quick revision.</p>
                         </div>
-                        <Link href="/test-series/bpsc-72nd-2026/solutions" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors min-h-[44px]">
-                            Open in Solutions
-                            <ChevronRight className="w-4 h-4" />
-                        </Link>
+                        {recentAttempts.length > 0 ? (
+                            <Link href={recentAttempts[0].solutionUrl} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors min-h-[44px]">
+                                Open Latest Solutions
+                                <ChevronRight className="w-4 h-4" />
+                            </Link>
+                        ) : (
+                            <Link href="/test-series" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-colors min-h-[44px]">
+                                Attempt a Test to View Solutions
+                                <ChevronRight className="w-4 h-4" />
+                            </Link>
+                        )}
                     </div>
                 )}
             </section>

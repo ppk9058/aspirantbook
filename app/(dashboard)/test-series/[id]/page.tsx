@@ -46,6 +46,7 @@ interface TestItem {
     languages: string
     isFree: boolean
     attempts?: number
+    isLocalDraft?: boolean
 }
 
 interface TestSection {
@@ -67,6 +68,7 @@ export default function TestSeriesDetailPage() {
     const [seriesNotFound, setSeriesNotFound] = useState(false)
     const [seriesLoading, setSeriesLoading] = useState(true)
     const [customSeriesPackage, setCustomSeriesPackage] = useState<TestSeriesItem | null>(null)
+    const [submittedAttempts, setSubmittedAttempts] = useState<Record<string, string>>({})
 
     useEffect(() => {
         let isMounted = true
@@ -145,18 +147,39 @@ export default function TestSeriesDetailPage() {
         const loadAllTests = async () => {
             const combined: any[] = []
 
-            // 1. Fetch from database API
+            // 1. Fetch user's submitted attempts for this series to govern solutions access
             try {
-                const res = await fetch(`/api/exam/test/list?seriesId=${seriesId}`)
+                const userRes = await fetch(`/api/exam/attempt/user-status?seriesId=${encodeURIComponent(seriesId)}`)
+                if (userRes.ok) {
+                    const userJson = await userRes.json()
+                    if (userJson.success && Array.isArray(userJson.data)) {
+                        const map: Record<string, string> = {}
+                        for (const att of userJson.data) {
+                            if (att.testId && att.id && !map[att.testId]) {
+                                map[att.testId] = att.id
+                            }
+                        }
+                        if (isMounted) {
+                            setSubmittedAttempts(map)
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Could not fetch user attempt status", err)
+            }
+
+            // 2. Fetch from database API
+            try {
+                const res = await fetch(`/api/exam/test/list?seriesId=${encodeURIComponent(seriesId)}`)
                 const json = await res.json()
                 if (json.success && Array.isArray(json.data)) {
-                    combined.push(...json.data)
+                    combined.push(...json.data.map((t: any) => ({ ...t, isLocalDraft: false })))
                 }
             } catch (apiErr) {
                 console.warn("Could not fetch DB tests", apiErr)
             }
 
-            // 2. Read from localStorage and sync to DB
+            // 3. Read unsaved drafts from localStorage (tagged as local drafts, not synced)
             try {
                 const stored = localStorage.getItem("ts_custom_tests")
                 if (stored) {
@@ -172,13 +195,7 @@ export default function TestSeriesDetailPage() {
                             if (isBpsc) return titleLower.includes("bpsc") || catLower.includes("bpsc")
                             return false
                         })
-                        combined.push(...matchingLocal)
-                        // Sync to PostgreSQL so all student sessions can see it
-                        fetch("/api/exam/test/sync-local", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ tests: matchingLocal }),
-                        }).catch(() => {})
+                        combined.push(...matchingLocal.map((t: any) => ({ ...t, isLocalDraft: true })))
                     }
                 }
             } catch (err) {}
@@ -198,6 +215,7 @@ export default function TestSeriesDetailPage() {
                         languages: t.languages || "English, Hindi",
                         isFree: t.isFree ?? true,
                         attempts: t.attempts || 0,
+                        isLocalDraft: !!t.isLocalDraft,
                     })
                 }
             }
@@ -519,7 +537,7 @@ export default function TestSeriesDetailPage() {
                                       {
                                           id: "teacher-tests",
                                           title: "Teacher Authored & Live Class Tests",
-                                          count: customTests.length,
+                                          count: customTests.filter((t) => !t.isLocalDraft).length,
                                           tests: customTests,
                                       },
                                   ]
@@ -565,91 +583,113 @@ export default function TestSeriesDetailPage() {
                                         {/* Tests List inside section */}
                                         {isExpanded && (
                                             <div className="divide-y divide-gray-100 dark:divide-gray-800/80 border-t border-gray-100 dark:border-gray-800">
-                                                {section.tests.map((test) => (
-                                                    <div
-                                                        key={test.id}
-                                                        className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${section.id === "teacher-tests" ? "bg-emerald-50/30 dark:bg-emerald-950/10 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/20" : "hover:bg-gray-50/40 dark:hover:bg-white/5"}`}
-                                                    >
-                                                        <div className="space-y-1.5 flex-1">
-                                                            <div className="flex items-center gap-2 flex-wrap">
-                                                                <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-snug">
-                                                                    {test.title}
-                                                                </h4>
-                                                                {section.id === "teacher-tests" ? (
-                                                                    <span className="px-2 py-0.5 rounded text-[10px] font-black bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 uppercase">
-                                                                        Live Test
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-gray-400 uppercase">
-                                                                        Curriculum Sample
-                                                                    </span>
-                                                                )}
-                                                                {test.isFree ? (
-                                                                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#00D084]/15 text-[#00A86B] border border-[#00D084]/30 uppercase">
-                                                                        Free
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1 uppercase">
-                                                                        <Lock className="h-2.5 w-2.5" />
-                                                                        Pro
-                                                                    </span>
-                                                                )}
-                                                            </div>
+                                                {section.tests.map((test) => {
+                                                    const isLocal = !!test.isLocalDraft
+                                                    const userAttemptId = submittedAttempts[test.id]
+                                                    const isTeacherOrAdmin = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
+                                                    const canViewSolutions = !isLocal && (!!userAttemptId || isTeacherOrAdmin)
+                                                    const solutionsHref = userAttemptId
+                                                        ? `/test-series/${currentSeries.id}/solutions?testId=${encodeURIComponent(test.id)}&attemptId=${encodeURIComponent(userAttemptId)}`
+                                                        : `/test-series/${currentSeries.id}/solutions?testId=${encodeURIComponent(test.id)}`
 
-                                                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-gray-500 dark:text-gray-400">
-                                                                <span>{test.questions} Questions</span>
-                                                                <span>•</span>
-                                                                <span>{test.marks} Marks</span>
-                                                                <span>•</span>
-                                                                <span>{test.durationMinutes} Mins</span>
-                                                                <span>•</span>
-                                                                <span>{test.languages}</span>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="flex items-center gap-2 flex-shrink-0">
-                                                            {section.id === "teacher-tests" ? (
-                                                                <>
-                                                                    <Link
-                                                                        href={`/test-series/${test.id}/solutions`}
-                                                                        className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-emerald-500 hover:border-emerald-500/40 transition-colors"
-                                                                        title="View Solutions"
-                                                                    >
-                                                                        <BookOpen className="h-3.5 w-3.5" />
-                                                                    </Link>
-                                                                    <Link
-                                                                        href={`/test-series/${test.id}/leaderboard`}
-                                                                        className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-[#00A8FF] hover:border-[#00A8FF]/40 transition-colors"
-                                                                        title="View Leaderboard"
-                                                                    >
-                                                                        <BarChart3 className="h-3.5 w-3.5" />
-                                                                    </Link>
-                                                                    {test.isFree ? (
-                                                                        <button
-                                                                            onClick={() => setSelectedTestToAttempt(test)}
-                                                                            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                                                                        >
-                                                                            <Play className="h-3.5 w-3.5 fill-current" />
-                                                                            <span>Start Now</span>
-                                                                        </button>
+                                                    return (
+                                                        <div
+                                                            key={test.id}
+                                                            className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${section.id === "teacher-tests" ? "bg-emerald-50/30 dark:bg-emerald-950/10 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/20" : "hover:bg-gray-50/40 dark:hover:bg-white/5"}`}
+                                                        >
+                                                            <div className="space-y-1.5 flex-1">
+                                                                <div className="flex items-center gap-2 flex-wrap">
+                                                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                                                                        {test.title}
+                                                                    </h4>
+                                                                    {isLocal ? (
+                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 uppercase">
+                                                                            Draft (only on this device)
+                                                                        </span>
+                                                                    ) : section.id === "teacher-tests" ? (
+                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-black bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 uppercase">
+                                                                            Live Test
+                                                                        </span>
                                                                     ) : (
-                                                                        <button
-                                                                            onClick={() => setIsPassModalOpen(true)}
-                                                                            className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-[#00A8FF] text-[#00A8FF] hover:bg-[#00A8FF]/10 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                                                                        >
-                                                                            <Lock className="h-3.5 w-3.5" />
-                                                                            <span>Unlock with Pass</span>
-                                                                        </button>
+                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-gray-400 uppercase">
+                                                                            Curriculum Sample
+                                                                        </span>
                                                                     )}
-                                                                </>
-                                                            ) : (
-                                                                <span className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-gray-500 text-xs font-semibold select-none">
-                                                                    Upcoming / Outline
-                                                                </span>
-                                                            )}
+                                                                    {test.isFree ? (
+                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-[#00D084]/15 text-[#00A86B] border border-[#00D084]/30 uppercase">
+                                                                            Free
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1 uppercase">
+                                                                            <Lock className="h-2.5 w-2.5" />
+                                                                            Pro
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-gray-500 dark:text-gray-400">
+                                                                    <span>{test.questions} Questions</span>
+                                                                    <span>•</span>
+                                                                    <span>{test.marks} Marks</span>
+                                                                    <span>•</span>
+                                                                    <span>{test.durationMinutes} Mins</span>
+                                                                    <span>•</span>
+                                                                    <span>{test.languages}</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex items-center gap-2 flex-shrink-0">
+                                                                {section.id === "teacher-tests" ? (
+                                                                    isLocal ? (
+                                                                        <span className="px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-xs font-semibold select-none cursor-not-allowed">
+                                                                            Draft (only on this device)
+                                                                        </span>
+                                                                    ) : (
+                                                                        <>
+                                                                            {canViewSolutions && (
+                                                                                <Link
+                                                                                    href={solutionsHref}
+                                                                                    className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-emerald-500 hover:border-emerald-500/40 transition-colors"
+                                                                                    title="View Solutions"
+                                                                                >
+                                                                                    <BookOpen className="h-3.5 w-3.5" />
+                                                                                </Link>
+                                                                            )}
+                                                                            <Link
+                                                                                href={`/test-series/${test.id}/leaderboard`}
+                                                                                className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-[#00A8FF] hover:border-[#00A8FF]/40 transition-colors"
+                                                                                title="View Leaderboard"
+                                                                            >
+                                                                                <BarChart3 className="h-3.5 w-3.5" />
+                                                                            </Link>
+                                                                            {test.isFree ? (
+                                                                                <button
+                                                                                    onClick={() => setSelectedTestToAttempt(test)}
+                                                                                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                                                                                >
+                                                                                    <Play className="h-3.5 w-3.5 fill-current" />
+                                                                                    <span>Start Now</span>
+                                                                                </button>
+                                                                            ) : (
+                                                                                <button
+                                                                                    onClick={() => setIsPassModalOpen(true)}
+                                                                                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-[#00A8FF] text-[#00A8FF] hover:bg-[#00A8FF]/10 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                                                                                >
+                                                                                    <Lock className="h-3.5 w-3.5" />
+                                                                                    <span>Unlock with Pass</span>
+                                                                                </button>
+                                                                            )}
+                                                                        </>
+                                                                    )
+                                                                ) : (
+                                                                    <span className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-gray-500 text-xs font-semibold select-none">
+                                                                        Upcoming / Outline
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ))}
+                                                    )
+                                                })}
                                             </div>
                                         )}
                                     </div>

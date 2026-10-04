@@ -47,6 +47,7 @@ export async function GET(
             selectedOption: true,
             isMarked: true,
             timeSpentSecs: true,
+            clientSeq: true,
           },
         },
       },
@@ -65,6 +66,11 @@ export async function GET(
       attempt.startedAt.getTime() + durationMinutes * 60 * 1000
     ).toISOString();
 
+    const maxClientSeq = attempt.answers.reduce(
+      (max, a) => Math.max(max, a.clientSeq || 0),
+      0
+    );
+
     return NextResponse.json(
       {
         data: {
@@ -74,10 +80,12 @@ export async function GET(
           language: attempt.language,
           startedAt: attempt.startedAt.toISOString(),
           deadline,
+          serverNow: new Date().toISOString(),
           durationMinutes,
           tabSwitchCount: attempt.tabSwitchCount,
           test: attempt.test,
           answers: attempt.answers,
+          maxClientSeq,
         },
       },
       { status: 200 }
