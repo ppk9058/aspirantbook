@@ -279,6 +279,23 @@ function AutoSubmitModal({ onViewResults }: { onViewResults: () => void }) {
     )
 }
 
+// Helper for fetching with a client-side timeout
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 15000): Promise<Response> {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+        const res = await fetch(url, { ...options, signal: controller.signal })
+        return res
+    } catch (err: any) {
+        if (err?.name === "AbortError" || err?.message?.includes("aborted")) {
+            throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)} seconds. Please check your connection and retry.`)
+        }
+        throw err
+    } finally {
+        clearTimeout(timer)
+    }
+}
+
 // ─────────────────────────────────────────────────────────────────
 // ARENA COMPONENT
 // ─────────────────────────────────────────────────────────────────
@@ -296,6 +313,7 @@ function Arena() {
     const [isMounted, setIsMounted] = useState(false)
     const [loading, setLoading] = useState(true)
     const [loadError, setLoadError] = useState<string | null>(null)
+    const [retryCount, setRetryCount] = useState(0)
     const [customTestRecord, setCustomTestRecord] = useState<any>(null)
     const [questions, setQuestions] = useState<Question[]>([])
 
@@ -353,6 +371,7 @@ function Arena() {
     const tabSwitchCountRef = useRef<number>(0)
     const activeAttemptIdRef = useRef<string | null>(null)
     const submissionPendingRef = useRef<boolean>(false)
+    const serverOffsetRef = useRef<number>(0)
 
     // ── Attempts ─────────────────────────────────────────────────
     const [attempts, setAttempts] = useState<Record<number, Attempt>>({})
@@ -419,6 +438,14 @@ function Arena() {
 
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}))
+                // If attempt is already submitted or past deadline grace, navigate to result instead of retrying forever
+                if (res.status === 409 || res.status === 410 || errData.error?.includes("already submitted")) {
+                    submissionPendingRef.current = false
+                    await clearExamState(attemptKey).catch(() => {})
+                    await safeExitFullscreen()
+                    router.push(`/test-series/${seriesId}/result?attemptId=${encodeURIComponent(attId)}`)
+                    return
+                }
                 throw new Error(errData.error || `Submission failed with status ${res.status}`)
             }
 
@@ -514,8 +541,15 @@ function Arena() {
                         }
                         return true
                     }
-                    if (res.status === 409 || res.status === 410) {
-                        // Already submitted or expired
+                    if (res.status === 409) {
+                        const errData = await res.json().catch(() => null)
+                        if (errData?.storedSeq) {
+                            syncSeqRef.current = Math.max(syncSeqRef.current, errData.storedSeq) + 1
+                            pendingSyncRef.current = true
+                        }
+                        return false
+                    }
+                    if (res.status === 410) {
                         return false
                     }
                     if (retries > 0) {
@@ -636,17 +670,52 @@ function Arena() {
         }
 
         let isSubscribed = true
+        setLoading(true)
+        setLoadError(null)
 
         const loadAll = async () => {
             try {
-                // 1. Fetch authoritative questions
-                const qRes = await fetch(`/api/exam/${encodeURIComponent(testId)}/questions`)
-                if (!qRes.ok) {
-                    if (qRes.status === 404) throw new Error("Test not found.")
-                    throw new Error("Failed to load test questions.")
-                }
-                const qJson = await qRes.json()
-                if (!qJson.data?.test) throw new Error("Invalid test data received.")
+                const isRetake = searchParams.get("retake") === "true"
+
+                // 1. Fetch questions and attempt concurrently
+                const questionsPromise = fetchWithTimeout(`/api/exam/${encodeURIComponent(testId)}/questions`).then(async (res) => {
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}))
+                        throw new Error(err.error || (res.status === 404 ? "Test not found." : `Failed to load test questions (HTTP ${res.status}).`))
+                    }
+                    return res.json()
+                })
+
+                const attemptPromise = (async () => {
+                    if (urlAttemptId && !isRetake) {
+                        const attRes = await fetchWithTimeout(`/api/exam/attempt/${encodeURIComponent(urlAttemptId)}`)
+                        if (attRes.ok) {
+                            const attJson = await attRes.json()
+                            if (attJson.data) return attJson.data
+                        }
+                    }
+
+                    const startRes = await fetchWithTimeout("/api/exam/attempt/start", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            testId,
+                            language: lang,
+                            retake: isRetake,
+                        }),
+                    })
+
+                    if (!startRes.ok) {
+                        const err = await startRes.json().catch(() => ({}))
+                        throw new Error(err.error || `Failed to start or resume exam attempt (HTTP ${startRes.status}).`)
+                    }
+                    const startJson = await startRes.json()
+                    return startJson.data
+                })()
+
+                const [qJson, attemptData] = await Promise.all([questionsPromise, attemptPromise])
+
+                if (!qJson.data?.test) throw new Error("Invalid test data received from server.")
                 const t = qJson.data.test
 
                 const rawQuestions: any[] = []
@@ -677,48 +746,26 @@ function Arena() {
                 setCustomTestRecord(t)
                 setQuestions(mappedQuestions)
 
-                // 2. Fetch or start server attempt
-                let attemptData: any = null
-                const isRetake = searchParams.get("retake") === "true"
-
-                if (urlAttemptId && !isRetake) {
-                    const attRes = await fetch(`/api/exam/attempt/${encodeURIComponent(urlAttemptId)}`)
-                    if (attRes.ok) {
-                        const attJson = await attRes.json()
-                        attemptData = attJson.data
-                    }
-                }
-
-                if (!attemptData) {
-                    const startRes = await fetch("/api/exam/attempt/start", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            testId,
-                            language: lang,
-                            retake: isRetake,
-                        }),
-                    })
-                    if (!startRes.ok) {
-                        const err = await startRes.json().catch(() => ({}))
-                        throw new Error(err.error || "Failed to start or resume exam attempt.")
-                    }
-                    const startJson = await startRes.json()
-                    attemptData = startJson.data
-                }
-
-                if (!isSubscribed) return
-
                 // Authoritative validation: attempt must belong to this test and series
                 if (attemptData.testId !== testId) {
                     throw new Error(
                         `Attempt test mismatch: this attempt is for test ID "${attemptData.testId}", but the URL specifies "${testId}".`
                     )
                 }
-                const attemptSeriesId = attemptData.seriesId || attemptData.test?.seriesId
-                if (attemptSeriesId && seriesId && attemptSeriesId !== seriesId) {
+                // Resolve series: URL parameter [id] can be either series.id or series.slug
+                const urlSeries = (seriesId || "").toLowerCase()
+                const matchesSeries =
+                    !urlSeries ||
+                    (attemptData.seriesId && attemptData.seriesId.toLowerCase() === urlSeries) ||
+                    (attemptData.seriesSlug && attemptData.seriesSlug.toLowerCase() === urlSeries) ||
+                    (attemptData.test?.seriesId && attemptData.test.seriesId.toLowerCase() === urlSeries) ||
+                    (t.seriesId && t.seriesId.toLowerCase() === urlSeries) ||
+                    (t.series?.id && t.series.id.toLowerCase() === urlSeries) ||
+                    (t.series?.slug && t.series.slug.toLowerCase() === urlSeries)
+
+                if (!matchesSeries) {
                     throw new Error(
-                        `Attempt series mismatch: this attempt belongs to series "${attemptSeriesId}", but the URL specifies "${seriesId}".`
+                        `Attempt series mismatch: this attempt belongs to series "${attemptData.seriesId}", but the URL specifies "${seriesId}".`
                     )
                 }
 
@@ -729,6 +776,10 @@ function Arena() {
 
                 setActiveAttemptId(attemptData.attemptId)
                 setServerDeadline(attemptData.deadline)
+
+                if (typeof attemptData.maxClientSeq === "number") {
+                    syncSeqRef.current = Math.max(syncSeqRef.current, attemptData.maxClientSeq)
+                }
 
                 // Update URL search params with attemptId if not present
                 if (!urlAttemptId && typeof window !== "undefined") {
@@ -773,9 +824,17 @@ function Arena() {
                     setTabSwitchCount(attemptData.tabSwitchCount)
                 }
 
-                // Calculate time left from server deadline
+                // Calculate clock offset between server and client device
+                if (attemptData.serverNow) {
+                    const clientNow = Date.now()
+                    const serverNowMs = new Date(attemptData.serverNow).getTime()
+                    serverOffsetRef.current = serverNowMs - clientNow
+                }
+
+                // Calculate time left from server deadline independent of device clock
                 const deadlineTime = new Date(attemptData.deadline).getTime()
-                const remaining = Math.max(0, Math.round((deadlineTime - Date.now()) / 1000))
+                const currentServerTime = Date.now() + serverOffsetRef.current
+                const remaining = Math.max(0, Math.round((deadlineTime - currentServerTime) / 1000))
                 setTimeLeft(remaining)
 
                 // Merge with IndexedDB if local data is available
@@ -827,7 +886,7 @@ function Arena() {
         return () => {
             isSubscribed = false
         }
-    }, [testId, seriesId, lang, urlAttemptId, router, searchParams, performSubmit])
+    }, [testId, seriesId, lang, urlAttemptId, router, searchParams, performSubmit, retryCount])
 
     // ── AUTO FULLSCREEN on mount ─────────────────────────────────
     useEffect(() => {
@@ -890,7 +949,8 @@ function Arena() {
 
         timerRef.current = setInterval(() => {
             const deadlineTime = new Date(serverDeadline).getTime()
-            const remaining = Math.max(0, Math.round((deadlineTime - Date.now()) / 1000))
+            const currentServerTime = Date.now() + serverOffsetRef.current
+            const remaining = Math.max(0, Math.round((deadlineTime - currentServerTime) / 1000))
             setTimeLeft(remaining)
             if (remaining <= 0) {
                 if (timerRef.current) clearInterval(timerRef.current)
@@ -1023,33 +1083,56 @@ function Arena() {
         )
     }
 
-    if (loadError || questions.length === 0) {
+    if (loadError || (!loading && questions.length === 0)) {
         return (
             <div style={{ height: "100vh", width: "100vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff", padding: 24, fontFamily: "sans-serif" }}>
-                <div style={{ maxWidth: 420, width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+                <div style={{ maxWidth: 440, width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
                     <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#fee2e2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <AlertTriangle style={{ width: 28, height: 28 }} />
                     </div>
                     <h2 style={{ fontSize: 20, fontWeight: 800, color: "#111827", margin: 0 }}>Cannot Open Test</h2>
-                    <p style={{ fontSize: 14, color: "#4b5563", lineHeight: 1.5, margin: 0 }}>
-                        {loadError || "The requested test was not found or contains no questions."}
+                    <p style={{ fontSize: 14, color: "#4b5563", lineHeight: 1.5, margin: 0, wordBreak: "break-word" }}>
+                        {loadError || "The requested test contains no questions or could not be loaded."}
                     </p>
-                    <button
-                        onClick={() => router.push(`/test-series/${seriesId}`)}
-                        style={{
-                            marginTop: 8,
-                            padding: "10px 24px",
-                            borderRadius: 10,
-                            background: "#0d9488",
-                            color: "#fff",
-                            fontWeight: 700,
-                            fontSize: 14,
-                            border: "none",
-                            cursor: "pointer",
-                        }}
-                    >
-                        Back to Test Series
-                    </button>
+                    <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap", justifyContent: "center" }}>
+                        <button
+                            onClick={() => {
+                                setLoadError(null)
+                                setLoading(true)
+                                setRetryCount((c) => c + 1)
+                            }}
+                            style={{
+                                minHeight: 44,
+                                padding: "10px 22px",
+                                borderRadius: 10,
+                                background: "#0284c7",
+                                color: "#fff",
+                                fontWeight: 700,
+                                fontSize: 14,
+                                border: "none",
+                                cursor: "pointer",
+                                boxShadow: "0 2px 8px rgba(2,132,199,0.25)"
+                            }}
+                        >
+                            Retry
+                        </button>
+                        <button
+                            onClick={() => router.push(`/test-series/${seriesId}`)}
+                            style={{
+                                minHeight: 44,
+                                padding: "10px 22px",
+                                borderRadius: 10,
+                                background: "#f3f4f6",
+                                color: "#374151",
+                                fontWeight: 700,
+                                fontSize: 14,
+                                border: "1px solid #d1d5db",
+                                cursor: "pointer",
+                            }}
+                        >
+                            Back to Test Series
+                        </button>
+                    </div>
                 </div>
             </div>
         )

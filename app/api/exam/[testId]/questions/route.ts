@@ -23,6 +23,9 @@ export async function GET(
       test = await prisma.examTest.findUnique({
         where: { id: testId },
         include: {
+          series: {
+            select: { id: true, slug: true, title: true },
+          },
           sections: {
             orderBy: { order: "asc" },
             include: {
