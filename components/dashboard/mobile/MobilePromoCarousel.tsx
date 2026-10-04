@@ -38,6 +38,7 @@ export default function MobilePromoCarousel({ cards }: MobilePromoCarouselProps)
       {/* Scroll-Snap Horizontal Container */}
       <div
         ref={scrollRef}
+        data-scroll-x="true"
         className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar px-3 gap-3"
         style={{ scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}
       >

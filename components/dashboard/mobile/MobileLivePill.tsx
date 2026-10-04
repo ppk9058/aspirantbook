@@ -60,7 +60,7 @@ export default function MobileLivePill() {
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500" />
           </span>
 
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white shadow-2xs shrink-0 flex items-center gap-1">
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-700 text-white shadow-2xs shrink-0 flex items-center gap-1">
             <Radio className="w-2.5 h-2.5" />
             <span>LIVE NOW</span>
           </span>
@@ -70,7 +70,7 @@ export default function MobileLivePill() {
           </p>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0 text-rose-600 dark:text-rose-400 font-extrabold text-[11px]">
+        <div className="flex items-center gap-1 shrink-0 text-rose-700 dark:text-rose-400 font-extrabold text-[11px]">
           <span>Join</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
         </div>

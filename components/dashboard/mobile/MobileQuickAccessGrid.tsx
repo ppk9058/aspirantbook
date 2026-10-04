@@ -32,7 +32,7 @@ const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
     iconBg: "bg-rose-50 dark:bg-rose-950/40",
     iconColor: "text-rose-600 dark:text-rose-400",
     badge: "LIVE",
-    badgeColor: "bg-rose-500 text-white",
+    badgeColor: "bg-rose-700 text-white",
   },
   {
     id: "tests",
@@ -50,7 +50,7 @@ const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
     iconBg: "bg-amber-50 dark:bg-amber-950/40",
     iconColor: "text-amber-600 dark:text-amber-400",
     badge: "FREE",
-    badgeColor: "bg-emerald-600 text-white",
+    badgeColor: "bg-emerald-700 text-white",
   },
   {
     id: "pyqs",

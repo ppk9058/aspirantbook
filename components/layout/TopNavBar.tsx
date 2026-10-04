@@ -27,12 +27,12 @@ export default function TopNavBar() {
 
     return (
         <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/95 dark:bg-[#05192D]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 z-50 transition-colors">
-            <div className="h-full px-2.5 sm:px-6 flex items-center justify-between gap-2 min-w-0">
+            <div className="h-full px-2 sm:px-6 flex items-center justify-between gap-1.5 sm:gap-2 min-w-0">
                 {/* Logo & Goal Context Selector */}
-                <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink-0">
-                    <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0">
-                        <div className="w-8 h-8 bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] rounded-lg flex items-center justify-center shadow-sm">
-                            <span className="text-white font-bold text-lg">T</span>
+                <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+                    <Link href="/dashboard" className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] rounded-lg flex items-center justify-center shadow-sm">
+                            <span className="text-white font-bold text-base sm:text-lg">T</span>
                         </div>
                         <span className="text-xl font-bold text-[#05192D] dark:text-white tracking-tight hidden md:inline">aspirantbook</span>
                     </Link>
@@ -64,21 +64,21 @@ export default function TopNavBar() {
                 </div>
 
                 {/* Right Controls */}
-                <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-0.5 sm:gap-2 flex-shrink-0">
                     {/* Interactive Role Switcher - ADMIN ONLY */}
                     {session?.user?.role === "ADMIN" && <RoleSwitcher />}
 
                     {/* Dark Mode Toggle */}
                     <button
                         onClick={toggleTheme}
-                        className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
                         aria-label="Toggle theme"
                     >
                         {theme === "dark" ? (
-                            <Sun className="h-5 w-5 text-amber-400" />
+                            <Sun className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
                         ) : (
-                            <Moon className="h-5 w-5 text-gray-600" />
+                            <Moon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
                         )}
                     </button>
 
@@ -86,11 +86,11 @@ export default function TopNavBar() {
                     <div className="relative">
                         <button
                             onClick={() => setShowNotifications(!showNotifications)}
-                            className="relative p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            className="relative p-1.5 sm:p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                             aria-label="Notifications"
                         >
-                            <Bell className="h-5 w-5" />
-                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#EF4444] rounded-full ring-2 ring-white dark:ring-[#05192D]" />
+                            <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <span className="absolute top-1 sm:top-1.5 right-1 sm:right-1.5 w-2 h-2 bg-[#EF4444] rounded-full ring-2 ring-white dark:ring-[#05192D]" />
                         </button>
 
                         {showNotifications && (
@@ -120,10 +120,10 @@ export default function TopNavBar() {
                         <div className="relative">
                             <button
                                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                                className="flex items-center gap-2 p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                                 aria-label="User menu"
                             >
-                                <div className="w-8 h-8 bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-sm">
+                                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-sm">
                                     {session.user.name?.[0]?.toUpperCase() || session.user.email?.[0]?.toUpperCase() || "U"}
                                 </div>
                                 <div className="hidden md:flex flex-col text-left">

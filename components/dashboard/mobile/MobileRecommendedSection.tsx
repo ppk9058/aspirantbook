@@ -34,7 +34,7 @@ export default function MobileRecommendedSection({
 
         <Link
           href={viewAllHref}
-          className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-0.5"
+          className="text-xs font-bold text-teal-700 dark:text-teal-400 hover:underline flex items-center gap-0.5"
         >
           <span>View all</span>
           <ChevronRight className="w-3.5 h-3.5" />
@@ -43,6 +43,7 @@ export default function MobileRecommendedSection({
 
       {/* Horizontal Scroll-Snap Card Row */}
       <div
+        data-scroll-x="true"
         className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar gap-3 pb-1"
         style={{ scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}
       >
@@ -82,13 +83,13 @@ export default function MobileRecommendedSection({
                 </h3>
               </div>
 
-              <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+              <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400">
                 <span className="flex items-center gap-1 font-semibold">
-                  <PlayCircle className="w-3.5 h-3.5 text-teal-500" />
+                  <PlayCircle className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                   <span>Start Learning</span>
                 </span>
                 {course.duration && (
-                  <span className="text-[10px] text-slate-400 truncate">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 truncate font-medium">
                     {course.duration}
                   </span>
                 )}

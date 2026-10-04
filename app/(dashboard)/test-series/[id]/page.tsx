@@ -394,7 +394,7 @@ export default function TestSeriesDetailPage() {
                     </div>
 
                     {/* Actions: Enroll & Share */}
-                    <div className="flex items-center gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
                         <EnrollButton
                             seriesId={seriesId}
                             isFree={currentSeries.freeTests > 0}
@@ -430,7 +430,7 @@ export default function TestSeriesDetailPage() {
                     </div>
 
                     <div className="space-y-2 mb-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 min-w-0">
                             <span className="text-xl font-black tracking-tight text-white">aspirantbook</span>
                             <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-xs text-[10px] font-black tracking-widest uppercase">
                                 PASS
@@ -556,27 +556,27 @@ export default function TestSeriesDetailPage() {
                                         {/* Section Accordion Trigger */}
                                         <button
                                             onClick={() => toggleSection(section.id)}
-                                            className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                                            className="w-full p-4 sm:p-5 flex items-center justify-between gap-3 text-left hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors cursor-pointer min-w-0"
                                         >
-                                            <div className="flex items-center gap-2.5">
-                                                <div className={`w-2 h-2 rounded-full ${section.id === "teacher-tests" ? "bg-emerald-500 animate-pulse" : "bg-[#00A8FF]"}`} />
-                                                <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
+                                            <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+                                                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${section.id === "teacher-tests" ? "bg-emerald-500 animate-pulse" : "bg-[#00A8FF]"}`} />
+                                                <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white break-words">
                                                     {section.title}
                                                 </h3>
-                                                <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+                                                <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold flex-shrink-0">
                                                     ({section.count})
                                                 </span>
                                                 {section.id === "teacher-tests" && (
-                                                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 uppercase">
+                                                    <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 uppercase flex-shrink-0">
                                                         Faculty Authored
                                                     </span>
                                                 )}
                                             </div>
 
                                             {isExpanded ? (
-                                                <ChevronUp className="h-4 w-4 text-gray-400" />
+                                                <ChevronUp className="h-4 w-4 text-gray-400 flex-shrink-0 ml-1" />
                                             ) : (
-                                                <ChevronDown className="h-4 w-4 text-gray-400" />
+                                                <ChevronDown className="h-4 w-4 text-gray-400 flex-shrink-0 ml-1" />
                                             )}
                                         </button>
 
@@ -638,7 +638,7 @@ export default function TestSeriesDetailPage() {
                                                                 </div>
                                                             </div>
 
-                                                            <div className="flex items-center gap-2 flex-shrink-0">
+                                                            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 flex-shrink-0">
                                                                 {section.id === "teacher-tests" ? (
                                                                     isLocal ? (
                                                                         <span className="px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-semibold select-none cursor-not-allowed">
@@ -808,7 +808,7 @@ export default function TestSeriesDetailPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in-0">
                     <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6">
                         <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2 min-w-0">
                                 <span className="text-xl font-black text-gray-900 dark:text-white">aspirantbook</span>
                                 <span className="px-2 py-0.5 rounded-md bg-emerald-700 text-[10px] font-black text-white tracking-widest uppercase">
                                     PASS PRO
