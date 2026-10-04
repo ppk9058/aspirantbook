@@ -119,203 +119,44 @@ export async function POST(
     const graceDeadlineMs = deadlineMs + 30 * 1000;
     const now = new Date();
 
-    if (now.getTime() > graceDeadlineMs) {
-      if (answers.length > 0) {
-        await prisma.$transaction(
-          answers.map((ans) =>
-            prisma.examAttemptAnswer.upsert({
-              where: {
-                attemptId_questionId: {
-                  attemptId,
-                  questionId: ans.questionId,
-                },
-              },
-              create: {
+    // Upsert all final answers
+    if (answers.length > 0) {
+      await prisma.$transaction(
+        answers.map((ans) =>
+          prisma.examAttemptAnswer.upsert({
+            where: {
+              attemptId_questionId: {
                 attemptId,
                 questionId: ans.questionId,
-                selectedOption: ans.selectedOption,
-                isMarked: ans.isMarked ?? false,
-                timeSpentSecs: 0,
               },
-              update: {
-                selectedOption: ans.selectedOption,
-                isMarked: ans.isMarked ?? false,
-              },
-            })
-          )
-        );
-      }
-      const graded = await gradeExamAttempt(attemptId, now);
-      if (!graded) {
-        return NextResponse.json(
-          { error: "Submission calculation is in progress, please retry in a moment", retryable: true },
-          { status: 202 }
-        );
-      }
-      return NextResponse.json({ data: graded }, { status: 200 });
-    }
-
-    // Server owns timeTaken: ignore any client timeTakenSecs
-    const serverTimeTakenSecs = Math.max(
-      1,
-      Math.min(
-        testDurationSecs,
-        Math.floor((now.getTime() - attempt.startedAt.getTime()) / 1000)
-      )
-    );
-
-    // Upsert all final answers
-    await prisma.$transaction(
-      answers.map((ans) =>
-        prisma.examAttemptAnswer.upsert({
-          where: {
-            attemptId_questionId: {
+            },
+            create: {
               attemptId,
               questionId: ans.questionId,
+              selectedOption: ans.selectedOption,
+              isMarked: ans.isMarked ?? false,
+              timeSpentSecs: ans.timeSpentSecs ?? 0,
             },
-          },
-          create: {
-            attemptId,
-            questionId: ans.questionId,
-            selectedOption: ans.selectedOption,
-            isMarked: ans.isMarked ?? false,
-            timeSpentSecs: ans.timeSpentSecs ?? 0,
-          },
-          update: {
-            selectedOption: ans.selectedOption,
-            isMarked: ans.isMarked ?? false,
-            timeSpentSecs: ans.timeSpentSecs ?? 0,
-          },
-        })
-      )
-    );
-
-    // Fetch all questions for grading (with correctOption)
-    const questionIds = answers.map((a) => a.questionId);
-    const questions = await prisma.examQuestion.findMany({
-      where: { id: { in: questionIds } },
-      select: {
-        id: true,
-        correctOption: true,
-        positiveMarks: true,
-        negativeMarks: true,
-      },
-    });
-
-    const questionMap = new Map(questions.map((q) => [q.id, q]));
-
-    // Grade each answer
-    let totalScore = 0;
-    let correctCount = 0;
-    let wrongCount = 0;
-    let skippedCount = 0;
-    let markedCount = 0;
-
-    const gradedAnswers = answers.map((ans) => {
-      const question = questionMap.get(ans.questionId);
-      if (!question) {
-        return { questionId: ans.questionId, isCorrect: false, marksAwarded: 0 };
-      }
-
-      if (ans.isMarked) markedCount++;
-
-      let isCorrect = false;
-      let marksAwarded = 0;
-
-      if (!ans.selectedOption) {
-        // Skipped
-        skippedCount++;
-        marksAwarded = 0;
-      } else if (ans.selectedOption === question.correctOption) {
-        // Correct
-        isCorrect = true;
-        correctCount++;
-        marksAwarded = question.positiveMarks;
-        totalScore += marksAwarded;
-      } else {
-        // Wrong
-        wrongCount++;
-        marksAwarded = -(question.negativeMarks);
-        totalScore += marksAwarded;
-      }
-
-      return { questionId: ans.questionId, isCorrect, marksAwarded };
-    });
-
-    // Fetch test totalMarks
-    const test = await prisma.examTest.findUnique({
-      where: { id: attempt.testId },
-      select: { totalMarks: true },
-    });
-
-    // Update each answer's grading result
-    await prisma.$transaction(
-      gradedAnswers.map(({ questionId, isCorrect, marksAwarded }) =>
-        prisma.examAttemptAnswer.update({
-          where: {
-            attemptId_questionId: {
-              attemptId,
-              questionId,
+            update: {
+              selectedOption: ans.selectedOption,
+              isMarked: ans.isMarked ?? false,
+              timeSpentSecs: ans.timeSpentSecs ?? 0,
             },
-          },
-          data: { isCorrect, marksAwarded },
-        })
-      )
-    );
+          })
+        )
+      );
+    }
 
-    // Mark attempt as SUBMITTED
-    await prisma.examAttempt.update({
-      where: { id: attemptId },
-      data: {
-        status: "SUBMITTED",
-        score: totalScore,
-        totalMarks: test?.totalMarks ?? attempt.test?.totalMarks ?? 0,
-        correctCount,
-        wrongCount,
-        skippedCount,
-        markedCount,
-        timeTakenSecs: serverTimeTakenSecs,
-        submittedAt: now,
-      },
-    });
+    // Authoritative idempotent server-side grading
+    const graded = await gradeExamAttempt(attemptId, now);
+    if (!graded) {
+      return NextResponse.json(
+        { error: "Submission calculation is in progress, please retry in a moment", retryable: true },
+        { status: 202 }
+      );
+    }
 
-    // Calculate percentile
-    const totalSubmitted = await prisma.examAttempt.count({
-      where: { testId: attempt.testId, status: "SUBMITTED" },
-    });
-
-    const rank = await prisma.examAttempt.count({
-      where: {
-        testId: attempt.testId,
-        status: "SUBMITTED",
-        score: { gt: totalScore },
-      },
-    });
-
-    const percentile =
-      totalSubmitted > 1
-        ? parseFloat(
-            (((totalSubmitted - rank) / totalSubmitted) * 100).toFixed(2)
-          )
-        : null;
-
-    return NextResponse.json(
-      {
-        data: {
-          attemptId,
-          score: totalScore,
-          totalMarks: test?.totalMarks ?? attempt.test?.totalMarks ?? 0,
-          correctCount,
-          wrongCount,
-          skippedCount,
-          timeTakenSecs: serverTimeTakenSecs,
-          percentile,
-          allIndiaRank: totalSubmitted > 1 ? rank + 1 : null,
-          totalCandidates: totalSubmitted,
-        },
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ data: graded }, { status: 200 });
   } catch (error) {
     console.error("[POST /api/exam/attempt/:attemptId/submit]", error);
     return NextResponse.json(

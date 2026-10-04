@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
+import { checkTestAccess } from "@/lib/auth/entitlements";
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,6 +39,8 @@ export async function POST(req: NextRequest) {
         id: true,
         durationMinutes: true,
         seriesId: true,
+        accessMode: true,
+        createdById: true,
         series: {
           select: {
             id: true,
@@ -61,9 +64,22 @@ export async function POST(req: NextRequest) {
     }
 
     if (!test.isPublished) {
+      const isCreator = test.createdById === session.user.id;
+      const isAdmin = session.user.role === "ADMIN";
+      if (!isCreator && !isAdmin) {
+        return NextResponse.json(
+          { error: "Test is not published yet" },
+          { status: 403 }
+        );
+      }
+    }
+
+    // 2. Check entitlement (Free vs Pro)
+    const access = await checkTestAccess(session.user.id, test.id, session.user.role as any);
+    if (!access.allowed) {
       return NextResponse.json(
-        { error: "Test is not published yet" },
-        { status: 409 }
+        { error: access.message || "This test requires an active Pass or subscription", reason: access.reason },
+        { status: 403 }
       );
     }
 
@@ -112,11 +128,11 @@ export async function POST(req: NextRequest) {
             await gradeExamAttempt(oa.id, serverNow);
           } catch (gradeErr) {
             console.error(`[start] Graceful fallback: failed to grade attempt ${oa.id}:`, gradeErr);
-            // Ensure status is marked SUBMITTED so it never stays stuck in IN_PROGRESS
+            // Set status to SUBMITTED with submittedAt: null so gradeExamAttempt can recover and finalize it later
             await prisma.examAttempt
               .update({
                 where: { id: oa.id },
-                data: { status: "SUBMITTED", submittedAt: serverNow },
+                data: { status: "SUBMITTED", submittedAt: null },
               })
               .catch((e) => console.error(`[start] Fallback status update failed for ${oa.id}:`, e));
           }
