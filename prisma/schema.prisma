@@ -613,6 +613,7 @@ model Subscription {
 
   @@index([userId])
   @@index([status])
+  @@index([userId, status])
 }
 
 model Payment {
@@ -853,6 +854,7 @@ model ExamSection {
   questions     ExamQuestion[]
 
   @@index([testId])
+  @@index([testId, order])
 }
 
 model ExamQuestion {
@@ -886,6 +888,7 @@ model ExamQuestion {
   answers        ExamAttemptAnswer[]
 
   @@index([sectionId])
+  @@index([sectionId, order])
   @@index([difficulty])
   @@index([subject])
 }
@@ -918,6 +921,7 @@ model ExamAttempt {
   @@index([startedAt])
   @@index([userId, status])
   @@index([testId, status])
+  @@index([userId, testId])
 }
 
 model ExamAttemptAnswer {

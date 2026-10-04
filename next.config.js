@@ -16,7 +16,10 @@ const nextConfig = {
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production',
     },
-    devIndicators: false,
+    devIndicators: {
+        appIsrStatus: false,
+        buildActivity: false,
+    },
     typescript: {
         ignoreBuildErrors: true,
     },
