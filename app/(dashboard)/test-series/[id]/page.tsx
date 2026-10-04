@@ -403,7 +403,7 @@ export default function TestSeriesDetailPage() {
 
                         <button
                             onClick={handleShare}
-                            className="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 font-semibold text-xs sm:text-sm transition-colors cursor-pointer flex items-center gap-2"
+                            className="min-h-[44px] px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 font-semibold text-xs sm:text-sm transition-colors cursor-pointer flex items-center gap-2"
                         >
                             <Share2 className="h-4 w-4 text-emerald-600" />
                             <span>{shareCopied ? "Link Copied!" : "Share"}</span>
@@ -412,7 +412,7 @@ export default function TestSeriesDetailPage() {
                         {canCreate && (
                             <Link
                                 href={`/teacher/test-series/create?seriesId=${seriesId}&category=${encodeURIComponent(currentSeries.category)}`}
-                                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                                className="min-h-[44px] px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
                             >
                                 <Plus className="h-4 w-4" />
                                 <span>+ Create Test in Studio</span>
@@ -649,23 +649,25 @@ export default function TestSeriesDetailPage() {
                                                                             {canViewSolutions && (
                                                                                 <Link
                                                                                     href={solutionsHref}
-                                                                                    className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-emerald-500 hover:border-emerald-500/40 transition-colors"
+                                                                                    className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-emerald-500 hover:border-emerald-500/40 transition-colors flex items-center justify-center cursor-pointer"
                                                                                     title="View Solutions"
+                                                                                    aria-label="View Solutions"
                                                                                 >
-                                                                                    <BookOpen className="h-3.5 w-3.5" />
+                                                                                    <BookOpen className="h-4 w-4" />
                                                                                 </Link>
                                                                             )}
                                                                             <Link
                                                                                 href={`/test-series/${test.id}/leaderboard`}
-                                                                                className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-[#00A8FF] hover:border-[#00A8FF]/40 transition-colors"
+                                                                                className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-[#00A8FF] hover:border-[#00A8FF]/40 transition-colors flex items-center justify-center cursor-pointer"
                                                                                 title="View Leaderboard"
+                                                                                aria-label="View Leaderboard"
                                                                             >
-                                                                                <BarChart3 className="h-3.5 w-3.5" />
+                                                                                <BarChart3 className="h-4 w-4" />
                                                                             </Link>
                                                                             {test.isFree ? (
                                                                                 <button
                                                                                     onClick={() => setSelectedTestToAttempt(test)}
-                                                                                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                                                                                    className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                                                                                 >
                                                                                     <Play className="h-3.5 w-3.5 fill-current" />
                                                                                     <span>Start Now</span>
@@ -673,7 +675,7 @@ export default function TestSeriesDetailPage() {
                                                                             ) : (
                                                                                 <button
                                                                                     onClick={() => setIsPassModalOpen(true)}
-                                                                                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-[#00A8FF] text-[#00A8FF] hover:bg-[#00A8FF]/10 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                                                                                    className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl border border-[#00A8FF] text-[#00A8FF] hover:bg-[#00A8FF]/10 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                                                                                 >
                                                                                     <Lock className="h-3.5 w-3.5" />
                                                                                     <span>Unlock with Pass</span>

@@ -454,7 +454,7 @@ export default function MyTestsHubClient({
                             <button
                                 key={tab}
                                 onClick={() => setPerfTab(tab)}
-                                className={`flex-1 py-2 px-3 rounded-xl text-xs font-extrabold transition-all min-h-[40px] flex items-center justify-center gap-1.5 whitespace-nowrap ${
+                                className={`flex-1 py-2 px-3 rounded-xl text-xs font-extrabold transition-all min-h-[44px] flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer ${
                                     perfTab === tab
                                         ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs"
                                         : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
@@ -476,7 +476,7 @@ export default function MyTestsHubClient({
                             <p className="text-xs text-slate-500 max-w-xs mx-auto">
                                 Attempt a mock test to see your score, percentile, and All-India Rank here.
                             </p>
-                            <Link href="/test-series" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00A8FF] text-white text-xs font-bold min-h-[40px]">
+                            <Link href="/test-series" className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#00A8FF] text-white text-xs font-bold min-h-[44px]">
                                 Take a Mock Test
                             </Link>
                         </div>
@@ -500,13 +500,13 @@ export default function MyTestsHubClient({
                                             </h3>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-2 shrink-0">
-                                            <Link href={attempt.solutionUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors min-h-[40px] flex items-center">
+                                            <Link href={attempt.solutionUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors min-h-[44px] flex items-center">
                                                 Mistake Notebook
                                             </Link>
-                                            <Link href={attempt.leaderboardUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-purple-600 dark:text-purple-400 transition-colors min-h-[40px] flex items-center">
+                                            <Link href={attempt.leaderboardUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-purple-600 dark:text-purple-400 transition-colors min-h-[44px] flex items-center">
                                                 View AIR #{attempt.rank || "—"}
                                             </Link>
-                                            <Link href={attempt.reportUrl} className="px-4 py-2 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white text-xs font-extrabold transition-all min-h-[40px] flex items-center">
+                                            <Link href={attempt.reportUrl} className="px-4 py-2 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white text-xs font-extrabold transition-all min-h-[44px] flex items-center">
                                                 Full Report →
                                             </Link>
                                         </div>

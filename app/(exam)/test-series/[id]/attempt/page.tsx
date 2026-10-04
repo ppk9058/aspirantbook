@@ -351,6 +351,7 @@ function Arena() {
     const [showSubmitModal, setShowSubmitModal] = useState(false)
     const [showReportModal, setShowReportModal] = useState(false)
     const [showQPaper, setShowQPaper] = useState(false)
+    const [showExitConfirmModal, setShowExitConfirmModal] = useState(false)
     const [submitted, setSubmitted] = useState(false)
     const timerRef = useRef<NodeJS.Timeout | null>(null)
     const wakeLockRef = useRef<any>(null)
@@ -1014,6 +1015,44 @@ function Arena() {
         }
     }, [])
 
+    // ── Prevent accidental back navigation & pull-to-refresh ──────────
+    useEffect(() => {
+        if (submitted) return
+
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (!submitted) {
+                e.preventDefault()
+                e.returnValue = ""
+                return ""
+            }
+        }
+
+        // Push state so back button doesn't immediately navigate out
+        if (typeof window !== "undefined") {
+            try {
+                window.history.pushState(null, "", window.location.href)
+            } catch {}
+        }
+
+        const handlePopState = () => {
+            if (!submitted) {
+                // Keep the student on the exam page
+                try {
+                    window.history.pushState(null, "", window.location.href)
+                } catch {}
+                setShowExitConfirmModal(true)
+            }
+        }
+
+        window.addEventListener("beforeunload", handleBeforeUnload)
+        window.addEventListener("popstate", handlePopState)
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload)
+            window.removeEventListener("popstate", handlePopState)
+        }
+    }, [submitted])
+
     // ── Stats ────────────────────────────────────────────────────
     const counts = {
         answered: Object.values(attempts).filter(a => a.state === "answered" || a.state === "answered-marked").length,
@@ -1092,7 +1131,7 @@ function Arena() {
 
     if (!isMounted || loading) {
         return (
-            <div style={{ height: "100vh", width: "100vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff", gap: 16, fontFamily: "sans-serif" }}>
+            <div style={{ height: "100dvh", width: "100%", maxWidth: "100vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff", gap: 16, fontFamily: "sans-serif" }}>
                 <div style={{ width: 52, height: 52, border: "4px solid #0ea5e9", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
                 <p style={{ fontSize: 15, fontWeight: 600, color: "#374151" }}>Preparing CBT Exam Arena...</p>
                 <p style={{ fontSize: 12, color: "#9ca3af" }}>Loading question paper and candidate credentials...</p>
@@ -1103,7 +1142,7 @@ function Arena() {
 
     if (loadError || (!loading && questions.length === 0)) {
         return (
-            <div style={{ height: "100vh", width: "100vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff", padding: 24, fontFamily: "sans-serif" }}>
+            <div style={{ height: "100dvh", width: "100%", maxWidth: "100vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff", padding: 24, fontFamily: "sans-serif" }}>
                 <div style={{ maxWidth: 440, width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
                     <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#fee2e2", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <AlertTriangle style={{ width: 28, height: 28 }} />
@@ -1158,10 +1197,11 @@ function Arena() {
 
     return (
         <div style={{
-            height: "100vh", width: "100vw",
+            height: "100dvh", width: "100%", maxWidth: "100%",
             display: "flex", flexDirection: "column",
             background: "#fff", fontFamily: "sans-serif",
-            overflow: "hidden", userSelect: "none"
+            overflow: "hidden", userSelect: "none",
+            overscrollBehaviorY: "contain"
         }}>
 
             {/* ══ TOP BAR ══════════════════════════════════════════ */}
@@ -1238,9 +1278,9 @@ function Arena() {
                 </div>
             </header>
 
-            {/* Mobile Header (< 1024px, lg:hidden, clean single-line max 56px) */}
-            <header className="flex lg:hidden items-center justify-between px-3 h-12 flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-20">
-                <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
+            {/* Mobile Header (< 1024px, lg:hidden, min 52px height for 44px tap targets) */}
+            <header className="flex lg:hidden items-center justify-between px-3 min-h-[52px] flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-20 gap-1.5">
+                <div className="flex items-center gap-2 min-w-0 flex-1 mr-1">
                     <div className="w-6 h-6 rounded bg-teal-600 flex items-center justify-center flex-shrink-0">
                         <span className="text-white text-[9px] font-black">TS</span>
                     </div>
@@ -1249,7 +1289,7 @@ function Arena() {
                     </span>
                 </div>
 
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                     {tabSwitchCount > 0 && (
                         <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-950/60 px-1.5 py-0.5 rounded border border-red-200 dark:border-red-800">
                             <ShieldAlert className="w-3 h-3" />
@@ -1268,11 +1308,17 @@ function Arena() {
                     <MobileTimerDisplay secs={timeLeft} />
                     <button
                         onClick={() => setPaused(p => !p)}
-                        className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                        className="min-w-[44px] min-h-[44px] p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center justify-center cursor-pointer"
                         title={paused ? "Resume Test" : "Pause Test"}
                         aria-label={paused ? "Resume Test" : "Pause Test"}
                     >
                         {paused ? <Play className="w-4 h-4 text-emerald-600" /> : <Pause className="w-4 h-4" />}
+                    </button>
+                    <button
+                        onClick={() => setShowSubmitModal(true)}
+                        className="min-h-[44px] px-3 rounded-lg bg-teal-600 hover:bg-teal-700 active:scale-95 text-white text-xs font-bold shadow-sm transition flex items-center justify-center cursor-pointer"
+                    >
+                        Submit
                     </button>
                 </div>
             </header>
@@ -1417,34 +1463,34 @@ function Arena() {
                         style={{
                             paddingBottom: "max(8px, env(safe-area-inset-bottom))"
                         }}
-                        className="flex items-center justify-between px-2.5 sm:px-4 py-2 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex-shrink-0 z-20 gap-1.5"
+                        className="flex items-center justify-between px-2.5 sm:px-4 py-2 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex-shrink-0 z-20 gap-2"
                     >
-                        <div className="flex items-center gap-1 sm:gap-2">
-                            <button
-                                onClick={markForReview}
-                                className="px-2 sm:px-3.5 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 transition whitespace-nowrap min-h-[40px] flex items-center justify-center text-center"
-                            >
-                                <span className="hidden sm:inline">Mark for Review &amp; Next</span>
-                                <span className="sm:hidden">Review &amp; Next</span>
-                            </button>
+                        <div className="flex items-center gap-2">
                             <button
                                 onClick={clearResponse}
-                                className="px-2 sm:px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 transition whitespace-nowrap min-h-[40px] flex items-center justify-center text-center"
+                                className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 transition whitespace-nowrap min-h-[44px] flex items-center justify-center text-center cursor-pointer"
                             >
                                 <span className="hidden sm:inline">Clear Response</span>
                                 <span className="sm:hidden">Clear</span>
                             </button>
+                            <button
+                                onClick={markForReview}
+                                className="px-2.5 sm:px-3.5 py-2 border border-purple-300 dark:border-purple-700 rounded-lg bg-purple-50 dark:bg-purple-950/30 text-[11px] sm:text-xs font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-100 transition whitespace-nowrap min-h-[44px] flex items-center justify-center text-center cursor-pointer"
+                            >
+                                <span className="hidden sm:inline">Mark for Review &amp; Next</span>
+                                <span className="sm:hidden">Review &amp; Next</span>
+                            </button>
                         </div>
-                        <div className="flex items-center gap-1.5 sm:gap-2">
+                        <div className="flex items-center gap-2">
                             <button
                                 onClick={saveAndNext}
-                                className="px-3 sm:px-5 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-bold shadow-sm transition whitespace-nowrap min-h-[40px] flex items-center justify-center"
+                                className="px-4 sm:px-6 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-bold shadow-sm transition whitespace-nowrap min-h-[44px] flex items-center justify-center cursor-pointer"
                             >
                                 Save &amp; Next
                             </button>
                             <button
                                 onClick={() => setShowSubmitModal(true)}
-                                className="px-2.5 sm:px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm font-bold shadow-sm transition whitespace-nowrap min-h-[40px] flex items-center justify-center"
+                                className="hidden lg:flex px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm font-bold shadow-sm transition whitespace-nowrap min-h-[44px] items-center justify-center cursor-pointer"
                             >
                                 Submit
                             </button>
@@ -1542,7 +1588,8 @@ function Arena() {
                         <button onClick={() => setShowQPaper(true)} style={{
                             display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
                             padding: "8px 4px", border: "1px solid #d1d5db", borderRadius: 4,
-                            background: "#fff", fontSize: 11, fontWeight: 600, color: "#374151", cursor: "pointer"
+                            background: "#fff", fontSize: 11, fontWeight: 600, color: "#374151", cursor: "pointer",
+                            minHeight: 40
                         }}>
                             <FileText style={{ width: 12, height: 12 }} />
                             Question Paper
@@ -1550,7 +1597,8 @@ function Arena() {
                         <button onClick={() => setShowInstructionsModal(true)} style={{
                             display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
                             padding: "8px 4px", border: "1px solid #d1d5db", borderRadius: 4,
-                            background: "#fff", fontSize: 11, fontWeight: 600, color: "#374151", cursor: "pointer"
+                            background: "#fff", fontSize: 11, fontWeight: 600, color: "#374151", cursor: "pointer",
+                            minHeight: 40
                         }}>
                             <BookOpen style={{ width: 12, height: 12 }} />
                             Instructions
@@ -1559,19 +1607,25 @@ function Arena() {
                 </aside>
             </div>
 
-            {/* ══ MOBILE QUESTION PALETTE DRAWER / BOTTOM SHEET (< 1024px) ══ */}
+            {/* ══ MOBILE QUESTION PALETTE BOTTOM SHEET (< 1024px) ══ */}
             {isMobilePaletteOpen && (
-                <div className="lg:hidden fixed inset-0 z-50 flex justify-end">
+                <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
                     {/* Backdrop */}
                     <div
                         onClick={() => setIsMobilePaletteOpen(false)}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in"
+                        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in"
                     />
 
-                    {/* Slide-over Drawer / Sheet (Screenshot 2) */}
-                    <div className="relative w-[85%] max-w-[340px] h-full bg-white dark:bg-gray-900 shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-200">
-                        {/* Drawer Header */}
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/80">
+                    {/* Bottom Sheet Modal */}
+                    <div
+                        style={{ maxHeight: "70dvh" }}
+                        className="relative w-full max-h-[70dvh] bg-white dark:bg-gray-900 rounded-t-2xl shadow-2xl flex flex-col z-10 animate-in slide-in-from-bottom duration-200 border-t border-gray-200 dark:border-gray-800"
+                    >
+                        {/* Drag Handle Bar */}
+                        <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto my-2.5 shrink-0" />
+
+                        {/* Sheet Header */}
+                        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/80 shrink-0">
                             <div className="flex items-center gap-2.5">
                                 <div className="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center font-bold text-xs">
                                     <User className="w-4 h-4 text-gray-300" />
@@ -1583,32 +1637,32 @@ function Arena() {
                             </div>
                             <button
                                 onClick={() => setIsMobilePaletteOpen(false)}
-                                className="p-1 rounded-md text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"
+                                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
                                 aria-label="Close palette"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        {/* Live Counts Legend (2 columns) */}
-                        <div className="p-3 border-b border-gray-200 dark:border-gray-800 grid grid-cols-2 gap-2 bg-white dark:bg-gray-900">
+                        {/* Live Counts Legend (2 or 3 columns) */}
+                        <div className="p-3 border-b border-gray-200 dark:border-gray-800 grid grid-cols-2 sm:grid-cols-3 gap-2 bg-white dark:bg-gray-900 shrink-0">
                             <LegendItem bg="#22c55e" label="Answered" count={counts.answered} />
                             <LegendItem bg="#9333ea" label="Marked" count={counts.marked} />
                             <LegendItem bg="#fff" label="Not Visited" count={counts.notVisited} />
-                            <LegendItem bg="linear-gradient(135deg,#9333ea 50%,#22c55e 50%)" label="Marked & Ans" count={counts.answeredMarked} />
+                            <LegendItem bg="linear-gradient(135deg,#9333ea 50%,#22c55e 50%)" label="Marked &amp; Ans" count={counts.answeredMarked} />
                             <LegendItem bg="#ef4444" label="Not Answered" count={counts.notAnswered} />
                             <LegendItem bg="#9ca3af" label="Not Selected" count={0} isBox />
                         </div>
 
                         {/* Section Header */}
-                        <div className="px-4 py-2 bg-sky-50 dark:bg-sky-950/40 border-b border-sky-100 dark:border-sky-900">
+                        <div className="px-4 py-2 bg-sky-50 dark:bg-sky-950/40 border-b border-sky-100 dark:border-sky-900 shrink-0">
                             <span className="text-xs font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wide">
                                 SECTION : Test
                             </span>
                         </div>
 
                         {/* Question Numbers Grid (5 cols, scrollable) */}
-                        <div className="flex-1 overflow-y-auto p-3">
+                        <div className="flex-1 overflow-y-auto p-3" style={{ scrollbarWidth: "thin" }}>
                             <div className="grid grid-cols-5 gap-2">
                                 {questions.map((q, i) => {
                                     const a = attempts[q.id]
@@ -1623,9 +1677,9 @@ function Arena() {
                                             }}
                                             style={{
                                                 ...paletteStyle(st, isCur),
-                                                height: 38,
-                                                borderRadius: 6,
-                                                fontSize: 12,
+                                                minHeight: 44,
+                                                borderRadius: 8,
+                                                fontSize: 13,
                                                 fontWeight: 700,
                                                 display: "flex",
                                                 alignItems: "center",
@@ -1641,12 +1695,12 @@ function Arena() {
                             </div>
                         </div>
 
-                        {/* Drawer Footer Actions */}
+                        {/* Sheet Footer Actions */}
                         <div
                             style={{
                                 paddingBottom: "max(12px, env(safe-area-inset-bottom))"
                             }}
-                            className="p-3 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex flex-col gap-2"
+                            className="p-3 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex flex-col gap-2 shrink-0"
                         >
                             <div className="grid grid-cols-2 gap-2">
                                 <button
@@ -1654,9 +1708,9 @@ function Arena() {
                                         setIsMobilePaletteOpen(false)
                                         setShowQPaper(true)
                                     }}
-                                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-200"
+                                    className="min-h-[44px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer"
                                 >
-                                    <FileText className="w-3.5 h-3.5 text-gray-500" />
+                                    <FileText className="w-4 h-4 text-gray-500" />
                                     Paper
                                 </button>
                                 <button
@@ -1664,9 +1718,9 @@ function Arena() {
                                         setIsMobilePaletteOpen(false)
                                         setShowInstructionsModal(true)
                                     }}
-                                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-200"
+                                    className="min-h-[44px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer"
                                 >
-                                    <BookOpen className="w-3.5 h-3.5 text-gray-500" />
+                                    <BookOpen className="w-4 h-4 text-gray-500" />
                                     Instructions
                                 </button>
                             </div>
@@ -1675,7 +1729,7 @@ function Arena() {
                                     setIsMobilePaletteOpen(false)
                                     setShowSubmitModal(true)
                                 }}
-                                className="w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-sm"
+                                className="min-h-[44px] w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-sm flex items-center justify-center cursor-pointer"
                             >
                                 Submit Test
                             </button>
@@ -1686,27 +1740,27 @@ function Arena() {
 
             {/* ══ SUBMIT MODAL ═════════════════════════════════════ */}
             {showSubmitModal && (
-                <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.5)" }}>
-                    <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", boxShadow: "0 8px 32px rgba(0,0,0,0.15)", maxWidth: 360, width: "100%", padding: 24 }}>
+                <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", padding: 16 }}>
+                    <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 8px 32px rgba(0,0,0,0.15)", maxWidth: 380, width: "100%", padding: 24 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#fffbeb", border: "1px solid #fde68a", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <AlertTriangle style={{ width: 20, height: 20, color: "#f59e0b" }} />
+                            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#fffbeb", border: "1px solid #fde68a", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                <AlertTriangle style={{ width: 22, height: 22, color: "#f59e0b" }} />
                             </div>
                             <div>
-                                <div style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Are you sure you want to Submit?</div>
-                                <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>This action cannot be undone.</div>
+                                <div style={{ fontSize: 15, fontWeight: 700, color: "#111827" }}>Are you sure you want to Submit?</div>
+                                <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>This action will finalize your attempt.</div>
                             </div>
                         </div>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
                             {[
                                 { l: "Answered", v: counts.answered, bg: "#f0fdf4", c: "#16a34a" },
                                 { l: "Not Answered", v: counts.notAnswered, bg: "#fef2f2", c: "#dc2626" },
                                 { l: "Not Visited", v: counts.notVisited, bg: "#f9fafb", c: "#374151" },
                                 { l: "Marked", v: counts.marked + counts.answeredMarked, bg: "#faf5ff", c: "#7e22ce" },
                             ].map(item => (
-                                <div key={item.l} style={{ padding: "12px 8px", borderRadius: 8, background: item.bg, textAlign: "center" }}>
-                                    <div style={{ fontSize: 22, fontWeight: 700, color: item.c }}>{item.v}</div>
-                                    <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>{item.l}</div>
+                                <div key={item.l} style={{ padding: "12px 8px", borderRadius: 10, background: item.bg, textAlign: "center" }}>
+                                    <div style={{ fontSize: 22, fontWeight: 800, color: item.c }}>{item.v}</div>
+                                    <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2, fontWeight: 600 }}>{item.l}</div>
                                 </div>
                             ))}
                         </div>
@@ -1727,11 +1781,44 @@ function Arena() {
                             </div>
                         )}
                         <div style={{ display: "flex", gap: 10 }}>
-                            <button onClick={() => setShowSubmitModal(false)} style={{ flex: 1, padding: "10px 0", border: "1px solid #e5e7eb", borderRadius: 8, background: "#fff", fontSize: 13, fontWeight: 600, color: "#374151", cursor: "pointer" }}>
+                            <button onClick={() => setShowSubmitModal(false)} style={{ flex: 1, minHeight: 44, padding: "10px 0", border: "1px solid #e5e7eb", borderRadius: 10, background: "#fff", fontSize: 13, fontWeight: 700, color: "#374151", cursor: "pointer" }}>
                                 Continue Test
                             </button>
-                            <button onClick={handleSubmit} style={{ flex: 1, padding: "10px 0", border: "none", borderRadius: 8, background: "#ef4444", fontSize: 13, fontWeight: 700, color: "#fff", cursor: "pointer" }}>
+                            <button onClick={handleSubmit} style={{ flex: 1, minHeight: 44, padding: "10px 0", border: "none", borderRadius: 10, background: "#0d9488", fontSize: 13, fontWeight: 700, color: "#fff", cursor: "pointer" }}>
                                 Submit Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ══ EXIT CONFIRM MODAL (Back Navigation Prevention) ═════ */}
+            {showExitConfirmModal && (
+                <div style={{ position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", padding: 16 }}>
+                    <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 8px 32px rgba(0,0,0,0.2)", maxWidth: 380, width: "100%", padding: 24, textAlign: "center" }}>
+                        <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#fef3c7", color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
+                            <AlertTriangle style={{ width: 24, height: 24 }} />
+                        </div>
+                        <h3 style={{ fontSize: 16, fontWeight: 800, color: "#111827", margin: "0 0 6px" }}>Leave Examination?</h3>
+                        <p style={{ fontSize: 13, color: "#4b5563", lineHeight: 1.5, margin: "0 0 20px" }}>
+                            Your answers are saved on the server. Leaving the arena during a live test may record tab switch violations or cause you to run out of time.
+                        </p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                            <button
+                                onClick={() => setShowExitConfirmModal(false)}
+                                style={{ minHeight: 44, padding: "10px 0", borderRadius: 10, background: "#0284c7", color: "#fff", fontWeight: 700, fontSize: 14, border: "none", cursor: "pointer" }}
+                            >
+                                Stay &amp; Continue Test
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    setShowExitConfirmModal(false)
+                                    await safeExitFullscreen()
+                                    router.push(`/test-series/${seriesId}`)
+                                }}
+                                style={{ minHeight: 44, padding: "10px 0", borderRadius: 10, background: "#f3f4f6", color: "#6b7280", fontWeight: 600, fontSize: 13, border: "1px solid #d1d5db", cursor: "pointer" }}
+                            >
+                                Exit to Test Series
                             </button>
                         </div>
                     </div>
@@ -1740,25 +1827,29 @@ function Arena() {
 
             {/* ══ REPORT MODAL ═════════════════════════════════════ */}
             {showReportModal && (
-                <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.5)" }}>
-                    <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", boxShadow: "0 8px 32px rgba(0,0,0,0.15)", maxWidth: 360, width: "100%", padding: 20 }}>
+                <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.5)", padding: 16 }}>
+                    <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 8px 32px rgba(0,0,0,0.15)", maxWidth: 380, width: "100%", padding: 22 }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                             <span style={{ fontSize: 14, fontWeight: 700, color: "#111827", display: "flex", alignItems: "center", gap: 6 }}>
-                                <Flag style={{ width: 14, height: 14, color: "#ef4444" }} /> Report Question {currentQ + 1}
+                                <Flag style={{ width: 15, height: 15, color: "#ef4444" }} /> Report Question {currentQ + 1}
                             </span>
-                            <button onClick={() => setShowReportModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}>
-                                <X style={{ width: 16, height: 16 }} />
+                            <button
+                                onClick={() => setShowReportModal(false)}
+                                style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af", minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
+                                aria-label="Close report modal"
+                            >
+                                <X style={{ width: 18, height: 18 }} />
                             </button>
                         </div>
                         {["Wrong answer key", "Incorrect/Incomplete question", "Typo or Grammar error", "Image not displaying", "Other issue"].map(issue => (
-                            <label key={issue} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, cursor: "pointer" }}>
-                                <input type="checkbox" style={{ width: 15, height: 15, accentColor: "#0ea5e9" }} />
+                            <label key={issue} style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 44, cursor: "pointer", padding: "4px 0" }}>
+                                <input type="checkbox" style={{ width: 18, height: 18, accentColor: "#0ea5e9" }} />
                                 <span style={{ fontSize: 13, color: "#374151" }}>{issue}</span>
                             </label>
                         ))}
                         <button onClick={() => setShowReportModal(false)} style={{
-                            width: "100%", marginTop: 4, padding: "10px 0", borderRadius: 8,
-                            background: "#0ea5e9", color: "#fff", fontWeight: 700, fontSize: 13,
+                            width: "100%", marginTop: 8, minHeight: 44, borderRadius: 10,
+                            background: "#0ea5e9", color: "#fff", fontWeight: 700, fontSize: 14,
                             border: "none", cursor: "pointer"
                         }}>
                             Submit Report
@@ -1767,22 +1858,27 @@ function Arena() {
                 </div>
             )}
 
-            {/* ══ QUESTION PAPER MODAL ═════════════════════════════ */}
+            {/* ══ QUESTION PAPER MODAL (Responsive Sheet on mobile) ═════════════════════════ */}
             {showQPaper && (
-                <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.5)" }}>
-                    <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", boxShadow: "0 8px 32px rgba(0,0,0,0.15)", maxWidth: 680, width: "100%", maxHeight: "80vh", display: "flex", flexDirection: "column" }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: "1px solid #e5e7eb" }}>
-                            <span style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Question Paper</span>
-                            <button onClick={() => setShowQPaper(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}>
-                                <X style={{ width: 16, height: 16 }} />
+                <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", padding: 12 }}>
+                    <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 8px 32px rgba(0,0,0,0.2)", maxWidth: 680, width: "100%", maxHeight: "85dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: "1px solid #e5e7eb", flexShrink: 0 }}>
+                            <span style={{ fontSize: 15, fontWeight: 800, color: "#111827" }}>Question Paper</span>
+                            <button
+                                onClick={() => setShowQPaper(false)}
+                                style={{ background: "none", border: "none", cursor: "pointer", color: "#6b7280", minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
+                                aria-label="Close question paper"
+                            >
+                                <X style={{ width: 18, height: 18 }} />
                             </button>
                         </div>
-                        <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
+                        <div style={{ flex: 1, overflowY: "auto", padding: "16px 18px" }}>
                             {questions.map((q, i) => (
-                                <div key={q.id} style={{ paddingBottom: 12, marginBottom: 12, borderBottom: "1px solid #f3f4f6" }}>
+                                <div key={q.id} style={{ paddingBottom: 14, marginBottom: 14, borderBottom: "1px solid #f3f4f6" }}>
                                     <button onClick={() => { goTo(i); setShowQPaper(false) }}
-                                        style={{ textAlign: "left", width: "100%", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#374151", padding: 0 }}>
-                                        <strong style={{ color: "#9ca3af", marginRight: 6 }}>Q{i + 1}.</strong>{(viewLang === "Hindi" && q.textHi) ? q.textHi : q.text}
+                                        style={{ textAlign: "left", width: "100%", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#374151", padding: 0, minHeight: 44, display: "flex", alignItems: "flex-start", gap: 6 }}>
+                                        <strong style={{ color: "#0ea5e9", flexShrink: 0 }}>Q{i + 1}.</strong>
+                                        <span style={{ lineHeight: 1.5 }}>{(viewLang === "Hindi" && q.textHi) ? q.textHi : q.text}</span>
                                     </button>
                                 </div>
                             ))}
@@ -1791,20 +1887,24 @@ function Arena() {
                 </div>
             )}
 
-            {/* ══ INSTRUCTIONS MODAL ═══════════════════════════════ */}
+            {/* ══ INSTRUCTIONS MODAL (Responsive Sheet on mobile) ═════════════════════════ */}
             {showInstructionsModal && (
-                <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.5)" }}>
-                    <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e7eb", boxShadow: "0 8px 32px rgba(0,0,0,0.15)", maxWidth: 540, width: "90%", maxHeight: "80vh", display: "flex", flexDirection: "column" }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", borderBottom: "1px solid #e5e7eb" }}>
+                <div style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", padding: 12 }}>
+                    <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 8px 32px rgba(0,0,0,0.2)", maxWidth: 540, width: "100%", maxHeight: "85dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", borderBottom: "1px solid #e5e7eb", flexShrink: 0 }}>
                             <div className="flex items-center gap-2">
                                 <BookOpen className="w-4 h-4 text-sky-600" />
-                                <span style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Exam Instructions</span>
+                                <span style={{ fontSize: 15, fontWeight: 800, color: "#111827" }}>Exam Instructions</span>
                             </div>
-                            <button onClick={() => setShowInstructionsModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}>
-                                <X style={{ width: 16, height: 16 }} />
+                            <button
+                                onClick={() => setShowInstructionsModal(false)}
+                                style={{ background: "none", border: "none", cursor: "pointer", color: "#6b7280", minWidth: 44, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
+                                aria-label="Close instructions"
+                            >
+                                <X style={{ width: 18, height: 18 }} />
                             </button>
                         </div>
-                        <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px", fontSize: 13, color: "#374151", lineHeight: 1.6 }}>
+                        <div style={{ flex: 1, overflowY: "auto", padding: "16px 18px", fontSize: 13, color: "#374151", lineHeight: 1.6 }}>
                             <h4 className="font-bold text-gray-900 mb-2">General Instructions:</h4>
                             <ul className="list-disc pl-5 space-y-1.5 mb-4 text-xs text-gray-700">
                                 <li>The clock will be set at the server. The countdown timer at the top displays remaining time.</li>
@@ -1821,10 +1921,10 @@ function Arena() {
                                 <LegendItem bg="#ef4444" label="Not Answered" count={counts.notAnswered} />
                             </div>
                         </div>
-                        <div className="p-3 border-t border-gray-100 flex justify-end">
+                        <div className="p-3 border-t border-gray-100 flex justify-end shrink-0">
                             <button
                                 onClick={() => setShowInstructionsModal(false)}
-                                className="px-4 py-2 rounded-lg bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 transition"
+                                className="min-h-[44px] px-5 py-2 rounded-lg bg-sky-600 text-white text-xs font-bold hover:bg-sky-700 transition cursor-pointer"
                             >
                                 Got it
                             </button>
@@ -1939,7 +2039,7 @@ function Arena() {
 const DynamicArena = dynamic(() => Promise.resolve(Arena), {
     ssr: false,
     loading: () => (
-        <div style={{ height: "100vh", width: "100vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff", gap: 16, fontFamily: "sans-serif" }}>
+        <div style={{ height: "100dvh", width: "100%", maxWidth: "100vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff", gap: 16, fontFamily: "sans-serif" }}>
             <div style={{ width: 52, height: 52, border: "4px solid #0ea5e9", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
             <p style={{ fontSize: 15, fontWeight: 600, color: "#374151" }}>Preparing your exam...</p>
             <p style={{ fontSize: 12, color: "#9ca3af" }}>Loading questions, please wait</p>
@@ -1951,7 +2051,7 @@ const DynamicArena = dynamic(() => Promise.resolve(Arena), {
 export default function AttemptPage() {
     return (
         <Suspense fallback={
-            <div style={{ height: "100vh", width: "100vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff", gap: 16, fontFamily: "sans-serif" }}>
+            <div style={{ height: "100dvh", width: "100%", maxWidth: "100vw", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff", gap: 16, fontFamily: "sans-serif" }}>
                 <div style={{ width: 52, height: 52, border: "4px solid #0ea5e9", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
                 <p style={{ fontSize: 15, fontWeight: 600, color: "#374151" }}>Preparing your exam...</p>
                 <p style={{ fontSize: 12, color: "#9ca3af" }}>Loading questions, please wait</p>

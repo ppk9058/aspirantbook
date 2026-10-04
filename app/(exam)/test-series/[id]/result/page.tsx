@@ -452,7 +452,7 @@ function ResultContent() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", width: "100vw", background: "#f3f4f6", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'Inter', system-ui, sans-serif", gap: 16 }}>
+      <div style={{ minHeight: "100dvh", width: "100%", maxWidth: "100vw", background: "#f3f4f6", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'Inter', system-ui, sans-serif", gap: 16 }}>
         <div style={{ width: 52, height: 52, border: "4px solid #0ea5e9", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
         <p style={{ fontSize: 15, fontWeight: 700, color: "#374151" }}>Calculating and loading exam results...</p>
         <p style={{ fontSize: 12, color: "#6b7280" }}>Finalizing scoring and leaderboards...</p>
@@ -464,7 +464,7 @@ function ResultContent() {
   if (error || !serverResult) {
     const isPending = error?.includes("taking longer") || error?.includes("in progress")
     return (
-      <div style={{ minHeight: "100vh", width: "100vw", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <div style={{ minHeight: "100dvh", width: "100%", maxWidth: "100vw", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'Inter', system-ui, sans-serif" }}>
         <div style={{ maxWidth: 440, width: "100%", background: "#fff", borderRadius: 16, padding: 32, textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
           <div style={{ width: 48, height: 48, borderRadius: "50%", background: isPending ? "#fef3c7" : "#fee2e2", color: isPending ? "#d97706" : "#dc2626", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
             {isPending ? <Clock style={{ width: 28, height: 28 }} /> : <XCircle style={{ width: 28, height: 28 }} />}
@@ -598,8 +598,10 @@ function ResultContent() {
   return (
     <div
       style={{
-        minHeight: "100vh",
-        width: "100vw",
+        minHeight: "100dvh",
+        width: "100%",
+        maxWidth: "100%",
+        overflowX: "hidden",
         background: "#f3f4f6",
         fontFamily: "'Inter', system-ui, sans-serif",
         display: "flex",
@@ -618,19 +620,19 @@ function ResultContent() {
       {/* ══ TOP BAR ══════════════════════════════════════════════ */}
       <header
         style={{
-          height: 52,
+          minHeight: 52,
           flexShrink: 0,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 24px",
+          padding: "0 16px",
           borderBottom: "1px solid #e5e7eb",
           background: "#fff",
           boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
             <div
               style={{
                 width: 26,
@@ -644,15 +646,15 @@ function ResultContent() {
             >
               <span style={{ color: "#fff", fontSize: 9, fontWeight: 900 }}>TS</span>
             </div>
-            <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 15 }}>aspirantbook</span>
+            <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 14 }}>aspirantbook</span>
           </div>
-          <div style={{ width: 1, height: 20, background: "#e5e7eb", margin: "0 4px" }} />
+          <div style={{ width: 1, height: 18, background: "#e5e7eb", margin: "0 4px", flexShrink: 0 }} />
           <span
             style={{
               color: "#374151",
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 600,
-              maxWidth: 420,
+              maxWidth: 320,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -662,14 +664,16 @@ function ResultContent() {
           </span>
         </div>
         <div
+          className="hidden sm:inline-flex"
           style={{
-            padding: "4px 14px",
+            padding: "4px 12px",
             borderRadius: 20,
             background: "linear-gradient(90deg,#6366f1,#8b5cf6)",
             color: "#fff",
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: 700,
             letterSpacing: 0.5,
+            flexShrink: 0,
           }}
         >
           📊 Comprehensive Test Analytics
@@ -678,14 +682,14 @@ function ResultContent() {
 
       {/* ══ HERO RESULT CARD ═════════════════════════════════════ */}
       <div
+        className="px-4 py-5 sm:p-7"
         style={{
           background: "linear-gradient(135deg,#1e3a5f 0%,#1e40af 40%,#0ea5e9 100%)",
-          padding: "28px 24px 24px",
           color: "#fff",
           flexShrink: 0,
         }}
       >
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", width: "100%" }}>
           {/* Score Row */}
           <div
             style={{
@@ -828,14 +832,16 @@ function ResultContent() {
 
       {/* ══ SECTION TABS ═════════════════════════════════════════ */}
       <div
+        className="overflow-x-auto no-scrollbar"
         style={{
           background: "#fff",
           borderBottom: "1px solid #e5e7eb",
           display: "flex",
           alignItems: "center",
-          padding: "0 24px",
+          padding: "0 12px",
           gap: 4,
           flexShrink: 0,
+          whiteSpace: "nowrap",
         }}
       >
         {[
@@ -846,7 +852,8 @@ function ResultContent() {
             key={tab.key}
             onClick={() => setActiveSection(tab.key as typeof activeSection)}
             style={{
-              padding: "14px 20px",
+              padding: "12px 16px",
+              minHeight: 44,
               border: "none",
               background: "none",
               fontSize: 13,
@@ -855,6 +862,7 @@ function ResultContent() {
               color: activeSection === tab.key ? "#0ea5e9" : "#6b7280",
               borderBottom: activeSection === tab.key ? "3px solid #0ea5e9" : "3px solid transparent",
               transition: "all 0.15s",
+              whiteSpace: "nowrap",
             }}
           >
             {tab.label}
@@ -863,16 +871,9 @@ function ResultContent() {
       </div>
 
       {/* ══ MAIN CONTENT ═════════════════════════════════════════ */}
-      <div style={{ flex: 1, padding: "20px 24px", maxWidth: 1200, margin: "0 auto", width: "100%" }}>
+      <div className="flex-1 px-3 sm:px-6 py-4 sm:py-6 max-w-7xl mx-auto w-full">
         {activeSection === "analysis" && (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 20,
-              animation: "slideDown 0.3s ease",
-            }}
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-in fade-in duration-200">
             {/* ── LEFT COLUMN ──────────────────────────────────── */}
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               {/* Score Breakdown */}
@@ -1305,7 +1306,8 @@ function ResultContent() {
                 </div>
               </div>
 
-              <div style={{ overflowX: "auto" }}>
+              {/* Desktop / Tablet Table (>= 768px, md:block) */}
+              <div className="hidden md:block overflow-x-auto">
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                   <thead>
                     <tr style={{ background: "#f9fafb" }}>
@@ -1407,7 +1409,8 @@ function ResultContent() {
                           <button
                             onClick={() => setShowSolution(q)}
                             style={{
-                              padding: "5px 12px",
+                              padding: "6px 14px",
+                              minHeight: 36,
                               borderRadius: 8,
                               background: "#f0fdf4",
                               color: "#16a34a",
@@ -1425,6 +1428,43 @@ function ResultContent() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile Stacked Cards Layout (< 768px, block md:hidden) */}
+              <div className="block md:hidden p-3 space-y-3">
+                {pageQuestions.map((q) => (
+                  <div key={q.no} className="p-3.5 rounded-xl border border-gray-200 bg-white shadow-xs space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-gray-500">Q.{q.no}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 truncate max-w-[140px]">{q.subject}</span>
+                      </div>
+                      <div style={{ background: statusBg(q.status), color: statusColor(q.status) }} className="px-2.5 py-0.5 rounded-full text-xs font-extrabold flex items-center gap-1">
+                        <span>{statusIcon(q.status)}</span>
+                        <span className="capitalize">{q.status}</span>
+                      </div>
+                    </div>
+                    <p className="text-xs font-bold text-gray-800 line-clamp-3 leading-relaxed">{q.text}</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                      <div className="p-2 rounded-lg bg-gray-50 border border-gray-100">
+                        <div className="text-[10px] text-gray-400 font-bold uppercase">Your Ans</div>
+                        <div className="font-extrabold truncate" style={{ color: q.status === "correct" ? "#16a34a" : q.status === "wrong" ? "#dc2626" : "#6b7280" }}>
+                          {q.yourAnswer}
+                        </div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-emerald-50/60 border border-emerald-100">
+                        <div className="text-[10px] text-emerald-600 font-bold uppercase">Correct Ans</div>
+                        <div className="font-extrabold text-emerald-700 truncate">{q.correctAnswer}</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowSolution(q)}
+                      className="w-full min-h-[44px] py-2.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-bold text-xs flex items-center justify-center cursor-pointer transition-colors"
+                    >
+                      View Solution &amp; Explanation
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -1438,11 +1478,12 @@ function ResultContent() {
           zIndex: 100,
           background: "#fff",
           borderTop: "1px solid #e5e7eb",
-          padding: "12px 24px",
+          padding: "10px 16px",
+          paddingBottom: "max(12px, env(safe-area-inset-bottom))",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: 12,
+          gap: 10,
           flexWrap: "wrap",
           boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
         }}
@@ -1452,8 +1493,10 @@ function ResultContent() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "10px 24px",
+            justifyContent: "center",
+            gap: 6,
+            minHeight: 44,
+            padding: "10px 18px",
             borderRadius: 10,
             background: "#0ea5e9",
             color: "#fff",
@@ -1473,8 +1516,10 @@ function ResultContent() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "10px 24px",
+            justifyContent: "center",
+            gap: 6,
+            minHeight: 44,
+            padding: "10px 18px",
             borderRadius: 10,
             background: "#059669",
             color: "#fff",
@@ -1494,8 +1539,10 @@ function ResultContent() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "10px 24px",
+            justifyContent: "center",
+            gap: 6,
+            minHeight: 44,
+            padding: "10px 18px",
             borderRadius: 10,
             background: "#7c3aed",
             color: "#fff",
@@ -1507,7 +1554,7 @@ function ResultContent() {
           }}
         >
           <Trophy style={{ width: 15, height: 15 }} />
-          View All India Leaderboard
+          View Leaderboard
         </button>
 
         <button
@@ -1515,8 +1562,10 @@ function ResultContent() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "10px 24px",
+            justifyContent: "center",
+            gap: 6,
+            minHeight: 44,
+            padding: "10px 18px",
             borderRadius: 10,
             background: "#fff",
             color: "#374151",
@@ -1527,7 +1576,7 @@ function ResultContent() {
           }}
         >
           <ArrowLeft style={{ width: 15, height: 15 }} />
-          Back to Test Series
+          Back to Tests
         </button>
 
         <button
@@ -1535,8 +1584,10 @@ function ResultContent() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "10px 24px",
+            justifyContent: "center",
+            gap: 6,
+            minHeight: 44,
+            padding: "10px 18px",
             borderRadius: 10,
             background: "linear-gradient(135deg,#f97316,#ea580c)",
             color: "#fff",
@@ -1548,7 +1599,7 @@ function ResultContent() {
           }}
         >
           <Download style={{ width: 15, height: 15 }} />
-          Download Report (PDF)
+          Download PDF
         </button>
       </div>
 
@@ -1568,8 +1619,9 @@ export default function ResultPage() {
       fallback={
         <div
           style={{
-            height: "100vh",
-            width: "100vw",
+            height: "100dvh",
+            width: "100%",
+            maxWidth: "100vw",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",

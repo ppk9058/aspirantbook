@@ -54,3 +54,6 @@ data/doubts.json
 data/book-coupons.json
 public/uploads/
 scratch/
+screenshots/
+test-results/
+playwright-report/
