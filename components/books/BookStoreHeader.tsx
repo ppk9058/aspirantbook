@@ -31,7 +31,7 @@ export default function BookStoreHeader({
           href="/books"
           className="flex items-center gap-2.5 shrink-0 group focus:outline-none min-h-[44px]"
         >
-          <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center font-black text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-full bg-indigo-600 dark:bg-slate-900 text-white flex items-center justify-center font-black text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform">
             <span className="text-amber-400 font-serif text-base">T</span>S
           </div>
           <div className="hidden xs:flex flex-col">

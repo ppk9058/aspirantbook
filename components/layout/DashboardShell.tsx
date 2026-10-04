@@ -74,7 +74,7 @@ export default function DashboardShell({
     }, [])
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors w-full max-w-full overflow-x-hidden">
             {/* Header: Desktop always gets TopNavBar (>= 1024px); Mobile gets MobileAppHeader if flag on, else TopNavBar */}
             {!isVideoWatchPage && !isBooksPage && (
                 <>

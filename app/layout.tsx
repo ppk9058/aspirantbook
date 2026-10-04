@@ -26,7 +26,7 @@ export const viewport: Viewport = {
   ],
 }
 
-const themeInitScript = `(function(){try{var t=localStorage.getItem("ts_theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}}catch(e){}})();`
+const themeInitScript = `(function(){try{var t=localStorage.getItem("ts_theme");if(t==="dark"){document.documentElement.classList.add("dark")}else{document.documentElement.classList.remove("dark")}}catch(e){}})();`
 
 export default function RootLayout({
   children,

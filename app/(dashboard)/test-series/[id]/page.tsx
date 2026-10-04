@@ -296,7 +296,7 @@ export default function TestSeriesDetailPage() {
         }))
 
     return (
-        <div className="space-y-6 sm:space-y-8 pb-40 sm:pb-32 lg:pb-12">
+        <div className="w-full max-w-full min-w-0 overflow-x-hidden space-y-6 sm:space-y-8 pb-40 sm:pb-32 lg:pb-12">
             {/* Breadcrumb Navigation - hidden on mobile */}
             <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                 <Link href="/" className="hover:text-gray-900 dark:hover:text-white transition-colors">
@@ -591,9 +591,9 @@ export default function TestSeriesDetailPage() {
                                                             key={test.id}
                                                             className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${section.id === "teacher-tests" ? "bg-emerald-50/30 dark:bg-emerald-950/10 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/20" : "hover:bg-gray-50/40 dark:hover:bg-white/5"}`}
                                                         >
-                                                            <div className="space-y-1.5 flex-1">
+                                                            <div className="space-y-1.5 min-w-0 flex-1">
                                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                                                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white leading-snug break-words">
                                                                         {test.title}
                                                                     </h4>
                                                                     {isLocal ? (
@@ -707,12 +707,12 @@ export default function TestSeriesDetailPage() {
                                 href={item.href}
                                 className="block p-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#071d33] hover:shadow-md transition-all group"
                             >
-                                <div className="flex items-center justify-between gap-3">
-                                    <div className="space-y-1">
-                                        <h4 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#00A8FF] transition-colors leading-snug">
+                                <div className="flex items-center justify-between gap-3 min-w-0">
+                                    <div className="space-y-1 min-w-0 flex-1">
+                                        <h4 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#00A8FF] transition-colors leading-snug break-words">
                                             {item.title}
                                         </h4>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                             <span>{item.totalTests} Total Tests</span>
                                             <span className="mx-1.5">•</span>
                                             <span className={item.freeTests > 0 ? "text-emerald-700 dark:text-emerald-400 font-bold" : ""}>
