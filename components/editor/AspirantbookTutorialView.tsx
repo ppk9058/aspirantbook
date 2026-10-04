@@ -131,8 +131,21 @@ export function AspirantbookTutorialView({
                         fonts: { ...parsedTheme.fonts, ...(parsed.theme.fonts || {}) },
                     }
                 }
-                if (parsed.meta) {
-                    parsedMeta = { ...parsedMeta, ...parsed.meta }
+                if (parsed.meta && typeof parsed.meta === "object") {
+                    let metaStats = parsed.meta.stats
+                    if (metaStats && typeof metaStats === "object" && !Array.isArray(metaStats)) {
+                        metaStats = Object.entries(metaStats).map(([k, v]) => [String(k), String(v)])
+                    }
+                    let metaIncludes = parsed.meta.includes
+                    if (metaIncludes && !Array.isArray(metaIncludes)) {
+                        metaIncludes = typeof metaIncludes === "string" ? [metaIncludes] : []
+                    }
+                    parsedMeta = {
+                        ...parsedMeta,
+                        ...parsed.meta,
+                        ...(metaStats ? { stats: metaStats } : {}),
+                        ...(metaIncludes ? { includes: metaIncludes } : {}),
+                    }
                 }
             } catch (e) {
                 console.error("Failed to parse metadataJson:", e)
@@ -997,12 +1010,20 @@ export function AspirantbookTutorialView({
                                 style={{ color: cInk }}
                                 className="aspirantbook-head text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight"
                             >
-                                {currentLesson.title.replace(/^\d+\.\s*/, "")}
+                                {currentLesson.title ? currentLesson.title.replace(/^\d+\.\s*/, "") : "Lesson"}
                             </h2>
 
                             {/* Render lesson content using RoseraRenderer with exact theme colors */}
                             <div className="pt-2 text-base" style={{ color: cInk }}>
-                                <RoseraRenderer content={currentLesson.content} theme={theme} courseTitle={course.title} />
+                                {currentLesson.content && String(currentLesson.content).trim() ? (
+                                    <RoseraRenderer content={currentLesson.content} theme={theme} courseTitle={course.title} />
+                                ) : (
+                                    <div className="p-8 my-4 text-center rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50">
+                                        <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+                                            Lesson content is being finalized.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Bottom Actions Row: Mark Complete + Next Chapter */}

@@ -106,6 +106,34 @@ export interface RoseraBlock {
     [key: string]: any
 }
 
+export class BlockErrorBoundary extends React.Component<
+    { children: React.ReactNode; fallback?: React.ReactNode },
+    { hasError: boolean }
+> {
+    constructor(props: any) {
+        super(props)
+        this.state = { hasError: false }
+    }
+    static getDerivedStateFromError() {
+        return { hasError: true }
+    }
+    componentDidCatch(error: any) {
+        console.warn("RoseraBlock render error handled gracefully:", error)
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                this.props.fallback || (
+                    <div className="my-2 p-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/20 text-xs text-amber-800 dark:text-amber-200">
+                        Content preview unavailable for this block.
+                    </div>
+                )
+            )
+        }
+        return this.props.children
+    }
+}
+
 // Normalizes schema v1 blocks ({t: "h2", x: "...", k: "tip", ...}) to RoseraBlock
 function normalizeSchemaV1Block(b: any): RoseraBlock | null {
     if (!b || typeof b !== "object") return { type: "paragraph", content: String(b || "") }
@@ -220,26 +248,41 @@ export function parseRoseraBlocks(rawContent: string | any): RoseraBlock[] {
 
     // If already an array of blocks
     if (Array.isArray(rawContent)) {
-        return rawContent.map(normalizeSchemaV1Block).filter(Boolean) as RoseraBlock[]
+        return rawContent.map((b) => {
+            try { return normalizeSchemaV1Block(b) } catch { return null }
+        }).filter(Boolean) as RoseraBlock[]
     }
 
-    if (typeof rawContent === "object") {
+    if (rawContent && typeof rawContent === "object") {
         if (Array.isArray(rawContent.blocks)) {
-            return rawContent.blocks.map(normalizeSchemaV1Block).filter(Boolean) as RoseraBlock[]
+            return rawContent.blocks.map((b: any) => {
+                try { return normalizeSchemaV1Block(b) } catch { return null }
+            }).filter(Boolean) as RoseraBlock[]
         }
         return []
     }
 
     const trimmed = String(rawContent).trim()
+    if (!trimmed) return []
 
     // 1. Try parsing JSON format
     if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
         try {
             const parsed = JSON.parse(trimmed)
-            if (Array.isArray(parsed)) return parsed.map(normalizeSchemaV1Block).filter(Boolean) as RoseraBlock[]
-            if (Array.isArray(parsed.blocks)) return parsed.blocks.map(normalizeSchemaV1Block).filter(Boolean) as RoseraBlock[]
-            if (parsed.topics && Array.isArray(parsed.topics[0]?.blocks)) {
-                return parsed.topics[0].blocks.map(normalizeSchemaV1Block).filter(Boolean) as RoseraBlock[]
+            if (Array.isArray(parsed)) {
+                return parsed.map((b: any) => {
+                    try { return normalizeSchemaV1Block(b) } catch { return null }
+                }).filter(Boolean) as RoseraBlock[]
+            }
+            if (parsed && Array.isArray(parsed.blocks)) {
+                return parsed.blocks.map((b: any) => {
+                    try { return normalizeSchemaV1Block(b) } catch { return null }
+                }).filter(Boolean) as RoseraBlock[]
+            }
+            if (parsed && parsed.topics && Array.isArray(parsed.topics[0]?.blocks)) {
+                return parsed.topics[0].blocks.map((b: any) => {
+                    try { return normalizeSchemaV1Block(b) } catch { return null }
+                }).filter(Boolean) as RoseraBlock[]
             }
         } catch {
             // Not pure JSON, proceed to HTML / markdown block extractor
@@ -1181,8 +1224,8 @@ function RoseraQuizBlock({ quiz }: { quiz: RoseraQuiz }) {
 // -------------------------------------------------------------
 function RoseraTableBlock({ table }: { table: any }) {
     if (!table) return null
-    const headers = table.headers || []
-    const rows = table.rows || []
+    const headers = Array.isArray(table.headers) ? table.headers : (Array.isArray(table.h) ? table.h : [])
+    const rows = Array.isArray(table.rows) ? table.rows : (Array.isArray(table.r) ? table.r : [])
 
     const renderCellContent = (cell: string) => {
         if (!cell || typeof cell !== "string") return cell
@@ -1252,8 +1295,8 @@ function RoseraFlowBlock({ steps }: { steps: any[] }) {
         <div className="my-6 rounded-2xl border-2 border-[color:var(--rz-ink)] bg-[color:var(--rz-card)] p-5 shadow-[4px_4px_0px_var(--rz-ink)]">
             <div className="flex flex-wrap items-stretch justify-center gap-3 sm:gap-4">
                 {steps.map((s, idx) => {
-                    const title = Array.isArray(s) ? s[0] : s.title || s
-                    const desc = Array.isArray(s) ? s[1] : s.detail || s.desc || ""
+                    const title = Array.isArray(s) ? s[0] : (s && typeof s === "object" ? s.title || s.name || "Step" : s)
+                    const desc = Array.isArray(s) ? s[1] : (s && typeof s === "object" ? (s.detail || s.desc || "") : "")
                     return (
                         <React.Fragment key={idx}>
                             {idx > 0 && (
@@ -1286,9 +1329,9 @@ function RoseraInfographicBlock({ items }: { items: any[] }) {
     return (
         <div className="my-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {items.map((item, idx) => {
-                const icon = Array.isArray(item) ? item[0] : item.icon || "✦"
-                const title = Array.isArray(item) ? item[1] : item.title || ""
-                const desc = Array.isArray(item) ? item[2] : item.desc || item.detail || ""
+                const icon = Array.isArray(item) ? item[0] : (item && typeof item === "object" ? (item.icon || "✦") : "✦")
+                const title = Array.isArray(item) ? item[1] : (item && typeof item === "object" ? (item.title || "") : String(item || ""))
+                const desc = Array.isArray(item) ? item[2] : (item && typeof item === "object" ? (item.desc || item.detail || "") : "")
                 return (
                     <div
                         key={idx}
@@ -1310,10 +1353,11 @@ function RoseraInfographicBlock({ items }: { items: any[] }) {
 function RoseraChartBlock({ chart }: { chart: any }) {
     if (!chart) return null
     const title = chart.title || "Metrics"
-    const data: Array<[string, number]> = chart.d || chart.data || []
+    const rawData = Array.isArray(chart.d) ? chart.d : (Array.isArray(chart.data) ? chart.data : [])
+    const data: Array<[string, number]> = rawData.filter((r: any) => Array.isArray(r) && r.length >= 2 && typeof r[1] === "number" && !isNaN(r[1]))
     if (data.length === 0) return null
 
-    const maxVal = Math.max(...data.map((r) => r[1])) || 1
+    const maxVal = Math.max(...data.map((r) => r[1]), 1)
 
     return (
         <div className="my-6 bg-[color:var(--rz-card)] border-2 border-[color:var(--rz-ink)] rounded-2xl p-5 sm:p-6 shadow-[5px_5px_0px_var(--rz-primary)] space-y-3.5">
@@ -1685,133 +1729,141 @@ export function RoseraRenderer({
             {blocks.map((block, index) => {
                 const key = `rosera-block-${index}`
 
-                switch (block.type) {
-                    case "subheading":
-                        return (
-                            <RoseraSubheadingBlock
-                                key={key}
-                                content={block.content || ""}
-                                level={block.level || 2}
-                                style={block.style}
-                                accentColor={block.accentColor}
-                                bgColor={block.bgColor}
-                                textColor={block.textColor}
-                            />
-                        )
-
-                    case "callout":
-                        return (
-                            <RoseraCalloutBlock
-                                key={key}
-                                calloutType={block.calloutType}
-                                content={block.content || ""}
-                            />
-                        )
-
-                    case "code":
-                        return block.codeSnippet ? (
-                            <RoseraCodeBlock key={key} snippet={block.codeSnippet} />
-                        ) : null
-
-                    case "flow":
-                        if (block.steps && Array.isArray(block.steps) && block.steps.length > 0) {
-                            return <RoseraFlowBlock key={key} steps={block.steps} />
-                        }
-                        return block.diagramFlow || block.stages || block.nodes || block.rawSvg || block.rawHtml ? (
-                            <RoseraDiagramFlowBlock key={key} diagram={block.diagramFlow || block} />
-                        ) : null
-
-                    case "infographic":
-                        return <RoseraInfographicBlock key={key} items={block.items || []} />
-
-                    case "chart":
-                        return <RoseraChartBlock key={key} chart={block} />
-
-                    case "diagram":
-                    case "pipeline":
-                    case "architecture":
-                        return block.diagramFlow || block.stages || block.nodes || block.rawSvg || block.rawHtml ? (
-                            <RoseraDiagramFlowBlock key={key} diagram={block.diagramFlow || block} />
-                        ) : null
-
-                    case "quiz":
-                        return block.quiz ? (
-                            <RoseraQuizBlock key={key} quiz={block.quiz} />
-                        ) : null
-
-                    case "table":
-                    case "comparisonTable":
-                        return <RoseraTableBlock key={key} table={block.table || block} />
-
-                    case "html":
-                    case "rawHtml":
-                    case "embed":
-                        return <RoseraHtmlBlock key={key} content={block.content || block.html || ""} />
-
-                    case "tokenStream":
-                    case "tokenSimulator":
-                        return <RoseraTokenStreamBlock key={key} defaultText={block.content} />
-
-                    case "interactive":
-                    case "widget":
-                        return (
-                            <div
-                                key={key}
-                                className="my-6 rounded-2xl border-2 border-[color:var(--rz-primary)] bg-[color:var(--rz-card)] p-5 sm:p-6 shadow-[4px_4px_0px_var(--rz-primary)] space-y-2"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-[color:var(--rz-primary)] text-white">
-                                        ⚡ Interactive Tool
-                                    </span>
-                                    <h4 className="font-extrabold text-sm sm:text-base text-[color:var(--rz-ink)]">
-                                        {block.title || block.widget || "Interactive Simulation"}
-                                    </h4>
-                                </div>
-                                <p className="text-xs sm:text-sm text-[color:var(--rz-ink)] opacity-80 font-medium">
-                                    Active interactive sandbox available in web studio mode for <strong>{block.title || block.widget}</strong>.
-                                </p>
-                            </div>
-                        )
-
-                    case "image":
-                        return block.src ? (
-                            <div key={key} className="my-6 rounded-2xl overflow-hidden border-2 border-[color:var(--rz-ink)] bg-[color:var(--rz-card)] p-3 shadow-[4px_4px_0px_var(--rz-ink)]">
-                                <img
-                                    src={block.src}
-                                    alt={block.alt || "Lesson diagram"}
-                                    className="w-full h-auto max-h-[500px] object-contain rounded-xl"
+                const renderBlockContent = () => {
+                    switch (block.type) {
+                        case "subheading":
+                            return (
+                                <RoseraSubheadingBlock
+                                    key={key}
+                                    content={block.content || ""}
+                                    level={block.level || 2}
+                                    style={block.style}
+                                    accentColor={block.accentColor}
+                                    bgColor={block.bgColor}
+                                    textColor={block.textColor}
                                 />
-                                {block.caption && (
-                                    <p className="text-center text-xs font-bold text-[color:var(--rz-ink)] opacity-75 mt-2 italic">
-                                        {block.caption}
+                            )
+
+                        case "callout":
+                            return (
+                                <RoseraCalloutBlock
+                                    key={key}
+                                    calloutType={block.calloutType}
+                                    content={block.content || ""}
+                                />
+                            )
+
+                        case "code":
+                            return block.codeSnippet ? (
+                                <RoseraCodeBlock key={key} snippet={block.codeSnippet} />
+                            ) : null
+
+                        case "flow":
+                            if (block.steps && Array.isArray(block.steps) && block.steps.length > 0) {
+                                return <RoseraFlowBlock key={key} steps={block.steps} />
+                            }
+                            return block.diagramFlow || block.stages || block.nodes || block.rawSvg || block.rawHtml ? (
+                                <RoseraDiagramFlowBlock key={key} diagram={block.diagramFlow || block} />
+                            ) : null
+
+                        case "infographic":
+                            return <RoseraInfographicBlock key={key} items={block.items || []} />
+
+                        case "chart":
+                            return <RoseraChartBlock key={key} chart={block} />
+
+                        case "diagram":
+                        case "pipeline":
+                        case "architecture":
+                            return block.diagramFlow || block.stages || block.nodes || block.rawSvg || block.rawHtml ? (
+                                <RoseraDiagramFlowBlock key={key} diagram={block.diagramFlow || block} />
+                            ) : null
+
+                        case "quiz":
+                            return block.quiz ? (
+                                <RoseraQuizBlock key={key} quiz={block.quiz} />
+                            ) : null
+
+                        case "table":
+                        case "comparisonTable":
+                            return <RoseraTableBlock key={key} table={block.table || block} />
+
+                        case "html":
+                        case "rawHtml":
+                        case "embed":
+                            return <RoseraHtmlBlock key={key} content={block.content || block.html || ""} />
+
+                        case "tokenStream":
+                        case "tokenSimulator":
+                            return <RoseraTokenStreamBlock key={key} defaultText={block.content} />
+
+                        case "interactive":
+                        case "widget":
+                            return (
+                                <div
+                                    key={key}
+                                    className="my-6 rounded-2xl border-2 border-[color:var(--rz-primary)] bg-[color:var(--rz-card)] p-5 sm:p-6 shadow-[4px_4px_0px_var(--rz-primary)] space-y-2"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-[color:var(--rz-primary)] text-white">
+                                            ⚡ Interactive Tool
+                                        </span>
+                                        <h4 className="font-extrabold text-sm sm:text-base text-[color:var(--rz-ink)]">
+                                            {block.title || block.widget || "Interactive Simulation"}
+                                        </h4>
+                                    </div>
+                                    <p className="text-xs sm:text-sm text-[color:var(--rz-ink)] opacity-80 font-medium">
+                                        Active interactive sandbox available in web studio mode for <strong>{block.title || block.widget}</strong>.
                                     </p>
-                                )}
-                            </div>
-                        ) : null
+                                </div>
+                            )
 
-                    case "list":
-                        return Array.isArray(block.items) && block.items.length > 0 ? (
-                            <ul key={key} className="my-3 space-y-2 list-disc list-inside text-sm text-[color:var(--rz-ink)]">
-                                {block.items.map((item: any, i: number) => (
-                                    <li key={i} className="leading-relaxed">
-                                        <span dangerouslySetInnerHTML={{ __html: inlineFmt(item) }} />
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : null
+                        case "image":
+                            return block.src ? (
+                                <div key={key} className="my-6 rounded-2xl overflow-hidden border-2 border-[color:var(--rz-ink)] bg-[color:var(--rz-card)] p-3 shadow-[4px_4px_0px_var(--rz-ink)]">
+                                    <img
+                                        src={block.src}
+                                        alt={block.alt || "Lesson diagram"}
+                                        className="w-full h-auto max-h-[500px] object-contain rounded-xl"
+                                    />
+                                    {block.caption && (
+                                        <p className="text-center text-xs font-bold text-[color:var(--rz-ink)] opacity-75 mt-2 italic">
+                                            {block.caption}
+                                        </p>
+                                    )}
+                                </div>
+                            ) : null
 
-                    case "paragraph":
-                        return (
-                            <RoseraParagraphBlock
-                                key={key}
-                                content={block.content || ""}
-                            />
-                        )
+                        case "list":
+                            return Array.isArray(block.items) && block.items.length > 0 ? (
+                                <ul key={key} className="my-3 space-y-2 list-disc list-inside text-sm text-[color:var(--rz-ink)]">
+                                    {block.items.map((item: any, i: number) => (
+                                        <li key={i} className="leading-relaxed">
+                                            <span dangerouslySetInnerHTML={{ __html: inlineFmt(item) }} />
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : null
 
-                    default:
-                        // Fluid adaptive fallback - never breaks or discards unknown LLM blocks
-                        return <RoseraAdaptiveBlock key={key} block={block} />
+                        case "paragraph":
+                            return (
+                                <RoseraParagraphBlock
+                                    key={key}
+                                    content={block.content || ""}
+                                />
+                            )
+
+                        default:
+                            // Fluid adaptive fallback - never breaks or discards unknown LLM blocks
+                            return <RoseraAdaptiveBlock key={key} block={block} />
+                    }
                 }
+
+                return (
+                    <BlockErrorBoundary key={key}>
+                        {renderBlockContent()}
+                    </BlockErrorBoundary>
+                )
             })}
         </div>
     )

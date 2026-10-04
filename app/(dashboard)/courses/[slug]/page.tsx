@@ -12,8 +12,8 @@ import { unstable_cache } from "next/cache"
 
 const getCachedCourseBySlug = unstable_cache(
     async (slug: string) => {
-        return prisma.course.findUnique({
-            where: { slug },
+        return prisma.course.findFirst({
+            where: { OR: [{ slug }, { id: slug }] },
             include: {
                 chapters: {
                     orderBy: { order: "asc" },

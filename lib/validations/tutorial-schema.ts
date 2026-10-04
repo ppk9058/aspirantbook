@@ -43,8 +43,13 @@ export const MetaSchema = z.object({
   intro: z.string().optional(),
   rating: z.union([z.string(), z.number()]).optional(),
   learners: z.string().optional(),
-  includes: z.array(z.string()).optional(),
-  stats: z.array(z.tuple([z.string(), z.string()])).optional(),
+  includes: z.union([z.array(z.string()), z.string().transform((s) => [s])]).optional(),
+  stats: z
+    .union([
+      z.array(z.tuple([z.string(), z.string()])),
+      z.record(z.string(), z.any()).transform((rec) => Object.entries(rec).map(([k, v]) => [String(k), String(v)] as [string, string])),
+    ])
+    .optional(),
 }).passthrough()
 
 export const ChapterItemSchema = z.object({
@@ -52,7 +57,7 @@ export const ChapterItemSchema = z.object({
   title: z.string().min(1, "Chapter/Lesson title is required"),
   soon: z.union([z.boolean(), z.number()]).optional(),
   order: z.number().optional(),
-  blocks: z.array(z.any()).optional().default([]),
+  blocks: z.array(z.any()).nullish().transform((b) => b || []).default([]),
 }).passthrough()
 
 export const PhaseItemSchema = z.object({
