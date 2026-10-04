@@ -10,21 +10,23 @@ async function run() {
     const page = await context.newPage()
 
     try {
-        // Test 1: Verify Razorpay script preload in root layout
-        console.log("\n[Test 1] Verifying Razorpay checkout script & preconnect in RootLayout...")
-        await page.goto("http://localhost:3000/", { waitUntil: "domcontentloaded" })
+        // Test 1: Verify Razorpay script and preconnect on checkout page (moved from root layout as per Part A item 5)
+        console.log("\n[Test 1] Verifying Razorpay checkout script & preconnect on /checkout...")
+        await page.goto("http://localhost:3000/checkout", { waitUntil: "networkidle" })
         
+        await page.waitForSelector("link[href='https://checkout.razorpay.com']", { state: "attached", timeout: 10000 })
         const preconnect = await page.$("link[href='https://checkout.razorpay.com']")
         if (!preconnect) {
-            throw new Error("Missing preconnect or dns-prefetch for checkout.razorpay.com in head")
+            throw new Error("Missing preconnect or dns-prefetch for checkout.razorpay.com on /checkout")
         }
-        console.log("✔ Razorpay preconnect found in DOM head")
+        console.log("✔ Razorpay preconnect found on /checkout")
 
+        await page.waitForSelector("script[src*='checkout.razorpay.com']", { state: "attached", timeout: 10000 })
         const razorpayScript = await page.$("script[src*='checkout.razorpay.com']")
         if (!razorpayScript) {
-            throw new Error("Missing Razorpay checkout.js script in DOM")
+            throw new Error("Missing Razorpay checkout.js script on /checkout")
         }
-        console.log("✔ Razorpay checkout.js script successfully rendered via next/script lazyOnload")
+        console.log("✔ Razorpay checkout.js script successfully rendered on /checkout")
 
         // Test 2: Verify /pricing page CTA
         console.log("\n[Test 2] Verifying /pricing page CTA...")

@@ -213,13 +213,13 @@ export default async function SubscriptionPage() {
 
                                     {/* Limitations */}
                                     {plan.limitations.length > 0 && (
-                                        <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                        <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
                                             {plan.limitations.map((limitation, index) => (
-                                                <div key={index} className="flex items-start gap-2.5 opacity-60">
-                                                    <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center shrink-0 mt-0.5">
-                                                        <X className="h-3 w-3 stroke-[2.5]" />
+                                                <div key={index} className="flex items-start gap-2.5">
+                                                    <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0 mt-0.5">
+                                                        <X className="h-3.5 w-3.5 stroke-[2.5]" />
                                                     </div>
-                                                    <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-snug">
+                                                    <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-snug font-medium">
                                                         {limitation}
                                                     </span>
                                                 </div>
