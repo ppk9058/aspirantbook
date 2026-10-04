@@ -99,23 +99,28 @@ export async function POST(request: NextRequest) {
                     })
                 }
 
-                // Record payment
-                await prisma.payment.create({
-                    data: {
-                        userId: user.id,
-                        amount: course.price ?? 0,
-                        currency: "INR",
-                        status: "COMPLETED",
-                        paymentProvider: "razorpay",
-                        externalId: paymentId,
-                        metadata: {
-                            orderId,
-                            courseId: course.id,
-                            courseTitle: course.title,
-                            courseSlug: course.slug,
-                        },
-                    },
+                // Record payment idempotently
+                const existingPayment = await prisma.payment.findFirst({
+                    where: { externalId: paymentId },
                 })
+                if (!existingPayment) {
+                    await prisma.payment.create({
+                        data: {
+                            userId: user.id,
+                            amount: course.price ?? 0,
+                            currency: "INR",
+                            status: "COMPLETED",
+                            paymentProvider: "razorpay",
+                            externalId: paymentId,
+                            metadata: {
+                                orderId,
+                                courseId: course.id,
+                                courseTitle: course.title,
+                                courseSlug: course.slug,
+                            },
+                        },
+                    })
+                }
 
                 // Determine and set platform goal for the enrolled category
                 const goalId = getGoalForCourse(course)
@@ -155,32 +160,45 @@ export async function POST(request: NextRequest) {
             endDate.setFullYear(endDate.getFullYear() + 1)
         }
 
-        await prisma.subscription.create({
-            data: {
-                userId: user.id,
-                plan: effectivePlan,
-                status: "ACTIVE",
-                provider: "RAZORPAY",
-                providerId: paymentId,
-                startDate,
-                endDate,
-            },
+        // Check for existing subscription
+        let subscription = await prisma.subscription.findFirst({
+            where: { providerId: paymentId },
         })
 
-        await prisma.payment.create({
-            data: {
-                userId: user.id,
-                amount: effectivePlan === "MONTHLY" ? 499 : 4999,
-                currency: "INR",
-                status: "COMPLETED",
-                paymentProvider: "razorpay",
-                externalId: paymentId,
-                metadata: {
-                    orderId,
+        if (!subscription) {
+            subscription = await prisma.subscription.create({
+                data: {
+                    userId: user.id,
                     plan: effectivePlan,
+                    status: "ACTIVE",
+                    provider: "RAZORPAY",
+                    providerId: paymentId,
+                    startDate,
+                    endDate,
                 },
-            },
+            })
+        }
+
+        const existingSubPayment = await prisma.payment.findFirst({
+            where: { externalId: paymentId },
         })
+
+        if (!existingSubPayment) {
+            await prisma.payment.create({
+                data: {
+                    userId: user.id,
+                    amount: effectivePlan === "MONTHLY" ? 499 : 4999,
+                    currency: "INR",
+                    status: "COMPLETED",
+                    paymentProvider: "razorpay",
+                    externalId: paymentId,
+                    metadata: {
+                        orderId,
+                        plan: effectivePlan,
+                    },
+                },
+            })
+        }
 
         await prisma.user.update({
             where: { id: user.id },

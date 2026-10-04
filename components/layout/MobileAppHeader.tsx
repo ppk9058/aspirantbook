@@ -6,6 +6,7 @@ import { Menu, Search, Bell } from "lucide-react"
 import { useSession } from "next-auth/react"
 import MobileDrawer from "@/components/layout/MobileDrawer"
 import MobileProfileSheet from "@/components/layout/MobileProfileSheet"
+import { getDashboardHref } from "@/lib/auth/roles"
 
 interface MobileAppHeaderProps {
     hasActivePass?: boolean
@@ -16,6 +17,8 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isProfileOpen, setIsProfileOpen] = useState(false)
     const [unreadCount, setUnreadCount] = useState(0)
+
+    const homeHref = getDashboardHref(session?.user?.role, !!session?.user)
 
     // Language switcher wired to real localStorage preference
     const [contentLang, setContentLang] = useState<"EN" | "HI">("EN")
@@ -52,7 +55,7 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                             <Menu className="h-5 w-5" />
                         </button>
 
-                        <Link href="/dashboard" className="flex items-center gap-1.5 min-w-0 focus-visible:ring-2 focus-visible:ring-teal-500 rounded-lg">
+                        <Link href={homeHref} className="flex items-center gap-1.5 min-w-0 focus-visible:ring-2 focus-visible:ring-teal-500 rounded-lg">
                             <div className="w-7 h-7 flex-shrink-0 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-lg flex items-center justify-center shadow-xs">
                                 <span className="text-white font-extrabold text-sm">T</span>
                             </div>

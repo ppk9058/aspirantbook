@@ -32,3 +32,18 @@ export function normalizeAppRole(rawRole?: string | null): AppRole {
   // FREE, PREMIUM, STUDENT all map to STUDENT with entitlement-based access
   return "STUDENT"
 }
+
+/**
+ * Returns role-specific dashboard link:
+ * - ADMIN -> /teacher (or /admin)
+ * - TEACHER -> /teacher
+ * - STUDENT -> /dashboard
+ * - logged-out (no role) -> /
+ */
+export function getDashboardHref(rawRole?: string | null, isAuthenticated: boolean = true): string {
+  if (!isAuthenticated) return "/"
+  const role = normalizeAppRole(rawRole)
+  if (role === "ADMIN" || role === "TEACHER") return "/teacher"
+  return "/dashboard"
+}
+

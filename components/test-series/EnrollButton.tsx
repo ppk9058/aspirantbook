@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { CheckCheck, Plus, Loader2, ShieldCheck } from "lucide-react"
+import { CheckCheck, Plus, Loader2, ShieldCheck, ArrowRight } from "lucide-react"
 
 interface EnrollButtonProps {
     seriesId: string          // slug or id
@@ -89,15 +89,17 @@ export default function EnrollButton({
     if (enrolled) {
         return (
             <button
-                disabled
-                className={`rounded-xl font-extrabold flex items-center justify-center gap-2 bg-emerald-700 text-white cursor-default ${sizeClasses[size]} ${className}`}
-                aria-label="Already enrolled"
+                onClick={() => router.push("/my-tests")}
+                className={`rounded-xl font-extrabold flex items-center justify-center gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer transition-all active:scale-[0.98] shadow-md ${sizeClasses[size]} ${className}`}
+                aria-label="View in My Tests"
             >
                 <CheckCheck className="w-4 h-4 stroke-[2.5]" />
-                Enrolled
+                <span>My Tests</span>
+                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
         )
     }
+
 
     return (
         <button

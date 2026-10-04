@@ -72,64 +72,84 @@ export default async function PricingPage() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
                     {plans.map((plan) => (
                         <Card
                             key={plan.name}
-                            className={`relative ${plan.name === "PREMIUM" ? "border-purple-500 border-2 shadow-xl" : "shadow-md"}`}
+                            className={`relative bg-white dark:bg-slate-900 border-2 rounded-3xl transition-all duration-300 flex flex-col justify-between overflow-hidden ${
+                                plan.name === "PREMIUM"
+                                    ? "border-teal-500/80 dark:border-teal-400 shadow-xl shadow-teal-500/10 ring-2 ring-teal-500/20"
+                                    : "border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700"
+                            }`}
                         >
                             {plan.name === "PREMIUM" && (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                                    <Badge className="bg-purple-600 text-white px-4 py-1 text-sm">
-                                        Most Popular
-                                    </Badge>
+                                <div className="absolute top-0 right-0 left-0 bg-gradient-to-r from-teal-600 via-emerald-600 to-indigo-600 py-1.5 px-4 text-center">
+                                    <span className="text-white font-black tracking-wider uppercase text-[11px] flex items-center justify-center gap-1.5">
+                                        <Crown className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+                                        Recommended • Complete All-Access Pass
+                                    </span>
                                 </div>
                             )}
 
-                            <CardHeader className="text-center pt-8">
-                                <CardTitle>
-                                    <div className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</div>
-                                    <div className="flex items-baseline justify-center gap-1 mb-2">
-                                        <span className="text-5xl font-bold text-gray-900">{plan.price}</span>
-                                        <span className="text-gray-600">{plan.period}</span>
+                            <CardHeader className={`text-center pb-4 ${plan.name === "PREMIUM" ? "pt-9 sm:pt-10 bg-gradient-to-b from-teal-50/50 to-transparent dark:from-teal-950/20" : "pt-7"}`}>
+                                <CardTitle className="text-center">
+                                    <div className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">
+                                        {plan.name === "PREMIUM" ? "Pro Learner" : "Starter"}
                                     </div>
-                                    <p className="text-sm text-gray-500 font-normal">
+                                    <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2">
+                                        {plan.name} PASS
+                                    </div>
+                                    <div className="flex items-baseline justify-center gap-1 mb-2">
+                                        <span className={`text-4xl sm:text-5xl font-black tracking-tight ${plan.name === "PREMIUM" ? "text-teal-700 dark:text-teal-400" : "text-slate-900 dark:text-white"}`}>
+                                            {plan.price}
+                                        </span>
+                                        <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-bold">
+                                            /{plan.period}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-normal">
                                         {plan.description}
                                     </p>
                                 </CardTitle>
                             </CardHeader>
 
-                            <CardContent>
-                                <div className="space-y-6">
-                                    <div className="space-y-3">
+                            <CardContent className="space-y-6 flex-1 flex flex-col justify-between pt-2">
+                                <div className="space-y-4">
+                                    <div className="space-y-2.5">
                                         {plan.features.map((feature, index) => (
-                                            <div key={index} className="flex items-start gap-3">
-                                                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center mt-0.5">
-                                                    <Check className="h-3 w-3 text-green-600" />
+                                            <div key={index} className="flex items-start gap-2.5">
+                                                <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5">
+                                                    <Check className="h-3.5 w-3.5 stroke-[2.5]" />
                                                 </div>
-                                                <span className="text-gray-700">{feature}</span>
+                                                <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-snug font-medium">
+                                                    {feature}
+                                                </span>
                                             </div>
                                         ))}
                                         {plan.limitations.map((limitation, index) => (
-                                            <div key={index} className="flex items-start gap-3 opacity-50">
-                                                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 flex items-center justify-center mt-0.5">
-                                                    <X className="h-3 w-3 text-red-600" />
+                                            <div key={index} className="flex items-start gap-2.5 opacity-60">
+                                                <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center shrink-0 mt-0.5">
+                                                    <X className="h-3 w-3 stroke-[2.5]" />
                                                 </div>
-                                                <span className="text-gray-700">{limitation}</span>
+                                                <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-snug">
+                                                    {limitation}
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
+                                </div>
 
-                                    <Link href={plan.buttonLink} className="block">
+                                <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                                    <Link href={plan.buttonLink} className="block w-full">
                                         <Button
-                                            className={`w-full h-12 text-lg ${plan.name === "PREMIUM"
-                                                    ? "bg-purple-600 hover:bg-purple-700"
-                                                    : ""
-                                                }`}
-                                            variant={plan.variant}
+                                            className={`w-full min-h-[48px] rounded-2xl font-black text-sm transition-all cursor-pointer ${
+                                                plan.name === "PREMIUM"
+                                                    ? "bg-gradient-to-r from-teal-600 hover:from-teal-700 to-emerald-600 hover:to-emerald-700 text-white shadow-lg shadow-teal-500/25"
+                                                    : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
+                                            }`}
                                             disabled={plan.name === "FREE" && !!user}
                                         >
-                                            {plan.name === "PREMIUM" && <Crown className="mr-2 h-5 w-5" />}
+                                            {plan.name === "PREMIUM" && <Crown className="mr-2 h-4 w-4 fill-amber-300 text-amber-300" />}
                                             {plan.buttonText}
                                         </Button>
                                     </Link>
@@ -138,6 +158,7 @@ export default async function PricingPage() {
                         </Card>
                     ))}
                 </div>
+
 
                 <div className="mt-12 text-center">
                     <p className="text-gray-600">

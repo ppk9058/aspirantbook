@@ -36,6 +36,7 @@ import {
     TestSeriesItem
 } from "@/lib/test-series-data"
 import EnrollButton from "@/components/test-series/EnrollButton"
+import { useGoal } from "@/components/providers/GoalProvider"
 
 interface TestItem {
     id: string
@@ -62,6 +63,7 @@ export default function TestSeriesDetailPage() {
     const router = useRouter()
     const seriesId = (params?.id as string) || "bpsc-72nd-2026"
     const { data: session } = useSession()
+    const { selectedGoal } = useGoal()
     const canCreate =
         session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
 
@@ -284,8 +286,18 @@ export default function TestSeriesDetailPage() {
 
     const testSections: TestSection[] = getDefaultTestSectionsForSeries(seriesId)
 
+    const userGoalKey = (selectedGoal?.id || "").toLowerCase()
     const moreTestSeries = (allSeriesList.length > 0 ? allSeriesList : TEST_SERIES_DATA)
         .filter((s) => s.id !== currentSeries.id && (s.slug ? s.slug !== seriesId : true))
+        .sort((a, b) => {
+            const aCat = (a.category || "").toLowerCase()
+            const bCat = (b.category || "").toLowerCase()
+            const aMatches = aCat.includes(userGoalKey) || userGoalKey.includes(aCat)
+            const bMatches = bCat.includes(userGoalKey) || userGoalKey.includes(bCat)
+            if (aMatches && !bMatches) return -1
+            if (!aMatches && bMatches) return 1
+            return 0
+        })
         .slice(0, 4)
         .map((s) => ({
             id: s.id,
@@ -694,39 +706,42 @@ export default function TestSeriesDetailPage() {
                     </div>
                 </div>
 
-                {/* Right Sidebar: "More Testseries for you" (Exact Screenshot Right Panel) */}
-                <div className="lg:col-span-4 space-y-4">
-                    <h3 className="text-base font-black text-gray-900 dark:text-white tracking-tight">
-                        More Testseries for you
-                    </h3>
+                {/* Right Sidebar: "More Testseries for you" (Real Published Series not yet enrolled) */}
+                {moreTestSeries.length > 0 && (
+                    <div className="lg:col-span-4 space-y-4">
+                        <h3 className="text-base font-black text-gray-900 dark:text-white tracking-tight">
+                            More Testseries for you
+                        </h3>
 
-                    <div className="space-y-3">
-                        {moreTestSeries.map((item) => (
-                            <Link
-                                key={item.id}
-                                href={item.href}
-                                className="block p-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#071d33] hover:shadow-md transition-all group"
-                            >
-                                <div className="flex items-center justify-between gap-3 min-w-0">
-                                    <div className="space-y-1 min-w-0 flex-1">
-                                        <h4 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#00A8FF] transition-colors leading-snug break-words">
-                                            {item.title}
-                                        </h4>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                            <span>{item.totalTests} Total Tests</span>
-                                            <span className="mx-1.5">•</span>
-                                            <span className={item.freeTests > 0 ? "text-emerald-700 dark:text-emerald-400 font-bold" : ""}>
-                                                {item.freeTests} Free Tests
-                                            </span>
-                                        </p>
+                        <div className="space-y-3">
+                            {moreTestSeries.map((item) => (
+                                <Link
+                                    key={item.id}
+                                    href={item.href}
+                                    className="block p-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#071d33] hover:shadow-md transition-all group"
+                                >
+                                    <div className="flex items-center justify-between gap-3 min-w-0">
+                                        <div className="space-y-1 min-w-0 flex-1">
+                                            <h4 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#00A8FF] transition-colors leading-snug break-words">
+                                                {item.title}
+                                            </h4>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                <span>{item.totalTests} Total Tests</span>
+                                                <span className="mx-1.5">•</span>
+                                                <span className={item.freeTests > 0 ? "text-emerald-700 dark:text-emerald-400 font-bold" : ""}>
+                                                    {item.freeTests} Free Tests
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-sky-600 transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
                                     </div>
-                                    <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-sky-600 transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
-                                </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
+
 
             {/* Test Simulation / Start Test Dialog */}
             {selectedTestToAttempt && (

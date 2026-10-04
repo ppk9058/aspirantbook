@@ -157,46 +157,54 @@ export default async function SubscriptionPage() {
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-4 sm:mb-6">
                     Choose Your Plan
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
                     {plans.map((plan) => (
                         <Card
                             key={plan.name}
-                            className={`relative bg-white dark:bg-slate-900 border rounded-2xl shadow-xs ${
+                            className={`relative bg-white dark:bg-slate-900 border-2 rounded-3xl transition-all duration-300 flex flex-col justify-between overflow-hidden ${
                                 plan.name === "PREMIUM"
-                                    ? "border-purple-500 dark:border-purple-500 shadow-purple-500/5 ring-1 ring-purple-500/20"
-                                    : "border-slate-200 dark:border-slate-800"
+                                    ? "border-teal-500/80 dark:border-teal-400 shadow-xl shadow-teal-500/10 ring-2 ring-teal-500/20"
+                                    : "border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700"
                             }`}
                         >
                             {plan.name === "PREMIUM" && (
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                    <Badge className="bg-purple-600 text-white font-extrabold px-3 py-0.5 text-xs shadow-xs">
-                                        Most Popular
-                                    </Badge>
+                                <div className="absolute top-0 right-0 left-0 bg-gradient-to-r from-teal-600 via-emerald-600 to-indigo-600 py-1.5 px-4 text-center">
+                                    <span className="text-white font-black tracking-wider uppercase text-[11px] flex items-center justify-center gap-1.5">
+                                        <Crown className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+                                        Recommended • Complete All-Access Pass
+                                    </span>
                                 </div>
                             )}
 
-                            <CardHeader className="text-center pt-7 sm:pt-6">
+                            <CardHeader className={`text-center pb-4 ${plan.name === "PREMIUM" ? "pt-9 sm:pt-10 bg-gradient-to-b from-teal-50/50 to-transparent dark:from-teal-950/20" : "pt-6"}`}>
                                 <CardTitle className="text-center">
-                                    <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-1">
-                                        {plan.name}
+                                    <div className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">
+                                        {plan.name === "PREMIUM" ? "Pro Learner" : "Starter"}
                                     </div>
-                                    <div className="text-3xl sm:text-4xl font-black text-purple-600 dark:text-purple-400 mb-1">
-                                        {plan.price}
+                                    <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2">
+                                        {plan.name} PASS
                                     </div>
-                                    <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-                                        {plan.period}
+                                    <div className="flex items-baseline justify-center gap-1">
+                                        <span className={`text-4xl sm:text-5xl font-black tracking-tight ${plan.name === "PREMIUM" ? "text-teal-700 dark:text-teal-400" : "text-slate-900 dark:text-white"}`}>
+                                            {plan.price}
+                                        </span>
+                                        <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-bold">
+                                            /{plan.period}
+                                        </span>
                                     </div>
                                 </CardTitle>
                             </CardHeader>
 
-                            <CardContent className="space-y-6">
+                            <CardContent className="space-y-6 flex-1 flex flex-col justify-between pt-2">
                                 <div className="space-y-4">
                                     {/* Features */}
                                     <div className="space-y-2.5">
                                         {plan.features.map((feature, index) => (
                                             <div key={index} className="flex items-start gap-2.5">
-                                                <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                                                <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-snug">
+                                                <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5">
+                                                    <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+                                                </div>
+                                                <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-snug font-medium">
                                                     {feature}
                                                 </span>
                                             </div>
@@ -205,10 +213,12 @@ export default async function SubscriptionPage() {
 
                                     {/* Limitations */}
                                     {plan.limitations.length > 0 && (
-                                        <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                        <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                                             {plan.limitations.map((limitation, index) => (
-                                                <div key={index} className="flex items-start gap-2.5">
-                                                    <X className="h-4 w-4 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
+                                                <div key={index} className="flex items-start gap-2.5 opacity-60">
+                                                    <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center shrink-0 mt-0.5">
+                                                        <X className="h-3 w-3 stroke-[2.5]" />
+                                                    </div>
                                                     <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-snug">
                                                         {limitation}
                                                     </span>
@@ -219,24 +229,25 @@ export default async function SubscriptionPage() {
                                 </div>
 
                                 {/* Action Button */}
-                                <div className="pt-2">
+                                <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                                     {currentPlan === plan.name ? (
                                         <Button
                                             disabled
-                                            className="w-full min-h-[44px] bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold text-xs sm:text-sm cursor-not-allowed"
+                                            className="w-full min-h-[48px] rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-bold text-sm cursor-not-allowed border border-slate-200 dark:border-slate-700"
                                         >
-                                            Current Plan
+                                            Current Active Plan
                                         </Button>
                                     ) : plan.name === "PREMIUM" ? (
                                         <Link href="/pricing" className="block w-full">
-                                            <Button className="w-full min-h-[44px] bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm shadow-md transition-all">
-                                                Get Pass
+                                            <Button className="w-full min-h-[48px] rounded-2xl bg-gradient-to-r from-teal-600 hover:from-teal-700 to-emerald-600 hover:to-emerald-700 text-white font-black text-sm shadow-lg shadow-teal-500/25 transition-all cursor-pointer">
+                                                <Crown className="w-4 h-4 mr-2 fill-amber-300 text-amber-300" />
+                                                Get Pass Now
                                             </Button>
                                         </Link>
                                     ) : (
                                         <Button
                                             variant="outline"
-                                            className="w-full min-h-[44px] border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 font-bold text-xs sm:text-sm cursor-not-allowed"
+                                            className="w-full min-h-[48px] rounded-2xl border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 font-bold text-sm cursor-not-allowed"
                                             disabled
                                         >
                                             Downgrade
@@ -247,6 +258,7 @@ export default async function SubscriptionPage() {
                         </Card>
                     ))}
                 </div>
+
             </div>
 
             {/* Payment History */}

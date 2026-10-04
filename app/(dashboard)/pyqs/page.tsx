@@ -139,7 +139,6 @@ const PREVIOUS_YEAR_PAPERS_DATA: ExamPaperItem[] = [
         papersCount: 11,
         yearsCovered: "2014 - 2024",
         logoType: "upsc",
-        isEnrolled: true,
         description: "Official General Studies Paper 1 previous year question papers with detailed subject-wise breakdown (Polity, History, Economy, Geography, Environment, and Sci-Tech).",
         subjects: ["History", "Polity", "Economy", "Geography", "Environment", "Science & Tech"],
         years: [
@@ -306,7 +305,6 @@ const PREVIOUS_YEAR_PAPERS_DATA: ExamPaperItem[] = [
         papersCount: 1,
         yearsCovered: "2024",
         logoType: "bpsc",
-        isEnrolled: true,
         description: "Latest 70th Bihar Public Service Commission Preliminary Examination official paper with revised 1/3 negative marking format.",
         subjects: ["Bihar Special GK", "General Science", "History & Freedom Struggle", "Indian Polity", "Bihar Economy"],
         years: [
@@ -333,7 +331,6 @@ const PREVIOUS_YEAR_PAPERS_DATA: ExamPaperItem[] = [
         papersCount: 1,
         yearsCovered: "2023",
         logoType: "bpsc",
-        isEnrolled: true,
         description: "Official 69th Integrated CCE Prelims paper covering Bihar GK, Science, History, and current affairs with 4-options format.",
         subjects: ["Bihar Special", "Ancient & Modern History", "Geography", "Polity & Constitution", "Mental Ability"],
         years: [
@@ -478,7 +475,6 @@ const PREVIOUS_YEAR_PAPERS_DATA: ExamPaperItem[] = [
         papersCount: 14,
         yearsCovered: "2018 - 2024",
         logoType: "cbse-12",
-        isEnrolled: true,
         description: "Official CBSE Class 12 Physics Board Examination papers (All India & Delhi sets) with numerical solutions, derivations, and ray diagrams.",
         subjects: ["Electrostatics", "Current Electricity", "Optics", "Electromagnetic Induction", "Modern Physics"],
         years: [
@@ -677,7 +673,6 @@ const PREVIOUS_YEAR_PAPERS_DATA: ExamPaperItem[] = [
         papersCount: 16,
         yearsCovered: "2017 - 2024",
         logoType: "cbse-10",
-        isEnrolled: true,
         description: "Official CBSE Class 10 Standard Mathematics board papers with step-by-step NCERT solutions and case-study questions.",
         subjects: ["Trigonometry", "Quadratic Equations", "Triangles & Geometry", "Statistics & Probability", "Surface Areas"],
         years: [
@@ -728,7 +723,6 @@ const PREVIOUS_YEAR_PAPERS_DATA: ExamPaperItem[] = [
         papersCount: 16,
         yearsCovered: "2017 - 2024",
         logoType: "cbse-10",
-        isEnrolled: true,
         description: "Chemical Reactions, Light Reflection & Refraction, Electricity, Life Processes, and Heredity solved CBSE board question papers.",
         subjects: ["Light & Electricity", "Chemical Reactions", "Life Processes", "Magnetic Effects of Current"],
         years: [
@@ -821,7 +815,6 @@ const PREVIOUS_YEAR_PAPERS_DATA: ExamPaperItem[] = [
         papersCount: 14,
         yearsCovered: "2018 - 2024",
         logoType: "ncert-9",
-        isEnrolled: true,
         description: "Number Systems, Polynomials, Coordinate Geometry, Linear Equations in Two Variables, and Surface Areas annual exam papers.",
         subjects: ["Number Systems", "Polynomials", "Lines & Angles", "Surface Areas & Volumes"],
         years: [
@@ -902,7 +895,6 @@ const PREVIOUS_YEAR_PAPERS_DATA: ExamPaperItem[] = [
         papersCount: 12,
         yearsCovered: "2019 - 2024",
         logoType: "ncert-8",
-        isEnrolled: true,
         description: "Rational Numbers, Linear Equations, Algebraic Expressions, Mensuration, and Exponents & Powers school final exam papers.",
         subjects: ["Rational Numbers", "Linear Equations", "Mensuration", "Exponents & Powers"],
         years: [

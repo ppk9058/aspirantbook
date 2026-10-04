@@ -4,12 +4,13 @@ import { Video, Headphones, CalendarCheck, Award, ArrowRight } from "lucide-reac
 import ClassesCoursesSection from "@/components/home/ClassesCoursesSection"
 import HomeHeaderUserCTA from "@/components/home/HomeHeaderUserCTA"
 import { auth } from "@/auth"
+import { getDashboardHref } from "@/lib/auth/roles"
 
 export const revalidate = 60
 
 export default async function LandingHomePage() {
     const session = await auth()
-    const logoHref = session?.user ? "/dashboard" : "/"
+    const logoHref = getDashboardHref(session?.user?.role, !!session?.user)
 
     return (
         <div className="min-h-screen bg-white text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900">

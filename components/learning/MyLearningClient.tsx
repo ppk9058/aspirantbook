@@ -460,14 +460,18 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
 
                                     {/* Action Button Footer */}
                                     <div className="p-5 pt-0">
-                                        <Link
-                                            href={continueHref}
-                                            className="w-full py-2.5 rounded-xl bg-[#5B47FB] hover:bg-[#4a36ea] text-white font-extrabold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 group-hover:gap-2"
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                router.push(continueHref)
+                                            }}
+                                            className="w-full py-2.5 rounded-xl bg-[#5B47FB] hover:bg-[#4a36ea] text-white font-extrabold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 group-hover:gap-2 cursor-pointer"
                                         >
                                             <Play className="w-3.5 h-3.5 fill-white" />
                                             <span>Watch Now</span>
                                             <ChevronRight className="w-4 h-4" />
-                                        </Link>
+                                        </button>
                                     </div>
                                 </div>
                             )

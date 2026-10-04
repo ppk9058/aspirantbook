@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
     Play,
     Clock,
@@ -163,6 +164,7 @@ export default function MyTestsHubClient({
     recentAttempts,
     catalogSeries,
 }: Props) {
+    const router = useRouter()
     const [perfTab, setPerfTab] = useState<"ATTEMPTS" | "WEAK_AREAS" | "BOOKMARKS">("ATTEMPTS")
 
     const totalTestsTaken = recentAttempts.length
@@ -288,7 +290,16 @@ export default function MyTestsHubClient({
                             return (
                                 <div
                                     key={series.id}
-                                    className="flex flex-col sm:flex-row sm:items-center gap-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-4 shadow-xs hover:border-teal-400/50 transition-all"
+                                    onClick={() => router.push(series.viewAllUrl)}
+                                    role="link"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            e.preventDefault()
+                                            router.push(series.viewAllUrl)
+                                        }
+                                    }}
+                                    className="flex flex-col sm:flex-row sm:items-center gap-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-4 shadow-xs hover:border-teal-400/50 hover:shadow-md transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-teal-500"
                                 >
                                     {/* Left: badge + info */}
                                     <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -329,25 +340,34 @@ export default function MyTestsHubClient({
 
                                     {/* Right: action buttons */}
                                     <div className="flex items-center gap-2 shrink-0 sm:flex-col sm:items-end lg:flex-row">
-                                        <Link
-                                            href={series.nextTestUrl}
-                                            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs transition-all active:scale-[0.98] min-h-[40px] whitespace-nowrap"
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                router.push(series.nextTestUrl)
+                                            }}
+                                            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs transition-all active:scale-[0.98] min-h-[40px] whitespace-nowrap cursor-pointer shadow-xs"
                                         >
                                             <Play className="w-3.5 h-3.5 fill-current" />
                                             Start Next Test
-                                        </Link>
-                                        <Link
-                                            href={series.viewAllUrl}
-                                            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors min-h-[40px] whitespace-nowrap"
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                router.push(series.viewAllUrl)
+                                            }}
+                                            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors min-h-[40px] whitespace-nowrap cursor-pointer"
                                         >
                                             All Tests
                                             <ChevronRight className="w-3.5 h-3.5" />
-                                        </Link>
+                                        </button>
                                     </div>
                                 </div>
                             )
                         })}
                     </div>
+
                 )}
             </section>
 
