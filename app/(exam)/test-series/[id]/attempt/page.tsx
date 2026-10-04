@@ -122,9 +122,9 @@ function MobileTimerDisplay({ secs }: { secs: number }) {
 
 function LegendItem({ bg, label, count, isBox = false }: { bg: string; label: string; count: number; isBox?: boolean }) {
     return (
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0 }}>
             <div style={{
-                width: isBox ? 24 : 18, height: isBox ? 18 : 18,
+                width: isBox ? 22 : 18, height: isBox ? 18 : 18,
                 borderRadius: isBox ? 2 : "50%",
                 background: bg,
                 border: bg === "#fff" ? "1px solid #9ca3af" : "none",
@@ -134,7 +134,7 @@ function LegendItem({ bg, label, count, isBox = false }: { bg: string; label: st
             }}>
                 {count}
             </div>
-            <span style={{ fontSize: 11, color: "#374151", whiteSpace: "nowrap" }}>{label}</span>
+            <span style={{ fontSize: 10.5, color: "#374151", lineHeight: 1.2, wordBreak: "break-word" }}>{label}</span>
         </div>
     )
 }
@@ -374,6 +374,17 @@ function Arena() {
     const submissionPendingRef = useRef<boolean>(false)
     const serverOffsetRef = useRef<number>(0)
 
+    // Stable tracking refs for timer, submission, and per-question time
+    const timeLeftRef = useRef<number>(durationMin * 60)
+    const currentQRef = useRef<number>(0)
+    const questionsRef = useRef<Question[]>([])
+    const questionTimesRef = useRef<Record<number, number>>({})
+    const performSubmitRef = useRef<((currentAttempts?: Record<number, Attempt>) => Promise<void>) | null>(null)
+    const hasInitializedRef = useRef<boolean>(false)
+
+    // Per-question time spent tracking
+    const [questionTimeSpent, setQuestionTimeSpent] = useState<Record<number, number>>({})
+
     // ── Attempts ─────────────────────────────────────────────────
     const [attempts, setAttempts] = useState<Record<number, Attempt>>({})
 
@@ -388,6 +399,18 @@ function Arena() {
     useEffect(() => {
         activeAttemptIdRef.current = activeAttemptId
     }, [activeAttemptId])
+
+    useEffect(() => {
+        timeLeftRef.current = timeLeft
+    }, [timeLeft])
+
+    useEffect(() => {
+        currentQRef.current = currentQ
+    }, [currentQ])
+
+    useEffect(() => {
+        questionsRef.current = questions
+    }, [questions])
 
     const currentQuestion = questions[currentQ]
     const curAttempt = currentQuestion ? attempts[currentQuestion.id] : undefined
@@ -404,7 +427,7 @@ function Arena() {
     }
 
     // ── Submit exam to server (with resilience & offline queue) ───
-    const performSubmit = useCallback(async (currentAttempts: Record<number, Attempt>) => {
+    const performSubmit = useCallback(async (currentAttemptsOverride?: Record<number, Attempt>) => {
         const attId = activeAttemptIdRef.current || activeAttemptId
         if (!attId) return
         setSubmitting(true)
@@ -413,8 +436,12 @@ function Arena() {
         setSubmitted(true)
         submissionPendingRef.current = true
 
-        const elapsedSecs = Math.max(1, durationMin * 60 - timeLeft)
-        const answersPayload = questions.map((q) => {
+        const currentAttempts = currentAttemptsOverride || currentAttemptsRef.current
+        const currentQuestions = questionsRef.current
+        const currentQTimes = questionTimesRef.current
+        const elapsedSecs = Math.max(1, durationMin * 60 - timeLeftRef.current)
+
+        const answersPayload = currentQuestions.map((q) => {
             const att = currentAttempts[q.id]
             const selectedOption =
                 att?.selected !== null && att?.selected !== undefined
@@ -424,7 +451,7 @@ function Arena() {
                 questionId: q.rawId,
                 selectedOption,
                 isMarked: att?.marked ?? false,
-                timeSpentSecs: Math.max(0, Math.round(elapsedSecs / (questions.length || 1))),
+                timeSpentSecs: Math.max(0, currentQTimes[q.id] ?? Math.round(elapsedSecs / (currentQuestions.length || 1))),
             }
         })
 
@@ -463,13 +490,17 @@ function Arena() {
             // Persist with submissionPending flag in IndexedDB
             await saveExamState(attemptKey, {
                 attempts: currentAttempts,
-                timeLeft,
-                currentQ,
+                timeLeft: timeLeftRef.current,
+                currentQ: currentQRef.current,
                 tabSwitchCount: tabSwitchCountRef.current,
                 submissionPending: true,
             }).catch(() => {})
         }
-    }, [activeAttemptId, durationMin, timeLeft, questions, attemptKey, seriesId, router, currentQ])
+    }, [activeAttemptId, attemptKey, durationMin, router, seriesId])
+
+    useEffect(() => {
+        performSubmitRef.current = performSubmit
+    }, [performSubmit])
 
     // ── Compute only changed answers since last sync ──────────────
     const computeChangedAnswers = useCallback((currentAttempts: Record<number, Attempt>) => {
@@ -480,10 +511,12 @@ function Arena() {
             timeSpentSecs: number;
         }> = []
 
-        const elapsedSecs = Math.max(1, durationMin * 60 - timeLeft)
-        const timePerQ = Math.max(0, Math.round(elapsedSecs / (questions.length || 1)))
+        const currentQuestions = questionsRef.current
+        const currentQTimes = questionTimesRef.current
+        const elapsedSecs = Math.max(1, durationMin * 60 - timeLeftRef.current)
+        const timePerQ = Math.max(0, Math.round(elapsedSecs / (currentQuestions.length || 1)))
 
-        for (const q of questions) {
+        for (const q of currentQuestions) {
             const att = currentAttempts[q.id]
             const selectedOption =
                 att?.selected !== null && att?.selected !== undefined
@@ -497,18 +530,18 @@ function Arena() {
                     questionId: q.rawId,
                     selectedOption,
                     isMarked,
-                    timeSpentSecs: timePerQ,
+                    timeSpentSecs: Math.max(0, currentQTimes[q.id] ?? timePerQ),
                 })
             }
         }
         return changed
-    }, [durationMin, questions, timeLeft])
+    }, [durationMin])
 
     // ── Sync to server with sequence control and backoff ───────────
     const syncAttemptToServer = useCallback(
         async (att: Record<number, Attempt>, tsc: number) => {
             const attId = activeAttemptIdRef.current || activeAttemptId
-            if (!attId || !questions.length) return
+            if (!attId || !questionsRef.current.length) return
 
             const changed = computeChangedAnswers(att)
             if (changed.length === 0) return
@@ -580,7 +613,7 @@ function Arena() {
                 syncAttemptToServer(currentAttemptsRef.current, tabSwitchCountRef.current)
             }
         },
-        [activeAttemptId, computeChangedAnswers, questions.length]
+        [activeAttemptId, computeChangedAnswers]
     )
 
     // ── Flush on page hide or tab switch to background ────────────
@@ -890,7 +923,7 @@ function Arena() {
 
                 // Resume of an unsent submission must be retried on next load
                 if (pendingSubmitRecovery) {
-                    performSubmit(initialAttempts)
+                    performSubmitRef.current?.(initialAttempts)
                 }
             } catch (err: any) {
                 if (isSubscribed) {
@@ -905,7 +938,8 @@ function Arena() {
         return () => {
             isSubscribed = false
         }
-    }, [testId, seriesId, lang, urlAttemptId, router, searchParams, performSubmit, retryCount])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [testId, seriesId, lang, retryCount])
 
     // ── AUTO FULLSCREEN on mount ─────────────────────────────────
     useEffect(() => {
@@ -971,17 +1005,30 @@ function Arena() {
             const currentServerTime = Date.now() + serverOffsetRef.current
             const remaining = Math.max(0, Math.round((deadlineTime - currentServerTime) / 1000))
             setTimeLeft(remaining)
+            timeLeftRef.current = remaining
+
+            // Increment time spent on current question
+            const curQObj = questionsRef.current[currentQRef.current]
+            if (curQObj) {
+                const cqId = curQObj.id
+                questionTimesRef.current[cqId] = (questionTimesRef.current[cqId] || 0) + 1
+                setQuestionTimeSpent(prev => ({
+                    ...prev,
+                    [cqId]: (prev[cqId] || 0) + 1
+                }))
+            }
+
             if (remaining <= 0) {
                 if (timerRef.current) clearInterval(timerRef.current)
                 setSubmitted(true)
-                performSubmit(attempts)
+                performSubmitRef.current?.(currentAttemptsRef.current)
             }
         }, 1000)
 
         return () => {
             if (timerRef.current) clearInterval(timerRef.current)
         }
-    }, [submitted, paused, serverDeadline, attempts, performSubmit])
+    }, [submitted, paused, serverDeadline])
 
     // ── Anti-Cheat: Tab Switch / Visibility Detection ─────────────
     useEffect(() => {
@@ -1064,58 +1111,97 @@ function Arena() {
 
     // ── Navigation ───────────────────────────────────────────────
     const goTo = useCallback((idx: number) => {
-        setAttempts(prev => {
-            const cur = prev[currentQuestion.id]
-            const updated = cur.state === "not-visited"
-                ? { ...prev, [currentQuestion.id]: { ...cur, state: "not-answered" as QState } }
-                : prev
-            persistState(updated, timeLeft, idx, tabSwitchCount)
-            return updated
-        })
+        const curQ = questionsRef.current[currentQRef.current]
+        if (curQ) {
+            const curAtt = currentAttemptsRef.current[curQ.id]
+            if (curAtt && curAtt.state === "not-visited") {
+                const updated = {
+                    ...currentAttemptsRef.current,
+                    [curQ.id]: { ...curAtt, state: "not-answered" as QState }
+                }
+                setAttempts(updated)
+                currentAttemptsRef.current = updated
+                persistState(updated, timeLeftRef.current, idx, tabSwitchCountRef.current)
+            } else {
+                persistState(currentAttemptsRef.current, timeLeftRef.current, idx, tabSwitchCountRef.current)
+            }
+        }
         setCurrentQ(idx)
-    }, [currentQuestion, timeLeft, tabSwitchCount, persistState])
+        currentQRef.current = idx
+    }, [persistState])
 
     // ── Actions ──────────────────────────────────────────────────
     const selectOption = (i: number) => {
-        setAttempts(prev => {
-            const cur = prev[currentQuestion.id]
-            const updated = { ...prev, [currentQuestion.id]: { ...cur, selected: i, state: cur.marked ? "answered-marked" : "answered" as QState } }
-            persistState(updated, timeLeft, currentQ, tabSwitchCount)
-            return updated
-        })
+        const curQ = questionsRef.current[currentQRef.current]
+        if (!curQ) return
+        const curAtt = currentAttemptsRef.current[curQ.id]
+        const updated = {
+            ...currentAttemptsRef.current,
+            [curQ.id]: {
+                ...curAtt,
+                selected: i,
+                state: (curAtt?.marked ? "answered-marked" : "answered") as QState
+            }
+        }
+        setAttempts(updated)
+        currentAttemptsRef.current = updated
+        persistState(updated, timeLeftRef.current, currentQRef.current, tabSwitchCountRef.current)
     }
 
-    const saveAndNext = () => { if (currentQ < questions.length - 1) goTo(currentQ + 1) }
+    const saveAndNext = () => {
+        if (currentQ < questions.length - 1) {
+            goTo(currentQ + 1)
+        }
+    }
 
     const markForReview = () => {
-        setAttempts(prev => {
-            const cur = prev[currentQuestion.id]
-            const updated = { ...prev, [currentQuestion.id]: { ...cur, marked: true, state: cur.selected !== null ? "answered-marked" : "marked" as QState } }
-            persistState(updated, timeLeft, currentQ + 1, tabSwitchCount)
-            return updated
-        })
-        if (currentQ < questions.length - 1) goTo(currentQ + 1)
+        const curQ = questionsRef.current[currentQRef.current]
+        if (!curQ) return
+        const curAtt = currentAttemptsRef.current[curQ.id]
+        const updated = {
+            ...currentAttemptsRef.current,
+            [curQ.id]: {
+                ...curAtt,
+                marked: true,
+                state: (curAtt?.selected !== null && curAtt?.selected !== undefined ? "answered-marked" : "marked") as QState
+            }
+        }
+        setAttempts(updated)
+        currentAttemptsRef.current = updated
+        const nextQ = currentQ < questions.length - 1 ? currentQ + 1 : currentQ
+        persistState(updated, timeLeftRef.current, nextQ, tabSwitchCountRef.current)
+        if (currentQ < questions.length - 1) {
+            goTo(currentQ + 1)
+        }
     }
 
     const clearResponse = () => {
-        setAttempts(prev => {
-            const cur = prev[currentQuestion.id]
-            const updated = { ...prev, [currentQuestion.id]: { ...cur, selected: null, state: cur.marked ? "marked" : "not-answered" as QState } }
-            persistState(updated, timeLeft, currentQ, tabSwitchCount)
-            return updated
-        })
+        const curQ = questionsRef.current[currentQRef.current]
+        if (!curQ) return
+        const curAtt = currentAttemptsRef.current[curQ.id]
+        const updated = {
+            ...currentAttemptsRef.current,
+            [curQ.id]: {
+                ...curAtt,
+                selected: null,
+                state: (curAtt?.marked ? "marked" : "not-answered") as QState
+            }
+        }
+        setAttempts(updated)
+        currentAttemptsRef.current = updated
+        persistState(updated, timeLeftRef.current, currentQRef.current, tabSwitchCountRef.current)
     }
 
     const handleSubmit = useCallback(() => {
         setShowSubmitModal(false)
-        performSubmit(attempts)
-    }, [performSubmit, attempts])
+        performSubmit()
+    }, [performSubmit])
 
     // Auto-submit (3rd violation) handler
     const handleAutoSubmit = useCallback(() => {
         setShowAutoSubmitModal(false)
-        performSubmit(attempts)
-    }, [performSubmit, attempts])
+        performSubmit()
+    }, [performSubmit])
 
     const toggleFS = () => {
         if (!document.fullscreenElement) {
@@ -1125,9 +1211,12 @@ function Arena() {
         }
     }
 
-    // Elapsed time display
-    const elapsed = durationMin * 60 - timeLeft
-    const elapsedStr = `${String(Math.floor(elapsed / 60)).padStart(2, "0")}:${String(elapsed % 60).padStart(2, "0")}`
+    // Per-question elapsed time display (starts at 00:00 for each question)
+    const currentQId = currentQuestion?.id
+    const currentQSecs = currentQId ? (questionTimeSpent[currentQId] || 0) : 0
+    const qMins = Math.floor(currentQSecs / 60)
+    const qSecs = currentQSecs % 60
+    const perQuestionTimeStr = `${String(qMins).padStart(2, "0")}:${String(qSecs).padStart(2, "0")}`
 
     if (!isMounted || loading) {
         return (
@@ -1358,7 +1447,7 @@ function Arena() {
                             </div>
                             <div className="flex items-center gap-1 ml-1 text-gray-500 dark:text-gray-400">
                                 <span className="text-[10px] md:text-xs font-semibold">Time</span>
-                                <span className="text-xs font-bold font-mono text-gray-900 dark:text-gray-200">{elapsedStr}</span>
+                                <span className="text-xs font-bold font-mono text-gray-900 dark:text-gray-200">{perQuestionTimeStr}</span>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1498,32 +1587,32 @@ function Arena() {
                     </div>
                 </main>
 
-                {/* ── RIGHT SIDEBAR: DESKTOP ONLY (hidden on mobile, lg:flex, persistent width 220px) ── */}
+                {/* ── RIGHT SIDEBAR: DESKTOP ONLY (hidden on mobile, lg:flex, persistent width 280px) ── */}
                 <aside
                     className="hidden lg:flex"
                     style={{
-                        width: 220, flexShrink: 0, flexDirection: "column",
-                        background: "#fff", overflowX: "hidden"
+                        width: 280, flexShrink: 0, flexDirection: "column",
+                        background: "#fff", overflowX: "hidden", borderLeft: "1px solid #e5e7eb"
                     }}
                 >
                     {/* Candidate */}
                     <div style={{
                         display: "flex", alignItems: "center", gap: 10,
-                        padding: "8px 12px", borderBottom: "1px solid #e5e7eb", flexShrink: 0
+                        padding: "10px 14px", borderBottom: "1px solid #e5e7eb", flexShrink: 0
                     }}>
                         <div style={{
                             width: 36, height: 36, borderRadius: "50%",
                             background: "#1f2937", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
                         }}>
-                            <User style={{ width: 18, height: 18, color: "rgba(255,255,255,0.5)" }} />
+                            <User style={{ width: 18, height: 18, color: "rgba(255,255,255,0.7)" }} />
                         </div>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "#1f2937" }}>{candidateName}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#1f2937", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{candidateName}</span>
                     </div>
 
                     {/* Legend */}
                     <div style={{
-                        padding: "8px 12px", borderBottom: "1px solid #e5e7eb",
-                        display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 4px", flexShrink: 0
+                        padding: "10px 12px", borderBottom: "1px solid #e5e7eb",
+                        display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 8px", flexShrink: 0
                     }}>
                         <LegendItem bg="#22c55e" label="Answered" count={counts.answered} />
                         <LegendItem bg="#9333ea" label="Marked" count={counts.marked} />
@@ -1542,11 +1631,11 @@ function Arena() {
                     </div>
 
                     {/* Question Palette Grid */}
-                    <div style={{ flex: 1, overflowY: "auto", padding: "10px 10px 6px", scrollbarWidth: "thin" }}>
+                    <div style={{ flex: 1, overflowY: "auto", padding: "12px 12px 8px", scrollbarWidth: "thin" }}>
                         <div style={{
                             display: "grid",
                             gridTemplateColumns: "repeat(5, 1fr)",
-                            gap: 6
+                            gap: 8
                         }}>
                             {questions.map((q, i) => {
                                 const a = attempts[q.id]

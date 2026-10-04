@@ -48,11 +48,10 @@ export async function POST(req: NextRequest) {
           // Question line
           const qLine = lines[0].replace(/^(?:Q(?:uestion)?\.?\s*)?\d+[\.\:\)]\s*/i, "").trim();
 
-          // Options extraction
-          let optA = "Option A";
-          let optB = "Option B";
-          let optC = "Option C";
-          let optD = "Option D";
+          let optA = "";
+          let optB = "";
+          let optC = "";
+          let optD = "";
           let correctOption: "A" | "B" | "C" | "D" = "A";
           let explanation = "";
 
@@ -69,6 +68,9 @@ export async function POST(req: NextRequest) {
           if (matchC) optC = matchC[1].trim();
           if (matchD) optD = matchD[1].trim();
 
+          // Reject block if any of the 4 options could not be extracted
+          if (!optA || !optB || !optC || !optD) continue;
+
           // Answer match
           const ansMatch = fullBlock.match(/(?:Ans(?:wer)?[\:\s\-]+)\s*([A-D])/i);
           if (ansMatch) {
@@ -81,8 +83,10 @@ export async function POST(req: NextRequest) {
             explanation = expMatch[1].trim();
           }
 
+          if (!qLine) continue;
+
           parsed.push({
-            questionEn: qLine || "Sample Question",
+            questionEn: qLine,
             options: [optA, optB, optC, optD],
             correctOption,
             explanationEn: explanation || `The correct option is (${correctOption}).`,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { parseAndValidateQuestion } from "@/lib/exam/question-parser";
 
 export async function POST(req: NextRequest) {
   try {
@@ -128,27 +129,28 @@ export async function POST(req: NextRequest) {
           if (Array.isArray(sec.questions) && sec.questions.length > 0) {
             for (let qIdx = 0; qIdx < sec.questions.length; qIdx++) {
               const q = sec.questions[qIdx];
+              const validatedQ = parseAndValidateQuestion(q, qIdx);
               await tx.examQuestion.create({
                 data: {
                   sectionId: newSection.id,
                   questionType: q.questionType || "MCQ",
-                  questionEn: q.questionEn || q.text || `Question ${qIdx + 1}`,
-                  questionHi: q.questionHi || null,
-                  optionAEn: q.optionAEn || q.options?.[0] || "Option A",
-                  optionBEn: q.optionBEn || q.options?.[1] || "Option B",
-                  optionCEn: q.optionCEn || q.options?.[2] || "Option C",
-                  optionDEn: q.optionDEn || q.options?.[3] || "Option D",
-                  optionAHi: q.optionAHi || null,
-                  optionBHi: q.optionBHi || null,
-                  optionCHi: q.optionCHi || null,
-                  optionDHi: q.optionDHi || null,
-                  correctOption: q.correctOption || "A",
-                  explanationEn: q.explanationEn || null,
-                  explanationHi: q.explanationHi || null,
+                  questionEn: validatedQ.questionEn,
+                  questionHi: validatedQ.questionHi || null,
+                  optionAEn: validatedQ.optionAEn,
+                  optionBEn: validatedQ.optionBEn,
+                  optionCEn: validatedQ.optionCEn,
+                  optionDEn: validatedQ.optionDEn,
+                  optionAHi: validatedQ.optionAHi || null,
+                  optionBHi: validatedQ.optionBHi || null,
+                  optionCHi: validatedQ.optionCHi || null,
+                  optionDHi: validatedQ.optionDHi || null,
+                  correctOption: validatedQ.correctOption,
+                  explanationEn: validatedQ.explanationEn || null,
+                  explanationHi: validatedQ.explanationHi || null,
                   videoUrl: q.videoUrl || null,
-                  difficulty: q.difficulty || "MODERATE",
-                  subject: q.subject || "General Studies",
-                  topic: q.topic || null,
+                  difficulty: (validatedQ.difficulty as any) || "MODERATE",
+                  subject: validatedQ.subject || "General Studies",
+                  topic: validatedQ.topic || null,
                   order: qIdx + 1,
                   positiveMarks: Number(q.positiveMarks) || 1.0,
                   negativeMarks: Number(q.negativeMarks) || 0.33,

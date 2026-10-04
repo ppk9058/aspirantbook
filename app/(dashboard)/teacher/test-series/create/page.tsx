@@ -4,6 +4,7 @@ import { useState, useCallback, Suspense, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { TEST_SERIES_DATA, getTestSeriesById } from "@/lib/test-series-data"
+import { parseAndValidateQuestion } from "@/lib/exam/question-parser"
 import CreateSeriesModal from "@/components/exam/CreateSeriesModal"
 import {
     ChevronLeft,
@@ -776,10 +777,10 @@ function CreateTestContent() {
                     textEnglish: item.questionEn || `Question ${idx + 1}`,
                     textHindi: item.questionHi || "",
                     options: [
-                        { english: item.optionAEn || "Option A", hindi: item.optionAHi || "" },
-                        { english: item.optionBEn || "Option B", hindi: item.optionBHi || "" },
-                        { english: item.optionCEn || "Option C", hindi: item.optionCHi || "" },
-                        { english: item.optionDEn || "Option D", hindi: item.optionDHi || "" },
+                        { english: item.optionAEn || "", hindi: item.optionAHi || "" },
+                        { english: item.optionBEn || "", hindi: item.optionBHi || "" },
+                        { english: item.optionCEn || "", hindi: item.optionCHi || "" },
+                        { english: item.optionDEn || "", hindi: item.optionDHi || "" },
                     ],
                     correctAnswer: ansIdx,
                     explanationEnglish: item.explanationEn || "",
@@ -845,42 +846,7 @@ function CreateTestContent() {
                     }
 
                     const normalized = items.map((item: any, i: number) => {
-                        const qEn = item.questionEn || item.question || item.textEnglish || item.text || `Question ${i + 1}`
-                        const qHi = item.questionHi || item.textHindi || item.hindi || ""
-                        const opts = Array.isArray(item.options) ? item.options : []
-                        const optAEn = item.optionAEn || item.optionA || (opts[0]?.english ?? opts[0]) || "Option A"
-                        const optAHi = item.optionAHi || (opts[0]?.hindi ?? "")
-                        const optBEn = item.optionBEn || item.optionB || (opts[1]?.english ?? opts[1]) || "Option B"
-                        const optBHi = item.optionBHi || (opts[1]?.hindi ?? "")
-                        const optCEn = item.optionCEn || item.optionC || (opts[2]?.english ?? opts[2]) || "Option C"
-                        const optCHi = item.optionCHi || (opts[2]?.hindi ?? "")
-                        const optDEn = item.optionDEn || item.optionD || (opts[3]?.english ?? opts[3]) || "Option D"
-                        const optDHi = item.optionDHi || (opts[3]?.hindi ?? "")
-                        const correct = item.correctOption ?? item.correctAnswer ?? item.answer ?? "A"
-                        const expEn = item.explanationEn || item.explanation || item.explanationEnglish || ""
-                        const expHi = item.explanationHi || item.explanationHindi || ""
-                        const diff = item.difficulty || "Moderate"
-                        const subj = item.subject || ""
-                        const top = item.topic || ""
-
-                        return {
-                            questionEn: String(qEn),
-                            questionHi: String(qHi),
-                            optionAEn: String(optAEn),
-                            optionAHi: String(optAHi),
-                            optionBEn: String(optBEn),
-                            optionBHi: String(optBHi),
-                            optionCEn: String(optCEn),
-                            optionCHi: String(optCHi),
-                            optionDEn: String(optDEn),
-                            optionDHi: String(optDHi),
-                            correctOption: correct,
-                            explanationEn: String(expEn),
-                            explanationHi: String(expHi),
-                            difficulty: String(diff),
-                            subject: String(subj),
-                            topic: String(top),
-                        }
+                        return parseAndValidateQuestion(item, i)
                     })
 
                     importQuestionsIntoSection(normalized)
@@ -917,24 +883,24 @@ function CreateTestContent() {
                     const colTopic = findCol(["topic"])
 
                     const normalized = dataRows.map((r, i) => {
-                        const qEn = (colQEn !== -1 ? r[colQEn] : r[0]) || `Question ${i + 1}`
+                        const qEn = (colQEn !== -1 ? r[colQEn] : r[0]) || ""
                         const qHi = colQHi !== -1 ? r[colQHi] : ""
-                        const optA = (colA !== -1 ? r[colA] : r[1]) || "Option A"
+                        const optA = (colA !== -1 ? r[colA] : r[1]) || ""
                         const optAHi = colAHi !== -1 ? r[colAHi] : ""
-                        const optB = (colB !== -1 ? r[colB] : r[2]) || "Option B"
+                        const optB = (colB !== -1 ? r[colB] : r[2]) || ""
                         const optBHi = colBHi !== -1 ? r[colBHi] : ""
-                        const optC = (colC !== -1 ? r[colC] : r[3]) || "Option C"
+                        const optC = (colC !== -1 ? r[colC] : r[3]) || ""
                         const optCHi = colCHi !== -1 ? r[colCHi] : ""
-                        const optD = (colD !== -1 ? r[colD] : r[4]) || "Option D"
+                        const optD = (colD !== -1 ? r[colD] : r[4]) || ""
                         const optDHi = colDHi !== -1 ? r[colDHi] : ""
-                        const ans = (colAns !== -1 ? r[colAns] : r[5]) || "A"
+                        const ans = (colAns !== -1 ? r[colAns] : r[5]) || ""
                         const exp = (colExp !== -1 ? r[colExp] : r[6]) || ""
                         const expHi = colExpHi !== -1 ? r[colExpHi] : ""
                         const diff = colDiff !== -1 ? r[colDiff] : "Moderate"
                         const subj = colSubj !== -1 ? r[colSubj] : ""
                         const topic = colTopic !== -1 ? r[colTopic] : ""
 
-                        return {
+                        return parseAndValidateQuestion({
                             questionEn: qEn,
                             questionHi: qHi,
                             optionAEn: optA,
@@ -951,7 +917,7 @@ function CreateTestContent() {
                             difficulty: diff,
                             subject: subj,
                             topic: topic,
-                        }
+                        }, i)
                     })
 
                     importQuestionsIntoSection(normalized)
