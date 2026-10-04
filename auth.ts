@@ -5,7 +5,7 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
-export const { auth, signIn, signOut, handlers } = NextAuth({
+const nextAuthResult = NextAuth({
     ...authConfig,
     callbacks: {
         async jwt({ token, user, trigger, session }) {
@@ -137,3 +137,17 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
     ],
 })
 
+export const { signIn, signOut, handlers } = nextAuthResult
+
+let mockSessionProvider: (() => any) | null = null
+
+export function setMockSessionProvider(provider: (() => any) | null) {
+    mockSessionProvider = provider
+}
+
+export const auth: typeof nextAuthResult.auth = ((...args: any[]) => {
+    if (mockSessionProvider && args.length === 0) {
+        return Promise.resolve(mockSessionProvider())
+    }
+    return (nextAuthResult.auth as any)(...args)
+}) as any

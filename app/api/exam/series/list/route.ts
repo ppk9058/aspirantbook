@@ -22,7 +22,19 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
 
-    const seriesList = await getCachedSeriesList(category);
+    let seriesList: any[];
+    try {
+      seriesList = await getCachedSeriesList(category);
+    } catch (cacheErr) {
+      const where: any = { isPublished: true };
+      if (category && category !== "All") {
+        where.category = { equals: category, mode: "insensitive" };
+      }
+      seriesList = await prisma.examSeries.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+      });
+    }
 
     const formatted = seriesList.map((s) => {
       let meta: any = {};

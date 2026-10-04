@@ -35,7 +35,7 @@ function InstructionsContent() {
         }
 
         let isMounted = true
-        fetch(`/api/exam/${encodeURIComponent(testId)}/questions`)
+        fetch(`/api/exam/${encodeURIComponent(testId)}/questions?metadataOnly=1`)
             .then(async (res) => {
                 if (!res.ok) {
                     if (res.status === 404) throw new Error("Test not found.")

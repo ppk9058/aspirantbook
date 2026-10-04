@@ -71,6 +71,81 @@ export async function GET(
       }
     }
 
+    const { searchParams } = new URL(_req.url);
+    const metadataOnly =
+      searchParams.get("metadataOnly") === "1" ||
+      searchParams.get("metadata") === "true";
+    const attemptId = searchParams.get("attemptId");
+
+    const role = (session.user as any).role;
+    const isAdmin = role === "ADMIN";
+    const isTeacherOwner =
+      role === "TEACHER" && test.createdById === session.user.id;
+
+    if (metadataOnly) {
+      const data = {
+        test: {
+          id: test.id,
+          title: test.title,
+          titleHi: test.titleHi,
+          durationMinutes: test.durationMinutes,
+          totalQuestions: test.totalQuestions,
+          totalMarks: test.totalMarks,
+          positiveMarks: test.positiveMarks,
+          negativeMarks: test.negativeMarks,
+          sections: test.sections.map((section: any) => ({
+            id: section.id,
+            title: section.title,
+            titleHi: section.titleHi,
+            questionCount: section.questions?.length ?? 0,
+          })),
+        },
+      };
+      return NextResponse.json({ data }, { status: 200 });
+    }
+
+    // Full questions: only allowed for ADMIN, author TEACHER, or student with active IN_PROGRESS attempt
+    if (!isAdmin && !isTeacherOwner) {
+      if (!attemptId) {
+        return NextResponse.json(
+          { error: "Forbidden: An active attempt is required to view test questions" },
+          { status: 403 }
+        );
+      }
+
+      const activeAttempt = await prisma.examAttempt.findFirst({
+        where: {
+          id: attemptId,
+          userId: session.user.id,
+          testId: test.id,
+          status: "IN_PROGRESS",
+        },
+        select: {
+          id: true,
+          startedAt: true,
+        },
+      });
+
+      if (!activeAttempt) {
+        return NextResponse.json(
+          { error: "Forbidden: No active attempt found for this test" },
+          { status: 403 }
+        );
+      }
+
+      const durationMinutes = test.durationMinutes || 120;
+      const graceDeadlineMs =
+        activeAttempt.startedAt.getTime() +
+        durationMinutes * 60 * 1000 +
+        30 * 1000;
+      if (Date.now() > graceDeadlineMs) {
+        return NextResponse.json(
+          { error: "Forbidden: Attempt time has expired" },
+          { status: 403 }
+        );
+      }
+    }
+
     const data = {
       test: {
         id: test.id,

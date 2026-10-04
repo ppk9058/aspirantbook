@@ -72,8 +72,6 @@ export async function GET(
 
     const totalCandidates = attempts.length;
     const rankList = attempts.map((a, idx) => ({
-      id: a.id,
-      userId: a.user.id,
       name: a.user.name || "Candidate",
       avatar: a.user.image,
       score: a.score,
@@ -81,19 +79,28 @@ export async function GET(
       correct: a.correctCount,
       wrong: a.wrongCount,
       timeSecs: a.timeTakenSecs,
-      percentile: a.percentile ?? (totalCandidates > 0 ? Math.round(((totalCandidates - idx) / totalCandidates) * 100) : 0),
-      accuracy: Math.round((a.correctCount / Math.max(1, a.correctCount + a.wrongCount)) * 100),
+      percentile:
+        a.percentile ??
+        (totalCandidates > 0
+          ? Math.round(((totalCandidates - idx) / totalCandidates) * 100)
+          : 0),
+      accuracy: Math.round(
+        (a.correctCount / Math.max(1, a.correctCount + a.wrongCount)) * 100
+      ),
+      isCurrentUser: a.user.id === session.user.id,
     }));
 
     // Filter by search if requested
     let filtered = rankList;
     if (search) {
-      filtered = filtered.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()));
+      filtered = filtered.filter((r) =>
+        r.name.toLowerCase().includes(search.toLowerCase())
+      );
     }
 
     // Identify current user rank
     let currentUserRank = null;
-    const myAttempt = rankList.find((r) => r.userId === session.user.id);
+    const myAttempt = rankList.find((r) => r.isCurrentUser);
     if (myAttempt) {
       currentUserRank = myAttempt;
     }

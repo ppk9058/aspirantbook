@@ -677,24 +677,17 @@ function Arena() {
             try {
                 const isRetake = searchParams.get("retake") === "true"
 
-                // 1. Fetch questions and attempt concurrently
-                const questionsPromise = fetchWithTimeout(`/api/exam/${encodeURIComponent(testId)}/questions`).then(async (res) => {
-                    if (!res.ok) {
-                        const err = await res.json().catch(() => ({}))
-                        throw new Error(err.error || (res.status === 404 ? "Test not found." : `Failed to load test questions (HTTP ${res.status}).`))
+                // 1. Initialize or resume attempt first
+                let attemptData: any = null
+                if (urlAttemptId && !isRetake) {
+                    const attRes = await fetchWithTimeout(`/api/exam/attempt/${encodeURIComponent(urlAttemptId)}`)
+                    if (attRes.ok) {
+                        const attJson = await attRes.json()
+                        if (attJson.data) attemptData = attJson.data
                     }
-                    return res.json()
-                })
+                }
 
-                const attemptPromise = (async () => {
-                    if (urlAttemptId && !isRetake) {
-                        const attRes = await fetchWithTimeout(`/api/exam/attempt/${encodeURIComponent(urlAttemptId)}`)
-                        if (attRes.ok) {
-                            const attJson = await attRes.json()
-                            if (attJson.data) return attJson.data
-                        }
-                    }
-
+                if (!attemptData) {
                     const startRes = await fetchWithTimeout("/api/exam/attempt/start", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -710,13 +703,38 @@ function Arena() {
                         throw new Error(err.error || `Failed to start or resume exam attempt (HTTP ${startRes.status}).`)
                     }
                     const startJson = await startRes.json()
-                    return startJson.data
-                })()
+                    attemptData = startJson.data
+                }
 
-                const [qJson, attemptData] = await Promise.all([questionsPromise, attemptPromise])
+                if (!attemptData?.attemptId) {
+                    throw new Error("Failed to initialize exam attempt.")
+                }
 
-                if (!qJson.data?.test) throw new Error("Invalid test data received from server.")
-                const t = qJson.data.test
+                // 2. Obtain test questions: from attempt payload or via attemptId-authorized questions API
+                let t = attemptData.test
+                const hasInlineQuestions =
+                    Array.isArray(t?.sections) &&
+                    t.sections.some(
+                        (s: any) => Array.isArray(s.questions) && s.questions.length > 0
+                    )
+
+                if (!hasInlineQuestions) {
+                    const qRes = await fetchWithTimeout(
+                        `/api/exam/${encodeURIComponent(testId)}/questions?attemptId=${encodeURIComponent(attemptData.attemptId)}`
+                    )
+                    if (!qRes.ok) {
+                        const err = await qRes.json().catch(() => ({}))
+                        throw new Error(
+                            err.error ||
+                                (qRes.status === 404
+                                    ? "Test not found."
+                                    : `Failed to load test questions (HTTP ${qRes.status}).`)
+                        )
+                    }
+                    const qJson = await qRes.json()
+                    if (!qJson.data?.test) throw new Error("Invalid test data received from server.")
+                    t = qJson.data.test
+                }
 
                 const rawQuestions: any[] = []
                 if (Array.isArray(t.sections)) {

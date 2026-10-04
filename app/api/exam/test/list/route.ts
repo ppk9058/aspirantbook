@@ -27,7 +27,9 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const seriesId = searchParams.get("seriesId");
     const category = searchParams.get("category");
-    const includeQuestions = searchParams.get("includeQuestions") === "1";
+    // Only ADMIN or TEACHER can ever request includeQuestions; disallowed for students
+    const includeQuestions =
+      (isAdmin || isTeacher) && searchParams.get("includeQuestions") === "1";
 
     const conditions: any[] = [];
 
@@ -139,10 +141,10 @@ export async function GET(req: NextRequest) {
         isFree: t.accessMode === "FREE",
         isPublished: t.isPublished,
         attempts: t._count?.attempts ?? 0,
-        isNew: true,
-        questionsList: includeQuestions
-          ? (t.sections || []).flatMap((s: any) => (s.questions || []).map(mapQuestion))
-          : [],
+        questionsList:
+          includeQuestions && (isAdmin || t.createdById === session.user.id)
+            ? (t.sections || []).flatMap((s: any) => (s.questions || []).map(mapQuestion))
+            : [],
       };
     });
 

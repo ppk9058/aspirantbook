@@ -122,7 +122,6 @@ export async function checkTestAccess(
   const role = userRole || "STUDENT"
 
   if (role === "ADMIN") return { allowed: true, reason: "ADMIN_OVERRIDE" }
-  if (role === "TEACHER") return { allowed: true, reason: "TEACHER_ACCESS" }
 
   if (!userId) {
     return {
@@ -153,26 +152,27 @@ export async function checkTestAccess(
       return { allowed: false, reason: "LOCKED", message: "Test not found" }
     }
 
+    // A teacher only has free access to tests they created
     if (test.createdById === userId) {
       return { allowed: true, reason: "TEACHER_ACCESS" }
     }
 
-    // Free tests
+    // Free tests are accessible to all authenticated users
     if (test.accessMode === "FREE") {
       return { allowed: true, reason: "FREE" }
     }
 
-    // Check user role
+    // Check user role (PREMIUM or ADMIN overrides)
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { role: true },
     })
 
-    if (user?.role === "PREMIUM" || user?.role === "ADMIN" || user?.role === "TEACHER") {
+    if (user?.role === "PREMIUM" || user?.role === "ADMIN") {
       return { allowed: true, reason: "SUBSCRIPTION_ACTIVE" }
     }
 
-    // Check user active subscription
+    // Check user active subscription with valid status and end date
     const activeSub = await prisma.subscription.findFirst({
       where: {
         userId,
@@ -184,7 +184,7 @@ export async function checkTestAccess(
       return { allowed: true, reason: "SUBSCRIPTION_ACTIVE" }
     }
 
-    // Check enrollment in the series
+    // Check paid enrollment in the series (PASS or PURCHASED only; FREE cannot unlock PRO tests)
     const enrollment = await prisma.examSeriesEnrollment.findUnique({
       where: {
         userId_seriesId: {
@@ -197,7 +197,8 @@ export async function checkTestAccess(
     if (
       enrollment &&
       enrollment.status === "ACTIVE" &&
-      (!enrollment.expiresAt || enrollment.expiresAt > new Date())
+      (!enrollment.expiresAt || enrollment.expiresAt > new Date()) &&
+      enrollment.enrollType !== "FREE"
     ) {
       return {
         allowed: true,
