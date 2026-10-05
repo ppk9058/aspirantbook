@@ -6,7 +6,25 @@ import { useGoal } from "@/components/providers/GoalProvider"
 import GoalIcon from "@/components/layout/GoalIcon"
 
 export default function GoalSelectorButton() {
-    const { selectedGoal, selectedSubGoal, openGoalModal } = useGoal()
+    const { selectedGoal, selectedSubGoal, isLoaded, openGoalModal } = useGoal()
+
+    if (!isLoaded) {
+        return (
+            <div
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80 shadow-2xs min-w-0 animate-pulse"
+                aria-label="Loading Goal..."
+            >
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-gray-200 dark:bg-gray-700" />
+                <div className="flex flex-col pr-0.5 sm:pr-1 min-w-0">
+                    <span className="text-[10px] uppercase font-bold text-gray-300 dark:text-gray-600 leading-none hidden sm:block">
+                        Goal
+                    </span>
+                    <div className="h-3 w-14 sm:w-20 bg-gray-200 dark:bg-gray-700 rounded-sm mt-1" />
+                </div>
+                <ChevronDown className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600 flex-shrink-0" />
+            </div>
+        )
+    }
 
     return (
         <button

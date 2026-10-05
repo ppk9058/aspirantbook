@@ -29,9 +29,9 @@ export async function POST(req: NextRequest) {
         const { phoneNumber, courseId, otp } = await req.json()
 
         const isProduction = process.env.NODE_ENV === "production"
-        const isDevBypassEnabled = process.env.ALLOW_DEV_MOBILE_LOGIN === "true" && !isProduction
+        const isDevBypassEnabled = process.env.ALLOW_DEV_MOBILE_LOGIN === "true" && (!isProduction || process.env.IS_E2E_TEST === "true")
 
-        // In production or when the dev flag is off, test OTP and unverified mobile login are strictly disabled
+        // In production (unless explicit local E2E test process) or when the dev flag is off, test OTP is disabled
         if (!isDevBypassEnabled) {
             return NextResponse.json(
                 { error: "SMS OTP service is currently being configured. Mobile dev login is disabled." },
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
         // Auto-enroll into the course if courseId is provided (supports either DB ID, slug, or alias)
         let enrolledCourse: { id: string; title: string; slug: string } | null = null
-        let goalId: string = "skills"
+        let goalId: string | null = null
 
         if (courseId) {
             const resolvedTarget = COURSE_ALIASES[courseId] || courseId
@@ -97,10 +97,16 @@ export async function POST(req: NextRequest) {
                     })
                 }
 
-                userGoalsMemoryMap.set(user.id, {
-                    goalId,
-                    updatedAt: new Date().toISOString(),
-                })
+                if (goalId) {
+                    userGoalsMemoryMap.set(user.id, {
+                        goalId,
+                        updatedAt: new Date().toISOString(),
+                    })
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: { selectedGoal: goalId },
+                    }).catch(() => {})
+                }
 
                 revalidatePath("/my-learning")
                 revalidatePath("/dashboard")
@@ -112,7 +118,7 @@ export async function POST(req: NextRequest) {
             email: syntheticEmail,
             userId: user.id,
             name: user.name,
-            goalId,
+            goalId: goalId || undefined,
             enrolledCourseTitle: enrolledCourse?.title,
         })
 

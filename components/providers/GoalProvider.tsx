@@ -41,6 +41,7 @@ export interface OtherOffering {
 export interface GoalContextType {
     selectedGoal: Goal
     selectedSubGoal: SubGoal | null
+    isLoaded: boolean
     allGoalsConfig: {
         popularGoals: Goal[]
         categories: GoalCategory[]
@@ -63,6 +64,7 @@ const DEFAULT_GOAL: Goal = (goalsConfig.popularGoals[0] as Goal) || {
 const GoalContext = createContext<GoalContextType>({
     selectedGoal: DEFAULT_GOAL,
     selectedSubGoal: null,
+    isLoaded: false,
     allGoalsConfig: goalsConfig as any,
     isGoalModalOpen: false,
     openGoalModal: () => {},
@@ -77,6 +79,7 @@ let cachedUserGoalPromise: Promise<any> | null = null
 export function GoalProvider({ children }: { children: React.ReactNode }) {
     const [selectedGoal, setSelectedGoal] = useState<Goal>(DEFAULT_GOAL)
     const [selectedSubGoal, setSelectedSubGoal] = useState<SubGoal | null>(null)
+    const [isLoaded, setIsLoaded] = useState(false)
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
     const applyGoalById = (goalId: string, subGoalId?: string | null) => {
         // Search in popular goals first
@@ -111,8 +114,9 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             if (savedGoalId) {
                 applyGoalById(savedGoalId, savedSubGoalId)
             }
+            setIsLoaded(true)
 
-            // Sync with backend in idle time (off critical rendering path)
+            // Sync with backend (DB source of truth)
             const scheduleSync = () => {
                 if (!cachedUserGoalPromise) {
                     cachedUserGoalPromise = fetch("/api/user/goal")
@@ -126,6 +130,7 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
                             localStorage.setItem(STORAGE_GOAL_KEY, data.goal.goalId)
                         } catch {}
                     }
+                    setIsLoaded(true)
                 })
             }
 
@@ -136,6 +141,7 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             }
         } catch (e) {
             console.warn("Failed to load saved goal from localStorage:", e)
+            setIsLoaded(true)
         }
 
         const handleCustomGoalChange = (e: any) => {
@@ -165,7 +171,7 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             console.warn("Failed to save goal to localStorage:", e)
         }
 
-        // Save to user API
+        // Save to user API (DB source of truth)
         fetch("/api/user/goal", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -185,13 +191,14 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
         () => ({
             selectedGoal,
             selectedSubGoal,
+            isLoaded,
             allGoalsConfig: goalsConfig as any,
             isGoalModalOpen,
             openGoalModal,
             closeGoalModal,
             selectGoal,
         }),
-        [selectedGoal, selectedSubGoal, isGoalModalOpen, openGoalModal, closeGoalModal, selectGoal]
+        [selectedGoal, selectedSubGoal, isLoaded, isGoalModalOpen, openGoalModal, closeGoalModal, selectGoal]
     )
 
     return (

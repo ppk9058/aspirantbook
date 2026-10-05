@@ -20,6 +20,8 @@ model User {
   level              Int                 @default(1)
   streak             Int                 @default(0)
   lastActive         DateTime?
+  selectedGoal       String?
+  selectedSubGoal    String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   accounts           Account[]

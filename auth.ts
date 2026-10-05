@@ -104,7 +104,7 @@ const nextAuthResult = NextAuth({
             id: "mobile",
             async authorize(credentials) {
                 const isProduction = process.env.NODE_ENV === "production"
-                const isDevBypassEnabled = process.env.ALLOW_DEV_MOBILE_LOGIN === "true" && !isProduction
+                const isDevBypassEnabled = process.env.ALLOW_DEV_MOBILE_LOGIN === "true" && (!isProduction || process.env.IS_E2E_TEST === "true")
 
                 if (!isDevBypassEnabled) {
                     console.warn("[Auth] Dev mobile login bypass is disabled or blocked in production")
