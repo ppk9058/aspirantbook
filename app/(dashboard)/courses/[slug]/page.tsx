@@ -13,6 +13,8 @@ import { toSafeCourseDto } from "@/lib/courses/course-dto"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 import { AlertCircle } from "lucide-react"
 
+export const dynamic = "force-dynamic"
+
 const getCachedCourseBySlug = unstable_cache(
     async (slug: string) => {
         return prisma.course.findFirst({
@@ -58,8 +60,39 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
     // Fetch session, course, and batch concurrently in parallel
     const [session, rawCachedCourse, batch] = await Promise.all([
         auth(),
-        getCachedCourseBySlug(slug).catch((err: any) => {
-            console.warn("Error fetching cached course:", err)
+        prisma.course.findFirst({
+            where: { OR: [{ slug }, { id: slug }] },
+            include: {
+                chapters: {
+                    orderBy: { order: "asc" },
+                    include: {
+                        lessons: {
+                            orderBy: { order: "asc" },
+                            select: {
+                                id: true,
+                                title: true,
+                                type: true,
+                                duration: true,
+                                order: true,
+                                content: true,
+                                videoUrl: true,
+                                isTrial: true,
+                                attachmentType: true,
+                                attachmentName: true,
+                                attachmentUrl: true,
+                                durationText: true,
+                                versions: {
+                                    orderBy: { createdAt: "desc" },
+                                    take: 1,
+                                    select: { blocks: true },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        }).catch((err: any) => {
+            console.warn("Error fetching course:", err)
             return null
         }),
         getBatchBySlug(slug),
@@ -79,26 +112,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
     const userRole = session?.user?.role
     const isEditor = userRole === "ADMIN" || userRole === "TEACHER"
 
-    // If the course does not exist in the database:
-    // DO NOT redirect to text tutorial! Render Coming Soon page for the video course.
+    // If the course does not exist in the database, return 404 (notFound)
     if (!cachedCourse) {
-        const cardInfo = findBatchBySlugOrId(slug) || batch
-        const title =
-            cardInfo?.title ||
-            slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-
-        return (
-            <CourseComingSoonView
-                slug={slug}
-                title={title}
-                classTag={cardInfo?.classTag || "Video Course"}
-                targetText={cardInfo?.targetText || "This video course is coming soon."}
-                scheduleText={cardInfo?.scheduleText}
-                price={cardInfo?.price || "Coming Soon"}
-                image={cardInfo?.image}
-                language={cardInfo?.language || "HINGLISH"}
-            />
-        )
+        notFound()
     }
 
     const course = cachedCourse

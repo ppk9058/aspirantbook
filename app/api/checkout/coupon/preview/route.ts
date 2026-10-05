@@ -1,29 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { validateCoupon } from "@/lib/coupons"
-
-// In-memory rate limiting map: ip/userId -> timestamps[]
-const rateLimitMap = new Map<string, number[]>()
-
-function checkRateLimit(key: string, limit = 15, windowMs = 10000): boolean {
-    const now = Date.now()
-    const timestamps = rateLimitMap.get(key) || []
-    const valid = timestamps.filter((t) => now - t < windowMs)
-    if (valid.length >= limit) {
-        return false
-    }
-    valid.push(now)
-    rateLimitMap.set(key, valid)
-    return true
-}
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
     try {
         const session = await auth()
-        const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "unknown_ip"
-        const rateLimitKey = session?.user?.id ? `user_${session.user.id}` : `ip_${ip}`
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown_ip"
+        const rateLimitKey = session?.user?.id 
+            ? `user_${session.user.id}:coupon_preview` 
+            : `ip_${ip}:coupon_preview`
 
-        if (!checkRateLimit(rateLimitKey)) {
+        const rl = await checkRateLimit(rateLimitKey, 10, 60)
+        if (!rl.allowed) {
             return NextResponse.json(
                 { error: "Too many requests. Please wait a moment." },
                 { status: 429 }

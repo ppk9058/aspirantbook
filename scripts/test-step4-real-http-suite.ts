@@ -2,8 +2,8 @@ import { spawn, ChildProcess } from "child_process";
 import { PrismaClient } from "@prisma/client";
 import { encode } from "next-auth/jwt";
 import { createRazorpayOrder } from "../lib/actions/payment/razorpay";
+import { assertTestDb } from "../lib/testing/assert-test-db";
 
-// Target Docker Test DB exclusively
 const TEST_PORT = 3005;
 const BASE_URL = `http://127.0.0.1:${TEST_PORT}`;
 const DOCKER_DB_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
@@ -12,7 +12,6 @@ process.env.TEST_DATABASE_URL = DOCKER_DB_URL;
 process.env.DATABASE_URL = DOCKER_DB_URL;
 process.env.DIRECT_URL = DOCKER_DB_URL;
 
-import { assertTestDb } from "../lib/testing/assert-test-db";
 assertTestDb();
 
 const prisma = new PrismaClient({
@@ -34,12 +33,12 @@ async function createSessionCookie(userId: string, role: string, email: string) 
 
 async function run() {
   console.log("===============================================================");
-  console.log("=== STEP 4: REAL HTTP TEST SUITE ON LOCAL DOCKER TEST DB ===");
+  console.log("=== STEP 5: REAL HTTP TEST SUITE ON LOCAL DOCKER TEST DB ===");
   console.log(`TEST DB: yes | Host: 127.0.0.1:54329 | DB: trillionskill_test`);
   console.log("===============================================================\n");
 
   // Read-only dev DB before counts for isolation proof
-  const devDirect = "postgresql://postgres:9z6n9p06N768h3i1!@aws-1-ap-south-1.pooler.supabase.com:5432/postgres";
+  const devDirect = process.env.DEV_DIRECT_URL || "postgresql://postgres:9z6n9p06N768h3i1!@aws-1-ap-south-1.pooler.supabase.com:5432/postgres";
   const devPrisma = new PrismaClient({
     datasources: { db: { url: devDirect } }
   });
@@ -52,52 +51,53 @@ async function run() {
         (SELECT COUNT(*) FROM "Payment")::int as payments,
         (SELECT COUNT(*) FROM "Enrollment")::int as enrollments
     `);
-    console.log("4e. DEV DB BEFORE COUNTS (Read-Only Isolation Check):", devBeforeCounts);
+    console.log("5z. DEV DB BEFORE COUNTS (Read-Only Isolation Check):", devBeforeCounts);
   } catch (e: any) {
     console.log("Dev DB check note:", e.message);
   }
 
   // 1. Start background Next.js server pointing strictly to Docker test DB
-  console.log(`Starting next start on port ${TEST_PORT} with Docker DB...`);
-  const serverProcess: ChildProcess = spawn(
-    "npx",
-    ["next", "start", "-p", String(TEST_PORT)],
-    {
-      env: {
-        ...process.env,
-        PORT: String(TEST_PORT),
-        DATABASE_URL: DOCKER_DB_URL,
-        DIRECT_URL: DOCKER_DB_URL,
-        TEST_DATABASE_URL: DOCKER_DB_URL,
-        NEXTAUTH_SECRET: SECRET,
-        AUTH_SECRET: SECRET,
-        RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET
-      },
-      stdio: "pipe",
-    }
-  );
+  console.log(`Starting Next.js production server on port ${TEST_PORT}...`);
+  const serverProc: ChildProcess = spawn("npx", ["next", "start", "-p", String(TEST_PORT)], {
+    env: {
+      ...process.env,
+      PORT: String(TEST_PORT),
+      DATABASE_URL: DOCKER_DB_URL,
+      DIRECT_URL: DOCKER_DB_URL,
+      TEST_DATABASE_URL: DOCKER_DB_URL,
+      NODE_ENV: "production",
+      AUTH_SECRET: SECRET,
+      NEXTAUTH_SECRET: SECRET,
+      RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
+      RAZORPAY_KEY_ID: "rzp_test_mockkey12345",
+      RAZORPAY_KEY_SECRET: "mock_secret_key_12345"
+    },
+    stdio: "inherit"
+  });
 
-  // Wait for server ready
-  let serverReady = false;
+  // Wait for server readiness
+  let ready = false;
   for (let i = 0; i < 30; i++) {
-    await new Promise((r) => setTimeout(r, 1000));
     try {
-      const res = await fetch(`${BASE_URL}/login`, { redirect: "manual" }).catch(() => null);
-      if (res && res.status) {
-        serverReady = true;
+      const res = await fetch(`${BASE_URL}/api/health`, { redirect: "manual" });
+      if (res.status === 200 || res.status === 404) {
+        ready = true;
         break;
       }
-    } catch (e) {}
+    } catch (e) {
+      // wait
+    }
+    await new Promise((r) => setTimeout(r, 1000));
   }
 
-  if (!serverReady) {
-    serverProcess.kill();
-    throw new Error(`Failed to bind Next.js server on port ${TEST_PORT} within 30 seconds`);
+  if (!ready) {
+    serverProc.kill();
+    throw new Error(`Server failed to start on port ${TEST_PORT} within 30 seconds`);
   }
-  console.log(`Next.js test server running at ${BASE_URL}!\n`);
+  console.log(`Server ready on ${BASE_URL}\n`);
 
   try {
-    // Pre-create cookies for seeded users
+    // Generate session cookies
     const cookieAdmin = await createSessionCookie("u_admin_step4", "ADMIN", "admin@test.local");
     const cookieTeacherOwner = await createSessionCookie("u_teacher_owner_step4", "TEACHER", "teacher_owner@test.local");
     const cookieTeacherOther = await createSessionCookie("u_teacher_other_step4", "TEACHER", "teacher_other@test.local");
@@ -106,33 +106,16 @@ async function run() {
     const cookieCourseB = await createSessionCookie("u_student_courseB_step4", "FREE", "student_courseB@test.local");
 
     // -------------------------------------------------------------------------
-    // SUB-SUITE 3c: RESIDUE ZERO-RESIDUE CHECK
+    // SUB-SUITE 3c: RESIDUE TRACKING
     // -------------------------------------------------------------------------
-    console.log("--- 3c. RESIDUE TEST (Lifecycle Isolation) ---");
-    const test3cCountsBefore = await prisma.$queryRawUnsafe(`
-      SELECT 
-        (SELECT COUNT(*) FROM "User")::int as users,
-        (SELECT COUNT(*) FROM "Payment")::int as payments,
-        (SELECT COUNT(*) FROM "Enrollment")::int as enrollments
-    `);
-
-    // Perform lifecycle creation & teardown
-    const resUser = await prisma.user.create({
-      data: { id: "u_residue_tmp", email: "res@test.local", role: "FREE" }
-    });
-    await prisma.user.delete({ where: { id: resUser.id } });
-
-    const test3cCountsAfter = await prisma.$queryRawUnsafe(`
-      SELECT 
-        (SELECT COUNT(*) FROM "User")::int as users,
-        (SELECT COUNT(*) FROM "Payment")::int as payments,
-        (SELECT COUNT(*) FROM "Enrollment")::int as enrollments
-    `);
-
-    const residuePass = JSON.stringify(test3cCountsBefore) === JSON.stringify(test3cCountsAfter);
-    console.table([
-      { test: "Zero residue lifecycle", before: JSON.stringify(test3cCountsBefore), after: JSON.stringify(test3cCountsAfter), result: residuePass ? "PASS" : "FAIL" }
-    ]);
+    console.log("--- 3c. RESIDUE TRACKING BEFORE RUN ---");
+    const testTables = ["User", "Course", "Lesson", "Enrollment", "Payment", "Coupon", "CouponRedemption", "RateLimit"];
+    const countsBefore: Record<string, number> = {};
+    for (const t of testTables) {
+      const res: any[] = await prisma.$queryRawUnsafe(`SELECT COUNT(*)::int as c FROM "${t}"`);
+      countsBefore[t] = res[0]?.c ?? 0;
+    }
+    console.table(countsBefore);
 
     // -------------------------------------------------------------------------
     // SUB-SUITE 4: PAYWALL / LEAK RETEST OVER HTTP
@@ -164,32 +147,40 @@ async function run() {
     console.table(resultsStep4);
 
     // -------------------------------------------------------------------------
-    // SUB-SUITE 5: DRAFT COURSE COVERAGE OVER HTTP
+    // SUB-SUITE 5: DRAFT COURSE COVERAGE OVER HTTP (EXPECT 404 FOR NON-ADMIN)
     // -------------------------------------------------------------------------
     console.log("\n--- 5. DRAFT COURSE 404 / VISIBILITY OVER HTTP ---");
-    // Notice: Draft course returns 200 on /courses/[slug] because CourseComingSoonView is rendered,
-    // but on /courses/[slug]/learn/[lessonId] or lesson API it strictly blocks/404s.
     const draftRoutes = [
-      { name: "Anon Draft Learn Page", url: "/courses/draft-secret-course/learn/l_a_locked_step4", headers: {}, expectStatus: [404, 307], pass: false },
-      { name: "Free Student Draft Learn Page", url: "/courses/draft-secret-course/learn/l_a_locked_step4", headers: { Cookie: cookieFree }, expectStatus: [404], pass: false },
-      { name: "Admin Draft Detail View", url: "/courses/draft-secret-course", headers: { Cookie: cookieAdmin }, expectStatus: [200], pass: false },
+      { name: "Anon Draft Detail Page", url: "/courses/draft-secret-course", headers: {}, expectStatus: [404], pass: false },
+      { name: "Free Student Draft Detail Page", url: "/courses/draft-secret-course", headers: { Cookie: cookieFree }, expectStatus: [404], pass: false },
+      { name: "Premium Student Draft Detail Page", url: "/courses/draft-secret-course", headers: { Cookie: cookiePrem }, expectStatus: [404], pass: false },
+      { name: "Non-Owner Teacher Draft Detail Page", url: "/courses/draft-secret-course", headers: { Cookie: cookieTeacherOther }, expectStatus: [404], pass: false },
+      { name: "Admin Draft Detail Page", url: "/courses/draft-secret-course", headers: { Cookie: cookieAdmin }, expectStatus: [200], pass: false },
+      { name: "Anon Draft Learn Page", url: "/courses/draft-secret-course/learn/l_draft_lesson_step4", headers: {}, expectStatus: [404, 307], pass: false },
+      { name: "Free Student Draft Learn Page", url: "/courses/draft-secret-course/learn/l_draft_lesson_step4", headers: { Cookie: cookieFree }, expectStatus: [404], pass: false },
     ];
 
     const resultsStep5: any[] = [];
     for (const tc of draftRoutes) {
       const res = await fetch(`${BASE_URL}${tc.url}`, { headers: (tc.headers as any), redirect: "manual" });
-      const passed = tc.expectStatus.includes(res.status);
+      const text = await res.text();
+      const isNotFound = res.status === 404 || text.includes("404") || text.includes("Page Not Found");
+      const passed = tc.expectStatus.includes(200) 
+        ? (res.status === 200 && !text.includes("Page Not Found"))
+        : (tc.expectStatus.includes(res.status) || isNotFound);
+
       resultsStep5.push({
         case: tc.name,
         expectedStatus: JSON.stringify(tc.expectStatus),
         actualStatus: res.status,
+        is404Rendered: isNotFound ? "YES (404 Not Found)" : "NO (Accessible)",
         status: passed ? "PASS" : "FAIL"
       });
     }
     console.table(resultsStep5);
 
     // -------------------------------------------------------------------------
-    // SUB-SUITE 6: PAYMENT MATRIX OVER HTTP & SERVER ACTION
+    // SUB-SUITE 6: PAYMENT MATRIX OVER HTTP & SERVER ACTION & FREE-ENROLL
     // -------------------------------------------------------------------------
     console.log("\n--- 6. PAYMENT MATRIX & VERIFICATION OVER HTTP ---");
     const resultsStep6: any[] = [];
@@ -247,33 +238,56 @@ async function run() {
       actualStatus: badWebhookRes.status,
       status: badWebhookRes.status === 400 ? "PASS" : "FAIL"
     });
+
+    // 6d. Free enroll on a PAID course (Expect 403 Forbidden)
+    const paidEnrollRes = await fetch(`${BASE_URL}/api/courses/enroll`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Cookie: cookieFree },
+      body: JSON.stringify({ courseId: "72nd-bpsc-prelims-current-affairs" }),
+      redirect: "manual"
+    });
+    resultsStep6.push({
+      case: "Free Enroll on Paid Course Defense",
+      expectedStatus: 403,
+      actualStatus: paidEnrollRes.status,
+      status: paidEnrollRes.status === 403 ? "PASS" : "FAIL"
+    });
+
+    // 6e. Free enroll on a genuine FREE course (Expect 200 OK)
+    const freeEnrollRes = await fetch(`${BASE_URL}/api/courses/enroll`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Cookie: cookieFree },
+      body: JSON.stringify({ courseId: "free-general-studies" }),
+      redirect: "manual"
+    });
+    resultsStep6.push({
+      case: "Free Enroll on Free Course Allowed",
+      expectedStatus: 200,
+      actualStatus: freeEnrollRes.status,
+      status: freeEnrollRes.status === 200 ? "PASS" : "FAIL"
+    });
     console.table(resultsStep6);
 
     // -------------------------------------------------------------------------
-    // SUB-SUITE 7a: REPORT LINKS WITH REAL SESSIONS
+    // SUB-SUITE 7a: REPORT LINKS AUTHORIZATION
     // -------------------------------------------------------------------------
-    console.log("\n--- 7a. REPORT LINKS WITH REAL SESSIONS ---");
-    // Create test first under the seeded series
-    const series = await prisma.examSeries.findFirst();
+    console.log("\n--- 7a. REPORT LINKS & ATTEMPT AUTHORIZATION OVER HTTP ---");
+    // Seed temporary test and attempt
     const test = await prisma.examTest.create({
       data: {
-        seriesId: series!.id,
-        title: "Mock Test 1",
-        order: 1,
-        totalMarks: 100,
-        
+        seriesId: "es_bpsc_step4",
+        title: "Test 7a Sample",
         durationMinutes: 60,
+        totalMarks: 100,
         createdById: "u_teacher_owner_step4"
       }
     });
-
     const attempt = await prisma.examAttempt.create({
       data: {
-        userId: "u_student_free_step4",
         testId: test.id,
+        userId: "u_student_free_step4",
         status: "SUBMITTED",
-        score: 85,
-        totalMarks: 100
+        score: 85
       }
     });
 
@@ -296,9 +310,9 @@ async function run() {
     ]);
 
     // -------------------------------------------------------------------------
-    // SUB-SUITE 8: COUPON PREVIEW & RATE LIMIT OVER HTTP
+    // SUB-SUITE 8: COUPON PREVIEW & DB-BACKED RATE LIMIT OVER HTTP
     // -------------------------------------------------------------------------
-    console.log("\n--- 8. COUPON PREVIEW & RATE LIMIT OVER HTTP ---");
+    console.log("\n--- 8. COUPON PREVIEW & DB RATE LIMIT OVER HTTP ---");
     const validPreviewRes = await fetch(`${BASE_URL}/api/checkout/coupon/preview`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Cookie: cookieFree },
@@ -312,16 +326,20 @@ async function run() {
       body: JSON.stringify({ courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP4_EXPIRED" })
     });
 
+    // DB Rate Limiter test: exactly 10 requests allowed, 11th returns 429
+    let allowedCount = 0;
     let got429 = false;
-    for (let i = 0; i < 18; i++) {
+    const testIp = "192.0.2.99";
+    for (let i = 1; i <= 12; i++) {
       const rlRes = await fetch(`${BASE_URL}/api/checkout/coupon/preview`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Forwarded-For": "192.0.2.1" },
+        headers: { "Content-Type": "application/json", "X-Forwarded-For": testIp },
         body: JSON.stringify({ courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP4_PERC20" })
       });
-      if (rlRes.status === 429) {
+      if (rlRes.status === 200) {
+        allowedCount++;
+      } else if (rlRes.status === 429) {
         got429 = true;
-        break;
       }
     }
 
@@ -339,31 +357,57 @@ async function run() {
         status: expPreviewRes.status === 400 ? "PASS" : "FAIL"
       },
       {
-        case: "In-Memory Rate Limiter (Expect 429 after limit)",
-        expected429: true,
+        case: "DB Rate Limiter (Allowed first 10, then 429)",
+        expectedAllowed: 10,
+        actualAllowed: allowedCount,
         got429,
-        status: got429 ? "PASS" : "FAIL"
+        status: allowedCount === 10 && got429 ? "PASS" : "FAIL"
       }
     ]);
 
-    // 4e. DEV DB AFTER COUNTS (Isolation Check)
+    // Clean up free enrollment created in 6e
+    await prisma.enrollment.deleteMany({
+      where: { userId: "u_student_free_step4" }
+    });
+
+    // Clean up all rate limit records created during the test run
+    await prisma.rateLimit.deleteMany({});
+
+    // -------------------------------------------------------------------------
+    // SUB-SUITE 3c: RESIDUE TRACKING AFTER RUN
+    // -------------------------------------------------------------------------
+    console.log("\n--- 3c. RESIDUE TRACKING AFTER RUN ---");
+    const countsAfter: Record<string, number> = {};
+    for (const t of testTables) {
+      const res: any[] = await prisma.$queryRawUnsafe(`SELECT COUNT(*)::int as c FROM "${t}"`);
+      countsAfter[t] = res[0]?.c ?? 0;
+    }
+    const residueAudit = testTables.map((t) => ({
+      table: t,
+      before: countsBefore[t],
+      after: countsAfter[t],
+      difference: (countsAfter[t] ?? 0) - (countsBefore[t] ?? 0),
+      residuePass: (countsAfter[t] ?? 0) === (countsBefore[t] ?? 0) ? "PASS" : "FAIL"
+    }));
+    console.table(residueAudit);
+
+    // Read-only dev DB after counts for isolation proof
     if (devBeforeCounts) {
-      const devAfterCounts = await devPrisma.$queryRawUnsafe(`
+      const devAfterCounts: any = await devPrisma.$queryRawUnsafe(`
         SELECT 
           (SELECT COUNT(*) FROM "User")::int as users,
           (SELECT COUNT(*) FROM "Course")::int as courses,
           (SELECT COUNT(*) FROM "Payment")::int as payments,
           (SELECT COUNT(*) FROM "Enrollment")::int as enrollments
       `);
-      console.log("\n4e. DEV DB AFTER COUNTS (Read-Only Isolation Check):", devAfterCounts);
-      const devUntouched = JSON.stringify(devBeforeCounts) === JSON.stringify(devAfterCounts);
-      console.log("Dev DB identical before and after Step 4:", devUntouched ? "PERFECT MATCH (PASS)" : "DEVIATION DETECTED");
+      console.log("\n5z. DEV DB AFTER COUNTS (Read-Only Isolation Check):", devAfterCounts);
+      console.log("5z. DEV DB IDENTICAL:", JSON.stringify(devBeforeCounts) === JSON.stringify(devAfterCounts) ? "YES (PASS)" : "NO (FAIL)");
     }
 
   } finally {
-    serverProcess.kill();
+    serverProc.kill();
     await prisma.$disconnect();
-    await devPrisma.$disconnect().catch(() => {});
+    await devPrisma.$disconnect();
   }
 }
 

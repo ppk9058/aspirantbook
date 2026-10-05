@@ -1236,3 +1236,12 @@ model PyqUnlock {
   @@index([userId])
 }
 
+model RateLimit {
+  id          String   @id @default(cuid())
+  key         String
+  windowStart DateTime
+  count       Int      @default(0)
+
+  @@unique([key, windowStart])
+  @@index([windowStart])
+}

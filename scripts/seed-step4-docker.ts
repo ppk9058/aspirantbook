@@ -167,6 +167,33 @@ async function run() {
     }
   });
 
+  // Chapter and Lesson for Draft Course
+  const chDraft = await prisma.chapter.upsert({
+    where: { id: "ch_draft_step4" },
+    update: {},
+    create: {
+      id: "ch_draft_step4",
+      courseId: courseDraft.id,
+      title: "Draft Secrets Chapter",
+      order: 1
+    }
+  });
+
+  await prisma.lesson.upsert({
+    where: { id: "l_draft_lesson_step4" },
+    update: {},
+    create: {
+      id: "l_draft_lesson_step4",
+      chapterId: chDraft.id,
+      title: "Confidential Draft Lesson",
+      type: LessonType.VIDEO,
+      order: 1,
+      isTrial: false,
+      videoUrl: "https://secret.example.test/draft.mp4",
+      duration: 300
+    }
+  });
+
   // Enroll student_courseB into Course B only
   await prisma.enrollment.upsert({
     where: {
