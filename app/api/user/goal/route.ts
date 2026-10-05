@@ -3,8 +3,7 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
 
-// In-memory fallback map for active user goals across the session
-export const userGoalsMemoryMap = new Map<string, { goalId: string; subGoalId?: string; updatedAt: string }>()
+import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
 
 export async function GET() {
     try {

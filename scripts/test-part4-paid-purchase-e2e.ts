@@ -133,7 +133,7 @@ async function runPart4PaidCourseVerification() {
 
     // Inject mock/interception for window.Razorpay in test mode so headless browser can complete test payment callback
     console.log("Injecting Razorpay test mode mock handler...")
-    await page.evaluate(({ testOrderId, testPaymentId, testSignature, courseId, userId }) => {
+    await page.evaluate(() => {
       (window as any).Razorpay = function (options: any) {
         return {
           open: async function () {

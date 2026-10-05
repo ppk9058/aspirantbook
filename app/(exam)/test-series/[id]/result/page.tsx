@@ -17,6 +17,7 @@ import {
   Award,
   BookOpen,
 } from "lucide-react"
+import { sanitizeReturnPath } from "@/lib/utils/return-path"
 
 // ─────────────────────────────────────────────────────────────────
 // Types
@@ -499,9 +500,7 @@ function ResultContent() {
             <button
               onClick={() => {
                 const rawReturnPath = searchParams.get("returnPath")
-                const safeReturnPath = rawReturnPath && rawReturnPath.startsWith("/") && !rawReturnPath.startsWith("//")
-                  ? rawReturnPath
-                  : `/test-series/${seriesId}`
+                const safeReturnPath = sanitizeReturnPath(rawReturnPath, `/test-series/${seriesId}`)
                 router.push(safeReturnPath)
               }}
               style={{
@@ -641,9 +640,7 @@ function ResultContent() {
           <button
             onClick={() => {
               const rawReturnPath = searchParams.get("returnPath")
-              const safeReturnPath = rawReturnPath && rawReturnPath.startsWith("/") && !rawReturnPath.startsWith("//")
-                ? rawReturnPath
-                : `/test-series/${seriesId}`
+              const safeReturnPath = sanitizeReturnPath(rawReturnPath, `/test-series/${seriesId}`)
               router.push(safeReturnPath)
             }}
             className="min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-600 transition-colors flex items-center justify-center shrink-0 cursor-pointer"

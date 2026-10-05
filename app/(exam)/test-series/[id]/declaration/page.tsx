@@ -15,6 +15,7 @@ import {
     Globe
 } from "lucide-react"
 import { useSession } from "next-auth/react"
+import { sanitizeReturnPath } from "@/lib/utils/return-path"
 
 interface TestMeta {
     id: string
@@ -92,9 +93,7 @@ function DeclarationContent() {
     }
 
     const rawReturnPath = searchParams.get("returnPath")
-    const safeReturnPath = rawReturnPath && rawReturnPath.startsWith("/") && !rawReturnPath.startsWith("//")
-        ? rawReturnPath
-        : `/test-series/${seriesId}`
+    const safeReturnPath = sanitizeReturnPath(rawReturnPath, `/test-series/${seriesId}`)
 
     if (error || !test) {
         const backLabel = safeReturnPath.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"

@@ -4,7 +4,7 @@ import { verifyRazorpaySignature } from "@/lib/payments/razorpay"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
-import { userGoalsMemoryMap } from "@/app/api/user/goal/route"
+import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
 
 const COURSE_ALIASES: Record<string, string> = {
     "half-yearly-678": "half-yearly-6",

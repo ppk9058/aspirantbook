@@ -7,6 +7,7 @@ import { Flag, FileText, BookOpen, AlertTriangle, X, User, Pause, Play, Maximize
 import { useSession } from "next-auth/react"
 import { saveExamState, loadExamState, clearExamState } from "@/lib/exam-idb"
 import MathRenderer from "@/components/exam/MathRenderer"
+import { sanitizeReturnPath } from "@/lib/utils/return-path"
 
 function formatQuestionText(text: string): string {
     if (!text) return ""
@@ -1265,9 +1266,7 @@ function Arena() {
                         <button
                             onClick={() => {
                                 const rawReturnPath = searchParams.get("returnPath")
-                                const safeReturnPath = rawReturnPath && rawReturnPath.startsWith("/") && !rawReturnPath.startsWith("//")
-                                    ? rawReturnPath
-                                    : `/test-series/${seriesId}`
+                                const safeReturnPath = sanitizeReturnPath(rawReturnPath, `/test-series/${seriesId}`)
                                 router.push(safeReturnPath)
                             }}
                             style={{

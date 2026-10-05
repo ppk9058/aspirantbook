@@ -3,6 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { Play, RotateCcw, FileText, ArrowRight } from "lucide-react"
+import { sanitizeReturnPath } from "@/lib/utils/return-path"
 
 export interface TestActionButtonProps {
   testId: string
@@ -129,7 +130,10 @@ export function TestActionButton({
   const queryParams = new URLSearchParams()
   queryParams.set("testId", testId)
   if (testTitle) queryParams.set("title", testTitle)
-  if (returnPath && returnPath.startsWith("/")) queryParams.set("returnPath", returnPath)
+  if (returnPath) {
+    const sanitized = sanitizeReturnPath(returnPath, "")
+    if (sanitized) queryParams.set("returnPath", sanitized)
+  }
 
   // 1. IN_PROGRESS state -> "Continue"
   if (status?.state === "IN_PROGRESS" && status.inProgressAttemptId) {
