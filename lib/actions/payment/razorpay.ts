@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import Razorpay from "razorpay"
 import { prisma } from "@/lib/prisma"
+import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
@@ -39,6 +40,7 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
     }
 
     let amountInPaise: number
+    let resolvedCourse: { id: string; price: number | null; isPremium: boolean } | null = null
 
     // Server-side authoritative price determination
     if (courseId) {
@@ -46,13 +48,14 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
             where: {
                 OR: [{ id: courseId }, { slug: courseId }],
             },
-            select: { id: true, price: true, isPremium: true },
+            select: { id: true, price: true, isPremium: true, status: true, isPublished: true },
         })
 
-        if (!course) {
+        if (!course || !isCourseVisibleToUser(course, session?.user?.role)) {
             throw new Error("Course not found for payment order.")
         }
 
+        resolvedCourse = course
         const effectiveCoursePrice = course.price ?? 0
 
         if (effectiveCoursePrice <= 0 && !course.isPremium) {
@@ -82,13 +85,37 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         receipt: `rcpt_${userId.slice(-6)}_${Date.now()}`,
         notes: {
             userId: userId,
-            courseId: courseId || "",
+            courseId: resolvedCourse?.id || courseId || "",
             plan: plan || (courseId ? "COURSE" : "MONTHLY"),
         },
     }
 
     try {
         const order = await razorpay.orders.create(options)
+
+        // Persist server-side order record for payment trust & webhook fulfillment
+        try {
+            await prisma.payment.create({
+                data: {
+                    userId,
+                    amount: Number(order.amount) / 100,
+                    currency: order.currency || "INR",
+                    status: "PENDING",
+                    paymentProvider: "RAZORPAY",
+                    externalId: order.id,
+                    metadata: {
+                        orderId: order.id,
+                        courseId: resolvedCourse?.id || courseId || null,
+                        plan: plan || (courseId ? "COURSE" : "MONTHLY"),
+                        amountPaise: order.amount,
+                        couponCode: couponCode || null,
+                    },
+                },
+            })
+        } catch (dbErr) {
+            console.error("Failed to persist server-side payment order record:", dbErr)
+        }
+
         return {
             orderId: order.id,
             amount: order.amount,
@@ -100,3 +127,4 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         throw new Error("Failed to create Razorpay order")
     }
 }
+

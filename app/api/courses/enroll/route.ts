@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
 import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
+import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 
 const COURSE_ALIASES: Record<string, string> = {
     "half-yearly-678": "half-yearly-6",
@@ -83,10 +84,12 @@ export async function POST(req: NextRequest) {
                     { slug: courseId },
                 ],
             },
-            select: { id: true, title: true, slug: true, price: true, isPremium: true },
+            select: { id: true, title: true, slug: true, price: true, isPremium: true, status: true, isPublished: true },
         })
 
-        if (!course) {
+        const callerRole = (session?.user as any)?.role
+
+        if (!course || !isCourseVisibleToUser(course, callerRole)) {
             return NextResponse.json({ error: "Course not found" }, { status: 404 })
         }
 

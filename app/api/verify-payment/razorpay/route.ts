@@ -56,6 +56,39 @@ export async function POST(request: NextRequest) {
             )
         }
 
+        // Validate against DB order record created server-side for razorpay_order_id
+        let dbOrderRecord: any = null
+        if (orderId) {
+            dbOrderRecord = await prisma.payment.findFirst({
+                where: {
+                    OR: [
+                        { externalId: orderId },
+                        { metadata: { path: ["orderId"], equals: orderId } },
+                    ],
+                },
+            })
+            if (dbOrderRecord) {
+                if (currentUserId && dbOrderRecord.userId !== currentUserId) {
+                    return NextResponse.json(
+                        { error: "Order ownership mismatch" },
+                        { status: 403 }
+                    )
+                }
+
+                const dbCourseId = (dbOrderRecord.metadata as any)?.courseId
+                if (dbCourseId && courseId) {
+                    const resolvedTarget = COURSE_ALIASES[courseId] || courseId
+                    const resolvedOrderTarget = COURSE_ALIASES[dbCourseId] || dbCourseId
+                    if (resolvedTarget !== resolvedOrderTarget && courseId !== dbCourseId) {
+                        return NextResponse.json(
+                            { error: "Order course mismatch" },
+                            { status: 400 }
+                        )
+                    }
+                }
+            }
+        }
+
         // Validate Razorpay order ownership and courseId match if order exists in Razorpay
         if (razorpay && orderId && !orderId.startsWith("order_mock_") && !orderId.startsWith("order_test_")) {
             try {
@@ -131,21 +164,18 @@ export async function POST(request: NextRequest) {
                     if (e.code !== "P2002") throw e
                 }
 
-                // Record payment idempotently
+                // Record or update payment idempotently
                 try {
-                    const existingPayment = await prisma.payment.findFirst({
-                        where: { externalId: paymentId },
-                    })
-                    if (!existingPayment) {
-                        await prisma.payment.create({
+                    if (dbOrderRecord) {
+                        await prisma.payment.updateMany({
+                            where: { id: dbOrderRecord.id },
                             data: {
-                                userId: user.id,
-                                amount: course.price ?? 0,
-                                currency: "INR",
                                 status: "COMPLETED",
-                                paymentProvider: "razorpay",
                                 externalId: paymentId,
+                                paymentMethod: "razorpay",
                                 metadata: {
+                                    ...((dbOrderRecord.metadata as any) || {}),
+                                    paymentId,
                                     orderId,
                                     courseId: course.id,
                                     courseTitle: course.title,
@@ -153,6 +183,28 @@ export async function POST(request: NextRequest) {
                                 },
                             },
                         })
+                    } else {
+                        const existingPayment = await prisma.payment.findFirst({
+                            where: { externalId: paymentId },
+                        })
+                        if (!existingPayment) {
+                            await prisma.payment.create({
+                                data: {
+                                    userId: user.id,
+                                    amount: course.price ?? 0,
+                                    currency: "INR",
+                                    status: "COMPLETED",
+                                    paymentProvider: "razorpay",
+                                    externalId: paymentId,
+                                    metadata: {
+                                        orderId,
+                                        courseId: course.id,
+                                        courseTitle: course.title,
+                                        courseSlug: course.slug,
+                                    },
+                                },
+                            })
+                        }
                     }
                 } catch (e: any) {
                     if (e.code !== "P2002") throw e

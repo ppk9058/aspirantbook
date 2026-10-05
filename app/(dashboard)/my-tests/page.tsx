@@ -7,6 +7,13 @@ import MyTestsHubClient, {
     AttemptRecord,
     BrowseSeriesItem,
 } from "@/components/test-series/MyTestsHubClient"
+import {
+    getExamInstructionsUrl,
+    getExamAttemptUrl,
+    getExamResultUrl,
+    getExamSolutionsUrl,
+    getExamLeaderboardUrl,
+} from "@/lib/exam/urls"
 
 export const dynamic = "force-dynamic"
 
@@ -62,7 +69,12 @@ export default async function MyTestsPage() {
                         hour: "2-digit",
                         minute: "2-digit",
                     }),
-                    attemptUrl: `/test-series/${att.test.series?.slug || att.testId}/${att.id}/attempt`,
+                    attemptUrl: getExamAttemptUrl({
+                        seriesId: att.test.series?.slug || att.test.seriesId,
+                        testId: att.testId,
+                        attemptId: att.id,
+                        title: att.test.title,
+                    }),
                 }
             })
 
@@ -118,7 +130,11 @@ export default async function MyTestsPage() {
                     languages: s.languages || "English, Hindi",
                     nextTestTitle: nextTest?.title || "All tests completed",
                     nextTestUrl: nextTest
-                        ? `/test-series/${slug}/${nextTest.id}/attempt`
+                        ? getExamInstructionsUrl({
+                            seriesId: slug,
+                            testId: nextTest.id,
+                            title: nextTest.title,
+                        })
                         : `/test-series/${slug}`,
                     viewAllUrl: `/test-series/${slug}`,
                     highlights: [],
@@ -184,8 +200,18 @@ export default async function MyTestsPage() {
                         percentile: ea.percentile ? Math.round(ea.percentile * 10) / 10 : 0,
                         rank: ea.allIndiaRank || 0,
                         accuracy: eaAccuracy,
-                        solutionUrl: `/test-series/${seriesSlug}/solutions?testId=${encodeURIComponent(testId)}&attemptId=${encodeURIComponent(ea.id)}`,
-                        reportUrl: `/test-series/${seriesSlug}/result?testId=${encodeURIComponent(testId)}&attemptId=${encodeURIComponent(ea.id)}`,
+                        solutionUrl: getExamSolutionsUrl({
+                            seriesId: seriesSlug,
+                            testId,
+                            attemptId: ea.id,
+                            title: ea.test?.title,
+                        }),
+                        reportUrl: getExamResultUrl({
+                            seriesId: seriesSlug,
+                            testId,
+                            attemptId: ea.id,
+                            title: ea.test?.title,
+                        }),
                     }
                 })
 
@@ -216,9 +242,19 @@ export default async function MyTestsPage() {
                     correct: latestAtt.correctCount,
                     wrong: latestAtt.wrongCount,
                     skipped: latestAtt.skippedCount,
-                    solutionUrl: `/test-series/${seriesSlug}/solutions?testId=${encodeURIComponent(testId)}&attemptId=${encodeURIComponent(latestAtt.id)}`,
-                    reportUrl: `/test-series/${seriesSlug}/result?testId=${encodeURIComponent(testId)}&attemptId=${encodeURIComponent(latestAtt.id)}`,
-                    leaderboardUrl: `/test-series/${seriesSlug}/leaderboard`,
+                    solutionUrl: getExamSolutionsUrl({
+                        seriesId: seriesSlug,
+                        testId,
+                        attemptId: latestAtt.id,
+                        title: latestAtt.test.title,
+                    }),
+                    reportUrl: getExamResultUrl({
+                        seriesId: seriesSlug,
+                        testId,
+                        attemptId: latestAtt.id,
+                        title: latestAtt.test.title,
+                    }),
+                    leaderboardUrl: getExamLeaderboardUrl(testId),
                     earlierAttempts,
                 }
             })

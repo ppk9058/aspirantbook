@@ -4,6 +4,7 @@ import React from "react"
 import Link from "next/link"
 import { Play, RotateCcw, FileText, ArrowRight } from "lucide-react"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
+import { getExamInstructionsUrl, getExamAttemptUrl, getExamResultUrl } from "@/lib/exam/urls"
 
 export interface TestActionButtonProps {
   testId: string
@@ -139,9 +140,13 @@ export function TestActionButton({
 
   // 1. IN_PROGRESS state -> "Continue"
   if (status?.state === "IN_PROGRESS" && status.inProgressAttemptId) {
-    const attemptQuery = new URLSearchParams(queryParams)
-    attemptQuery.set("attemptId", status.inProgressAttemptId)
-    const resumeUrl = `/test-series/${seriesId}/attempt?${attemptQuery.toString()}`
+    const resumeUrl = getExamAttemptUrl({
+      seriesId,
+      testId,
+      attemptId: status.inProgressAttemptId,
+      title: testTitle,
+      returnPath,
+    })
 
     return (
       <Link
@@ -156,10 +161,19 @@ export function TestActionButton({
 
   // 2. SUBMITTED state -> "Full Report" + optional "Retake"
   if (status?.state === "SUBMITTED" && status.latestSubmittedAttemptId) {
-    const reportQuery = new URLSearchParams(queryParams)
-    reportQuery.set("attemptId", status.latestSubmittedAttemptId)
-    const reportUrl = `/test-series/${seriesId}/result?${reportQuery.toString()}`
-    const retakeUrl = `/test-series/${seriesId}/instructions?${queryParams.toString()}`
+    const reportUrl = getExamResultUrl({
+      seriesId,
+      testId,
+      attemptId: status.latestSubmittedAttemptId,
+      title: testTitle,
+      returnPath,
+    })
+    const retakeUrl = getExamInstructionsUrl({
+      seriesId,
+      testId,
+      title: testTitle,
+      returnPath,
+    })
 
     return (
       <div className="inline-flex items-center gap-2">
@@ -186,7 +200,12 @@ export function TestActionButton({
   }
 
   // 3. Default NOT_STARTED state -> "Start Now"
-  const startUrl = `/test-series/${seriesId}/instructions?${queryParams.toString()}`
+  const startUrl = getExamInstructionsUrl({
+    seriesId,
+    testId,
+    title: testTitle,
+    returnPath,
+  })
   return (
     <Link
       href={startUrl}

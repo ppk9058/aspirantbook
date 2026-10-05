@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getBatchBySlug } from "@/lib/batches-service"
+import { auth } from "@/auth"
+import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 
 const COURSE_ALIASES: Record<string, string> = {
     "half-yearly-678": "half-yearly-6",
@@ -24,6 +26,8 @@ const COURSE_ALIASES: Record<string, string> = {
 
 export async function GET(req: NextRequest) {
     try {
+        const session = await auth()
+        const userRole = session?.user?.role
         const { searchParams } = new URL(req.url)
         const id = searchParams.get("id") || searchParams.get("courseId") || searchParams.get("slug") || searchParams.get("batchId")
 
@@ -55,6 +59,10 @@ export async function GET(req: NextRequest) {
         })
 
         if (course) {
+            if (!isCourseVisibleToUser(course, userRole)) {
+                return NextResponse.json({ error: "Course not found" }, { status: 404 })
+            }
+
             const totalLessons = course.chapters.reduce(
                 (acc, ch) => acc + (ch.lessons?.length || 0),
                 0

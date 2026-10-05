@@ -47,25 +47,55 @@ export async function POST(request: NextRequest) {
     try {
         if (event.event === "payment.captured" || event.event === "order.paid") {
             const payment = event.payload?.payment?.entity || event.payload?.order?.entity
-            const orderId = payment?.order_id || event.payload?.order?.entity?.id || payment?.id
-            const notes = event.payload?.payment?.entity?.notes || event.payload?.order?.entity?.notes || {}
-            const userId = notes.userId
-            const courseId = notes.courseId
-            const plan = notes.plan as "MONTHLY" | "YEARLY" | "COURSE" | undefined
+            const orderId = payment?.order_id || event.payload?.order?.entity?.id
 
-            if (!userId) {
-                console.error("Missing userId in Razorpay payment webhook notes")
-                return NextResponse.json({ received: true })
+            if (!orderId) {
+                console.error("Missing orderId in Razorpay payment webhook payload")
+                return NextResponse.json({ received: true, warning: "Missing order_id; enrollment skipped" })
             }
 
-            // Verify user exists
+            // Derive user + course ONLY from our own DB record created server-side for razorpay_order_id.
+            // Notes from the browser or payment payload are IGNORED for identity.
+            const orderRecord = await prisma.payment.findFirst({
+                where: {
+                    OR: [
+                        { externalId: orderId },
+                        { metadata: { path: ["orderId"], equals: orderId } },
+                    ],
+                },
+            })
+
+            // If the order record doesn't exist, return 200 and log without enrolling.
+            if (!orderRecord) {
+                console.warn(`Unknown order record for order_id "${orderId}"; skipping enrollment`)
+                return NextResponse.json({ received: true, warning: "Unknown order record; enrollment skipped" })
+            }
+
+            const meta = (orderRecord.metadata as any) || {}
+            const userId = orderRecord.userId
+            const courseId = meta.courseId
+            const plan = meta.plan as "MONTHLY" | "YEARLY" | "COURSE" | undefined
+
+            // Compare payment.amount and currency to that DB record
+            const expectedPaise = meta.amountPaise ?? Math.round(orderRecord.amount * 100)
+            if (payment?.amount && payment.amount !== expectedPaise) {
+                console.error(`Amount mismatch in webhook: expected=${expectedPaise}, got=${payment.amount}; skipping enrollment`)
+                return NextResponse.json({ received: true, warning: "Amount mismatch; enrollment skipped" })
+            }
+
+            if (payment?.currency && orderRecord.currency && payment.currency.toUpperCase() !== orderRecord.currency.toUpperCase()) {
+                console.error(`Currency mismatch in webhook: expected=${orderRecord.currency}, got=${payment.currency}; skipping enrollment`)
+                return NextResponse.json({ received: true, warning: "Currency mismatch; enrollment skipped" })
+            }
+
+            // Verify user exists in database
             const user = await prisma.user.findUnique({
                 where: { id: userId },
-                select: { id: true },
+                select: { id: true, role: true },
             })
             if (!user) {
-                console.error("User in webhook not found:", userId)
-                return NextResponse.json({ received: true })
+                console.error("User in order record not found in database:", userId)
+                return NextResponse.json({ received: true, warning: "User not found" })
             }
 
             // Case A: Course Enrollment Fulfillment
@@ -78,15 +108,6 @@ export async function POST(request: NextRequest) {
                 })
 
                 if (course) {
-                    // Check if payment amount matches order amount (prevent underpayment/tampering)
-                    const orderEntity = event.payload?.order?.entity
-                    const isAmountMismatch = Boolean(orderEntity?.amount && payment.amount && orderEntity.amount !== payment.amount)
-
-                    if (isAmountMismatch) {
-                        console.error(`Amount mismatch in webhook: order=${orderEntity.amount}, payment=${payment.amount}; skipping enrollment`)
-                        return NextResponse.json({ received: true, warning: "Amount mismatch; enrollment skipped" })
-                    }
-
                     // Create enrollment idempotently
                     try {
                         await prisma.enrollment.upsert({
@@ -106,30 +127,27 @@ export async function POST(request: NextRequest) {
                         if (e.code !== "P2002") throw e
                     }
 
-                    // Record payment record idempotently
+                    // Update payment record to COMPLETED idempotently
                     try {
-                        const existingPayment = await prisma.payment.findFirst({
-                            where: { externalId: payment.id },
-                        })
-                        if (!existingPayment) {
-                            await prisma.payment.create({
-                                data: {
-                                    userId: user.id,
-                                    amount: payment.amount ? payment.amount / 100 : (course.price ?? 0),
-                                    currency: payment.currency || "INR",
-                                    status: "COMPLETED",
-                                    paymentMethod: payment.method || "card",
-                                    paymentProvider: "razorpay",
-                                    externalId: payment.id,
-                                    metadata: {
-                                        orderId,
-                                        courseId: course.id,
-                                        courseTitle: course.title,
-                                        courseSlug: course.slug,
-                                    },
+                        const completedPaymentId = payment?.id || `pay_${orderId}`
+                        await prisma.payment.updateMany({
+                            where: { id: orderRecord.id },
+                            data: {
+                                status: "COMPLETED",
+                                externalId: completedPaymentId,
+                                paymentMethod: payment?.method || "razorpay",
+                                amount: payment?.amount ? payment.amount / 100 : orderRecord.amount,
+                                metadata: {
+                                    ...meta,
+                                    paymentId: completedPaymentId,
+                                    orderId,
+                                    courseId: course.id,
+                                    courseTitle: course.title,
+                                    courseSlug: course.slug,
+                                    capturedAt: new Date().toISOString(),
                                 },
-                            })
-                        }
+                            },
+                        })
                     } catch (e: any) {
                         if (e.code !== "P2002") throw e
                     }
@@ -154,23 +172,23 @@ export async function POST(request: NextRequest) {
                     })
                 }
 
-                const existingPayment = await prisma.payment.findFirst({
-                    where: { externalId: payment.id },
-                })
-                if (!existingPayment) {
-                    await prisma.payment.create({
-                        data: {
-                            userId: user.id,
-                            subscriptionId: subscription.id,
-                            amount: payment.amount / 100,
-                            currency: payment.currency || "INR",
-                            status: "COMPLETED",
-                            paymentMethod: payment.method || "card",
-                            paymentProvider: "razorpay",
-                            externalId: payment.id,
+                const completedPaymentId = payment?.id || `pay_${orderId}`
+                await prisma.payment.updateMany({
+                    where: { id: orderRecord.id },
+                    data: {
+                        status: "COMPLETED",
+                        externalId: completedPaymentId,
+                        subscriptionId: subscription.id,
+                        paymentMethod: payment?.method || "razorpay",
+                        amount: payment?.amount ? payment.amount / 100 : orderRecord.amount,
+                        metadata: {
+                            ...meta,
+                            paymentId: completedPaymentId,
+                            orderId,
+                            capturedAt: new Date().toISOString(),
                         },
-                    })
-                }
+                    },
+                })
 
                 await prisma.user.update({
                     where: { id: user.id },

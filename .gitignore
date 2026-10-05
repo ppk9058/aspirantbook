@@ -57,3 +57,5 @@ scratch/
 screenshots/
 test-results/
 playwright-report/
+.test-users-manifest.json
+artifacts_pass*/

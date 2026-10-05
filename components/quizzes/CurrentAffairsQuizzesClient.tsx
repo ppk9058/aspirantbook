@@ -119,7 +119,7 @@ export default function CurrentAffairsQuizzesClient() {
     useEffect(() => {
         async function fetchDbQuizzes() {
             try {
-                const res = await fetch("/api/exam/test/list?category=Current%20Affairs%20Quizzes")
+                const res = await fetch("/api/exam/test/list?category=Current%20Affairs")
                 if (res.ok) {
                     const json = await res.json()
                     if (json.data && Array.isArray(json.data)) {

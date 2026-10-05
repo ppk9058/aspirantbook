@@ -47,19 +47,6 @@ export default auth((req) => {
         }
     }
 
-    // Draft / Unpublished Courses Protection (Section 4):
-    // Only ADMIN can access draft / unpublished courses (e.g. /courses/ai-course).
-    // Non-admin (anonymous, students, enrolled students) receive 404 Not Found.
-    const isAiCourse = nextUrl.pathname.startsWith("/courses/ai-course") || nextUrl.pathname.startsWith("/learn/ai-course")
-    if (isAiCourse && effectiveRole !== "ADMIN") {
-        return new NextResponse(
-            `<!DOCTYPE html><html><head><title>404: Not Found</title></head><body style="font-family:sans-serif;text-align:center;padding:100px;"><h1>404 • PAGE NOT FOUND</h1><p>The page or resource you requested doesn't exist.</p></body></html>`,
-            {
-                status: 404,
-                headers: { "Content-Type": "text/html; charset=utf-8" },
-            }
-        )
-    }
 
     // Public course details page (/courses/[slug]) is accessible to all students (even unlogged)
     const isCourseDetailsPage =
