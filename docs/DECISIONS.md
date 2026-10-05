@@ -1,29 +1,15 @@
-# Architectural & Product Decisions Log
+# Architectural & QA Decisions (Pass 9.1)
 
-## 2026-10-05: Product Alignment, Content Flags & Access Control
+## DECISION-01: Anonymous Access to Trial Lessons vs Full Video Course Player
+- **Context**: In Pass 9, J1-02 asserted anonymous access to `/courses/[slug]/learn/[lessonId]`. The route currently redirects unauthenticated users to `/login?callbackUrl=...` via NextAuth middleware (`middleware.ts`), which enforces that `/learn` and authenticated interactive player views require a verified session.
+- **Rule**: 
+  - The Course Details Overview page (`/courses/[slug]`) is 100% public to all anonymous visitors and displays the full curriculum, badges, and trial metadata without leaking private videos, attachments, or Telegram links.
+  - The interactive video classroom player (`/courses/[slug]/learn/[lessonId]`) requires a logged-in user session so that progress tracking, video completion analytics, doubt posting, and user identity can be properly associated with the user account.
+  - Trial lessons allow any logged-in user with role `FREE` (free tier) to view the complete lesson video and public trial notes without paying for the course.
+  - Unauthenticated anonymous users attempting to navigate directly to the deep video player URL `/courses/[slug]/learn/[lessonId]` are redirected via HTTP 307 to `/login` with an intact, sanitized `callbackUrl`.
 
-### 1. Course & Exam Series Flags Approval
-The project owner explicitly approved and finalized the content access flags:
-- **Exam Series**:
-  - `bpsc-72nd-2026`: Free tier (`isFree = true`, `isPro = false`, `isPublished = true`).
-  - `upsc-prelims-2026`: Free tier (`isFree = true`, `isPro = false`, `isPublished = true`).
-- **Video Courses**:
-  - `72nd-bpsc-prelims-current-affairs`: Paid Premium Course (`isPremium = true`, `price = 3299`, `status = PUBLISHED`).
-  - `3`: Paid Premium Course (`isPremium = true`, `price = 99`, `status = PUBLISHED`).
-  - `generative-ai`: Free Course (`isPremium = false`, `price = 0`, `status = PUBLISHED`).
-  - `ai-course-test`: Free Course (`isPremium = false`, `price = 0`, `status = PUBLISHED`).
-  - `ai-course`: Internal Draft Course (`isPremium = true`, `price = 0`, `status = DRAFT`).
-
-### 2. Draft Course Visibility Policy
-- Draft courses (`status = DRAFT` or `isPublished = false`) must strictly return **HTTP 404 Not Found** across all student and public touchpoints (detail pages, lesson learn viewers, checkout info API, catalog listings, and search).
-- Only authenticated users with the `ADMIN` role are permitted to view or preview draft courses (HTTP 200).
-- Even if a student somehow acquired an enrollment row for a draft course, student access is strictly gated with 404 until published by an admin.
-
-### 3. Deprecation of Hardcoded DEMO30 & Introduction of Dynamic Admin Coupons
-- The static hardcoded `DEMO30` discount coupon is completely removed from all server actions, checkout interfaces, and demo completion handlers.
-- Dynamic coupons are managed exclusively via database records (`Coupon` and `CouponRedemption` models) created by administrators in the Course Creation Studio.
-- Demo completion endpoints will only return a promotional coupon if the target course has an active, valid coupon configured with `offerAfterDemo = true`.
-
-### 4. Free Tests in Pro Exam Series
-- Tests flagged as `isPro = false` (or `isFree = true`) within an overall Pro exam series are designated as free sample tests.
-- UI action buttons and badges across Quizzes Hub, Series Detail, and My Tests explicitly display a distinct "Free sample" indicator to clearly communicate zero-cost access to prospective students.
+## DECISION-02: Next.js App Router 404 Delivery (Soft-404 vs Standard notFound())
+- **Context**: Calling `notFound()` inside dynamic server component pages (e.g. `/courses/[slug]`) renders the dedicated `app/not-found.tsx` UI. When served directly in Next.js App Router without a custom rewrite, Next.js streams the not-found layout with HTTP 200 on dynamic server renders or HTTP 404 on unmapped static routes.
+- **Rule**:
+  - All non-existent courses and draft courses for non-admins trigger `notFound()`, rendering the branded "404 • Page Not Found" view (`Looking for something?`).
+  - Draft courses never leak descriptions, curriculum, videos, or attachments to anonymous users or non-admin students.
