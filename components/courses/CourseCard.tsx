@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Star, Users, Clock, PlayCircle, BookOpen } from "lucide-react"
 import { cleanDescriptionSnippet } from "@/lib/utils"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { CoursePromoBadge } from "@/components/course/CoursePromoBadge"
 import type { CourseBadgeInfo } from "@/lib/coupons/badge-query"
 

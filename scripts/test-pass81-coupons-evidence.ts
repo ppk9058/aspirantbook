@@ -118,7 +118,7 @@ async function run() {
       createRazorpayOrder({
         userId: u.id,
         courseId: paidCourse.slug,
-        clientAmount: discountedPrice,
+        amount: discountedPrice,
         couponCode: "CONC_LIMIT_1",
       }).catch((err) => ({ error: err.message }))
     );
@@ -175,7 +175,7 @@ async function run() {
     const freshOrder = await createRazorpayOrder({
       userId: teacherUser.id,
       courseId: paidCourse.slug,
-      clientAmount: Math.floor(paidCourse.price! * 0.9),
+      amount: Math.floor(paidCourse.price! * 0.9),
       couponCode: "REC_EXPIRED",
     });
 

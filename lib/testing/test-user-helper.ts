@@ -30,7 +30,10 @@ export interface CreateTestUserOptions {
     email?: string
 }
 
+import { assertTestDb } from "./assert-test-db"
+
 export async function createTestUser(options: CreateTestUserOptions = {}) {
+    assertTestDb()
     const timestamp = Date.now()
     const random = Math.random().toString(36).substring(2, 7)
     const prefix = options.prefix || "test"
@@ -71,7 +74,7 @@ export async function teardownTestUsers(specificUserIds?: string[]) {
     await prisma.demoChatMessage.deleteMany({ where: { userId: { in: targetIds } } }).catch(() => {})
     await prisma.demoStageSession.deleteMany({ where: { userId: { in: targetIds } } }).catch(() => {})
     await prisma.courseDemoBooking.deleteMany({ where: { userId: { in: targetIds } } }).catch(() => {})
-    await prisma.demoBooking.deleteMany({ where: { userId: { in: targetIds } } }).catch(() => {})
+    await prisma.demoBooking.deleteMany({ where: { studentId: { in: targetIds } } }).catch(() => {})
     await prisma.examAttemptAnswer.deleteMany({ where: { attempt: { userId: { in: targetIds } } } }).catch(() => {})
     await prisma.examAttempt.deleteMany({ where: { userId: { in: targetIds } } }).catch(() => {})
     await prisma.examSeriesEnrollment.deleteMany({ where: { userId: { in: targetIds } } }).catch(() => {})
