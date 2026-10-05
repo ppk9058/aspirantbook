@@ -29,6 +29,7 @@ import {
     BookOpen,
     Eye
 } from "lucide-react"
+import { TestActionButton } from "@/components/test-series/TestActionButton"
 
 // Types
 interface PYQPaperItem {
@@ -891,15 +892,25 @@ export default function ExamPYQDedicatedPage() {
                                                         <span>Download PDF</span>
                                                     </button>
 
-                                                    {/* Requirement 3: CBT Test Attempt Button (Start Now vs Unlock Now) */}
-                                                    {isUnlocked ? (
-                                                        <Link
-                                                            href={paper.cbtAttemptUrl}
-                                                            className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
-                                                        >
-                                                            <Play className="h-3.5 w-3.5 fill-current" />
-                                                            <span>Start Now</span>
-                                                        </Link>
+                                                    {/* Requirement 3: CBT Test Attempt Button (Start Now vs Unlock Now vs Coming soon) */}
+                                                    {paper.id === "bpsc-71-prelims-free" ? (
+                                                        <TestActionButton
+                                                            testId="bpsc-sectional-5q"
+                                                            seriesId="bpsc-72nd-2026"
+                                                            testTitle={paper.title}
+                                                            returnPath={`/pyqs/${examId}`}
+                                                            isLocked={!isUnlocked}
+                                                            onUnlockClick={() => handleUnlockClick(paper)}
+                                                        />
+                                                    ) : isUnlocked ? (
+                                                        <TestActionButton
+                                                            testId={`unmapped-${paper.id}`}
+                                                            seriesId={config.cbtDefaultSeriesId || "bpsc-72nd-2026"}
+                                                            testTitle={paper.title}
+                                                            disabled={true}
+                                                            disabledLabel="Coming soon"
+                                                            returnPath={`/pyqs/${examId}`}
+                                                        />
                                                     ) : (
                                                         <button
                                                             onClick={() => handleUnlockClick(paper)}

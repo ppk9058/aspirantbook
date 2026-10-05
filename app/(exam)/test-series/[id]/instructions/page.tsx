@@ -76,7 +76,13 @@ function InstructionsContent() {
         )
     }
 
+    const rawReturnPath = searchParams.get("returnPath")
+    const safeReturnPath = rawReturnPath && rawReturnPath.startsWith("/") && !rawReturnPath.startsWith("//")
+        ? rawReturnPath
+        : `/test-series/${seriesId}`
+
     if (error || !test) {
+        const backLabel = safeReturnPath.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"
         return (
             <div className="h-[100dvh] w-full max-w-full flex flex-col items-center justify-center bg-white p-6">
                 <div className="max-w-md w-full text-center space-y-4">
@@ -86,10 +92,10 @@ function InstructionsContent() {
                     <h2 className="text-xl font-bold text-gray-900">Unable to Load Test</h2>
                     <p className="text-sm text-gray-600">{error || "The requested test was not found."}</p>
                     <button
-                        onClick={() => router.push(`/test-series/${seriesId}`)}
+                        onClick={() => router.push(safeReturnPath)}
                         className="min-h-[44px] px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-colors cursor-pointer"
                     >
-                        Back to Test Series
+                        {backLabel}
                     </button>
                 </div>
             </div>
@@ -98,7 +104,12 @@ function InstructionsContent() {
 
     const testTitle = test.title
     const candidateName = session?.user?.name || "Student"
-    const declarationHref = `/test-series/${seriesId}/declaration?testId=${encodeURIComponent(test.id)}`
+    const declarationQuery = new URLSearchParams()
+    declarationQuery.set("testId", test.id)
+    if (safeReturnPath !== `/test-series/${seriesId}`) {
+        declarationQuery.set("returnPath", safeReturnPath)
+    }
+    const declarationHref = `/test-series/${seriesId}/declaration?${declarationQuery.toString()}`
 
     return (
         <div className="h-[100dvh] w-full max-w-full flex flex-col bg-white overflow-hidden" style={{ fontFamily: "sans-serif" }}>
@@ -196,11 +207,11 @@ function InstructionsContent() {
                 style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}
             >
                 <button
-                    onClick={() => router.push(`/test-series/${seriesId}`)}
+                    onClick={() => router.push(safeReturnPath)}
                     className="min-h-[44px] px-3 py-2 flex items-center gap-1.5 text-sm text-teal-600 hover:text-teal-700 font-semibold transition-colors cursor-pointer"
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    <span>Go to Tests</span>
+                    <span>{safeReturnPath.includes("/pyqs") ? "Back to Papers" : "Go to Tests"}</span>
                 </button>
                 <Link
                     href={declarationHref}

@@ -497,7 +497,13 @@ function ResultContent() {
               Retry
             </button>
             <button
-              onClick={() => router.push(`/test-series/${seriesId}`)}
+              onClick={() => {
+                const rawReturnPath = searchParams.get("returnPath")
+                const safeReturnPath = rawReturnPath && rawReturnPath.startsWith("/") && !rawReturnPath.startsWith("//")
+                  ? rawReturnPath
+                  : `/test-series/${seriesId}`
+                router.push(safeReturnPath)
+              }}
               style={{
                 minHeight: 44,
                 padding: "10px 22px",
@@ -510,7 +516,7 @@ function ResultContent() {
                 cursor: "pointer",
               }}
             >
-              Back to Test Series
+              {searchParams.get("returnPath")?.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"}
             </button>
           </div>
         </div>
@@ -633,10 +639,16 @@ function ResultContent() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flex: 1 }}>
           <button
-            onClick={() => router.push(`/test-series/${seriesId}`)}
+            onClick={() => {
+              const rawReturnPath = searchParams.get("returnPath")
+              const safeReturnPath = rawReturnPath && rawReturnPath.startsWith("/") && !rawReturnPath.startsWith("//")
+                ? rawReturnPath
+                : `/test-series/${seriesId}`
+              router.push(safeReturnPath)
+            }}
             className="min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-600 transition-colors flex items-center justify-center shrink-0 cursor-pointer"
-            title="Back to Test Series"
-            aria-label="Back to Test Series"
+            title={searchParams.get("returnPath")?.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"}
+            aria-label={searchParams.get("returnPath")?.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"}
           >
             <ArrowLeft className="h-4 w-4" />
           </button>

@@ -28,7 +28,15 @@ export default async function MyTestsPage() {
         if (userId) {
             // ── 1. In-Progress attempts ──────────────────────────────────
             const dbInProgress = await prisma.examAttempt.findMany({
-                where: { userId, status: "IN_PROGRESS" },
+                where: {
+                    userId,
+                    status: "IN_PROGRESS",
+                    OR: [
+                        { correctCount: { gt: 0 } },
+                        { wrongCount: { gt: 0 } },
+                        { answers: { some: {} } },
+                    ],
+                },
                 include: { test: { include: { series: true } } },
                 orderBy: { startedAt: "desc" },
                 take: 5,
@@ -122,7 +130,7 @@ export default async function MyTestsPage() {
                 })
             }
 
-            // ── 3. Completed attempts for Performance Hub ──────────────
+            // ── 3. Completed attempts for Performance Hub (Grouped by Test) ──
             const dbCompleted = await prisma.examAttempt.findMany({
                 where: {
                     userId,
@@ -130,50 +138,93 @@ export default async function MyTestsPage() {
                 },
                 include: { test: { include: { series: true } } },
                 orderBy: { submittedAt: "desc" },
-                take: 10,
+                take: 50,
             })
 
-            recentAttempts = dbCompleted.map((att) => {
-                const totalMarks = att.test.totalMarks || 150
-                const score = att.score || 0
+            // Group by testId: 1 card per test
+            const testGroups = new Map<string, typeof dbCompleted>()
+            for (const att of dbCompleted) {
+                const group = testGroups.get(att.testId) || []
+                group.push(att)
+                testGroups.set(att.testId, group)
+            }
+
+            recentAttempts = Array.from(testGroups.entries()).map(([testId, attempts]) => {
+                const latestAtt = attempts[0]
+                const totalMarks = latestAtt.test.totalMarks || 150
+                const latestScore = latestAtt.score || 0
+                const bestScore = Math.max(...attempts.map((a) => a.score || 0))
+                const seriesSlug =
+                    latestAtt.test.series?.slug || latestAtt.test.seriesId || "bpsc-72nd-2026"
+
                 const accuracy =
-                    att.correctCount + att.wrongCount > 0
+                    latestAtt.correctCount + latestAtt.wrongCount > 0
                         ? Math.round(
-                              (att.correctCount /
-                                  (att.correctCount + att.wrongCount)) *
+                              (latestAtt.correctCount /
+                                  (latestAtt.correctCount + latestAtt.wrongCount)) *
                                   100
                           )
                         : 0
-                const seriesSlug =
-                    att.test.series?.slug || att.test.seriesId || "bpsc-72nd-2026"
+
+                const earlierAttempts = attempts.slice(1).map((ea) => {
+                    const eaAccuracy =
+                        ea.correctCount + ea.wrongCount > 0
+                            ? Math.round(
+                                  (ea.correctCount /
+                                      (ea.correctCount + ea.wrongCount)) *
+                                      100
+                              )
+                            : 0
+                    return {
+                        id: ea.id,
+                        date: ea.submittedAt
+                            ? new Date(ea.submittedAt).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                              })
+                            : "Earlier",
+                        score: ea.score || 0,
+                        totalMarks: ea.test.totalMarks || 150,
+                        percentile: ea.percentile ? Math.round(ea.percentile * 10) / 10 : 0,
+                        rank: ea.allIndiaRank || 0,
+                        accuracy: eaAccuracy,
+                        solutionUrl: `/test-series/${seriesSlug}/solutions?testId=${encodeURIComponent(testId)}&attemptId=${encodeURIComponent(ea.id)}`,
+                        reportUrl: `/test-series/${seriesSlug}/result?testId=${encodeURIComponent(testId)}&attemptId=${encodeURIComponent(ea.id)}`,
+                    }
+                })
 
                 return {
-                    id: att.id,
-                    testId: att.testId,
-                    title: att.test.title,
-                    examName: att.test.series?.examName || att.test.series?.category || "Competitive Exam",
-                    date: att.submittedAt
-                        ? new Date(att.submittedAt).toLocaleDateString("en-US", {
+                    id: latestAtt.id,
+                    testId,
+                    title: latestAtt.test.title,
+                    examName: latestAtt.test.series?.examName || latestAtt.test.series?.category || "Competitive Exam",
+                    date: latestAtt.submittedAt
+                        ? new Date(latestAtt.submittedAt).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
                               year: "numeric",
                           })
                         : "Recent",
-                    score,
+                    score: latestScore,
+                    bestScore,
+                    latestScore,
+                    attemptCount: attempts.length,
                     totalMarks,
-                    percentile: att.percentile
-                        ? Math.round(att.percentile * 10) / 10
+                    percentile: latestAtt.percentile
+                        ? Math.round(latestAtt.percentile * 10) / 10
                         : 0,
-                    rank: att.allIndiaRank || 0,
+                    rank: latestAtt.allIndiaRank || 0,
                     totalCandidates: 1250,
                     accuracy,
-                    timeSpentMins: Math.round((att.timeTakenSecs || 0) / 60),
-                    correct: att.correctCount,
-                    wrong: att.wrongCount,
-                    skipped: att.skippedCount,
-                    solutionUrl: `/test-series/${seriesSlug}/solutions?testId=${encodeURIComponent(att.testId)}&attemptId=${encodeURIComponent(att.id)}`,
-                    reportUrl: `/test-series/${seriesSlug}/result?testId=${encodeURIComponent(att.testId)}&attemptId=${encodeURIComponent(att.id)}`,
+                    timeSpentMins: Math.round((latestAtt.timeTakenSecs || 0) / 60),
+                    correct: latestAtt.correctCount,
+                    wrong: latestAtt.wrongCount,
+                    skipped: latestAtt.skippedCount,
+                    solutionUrl: `/test-series/${seriesSlug}/solutions?testId=${encodeURIComponent(testId)}&attemptId=${encodeURIComponent(latestAtt.id)}`,
+                    reportUrl: `/test-series/${seriesSlug}/result?testId=${encodeURIComponent(testId)}&attemptId=${encodeURIComponent(latestAtt.id)}`,
                     leaderboardUrl: `/test-series/${seriesSlug}/leaderboard`,
+                    earlierAttempts,
                 }
             })
         }

@@ -91,7 +91,13 @@ function DeclarationContent() {
         )
     }
 
+    const rawReturnPath = searchParams.get("returnPath")
+    const safeReturnPath = rawReturnPath && rawReturnPath.startsWith("/") && !rawReturnPath.startsWith("//")
+        ? rawReturnPath
+        : `/test-series/${seriesId}`
+
     if (error || !test) {
+        const backLabel = safeReturnPath.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"
         return (
             <div className="h-[100dvh] w-full max-w-full flex flex-col items-center justify-center bg-white p-6">
                 <div className="max-w-md w-full text-center space-y-4">
@@ -101,10 +107,10 @@ function DeclarationContent() {
                     <h2 className="text-xl font-bold text-gray-900">Unable to Load Test</h2>
                     <p className="text-sm text-gray-600">{error || "The requested test was not found."}</p>
                     <button
-                        onClick={() => router.push(`/test-series/${seriesId}`)}
+                        onClick={() => router.push(safeReturnPath)}
                         className="min-h-[44px] px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-colors cursor-pointer"
                     >
-                        Back to Test Series
+                        {backLabel}
                     </button>
                 </div>
             </div>
@@ -116,7 +122,13 @@ function DeclarationContent() {
     const marks = test.totalMarks
     const duration = test.durationMinutes
     const candidateName = session?.user?.name || "Student"
-    const instructionsHref = `/test-series/${seriesId}/instructions?testId=${encodeURIComponent(test.id)}`
+    const instQuery = new URLSearchParams()
+    instQuery.set("testId", test.id)
+    if (safeReturnPath !== `/test-series/${seriesId}`) {
+        instQuery.set("returnPath", safeReturnPath)
+    }
+    const instructionsHref = `/test-series/${seriesId}/instructions?${instQuery.toString()}`
+
     const handleStartAttempt = async () => {
         if (!agreed || starting || !test) return
         setStarting(true)
@@ -141,9 +153,14 @@ function DeclarationContent() {
             }
 
             const attemptId = json.data.attemptId
-            router.push(
-                `/test-series/${seriesId}/attempt?testId=${encodeURIComponent(test.id)}&attemptId=${encodeURIComponent(attemptId)}&lang=${selectedLang}`
-            )
+            const attemptQuery = new URLSearchParams()
+            attemptQuery.set("testId", test.id)
+            attemptQuery.set("attemptId", attemptId)
+            attemptQuery.set("lang", selectedLang)
+            if (safeReturnPath !== `/test-series/${seriesId}`) {
+                attemptQuery.set("returnPath", safeReturnPath)
+            }
+            router.push(`/test-series/${seriesId}/attempt?${attemptQuery.toString()}`)
         } catch (err: any) {
             setStartError(err.message || "Failed to start test.")
             setStarting(false)

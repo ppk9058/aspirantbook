@@ -18,6 +18,7 @@ import {
     BookOpen,
     Filter,
 } from "lucide-react"
+import { TestActionButton } from "@/components/test-series/TestActionButton"
 
 interface QuizItem {
     id: string
@@ -434,13 +435,13 @@ export default function CurrentAffairsQuizzesClient() {
                                     <span className="text-[11px] font-semibold text-gray-400">
                                         {(quiz.attempts || 100).toLocaleString()}+ attempted
                                     </span>
-                                    <Link
-                                        href={attemptHref}
-                                        className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 group-hover:gap-2"
-                                    >
-                                        <span>Attempt Quiz</span>
-                                        <ChevronRight className="w-3.5 h-3.5" />
-                                    </Link>
+                                    <TestActionButton
+                                        testId={quiz.id}
+                                        seriesId={targetSeriesId}
+                                        testTitle={quiz.title}
+                                        returnPath="/quizzes"
+                                        size="sm"
+                                    />
                                 </div>
                             </div>
                         )

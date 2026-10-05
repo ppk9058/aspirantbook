@@ -36,6 +36,7 @@ import {
     TestSeriesItem
 } from "@/lib/test-series-data"
 import EnrollButton from "@/components/test-series/EnrollButton"
+import { TestActionButton } from "@/components/test-series/TestActionButton"
 import { useGoal } from "@/components/providers/GoalProvider"
 
 interface TestItem {
@@ -72,6 +73,8 @@ export default function TestSeriesDetailPage() {
     const [customSeriesPackage, setCustomSeriesPackage] = useState<TestSeriesItem | null>(null)
     const [allSeriesList, setAllSeriesList] = useState<any[]>([])
     const [submittedAttempts, setSubmittedAttempts] = useState<Record<string, string>>({})
+    const [testStatusMap, setTestStatusMap] = useState<Record<string, any>>({})
+    const [statusLoading, setStatusLoading] = useState(true)
 
     useEffect(() => {
         let isMounted = true
@@ -148,20 +151,33 @@ export default function TestSeriesDetailPage() {
                 const userRes = await fetch(`/api/exam/attempt/user-status?seriesId=${encodeURIComponent(seriesId)}`)
                 if (userRes.ok) {
                     const userJson = await userRes.json()
-                    if (userJson.success && Array.isArray(userJson.data)) {
-                        const map: Record<string, string> = {}
-                        for (const att of userJson.data) {
-                            if (att.testId && att.id && !map[att.testId]) {
-                                map[att.testId] = att.id
-                            }
+                    if (userJson.success) {
+                        if (userJson.data) {
+                            if (isMounted) setTestStatusMap(userJson.data)
                         }
-                        if (isMounted) {
-                            setSubmittedAttempts(map)
+                        if (Array.isArray(userJson.attempts)) {
+                            const map: Record<string, string> = {}
+                            for (const att of userJson.attempts) {
+                                if (att.testId && att.id && !map[att.testId]) {
+                                    map[att.testId] = att.id
+                                }
+                            }
+                            if (isMounted) setSubmittedAttempts(map)
+                        } else if (userJson.data) {
+                            const map: Record<string, string> = {}
+                            for (const [tId, val] of Object.entries<any>(userJson.data)) {
+                                if (val.latestSubmittedAttemptId) {
+                                    map[tId] = val.latestSubmittedAttemptId
+                                }
+                            }
+                            if (isMounted) setSubmittedAttempts(map)
                         }
                     }
                 }
             } catch (err) {
                 console.warn("Could not fetch user attempt status", err)
+            } finally {
+                if (isMounted) setStatusLoading(false)
             }
 
             // 2. Fetch from database API
@@ -670,23 +686,16 @@ export default function TestSeriesDetailPage() {
                                                                             >
                                                                                 <BarChart3 className="h-4 w-4" />
                                                                             </Link>
-                                                                            {test.isFree ? (
-                                                                                <button
-                                                                                    onClick={() => setSelectedTestToAttempt(test)}
-                                                                                    className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                                                                                >
-                                                                                    <Play className="h-3.5 w-3.5 fill-current" />
-                                                                                    <span>Start Now</span>
-                                                                                </button>
-                                                                            ) : (
-                                                                                <button
-                                                                                    onClick={() => setIsPassModalOpen(true)}
-                                                                                    className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl border border-sky-600 dark:border-sky-500 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-950/30 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                                                                                >
-                                                                                    <Lock className="h-3.5 w-3.5" />
-                                                                                    <span>Unlock with Pass</span>
-                                                                                </button>
-                                                                            )}
+                                                                            <TestActionButton
+                                                                                testId={test.id}
+                                                                                seriesId={currentSeries.id}
+                                                                                testTitle={test.title}
+                                                                                status={testStatusMap[test.id]}
+                                                                                loading={statusLoading}
+                                                                                returnPath={`/test-series/${currentSeries.id}`}
+                                                                                isLocked={!test.isFree}
+                                                                                onUnlockClick={() => setIsPassModalOpen(true)}
+                                                                            />
                                                                         </>
                                                                     )
                                                                 ) : (

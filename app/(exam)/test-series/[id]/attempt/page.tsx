@@ -1263,7 +1263,13 @@ function Arena() {
                             Retry
                         </button>
                         <button
-                            onClick={() => router.push(`/test-series/${seriesId}`)}
+                            onClick={() => {
+                                const rawReturnPath = searchParams.get("returnPath")
+                                const safeReturnPath = rawReturnPath && rawReturnPath.startsWith("/") && !rawReturnPath.startsWith("//")
+                                    ? rawReturnPath
+                                    : `/test-series/${seriesId}`
+                                router.push(safeReturnPath)
+                            }}
                             style={{
                                 minHeight: 44,
                                 padding: "10px 22px",
@@ -1276,7 +1282,7 @@ function Arena() {
                                 cursor: "pointer",
                             }}
                         >
-                            Back to Test Series
+                            {searchParams.get("returnPath")?.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"}
                         </button>
                     </div>
                 </div>

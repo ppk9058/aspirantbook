@@ -921,9 +921,11 @@ model ExamAttempt {
   @@index([testId])
   @@index([status])
   @@index([startedAt])
+  @@index([submittedAt])
   @@index([userId, status])
   @@index([testId, status])
   @@index([userId, testId])
+  @@index([testId, status, score])
 }
 
 model ExamAttemptAnswer {

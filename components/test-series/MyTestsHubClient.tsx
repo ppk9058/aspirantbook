@@ -21,6 +21,8 @@ import {
     ClipboardCheck,
     Check,
     ArrowRight,
+    ChevronDown,
+    ChevronUp,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -76,6 +78,20 @@ export interface AttemptRecord {
     solutionUrl: string
     reportUrl: string
     leaderboardUrl: string
+    attemptCount?: number
+    bestScore?: number
+    latestScore?: number
+    earlierAttempts?: Array<{
+        id: string
+        date: string
+        score: number
+        totalMarks: number
+        percentile: number
+        rank: number
+        accuracy: number
+        reportUrl: string
+        solutionUrl: string
+    }>
 }
 
 export interface BrowseSeriesItem {
@@ -166,6 +182,11 @@ export default function MyTestsHubClient({
 }: Props) {
     const router = useRouter()
     const [perfTab, setPerfTab] = useState<"ATTEMPTS" | "WEAK_AREAS" | "BOOKMARKS">("ATTEMPTS")
+    const [expandedTests, setExpandedTests] = useState<Record<string, boolean>>({})
+
+    const toggleTestExpand = (testId: string) => {
+        setExpandedTests((prev) => ({ ...prev, [testId]: !prev[testId] }))
+    }
 
     const totalTestsTaken = recentAttempts.length
     const avgPercentile = totalTestsTaken
@@ -502,72 +523,123 @@ export default function MyTestsHubClient({
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {recentAttempts.map((attempt) => (
-                                <div
-                                    key={attempt.id}
-                                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xs hover:border-sky-500/40 transition-all space-y-4"
-                                >
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                        <div className="space-y-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-sky-800 dark:text-sky-300 text-[10px] font-black uppercase">
-                                                    {attempt.examName}
-                                                </span>
-                                                <span className="text-xs text-slate-500 dark:text-slate-400">• Completed on {attempt.date}</span>
-                                            </div>
-                                            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white line-clamp-2">
-                                                {attempt.title}
-                                            </h3>
-                                        </div>
-                                        <div className="flex flex-wrap items-center gap-2 shrink-0">
-                                            <Link href={attempt.solutionUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors min-h-[44px] flex items-center">
-                                                Mistake Notebook
-                                            </Link>
-                                            <Link href={attempt.leaderboardUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-purple-700 dark:text-purple-400 transition-colors min-h-[44px] flex items-center">
-                                                View AIR #{attempt.rank || "—"}
-                                            </Link>
-                                            <Link href={attempt.reportUrl} className="px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-extrabold transition-all min-h-[44px] flex items-center">
-                                                Full Report →
-                                            </Link>
-                                        </div>
-                                    </div>
+                            {recentAttempts.map((attempt) => {
+                                const isExpanded = !!expandedTests[attempt.testId]
+                                const hasEarlier = attempt.earlierAttempts && attempt.earlierAttempts.length > 0
 
-                                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                                        <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">SCORE</p>
-                                            <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">
-                                                {attempt.score} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">/ {attempt.totalMarks}</span>
-                                            </p>
+                                return (
+                                    <div
+                                        key={attempt.id}
+                                        className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xs hover:border-sky-500/40 transition-all space-y-4"
+                                    >
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                            <div className="space-y-1 min-w-0">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-sky-800 dark:text-sky-300 text-[10px] font-black uppercase">
+                                                        {attempt.examName}
+                                                    </span>
+                                                    {attempt.attemptCount && attempt.attemptCount > 1 ? (
+                                                        <span className="px-2 py-0.5 rounded text-[10px] font-black bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                                            {attempt.attemptCount} Attempts
+                                                        </span>
+                                                    ) : null}
+                                                    <span className="text-xs text-slate-500 dark:text-slate-400">• Completed on {attempt.date}</span>
+                                                </div>
+                                                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white line-clamp-2">
+                                                    {attempt.title}
+                                                </h3>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-2 shrink-0">
+                                                <Link href={attempt.solutionUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors min-h-[44px] flex items-center">
+                                                    Mistake Notebook
+                                                </Link>
+                                                <Link href={attempt.leaderboardUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-purple-700 dark:text-purple-400 transition-colors min-h-[44px] flex items-center">
+                                                    View AIR #{attempt.rank || "—"}
+                                                </Link>
+                                                <Link href={attempt.reportUrl} className="px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-extrabold transition-all min-h-[44px] flex items-center">
+                                                    Full Report →
+                                                </Link>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-400">PERCENTILE</p>
-                                            <p className="text-base font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
-                                                {attempt.percentile > 0 ? `${attempt.percentile}%ile` : "—"}
-                                            </p>
+
+                                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                                            <div>
+                                                <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">LATEST / BEST</p>
+                                                <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">
+                                                    {attempt.score} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">/ {attempt.totalMarks}</span>
+                                                    {attempt.bestScore !== undefined && attempt.bestScore !== attempt.score && (
+                                                        <span className="text-xs text-emerald-600 ml-1.5 font-bold">(Best: {attempt.bestScore})</span>
+                                                    )}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] uppercase font-bold text-slate-400">PERCENTILE</p>
+                                                <p className="text-base font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
+                                                    {attempt.percentile > 0 ? `${attempt.percentile}%ile` : "—"}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">ALL INDIA RANK</p>
+                                                <p className="text-base font-black text-amber-500 mt-0.5">
+                                                    {attempt.rank > 0 ? <>#{attempt.rank} <span className="text-xs text-slate-600 dark:text-slate-400 font-normal">/ {attempt.totalCandidates}</span></> : "—"}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">ACCURACY</p>
+                                                <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">{attempt.accuracy}%</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">BREAKDOWN</p>
+                                                <p className="text-xs font-bold mt-1">
+                                                    <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">+{attempt.correct}</span>
+                                                    <span className="text-slate-300 mx-1">/</span>
+                                                    <span className="text-rose-600 dark:text-rose-400 font-extrabold">-{attempt.wrong}</span>
+                                                    <span className="text-slate-300 mx-1">/</span>
+                                                    <span className="text-slate-600 dark:text-slate-400">{attempt.skipped} skip</span>
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">ALL INDIA RANK</p>
-                                            <p className="text-base font-black text-amber-500 mt-0.5">
-                                                {attempt.rank > 0 ? <>#{attempt.rank} <span className="text-xs text-slate-600 dark:text-slate-400 font-normal">/ {attempt.totalCandidates}</span></> : "—"}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">ACCURACY</p>
-                                            <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">{attempt.accuracy}%</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">BREAKDOWN</p>
-                                            <p className="text-xs font-bold mt-1">
-                                                <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">+{attempt.correct}</span>
-                                                <span className="text-slate-300 mx-1">/</span>
-                                                <span className="text-rose-600 dark:text-rose-400 font-extrabold">-{attempt.wrong}</span>
-                                                <span className="text-slate-300 mx-1">/</span>
-                                                <span className="text-slate-600 dark:text-slate-400">{attempt.skipped} skip</span>
-                                            </p>
-                                        </div>
+
+                                        {/* Expandable Earlier Attempts */}
+                                        {hasEarlier && (
+                                            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                                                <button
+                                                    onClick={() => toggleTestExpand(attempt.testId)}
+                                                    className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 dark:text-sky-400 hover:underline cursor-pointer py-1"
+                                                >
+                                                    <span>{isExpanded ? "Hide" : "View"} Earlier Attempts ({attempt.earlierAttempts!.length})</span>
+                                                    {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                                </button>
+
+                                                {isExpanded && (
+                                                    <div className="mt-2 space-y-2 pl-2 border-l-2 border-sky-500/30">
+                                                        {attempt.earlierAttempts!.map((ea, idx) => (
+                                                            <div
+                                                                key={ea.id || idx}
+                                                                className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50"
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="font-semibold text-slate-600 dark:text-slate-400">{ea.date}</span>
+                                                                    <span className="font-black text-slate-900 dark:text-white">Score: {ea.score}/{ea.totalMarks}</span>
+                                                                    <span className="text-emerald-600 font-bold">{ea.percentile}%ile</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <Link
+                                                                        href={ea.reportUrl}
+                                                                        className="text-sky-600 hover:text-sky-700 font-bold px-2 py-1"
+                                                                    >
+                                                                        Report →
+                                                                    </Link>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )
                 )}

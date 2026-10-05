@@ -32,6 +32,7 @@ import MobilePromoCarousel from "@/components/dashboard/mobile/MobilePromoCarous
 import MobileLivePill from "@/components/dashboard/mobile/MobileLivePill"
 import MobileQuickAccessGrid from "@/components/dashboard/mobile/MobileQuickAccessGrid"
 import MobileRecommendedSection from "@/components/dashboard/mobile/MobileRecommendedSection"
+import { TestActionButton } from "@/components/test-series/TestActionButton"
 import type { HomepagePromoCard } from "@/lib/homepage-cards-service"
 
 interface StudentDashboardProps {
@@ -730,12 +731,13 @@ export default function StudentDashboardClient({
                         Draft (only on this device)
                       </span>
                     ) : (
-                      <Link
-                        href={`/test-series/bpsc-72nd-2026?testId=${ct.id}`}
-                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition-colors"
-                      >
-                        Start Test Now →
-                      </Link>
+                      <TestActionButton
+                        testId={ct.id}
+                        seriesId={ct.seriesId || "bpsc-72nd-2026"}
+                        testTitle={ct.title}
+                        returnPath="/dashboard"
+                        size="sm"
+                      />
                     )}
                   </div>
                 </div>
