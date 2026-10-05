@@ -26,15 +26,35 @@ export default function EnrollButton({
     const [enrolled, setEnrolled] = useState(false)
     const [loading, setLoading] = useState(true)
     const [enrolling, setEnrolling] = useState(false)
+    const [effectiveIsFree, setEffectiveIsFree] = useState<boolean>(isFree)
 
-    // Check current enrollment on mount
+    // Update effectiveIsFree when isFree prop changes
     useEffect(() => {
-        if (!session?.user?.id) { setLoading(false); return }
+        setEffectiveIsFree(isFree)
+    }, [isFree])
+
+    // Check current enrollment and authoritative series flags on mount
+    useEffect(() => {
+        let isMounted = true
         fetch(`/api/exam/series/enroll?seriesId=${encodeURIComponent(seriesId)}`)
             .then((r) => r.json())
-            .then((d) => setEnrolled(!!d.enrolled))
+            .then((d) => {
+                if (!isMounted) return
+                setEnrolled(!!d.enrolled)
+                if (d.series) {
+                    // Authoritative pricing flags from server
+                    const serverFree = !!d.series.isFree || !d.series.isPro
+                    setEffectiveIsFree(serverFree)
+                }
+            })
             .catch(() => {})
-            .finally(() => setLoading(false))
+            .finally(() => {
+                if (isMounted) setLoading(false)
+            })
+
+        return () => {
+            isMounted = false
+        }
     }, [seriesId, session?.user?.id])
 
     const handleEnroll = async () => {
@@ -44,7 +64,7 @@ export default function EnrollButton({
         }
         if (enrolled || enrolling) return
 
-        if (!isFree) {
+        if (!effectiveIsFree) {
             router.push("/subscription")
             return
         }
@@ -60,6 +80,9 @@ export default function EnrollButton({
             if (data.success) {
                 setEnrolled(true)
                 onEnrolled?.()
+            } else if (res.status === 403 || res.status === 402) {
+                // If server informs series is paid/pro, route to subscription
+                router.push("/subscription")
             }
         } catch {
             // silent
@@ -106,20 +129,20 @@ export default function EnrollButton({
             onClick={handleEnroll}
             disabled={enrolling}
             className={`rounded-xl font-extrabold flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
-                isFree
+                effectiveIsFree
                     ? "bg-sky-700 hover:bg-sky-800 text-white shadow-md"
                     : "bg-emerald-700 hover:bg-emerald-800 text-white shadow-md"
             } ${sizeClasses[size]} ${className}`}
-            aria-label={isFree ? "Enroll Free" : "Get Pass"}
+            aria-label={effectiveIsFree ? "Enroll Free" : "Get Pass"}
         >
             {enrolling ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
-            ) : isFree ? (
+            ) : effectiveIsFree ? (
                 <Plus className="w-4 h-4 stroke-[2.5]" />
             ) : (
                 <ShieldCheck className="w-4 h-4" />
             )}
-            {enrolling ? "Enrolling…" : isFree ? "Enroll Free" : "Get Pass"}
+            {enrolling ? "Enrolling…" : effectiveIsFree ? "Enroll Free" : "Get Pass"}
         </button>
     )
 }

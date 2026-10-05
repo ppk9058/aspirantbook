@@ -419,7 +419,7 @@ export default function TestSeriesDetailPage() {
                     <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
                         <EnrollButton
                             seriesId={seriesId}
-                            isFree={currentSeries.freeTests > 0}
+                            isFree={currentSeries?.isFree ?? (currentSeries?.isPro ? false : true)}
                             size="md"
                         />
 
@@ -888,7 +888,7 @@ export default function TestSeriesDetailPage() {
                 <div className="shrink-0">
                     <EnrollButton
                         seriesId={seriesId}
-                        isFree={currentSeries?.freeTests ? currentSeries.freeTests > 0 : false}
+                        isFree={currentSeries?.isFree ?? (currentSeries?.isPro ? false : true)}
                         size="sm"
                     />
                 </div>

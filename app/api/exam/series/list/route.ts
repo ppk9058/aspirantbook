@@ -66,6 +66,8 @@ export async function GET(req: NextRequest) {
         description: meta.description || s.description || "",
         goalId: s.category.toLowerCase().replace(/\s+/g, "-"),
         tags: [s.category.toLowerCase()],
+        isFree: s.isFree ?? false,
+        isPro: s.isPro ?? false,
       };
     });
 

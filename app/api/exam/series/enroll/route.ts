@@ -120,17 +120,37 @@ export async function GET(req: NextRequest) {
     const seriesId = req.nextUrl.searchParams.get("seriesId")
     if (!seriesId) return NextResponse.json({ enrolled: false })
 
-    const enrollment = await prisma.examSeriesEnrollment.findFirst({
-        where: {
-            userId,
-            status: "ACTIVE",
-            OR: [
-                { seriesId },
-                { series: { slug: seriesId } },
-            ],
-        },
-        select: { id: true, enrollType: true, enrolledAt: true, expiresAt: true },
-    })
+    const [enrollment, series] = await Promise.all([
+        prisma.examSeriesEnrollment.findFirst({
+            where: {
+                userId,
+                status: "ACTIVE",
+                OR: [
+                    { seriesId },
+                    { series: { slug: seriesId } },
+                ],
+            },
+            select: { id: true, enrollType: true, enrolledAt: true, expiresAt: true },
+        }),
+        prisma.examSeries.findFirst({
+            where: {
+                OR: [
+                    { id: seriesId },
+                    { slug: seriesId },
+                ],
+            },
+            select: { id: true, isFree: true, isPro: true, freeTests: true },
+        }),
+    ])
 
-    return NextResponse.json({ enrolled: !!enrollment, enrollment })
+    return NextResponse.json({
+        enrolled: !!enrollment,
+        enrollment,
+        series: series ? {
+            id: series.id,
+            isFree: series.isFree,
+            isPro: series.isPro,
+            freeTests: series.freeTests,
+        } : null,
+    })
 }

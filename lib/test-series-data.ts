@@ -15,6 +15,8 @@ export interface TestSeriesItem {
     questions?: number
     goalId?: string
     tags?: string[]
+    isFree?: boolean
+    isPro?: boolean
 }
 
 export interface DefaultTestItem {
