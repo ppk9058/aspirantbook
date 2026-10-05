@@ -39,24 +39,28 @@ export async function POST(req: NextRequest) {
       },
     }).catch(() => {})
 
-    // 2. Add course to Student's My Batches (Enrollment with watched/completed state)
-    const enrollment = await prisma.enrollment.upsert({
-      where: {
-        userId_courseId: {
+    // 2. Add course to Student's My Batches only if free course
+    let enrollment = null
+    const isFree = !course.isPremium && (!course.price || course.price === 0)
+    if (isFree) {
+      enrollment = await prisma.enrollment.upsert({
+        where: {
+          userId_courseId: {
+            userId,
+            courseId: course.id,
+          },
+        },
+        create: {
           userId,
           courseId: course.id,
+          enrolledAt: new Date(),
+          completedAt: new Date(), // Marks demo watched
         },
-      },
-      create: {
-        userId,
-        courseId: course.id,
-        enrolledAt: new Date(),
-        completedAt: new Date(), // Marks demo watched
-      },
-      update: {
-        completedAt: new Date(),
-      },
-    })
+        update: {
+          completedAt: new Date(),
+        },
+      })
+    }
 
     // 3. Increment course enrollment count
     await prisma.course.update({
@@ -69,7 +73,7 @@ export async function POST(req: NextRequest) {
       message: "Demo completed! Added to your My Batches watched section.",
       courseTitle: course.title,
       courseSlug: course.slug,
-      enrollmentId: enrollment.id,
+      enrollmentId: enrollment?.id || null,
       redirectUrl: "/my-learning",
       couponCode: "DEMO30",
       couponDiscount: 30,

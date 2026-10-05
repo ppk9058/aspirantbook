@@ -83,11 +83,19 @@ export async function POST(req: NextRequest) {
                     { slug: courseId },
                 ],
             },
-            select: { id: true, title: true, slug: true, price: true },
+            select: { id: true, title: true, slug: true, price: true, isPremium: true },
         })
 
         if (!course) {
             return NextResponse.json({ error: "Course not found" }, { status: 404 })
+        }
+
+        // Gate paid courses - free enroll route must only enroll free courses
+        if (course.isPremium || (course.price && course.price > 0)) {
+            return NextResponse.json(
+                { error: "This is a paid course. Please complete checkout to enroll.", requiresPayment: true },
+                { status: 403 }
+            )
         }
 
         // Check if already enrolled

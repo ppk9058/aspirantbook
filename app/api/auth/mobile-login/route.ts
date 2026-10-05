@@ -81,20 +81,24 @@ export async function POST(req: NextRequest) {
                         { slug: courseId },
                     ],
                 },
-                select: { id: true, slug: true, title: true },
+                select: { id: true, slug: true, title: true, price: true, isPremium: true },
             })
 
             if (course) {
                 enrolledCourse = course
                 goalId = getGoalForCourse(course)
 
-                const existing = await prisma.enrollment.findUnique({
-                    where: { userId_courseId: { userId: user.id, courseId: course.id } },
-                })
-                if (!existing) {
-                    await prisma.enrollment.create({
-                        data: { userId: user.id, courseId: course.id },
+                // Only auto-enroll if course is explicitly free
+                const isFreeCourse = !course.isPremium && (!course.price || course.price === 0)
+                if (isFreeCourse) {
+                    const existing = await prisma.enrollment.findUnique({
+                        where: { userId_courseId: { userId: user.id, courseId: course.id } },
                     })
+                    if (!existing) {
+                        await prisma.enrollment.create({
+                            data: { userId: user.id, courseId: course.id },
+                        })
+                    }
                 }
 
                 if (goalId) {
