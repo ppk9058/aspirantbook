@@ -3,7 +3,7 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { generateAgoraRtcToken } from "@/lib/agora/token-service"
 
-export const SCREEN_SHARE_UID = 888888
+import { SCREEN_SHARE_UID } from "@/lib/constants/agora"
 
 export async function POST(req: NextRequest) {
   try {

@@ -1,19 +1,22 @@
 version: '3.8'
 
 services:
-  postgres-test:
-    image: postgres:15-alpine
-    container_name: trillionskill-postgres-test
+  trillionskill-test-db:
+    image: postgres:16
+    container_name: trillionskill-test-db
     environment:
-      POSTGRES_USER: test_user
-      POSTGRES_PASSWORD: test_password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: testpassword123
       POSTGRES_DB: trillionskill_test
     ports:
-      - "5433:5432"
-    tmpfs:
-      - /var/lib/postgresql/data
+      - "127.0.0.1:54329:5432"
+    volumes:
+      - trillionskill_test_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U test_user -d trillionskill_test"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d trillionskill_test"]
       interval: 2s
-      timeout: 2s
-      retries: 10
+      timeout: 3s
+      retries: 15
+
+volumes:
+  trillionskill_test_data:

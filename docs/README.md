@@ -4,6 +4,8 @@ This directory contains all project documentation, guides, and planning artifact
 
 ## 📋 Project Planning & Progress
 
+- **[FRS.md](./FRS.md)** - Code-derived Functional Requirements Specification.
+- **[SRS.md](./SRS.md)** - Code-derived Software Requirements Specification and architecture baseline.
 - **[TASK_CHECKLIST.md](./TASK_CHECKLIST.md)** - Current task checklist with progress tracking
 - **[IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)** - System design alignment analysis and roadmap
 - **[WALKTHROUGH.md](./WALKTHROUGH.md)** - Comprehensive walkthrough of completed features
