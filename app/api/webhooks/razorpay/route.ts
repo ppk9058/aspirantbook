@@ -78,6 +78,15 @@ export async function POST(request: NextRequest) {
                 })
 
                 if (course) {
+                    // Check if payment amount matches order amount (prevent underpayment/tampering)
+                    const orderEntity = event.payload?.order?.entity
+                    const isAmountMismatch = Boolean(orderEntity?.amount && payment.amount && orderEntity.amount !== payment.amount)
+
+                    if (isAmountMismatch) {
+                        console.error(`Amount mismatch in webhook: order=${orderEntity.amount}, payment=${payment.amount}; skipping enrollment`)
+                        return NextResponse.json({ received: true, warning: "Amount mismatch; enrollment skipped" })
+                    }
+
                     // Create enrollment idempotently
                     try {
                         await prisma.enrollment.upsert({
