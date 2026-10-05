@@ -16,3 +16,8 @@
    - Do not use `prisma db push` on staging or production databases.
 3. **CHECK Constraints**:
    - PostgreSQL domain / CHECK constraints that cannot be expressed directly in Prisma DSL are maintained in dedicated migration SQL files applied via migrations.
+
+## Note on CHECK Constraints
+PostgreSQL CHECK constraints are applied via raw SQL migrations (e.g. `20261006002101_coupon_checks`).
+Because Prisma's data model does not represent table-level `CHECK` constraints, `prisma migrate diff` will not compare or flag them.
+Rollback scripts are maintained in `prisma/manual-sql/coupon_checks_rollback.sql`.

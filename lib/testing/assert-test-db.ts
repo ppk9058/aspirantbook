@@ -6,7 +6,7 @@ dotenv.config({ path: ".env.test" })
 export function assertTestDb() {
     const currentDb = process.env.DATABASE_URL
     const testDb = process.env.TEST_DATABASE_URL
-    const devDb = process.env.DIRECT_URL || process.env.DEV_DATABASE_URL || "aws-1-ap-south-1.pooler.supabase.com"
+    const devDb = process.env.DEV_DIRECT_URL || process.env.DEV_DATABASE_URL || "aws-1-ap-south-1.pooler.supabase.com"
 
     if (!testDb) {
         throw new Error(
