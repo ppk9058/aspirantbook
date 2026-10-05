@@ -103,6 +103,7 @@ export interface BrowseSeriesItem {
     users: string
     totalTests: number
     freeTests: number
+    isPro?: boolean
     languages: string
     highlights: string[]
     description: string
@@ -734,7 +735,7 @@ export default function MyTestsHubClient({
                                 <div className="flex items-center justify-between">
                                     <ExamBadge logoType={item.logoType} />
                                     <span className="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-black">
-                                        {item.freeTests} Free
+                                        {item.isPro ? `${item.freeTests} Free Sample` : `${item.freeTests} Free`}
                                     </span>
                                 </div>
                                 <div className="flex-1">

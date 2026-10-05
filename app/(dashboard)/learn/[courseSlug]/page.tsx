@@ -1,6 +1,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { notFound, redirect } from "next/navigation"
+import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 
 export default async function CourseLandingPage({
     params,
@@ -14,6 +15,7 @@ export default async function CourseLandingPage({
     }
 
     const { courseSlug } = await params
+    const userRole = session?.user?.role
 
     let course: any = null
 
@@ -48,7 +50,7 @@ export default async function CourseLandingPage({
         }
     }
 
-    if (!course) {
+    if (!course || !isCourseVisibleToUser(course, userRole)) {
         notFound()
     }
 

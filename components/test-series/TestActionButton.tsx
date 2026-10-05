@@ -26,6 +26,7 @@ export interface TestActionButtonProps {
   showRetake?: boolean
   isLocked?: boolean
   onUnlockClick?: () => void
+  isFreeSample?: boolean
 }
 
 export function TestActionButton({
@@ -42,6 +43,7 @@ export function TestActionButton({
   showRetake = true,
   isLocked = false,
   onUnlockClick,
+  isFreeSample = false,
 }: TestActionButtonProps) {
   const [internalStatus, setInternalStatus] = React.useState<any>(initialStatus || null)
   const [isLoading, setIsLoading] = React.useState(initialLoading || (!initialStatus && !disabled))
@@ -191,7 +193,7 @@ export function TestActionButton({
       className={`inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xs transition-colors ${sizeClasses} ${className}`}
     >
       <Play className="w-3.5 h-3.5 fill-current" />
-      <span>Start Now</span>
+      <span>{isFreeSample ? "Start Free Sample" : "Start Now"}</span>
     </Link>
   )
 }

@@ -13,10 +13,10 @@ export async function POST(request: NextRequest) {
         )
     }
 
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET
 
     if (!webhookSecret) {
-        console.error("Razorpay webhook secret or key secret is not configured")
+        console.error("Razorpay webhook secret is not configured; failing closed")
         return NextResponse.json(
             { error: "Webhook secret not configured" },
             { status: 500 }
@@ -45,10 +45,10 @@ export async function POST(request: NextRequest) {
     const event = JSON.parse(body)
 
     try {
-        if (event.event === "payment.captured") {
-            const payment = event.payload.payment.entity
-            const orderId = payment.order_id
-            const notes = payment.notes || {}
+        if (event.event === "payment.captured" || event.event === "order.paid") {
+            const payment = event.payload?.payment?.entity || event.payload?.order?.entity
+            const orderId = payment?.order_id || event.payload?.order?.entity?.id || payment?.id
+            const notes = event.payload?.payment?.entity?.notes || event.payload?.order?.entity?.notes || {}
             const userId = notes.userId
             const courseId = notes.courseId
             const plan = notes.plan as "MONTHLY" | "YEARLY" | "COURSE" | undefined

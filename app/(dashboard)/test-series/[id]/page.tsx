@@ -637,7 +637,11 @@ export default function TestSeriesDetailPage() {
                                                                             Curriculum Sample
                                                                         </span>
                                                                     )}
-                                                                    {test.isFree ? (
+                                                                    {currentSeries.isPro && (test.isFree || (test as any).accessMode === "FREE" || (test as any).isFreeSample) ? (
+                                                                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 uppercase">
+                                                                            Free sample
+                                                                        </span>
+                                                                    ) : test.isFree ? (
                                                                         <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 uppercase">
                                                                             Free
                                                                         </span>
@@ -695,6 +699,7 @@ export default function TestSeriesDetailPage() {
                                                                                 returnPath={`/test-series/${currentSeries.id}`}
                                                                                 isLocked={!test.isFree}
                                                                                 onUnlockClick={() => setIsPassModalOpen(true)}
+                                                                                isFreeSample={Boolean(currentSeries.isPro && (test.isFree || (test as any).accessMode === "FREE" || (test as any).isFreeSample))}
                                                                             />
                                                                         </>
                                                                     )

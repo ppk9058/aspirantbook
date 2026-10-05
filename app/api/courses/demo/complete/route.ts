@@ -62,12 +62,6 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // 3. Increment course enrollment count
-    await prisma.course.update({
-      where: { id: course.id },
-      data: { enrollmentCount: { increment: 1 } },
-    }).catch(() => {})
-
     return NextResponse.json({
       success: true,
       message: "Demo completed! Added to your My Batches watched section.",

@@ -40,6 +40,7 @@ model User {
   demoBookings       CourseDemoBooking[]
   demoBookingsV2     DemoBooking[]
   demoStageSessions  DemoStageSession[]
+  couponRedemptions  CouponRedemption[]
 
   @@index([email])
   @@index([role])
@@ -118,6 +119,8 @@ model Course {
   demoBookings    CourseDemoBooking[]
   demoSlots       DemoSlot[]
   demoBookingsV2  DemoBooking[]
+  coupons         Coupon[]
+  couponRedemptions CouponRedemption[]
 
   @@index([slug])
   @@index([difficulty])
@@ -619,23 +622,74 @@ model Subscription {
 }
 
 model Payment {
-  id              String        @id @default(cuid())
-  userId          String
-  subscriptionId  String?
-  amount          Float
-  currency        String        @default("USD")
-  status          PaymentStatus
-  paymentMethod   String?
-  paymentProvider String?
-  externalId      String?       @unique
-  metadata        Json?
-  createdAt       DateTime      @default(now())
-  subscription    Subscription? @relation(fields: [subscriptionId], references: [id])
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String            @id @default(cuid())
+  userId           String
+  subscriptionId   String?
+  amount           Float
+  currency         String            @default("USD")
+  status           PaymentStatus
+  paymentMethod    String?
+  paymentProvider  String?
+  externalId       String?           @unique
+  metadata         Json?
+  couponId         String?
+  couponCode       String?
+  originalAmount   Float?
+  discountAmount   Float?
+  createdAt        DateTime          @default(now())
+  subscription     Subscription?     @relation(fields: [subscriptionId], references: [id])
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon           Coupon?           @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  couponRedemption CouponRedemption?
 
   @@index([userId])
   @@index([subscriptionId])
   @@index([status])
+  @@index([couponId])
+}
+
+model Coupon {
+  id                String             @id @default(cuid())
+  code              String             @unique
+  courseId          String?
+  discountType      String             // "PERCENT" | "FLAT"
+  discountValue     Float
+  maxDiscountAmount Float?
+  maxRedemptions    Int?
+  perUserLimit      Int                @default(1)
+  validFrom         DateTime           @default(now())
+  validUntil        DateTime?
+  isActive          Boolean            @default(true)
+  offerAfterDemo    Boolean            @default(false)
+  createdById       String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  course            Course?            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  redemptions       CouponRedemption[]
+  payments          Payment[]
+
+  @@index([code])
+  @@index([courseId])
+  @@index([isActive])
+}
+
+model CouponRedemption {
+  id        String   @id @default(cuid())
+  couponId  String
+  userId    String
+  courseId  String?
+  paymentId String   @unique
+  status    String   @default("REDEEMED") // "RESERVED" | "REDEEMED" | "RELEASED"
+  createdAt DateTime @default(now())
+  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, userId, paymentId])
+  @@index([couponId])
+  @@index([userId])
+  @@index([paymentId])
 }
 
 model PromoCode {

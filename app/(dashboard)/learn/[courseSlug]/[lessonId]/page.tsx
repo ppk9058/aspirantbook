@@ -2,6 +2,8 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { notFound, redirect } from "next/navigation"
 import LessonViewer from "@/components/learn/LessonViewer"
+import { toSafeCourseDto, toSafeLessonDto } from "@/lib/courses/course-dto"
+import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 
 export default async function LearnLessonPage({
     params,
@@ -18,7 +20,7 @@ export default async function LearnLessonPage({
 
     let lesson: any = null
     let course: any = null
-    let userRole = "USER"
+    let userRole = session.user.role || "USER"
     let hasAccess = true
     let progressMap: Record<string, any> = {}
 
@@ -55,7 +57,10 @@ export default async function LearnLessonPage({
 
         if (lesson) {
             course = lesson.chapter.course
-            userRole = session.user.role || "USER"
+
+            if (!isCourseVisibleToUser(course, userRole)) {
+                notFound()
+            }
 
             const isTeacherOrAdmin = userRole === "ADMIN" || userRole === "TEACHER"
             const allLessonIds = course.chapters?.flatMap((c: any) => c.lessons?.map((l: any) => l.id) || []) || []
@@ -124,11 +129,22 @@ export default async function LearnLessonPage({
         notFound()
     }
 
+    if (!isCourseVisibleToUser(course, userRole)) {
+        notFound()
+    }
+
+    if (!hasAccess && !lesson.isTrial) {
+        redirect(`/courses/${courseSlug}?locked=true`)
+    }
+
+    const safeCourse = toSafeCourseDto(course, hasAccess)
+    const safeLesson = toSafeLessonDto(lesson, hasAccess)
+
     // Find current lesson index
-    const allLessons = course.chapters.flatMap((c: any) =>
+    const allLessons = safeCourse.chapters.flatMap((c: any) =>
         c.lessons.map((l: any) => ({ ...l, chapterId: c.id, chapterTitle: c.title }))
     )
-    const currentIndex = allLessons.findIndex((l: any) => l.id === lesson.id)
+    const currentIndex = allLessons.findIndex((l: any) => l.id === safeLesson.id)
     const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
     const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
 
@@ -136,9 +152,9 @@ export default async function LearnLessonPage({
 
     return (
         <LessonViewer
-            lesson={lesson}
-            course={course}
-            chapters={course.chapters}
+            lesson={safeLesson}
+            course={safeCourse}
+            chapters={safeCourse.chapters}
             progressMap={progressMap}
             nextLesson={nextLesson}
             prevLesson={prevLesson}

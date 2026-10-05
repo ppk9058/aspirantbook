@@ -258,6 +258,7 @@ export default async function MyTestsPage() {
                         : "12.5k",
                 totalTests: s.totalTests || 10,
                 freeTests: s.freeTests || 2,
+                isPro: Boolean(s.isPro),
                 languages: s.languages || "English, Hindi",
                 highlights: [
                     "Full Length Simulated Mocks",

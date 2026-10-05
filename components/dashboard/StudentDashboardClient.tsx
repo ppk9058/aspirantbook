@@ -718,6 +718,11 @@ export default function StudentDashboardClient({
                       <span className="px-2.5 py-0.5 rounded-full bg-[#00A8FF]/10 text-[#00A8FF] text-[11px] font-bold">
                         {ct.category || "Civil Services"}
                       </span>
+                      {Boolean(ct.isFreeSample || (ct.seriesIsPro && (ct.isFree || ct.accessMode === "FREE"))) && (
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-extrabold uppercase">
+                          Free sample
+                        </span>
+                      )}
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">{ct.durationMinutes || 10} Mins</span>
                   </div>
@@ -737,6 +742,7 @@ export default function StudentDashboardClient({
                         testTitle={ct.title}
                         returnPath="/dashboard"
                         size="sm"
+                        isFreeSample={Boolean(ct.isFreeSample || (ct.seriesIsPro && (ct.isFree || ct.accessMode === "FREE")))}
                       />
                     )}
                   </div>

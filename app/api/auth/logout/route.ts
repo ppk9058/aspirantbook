@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { sanitizeReturnPath } from "@/lib/utils/return-path"
 
 const COOKIES_TO_DELETE = [
   "authjs.session-token",
@@ -16,8 +17,9 @@ const COOKIES_TO_DELETE = [
 
 function handleLogout(req: NextRequest) {
   const url = new URL(req.url)
-  const callbackUrl = url.searchParams.get("callbackUrl") || "/"
-  const response = NextResponse.redirect(new URL(callbackUrl, req.url))
+  const rawCallback = url.searchParams.get("callbackUrl") || "/"
+  const safeCallback = sanitizeReturnPath(rawCallback, "/")
+  const response = NextResponse.redirect(new URL(safeCallback, req.url))
 
   for (const cookieName of COOKIES_TO_DELETE) {
     response.cookies.delete(cookieName)

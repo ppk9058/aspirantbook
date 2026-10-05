@@ -9,6 +9,9 @@ import { getCourseCustomMetadata } from "@/lib/services/course-metadata-service"
 import { getBatchBySlug } from "@/lib/batches-service"
 import { findBatchBySlugOrId } from "@/components/home/homepage-courses.data"
 import { unstable_cache } from "next/cache"
+import { toSafeCourseDto } from "@/lib/courses/course-dto"
+import { isCourseVisibleToUser } from "@/lib/courses/visibility"
+import { AlertCircle } from "lucide-react"
 
 const getCachedCourseBySlug = unstable_cache(
     async (slug: string) => {
@@ -55,7 +58,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
     // Fetch session, course, and batch concurrently in parallel
     const [session, rawCachedCourse, batch] = await Promise.all([
         auth(),
-        getCachedCourseBySlug(slug).catch((err) => {
+        getCachedCourseBySlug(slug).catch((err: any) => {
             console.warn("Error fetching cached course:", err)
             return null
         }),
@@ -100,9 +103,17 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
     const course = cachedCourse
 
-    if (course.status !== "PUBLISHED" && !isEditor) {
+    if (!isCourseVisibleToUser(course, userRole)) {
         notFound()
     }
+
+    const isDraft = course.status !== "PUBLISHED" || course.isPublished === false
+    const draftBanner = isDraft && userRole === "ADMIN" ? (
+        <div className="bg-amber-500 text-black px-4 py-2 font-semibold text-center text-sm flex items-center justify-center gap-2 sticky top-0 z-50">
+            <AlertCircle className="w-4 h-4" />
+            <span>Draft Course Preview &mdash; Only visible to Administrators</span>
+        </div>
+    ) : null
 
     let isEnrolled = false
     let hasAccess = false
@@ -170,6 +181,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         0
     ) || 0
 
+    const safeCourse = toSafeCourseDto(course, hasAccess)
+
     // If course is a video course bundle with pricing/attachments or video lessons
     const isVideoBundle =
         Boolean(course.price && course.price > 0) ||
@@ -198,13 +211,16 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             classTag: parsedMetadata?.classTag || course.technology || batch?.classTag || "Skills",
         }
         return (
-            <CourseBundleView
-                course={course}
-                batch={effectiveBatch as any}
-                userRole={userRole}
-                isEnrolled={isEnrolled}
-                hasAccess={hasAccess}
-            />
+            <>
+                {draftBanner}
+                <CourseBundleView
+                    course={safeCourse as any}
+                    batch={effectiveBatch as any}
+                    userRole={userRole}
+                    isEnrolled={isEnrolled}
+                    hasAccess={hasAccess}
+                />
+            </>
         )
     }
 
@@ -240,8 +256,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
     return (
         <Suspense fallback={<div className="min-h-screen bg-[#FFFDF9] dark:bg-[#070D1E] animate-pulse" />}>
+            {draftBanner}
             <CourseDetailView
-                initialCourse={course}
+                initialCourse={safeCourse as any}
                 initialMetadata={initialMetadata}
                 isEnrolled={isEnrolled}
                 hasAccess={hasAccess}

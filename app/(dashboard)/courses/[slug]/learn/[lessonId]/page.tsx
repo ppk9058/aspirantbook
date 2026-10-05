@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { notFound } from "next/navigation"
 import { CoursePlayerClient } from "@/components/course/CoursePlayerClient"
+import { toSafeCourseDto } from "@/lib/courses/course-dto"
+import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 
 export const dynamic = "force-dynamic"
 
@@ -12,6 +14,7 @@ export default async function CourseLearnPage({
 }) {
   const { slug, lessonId } = await params
   const session = await auth()
+  const userRole = session?.user?.role
 
   const course = await prisma.course.findUnique({
     where: { slug },
@@ -27,7 +30,7 @@ export default async function CourseLearnPage({
     },
   })
 
-  if (!course) {
+  if (!course || !isCourseVisibleToUser(course, userRole)) {
     notFound()
   }
 
@@ -38,6 +41,7 @@ export default async function CourseLearnPage({
 
   let isEnrolled = false
   const isFreeCourse = !course.isPremium && (!course.price || course.price === 0)
+  const isEditor = userRole === "ADMIN" || userRole === "TEACHER"
 
   if (session?.user?.id) {
     try {
@@ -79,11 +83,14 @@ export default async function CourseLearnPage({
     }
   }
 
+  const hasAccess = isEditor || isEnrolled || isFreeCourse
+  const safeCourse = toSafeCourseDto(course, hasAccess)
+
   return (
     <CoursePlayerClient
-      course={course as any}
+      course={safeCourse as any}
       initialLessonId={lessonId}
-      userRole={session?.user?.role}
+      userRole={userRole}
       userName={session?.user?.name || "Student"}
       isEnrolled={isEnrolled}
       initialCompletedIds={initialCompletedIds}

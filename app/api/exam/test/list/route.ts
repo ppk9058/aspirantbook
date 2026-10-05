@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
           select: { attempts: true },
         },
         series: {
-          select: { title: true, category: true, slug: true },
+          select: { title: true, category: true, slug: true, isFree: true, isPro: true },
         },
         ...(includeQuestions
           ? {
@@ -125,6 +125,7 @@ export async function GET(req: NextRequest) {
       const qCount = includeQuestions
         ? (t.sections || []).reduce((acc: number, s: any) => acc + (s.questions?.length || 0), 0)
         : 0;
+      const isFreeSample = Boolean(t.series?.isPro && t.accessMode === "FREE");
       return {
         id: t.id,
         seriesId: t.seriesId,
@@ -138,7 +139,11 @@ export async function GET(req: NextRequest) {
         marks: t.totalMarks || qCount || 5,
         durationMinutes: t.durationMinutes || 10,
         languages: "English, Hindi",
+        accessMode: t.accessMode,
         isFree: t.accessMode === "FREE",
+        seriesIsPro: Boolean(t.series?.isPro),
+        seriesIsFree: Boolean(t.series?.isFree),
+        isFreeSample,
         isPublished: t.isPublished,
         attempts: t._count?.attempts ?? 0,
         questionsList:

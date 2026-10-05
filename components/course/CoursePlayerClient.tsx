@@ -575,7 +575,9 @@ export function CoursePlayerClient({
                                   Trial
                                 </span>
                               ) : (
-                                !isUnlocked && <Lock className="w-3.5 h-3.5 text-gray-400" />
+                                !(isFreeCourse || isEnrolled || userRole === "ADMIN" || userRole === "TEACHER") && (
+                                  <Lock className="w-3.5 h-3.5 text-gray-400" />
+                                )
                               )}
                             </div>
                           </div>
@@ -679,8 +681,8 @@ export function CoursePlayerClient({
               )
             ) : (
               /* Paywall when course is locked */
-              <div className="flex flex-col items-center justify-center text-center p-2.5 sm:p-6 space-y-2 sm:space-y-4 max-w-full w-full animate-in fade-in zoom-in-95 duration-200">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700">
+              <div data-testid="course-paywall-overlay" className="flex flex-col items-center justify-center text-center p-2.5 sm:p-6 space-y-2 sm:space-y-4 max-w-full w-full animate-in fade-in zoom-in-95 duration-200">
+                <span data-testid="paywall-lock-badge" className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700">
                   <Lock className="w-3.5 h-3.5 text-gray-400" />
                   PAID LESSON
                 </span>

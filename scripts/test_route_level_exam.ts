@@ -53,6 +53,7 @@ async function runRouteLevelHttpTests() {
 
   let testSeriesId: string | null = null;
   let proSeriesId: string | null = null;
+  let teacherCreatedSeriesId: string | null = null;
   let testExamId: string | null = null;
   let proExamId: string | null = null;
   let studentAttemptId: string | null = null;
@@ -267,6 +268,8 @@ async function runRouteLevelHttpTests() {
 
     setSession(teacherUser);
     res = await postSeriesCreate(createReq("/api/exam/series/create", "POST", { title: "Created by Teacher " + runId }));
+    const teacherSeriesJson = await res.json();
+    teacherCreatedSeriesId = teacherSeriesJson.data?.id;
     record("/api/exam/series/create", "POST", "Teacher creation returns 200", 200, res.status);
 
     // ─────────────────────────────────────────────────────────────
@@ -611,6 +614,10 @@ async function runRouteLevelHttpTests() {
     if (proSeriesId) {
       await prisma.examSeries.delete({ where: { id: proSeriesId } }).catch(() => {});
       console.log("Deleted proSeries:", proSeriesId);
+    }
+    if (teacherCreatedSeriesId) {
+      await prisma.examSeries.delete({ where: { id: teacherCreatedSeriesId } }).catch(() => {});
+      console.log("Deleted teacherCreatedSeries:", teacherCreatedSeriesId);
     }
 
     // Delete test users

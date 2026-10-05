@@ -23,6 +23,53 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Invalid payload: lessonId and numeric timeSpent required" }, { status: 400 })
         }
 
+        // Verify lesson exists and user has access
+        const lesson = await prisma.lesson.findUnique({
+            where: { id: lessonId },
+            include: {
+                chapter: {
+                    include: {
+                        course: {
+                            select: {
+                                id: true,
+                                isPremium: true,
+                                price: true,
+                            },
+                        },
+                    },
+                },
+            },
+        })
+
+        if (!lesson) {
+            return NextResponse.json({ error: "Lesson not found" }, { status: 404 })
+        }
+
+        const userRole = session.user.role
+        const isStaff = userRole === "ADMIN" || userRole === "TEACHER"
+        const isFreeCourse = !lesson.chapter.course.isPremium && (!lesson.chapter.course.price || lesson.chapter.course.price === 0)
+        const isTrialLesson = Boolean(lesson.isTrial)
+
+        if (!isStaff && !isFreeCourse && !isTrialLesson) {
+            // Require active enrollment for locked lessons
+            const enrollment = await prisma.enrollment.findUnique({
+                where: {
+                    userId_courseId: {
+                        userId: session.user.id,
+                        courseId: lesson.chapter.course.id,
+                    },
+                },
+                select: { id: true },
+            })
+
+            if (!enrollment) {
+                return NextResponse.json(
+                    { error: "Forbidden: Enrollment required to save progress on locked lessons" },
+                    { status: 403 }
+                )
+            }
+        }
+
         const flooredTime = Math.max(0, Math.floor(timeSpent))
 
         const progress = await prisma.progress.upsert({
