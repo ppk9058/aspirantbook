@@ -795,6 +795,9 @@ async function runMobileAudit() {
       { path: `/test-series/bpsc-72nd-2026`, name: "test_series_detail_bpsc" },
       { path: "/test-series", name: "test_series_hub" },
       { path: "/my-tests", name: "my_tests" },
+      { path: "/courses", name: "courses" },
+      { path: "/courses/72nd-bpsc-prelims-current-affairs", name: "course_detail_bpsc" },
+      { path: "/courses/72nd-bpsc-prelims-current-affairs/learn/cmui8hds90004xpacc9bropjd", name: "course_watch_bpsc" },
     ];
 
     if (process.env.AUDIT_PAGES) {
@@ -804,8 +807,10 @@ async function runMobileAudit() {
         { path: `/test-series/bpsc-72nd-2026`, name: "test_series_detail_bpsc" },
         { path: "/test-series", name: "test_series_hub" },
         { path: "/my-tests", name: "my_tests" },
-        { path: "/", name: "dashboard_home" },
         { path: "/courses", name: "courses" },
+        { path: "/courses/72nd-bpsc-prelims-current-affairs", name: "course_detail_bpsc" },
+        { path: "/courses/72nd-bpsc-prelims-current-affairs/learn/cmui8hds90004xpacc9bropjd", name: "course_watch_bpsc" },
+        { path: "/", name: "dashboard_home" },
         { path: "/my-learning", name: "my_learning" },
         { path: "/tracks", name: "tracks" },
         { path: "/books", name: "books" },
@@ -818,7 +823,6 @@ async function runMobileAudit() {
     } else if (mode === "all") {
       pagesToAudit.push(
         { path: "/", name: "dashboard_home" },
-        { path: "/courses", name: "courses" },
         { path: "/my-learning", name: "my_learning" },
         { path: "/tracks", name: "tracks" },
         { path: "/books", name: "books" },
@@ -882,6 +886,8 @@ async function runMobileAudit() {
         { path: "/subscription", name: "subscription" },
         { path: "/test-series", name: "test_series_hub" },
         { path: "/test-series/bpsc-72nd-2026", name: "test_series_detail_bpsc" },
+        { path: "/courses", name: "courses" },
+        { path: "/courses/72nd-bpsc-prelims-current-affairs", name: "course_detail_bpsc" },
       ];
       for (const pageItem of freePages) {
         for (const vp of USER_STATE_VIEWPORTS) {
@@ -1050,8 +1056,13 @@ async function runMobileAudit() {
     }
 
     if (allViolations.length > 0) {
-      console.log("\nDETAILED DEFECT LOG (First 50):");
-      allViolations.slice(0, 50).forEach((v, idx) => {
+      console.log("\nDETAILED DEFECT LOG (First 50, prioritized non-contrast):");
+      const sorted = [...allViolations].sort((a, b) => {
+        if (a.category === "COLOR_CONTRAST" && b.category !== "COLOR_CONTRAST") return 1;
+        if (a.category !== "COLOR_CONTRAST" && b.category === "COLOR_CONTRAST") return -1;
+        return 0;
+      });
+      sorted.slice(0, 50).forEach((v, idx) => {
         console.log(`[#${idx + 1}] [${v.category}] [${v.userState || "ACTIVE"}] ${v.pageUrl} | ${v.viewport} | ${v.theme}`);
         console.log(`    ${v.details}`);
       });

@@ -105,9 +105,11 @@ export function CourseTeachersSection({
       }}
     >
       {/* Decorative ambient background glows matching screenshot */}
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 -left-20 w-60 h-60 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div data-scroll-x="true" className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 -left-20 w-60 h-60 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
+      </div>
 
       {/* Header */}
       <div className="relative z-10 px-5 pt-6 pb-2 md:px-8 md:pt-7 flex items-center justify-between">
@@ -125,8 +127,8 @@ export function CourseTeachersSection({
       </div>
 
       {/* TEACHERS ROW CONTAINER */}
-      <div className="relative z-10 px-4 md:px-8 pt-4 pb-2 md:pt-6">
-        <div className="flex items-end justify-center gap-3 sm:gap-6 md:gap-10 lg:gap-14 overflow-x-auto no-scrollbar py-6">
+      <div data-scroll-x="true" className="relative z-10 px-4 md:px-8 pt-4 pb-2 md:pt-6 overflow-hidden">
+        <div data-scroll-x="true" className="flex items-end justify-start sm:justify-center gap-3 sm:gap-6 md:gap-10 lg:gap-14 overflow-x-auto no-scrollbar py-6">
           {teachers.map((teacher, idx) => {
             const isActive = activeTeacherIndex === idx
 
@@ -218,7 +220,7 @@ export function CourseTeachersSection({
               {activeTeacher.subject}
             </p>
 
-            <div className="flex items-center gap-2 text-xs text-purple-300/90 font-medium pt-0.5">
+            <div className="flex items-center gap-2 text-xs text-purple-200 font-medium pt-0.5">
               {activeTeacher.followers && (
                 <span>{activeTeacher.followers}</span>
               )}

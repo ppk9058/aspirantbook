@@ -254,15 +254,15 @@ export function CoursePlayerClient({
         >
           {/* Real-time % Complete & Search Bar */}
           <div
-            className={`p-3.5 sm:p-4 border-b flex items-center justify-between gap-2 sm:gap-3 ${
+            className={`p-3.5 sm:p-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
               isDarkMode ? "border-gray-800 bg-[#091124]" : "border-gray-100 bg-white"
             }`}
           >
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
               <span className="lg:hidden text-xs font-extrabold uppercase tracking-wider text-sky-600 mr-1">
                 Curriculum
               </span>
-              <span className={`text-lg sm:text-xl font-black ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              <span className={`text-base sm:text-xl font-black ${isDarkMode ? "text-white" : "text-gray-900"}`}>
                 {progressPercent}%
               </span>
               <span className={`text-xs font-semibold ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
@@ -271,8 +271,8 @@ export function CoursePlayerClient({
               <TrendingUp className="w-4 h-4 text-sky-600 ml-0.5 shrink-0" />
             </div>
 
-            <div className="relative flex-1 max-w-[120px] sm:max-w-[160px]">
-              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <div className="relative w-full sm:w-auto sm:flex-1 sm:max-w-[140px]">
+              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
@@ -454,7 +454,7 @@ export function CoursePlayerClient({
           }`}
         >
           {/* 16:9 Video Canvas / Paywall Container */}
-          <div className="relative aspect-video w-full max-w-5xl mx-auto rounded-xl sm:rounded-2xl overflow-hidden bg-black shadow-xl border border-gray-800/80 flex items-center justify-center">
+          <div className="relative aspect-video min-h-[220px] w-full max-w-5xl mx-auto rounded-xl sm:rounded-2xl overflow-hidden bg-black shadow-xl border border-gray-800/80 flex items-center justify-center">
             {isUnlocked ? (
               /* Unlocked / Trial Video Player */
               isPlayingVideo ? (
@@ -515,7 +515,7 @@ export function CoursePlayerClient({
               )
             ) : (
               /* Paywall when course is locked */
-              <div className="flex flex-col items-center justify-center text-center p-4 sm:p-6 space-y-3 sm:space-y-4 max-w-md animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex flex-col items-center justify-center text-center p-2.5 sm:p-6 space-y-2 sm:space-y-4 max-w-full w-full animate-in fade-in zoom-in-95 duration-200">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-300 border border-gray-700">
                   <Lock className="w-3.5 h-3.5 text-gray-400" />
                   PAID LESSON
@@ -649,6 +649,7 @@ export function CoursePlayerClient({
             {/* Bottom Tabs: Overview, Bookmarks, Resources, Recently added, Discussions */}
             <div className="space-y-4">
               <div
+                data-scroll-x="true"
                 className={`flex items-center gap-4 sm:gap-8 border-b text-xs sm:text-sm font-bold overflow-x-auto no-scrollbar scroll-smooth ${
                   isDarkMode ? "border-gray-800" : "border-gray-200"
                 }`}
@@ -720,23 +721,23 @@ export function CoursePlayerClient({
                       `Welcome to "${activeLesson.title}". In this comprehensive video lecture, we cover the core concepts, analytical frameworks, and exam-oriented topics designed for thorough conceptual understanding.`}
                   </p>
                   <div
-                    className={`p-4 rounded-xl border flex items-center justify-between text-xs font-semibold ${
+                    className={`p-4 rounded-xl border flex flex-wrap items-center justify-between gap-3 text-xs font-semibold ${
                       isDarkMode ? "bg-gray-800/40 border-gray-700" : "bg-gray-50 border-gray-200"
                     }`}
                   >
                     <span className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-sky-600" />
+                      <Clock className="w-4 h-4 text-sky-600 shrink-0" />
                       <span>Duration: {activeLesson.durationText || "1h 45m 00s"}</span>
                     </span>
                     <button
                       onClick={(e) => handleToggleLessonComplete(activeLesson.id, e)}
-                      className={`px-3 py-1.5 rounded-lg font-bold border transition-colors flex items-center gap-1.5 ${
+                      className={`px-3 py-1.5 rounded-lg font-bold border transition-colors flex items-center gap-1.5 shrink-0 ${
                         completedLessonIds[activeLesson.id]
                           ? "bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-300"
                           : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                       }`}
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                       <span>{completedLessonIds[activeLesson.id] ? "Completed ✓" : "Mark Complete"}</span>
                     </button>
                   </div>

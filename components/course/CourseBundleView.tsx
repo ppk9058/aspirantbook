@@ -408,7 +408,7 @@ export function CourseBundleView({
             
             {/* Offer Coupon Card (Matching Image 1) */}
             {course.couponCode && !isFree && (
-              <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-xs flex items-center justify-between gap-4">
+              <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-600 shrink-0">
                     <Ticket className="w-5 h-5" />
@@ -422,18 +422,18 @@ export function CourseBundleView({
                 {/* Dashed Coupon Pill */}
                 <div
                   onClick={handleCopyCoupon}
-                  className="flex items-center border border-dashed border-gray-300 rounded-xl overflow-hidden cursor-pointer hover:border-orange-500 transition-all group"
+                  className="flex items-center self-start sm:self-auto border border-dashed border-gray-300 rounded-xl overflow-hidden cursor-pointer hover:border-orange-500 transition-all group max-w-full"
                   title="Click to copy and apply discount"
                 >
-                  <div className="bg-emerald-800 text-white font-black text-xs px-3 py-2 flex items-center gap-1">
+                  <div className="bg-emerald-800 text-white font-black text-xs px-3 py-2 flex items-center gap-1 shrink-0">
                     {course.couponDiscount || 50}%
                   </div>
-                  <div className="px-3.5 py-2 bg-gray-50 group-hover:bg-orange-50 flex items-center gap-2">
-                    <span className="font-mono font-bold text-xs text-gray-800">{course.couponCode}</span>
+                  <div className="px-3.5 py-2 bg-gray-50 group-hover:bg-orange-50 flex items-center gap-2 truncate">
+                    <span className="font-mono font-bold text-xs text-gray-800 truncate">{course.couponCode}</span>
                     {copiedCoupon ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     ) : (
-                      <Copy className="w-3.5 h-3.5 text-gray-400 group-hover:text-orange-600" />
+                      <Copy className="w-3.5 h-3.5 text-gray-400 group-hover:text-orange-600 shrink-0" />
                     )}
                   </div>
                 </div>
@@ -441,7 +441,7 @@ export function CourseBundleView({
             )}
 
             {/* PW-Style Sticky In-Page Navigation Bar */}
-            <div className="sticky top-16 z-20 bg-white/95 backdrop-blur-md rounded-2xl border border-gray-200 shadow-xs p-1.5 flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
+            <div data-scroll-x="true" className="sticky top-16 z-20 bg-white/95 backdrop-blur-md rounded-2xl border border-gray-200 shadow-xs p-1.5 flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
               {TABS.map((tab) => {
                 const isSelected = activeTab === tab.id
                 return (
@@ -450,8 +450,8 @@ export function CourseBundleView({
                     onClick={() => scrollToSection(tab.id)}
                     className={`px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer ${
                       isSelected
-                        ? "bg-orange-600 text-white shadow-xs"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                        ? "bg-orange-700 text-white shadow-xs"
+                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-100/80"
                     }`}
                   >
                     {tab.label}
@@ -506,27 +506,27 @@ export function CourseBundleView({
                         }`}
                       >
                         <div className="flex items-start sm:items-center gap-3.5 min-w-0">
-                          <span className="font-mono text-sm font-bold text-gray-400 shrink-0 mt-0.5 sm:mt-0">
+                          <span className="font-mono text-sm font-bold text-gray-600 dark:text-gray-300 shrink-0 mt-0.5 sm:mt-0">
                             {formattedNum}
                           </span>
                           <div className="min-w-0">
                             <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-snug">
                               {chapter.title}
                             </h3>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs text-gray-500">
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                              <span className="text-xs text-gray-600 dark:text-gray-400">
                                 {chapter.lessons.length} {chapter.lessons.length === 1 ? "lesson" : "lessons"}
                               </span>
                               {chAttachmentsCount > 0 && (
                                 <>
-                                  <span className="text-gray-300">•</span>
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-gray-400">•</span>
+                                  <span className="text-xs text-gray-600 dark:text-gray-400">
                                     {chAttachmentsCount} {chAttachmentsCount === 1 ? "attachment" : "attachments"}
                                   </span>
                                 </>
                               )}
                               {hasTrial && (
-                                <span className="ml-1 px-2 py-0.2 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
                                   1 Trial
                                 </span>
                               )}
@@ -534,7 +534,7 @@ export function CourseBundleView({
                           </div>
                         </div>
 
-                        <div className="text-gray-400 shrink-0 ml-2">
+                        <div className="text-gray-500 shrink-0 ml-2">
                           {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                         </div>
                       </button>
@@ -556,7 +556,7 @@ export function CourseBundleView({
                                 className="py-3.5 flex items-start justify-between gap-3 group cursor-pointer hover:bg-white rounded-xl px-3 transition-colors"
                               >
                                 <div className="flex items-start gap-3 min-w-0">
-                                  <div className="mt-0.5 shrink-0 text-gray-400 group-hover:text-orange-600 transition-colors">
+                                  <div className="mt-0.5 shrink-0 text-gray-500 group-hover:text-orange-600 transition-colors">
                                     {isLive ? (
                                       <Radio className="w-4 h-4 text-red-500 animate-pulse" />
                                     ) : isVideo ? (
@@ -576,8 +576,8 @@ export function CourseBundleView({
                                         </span>
                                       )}
                                     </div>
-                                    <div className="flex items-center gap-2 mt-0.5 text-[11px] text-gray-400 font-medium">
-                                      {isLive && <span className="text-red-600 font-semibold">Live</span>}
+                                    <div className="flex items-center gap-2 mt-0.5 text-[11px] text-gray-600 dark:text-gray-300 font-medium">
+                                      {isLive && <span className="text-red-700 font-semibold">Live</span>}
                                       {isVideo && <span>Video {lesson.durationText && `• ${lesson.durationText}`}</span>}
                                       {isPdf && <span>PDF</span>}
                                       {lesson.attachmentName && (
@@ -589,11 +589,11 @@ export function CourseBundleView({
 
                                 <div className="shrink-0 flex items-center gap-2 text-xs font-semibold text-orange-600 group-hover:translate-x-0.5 transition-transform">
                                   {isUnlocked ? (
-                                    <span className="inline-flex items-center gap-1 text-emerald-600">
+                                    <span className="inline-flex items-center gap-1 text-emerald-800 dark:text-emerald-300 font-bold">
                                       <Unlock className="w-3.5 h-3.5" /> {isFree || isEnrolled || hasAccess ? "Watch" : "Preview"}
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center gap-1 text-gray-400">
+                                    <span className="inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
                                       <Lock className="w-3.5 h-3.5" />
                                     </span>
                                   )}
@@ -617,7 +617,7 @@ export function CourseBundleView({
                     <span>About This Course</span>
                     <Sparkles className="h-5 w-5 text-orange-600" />
                   </h2>
-                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                     Everything you need to know about the curriculum, expectations & inclusions
                   </p>
                 </div>
@@ -626,25 +626,25 @@ export function CourseBundleView({
               {/* Meta Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-gray-50/80 border border-gray-100 mb-6">
                 <div>
-                  <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Target</span>
+                  <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider block">Target</span>
                   <span className="text-xs sm:text-sm font-extrabold text-gray-900 mt-0.5 block truncate">
                     {batch?.classTag || "Comprehensive"}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Medium</span>
+                  <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider block">Medium</span>
                   <span className="text-xs sm:text-sm font-extrabold text-gray-900 mt-0.5 block">
                     {batch?.language || "HINGLISH"}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Mode</span>
+                  <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider block">Mode</span>
                   <span className="text-xs sm:text-sm font-extrabold text-gray-900 mt-0.5 block">
                     Online / Self-Paced
                   </span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Lectures</span>
+                  <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider block">Lectures</span>
                   <span className="text-xs sm:text-sm font-extrabold text-gray-900 mt-0.5 block">
                     {totalLessons} Videos & Notes
                   </span>
@@ -713,12 +713,12 @@ export function CourseBundleView({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 text-xs">
-                      <div className="bg-white border border-gray-200 px-3 py-1.5 rounded-lg font-bold text-gray-800 flex items-center gap-1.5 shadow-2xs">
-                        <Clock className="h-3.5 w-3.5 text-orange-600" />
-                        <span>{item.time}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-xs min-w-0 max-w-full">
+                      <div className="bg-white border border-gray-200 px-3 py-1.5 rounded-lg font-bold text-gray-800 flex items-center gap-1.5 shadow-2xs max-w-full flex-wrap shrink-0">
+                        <Clock className="h-3.5 w-3.5 text-orange-600 shrink-0" />
+                        <span className="break-words">{item.time}</span>
                       </div>
-                      <span className="font-bold text-emerald-800 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-lg">
+                      <span className="font-bold text-emerald-800 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-lg self-start sm:self-auto shrink-0">
                         {item.type}
                       </span>
                     </div>
@@ -729,7 +729,7 @@ export function CourseBundleView({
               {/* Subjects tags */}
               {batch?.subjects && batch.subjects.length > 0 && (
                 <div className="pt-4 border-t border-gray-100">
-                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
+                  <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider block mb-2">
                     Subjects Covered
                   </span>
                   <div className="flex items-center gap-2 flex-wrap">
@@ -844,12 +844,12 @@ export function CourseBundleView({
               )}
 
               {/* Price Row */}
-              <div className="flex items-baseline gap-2.5 pt-1">
+              <div className="flex items-baseline gap-2.5 pt-1 flex-wrap">
                 {isFree ? (
                   <>
                     <span className="text-3xl font-black text-emerald-600">FREE</span>
                     {originalPrice > 0 && (
-                      <span className="text-base text-gray-400 line-through">₹ {originalPrice.toLocaleString()}</span>
+                      <span className="text-base text-gray-600 dark:text-gray-400 line-through">₹ {originalPrice.toLocaleString()}</span>
                     )}
                     <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-900 text-xs font-bold">
                       100% Free
@@ -859,7 +859,7 @@ export function CourseBundleView({
                   <>
                     <span className="text-3xl font-black text-gray-900">₹ {finalPrice.toLocaleString()}</span>
                     {originalPrice > finalPrice && (
-                      <span className="text-base text-gray-400 line-through">₹ {originalPrice.toLocaleString()}</span>
+                      <span className="text-base text-gray-600 dark:text-gray-400 line-through">₹ {originalPrice.toLocaleString()}</span>
                     )}
                     {discountPercent > 0 && (
                       <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 text-xs font-bold">
