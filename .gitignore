@@ -60,3 +60,5 @@ playwright-report/
 .test-users-manifest.json
 artifacts_pass*/
 backups/
+logs/
+.env.test
