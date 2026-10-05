@@ -691,7 +691,6 @@ model CouponRedemption {
   course    Course?   @relation(fields: [courseId], references: [id], onDelete: SetNull)
   payment   Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 
-  @@unique([couponId, userId, paymentId])
   @@index([couponId])
   @@index([userId])
 }
