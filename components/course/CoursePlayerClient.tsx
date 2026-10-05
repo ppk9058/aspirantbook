@@ -71,6 +71,7 @@ interface CoursePlayerProps {
   initialLessonId?: string
   userRole?: string
   userName?: string
+  isEnrolled?: boolean
   initialCompletedIds?: { [id: string]: boolean }
 }
 
@@ -79,6 +80,7 @@ export function CoursePlayerClient({
   initialLessonId,
   userRole,
   userName = "Student",
+  isEnrolled = false,
   initialCompletedIds = {},
 }: CoursePlayerProps) {
   const router = useRouter()
@@ -134,8 +136,9 @@ export function CoursePlayerClient({
   const completedCount = allLessons.filter((l) => completedLessonIds[l.id]).length
   const progressPercent = allLessons.length > 0 ? Math.round((completedCount / allLessons.length) * 100) : 0
 
-  // Locked condition (if not trial, and user is not enrolled/admin/teacher)
-  const isUnlocked = activeLesson.isTrial || userRole === "ADMIN" || userRole === "TEACHER"
+  // Free course or enrolled/paid or trial lesson or teacher/admin
+  const isFreeCourse = !course.price || course.price === 0
+  const isUnlocked = isFreeCourse || isEnrolled || activeLesson.isTrial || userRole === "ADMIN" || userRole === "TEACHER"
 
   const toggleChapter = (id: string) => {
     setExpandedChapters((prev) => ({ ...prev, [id]: !prev[id] }))

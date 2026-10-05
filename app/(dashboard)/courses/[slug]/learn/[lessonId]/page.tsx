@@ -35,22 +35,32 @@ export default async function CourseLearnPage({
   const allLessonIds = course.chapters.flatMap((ch) => ch.lessons.map((l) => l.id))
   const initialCompletedIds: { [id: string]: boolean } = {}
 
+  let isEnrolled = false
+  const isFreeCourse = !course.isPremium && (!course.price || course.price === 0)
+
   if (session?.user?.id) {
     try {
-      // Auto-enroll user if they are watching this course so it appears in My Batches
-      await prisma.enrollment.upsert({
+      const existingEnrollment = await prisma.enrollment.findUnique({
         where: {
           userId_courseId: {
             userId: session.user.id,
             courseId: course.id,
           },
         },
-        update: {},
-        create: {
-          userId: session.user.id,
-          courseId: course.id,
-        },
       })
+
+      if (existingEnrollment) {
+        isEnrolled = true
+      } else if (isFreeCourse) {
+        // Auto-enroll free courses so they appear in My Batches
+        await prisma.enrollment.create({
+          data: {
+            userId: session.user.id,
+            courseId: course.id,
+          },
+        })
+        isEnrolled = true
+      }
 
       const records = await prisma.progress.findMany({
         where: {
@@ -74,6 +84,7 @@ export default async function CourseLearnPage({
       initialLessonId={lessonId}
       userRole={session?.user?.role}
       userName={session?.user?.name || "Student"}
+      isEnrolled={isEnrolled}
       initialCompletedIds={initialCompletedIds}
     />
   )

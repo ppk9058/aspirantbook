@@ -108,16 +108,18 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
     let hasAccess = false
     let progress = 0
 
+    const isPaidCourse = Boolean(course.isPremium || (course.price && course.price > 0))
+
     if (session?.user?.id) {
         try {
-            if (isEditor || !course.isPremium) {
+            if (isEditor || !isPaidCourse) {
                 hasAccess = true
             }
 
             const allLessonIds = course.chapters?.flatMap((c: any) => c.lessons?.map((l: any) => l.id) || []) || []
 
             const [subCheck, enrollment, completedProgress] = await Promise.all([
-                (!isEditor && course.isPremium)
+                (!isEditor && isPaidCourse)
                     ? prisma.subscription.findFirst({
                           where: {
                               userId: session.user.id,
@@ -151,12 +153,13 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
             if (subCheck) hasAccess = true
             isEnrolled = !!enrollment
+            if (isEnrolled) hasAccess = true
             if (allLessonIds.length > 0) {
                 progress = Math.round((completedProgress / allLessonIds.length) * 100)
             }
         } catch (e) {
             console.warn("Failed to check user enrollment on /courses/[slug]:", e)
-            hasAccess = isEditor || !course.isPremium
+            hasAccess = isEditor || !isPaidCourse
             isEnrolled = false
             progress = 0
         }

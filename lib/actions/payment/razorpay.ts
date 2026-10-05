@@ -50,7 +50,7 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
 
         const effectiveCoursePrice = course.price ?? 0
 
-        if (!course.isPremium || effectiveCoursePrice <= 0) {
+        if (effectiveCoursePrice <= 0 && !course.isPremium) {
             throw new Error("Cannot create payment order for free course.")
         }
 
