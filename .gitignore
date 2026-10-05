@@ -61,4 +61,5 @@ playwright-report/
 artifacts_pass*/
 backups/
 logs/
+artifacts/
 .env.test

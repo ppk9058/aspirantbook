@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import "@/lib/boot-guard";
 import "./globals.css";
 import { Providers } from "./providers"
 
