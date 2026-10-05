@@ -37,7 +37,8 @@ export async function createTestUser(options: CreateTestUserOptions = {}) {
 
     const id = `u-${prefix}-${timestamp}-${random}`
     const email = options.email || `test_${prefix}_${timestamp}_${random}@example.test`
-    const phoneNumber = options.phoneNumber || `9${String(timestamp).slice(-9)}`
+    const randomPhoneSuffix = Math.floor(1000 + Math.random() * 9000)
+    const phoneNumber = options.phoneNumber || `9${String(timestamp).slice(-5)}${randomPhoneSuffix}`
     const role = options.role || "FREE"
     const name = options.name || `Test User ${prefix}`
 
