@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -73,6 +73,7 @@ interface CoursePlayerProps {
   userName?: string
   isEnrolled?: boolean
   initialCompletedIds?: { [id: string]: boolean }
+  initialProgressTimes?: { [id: string]: number }
 }
 
 export function CoursePlayerClient({
@@ -82,6 +83,7 @@ export function CoursePlayerClient({
   userName = "Student",
   isEnrolled = false,
   initialCompletedIds = {},
+  initialProgressTimes = {},
 }: CoursePlayerProps) {
   const router = useRouter()
   const { data: session } = useSession()
@@ -124,6 +126,145 @@ export function CoursePlayerClient({
     [course.chapters[0]?.id || ""]: true,
     [course.chapters[1]?.id || ""]: true,
   })
+
+  const [progressTimes, setProgressTimes] = useState<{ [id: string]: number }>(initialProgressTimes)
+  const playerRef = useRef<any>(null)
+  const intervalRef = useRef<any>(null)
+  const lastTimeRef = useRef<number>(initialProgressTimes[initialLesson.id] || 0)
+
+  const saveProgress = useCallback(async (lessonId: string, timeSpent: number, completed?: boolean) => {
+    const floored = Math.floor(timeSpent)
+    lastTimeRef.current = floored
+    if (floored <= 0 && !completed) return
+    try {
+      await fetch("/api/courses/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lessonId, timeSpent: floored, completed }),
+      })
+      setProgressTimes((prev) => ({ ...prev, [lessonId]: floored }))
+    } catch (e) {
+      console.warn("Could not save progress:", e)
+    }
+  }, [])
+
+  // Listen to beforeunload to flush position via sendBeacon
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (activeLesson?.id) {
+        let cur = lastTimeRef.current
+        if (playerRef.current?.getCurrentTime) {
+          try {
+            cur = Math.floor(playerRef.current.getCurrentTime())
+          } catch (e) {}
+        }
+        if (cur > 0) {
+          const payload = JSON.stringify({ lessonId: activeLesson.id, timeSpent: cur })
+          if (typeof navigator !== "undefined" && navigator.sendBeacon) {
+            navigator.sendBeacon("/api/courses/progress", new Blob([payload], { type: "application/json" }))
+          }
+        }
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+    }
+  }, [activeLesson?.id])
+
+  // Load YouTube Iframe API Script
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    if (!(window as any).YT) {
+      const tag = document.createElement("script")
+      tag.src = "https://www.youtube.com/iframe_api"
+      const firstScriptTag = document.getElementsByTagName("script")[0]
+      firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag)
+    }
+  }, [])
+
+  // Initialize YT Player when playing video
+  useEffect(() => {
+    if (!isPlayingVideo || !activeLesson?.videoUrl) return
+
+    let isMounted = true
+    let pollYTInterval: any = null
+
+    const initPlayer = () => {
+      if (typeof window === "undefined" || !(window as any).YT || !(window as any).YT.Player) {
+        return false
+      }
+      const iframeEl = document.getElementById("youtube-player-frame")
+      if (!iframeEl) return false
+
+      try {
+        const player = new (window as any).YT.Player("youtube-player-frame", {
+          events: {
+            onReady: (event: any) => {
+              if (!isMounted) return
+              playerRef.current = event.target
+              ;(window as any).__ytPlayer = event.target
+              ;(window as any).__getYTPlayerState = () => event.target?.getPlayerState?.()
+
+              const savedPos = progressTimes[activeLesson.id] || 0
+              if (savedPos > 0) {
+                event.target.seekTo(savedPos, true)
+              }
+            },
+            onStateChange: (event: any) => {
+              if (!isMounted) return
+              const state = event.data
+              // 1: PLAYING, 2: PAUSED, 0: ENDED
+              if (state === 1) {
+                if (intervalRef.current) clearInterval(intervalRef.current)
+                intervalRef.current = setInterval(() => {
+                  if (playerRef.current?.getCurrentTime) {
+                    const cur = playerRef.current.getCurrentTime()
+                    saveProgress(activeLesson.id, cur)
+                  }
+                }, 5000)
+              } else {
+                if (intervalRef.current) {
+                  clearInterval(intervalRef.current)
+                  intervalRef.current = null
+                }
+                if (state === 2 && playerRef.current?.getCurrentTime) {
+                  saveProgress(activeLesson.id, playerRef.current.getCurrentTime())
+                } else if (state === 0) {
+                  setCompletedLessonIds((prev) => ({ ...prev, [activeLesson.id]: true }))
+                  saveProgress(activeLesson.id, playerRef.current?.getCurrentTime?.() || 0, true)
+                }
+              }
+            },
+          },
+        })
+        playerRef.current = player
+        ;(window as any).__ytPlayer = player
+        ;(window as any).__getYTPlayerState = () => player?.getPlayerState?.()
+        return true
+      } catch (err) {
+        console.warn("Error initializing YT player:", err)
+        return false
+      }
+    }
+
+    if (!initPlayer()) {
+      pollYTInterval = setInterval(() => {
+        if (initPlayer()) {
+          clearInterval(pollYTInterval)
+        }
+      }, 500)
+    }
+
+    return () => {
+      isMounted = false
+      if (pollYTInterval) clearInterval(pollYTInterval)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+  }, [isPlayingVideo, activeLesson.id, activeLesson.videoUrl, saveProgress, progressTimes])
 
   // Find chapter of active lesson
   const activeChapter = course.chapters.find((ch) =>
@@ -463,12 +604,16 @@ export function CoursePlayerClient({
               isPlayingVideo ? (
                 activeLesson.videoUrl && (activeLesson.videoUrl.includes("youtube.com") || activeLesson.videoUrl.includes("youtu.be")) ? (
                   <iframe
+                    id="youtube-player-frame"
                     src={(() => {
                       const match = activeLesson.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
                       const videoId = match ? match[1] : null
+                      const savedTime = progressTimes[activeLesson.id] || 0
+                      const originParam = typeof window !== "undefined" ? `&origin=${encodeURIComponent(window.location.origin)}` : ""
+                      const startParam = savedTime > 0 ? `&start=${savedTime}` : ""
                       return videoId
-                        ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`
-                        : activeLesson.videoUrl.replace("watch?v=", "embed/") + "?autoplay=1"
+                        ? `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&rel=0${originParam}${startParam}`
+                        : activeLesson.videoUrl.replace("watch?v=", "embed/") + `?enablejsapi=1&autoplay=1${startParam}`
                     })()}
                     title={activeLesson.title}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -481,10 +626,26 @@ export function CoursePlayerClient({
                     controls
                     autoPlay
                     playsInline
+                    onTimeUpdate={(e) => {
+                      const cur = (e.target as HTMLVideoElement).currentTime
+                      if (Math.floor(cur) % 5 === 0 && Math.floor(cur) > 0) {
+                        saveProgress(activeLesson.id, cur)
+                      }
+                    }}
+                    onPause={(e) => {
+                      saveProgress(activeLesson.id, (e.target as HTMLVideoElement).currentTime)
+                    }}
+                    onLoadedMetadata={(e) => {
+                      const savedTime = progressTimes[activeLesson.id] || 0
+                      if (savedTime > 0) {
+                        ;(e.target as HTMLVideoElement).currentTime = savedTime
+                      }
+                    }}
                     onEnded={() => {
                       // Automatically mark lesson as completed upon finishing
                       if (!completedLessonIds[activeLesson.id]) {
                         setCompletedLessonIds((prev) => ({ ...prev, [activeLesson.id]: true }))
+                        saveProgress(activeLesson.id, 0, true)
                         toggleLessonCompletion(activeLesson.id).catch((err) => console.warn("Auto complete warning:", err))
                       }
                     }}
@@ -552,7 +713,7 @@ export function CoursePlayerClient({
                             id: course.id,
                             slug: course.slug,
                             title: course.title,
-                            price: course.price,
+                            price: course.price ?? undefined,
                             isFree: false,
                           },
                           actionType: "buy",

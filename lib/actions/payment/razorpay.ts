@@ -19,7 +19,12 @@ export interface CreateOrderParams {
 }
 
 export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" | "YEARLY") {
-    const session = await auth()
+    let session: any = null
+    try {
+        session = await auth()
+    } catch {
+        // Outside request scope
+    }
 
     const isSimplePlan = typeof params === "string"
     const plan = isSimplePlan ? params : params.plan

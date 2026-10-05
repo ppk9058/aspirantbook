@@ -31,11 +31,6 @@ export default async function MyTestsPage() {
                 where: {
                     userId,
                     status: "IN_PROGRESS",
-                    OR: [
-                        { correctCount: { gt: 0 } },
-                        { wrongCount: { gt: 0 } },
-                        { answers: { some: {} } },
-                    ],
                 },
                 include: { test: { include: { series: true } } },
                 orderBy: { startedAt: "desc" },

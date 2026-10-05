@@ -251,7 +251,7 @@ export default function MyTestsHubClient({
                                         className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-sm shadow-sm transition-all active:scale-[0.98] min-h-[44px]"
                                     >
                                         <Play className="w-4 h-4 fill-current" />
-                                        Resume Test
+                                        Continue
                                     </Link>
                                 </div>
                             )

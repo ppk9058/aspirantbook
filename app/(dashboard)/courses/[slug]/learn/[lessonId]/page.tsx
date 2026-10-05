@@ -34,6 +34,7 @@ export default async function CourseLearnPage({
   // Load real database progress for all lessons in this course
   const allLessonIds = course.chapters.flatMap((ch) => ch.lessons.map((l) => l.id))
   const initialCompletedIds: { [id: string]: boolean } = {}
+  const initialProgressTimes: { [id: string]: number } = {}
 
   let isEnrolled = false
   const isFreeCourse = !course.isPremium && (!course.price || course.price === 0)
@@ -66,12 +67,12 @@ export default async function CourseLearnPage({
         where: {
           userId: session.user.id,
           lessonId: { in: allLessonIds },
-          completed: true,
         },
-        select: { lessonId: true },
+        select: { lessonId: true, completed: true, timeSpent: true },
       })
       records.forEach((r) => {
-        initialCompletedIds[r.lessonId] = true
+        if (r.completed) initialCompletedIds[r.lessonId] = true
+        if (r.timeSpent) initialProgressTimes[r.lessonId] = r.timeSpent
       })
     } catch (err) {
       console.error("Error loading progress or enrolling in CourseLearnPage:", err)
@@ -86,6 +87,7 @@ export default async function CourseLearnPage({
       userName={session?.user?.name || "Student"}
       isEnrolled={isEnrolled}
       initialCompletedIds={initialCompletedIds}
+      initialProgressTimes={initialProgressTimes}
     />
   )
 }

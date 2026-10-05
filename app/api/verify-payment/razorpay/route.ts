@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
-import { verifyRazorpaySignature } from "@/lib/payments/razorpay"
+import { verifyRazorpaySignature, razorpay } from "@/lib/payments/razorpay"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
@@ -56,6 +56,37 @@ export async function POST(request: NextRequest) {
             )
         }
 
+        // Validate Razorpay order ownership and courseId match if order exists in Razorpay
+        if (razorpay && orderId && !orderId.startsWith("order_mock_") && !orderId.startsWith("order_test_")) {
+            try {
+                const rzpOrder = await razorpay.orders.fetch(orderId)
+                if (rzpOrder && rzpOrder.notes) {
+                    const orderUserId = rzpOrder.notes.userId
+                    const orderCourseId = rzpOrder.notes.courseId
+
+                    if (orderUserId && currentUserId && orderUserId !== currentUserId) {
+                        return NextResponse.json(
+                            { error: "Order ownership mismatch" },
+                            { status: 403 }
+                        )
+                    }
+
+                    if (orderCourseId && courseId) {
+                        const resolvedTarget = COURSE_ALIASES[courseId] || courseId
+                        const resolvedOrderTarget = COURSE_ALIASES[orderCourseId] || orderCourseId
+                        if (resolvedTarget !== resolvedOrderTarget && courseId !== orderCourseId) {
+                            return NextResponse.json(
+                                { error: "Order course mismatch" },
+                                { status: 400 }
+                            )
+                        }
+                    }
+                }
+            } catch (err: any) {
+                console.warn("Could not fetch order from Razorpay API for metadata assertion:", err.message)
+            }
+        }
+
         // Get user
         const user = await prisma.user.findFirst({
             where: {
@@ -89,37 +120,42 @@ export async function POST(request: NextRequest) {
             })
 
             if (course) {
-                // Create or verify enrollment
-                const existing = await prisma.enrollment.findUnique({
-                    where: { userId_courseId: { userId: user.id, courseId: course.id } },
-                })
-                if (!existing) {
-                    await prisma.enrollment.create({
-                        data: { userId: user.id, courseId: course.id },
+                // Create or verify enrollment idempotently
+                try {
+                    await prisma.enrollment.upsert({
+                        where: { userId_courseId: { userId: user.id, courseId: course.id } },
+                        update: {},
+                        create: { userId: user.id, courseId: course.id },
                     })
+                } catch (e: any) {
+                    if (e.code !== "P2002") throw e
                 }
 
                 // Record payment idempotently
-                const existingPayment = await prisma.payment.findFirst({
-                    where: { externalId: paymentId },
-                })
-                if (!existingPayment) {
-                    await prisma.payment.create({
-                        data: {
-                            userId: user.id,
-                            amount: course.price ?? 0,
-                            currency: "INR",
-                            status: "COMPLETED",
-                            paymentProvider: "razorpay",
-                            externalId: paymentId,
-                            metadata: {
-                                orderId,
-                                courseId: course.id,
-                                courseTitle: course.title,
-                                courseSlug: course.slug,
-                            },
-                        },
+                try {
+                    const existingPayment = await prisma.payment.findFirst({
+                        where: { externalId: paymentId },
                     })
+                    if (!existingPayment) {
+                        await prisma.payment.create({
+                            data: {
+                                userId: user.id,
+                                amount: course.price ?? 0,
+                                currency: "INR",
+                                status: "COMPLETED",
+                                paymentProvider: "razorpay",
+                                externalId: paymentId,
+                                metadata: {
+                                    orderId,
+                                    courseId: course.id,
+                                    courseTitle: course.title,
+                                    courseSlug: course.slug,
+                                },
+                            },
+                        })
+                    }
+                } catch (e: any) {
+                    if (e.code !== "P2002") throw e
                 }
 
                 // Determine and set platform goal for the enrolled category
