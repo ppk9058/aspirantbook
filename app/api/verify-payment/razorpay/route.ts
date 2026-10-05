@@ -183,6 +183,17 @@ export async function POST(request: NextRequest) {
                                 },
                             },
                         })
+                        if (dbOrderRecord?.id) {
+                            await prisma.couponRedemption.updateMany({
+                                where: {
+                                    paymentId: dbOrderRecord.id,
+                                    status: "RESERVED",
+                                },
+                                data: {
+                                    status: "REDEEMED",
+                                },
+                            })
+                        }
                     } else {
                         const existingPayment = await prisma.payment.findFirst({
                             where: { externalId: paymentId },

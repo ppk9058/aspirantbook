@@ -66,6 +66,7 @@ export async function teardownTestUsers(specificUserIds?: string[]) {
     if (targetIds.length === 0) return { deletedCount: 0 }
 
     // Deletion in strict foreign-key order
+    await prisma.couponRedemption.deleteMany({ where: { userId: { in: targetIds } } }).catch(() => {})
     await prisma.demoChatMessage.deleteMany({ where: { userId: { in: targetIds } } }).catch(() => {})
     await prisma.demoStageSession.deleteMany({ where: { userId: { in: targetIds } } }).catch(() => {})
     await prisma.courseDemoBooking.deleteMany({ where: { userId: { in: targetIds } } }).catch(() => {})

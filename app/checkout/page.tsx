@@ -64,11 +64,66 @@ function CheckoutContent() {
     const [paymentMethod, setPaymentMethod] = useState<"stripe" | "razorpay">("razorpay")
     const [isDetectingLocation, setIsDetectingLocation] = useState(false)
 
+    // Coupon State
+    const [couponInput, setCouponInput] = useState(couponParam || "")
+    const [appliedCoupon, setAppliedCoupon] = useState<{
+        code: string
+        originalPaise: number
+        discountPaise: number
+        finalPaise: number
+    } | null>(null)
+    const [couponLoading, setCouponLoading] = useState(false)
+    const [couponError, setCouponError] = useState("")
+    const [couponSuccess, setCouponSuccess] = useState("")
+
     // Mobile auth state for unauthenticated users
     const [phoneNumber, setPhoneNumber] = useState("")
     const [phoneError, setPhoneError] = useState("")
     const [isLoggingIn, setIsLoggingIn] = useState(false)
     const [localUser, setLocalUser] = useState<{ id: string; name?: string; phoneNumber?: string } | null>(null)
+
+    const applyCouponCode = async (codeToApply: string, courseIdTarget: string) => {
+        if (!codeToApply.trim() || !courseIdTarget) return
+        setCouponLoading(true)
+        setCouponError("")
+        setCouponSuccess("")
+
+        try {
+            const res = await fetch("/api/checkout/coupon/preview", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    courseId: courseIdTarget,
+                    code: codeToApply.trim().toUpperCase(),
+                }),
+            })
+            const data = await res.json()
+            if (res.ok && data.success) {
+                setAppliedCoupon({
+                    code: data.code,
+                    originalPaise: data.originalPaise,
+                    discountPaise: data.discountPaise,
+                    finalPaise: data.finalPaise,
+                })
+                setCouponSuccess(`Coupon ${data.code} applied successfully!`)
+            } else {
+                setAppliedCoupon(null)
+                setCouponError(data.error || "Invalid or expired coupon")
+            }
+        } catch (e) {
+            setAppliedCoupon(null)
+            setCouponError("Failed to apply coupon. Please try again.")
+        } finally {
+            setCouponLoading(false)
+        }
+    }
+
+    const removeCoupon = () => {
+        setAppliedCoupon(null)
+        setCouponInput("")
+        setCouponError("")
+        setCouponSuccess("")
+    }
 
     // 2. Fetch course details if courseId is present
     useEffect(() => {
@@ -84,6 +139,10 @@ function CheckoutContent() {
                 const data = await res.json()
                 if (res.ok && data.course) {
                     setCourse(data.course)
+                    // Auto-apply prefilled coupon from query parameter if present
+                    if (couponParam && !data.course.isFree && data.course.price > 0) {
+                        applyCouponCode(couponParam, data.course.id)
+                    }
                 } else {
                     setCourseError(data.error || "Course details not found")
                 }
@@ -96,7 +155,7 @@ function CheckoutContent() {
         }
 
         fetchCourse()
-    }, [rawCourseId])
+    }, [rawCourseId, couponParam])
 
     const activeUser = session?.user || localUser
 
@@ -236,9 +295,8 @@ function CheckoutContent() {
             }
 
             // ─── Razorpay Payment ────────────────────────────────────────────────
-            const couponDiscount = couponParam === "DEMO30" ? 0.3 : 0
             const exactAmount = course
-                ? Math.round(course.price * (1 - couponDiscount))
+                ? (appliedCoupon ? Math.round(appliedCoupon.finalPaise / 100) : course.price)
                 : (planParam === "YEARLY" ? 4999 : 499)
             const order = await createRazorpayOrder({
                 amount: exactAmount,
@@ -246,7 +304,7 @@ function CheckoutContent() {
                 courseTitle: course?.title,
                 plan: course ? undefined : planParam,
                 userId,
-                couponCode: couponParam || undefined,
+                couponCode: appliedCoupon?.code || undefined,
             })
 
             const options = {
@@ -332,8 +390,9 @@ function CheckoutContent() {
 
     // Pricing calculation
     const isFree = course ? (course.isFree || course.price === 0) : false
-    const couponDiscount = couponParam === "DEMO30" ? 0.3 : 0
-    const finalCoursePrice = course ? Math.round(course.price * (1 - couponDiscount)) : 0
+    const finalCoursePrice = course
+        ? (appliedCoupon ? Math.round(appliedCoupon.finalPaise / 100) : course.price)
+        : 0
     const displayPrice = isFree
         ? "₹0 (Free)"
         : course
@@ -620,14 +679,68 @@ function CheckoutContent() {
                                                     </span>
                                                 </div>
                                             )}
-                                            {couponParam === "DEMO30" && course && (
+                                            {/* Promo Coupon Section (Courses Only) */}
+                                            {!isFree && (
+                                                <div className="pt-2 border-t border-gray-100 space-y-2">
+                                                    {appliedCoupon ? (
+                                                        <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800">
+                                                            <div className="flex items-center gap-2">
+                                                                <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+                                                                <div>
+                                                                    <span className="font-mono font-bold text-xs">
+                                                                        {appliedCoupon.code}
+                                                                    </span>
+                                                                    <span className="text-[11px] text-emerald-700 block">
+                                                                        Saved ₹{Math.round(appliedCoupon.discountPaise / 100).toLocaleString("en-IN")}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={removeCoupon}
+                                                                className="text-xs font-bold text-red-600 hover:text-red-800 transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-red-50"
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-1.5">
+                                                            <div className="flex items-center gap-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={couponInput}
+                                                                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                                                                    placeholder="Enter promo coupon code"
+                                                                    className="flex-1 px-3 py-2 text-xs uppercase font-mono rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F26522]/30 bg-gray-50 focus:bg-white"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    disabled={couponLoading || !couponInput.trim()}
+                                                                    onClick={() => applyCouponCode(couponInput, course.id)}
+                                                                    className="px-3.5 py-2 text-xs font-bold rounded-xl bg-gray-900 text-white hover:bg-black disabled:opacity-50 transition-colors cursor-pointer"
+                                                                >
+                                                                    {couponLoading ? "Applying..." : "Apply"}
+                                                                </button>
+                                                            </div>
+                                                            {couponError && (
+                                                                <p className="text-[11px] text-red-600 font-semibold">{couponError}</p>
+                                                            )}
+                                                            {couponSuccess && (
+                                                                <p className="text-[11px] text-emerald-600 font-semibold">{couponSuccess}</p>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {appliedCoupon && course && (
                                                 <div className="flex justify-between text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950/30 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800">
                                                     <span className="flex items-center gap-1.5">
                                                         <Sparkles className="w-3.5 h-3.5" />
-                                                        <span>Special Demo Discount (DEMO30)</span>
+                                                        <span>Coupon Discount ({appliedCoupon.code})</span>
                                                     </span>
                                                     <span>
-                                                        -₹{(course.price - finalCoursePrice).toLocaleString("en-IN")} (30% OFF)
+                                                        -₹{Math.round(appliedCoupon.discountPaise / 100).toLocaleString("en-IN")}
                                                     </span>
                                                 </div>
                                             )}

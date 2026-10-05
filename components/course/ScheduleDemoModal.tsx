@@ -393,7 +393,7 @@ export default function ScheduleDemoModal({
                   <span>Exclusive Free Demo Benefits:</span>
                 </div>
                 <p className="text-[11px] text-gray-600 dark:text-gray-300">
-                  Join on time to unlock a <strong>30% OFF Coupon (DEMO30)</strong> for full course enrollment.
+                  Join on time to unlock exclusive discounts for full course enrollment.
                 </p>
               </div>
 
@@ -550,9 +550,9 @@ export default function ScheduleDemoModal({
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500 font-medium">Bonus Voucher:</span>
-                <span className="font-bold text-amber-600 dark:text-amber-400">
-                  30% OFF (DEMO30)
+                <span className="text-gray-500 font-medium">Class Status:</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                  Seat Confirmed
                 </span>
               </div>
 

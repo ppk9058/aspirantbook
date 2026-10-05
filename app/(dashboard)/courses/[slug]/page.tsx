@@ -181,7 +181,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         0
     ) || 0
 
-    const safeCourse = toSafeCourseDto(course, hasAccess)
+    // On course overview page, do not leak raw video URLs or attachment URLs for unpaid/anonymous visitors
+    const safeCourse = toSafeCourseDto(course, hasAccess, hasAccess)
 
     // If course is a video course bundle with pricing/attachments or video lessons
     const isVideoBundle =

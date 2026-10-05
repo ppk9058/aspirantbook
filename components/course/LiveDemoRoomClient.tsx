@@ -1672,30 +1672,29 @@ export default function LiveDemoRoomClient({
                   </p>
                 </div>
 
-                {/* Coupon Unlocked */}
+                {/* Course Enrollment Card */}
                 <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-left space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-gray-300">Special Demo Offer:</span>
+                    <span className="text-xs font-bold text-gray-300">Special Enrollment Offer:</span>
                     <span className="px-2.5 py-0.5 rounded-md bg-emerald-500 text-white font-black text-xs uppercase tracking-wider">
-                      30% OFF UNLOCKED
+                      BATCH ENROLLMENT
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm text-amber-300 font-black tracking-widest bg-black/40 px-3 py-1 rounded-lg border border-amber-400/30">
-                      DEMO30
+                    <span className="text-xs text-gray-300 font-medium">
+                      Full Syllabus Access
                     </span>
                     <div className="text-right">
-                      <span className="text-xs line-through text-gray-400 mr-1.5">₹{effectivePrice}</span>
-                      <span className="text-lg font-black text-white">₹{discountedPrice}</span>
+                      <span className="text-lg font-black text-white">₹{effectivePrice}</span>
                     </div>
                   </div>
                 </div>
 
                 <Link
-                  href={`/checkout?courseId=${course.slug}&coupon=DEMO30`}
+                  href={`/checkout?courseId=${course.slug}`}
                   className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-sm shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>Enroll in Full Course Now (30% OFF)</span>
+                  <span>Enroll in Full Course Now</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -1770,8 +1769,7 @@ export default function LiveDemoRoomClient({
                   DEMO OFFER
                 </span>
                 <p className="text-xs font-bold text-gray-200">
-                  Enroll in <strong className="text-white">{course.title}</strong> at 30% OFF (Code:{" "}
-                  <span className="text-amber-400 font-mono">DEMO30</span>)
+                  Enroll in <strong className="text-white">{course.title}</strong> to unlock full lectures & notes
                 </p>
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -1790,10 +1788,10 @@ export default function LiveDemoRoomClient({
                   </button>
                 )}
                 <Link
-                  href={`/checkout?courseId=${course.slug}&coupon=DEMO30`}
+                  href={`/checkout?courseId=${course.slug}`}
                   className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs shadow-md transition-all text-center cursor-pointer"
                 >
-                  Buy Now (₹{discountedPrice})
+                  Buy Now
                 </Link>
               </div>
             </div>

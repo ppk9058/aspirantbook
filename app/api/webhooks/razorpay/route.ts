@@ -148,6 +148,16 @@ export async function POST(request: NextRequest) {
                                 },
                             },
                         })
+
+                        await prisma.couponRedemption.updateMany({
+                            where: {
+                                paymentId: orderRecord.id,
+                                status: "RESERVED",
+                            },
+                            data: {
+                                status: "REDEEMED",
+                            },
+                        })
                     } catch (e: any) {
                         if (e.code !== "P2002") throw e
                     }

@@ -41,6 +41,14 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
 
     let amountInPaise: number
     let resolvedCourse: { id: string; price: number | null; isPremium: boolean } | null = null
+    let couponValidation: {
+        coupon: any
+        originalPaise: number
+        discountPaise: number
+        finalPaise: number
+        tempPaymentId?: string
+        redemptionId?: string
+    } | null = null
 
     // Server-side authoritative price determination
     if (courseId) {
@@ -62,21 +70,129 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
             throw new Error("Cannot create payment order for free course.")
         }
 
-        // Validate coupon code strictly on the server
-        let discountPercent = 0
-        if (couponCode === "DEMO30") {
-            discountPercent = 30
+        if (couponCode) {
+            // Lock and validate coupon in transaction
+            const validation = await prisma.$transaction(async (tx) => {
+                const rows: any[] = await tx.$queryRaw`SELECT * FROM "Coupon" WHERE code = ${couponCode} FOR UPDATE`
+                if (!rows || rows.length === 0) {
+                    throw new Error("Invalid or expired coupon")
+                }
+                const couponRow = rows[0]
+                if (!couponRow.isActive) {
+                    throw new Error("Invalid or expired coupon")
+                }
+                const now = new Date()
+                if (couponRow.validFrom && now < new Date(couponRow.validFrom)) {
+                    throw new Error("Invalid or expired coupon")
+                }
+                if (couponRow.validUntil && now > new Date(couponRow.validUntil)) {
+                    throw new Error("Invalid or expired coupon")
+                }
+                if (couponRow.courseId && couponRow.courseId !== course.id) {
+                    throw new Error("Invalid or expired coupon")
+                }
+
+                // Check redemptions count
+                const activeRedemptions = await tx.couponRedemption.count({
+                    where: {
+                        couponId: couponRow.id,
+                        OR: [
+                            { status: "REDEEMED" },
+                            { status: "RESERVED", expiresAt: { gt: now } },
+                        ],
+                    },
+                })
+                if (couponRow.maxRedemptions !== null && activeRedemptions >= couponRow.maxRedemptions) {
+                    throw new Error("Invalid or expired coupon")
+                }
+
+                // Check per-user limit
+                const userRedemptions = await tx.couponRedemption.count({
+                    where: {
+                        couponId: couponRow.id,
+                        userId,
+                        OR: [
+                            { status: "REDEEMED" },
+                            { status: "RESERVED", expiresAt: { gt: now } },
+                        ],
+                    },
+                })
+                if (userRedemptions >= couponRow.perUserLimit) {
+                    throw new Error("Invalid or expired coupon")
+                }
+
+                const originalPaise = Math.round(effectiveCoursePrice * 100)
+                let discPaise = 0
+                if (couponRow.discountType === "PERCENT") {
+                    discPaise = Math.floor((originalPaise * couponRow.discountValue) / 100)
+                    if (couponRow.maxDiscountAmount) {
+                        discPaise = Math.min(discPaise, Math.round(Number(couponRow.maxDiscountAmount) * 100))
+                    }
+                } else if (couponRow.discountType === "FLAT") {
+                    discPaise = Math.round(Number(couponRow.discountValue) * 100)
+                    discPaise = Math.min(discPaise, originalPaise)
+                }
+
+                const finalPaise = originalPaise - discPaise
+                if (finalPaise < 100) {
+                    throw new Error("Invalid or expired coupon")
+                }
+
+                // Reserve redemption atomically inside the FOR UPDATE lock
+                const tempPayment = await tx.payment.create({
+                    data: {
+                        userId,
+                        amount: finalPaise / 100,
+                        currency: "INR",
+                        status: "PENDING",
+                        paymentProvider: "RAZORPAY",
+                        externalId: `temp_order_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+                        couponId: couponRow.id,
+                        couponCode: couponRow.code,
+                        originalAmount: originalPaise / 100,
+                        discountAmount: discPaise / 100,
+                    },
+                })
+
+                const redemption = await tx.couponRedemption.create({
+                    data: {
+                        couponId: couponRow.id,
+                        userId,
+                        courseId: course.id,
+                        paymentId: tempPayment.id,
+                        status: "RESERVED",
+                        expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30 mins
+                    },
+                })
+
+                return {
+                    coupon: couponRow,
+                    originalPaise,
+                    discountPaise: discPaise,
+                    finalPaise,
+                    tempPaymentId: tempPayment.id,
+                    redemptionId: redemption.id,
+                }
+            })
+
+            couponValidation = validation
+            amountInPaise = validation.finalPaise
+        } else {
+            amountInPaise = Math.round(effectiveCoursePrice * 100)
         }
-
-        const discountedPrice = discountPercent > 0
-            ? Math.round(effectiveCoursePrice * (1 - discountPercent / 100))
-            : effectiveCoursePrice
-
-        amountInPaise = Math.round(discountedPrice * 100)
     } else if (plan === "YEARLY") {
         amountInPaise = 499900 // ₹4,999
     } else {
         amountInPaise = 49900 // ₹499
+    }
+
+    // Client amount tampering check: if client sent an amount, ensure it matches server calculation
+    const clientAmount = !isSimplePlan && typeof params.amount === "number" ? params.amount : null
+    if (clientAmount !== null) {
+        const expectedRupees = Math.round(amountInPaise / 100)
+        if (Math.abs(clientAmount - expectedRupees) > 1) {
+            throw new Error(`Tampered amount detected. Expected ₹${expectedRupees}, received ₹${clientAmount}.`)
+        }
     }
 
     const options = {
@@ -93,25 +209,42 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
     try {
         const order = await razorpay.orders.create(options)
 
-        // Persist server-side order record for payment trust & webhook fulfillment
+        // Persist server-side order record and coupon redemption
         try {
-            await prisma.payment.create({
-                data: {
-                    userId,
-                    amount: Number(order.amount) / 100,
-                    currency: order.currency || "INR",
-                    status: "PENDING",
-                    paymentProvider: "RAZORPAY",
-                    externalId: order.id,
-                    metadata: {
-                        orderId: order.id,
-                        courseId: resolvedCourse?.id || courseId || null,
-                        plan: plan || (courseId ? "COURSE" : "MONTHLY"),
-                        amountPaise: order.amount,
-                        couponCode: couponCode || null,
+            if (couponValidation?.tempPaymentId) {
+                // Update externalId on pre-reserved payment row
+                await prisma.payment.update({
+                    where: { id: couponValidation.tempPaymentId },
+                    data: {
+                        externalId: order.id,
+                        metadata: {
+                            orderId: order.id,
+                            courseId: resolvedCourse?.id || courseId || null,
+                            plan: plan || (courseId ? "COURSE" : "MONTHLY"),
+                            amountPaise: order.amount,
+                            couponCode: couponValidation.coupon.code,
+                            couponId: couponValidation.coupon.id,
+                        },
                     },
-                },
-            })
+                })
+            } else {
+                await prisma.payment.create({
+                    data: {
+                        userId,
+                        amount: Number(order.amount) / 100,
+                        currency: order.currency || "INR",
+                        status: "PENDING",
+                        paymentProvider: "RAZORPAY",
+                        externalId: order.id,
+                        metadata: {
+                            orderId: order.id,
+                            courseId: resolvedCourse?.id || courseId || null,
+                            plan: plan || (courseId ? "COURSE" : "MONTHLY"),
+                            amountPaise: order.amount,
+                        },
+                    },
+                })
+            }
         } catch (dbErr) {
             console.error("Failed to persist server-side payment order record:", dbErr)
         }

@@ -33,13 +33,15 @@ interface CourseClientProps {
     enrolledCourseIds: string[]
     completedCourseIds: string[]
     bookmarkedCourseIds: string[]
+    badgeMap?: Record<string, any>
 }
 
 export default function CourseClient({
     dbCourses = [],
     enrolledCourseIds,
     completedCourseIds,
-    bookmarkedCourseIds
+    bookmarkedCourseIds,
+    badgeMap = {},
 }: CourseClientProps) {
     const { selectedGoal, openGoalModal } = useGoal()
 
@@ -326,6 +328,7 @@ export default function CourseClient({
                                 enrolled={enrolledCourseIds.includes(course.id)}
                                 progress={enrolledCourseIds.includes(course.id) ? 35 : 0}
                                 index={index}
+                                promoBadge={badgeMap[course.id] || badgeMap[course.slug] || null}
                             />
                         ))}
                     </div>

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { CoursePlayerClient } from "@/components/course/CoursePlayerClient"
 import { toSafeCourseDto } from "@/lib/courses/course-dto"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
@@ -84,6 +84,13 @@ export default async function CourseLearnPage({
   }
 
   const hasAccess = isEditor || isEnrolled || isFreeCourse
+
+  // Find requested lesson to check if it's a trial lesson
+  const currentLesson = course.chapters.flatMap((ch) => ch.lessons).find((l) => l.id === lessonId)
+  if (!hasAccess && (!currentLesson || !currentLesson.isTrial)) {
+    redirect(`/courses/${slug}?locked=true`)
+  }
+
   const safeCourse = toSafeCourseDto(course, hasAccess)
 
   return (

@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Star, Users, Clock, PlayCircle, BookOpen } from "lucide-react"
 import { cleanDescriptionSnippet } from "@/lib/utils"
-import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { CoursePromoBadge } from "@/components/course/CoursePromoBadge"
+import type { CourseBadgeInfo } from "@/lib/coupons/badge-query"
 
 interface CourseCardProps {
     course: {
@@ -25,6 +26,7 @@ interface CourseCardProps {
     enrolled?: boolean
     progress?: number
     index?: number
+    promoBadge?: CourseBadgeInfo | null
 }
 
 function CourseCard({
@@ -32,6 +34,7 @@ function CourseCard({
     enrolled = false,
     progress = 0,
     index,
+    promoBadge,
 }: CourseCardProps) {
     const router = useRouter()
     const { data: session } = useSession()
@@ -71,7 +74,11 @@ function CourseCard({
                 router.push("/my-learning")
                 router.refresh()
             } else {
-                router.push(`/courses/${course.slug}`)
+                if (promoBadge?.code) {
+                    router.push(`/checkout?courseId=${course.slug}&coupon=${encodeURIComponent(promoBadge.code)}`)
+                } else {
+                    router.push(`/courses/${course.slug}`)
+                }
             }
         } else {
             // Unauthenticated -> Open Mobile Number & OTP Modal
@@ -115,7 +122,7 @@ function CourseCard({
                     )}
 
                     {/* Badges Top Left & Right */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
                         {course.isPremium ? (
                             <span className="px-2.5 py-0.5 bg-[#10162F] text-white text-[10px] font-black rounded-full uppercase tracking-wider border border-[#10162F]">
                                 Pro
@@ -131,9 +138,23 @@ function CourseCard({
                         </span>
                     </div>
 
+                    {/* Promotional Coupon Badge on Thumbnail (if active) */}
+                    {promoBadge && (
+                        <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
+                            <CoursePromoBadge
+                                badgeLabel={promoBadge.badgeLabel}
+                                badgeShape={promoBadge.badgeShape}
+                                badgeColor={promoBadge.badgeColor}
+                                discountType={promoBadge.discountType}
+                                discountValue={promoBadge.discountValue}
+                                discountText={promoBadge.discountText}
+                            />
+                        </div>
+                    )}
+
                     {/* Rating bottom left - show ONLY if rating > 0 */}
                     {typeof course.rating === "number" && course.rating > 0 ? (
-                        <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-white dark:bg-slate-800 border border-[#10162F] dark:border-slate-700 px-2.5 py-0.5 rounded-full text-[#10162F] dark:text-white text-xs font-black shadow-xs">
+                        <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-white dark:bg-slate-800 border border-[#10162F] dark:border-slate-700 px-2.5 py-0.5 rounded-full text-[#10162F] dark:text-white text-xs font-black shadow-xs z-10">
                             <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
                             <span>{course.rating.toFixed(1)}</span>
                         </div>

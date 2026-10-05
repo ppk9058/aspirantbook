@@ -186,13 +186,12 @@ export async function POST(req: NextRequest) {
       courseName: course.title,
       slotTimeIst: ist.fullLabel,
       demoUrl,
-      couponCode: "DEMO30",
     }
 
     const whatsappMessage = `*Free Demo Class Confirmed!* 🎓\n\n` +
       `Hello ${studentName}! Your Free Live Demo for *${course.title}* is confirmed for *${ist.fullLabel}*.\n\n` +
       `🔗 *Your Live Class Link:* ${demoUrl}\n\n` +
-      `✨ *Special Demo Benefit:* Join on time to unlock an exclusive *30% OFF Coupon (DEMO30)* for full course enrollment.\n\n` +
+      `✨ *Special Demo Benefit:* Join on time to unlock special enrollment discounts for full course enrollment.\n\n` +
       `_Team TrillionSkill_`
 
     await prisma.whatsAppMessageLog.create({

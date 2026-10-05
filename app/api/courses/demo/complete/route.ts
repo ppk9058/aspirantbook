@@ -62,6 +62,31 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    // 3. Resolve active coupon dynamically if configured on the course
+    let couponCode: string | null = null
+    let couponDiscount: number | null = null
+
+    try {
+      const activeCoupon = await prisma.coupon.findFirst({
+        where: {
+          isActive: true,
+          OR: [
+            { courseId: course.id },
+            { courseId: null },
+          ],
+          validUntil: { gt: new Date() },
+        },
+        orderBy: { discountValue: "desc" },
+      })
+
+      if (activeCoupon) {
+        couponCode = activeCoupon.code
+        couponDiscount = activeCoupon.discountValue
+      }
+    } catch (e) {
+      // Non-blocking
+    }
+
     return NextResponse.json({
       success: true,
       message: "Demo completed! Added to your My Batches watched section.",
@@ -69,8 +94,8 @@ export async function POST(req: NextRequest) {
       courseSlug: course.slug,
       enrollmentId: enrollment?.id || null,
       redirectUrl: "/my-learning",
-      couponCode: "DEMO30",
-      couponDiscount: 30,
+      couponCode,
+      couponDiscount,
     })
   } catch (error) {
     console.error("Error completing demo session:", error)

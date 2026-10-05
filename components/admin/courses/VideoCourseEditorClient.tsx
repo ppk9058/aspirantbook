@@ -37,6 +37,7 @@ import {
   Share2,
   Calendar,
 } from "lucide-react"
+import { CourseCouponsManager } from "./CourseCouponsManager"
 
 interface LessonItem {
   id: string
@@ -105,8 +106,8 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false)
   const [thumbnailInputUrl, setThumbnailInputUrl] = useState(course.thumbnailUrl || "/placeholder-course.svg")
 
-  // Studio Workspace Tab: "syllabus" | "teachers" | "schedule" | "highlights" | "faqs"
-  const [activeTab, setActiveTab] = useState<"syllabus" | "teachers" | "schedule" | "highlights" | "faqs">("syllabus")
+  // Studio Workspace Tab: "syllabus" | "teachers" | "schedule" | "highlights" | "faqs" | "coupons"
+  const [activeTab, setActiveTab] = useState<"syllabus" | "teachers" | "schedule" | "highlights" | "faqs" | "coupons">("syllabus")
 
   // Parsed Metadata State (Teachers, Schedule, About Highlights, FAQs)
   const initialMeta = (() => {
@@ -1234,6 +1235,19 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
               {faqs.length}
             </span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("coupons")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "coupons"
+                ? "bg-emerald-600 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Ticket className="w-4 h-4" />
+            <span>Coupons & Promotions</span>
+          </button>
         </div>
 
         {/* 2-Column Split: Left Chapters Accordion & Right Pricing/Coupon Studio */}
@@ -1882,6 +1896,18 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     ))
                   )}
                 </div>
+              </div>
+            )}
+
+            {activeTab === "coupons" && (
+              <div className="space-y-6">
+                <CourseCouponsManager
+                  courseId={course.id}
+                  courseSlug={course.slug}
+                  courseTitle={course.title}
+                  coursePrice={price}
+                  thumbnailUrl={thumbnailUrl}
+                />
               </div>
             )}
           </div>

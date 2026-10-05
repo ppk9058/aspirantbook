@@ -58,11 +58,16 @@ export interface SafeCourseDto {
 /**
  * Transforms a raw lesson into a safe DTO according to viewer access.
  */
-export function toSafeLessonDto(rawLesson: any, hasAccess: boolean): SafeLessonDto {
+export function toSafeLessonDto(
+  rawLesson: any,
+  hasAccess: boolean,
+  allowTrialMedia: boolean = true
+): SafeLessonDto {
   if (!rawLesson) return rawLesson
 
   const isTrial = Boolean(rawLesson.isTrial)
-  const isUnlocked = hasAccess || isTrial
+  // Only reveal video/content if user has access, or if trial media is explicitly permitted for preview
+  const isUnlocked = hasAccess || (isTrial && allowTrialMedia)
 
   const safe: SafeLessonDto = {
     id: rawLesson.id,
@@ -82,7 +87,7 @@ export function toSafeLessonDto(rawLesson: any, hasAccess: boolean): SafeLessonD
     safe.attachmentName = rawLesson.attachmentName ?? null
     safe.attachmentUrl = rawLesson.attachmentUrl ?? null
   } else {
-    // Viewer has no access and lesson is NOT a trial: strip all content and links
+    // Viewer has no access and media is not allowed: strip all content and links
     safe.videoUrl = null
     safe.content = null
     safe.attachmentType = null
@@ -96,7 +101,11 @@ export function toSafeLessonDto(rawLesson: any, hasAccess: boolean): SafeLessonD
 /**
  * Transforms a raw chapter into a safe DTO.
  */
-export function toSafeChapterDto(rawChapter: any, hasAccess: boolean): SafeChapterDto {
+export function toSafeChapterDto(
+  rawChapter: any,
+  hasAccess: boolean,
+  allowTrialMedia: boolean = true
+): SafeChapterDto {
   if (!rawChapter) return rawChapter
 
   return {
@@ -105,7 +114,7 @@ export function toSafeChapterDto(rawChapter: any, hasAccess: boolean): SafeChapt
     order: rawChapter.order ?? 0,
     courseId: rawChapter.courseId,
     lessons: Array.isArray(rawChapter.lessons)
-      ? rawChapter.lessons.map((l: any) => toSafeLessonDto(l, hasAccess))
+      ? rawChapter.lessons.map((l: any) => toSafeLessonDto(l, hasAccess, allowTrialMedia))
       : [],
   }
 }
@@ -113,11 +122,15 @@ export function toSafeChapterDto(rawChapter: any, hasAccess: boolean): SafeChapt
 /**
  * Transforms a raw course into a safe DTO with strict allow-list fields.
  */
-export function toSafeCourseDto(rawCourse: any, hasAccess: boolean): SafeCourseDto {
+export function toSafeCourseDto(
+  rawCourse: any,
+  hasAccess: boolean,
+  allowTrialMedia: boolean = true
+): SafeCourseDto {
   if (!rawCourse) return rawCourse
 
   const chapters: SafeChapterDto[] = Array.isArray(rawCourse.chapters)
-    ? rawCourse.chapters.map((ch: any) => toSafeChapterDto(ch, hasAccess))
+    ? rawCourse.chapters.map((ch: any) => toSafeChapterDto(ch, hasAccess, allowTrialMedia))
     : []
 
   // Count total attachments across all chapters if present

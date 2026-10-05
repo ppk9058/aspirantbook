@@ -63,6 +63,8 @@ const getPublishedDbCourses = unstable_cache(
     { revalidate: 60, tags: ["courses"] }
 )
 
+import { getCourseBadges } from "@/lib/coupons/badge-query"
+
 export default async function CoursesPage() {
     const session = await auth()
 
@@ -70,6 +72,7 @@ export default async function CoursesPage() {
     let enrolledCourseIds: string[] = []
     let completedCourseIds: string[] = []
     const bookmarkedCourseIds: string[] = []
+    let badgeMap: Record<string, any> = {}
 
     try {
         const [published, enrollments] = await Promise.all([
@@ -87,6 +90,11 @@ export default async function CoursesPage() {
         completedCourseIds = enrollments
             .filter((e) => e.completedAt !== null)
             .map((e) => e.courseId)
+
+        const allIds = dbCourses.map((c) => c.id)
+        if (allIds.length > 0) {
+            badgeMap = await getCourseBadges(allIds)
+        }
     } catch {
         console.warn("Database offline on /courses, serving fallback courses.")
     }
@@ -97,6 +105,7 @@ export default async function CoursesPage() {
             enrolledCourseIds={enrolledCourseIds}
             completedCourseIds={completedCourseIds}
             bookmarkedCourseIds={bookmarkedCourseIds}
+            badgeMap={badgeMap}
         />
     )
 }
