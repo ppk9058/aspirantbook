@@ -104,7 +104,17 @@ const nextAuthResult = NextAuth({
             id: "mobile",
             async authorize(credentials) {
                 const isProduction = process.env.NODE_ENV === "production"
-                const isDevBypassEnabled = process.env.ALLOW_DEV_MOBILE_LOGIN === "true" && (!isProduction || process.env.IS_E2E_TEST === "true")
+                let isLocalTestDb = false
+                try {
+                    const dbUrl = process.env.DATABASE_URL || ""
+                    const parsed = new URL(dbUrl)
+                    isLocalTestDb = (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") && parsed.pathname.endsWith("_test")
+                } catch {
+                    isLocalTestDb = false
+                }
+                const isDevBypassEnabled =
+                    (!isProduction && process.env.ALLOW_DEV_MOBILE_LOGIN === "true") ||
+                    (process.env.APP_ENV === "test" && isLocalTestDb)
 
                 if (!isDevBypassEnabled) {
                     console.warn("[Auth] Dev mobile login bypass is disabled or blocked in production")
