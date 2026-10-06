@@ -14,10 +14,19 @@ export default auth((req) => {
     const isAuthenticated = isLoggedIn || Boolean(demoRole)
     const subscriptionStatus = req.auth?.user?.subscriptionStatus
 
+    // Determine actual request origin from incoming request headers
+    const reqHost = req.headers.get("x-forwarded-host") || req.headers.get("host") || nextUrl.host
+    const reqProto = req.headers.get("x-forwarded-proto") || (nextUrl.protocol.replace(":", "") || "http")
+    const reqOrigin = `${reqProto}://${reqHost}`
+
+    const toRequestUrl = (path: string) => {
+        return new URL(path, reqOrigin)
+    }
+
     // Admin & Studios Route Protection
     if (nextUrl.pathname.startsWith("/admin")) {
         if (!isAuthenticated) {
-            return NextResponse.redirect(new URL("/login", nextUrl))
+            return NextResponse.redirect(toRequestUrl("/login"))
         }
         
         // Super admin only routes
@@ -26,24 +35,24 @@ export default auth((req) => {
                             nextUrl.pathname.startsWith("/admin/settings")
         
         if (isAdminOnly && effectiveRole !== "ADMIN") {
-            return NextResponse.redirect(new URL("/teacher", nextUrl))
+            return NextResponse.redirect(toRequestUrl("/teacher"))
         }
 
         // All studio routes (courses, test-series, pyqs, exercises, assessments, batches, dashboard)
         // are open to both TEACHER and ADMIN
         const isAllowed = effectiveRole === "ADMIN" || effectiveRole === "TEACHER"
         if (!isAllowed) {
-            return NextResponse.redirect(new URL("/", nextUrl))
+            return NextResponse.redirect(toRequestUrl("/"))
         }
     }
 
     // Teacher Route Protection — TEACHER or ADMIN only
     if (nextUrl.pathname.startsWith("/teacher")) {
         if (!isAuthenticated) {
-            return NextResponse.redirect(new URL("/login", nextUrl))
+            return NextResponse.redirect(toRequestUrl("/login"))
         }
         if (effectiveRole !== "TEACHER" && effectiveRole !== "ADMIN") {
-            return NextResponse.redirect(new URL("/", nextUrl))
+            return NextResponse.redirect(toRequestUrl("/"))
         }
     }
 
@@ -69,7 +78,7 @@ export default auth((req) => {
 
     if (isPrivateRoute) {
         if (!isAuthenticated) {
-            const loginUrl = new URL("/login", nextUrl)
+            const loginUrl = toRequestUrl("/login")
             const safeCb = sanitizeReturnPath(nextUrl.pathname + nextUrl.search, "/dashboard")
             loginUrl.searchParams.set("callbackUrl", safeCb)
             return NextResponse.redirect(loginUrl)
@@ -81,14 +90,14 @@ export default auth((req) => {
         if (isLoggedIn) {
             const rawCallback = nextUrl.searchParams.get("callbackUrl") || "/dashboard"
             const callback = sanitizeReturnPath(rawCallback, "/dashboard")
-            return NextResponse.redirect(new URL(callback, nextUrl))
+            return NextResponse.redirect(toRequestUrl(callback))
         }
     }
 
     // Premium Content Protection
     if (nextUrl.pathname.includes("/premium-course")) {
         if (subscriptionStatus !== "ACTIVE") {
-            return NextResponse.redirect(new URL("/pricing?error=premium_required", nextUrl))
+            return NextResponse.redirect(toRequestUrl("/pricing?error=premium_required"))
         }
     }
 

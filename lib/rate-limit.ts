@@ -12,16 +12,16 @@ export interface RateLimitResult {
  * Ignores client-supplied X-Forwarded-For unless TRUST_PROXY=true (or running behind trusted reverse proxy).
  */
 export function getClientIp(req: Request | { headers: Headers }): string {
-  const isTrustedProxy = process.env.TRUST_PROXY === "true" || process.env.NODE_ENV === "production";
+  const isTrustedProxy = process.env.TRUST_PROXY === "true";
   if (isTrustedProxy) {
     const forwarded = req.headers.get("x-forwarded-for");
     if (forwarded) {
       const firstIp = forwarded.split(",")[0]?.trim();
       if (firstIp) return firstIp;
     }
+    const realIp = req.headers.get("x-real-ip");
+    if (realIp) return realIp.trim();
   }
-  const realIp = req.headers.get("x-real-ip");
-  if (realIp && isTrustedProxy) return realIp.trim();
   return "127.0.0.1";
 }
 

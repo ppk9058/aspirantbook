@@ -5,10 +5,24 @@ import { useSession } from "next-auth/react"
 import { ArrowRight } from "lucide-react"
 import HomeUserDropdown from "./HomeUserDropdown"
 
-export default function HomeHeaderUserCTA() {
-    const { data: session, status } = useSession()
+interface HomeHeaderUserCTAProps {
+    initialSession?: {
+        user?: {
+            id?: string
+            name?: string | null
+            email?: string | null
+            image?: string | null
+            role?: string | null
+        }
+    } | null
+}
 
-    if (status === "loading") {
+export default function HomeHeaderUserCTA({ initialSession }: HomeHeaderUserCTAProps = {}) {
+    const { data: clientSession, status } = useSession()
+    const session = clientSession ?? initialSession
+    const isLoading = status === "loading" && !initialSession
+
+    if (isLoading) {
         return (
             <div className="flex items-center gap-2 sm:gap-3">
                 <div className="w-24 h-10 rounded-xl bg-gray-100 animate-pulse" />
@@ -29,7 +43,8 @@ export default function HomeHeaderUserCTA() {
                 <Link
                     href={dashboardHref}
                     prefetch={true}
-                    className="hidden sm:flex px-3.5 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold text-xs sm:text-sm hover:opacity-95 transition-all shadow-xs items-center gap-1.5"
+                    className="flex px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold text-xs sm:text-sm hover:opacity-95 transition-all shadow-xs items-center gap-1.5"
+                    aria-label="Go to Dashboard"
                 >
                     <span>Dashboard</span>
                     <ArrowRight className="h-3.5 w-3.5" />

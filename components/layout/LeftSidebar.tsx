@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
+    LayoutDashboard,
     Home,
     Compass,
     BookOpen,
@@ -95,7 +96,7 @@ export default function LeftSidebar() {
 
     const studentNav = useMemo(() => {
         return [
-            { name: "Home", href: homeHref, icon: Home },
+            { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
             { name: "Courses", href: "/courses", icon: BookOpen },
             { name: "Book", href: "/books", icon: Book },
             { name: "My Batches & enrollment", href: "/my-learning", icon: Compass },
@@ -109,7 +110,7 @@ export default function LeftSidebar() {
             { name: "Payments", href: "/subscription", icon: CreditCard },
             { name: "Profile", href: "/profile", icon: User },
         ]
-    }, [homeHref])
+    }, [])
 
     useEffect(() => {
         const updateState = () => {

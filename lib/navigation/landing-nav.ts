@@ -33,9 +33,4 @@ export const LANDING_NAV_ITEMS: LandingNavItem[] = [
         href: "#section-bpsc",
         isExternalOrAnchor: true,
     },
-    {
-        name: "Coding Practice",
-        href: "/practice",
-        badge: "Live",
-    },
 ]

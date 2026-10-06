@@ -8,21 +8,8 @@ export const authConfig = {
     },
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {
-            const isLoggedIn = !!auth?.user
-            const isOnDashboard = nextUrl.pathname.startsWith("/dashboard") || nextUrl.pathname.startsWith("/learn")
-            const isOnAdmin = nextUrl.pathname.startsWith("/admin")
-            const isOnTeacher = nextUrl.pathname.startsWith("/teacher")
-
-            if (isOnAdmin) {
-                if (isLoggedIn && (auth?.user?.role === "ADMIN" || (auth?.user?.role === "TEACHER" && nextUrl.pathname.startsWith("/admin/pyqs")))) return true
-                return false // Redirect to login or 403
-            }
-
-            if (isOnTeacher) {
-                if (isLoggedIn && (auth?.user?.role === "TEACHER" || auth?.user?.role === "ADMIN")) return true
-                return false // Only TEACHER and ADMIN can access teacher routes
-            }
-
+            // Authorized callback returns true here; fine-grained route gating and redirect
+            // origin preservation is enforced by our outer auth wrapper in middleware.ts
             return true
         },
         redirect({ url, baseUrl }) {

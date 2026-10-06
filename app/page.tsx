@@ -66,7 +66,7 @@ export default async function LandingHomePage() {
 
                     {/* Right Login / User State CTA */}
                     <div className="flex items-center gap-3">
-                        <HomeHeaderUserCTA />
+                        <HomeHeaderUserCTA initialSession={session} />
                     </div>
                 </div>
 

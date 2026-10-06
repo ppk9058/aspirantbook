@@ -100,9 +100,9 @@ async function main() {
   for (let i = 1; i <= 5; i++) {
     // Run all 3 concurrently
     const [aliceRes, bobRes, guestRes] = await Promise.all([
-      alicePage.goto(`${BASE_URL}/dashboard`, { waitUntil: "networkidle" }),
-      bobPage.goto(`${BASE_URL}/dashboard`, { waitUntil: "networkidle" }),
-      guestPage.goto(`${BASE_URL}/dashboard`, { waitUntil: "networkidle" }),
+      alicePage.goto(`${BASE_URL}/dashboard`, { waitUntil: "domcontentloaded" }),
+      bobPage.goto(`${BASE_URL}/dashboard`, { waitUntil: "domcontentloaded" }),
+      guestPage.goto(`${BASE_URL}/dashboard`, { waitUntil: "domcontentloaded" }),
     ]);
 
     const aliceRendered = await alicePage.locator('header button[aria-label="User menu"] span.text-xs').textContent().catch(() => "");
