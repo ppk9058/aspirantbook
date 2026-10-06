@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
 import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
+import { fulfilPaymentOrder } from "@/lib/payments/fulfilment"
 
 const COURSE_ALIASES: Record<string, string> = {
     "half-yearly-678": "half-yearly-6",
@@ -57,40 +58,50 @@ export async function POST(request: NextRequest) {
         }
 
         // Validate against DB order record created server-side for razorpay_order_id
-        let dbOrderRecord: any = null
-        if (orderId) {
-            dbOrderRecord = await prisma.payment.findFirst({
-                where: {
-                    OR: [
-                        { externalId: orderId },
-                        { metadata: { path: ["orderId"], equals: orderId } },
-                    ],
-                },
-            })
-            if (dbOrderRecord) {
-                if (currentUserId && dbOrderRecord.userId !== currentUserId) {
-                    return NextResponse.json(
-                        { error: "Order ownership mismatch" },
-                        { status: 403 }
-                    )
-                }
+        if (!orderId) {
+            return NextResponse.json(
+                { error: "Missing orderId" },
+                { status: 400 }
+            )
+        }
 
-                const dbCourseId = (dbOrderRecord.metadata as any)?.courseId
-                if (dbCourseId && courseId) {
-                    const resolvedTarget = COURSE_ALIASES[courseId] || courseId
-                    const resolvedOrderTarget = COURSE_ALIASES[dbCourseId] || dbCourseId
-                    if (resolvedTarget !== resolvedOrderTarget && courseId !== dbCourseId) {
-                        return NextResponse.json(
-                            { error: "Order course mismatch" },
-                            { status: 400 }
-                        )
-                    }
-                }
+        const dbOrderRecord = await prisma.payment.findFirst({
+            where: {
+                OR: [
+                    { externalId: orderId },
+                    { metadata: { path: ["orderId"], equals: orderId } },
+                ],
+            },
+        })
+
+        if (!dbOrderRecord) {
+            return NextResponse.json(
+                { error: "Order not found" },
+                { status: 404 }
+            )
+        }
+
+        if (currentUserId && dbOrderRecord.userId !== currentUserId) {
+            return NextResponse.json(
+                { error: "Order ownership mismatch" },
+                { status: 403 }
+            )
+        }
+
+        const dbCourseId = (dbOrderRecord.metadata as any)?.courseId
+        if (dbCourseId && courseId) {
+            const resolvedTarget = COURSE_ALIASES[courseId] || courseId
+            const resolvedOrderTarget = COURSE_ALIASES[dbCourseId] || dbCourseId
+            if (resolvedTarget !== resolvedOrderTarget && courseId !== dbCourseId) {
+                return NextResponse.json(
+                    { error: "Order course mismatch" },
+                    { status: 400 }
+                )
             }
         }
 
         // Validate Razorpay order ownership and courseId match if order exists in Razorpay
-        if (razorpay && orderId && !orderId.startsWith("order_mock_") && !orderId.startsWith("order_test_")) {
+        if (razorpay && !orderId.startsWith("order_mock_") && !orderId.startsWith("order_test_")) {
             try {
                 const rzpOrder = await razorpay.orders.fetch(orderId)
                 if (rzpOrder && rzpOrder.notes) {
@@ -120,195 +131,59 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Get user
-        const user = await prisma.user.findFirst({
-            where: {
-                OR: [
-                    ...(currentUserId ? [{ id: currentUserId }] : []),
-                    ...(currentUserEmail ? [{ email: currentUserEmail }] : []),
-                ],
-            },
+        // Fulfill payment and enrollment atomically and idempotently
+        const targetCourseId = courseId || dbCourseId
+        const fulfillRes = await fulfilPaymentOrder({
+            orderId,
+            paymentId,
+            courseId: targetCourseId,
+            plan: plan || (dbOrderRecord.metadata as any)?.plan,
+            currentUserId,
         })
 
-        if (!user) {
+        if (!fulfillRes.success) {
             return NextResponse.json(
-                { error: "User not found" },
-                { status: 404 }
+                { error: fulfillRes.error || "Fulfillment failed" },
+                { status: fulfillRes.status }
             )
         }
 
-        // ─── Case 1: Course Enrollment Purchase ──────────────────────────────────
-        if (courseId) {
-            const resolvedTarget = COURSE_ALIASES[courseId] || courseId
+        // Determine goal if course enrollment
+        let goalId: string | null = null
+        if (targetCourseId) {
             const course = await prisma.course.findFirst({
-                where: {
-                    OR: [
-                        { id: resolvedTarget },
-                        { slug: resolvedTarget },
-                        { id: courseId },
-                        { slug: courseId },
-                    ],
-                },
+                where: { OR: [{ id: targetCourseId }, { slug: targetCourseId }] },
                 select: { id: true, title: true, slug: true, price: true },
             })
-
             if (course) {
-                // Create or verify enrollment idempotently
-                try {
-                    await prisma.enrollment.upsert({
-                        where: { userId_courseId: { userId: user.id, courseId: course.id } },
-                        update: {},
-                        create: { userId: user.id, courseId: course.id },
-                    })
-                } catch (e: any) {
-                    if (e.code !== "P2002") throw e
-                }
-
-                // Record or update payment idempotently
-                try {
-                    if (dbOrderRecord) {
-                        await prisma.payment.updateMany({
-                            where: { id: dbOrderRecord.id },
-                            data: {
-                                status: "COMPLETED",
-                                externalId: paymentId,
-                                paymentMethod: "razorpay",
-                                metadata: {
-                                    ...((dbOrderRecord.metadata as any) || {}),
-                                    paymentId,
-                                    orderId,
-                                    courseId: course.id,
-                                    courseTitle: course.title,
-                                    courseSlug: course.slug,
-                                },
-                            },
-                        })
-                        if (dbOrderRecord?.id) {
-                            await prisma.couponRedemption.updateMany({
-                                where: {
-                                    paymentId: dbOrderRecord.id,
-                                    status: "RESERVED",
-                                },
-                                data: {
-                                    status: "REDEEMED",
-                                },
-                            })
-                        }
-                    } else {
-                        const existingPayment = await prisma.payment.findFirst({
-                            where: { externalId: paymentId },
-                        })
-                        if (!existingPayment) {
-                            await prisma.payment.create({
-                                data: {
-                                    userId: user.id,
-                                    amount: course.price ?? 0,
-                                    currency: "INR",
-                                    status: "COMPLETED",
-                                    paymentProvider: "razorpay",
-                                    externalId: paymentId,
-                                    metadata: {
-                                        orderId,
-                                        courseId: course.id,
-                                        courseTitle: course.title,
-                                        courseSlug: course.slug,
-                                    },
-                                },
-                            })
-                        }
-                    }
-                } catch (e: any) {
-                    if (e.code !== "P2002") throw e
-                }
-
-                // Determine and set platform goal for the enrolled category
-                const goalId = getGoalForCourse(course)
-                userGoalsMemoryMap.set(user.id, {
+                goalId = getGoalForCourse(course)
+                userGoalsMemoryMap.set(currentUserId, {
                     goalId,
                     updatedAt: new Date().toISOString(),
                 })
-
-                revalidatePath("/my-learning")
-                revalidatePath("/dashboard")
-
-                const res = NextResponse.json({
-                    success: true,
-                    type: "course",
-                    courseTitle: course.title,
-                    goalId,
-                    redirectUrl: "/my-learning",
-                })
-
-                res.cookies.set("trillion_selected_goal", goalId, {
-                    path: "/",
-                    maxAge: 31536000,
-                    sameSite: "lax",
-                })
-
-                return res
             }
         }
 
-        // ─── Case 2: Platform Subscription (Monthly / Yearly) ───────────────────
-        const effectivePlan = plan === "YEARLY" ? "YEARLY" : "MONTHLY"
-        const startDate = new Date()
-        const endDate = new Date()
-        if (effectivePlan === "MONTHLY") {
-            endDate.setMonth(endDate.getMonth() + 1)
-        } else {
-            endDate.setFullYear(endDate.getFullYear() + 1)
-        }
-
-        // Check for existing subscription
-        let subscription = await prisma.subscription.findFirst({
-            where: { providerId: paymentId },
-        })
-
-        if (!subscription) {
-            subscription = await prisma.subscription.create({
-                data: {
-                    userId: user.id,
-                    plan: effectivePlan,
-                    status: "ACTIVE",
-                    provider: "RAZORPAY",
-                    providerId: paymentId,
-                    startDate,
-                    endDate,
-                },
-            })
-        }
-
-        const existingSubPayment = await prisma.payment.findFirst({
-            where: { externalId: paymentId },
-        })
-
-        if (!existingSubPayment) {
-            await prisma.payment.create({
-                data: {
-                    userId: user.id,
-                    amount: effectivePlan === "MONTHLY" ? 499 : 4999,
-                    currency: "INR",
-                    status: "COMPLETED",
-                    paymentProvider: "razorpay",
-                    externalId: paymentId,
-                    metadata: {
-                        orderId,
-                        plan: effectivePlan,
-                    },
-                },
-            })
-        }
-
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { role: "PREMIUM" },
-        })
-
-        revalidatePath("/my-tests")
         revalidatePath("/my-learning")
+        revalidatePath("/my-tests")
         revalidatePath("/dashboard")
 
-        return NextResponse.json({ success: true, type: "subscription", redirectUrl: "/my-tests" })
+        const res = NextResponse.json({
+            success: true,
+            type: targetCourseId ? "course" : "subscription",
+            redirectUrl: targetCourseId ? "/my-learning" : "/my-tests",
+            goalId,
+        })
+
+        if (goalId) {
+            res.cookies.set("trillion_selected_goal", goalId, {
+                path: "/",
+                maxAge: 31536000,
+                sameSite: "lax",
+            })
+        }
+
+        return res
     } catch (error) {
         console.error("Payment verification error:", error)
         return NextResponse.json(

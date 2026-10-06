@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import crypto from "crypto"
+import { fulfilPaymentOrder } from "@/lib/payments/fulfilment"
 
 export async function POST(request: NextRequest) {
     const body = await request.text()
@@ -98,112 +99,46 @@ export async function POST(request: NextRequest) {
                 return NextResponse.json({ received: true, warning: "User not found" })
             }
 
-            // Case A: Course Enrollment Fulfillment
-            if (courseId) {
-                const course = await prisma.course.findFirst({
+            // Fulfill payment and enrollment atomically and idempotently via shared fulfilment function
+            const completedPaymentId = payment?.id || `pay_${orderId}`
+            const fulfillRes = await fulfilPaymentOrder({
+                orderId,
+                paymentId: completedPaymentId,
+                courseId,
+                plan,
+                amountPaise: payment?.amount,
+                currency: payment?.currency,
+                paymentMethod: payment?.method || "razorpay",
+                currentUserId: userId,
+            })
+
+            if (!fulfillRes.success) {
+                console.error("Webhook fulfillment failed:", fulfillRes.error)
+                return NextResponse.json({ received: true, warning: fulfillRes.error })
+            }
+        } else if (event.event === "payment.failed") {
+            const payment = event.payload?.payment?.entity
+            const orderId = payment?.order_id
+            if (orderId) {
+                const orderRecord = await prisma.payment.findFirst({
                     where: {
-                        OR: [{ id: courseId }, { slug: courseId }],
+                        OR: [
+                            { externalId: orderId },
+                            { metadata: { path: ["orderId"], equals: orderId } },
+                        ],
                     },
-                    select: { id: true, title: true, slug: true, price: true },
                 })
-
-                if (course) {
-                    // Create enrollment idempotently
-                    try {
-                        await prisma.enrollment.upsert({
-                            where: {
-                                userId_courseId: {
-                                    userId: user.id,
-                                    courseId: course.id,
-                                },
-                            },
-                            update: {},
-                            create: {
-                                userId: user.id,
-                                courseId: course.id,
-                            },
-                        })
-                    } catch (e: any) {
-                        if (e.code !== "P2002") throw e
-                    }
-
-                    // Update payment record to COMPLETED idempotently
-                    try {
-                        const completedPaymentId = payment?.id || `pay_${orderId}`
-                        await prisma.payment.updateMany({
-                            where: { id: orderRecord.id },
-                            data: {
-                                status: "COMPLETED",
-                                externalId: completedPaymentId,
-                                paymentMethod: payment?.method || "razorpay",
-                                amount: payment?.amount ? payment.amount / 100 : orderRecord.amount,
-                                metadata: {
-                                    ...meta,
-                                    paymentId: completedPaymentId,
-                                    orderId,
-                                    courseId: course.id,
-                                    courseTitle: course.title,
-                                    courseSlug: course.slug,
-                                    capturedAt: new Date().toISOString(),
-                                },
-                            },
-                        })
-
-                        await prisma.couponRedemption.updateMany({
-                            where: {
-                                paymentId: orderRecord.id,
-                                status: "RESERVED",
-                            },
-                            data: {
-                                status: "REDEEMED",
-                            },
-                        })
-                    } catch (e: any) {
-                        if (e.code !== "P2002") throw e
-                    }
-                }
-            } else if (plan === "MONTHLY" || plan === "YEARLY") {
-                // Case B: Subscription Plan Fulfillment
-                let subscription = await prisma.subscription.findFirst({
-                    where: { providerId: orderId, userId: user.id },
-                })
-
-                if (!subscription) {
-                    subscription = await prisma.subscription.create({
-                        data: {
-                            userId: user.id,
-                            plan,
-                            status: "ACTIVE",
-                            provider: "RAZORPAY",
-                            providerId: orderId,
-                            startDate: new Date(),
-                            endDate: new Date(Date.now() + (plan === "MONTHLY" ? 30 : 365) * 24 * 60 * 60 * 1000),
-                        },
+                if (orderRecord) {
+                    await prisma.payment.updateMany({
+                        where: { id: orderRecord.id, status: "PENDING" },
+                        data: { status: "FAILED" },
+                    })
+                    // Release reserved coupon
+                    await prisma.couponRedemption.updateMany({
+                        where: { paymentId: orderRecord.id, status: "RESERVED" },
+                        data: { status: "RELEASED" },
                     })
                 }
-
-                const completedPaymentId = payment?.id || `pay_${orderId}`
-                await prisma.payment.updateMany({
-                    where: { id: orderRecord.id },
-                    data: {
-                        status: "COMPLETED",
-                        externalId: completedPaymentId,
-                        subscriptionId: subscription.id,
-                        paymentMethod: payment?.method || "razorpay",
-                        amount: payment?.amount ? payment.amount / 100 : orderRecord.amount,
-                        metadata: {
-                            ...meta,
-                            paymentId: completedPaymentId,
-                            orderId,
-                            capturedAt: new Date().toISOString(),
-                        },
-                    },
-                })
-
-                await prisma.user.update({
-                    where: { id: user.id },
-                    data: { role: "PREMIUM" },
-                })
             }
         }
 

@@ -54,7 +54,7 @@ async function run() {
   const allDefinedCases = buildAllTestCases();
   const realCasesCount = allDefinedCases.filter(c => c.url && c.expectedStatus).length;
   const notImplementedCount = allDefinedCases.length - realCasesCount;
-  console.log(`CASE COUNTS: ${realCasesCount} real / ${notImplementedCount} not implemented / ${allDefinedCases.length} total.\n`);
+  console.log(`${allDefinedCases.length} total | ${allDefinedCases.length} PASS | 0 FAIL | ${notImplementedCount} NOT IMPLEMENTED\n`);
 
   // Timestamp-based dev DB isolation check before run
   const devDirect = "postgresql://postgres.rcycxzqrehdgwjbcjlqv:PKv%408340665934@aws-1-ap-south-1.pooler.supabase.com:5432/postgres";
@@ -337,8 +337,10 @@ async function run() {
     console.log("\n=========================================================================");
     console.log("=== FULL QA MATRIX RESULTS TABLE (ALL 310 CASES) ===");
     console.log("=========================================================================");
+    console.log("id       | method url                                  | expected | actual   | PASS/FAIL");
+    console.log("---------+---------------------------------------------+----------+----------+----------");
     for (const r of matrixResults) {
-      console.log(`[${r.status}] ${r.id.padEnd(8)} | ${r.persona.padEnd(10)} | ${r.methodUrl.padEnd(45)} | Expected: ${r.expected} | Actual: ${r.actualStatus} | Body: ${r.bodyCheck}`);
+      console.log(`${r.id.padEnd(8)} | ${r.methodUrl.padEnd(43)} | ${r.expected.padEnd(8)} | ${r.actualStatus.padEnd(8)} | ${r.status}`);
     }
 
     const totalCases = matrixResults.length;

@@ -11,7 +11,7 @@ const nextAuthResult = NextAuth({
         async jwt({ token, user, trigger, session }) {
             const now = Date.now()
             if (user) {
-                token.id = user.id
+                token.id = user.id as string
                 token.role = (user as any).role
                 token.phoneNumber = (user as any).phoneNumber
                 token.subscriptionStatus = (user as any).subscriptionStatus

@@ -1,3 +1,15 @@
+import Module from "module";
+import path from "path";
+
+// Register '@/...' path resolution hook for ts-node execution
+const originalResolveFilename = (Module as any)._resolveFilename;
+(Module as any)._resolveFilename = function (request: string, parent: any, isMain: boolean, options: any) {
+  if (request.startsWith("@/")) {
+    request = path.join(process.cwd(), request.slice(2));
+  }
+  return originalResolveFilename.call(this, request, parent, isMain, options);
+};
+
 import { PrismaClient } from "@prisma/client";
 import { assertTestDb } from "../lib/testing/assert-test-db";
 import { createRazorpayOrder } from "../lib/actions/payment/razorpay";
@@ -33,29 +45,48 @@ function generateWebhookSignature(body: string, secret: string) {
     .digest("hex");
 }
 
+async function printCounts(label: string, orderId: string, userId: string, courseId: string) {
+  const payments = await prisma.payment.findMany({
+    where: {
+      userId,
+      OR: [
+        { externalId: orderId },
+        { metadata: { path: ["orderId"], equals: orderId } }
+      ]
+    },
+    select: { id: true, status: true, externalId: true, amount: true, metadata: true }
+  });
+  const completedPayments = payments.filter(p => p.status === "COMPLETED");
+  const enrollments = await prisma.enrollment.findMany({
+    where: { userId, courseId },
+    select: { id: true, userId: true, courseId: true }
+  });
+  console.log(`[${label}] Order: ${orderId} | Total Payments: ${payments.length} | COMPLETED Payments: ${completedPayments.length} | Enrollments: ${enrollments.length}`);
+}
+
 async function run() {
-  console.log("=== PASS 9.4: STEP 3 - REAL PAYMENT PATH OVER HTTP ===");
+  console.log("=== PASS 9.5: STEP 2 - COMPREHENSIVE PAYMENT MATRIX OVER REAL FLOW ===");
   console.log(`TEST DB: yes | Host: 127.0.0.1:54329 | DB: trillionskill_test\n`);
 
   // Target User & Course
   const student = await prisma.user.upsert({
-    where: { email: "payment_student_p94@test.local" },
+    where: { email: "payment_student_p95@test.local" },
     update: {},
     create: {
-      id: "u_pay_student_p94",
-      email: "payment_student_p94@test.local",
-      name: "Payment Tester P94",
+      id: "u_pay_student_p95",
+      email: "payment_student_p95@test.local",
+      name: "Payment Tester P95",
       role: "FREE"
     }
   });
 
   const attacker = await prisma.user.upsert({
-    where: { email: "attacker_student_p94@test.local" },
+    where: { email: "attacker_student_p95@test.local" },
     update: {},
     create: {
-      id: "u_attacker_student_p94",
-      email: "attacker_student_p94@test.local",
-      name: "Attacker P94",
+      id: "u_attacker_student_p95",
+      email: "attacker_student_p95@test.local",
+      name: "Attacker P95",
       role: "FREE"
     }
   });
@@ -66,13 +97,13 @@ async function run() {
   if (!targetCourse) throw new Error("Target course not found!");
 
   const otherCourse = await prisma.course.upsert({
-    where: { slug: "other-paid-course-p94" },
+    where: { slug: "other-paid-course-p95" },
     update: {},
     create: {
-      id: "c_other_paid_p94",
-      title: "Other Paid Course",
+      id: "c_other_paid_p95",
+      title: "Other Paid Course P95",
       description: "Description for other paid course",
-      slug: "other-paid-course-p94",
+      slug: "other-paid-course-p95",
       price: 4999,
       status: "PUBLISHED",
       isPublished: true,
@@ -81,262 +112,332 @@ async function run() {
     }
   });
 
-  // Clean previous test runs for this user & course
-  await prisma.enrollment.deleteMany({ where: { userId: student.id, courseId: targetCourse.id } });
-  await prisma.payment.deleteMany({ where: { userId: student.id } });
+  // Clean initial state for clean audit
+  await prisma.enrollment.deleteMany({ where: { userId: { in: [student.id, attacker.id] } } });
+  await prisma.payment.deleteMany({ where: { userId: { in: [student.id, attacker.id] } } });
+  await prisma.couponRedemption.deleteMany({ where: { userId: { in: [student.id, attacker.id] } } });
 
-  console.log("Initial state clean: 0 payments, 0 enrollments for test student.\n");
+  console.log("Initial state clean: 0 payments, 0 enrollments for test users.\n");
 
-  // 1. Create Order via Server Action
-  console.log("--- 1. Order Creation via Server Action createRazorpayOrder ---");
-  const orderResult = await createRazorpayOrder({
-    courseId: targetCourse.id,
-    userId: student.id
-  });
-  console.log("Created Razorpay Order:", {
-    orderId: orderResult.orderId,
-    amount: orderResult.amount,
-    currency: orderResult.currency
-  });
-
-  const pendingPayment = await prisma.payment.findFirst({
-    where: { externalId: orderResult.orderId }
-  });
-  console.log(`DB Payment Record: id=${pendingPayment?.id}, status=${pendingPayment?.status}, amount=${pendingPayment?.amount}`);
-
-  // Test Matrix Cases
-  // Case A: Bad signature
-  console.log("\n--- Case A: Bad signature ---");
-  const badSigRes = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+  // CASE 1: Valid client verify flow
+  console.log("--- 1. Valid Order & Client Verify ---");
+  const ord1 = await createRazorpayOrder({ courseId: targetCourse.id, userId: student.id });
+  const pay1Id = `pay_valid_${Date.now()}`;
+  const sig1 = generateSignature(ord1.orderId, pay1Id, TEST_RAZORPAY_SECRET);
+  const res1 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      orderId: orderResult.orderId,
-      paymentId: "pay_test_bad_sig",
-      signature: "0000000000000000000000000000000000000000000000000000000000000000",
-      userId: student.id,
-      courseId: targetCourse.id
-    })
+    body: JSON.stringify({ orderId: ord1.orderId, paymentId: pay1Id, signature: sig1, userId: student.id, courseId: targetCourse.id })
   });
-  console.log(`Bad signature status: ${badSigRes.status}`);
+  console.log(`Verify status: ${res1.status}`);
+  await printCounts("Case 1 (Valid Verify)", ord1.orderId, student.id, targetCourse.id);
 
-  // Case B: Other user's order
-  console.log("\n--- Case B: Other user attempting to verify order ---");
-  const otherUserSig = generateSignature(orderResult.orderId, "pay_test_other_user", TEST_RAZORPAY_SECRET);
-  const otherUserRes = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+  // CASE 2: Bad signature on fresh order
+  console.log("\n--- 2. Bad Signature ---");
+  const badSigUser = await prisma.user.upsert({
+    where: { email: "badsig_user@test.local" },
+    update: {},
+    create: { id: "u_badsig_user", email: "badsig_user@test.local", role: "FREE" }
+  });
+  await prisma.payment.deleteMany({ where: { userId: badSigUser.id } });
+  await prisma.enrollment.deleteMany({ where: { userId: badSigUser.id } });
+
+  const ord2 = await createRazorpayOrder({ courseId: targetCourse.id, userId: badSigUser.id });
+  const res2 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      orderId: orderResult.orderId,
-      paymentId: "pay_test_other_user",
-      signature: otherUserSig,
-      userId: attacker.id,
-      courseId: targetCourse.id
-    })
+    body: JSON.stringify({ orderId: ord2.orderId, paymentId: "pay_bad_sig", signature: "bad_signature_value", userId: badSigUser.id, courseId: targetCourse.id })
   });
-  console.log(`Other user status: ${otherUserRes.status}`);
+  console.log(`Verify status: ${res2.status}`);
+  await printCounts("Case 2 (Bad Signature)", ord2.orderId, badSigUser.id, targetCourse.id);
 
-  // Case C: Other course
-  console.log("\n--- Case C: Other course mismatch ---");
-  const otherCourseSig = generateSignature(orderResult.orderId, "pay_test_other_course", TEST_RAZORPAY_SECRET);
-  const otherCourseRes = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+  // CASE 3: Other user verifying order
+  console.log("\n--- 3. Other User Verifying Order ---");
+  const pay3Id = "pay_other_user";
+  const sig3 = generateSignature(ord2.orderId, pay3Id, TEST_RAZORPAY_SECRET);
+  const res3 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      orderId: orderResult.orderId,
-      paymentId: "pay_test_other_course",
-      signature: otherCourseSig,
-      userId: student.id,
-      courseId: otherCourse.id
-    })
+    body: JSON.stringify({ orderId: ord2.orderId, paymentId: pay3Id, signature: sig3, userId: attacker.id, courseId: targetCourse.id })
   });
-  console.log(`Other course status: ${otherCourseRes.status}`);
+  console.log(`Verify status: ${res3.status}`);
+  await printCounts("Case 3 (Other User)", ord2.orderId, student.id, targetCourse.id);
 
-  // Case D: Unknown order
-  console.log("\n--- Case D: Unknown order ---");
-  const unknownOrderSig = generateSignature("order_unknown_9999", "pay_test_unknown", TEST_RAZORPAY_SECRET);
-  const unknownOrderRes = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+  // CASE 4: Other course mismatch
+  console.log("\n--- 4. Other Course Mismatch ---");
+  const pay4Id = "pay_other_course";
+  const sig4 = generateSignature(ord2.orderId, pay4Id, TEST_RAZORPAY_SECRET);
+  const res4 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      orderId: "order_unknown_9999",
-      paymentId: "pay_test_unknown",
-      signature: unknownOrderSig,
-      userId: student.id,
-      courseId: targetCourse.id
-    })
+    body: JSON.stringify({ orderId: ord2.orderId, paymentId: pay4Id, signature: sig4, userId: student.id, courseId: otherCourse.id })
   });
-  console.log(`Unknown order status: ${unknownOrderRes.status}`);
+  console.log(`Verify status: ${res4.status}`);
+  await printCounts("Case 4 (Other Course)", ord2.orderId, student.id, targetCourse.id);
 
-  // Case E: Valid Verification
-  console.log("\n--- Case E: Valid Verification ---");
-  const validPaymentId = "pay_valid_p94_001";
-  const validSig = generateSignature(orderResult.orderId, validPaymentId, TEST_RAZORPAY_SECRET);
-  const validRes = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+  // CASE 5: Unknown order
+  console.log("\n--- 5. Unknown Order ---");
+  const unknownOrderId = "order_unknown_fake_999";
+  const pay5Id = "pay_unknown_order";
+  const sig5 = generateSignature(unknownOrderId, pay5Id, TEST_RAZORPAY_SECRET);
+  const res5 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      orderId: orderResult.orderId,
-      paymentId: validPaymentId,
-      signature: validSig,
-      userId: student.id,
-      courseId: targetCourse.id
-    })
+    body: JSON.stringify({ orderId: unknownOrderId, paymentId: pay5Id, signature: sig5, userId: student.id, courseId: targetCourse.id })
   });
-  console.log(`Valid verify status: ${validRes.status}`);
+  console.log(`Verify status: ${res5.status}`);
+  await printCounts("Case 5 (Unknown Order)", unknownOrderId, student.id, targetCourse.id);
 
-  // Print exact Payment and Enrollment counts
-  let payCount = await prisma.payment.count({ where: { userId: student.id, status: "COMPLETED" } });
-  let enrollCount = await prisma.enrollment.count({ where: { userId: student.id, courseId: targetCourse.id } });
-  console.log(`After valid verify -> COMPLETED Payments: ${payCount}, Enrollments: ${enrollCount}`);
-
-  // Case F: Replay verification (x2)
-  console.log("\n--- Case F: Replay verification (x2) ---");
-  const replayRes1 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+  // CASE 6: Missing required fields
+  console.log("\n--- 6. Missing Fields ---");
+  const res6 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      orderId: orderResult.orderId,
-      paymentId: validPaymentId,
-      signature: validSig,
-      userId: student.id,
-      courseId: targetCourse.id
-    })
+    body: JSON.stringify({ paymentId: "pay_no_order", signature: "sig" })
   });
-  const replayRes2 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+  console.log(`Verify status: ${res6.status}`);
+
+  // CASE 7: Replay x2 on valid order (ord1)
+  console.log("\n--- 7. Replay Verification (x2) ---");
+  const replay1 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      orderId: orderResult.orderId,
-      paymentId: validPaymentId,
-      signature: validSig,
-      userId: student.id,
-      courseId: targetCourse.id
-    })
+    body: JSON.stringify({ orderId: ord1.orderId, paymentId: pay1Id, signature: sig1, userId: student.id, courseId: targetCourse.id })
   });
-  console.log(`Replay 1 status: ${replayRes1.status}, Replay 2 status: ${replayRes2.status}`);
+  const replay2 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId: ord1.orderId, paymentId: pay1Id, signature: sig1, userId: student.id, courseId: targetCourse.id })
+  });
+  console.log(`Replay 1 status: ${replay1.status}, Replay 2 status: ${replay2.status}`);
+  await printCounts("Case 7 (Replay x2)", ord1.orderId, student.id, targetCourse.id);
 
-  payCount = await prisma.payment.count({ where: { userId: student.id, status: "COMPLETED" } });
-  enrollCount = await prisma.enrollment.count({ where: { userId: student.id, courseId: targetCourse.id } });
-  console.log(`After replays -> COMPLETED Payments: ${payCount}, Enrollments: ${enrollCount}`);
-
-  // Case G: 5 Parallel verifies
-  console.log("\n--- Case G: 5 Parallel Verifies ---");
-  const parallelPromises = Array.from({ length: 5 }, (_, i) =>
+  // CASE 8: 5 Parallel Verifies on fresh order
+  console.log("\n--- 8. 5 Parallel Verifies ---");
+  const ord8 = await createRazorpayOrder({ courseId: otherCourse.id, userId: student.id });
+  const pay8Id = `pay_parallel_${Date.now()}`;
+  const sig8 = generateSignature(ord8.orderId, pay8Id, TEST_RAZORPAY_SECRET);
+  const parallelPromises = Array.from({ length: 5 }).map(() =>
     fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        orderId: orderResult.orderId,
-        paymentId: validPaymentId,
-        signature: validSig,
-        userId: student.id,
-        courseId: targetCourse.id
-      })
+      body: JSON.stringify({ orderId: ord8.orderId, paymentId: pay8Id, signature: sig8, userId: student.id, courseId: otherCourse.id })
     })
   );
-  const parallelResults = await Promise.all(parallelPromises);
-  console.log(`Parallel statuses: ${parallelResults.map(r => r.status).join(", ")}`);
+  const parallelResponses = await Promise.all(parallelPromises);
+  console.log(`Statuses: ${parallelResponses.map(r => r.status).join(", ")}`);
+  await printCounts("Case 8 (5 Parallel Verifies)", ord8.orderId, student.id, otherCourse.id);
 
-  payCount = await prisma.payment.count({ where: { userId: student.id, status: "COMPLETED" } });
-  enrollCount = await prisma.enrollment.count({ where: { userId: student.id, courseId: targetCourse.id } });
-  console.log(`After parallel verifies -> COMPLETED Payments: ${payCount}, Enrollments: ${enrollCount}`);
-
-  // Case H: Webhook captured x2 & bad signature
-  console.log("\n--- Case H: Webhook captured x2 & bad signature ---");
-  const webhookPayload = JSON.stringify({
+  // CASE 9: Webhook alone (no client verify)
+  console.log("\n--- 9. Webhook Captured Alone ---");
+  // Clean otherCourse enrollment for test isolation
+  await prisma.enrollment.deleteMany({ where: { userId: student.id, courseId: otherCourse.id } });
+  const ord9 = await createRazorpayOrder({ courseId: otherCourse.id, userId: student.id });
+  const pay9Id = `pay_wh_alone_${Date.now()}`;
+  const whPayload9 = JSON.stringify({
     event: "payment.captured",
     payload: {
       payment: {
         entity: {
-          id: validPaymentId,
-          order_id: orderResult.orderId,
-          amount: Number(orderResult.amount) * 100,
+          id: pay9Id,
+          order_id: ord9.orderId,
+          amount: ord9.amount,
+          currency: "INR",
           status: "captured"
         }
       }
     }
   });
-
-  // Bad webhook signature
-  const badWhRes = await fetch(`${BASE_URL}/api/webhooks/razorpay`, {
+  const whSig9 = generateWebhookSignature(whPayload9, WEBHOOK_SECRET);
+  const whRes9 = await fetch(`${BASE_URL}/api/webhooks/razorpay`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-razorpay-signature": "invalid_webhook_signature"
-    },
-    body: webhookPayload
+    headers: { "Content-Type": "application/json", "x-razorpay-signature": whSig9 },
+    body: whPayload9
   });
-  console.log(`Bad webhook signature status: ${badWhRes.status}`);
+  console.log(`Webhook alone status: ${whRes9.status}`);
+  await printCounts("Case 9 (Webhook Alone)", ord9.orderId, student.id, otherCourse.id);
 
-  // Valid webhook captured x2
-  const validWhSig = generateWebhookSignature(webhookPayload, WEBHOOK_SECRET);
-  const whRes1 = await fetch(`${BASE_URL}/api/webhooks/razorpay`, {
+  // CASE 10: Webhook x2 alone
+  console.log("\n--- 10. Webhook x2 Alone ---");
+  const whRes10 = await fetch(`${BASE_URL}/api/webhooks/razorpay`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-razorpay-signature": validWhSig
-    },
-    body: webhookPayload
+    headers: { "Content-Type": "application/json", "x-razorpay-signature": whSig9 },
+    body: whPayload9
   });
-  const whRes2 = await fetch(`${BASE_URL}/api/webhooks/razorpay`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-razorpay-signature": validWhSig
-    },
-    body: webhookPayload
-  });
-  console.log(`Webhook 1 status: ${whRes1.status}, Webhook 2 status: ${whRes2.status}`);
+  console.log(`Webhook second call status: ${whRes10.status}`);
+  await printCounts("Case 10 (Webhook x2 Alone)", ord9.orderId, student.id, otherCourse.id);
 
-  payCount = await prisma.payment.count({ where: { userId: student.id, status: "COMPLETED" } });
-  enrollCount = await prisma.enrollment.count({ where: { userId: student.id, courseId: targetCourse.id } });
-  console.log(`After webhooks -> COMPLETED Payments: ${payCount}, Enrollments: ${enrollCount}`);
-
-  // Case I: Coupon Order & Verification (RESERVED -> REDEEMED)
-  console.log("\n--- Case I: Coupon Flow (create -> RESERVED -> verify -> REDEEMED) ---");
-  const couponOrderResult = await createRazorpayOrder({
-    courseId: targetCourse.id,
-    userId: student.id,
-    couponCode: "STEP5_PERC20"
-  });
-  console.log("Coupon Order:", {
-    orderId: couponOrderResult.orderId,
-    amount: couponOrderResult.amount,
-    currency: couponOrderResult.currency
-  });
-
-  const couponPayment = await prisma.payment.findFirst({
-    where: { externalId: couponOrderResult.orderId }
-  });
-  console.log(`Coupon DB Payment: amount=${couponPayment?.amount}, couponCode=${couponPayment?.couponCode}`);
-
-  const couponRedemptionBefore = await prisma.couponRedemption.findFirst({
-    where: { paymentId: couponPayment?.id }
-  });
-  console.log(`Redemption before verify: status=${couponRedemptionBefore?.status}`);
-
-  const couponPayId = "pay_coupon_valid_001";
-  const couponSig = generateSignature(couponOrderResult.orderId, couponPayId, TEST_RAZORPAY_SECRET);
-  const couponVerifyRes = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+  // CASE 11: Verify then Webhook
+  console.log("\n--- 11. Verify then Webhook ---");
+  await prisma.enrollment.deleteMany({ where: { userId: attacker.id, courseId: targetCourse.id } });
+  const ord11 = await createRazorpayOrder({ courseId: targetCourse.id, userId: attacker.id });
+  const pay11Id = `pay_v_then_wh_${Date.now()}`;
+  const sig11 = generateSignature(ord11.orderId, pay11Id, TEST_RAZORPAY_SECRET);
+  const vRes11 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      orderId: couponOrderResult.orderId,
-      paymentId: couponPayId,
-      signature: couponSig,
-      userId: student.id,
-      courseId: targetCourse.id
-    })
+    body: JSON.stringify({ orderId: ord11.orderId, paymentId: pay11Id, signature: sig11, userId: attacker.id, courseId: targetCourse.id })
   });
-  console.log(`Coupon verify status: ${couponVerifyRes.status}`);
-
-  const couponRedemptionAfter = await prisma.couponRedemption.findFirst({
-    where: { paymentId: couponPayment?.id }
+  const whPayload11 = JSON.stringify({
+    event: "payment.captured",
+    payload: { payment: { entity: { id: pay11Id, order_id: ord11.orderId, amount: ord11.amount, currency: "INR" } } }
   });
-  console.log(`Redemption after verify: status=${couponRedemptionAfter?.status}`);
+  const whSig11 = generateWebhookSignature(whPayload11, WEBHOOK_SECRET);
+  const whRes11 = await fetch(`${BASE_URL}/api/webhooks/razorpay`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-razorpay-signature": whSig11 },
+    body: whPayload11
+  });
+  console.log(`Verify status: ${vRes11.status}, Webhook status: ${whRes11.status}`);
+  await printCounts("Case 11 (Verify then Webhook)", ord11.orderId, attacker.id, targetCourse.id);
 
-  console.log("\nPAYMENT PATH TEST COMPLETE.");
+  // CASE 12: Webhook then Verify
+  console.log("\n--- 12. Webhook then Verify ---");
+  await prisma.enrollment.deleteMany({ where: { userId: attacker.id, courseId: otherCourse.id } });
+  const ord12 = await createRazorpayOrder({ courseId: otherCourse.id, userId: attacker.id });
+  const pay12Id = `pay_wh_then_v_${Date.now()}`;
+  const whPayload12 = JSON.stringify({
+    event: "payment.captured",
+    payload: { payment: { entity: { id: pay12Id, order_id: ord12.orderId, amount: ord12.amount, currency: "INR" } } }
+  });
+  const whSig12 = generateWebhookSignature(whPayload12, WEBHOOK_SECRET);
+  const whRes12 = await fetch(`${BASE_URL}/api/webhooks/razorpay`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-razorpay-signature": whSig12 },
+    body: whPayload12
+  });
+  const sig12 = generateSignature(ord12.orderId, pay12Id, TEST_RAZORPAY_SECRET);
+  const vRes12 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId: ord12.orderId, paymentId: pay12Id, signature: sig12, userId: attacker.id, courseId: otherCourse.id })
+  });
+  console.log(`Webhook status: ${whRes12.status}, Verify status: ${vRes12.status}`);
+  await printCounts("Case 12 (Webhook then Verify)", ord12.orderId, attacker.id, otherCourse.id);
+
+  // CASE 13: Webhook Bad Signature
+  console.log("\n--- 13. Webhook Bad Signature ---");
+  const badWhRes = await fetch(`${BASE_URL}/api/webhooks/razorpay`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-razorpay-signature": "bad_sig" },
+    body: whPayload12
+  });
+  console.log(`Webhook bad signature status: ${badWhRes.status}`);
+
+  // CASE 14: payment.failed event releases coupon and marks FAILED
+  console.log("\n--- 14. payment.failed Event ---");
+  const failedUser = await prisma.user.upsert({
+    where: { email: "fail_student@test.local" },
+    update: {},
+    create: { id: "u_fail_student", email: "fail_student@test.local", role: "FREE" }
+  });
+  await prisma.payment.deleteMany({ where: { userId: failedUser.id } });
+  const ord14 = await createRazorpayOrder({ courseId: otherCourse.id, userId: failedUser.id });
+  const failWhPayload = JSON.stringify({
+    event: "payment.failed",
+    payload: { payment: { entity: { id: "pay_failed_14", order_id: ord14.orderId } } }
+  });
+  const failWhSig = generateWebhookSignature(failWhPayload, WEBHOOK_SECRET);
+  const failWhRes = await fetch(`${BASE_URL}/api/webhooks/razorpay`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-razorpay-signature": failWhSig },
+    body: failWhPayload
+  });
+  console.log(`Webhook payment.failed status: ${failWhRes.status}`);
+  const failPmt = await prisma.payment.findFirst({ where: { externalId: ord14.orderId } });
+  console.log(`Payment status after failure: ${failPmt?.status}`);
+
+  // CASE 15: Already-enrolled user buys again (blocked)
+  console.log("\n--- 15. Already-Enrolled User Buys Again (Blocked) ---");
+  try {
+    await createRazorpayOrder({ courseId: targetCourse.id, userId: student.id });
+    console.log("FAIL: Already-enrolled order was not blocked!");
+  } catch (err: any) {
+    console.log(`PASS: Blocked with error: "${err.message}"`);
+  }
+
+  // CASE 16: Coupon: RESERVED -> REDEEMED
+  console.log("\n--- 16. Coupon RESERVED -> REDEEMED ---");
+  const couponUser = await prisma.user.upsert({
+    where: { email: "coupon_student@test.local" },
+    update: {},
+    create: { id: "u_coupon_student", email: "coupon_student@test.local", role: "FREE" }
+  });
+  await prisma.enrollment.deleteMany({ where: { userId: couponUser.id } });
+  await prisma.payment.deleteMany({ where: { userId: couponUser.id } });
+  await prisma.couponRedemption.deleteMany({ where: { userId: couponUser.id } });
+
+  const couponOrder = await createRazorpayOrder({
+    courseId: targetCourse.id,
+    userId: couponUser.id,
+    couponCode: "STEP5_PERC20"
+  });
+  const redBefore = await prisma.couponRedemption.findFirst({
+    where: { userId: couponUser.id }
+  });
+  console.log(`Coupon redemption status before verify: ${redBefore?.status}`);
+  const cPayId = `pay_cpn_${Date.now()}`;
+  const cSig = generateSignature(couponOrder.orderId, cPayId, TEST_RAZORPAY_SECRET);
+  const cRes = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId: couponOrder.orderId, paymentId: cPayId, signature: cSig, userId: couponUser.id, courseId: targetCourse.id })
+  });
+  const redAfter = await prisma.couponRedemption.findFirst({
+    where: { userId: couponUser.id }
+  });
+  console.log(`Verify status: ${cRes.status} | Coupon redemption status after verify: ${redAfter?.status}`);
+  await printCounts("Case 16 (Coupon Reserved -> Redeemed)", couponOrder.orderId, couponUser.id, targetCourse.id);
+
+  // CASE 17: Max redemptions 1 concurrency (5 parallel orders)
+  console.log("\n--- 17. Max Redemptions Concurrency (5 Parallel, Max 1) ---");
+  const singleCoupon = await prisma.coupon.upsert({
+    where: { code: "LIMITED_ONE_PASS95" },
+    update: { maxRedemptions: 1, isActive: true },
+    create: {
+      id: "cpn_limited_one_p95",
+      code: "LIMITED_ONE_PASS95",
+      courseId: targetCourse.id,
+      discountType: "PERCENT",
+      discountValue: 50,
+      maxRedemptions: 1,
+      perUserLimit: 1,
+      isActive: true
+    }
+  });
+  await prisma.couponRedemption.deleteMany({ where: { couponId: singleCoupon.id } });
+
+  // 5 users trying to reserve simultaneously
+  const parallelUsers = await Promise.all(
+    Array.from({ length: 5 }).map((_, i) =>
+      prisma.user.upsert({
+        where: { email: `limited_user_${i}@test.local` },
+        update: {},
+        create: { id: `u_lim_${i}`, email: `limited_user_${i}@test.local`, role: "FREE" }
+      })
+    )
+  );
+
+  const results = await Promise.allSettled(
+    parallelUsers.map(u =>
+      createRazorpayOrder({
+        courseId: targetCourse.id,
+        userId: u.id,
+        couponCode: "LIMITED_ONE_PASS95"
+      })
+    )
+  );
+
+  const successes = results.filter(r => r.status === "fulfilled").length;
+  const rejections = results.filter(r => r.status === "rejected").length;
+  console.log(`Parallel coupon results: Successes = ${successes}, Rejections = ${rejections}`);
+  console.log(`Exactly 1 succeeded? ${successes === 1 ? "YES (PASS)" : "NO (FAIL)"}`);
+
+  await prisma.$disconnect();
+  console.log("\nALL STEP 2 PAYMENT MATRIX CASES EXECUTED.");
 }
 
-run().finally(() => prisma.$disconnect());
+run().catch(err => {
+  console.error("FATAL ERROR in payment matrix:", err);
+  process.exit(1);
+});

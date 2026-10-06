@@ -66,6 +66,19 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         resolvedCourse = course
         const effectiveCoursePrice = course.price ?? 0
 
+        // Check if user is already enrolled
+        const existingEnrollment = await prisma.enrollment.findUnique({
+            where: {
+                userId_courseId: {
+                    userId,
+                    courseId: course.id,
+                },
+            },
+        })
+        if (existingEnrollment) {
+            throw new Error("User is already enrolled in this course.")
+        }
+
         if (effectiveCoursePrice <= 0 && !course.isPremium) {
             throw new Error("Cannot create payment order for free course.")
         }

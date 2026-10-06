@@ -11,7 +11,7 @@ process.env.TEST_DATABASE_URL = DOCKER_DB_URL;
 process.env.DATABASE_URL = DOCKER_DB_URL;
 process.env.DIRECT_URL = DOCKER_DB_URL;
 process.env.APP_ENV = "test";
-process.env.NODE_ENV = "production";
+(process.env as any).NODE_ENV = "production";
 process.env.NEXTAUTH_URL = BASE_URL;
 process.env.AUTH_URL = BASE_URL;
 
