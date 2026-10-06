@@ -5,6 +5,27 @@ import { prisma } from "@/lib/prisma"
 import LiveDemoRoomClient from "@/components/course/LiveDemoRoomClient"
 import { formatUtcToIst } from "@/lib/demo/slot-utils"
 import { Calendar, Clock, Video, Lock, ArrowRight } from "lucide-react"
+import { isCourseVisibleToUser } from "@/lib/courses/visibility"
+
+export const dynamic = "force-dynamic"
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const session = await auth()
+  const userRole = session?.user?.role
+  const userId = session?.user?.id
+
+  const course = await prisma.course.findFirst({
+    where: { OR: [{ slug }, { id: slug }] },
+    select: { id: true, title: true, status: true, isPublished: true }
+  })
+
+  if (!course || !isCourseVisibleToUser(course, userRole, userId)) {
+    notFound()
+  }
+
+  return { title: `Live Demo - ${course.title}` }
+}
 
 export default async function CourseDemoPage({
   params,
@@ -33,10 +54,12 @@ export default async function CourseDemoPage({
       originalPrice: true,
       discountPercent: true,
       technology: true,
+      status: true,
+      isPublished: true,
     },
   })
 
-  if (!course) {
+  if (!course || !isCourseVisibleToUser(course, session?.user?.role, session?.user?.id)) {
     notFound()
   }
 
@@ -94,7 +117,7 @@ export default async function CourseDemoPage({
           <div className="w-14 h-14 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto">
             <Calendar className="w-7 h-7" />
           </div>
-          <h2 className="text-xl font-bold">No Live Demo Scheduled</h2>
+          <h2 className="text-xl font-bold">Live Demo - No Session Scheduled</h2>
           <p className="text-xs text-gray-400">
             There are currently no active or scheduled live demo sessions for <strong>{course.title}</strong>.
           </p>

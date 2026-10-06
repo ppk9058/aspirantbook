@@ -54,6 +54,27 @@ const getCachedCourseBySlug = unstable_cache(
     { revalidate: 60, tags: ["courses"] }
 )
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params
+    const session = await auth()
+    const userRole = session?.user?.role
+    const userId = session?.user?.id
+
+    const course = await prisma.course.findFirst({
+        where: { OR: [{ slug }, { id: slug }] },
+        select: { id: true, title: true, description: true, status: true, isPublished: true }
+    })
+
+    if (!course || !isCourseVisibleToUser(course, userRole, userId)) {
+        notFound()
+    }
+
+    return {
+        title: course.title,
+        description: course.description
+    }
+}
+
 export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params
 

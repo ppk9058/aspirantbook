@@ -59,7 +59,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, doubt: newDoubt }, { status: 201 })
   } catch (error: any) {
     console.error("POST /api/doubts error:", error)
-    return NextResponse.json({ error: error.message || "Failed to create doubt" }, { status: 403 })
+    const isUnauth = error.message?.includes("UNAUTHORIZED")
+    return NextResponse.json(
+      { error: error.message || "Failed to create doubt" },
+      { status: isUnauth ? 401 : 403 }
+    )
   }
 }
 

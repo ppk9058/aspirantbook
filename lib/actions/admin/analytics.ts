@@ -35,9 +35,13 @@ export async function aggregateCourseAnalytics(courseId: string, date: Date) {
     // Get completions
     const completions = await prisma.progress.count({
         where: {
-            courseId,
+            lesson: {
+                chapter: {
+                    courseId,
+                },
+            },
             completed: true,
-            completedAt: {
+            lastAccessed: {
                 gte: startDate,
                 lte: endDate,
             },
@@ -47,7 +51,11 @@ export async function aggregateCourseAnalytics(courseId: string, date: Date) {
     // Get engagement metrics
     const progressRecords = await prisma.progress.findMany({
         where: {
-            courseId,
+            lesson: {
+                chapter: {
+                    courseId,
+                },
+            },
             lastAccessed: {
                 gte: startDate,
                 lte: endDate,
@@ -66,9 +74,13 @@ export async function aggregateCourseAnalytics(courseId: string, date: Date) {
     // Get lessons completed
     const lessonsCompleted = await prisma.progress.count({
         where: {
-            courseId,
+            lesson: {
+                chapter: {
+                    courseId,
+                },
+            },
             completed: true,
-            completedAt: {
+            lastAccessed: {
                 gte: startDate,
                 lte: endDate,
             },
@@ -155,7 +167,7 @@ export async function aggregateUserAnalytics(userId: string, date: Date) {
         where: {
             userId,
             completed: true,
-            completedAt: {
+            lastAccessed: {
                 gte: startDate,
                 lte: endDate,
             },
@@ -165,8 +177,8 @@ export async function aggregateUserAnalytics(userId: string, date: Date) {
     const exercisesCompleted = await prisma.submission.count({
         where: {
             userId,
-            isCorrect: true,
-            submittedAt: {
+            passed: true,
+            createdAt: {
                 gte: startDate,
                 lte: endDate,
             },
@@ -203,7 +215,7 @@ export async function aggregateUserAnalytics(userId: string, date: Date) {
     const achievementsUnlocked = await prisma.userAchievement.count({
         where: {
             userId,
-            earnedAt: {
+            unlockedAt: {
                 gte: startDate,
                 lte: endDate,
             },

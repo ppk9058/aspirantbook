@@ -5,22 +5,24 @@ import { runDailyAnalytics } from '@/lib/actions/admin/analytics'
 export async function POST() {
     try {
         const session = await auth()
-        if (!session || session.user.role !== 'ADMIN') {
+        if (!session?.user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+        if (session.user.role !== 'ADMIN') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
         }
 
         const result = await runDailyAnalytics()
 
         return NextResponse.json({
-            success: true,
             message: 'Analytics aggregation completed',
             ...result,
         })
     } catch (error: any) {
         console.error('Analytics aggregation error:', error)
         return NextResponse.json(
-            { error: error.message || 'Failed to run analytics' },
-            { status: 500 }
+            { success: false, error: error.message || 'Analytics service temporarily unavailable' },
+            { status: 503 }
         )
     }
 }

@@ -3,6 +3,26 @@ import { prisma } from "@/lib/prisma"
 import { notFound, redirect } from "next/navigation"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 
+export const dynamic = "force-dynamic"
+
+export async function generateMetadata({ params }: { params: Promise<{ courseSlug: string }> }) {
+    const { courseSlug } = await params
+    const session = await auth()
+    const userRole = session?.user?.role
+    const userId = session?.user?.id
+
+    const course = await prisma.course.findFirst({
+        where: { OR: [{ slug: courseSlug }, { id: courseSlug }] },
+        select: { id: true, title: true, status: true, isPublished: true }
+    })
+
+    if (!course || !isCourseVisibleToUser(course, userRole, userId)) {
+        notFound()
+    }
+
+    return { title: course.title }
+}
+
 export default async function CourseLandingPage({
     params,
 }: {
@@ -35,19 +55,9 @@ export default async function CourseLandingPage({
                 },
             },
         })
-    } catch {
-        console.warn("Database offline on /learn/[courseSlug], serving fallback data.")
-        course = {
-            id: `course-${courseSlug}`,
-            title: courseSlug,
-            slug: courseSlug,
-            chapters: [
-                {
-                    id: "ch-1",
-                    lessons: [{ id: "intro-lesson" }],
-                },
-            ],
-        }
+    } catch (err: any) {
+        console.warn("Database error on /learn/[courseSlug]:", err?.message)
+        course = null
     }
 
     if (!course || !isCourseVisibleToUser(course, userRole)) {

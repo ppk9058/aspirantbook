@@ -7,6 +7,32 @@ import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 
 export const dynamic = "force-dynamic"
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; lessonId: string }> }) {
+  const { slug, lessonId } = await params
+  const session = await auth()
+  const userRole = session?.user?.role
+
+  const course = await prisma.course.findFirst({
+    where: { OR: [{ slug }, { id: slug }] },
+    select: { id: true, title: true, status: true, isPublished: true }
+  })
+
+  if (!course || !isCourseVisibleToUser(course, userRole)) {
+    notFound()
+  }
+
+  const lesson = await prisma.lesson.findFirst({
+    where: { id: lessonId, chapter: { courseId: course.id } },
+    select: { id: true, title: true }
+  })
+
+  if (!lesson) {
+    notFound()
+  }
+
+  return { title: lesson.title }
+}
+
 export default async function CourseLearnPage({
   params,
 }: {
@@ -87,7 +113,11 @@ export default async function CourseLearnPage({
 
   // Find requested lesson to check if it's a trial lesson
   const currentLesson = course.chapters.flatMap((ch) => ch.lessons).find((l) => l.id === lessonId)
-  if (!hasAccess && (!currentLesson || !currentLesson.isTrial)) {
+  if (!currentLesson) {
+    notFound()
+  }
+
+  if (!hasAccess && !currentLesson.isTrial) {
     redirect(`/courses/${slug}?locked=true`)
   }
 

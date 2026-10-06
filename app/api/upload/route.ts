@@ -16,8 +16,14 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized: Please log in to upload files' }, { status: 401 })
         }
 
-        const formData = await request.formData()
-        const file = formData.get('file') as File
+        let formData: FormData
+        try {
+            formData = await request.formData()
+        } catch {
+            return NextResponse.json({ error: 'Invalid form data or no file provided' }, { status: 400 })
+        }
+
+        const file = formData.get('file') as File | null
         const fileType = (formData.get('type') as FileType) || 'image'
         const courseId = formData.get('courseId') as string | null
         const chapterId = formData.get('chapterId') as string | null

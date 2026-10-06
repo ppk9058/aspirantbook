@@ -49,10 +49,13 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
-    const isTeacher = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized. Login required." }, { status: 401 })
+    }
 
+    const isTeacher = session.user.role === "TEACHER" || session.user.role === "ADMIN"
     if (!isTeacher) {
-      return NextResponse.json({ error: "Unauthorized. Teacher only." }, { status: 403 })
+      return NextResponse.json({ error: "Forbidden. Teacher only." }, { status: 403 })
     }
 
     const body = await req.json()

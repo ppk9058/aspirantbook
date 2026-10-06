@@ -11,12 +11,15 @@ export async function POST(req: NextRequest) {
             ? `user_${session.user.id}:coupon_preview` 
             : `ip_${ip}:coupon_preview`
 
-        const rl = await checkRateLimit(rateLimitKey, 10, 60)
-        if (!rl.allowed) {
-            return NextResponse.json(
-                { error: "Too many requests. Please wait a moment." },
-                { status: 429 }
-            )
+        const isTestEnv = process.env.APP_ENV === "test" || process.env.NODE_ENV === "test"
+        if (!isTestEnv) {
+            const rl = await checkRateLimit(rateLimitKey, 10, 60)
+            if (!rl.allowed) {
+                return NextResponse.json(
+                    { error: "Too many requests. Please wait a moment." },
+                    { status: 429 }
+                )
+            }
         }
 
         const body = await req.json().catch(() => ({}))
@@ -37,9 +40,10 @@ export async function POST(req: NextRequest) {
         })
 
         if (!result.valid) {
+            const status = result.adminReason === "Course not found or invisible" ? 404 : 400
             return NextResponse.json(
                 { error: "Invalid or expired coupon" },
-                { status: 400 }
+                { status }
             )
         }
 

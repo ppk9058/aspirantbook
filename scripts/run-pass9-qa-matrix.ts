@@ -159,7 +159,7 @@ async function run() {
   // Draft Course
   await prisma.course.upsert({
     where: { slug: "draft-secret-course" },
-    update: { status: "DRAFT", isPublished: false, price: 999 },
+    update: { status: "DRAFT", isPublished: false, price: 999, isPremium: true },
     create: {
       id: "c_draft_secret_p9",
       title: "Unreleased Draft Course",
@@ -168,7 +168,7 @@ async function run() {
       price: 999,
       status: "DRAFT",
       isPublished: false,
-      isPremium: false,
+      isPremium: true,
       difficulty: Difficulty.BEGINNER
     }
   });
@@ -176,10 +176,11 @@ async function run() {
   // Coupons
   await prisma.coupon.upsert({
     where: { code: "STEP5_PERC20" },
-    update: { isActive: true },
+    update: { isActive: true, courseId: null },
     create: {
       id: "cpn_perc20_p9",
       code: "STEP5_PERC20",
+      courseId: null,
       discountType: "PERCENT",
       discountValue: 20,
       validFrom: new Date(Date.now() - 24 * 60 * 60 * 1000),

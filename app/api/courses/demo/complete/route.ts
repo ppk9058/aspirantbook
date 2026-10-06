@@ -12,6 +12,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Authentication required." }, { status: 401 })
     }
 
+    if (!courseId && !slug) {
+      return NextResponse.json({ error: "Missing required courseId or slug." }, { status: 400 })
+    }
+
     const userId = session.user.id
 
     // Resolve course

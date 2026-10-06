@@ -5,11 +5,18 @@ import Link from "next/link"
 import Image from "next/image"
 import { cleanDescriptionSnippet } from "@/lib/utils"
 
+import { auth } from "@/auth"
+
 export default async function SearchPage({
     searchParams,
 }: {
     searchParams: Promise<{ q?: string }>
 }) {
+    const session = await auth()
+    const userRole = session?.user?.role
+    const userId = session?.user?.id
+    const isAdmin = userRole === "ADMIN"
+
     const resolvedParams = await searchParams
     const query = resolvedParams?.q || ""
 
@@ -26,6 +33,24 @@ export default async function SearchPage({
     let lessons: any[] = []
 
     try {
+        const courseVisibilityWhere: any = isAdmin
+            ? {}
+            : {
+                  status: "PUBLISHED",
+                  isPublished: { not: false },
+              }
+
+        const lessonVisibilityWhere: any = isAdmin
+            ? {}
+            : {
+                  chapter: {
+                      course: {
+                          status: "PUBLISHED",
+                          isPublished: { not: false },
+                      },
+                  },
+              }
+
         ;[courses, lessons] = await Promise.all([
             prisma.course.findMany({
                 where: {
@@ -33,7 +58,7 @@ export default async function SearchPage({
                         { title: { contains: query, mode: "insensitive" } },
                         { description: { contains: query, mode: "insensitive" } },
                     ],
-                    status: "PUBLISHED",
+                    ...courseVisibilityWhere,
                 },
                 take: 10,
                 select: {
@@ -47,6 +72,7 @@ export default async function SearchPage({
             prisma.lesson.findMany({
                 where: {
                     title: { contains: query, mode: "insensitive" },
+                    ...lessonVisibilityWhere,
                 },
                 select: {
                     id: true,

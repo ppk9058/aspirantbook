@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { formatUtcToIst, isSlotExpired } from "@/lib/demo/slot-utils"
 
+import { auth } from "@/auth"
+import { isCourseVisibleToUser } from "@/lib/courses/visibility"
+
 interface Params {
   params: Promise<{ slug: string }>
 }
@@ -9,6 +12,9 @@ interface Params {
 export async function GET(req: NextRequest, { params }: Params) {
   try {
     const { slug } = await params
+    const session = await auth()
+    const userRole = session?.user?.role
+    const userId = session?.user?.id
 
     const course = await prisma.course.findFirst({
       where: {
@@ -18,11 +24,13 @@ export async function GET(req: NextRequest, { params }: Params) {
         id: true,
         slug: true,
         title: true,
+        status: true,
+        isPublished: true,
         metadataJson: true,
       },
     })
 
-    if (!course) {
+    if (!course || !isCourseVisibleToUser(course, userRole, userId)) {
       return NextResponse.json({ enabled: false, slots: [], hasUpcomingSlots: false }, { status: 404 })
     }
 

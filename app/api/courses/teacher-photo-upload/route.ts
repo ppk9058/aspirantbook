@@ -8,14 +8,26 @@ import path from "path"
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUserContext()
-    if (!user.isAuthenticated || (user.role !== "ADMIN" && user.role !== "TEACHER")) {
+    if (!user.isAuthenticated) {
       return NextResponse.json(
-        { error: "Access Denied: Only Admins can upload teacher photos in Studio." },
+        { error: "Unauthorized: Login required" },
+        { status: 401 }
+      )
+    }
+    if (user.role !== "ADMIN" && user.role !== "TEACHER") {
+      return NextResponse.json(
+        { error: "Access Denied: Only Admins and Teachers can upload teacher photos in Studio." },
         { status: 403 }
       )
     }
 
-    const formData = await request.formData()
+    let formData: FormData
+    try {
+      formData = await request.formData()
+    } catch {
+      return NextResponse.json({ error: "Invalid form data or no file provided" }, { status: 400 })
+    }
+
     const file = formData.get("file") as File | null
     const courseId = formData.get("courseId") as string | null
     const teacherIndexStr = formData.get("teacherIndex") as string | null

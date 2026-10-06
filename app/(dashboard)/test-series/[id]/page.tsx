@@ -68,9 +68,10 @@ export default function TestSeriesDetailPage() {
     const canCreate =
         session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
 
-    const [seriesNotFound, setSeriesNotFound] = useState(false)
-    const [seriesLoading, setSeriesLoading] = useState(true)
-    const [customSeriesPackage, setCustomSeriesPackage] = useState<TestSeriesItem | null>(null)
+    const initialStatic = getTestSeriesById(seriesId)
+    const [seriesNotFound, setSeriesNotFound] = useState(!initialStatic && !seriesId.startsWith("es_"))
+    const [seriesLoading, setSeriesLoading] = useState(false)
+    const [customSeriesPackage, setCustomSeriesPackage] = useState<TestSeriesItem | null>(initialStatic || null)
     const [allSeriesList, setAllSeriesList] = useState<any[]>([])
     const [submittedAttempts, setSubmittedAttempts] = useState<Record<string, string>>({})
     const [testStatusMap, setTestStatusMap] = useState<Record<string, any>>({})
