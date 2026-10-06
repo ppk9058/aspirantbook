@@ -8,8 +8,3 @@
   - Trial lessons allow any logged-in user with role `FREE` (free tier) to view the complete lesson video and public trial notes without paying for the course.
   - Unauthenticated anonymous users attempting to navigate directly to the deep video player URL `/courses/[slug]/learn/[lessonId]` are redirected via HTTP 307 to `/login` with an intact, sanitized `callbackUrl`.
 
-## DECISION-02: Next.js App Router 404 Delivery (Soft-404 vs Standard notFound())
-- **Context**: Calling `notFound()` inside dynamic server component pages (e.g. `/courses/[slug]`) renders the dedicated `app/not-found.tsx` UI. When served directly in Next.js App Router without a custom rewrite, Next.js streams the not-found layout with HTTP 200 on dynamic server renders or HTTP 404 on unmapped static routes.
-- **Rule**:
-  - All non-existent courses and draft courses for non-admins trigger `notFound()`, rendering the branded "404 • Page Not Found" view (`Looking for something?`).
-  - Draft courses never leak descriptions, curriculum, videos, or attachments to anonymous users or non-admin students.

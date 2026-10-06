@@ -208,15 +208,14 @@ async function run() {
       DATABASE_URL: DOCKER_DB_URL,
       DIRECT_URL: DOCKER_DB_URL,
       TEST_DATABASE_URL: DOCKER_DB_URL,
+      APP_ENV: "test",
       NODE_ENV: "production",
       AUTH_SECRET: SECRET,
       NEXTAUTH_SECRET: SECRET,
-      ALLOW_DEV_MOBILE_LOGIN: "true",
-      IS_E2E_TEST: "true",
+      ALLOW_DEV_MOBILE_LOGIN: "false",
       RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
       RAZORPAY_KEY_ID: "rzp_test_mockkey12345",
-      RAZORPAY_KEY_SECRET: "mock_secret_key_12345",
-      FAST2SMS_API_KEY: "test_mock_sms_key_123"
+      RAZORPAY_KEY_SECRET: "mock_secret_key_12345"
     },
     stdio: "pipe"
   });

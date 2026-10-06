@@ -119,15 +119,17 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
     const course = cachedCourse
 
-    if (!isCourseVisibleToUser(course, userRole)) {
+    const userId = session?.user?.id
+
+    if (!isCourseVisibleToUser(course, userRole, userId)) {
         notFound()
     }
 
     const isDraft = course.status !== "PUBLISHED" || course.isPublished === false
-    const draftBanner = isDraft && userRole === "ADMIN" ? (
+    const draftBanner = isDraft && (userRole === "ADMIN" || isEditor) ? (
         <div className="bg-amber-500 text-black px-4 py-2 font-semibold text-center text-sm flex items-center justify-center gap-2 sticky top-0 z-50">
             <AlertCircle className="w-4 h-4" />
-            <span>Draft Course Preview &mdash; Only visible to Administrators</span>
+            <span>Draft Course Preview &mdash; Only visible to Course Creator / Administrators</span>
         </div>
     ) : null
 
@@ -272,7 +274,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
     }
 
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#FFFDF9] dark:bg-[#070D1E] animate-pulse" />}>
+        <>
             {draftBanner}
             <CourseDetailView
                 initialCourse={safeCourse as any}
@@ -282,6 +284,6 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 progress={progress}
                 isEditor={isEditor}
             />
-        </Suspense>
+        </>
     )
 }

@@ -29,9 +29,20 @@ export async function POST(req: NextRequest) {
         const { phoneNumber, courseId, otp } = await req.json()
 
         const isProduction = process.env.NODE_ENV === "production"
-        const isDevBypassEnabled = process.env.ALLOW_DEV_MOBILE_LOGIN === "true" && (!isProduction || process.env.IS_E2E_TEST === "true")
+        let isLocalTestDb = false
+        try {
+            const dbUrl = process.env.DATABASE_URL || ""
+            const parsed = new URL(dbUrl)
+            isLocalTestDb = (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") && parsed.pathname.endsWith("_test")
+        } catch {
+            isLocalTestDb = false
+        }
 
-        // In production (unless explicit local E2E test process) or when the dev flag is off, test OTP is disabled
+        const isDevBypassEnabled =
+            (!isProduction && process.env.ALLOW_DEV_MOBILE_LOGIN === "true") ||
+            (process.env.APP_ENV === "test" && isLocalTestDb)
+
+        // In production (unless APP_ENV=test against local test DB) or when the dev flag is off, test OTP is disabled
         if (!isDevBypassEnabled) {
             return NextResponse.json(
                 { error: "SMS OTP service is currently being configured. Mobile dev login is disabled." },
