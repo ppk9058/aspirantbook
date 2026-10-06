@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react"
 import MobileDrawer from "@/components/layout/MobileDrawer"
 import MobileProfileSheet from "@/components/layout/MobileProfileSheet"
 import { getDashboardHref } from "@/lib/auth/roles"
+import { openMobileAuth } from "@/components/auth/MobileAuthModal"
 
 interface MobileAppHeaderProps {
     hasActivePass?: boolean
@@ -86,20 +87,29 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                             <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-slate-900" />
                         </Link>
 
-                        {/* Top-Right Avatar opens dedicated Profile & Account Sheet */}
+                        {/* Top-Right: Profile Avatar if logged-in, Login CTA if guest */}
                         {status === "loading" ? (
-                            <div className="p-0.5 rounded-full ring-1 ring-slate-200 dark:ring-slate-700 flex-shrink-0 animate-pulse">
+                            <div className="p-0.5 rounded-full ring-1 ring-slate-200 dark:ring-slate-700 flex-shrink-0 animate-pulse" aria-label="Loading profile skeleton">
                                 <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-200 dark:bg-slate-700" />
                             </div>
-                        ) : (
+                        ) : session?.user ? (
                             <button
                                 onClick={() => setIsProfileOpen(true)}
                                 aria-label="Account profile"
                                 className="p-0.5 rounded-full ring-1 ring-slate-200 dark:ring-slate-700 active:scale-95 transition-transform flex-shrink-0"
                             >
                                 <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 font-extrabold text-xs flex items-center justify-center">
-                                    {session?.user?.name?.[0]?.toUpperCase() || "A"}
+                                    {session.user.name?.[0]?.toUpperCase() || session.user.email?.[0]?.toUpperCase() || "U"}
                                 </div>
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => openMobileAuth({ actionType: "login" })}
+                                className="px-2.5 py-1 text-xs font-bold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 rounded-lg shadow-2xs active:scale-95 transition-all flex items-center gap-1 shrink-0"
+                                aria-label="Login or Register"
+                            >
+                                <span>Login</span>
                             </button>
                         )}
                     </div>

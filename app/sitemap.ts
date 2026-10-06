@@ -68,7 +68,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.8,
         }))
 
-        return [...staticRoutes, ...courseUrls]
+        // Include published tutorials in sitemap
+        const publishedTutorials = publishedCourses
+            .filter((c) => {
+                const lowerSlug = (c.slug || "").toLowerCase()
+                return !lowerSlug.includes("video") && c.slug !== "72nd-bpsc-prelims-current-affairs"
+            })
+            .map((c) => ({
+                url: `${baseUrl}/tutorials/${c.slug}`,
+                lastModified: c.updatedAt || new Date(),
+                changeFrequency: "weekly" as const,
+                priority: 0.8,
+            }))
+
+        return [...staticRoutes, ...courseUrls, ...publishedTutorials]
     } catch {
         return staticRoutes
     }

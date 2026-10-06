@@ -8,6 +8,24 @@ export interface RateLimitResult {
 }
 
 /**
+ * Safely extract client IP taking into account trusted proxy configuration.
+ * Ignores client-supplied X-Forwarded-For unless TRUST_PROXY=true (or running behind trusted reverse proxy).
+ */
+export function getClientIp(req: Request | { headers: Headers }): string {
+  const isTrustedProxy = process.env.TRUST_PROXY === "true" || process.env.NODE_ENV === "production";
+  if (isTrustedProxy) {
+    const forwarded = req.headers.get("x-forwarded-for");
+    if (forwarded) {
+      const firstIp = forwarded.split(",")[0]?.trim();
+      if (firstIp) return firstIp;
+    }
+  }
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp && isTrustedProxy) return realIp.trim();
+  return "127.0.0.1";
+}
+
+/**
  * DB-Backed Rate Limiter
  * Atomic check and increment using Prisma & PostgreSQL:
  * INSERT INTO "RateLimit" ... ON CONFLICT (key, "windowStart") DO UPDATE SET count = "RateLimit".count + 1 RETURNING count;

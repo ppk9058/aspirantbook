@@ -11,9 +11,9 @@ async function runForViewport(width: number, height: number, label: string) {
 
     const token = await encode({
         token: {
-            id: "cmigmm22l0000xp1w2w9h0o0v",
-            email: "ppk9058@gmail.com",
-            name: "Free Student",
+            id: "cmuvppjo40000xpes7a4c4v2j",
+            email: "mobile_9876543210@aspirantbook.local",
+            name: "student",
             role: "FREE",
             subscriptionStatus: "INACTIVE",
         },

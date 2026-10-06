@@ -7,9 +7,9 @@ const REAL_SECRET = "aspirantbook-nextauth-secret-key-8f3a9c2e5d7b1f4e9a6c3b8d2e
 async function makeToken() {
     return await encode({
         token: {
-            id: "cmigmm22l0000xp1w2w9h0o0v",
-            email: "ppk9058@gmail.com",
-            name: "Free Student",
+            id: "cmuvppjo40000xpes7a4c4v2j",
+            email: "mobile_9876543210@aspirantbook.local",
+            name: "student",
             role: "FREE",
             subscriptionStatus: "INACTIVE",
         },
@@ -28,7 +28,7 @@ async function main() {
     const dContext = await browser.newContext({ viewport: { width: 1440, height: 900 } })
     await dContext.addCookies([{ name: "authjs.session-token", value: token, domain: "127.0.0.1", path: "/" }])
     const dPage = await dContext.newPage()
-    await dPage.goto(`${BASE_URL}/dashboard`, { waitUntil: "domcontentloaded" })
+    await dPage.goto(`${BASE_URL}/dashboard`, { waitUntil: "networkidle" })
     await dPage.waitForTimeout(500)
 
     // Click user menu button in desktop header
@@ -39,7 +39,10 @@ async function main() {
 
         // Click Sign Out button
         const logoutBtn = dPage.locator('button:has-text("Sign Out")').first()
-        await logoutBtn.click()
+        await Promise.all([
+            dPage.waitForNavigation({ timeout: 5000 }).catch(() => {}),
+            logoutBtn.click(),
+        ])
         await dPage.waitForTimeout(1000)
 
         const cookiesAfter = await dContext.cookies()

@@ -36,21 +36,21 @@ async function main() {
 
   // Token for real logged-in student in DB
   const studentToken = await encode({
-    token: { id: "cmigmm22l0000xp1w2w9h0o0v", role: "FREE", email: "ppk9058@gmail.com", name: "Free Student" },
+    token: { id: "cmuvppjo40000xpes7a4c4v2j", role: "FREE", email: "mobile_9876543210@aspirantbook.local", name: "student" },
     secret: REAL_SECRET,
     salt: "authjs.session-token",
   });
 
   // Token for real logged-in admin in DB
   const adminToken = await encode({
-    token: { id: "cmigayl8x0000xpkrjpyz8678", role: "ADMIN", email: "admin@trillionskills.com", name: "Admin Authority" },
+    token: { id: "u_admin_step5", role: "ADMIN", email: "admin@test.local", name: "Admin User" },
     secret: REAL_SECRET,
     salt: "authjs.session-token",
   });
 
   // Token for real logged-in teacher in DB
   const teacherToken = await encode({
-    token: { id: "cmtvu76q80001xp70j8v7ptc1", role: "TEACHER", email: "teacher@trillionskills.com", name: "Teacher User" },
+    token: { id: "u_instructor_seed", role: "TEACHER", email: "instructor@trillionskill.test", name: "Test Instructor" },
     secret: REAL_SECRET,
     salt: "authjs.session-token",
   });

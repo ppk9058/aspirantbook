@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { validateCoupon } from "@/lib/coupons"
-import { checkRateLimit } from "@/lib/rate-limit"
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
     try {
         const session = await auth()
-        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown_ip"
+        const ip = getClientIp(req)
         const rateLimitKey = session?.user?.id 
             ? `user_${session.user.id}:coupon_preview` 
             : `ip_${ip}:coupon_preview`

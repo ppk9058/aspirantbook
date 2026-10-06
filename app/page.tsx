@@ -5,6 +5,7 @@ import ClassesCoursesSection from "@/components/home/ClassesCoursesSection"
 import HomeHeaderUserCTA from "@/components/home/HomeHeaderUserCTA"
 import { auth } from "@/auth"
 import { getDashboardHref } from "@/lib/auth/roles"
+import { LANDING_NAV_ITEMS } from "@/lib/navigation/landing-nav"
 
 export const revalidate = 60
 
@@ -35,36 +36,32 @@ export default async function LandingHomePage() {
                     </Link>
 
                     {/* Header Menu Links */}
-                    <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-gray-700">
-                        {/* Skills -> navigates to existing aspirantbook dashboard */}
-                        <Link
-                            href="/dashboard"
-                            className="hover:text-[#F26522] transition-colors flex items-center gap-1 text-[#F26522] font-bold"
-                        >
-                            <span>Skills</span>
-                            <span className="text-[10px] bg-orange-100 text-[#F26522] px-2 py-0.5 rounded-full font-bold">
-                                App
-                            </span>
-                        </Link>
-                        <Link href="#all-courses-container" className="hover:text-[#F26522] transition-colors">
-                            School Prep
-                        </Link>
-                        <Link href="#section-upsc" className="hover:text-[#F26522] transition-colors">
-                            UPSC
-                        </Link>
-                        <Link href="#section-bpsc" className="hover:text-[#F26522] transition-colors">
-                            BPSC
-                        </Link>
-                        {/* Coding Practice menu */}
-                        <Link
-                            href="/practice"
-                            className="hover:text-[#4a36ea] transition-colors flex items-center gap-1.5 text-[#5B47FB] font-bold"
-                        >
-                            <span>Coding Practice</span>
-                            <span className="text-[10px] bg-[#EEECFF] text-[#5B47FB] px-2 py-0.5 rounded-full font-bold">
-                                Live
-                            </span>
-                        </Link>
+                    <nav className="hidden md:flex items-center gap-5 lg:gap-7 text-sm font-semibold text-gray-700">
+                        {LANDING_NAV_ITEMS.map((item) => {
+                            const isCoursesOrTest = item.href === "/courses" || item.href === "/test-series" || item.href === "/tutorials"
+                            return (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className={`transition-colors flex items-center gap-1.5 ${
+                                        isCoursesOrTest
+                                            ? "hover:text-[#F26522] text-gray-800 font-bold"
+                                            : item.href === "/practice"
+                                            ? "hover:text-[#4a36ea] text-[#5B47FB] font-bold"
+                                            : "hover:text-[#F26522] text-gray-600"
+                                    }`}
+                                >
+                                    <span>{item.name}</span>
+                                    {item.badge && (
+                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                            item.href === "/practice" ? "bg-[#EEECFF] text-[#5B47FB]" : "bg-orange-100 text-[#F26522]"
+                                        }`}>
+                                            {item.badge}
+                                        </span>
+                                    )}
+                                </Link>
+                            )
+                        })}
                     </nav>
 
                     {/* Right Login / User State CTA */}
@@ -74,34 +71,32 @@ export default async function LandingHomePage() {
                 </div>
 
                 {/* Mobile Sub-Navigation Bar */}
-                <div data-scroll-x="true" className="md:hidden flex items-center gap-5 px-4 py-2.5 overflow-x-auto no-scrollbar border-t border-gray-100 bg-gray-50/80 text-xs font-semibold text-gray-700">
-                    <Link
-                        href="/dashboard"
-                        className="text-orange-700 font-bold flex items-center gap-1 shrink-0"
-                    >
-                        <span>Skills</span>
-                        <span className="text-[9px] bg-orange-100 text-orange-800 px-1.5 py-0.2 rounded-full font-bold">
-                            App
-                        </span>
-                    </Link>
-                    <Link href="#all-courses-container" className="hover:text-orange-700 transition-colors shrink-0">
-                        School Prep
-                    </Link>
-                    <Link href="#section-upsc" className="hover:text-orange-700 transition-colors shrink-0">
-                        UPSC
-                    </Link>
-                    <Link href="#section-bpsc" className="hover:text-orange-700 transition-colors shrink-0">
-                        BPSC
-                    </Link>
-                    <Link
-                        href="/practice"
-                        className="text-indigo-700 font-bold flex items-center gap-1 shrink-0"
-                    >
-                        <span>Coding Practice</span>
-                        <span className="text-[9px] bg-indigo-100 text-indigo-800 px-1.5 py-0.2 rounded-full font-bold">
-                            Live
-                        </span>
-                    </Link>
+                <div data-scroll-x="true" className="md:hidden flex items-center gap-4 px-4 py-2.5 overflow-x-auto no-scrollbar border-t border-gray-100 bg-gray-50/80 text-xs font-semibold text-gray-700">
+                    {LANDING_NAV_ITEMS.map((item) => {
+                        const isCoursesOrTest = item.href === "/courses" || item.href === "/test-series" || item.href === "/tutorials"
+                        return (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                className={`shrink-0 flex items-center gap-1 transition-colors ${
+                                    isCoursesOrTest
+                                        ? "text-gray-900 font-bold hover:text-orange-700"
+                                        : item.href === "/practice"
+                                        ? "text-indigo-700 font-bold"
+                                        : "hover:text-orange-700 text-gray-600"
+                                }`}
+                            >
+                                <span>{item.name}</span>
+                                {item.badge && (
+                                    <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
+                                        item.href === "/practice" ? "bg-indigo-100 text-indigo-800" : "bg-orange-100 text-orange-800"
+                                    }`}>
+                                        {item.badge}
+                                    </span>
+                                )}
+                            </Link>
+                        )
+                    })}
                 </div>
             </header>
 

@@ -193,7 +193,7 @@ async function main() {
   // Student pays the locked 1999 amount
   const lockResult = await fulfilPaymentOrder({
     orderId: orderPriceLock,
-    paymentId: "pay_locked_1999_ok",
+    paymentId: "pay_locked_1999_ok_" + Date.now(),
     amountPaise: 199900,
   });
   console.log("Fulfillment succeeded using locked order price:", lockResult.orderRecord?.status);
@@ -231,7 +231,7 @@ async function main() {
     // If course was moved to draft, does student still get enrolled or does it fail safely?
     const draftRes = await fulfilPaymentOrder({
       orderId: orderDraft,
-      paymentId: "pay_draft_course_paid",
+      paymentId: "pay_draft_course_paid_" + Date.now(),
       amountPaise: 199900,
     });
     console.log("Draft course fulfillment completed safely without crash:", draftRes.orderRecord?.status);
@@ -282,7 +282,7 @@ async function main() {
   // Webhook arrives for this previously created order
   const coupFulfillRes = await fulfilPaymentOrder({
     orderId: orderCouponExp,
-    paymentId: "pay_coupon_expired_paid",
+    paymentId: "pay_coupon_expired_paid_" + Date.now(),
     amountPaise: 179900,
   });
   console.log("Order created before expiry fulfills properly on webhook:", coupFulfillRes.orderRecord?.status);

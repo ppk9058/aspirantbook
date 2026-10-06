@@ -2,17 +2,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { executeCode, formatOutput, isExecutionSuccessful } from "@/lib/execution/piston"
 import { validateTestCase, type TestCase, type TestResult } from "@/lib/execution/validator"
-import { checkRateLimit } from "@/lib/rate-limit"
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 
 export async function POST(request: NextRequest) {
     try {
         const session = await auth()
 
         // Guest or authenticated execution allowed, with IP-based rate limiting (10 req/min)
-        const ip =
-            request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-            request.headers.get("x-real-ip") ||
-            "127.0.0.1"
+        const ip = getClientIp(request)
 
         const rateLimitKey = session?.user?.id ? `exec_user_${session.user.id}` : `exec_ip_${ip}`
         const rl = await checkRateLimit(rateLimitKey, 10, 60)
