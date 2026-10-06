@@ -51,6 +51,7 @@ export async function fulfilPaymentOrder(params: FulfilPaymentParams): Promise<F
         const orderRows: any[] = await tx.$queryRaw`
             SELECT * FROM "Payment" 
             WHERE "externalId" = ${orderId} 
+               OR "razorpayOrderId" = ${orderId}
                OR (metadata->>'orderId') = ${orderId}
             FOR UPDATE
         `

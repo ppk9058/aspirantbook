@@ -200,6 +200,39 @@ async function run() {
     }
   });
 
+  await prisma.coupon.upsert({
+    where: { code: "STEP5_FLAT500" },
+    update: { isActive: true },
+    create: {
+      code: "STEP5_FLAT500",
+      discountType: "FLAT",
+      discountValue: 500,
+      isActive: true
+    }
+  });
+
+  await prisma.coupon.upsert({
+    where: { code: "STEP5_MAX1" },
+    update: { isActive: true },
+    create: {
+      code: "STEP5_MAX1",
+      discountType: "PERCENT",
+      discountValue: 50,
+      isActive: true
+    }
+  });
+
+  await prisma.coupon.upsert({
+    where: { code: "CFKTEST" },
+    update: { isActive: true },
+    create: {
+      code: "CFKTEST",
+      discountType: "PERCENT",
+      discountValue: 10,
+      isActive: true
+    }
+  });
+
   // Start isolated Next.js test server with NEXT_DIST_DIR=.next-test on TEST_PORT
   console.log(`Starting isolated Next.js server (.next-test) on port ${TEST_PORT}...`);
   const serverProc: ChildProcess = spawn("npx", ["next", "start", "-p", String(TEST_PORT)], {
@@ -218,8 +251,9 @@ async function run() {
       NEXTAUTH_SECRET: SECRET,
       ALLOW_DEV_MOBILE_LOGIN: "false",
       RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
-      RAZORPAY_KEY_ID: "rzp_test_mockkey12345",
-      RAZORPAY_KEY_SECRET: "mock_secret_key_12345"
+      RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_test_RkX507LjMqteDr",
+      RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "QljFqlEML0mHLqEgKOeztfw8",
+      NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_RkX507LjMqteDr"
     },
     stdio: "pipe"
   });
@@ -266,6 +300,15 @@ async function run() {
       if (c.url.includes("/api/checkout/coupon/preview") && c.persona === "FREE") {
         // Fresh user per coupon preview test so rate limiter limit (10/min) is tested cleanly per case
         cookie = await createSessionCookie(`u_coupon_free_${c.id}`, "FREE", `coupon_${c.id}@p9.local`);
+      } else if (c.id === "J3-16") {
+        // Fresh premium user for J3-16 order with coupon
+        const j316UserId = "u_student_prem_j316";
+        await prisma.user.upsert({
+          where: { id: j316UserId },
+          update: { role: "PREMIUM" },
+          create: { id: j316UserId, email: "prem_j316@p9.local", role: "PREMIUM", name: "Prem J316" }
+        });
+        cookie = await createSessionCookie(j316UserId, "PREMIUM", "prem_j316@p9.local");
       } else if (c.persona === "ADMIN") cookie = cookieAdmin;
       else if (c.persona === "TEACHER") cookie = cookieTeacher;
       else if (c.persona === "PREMIUM") cookie = cookiePrem;

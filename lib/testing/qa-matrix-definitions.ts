@@ -17,7 +17,7 @@ export function buildAllTestCases(): TestCaseDef[] {
   const cases: TestCaseDef[] = [];
 
   // OTP (10 cases)
-  const otpDefs = [
+  const otpDefs: TestCaseDef[] = [
     { id: "OTP-01", persona: "Anonymous", method: "POST", url: "/api/auth/mobile-login", expectedStatus: 200, expectedBodySnippet: '"success":true', bodyPayload: { phoneNumber: "9876543210", otp: "123456" }, description: "Valid dev mobile OTP login" },
     { id: "OTP-02", persona: "Anonymous", method: "POST", url: "/api/auth/mobile-login", expectedStatus: 400, expectedBodySnippet: "10-digit", bodyPayload: { phoneNumber: "98765", otp: "123456" }, description: "Short phone number rejected" },
     { id: "OTP-03", persona: "Anonymous", method: "POST", url: "/api/auth/mobile-login", expectedStatus: 400, expectedBodySnippet: "10-digit", bodyPayload: { phoneNumber: "abcdefghij", otp: "123456" }, description: "Non-numeric phone rejected" },
@@ -32,7 +32,7 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...otpDefs);
 
   // J1 Anonymous browse (25 cases)
-  const j1Defs = [
+  const j1Defs: TestCaseDef[] = [
     { id: "J1-01", persona: "Anonymous", method: "GET", url: "/courses/72nd-bpsc-prelims-current-affairs", expectedStatus: 200, expectedBodySnippet: "72nd BPSC Prelims Current Affairs", forbiddenBodySnippet: "super-secret-video-stream.m3u8", description: "Course overview page renders without secrets" },
     { id: "J1-02", persona: "Anonymous", method: "GET", url: "/courses/72nd-bpsc-prelims-current-affairs/learn/l_a_trial_p9", expectedStatus: 307, description: "Trial lesson redirects anonymous to login" },
     { id: "J1-03", persona: "Anonymous", method: "GET", url: "/courses/72nd-bpsc-prelims-current-affairs/learn/l_a_locked_p9", expectedStatus: 307, forbiddenBodySnippet: "super-secret-video-stream.m3u8", description: "Locked lesson redirects anonymous to login" },
@@ -62,7 +62,7 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...j1Defs);
 
   // J2 Auth UX & Callbacks (20 cases)
-  const j2Defs = [
+  const j2Defs: TestCaseDef[] = [
     { id: "J2-01", persona: "FREE", method: "GET", url: "/login", expectedStatus: 307, description: "Logged in user visiting /login redirects to dashboard" },
     { id: "J2-02", persona: "FREE", method: "GET", url: "/login?callbackUrl=//evil.com", expectedStatus: 307, description: "Open redirect //evil.com sanitized to safe path" },
     { id: "J2-03", persona: "FREE", method: "GET", url: "/login?callbackUrl=https://evil.com", expectedStatus: 307, description: "Open redirect https://evil.com sanitized" },
@@ -87,7 +87,7 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...j2Defs);
 
   // J3 BUY happy path & checkout (25 cases)
-  const j3Defs = [
+  const j3Defs: TestCaseDef[] = [
     { id: "J3-01", persona: "FREE", method: "GET", url: "/checkout?courseId=c_paid_72nd_p9", expectedStatus: 200, description: "Checkout page loads for paid course" },
     { id: "J3-02", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, expectedBodySnippet: '"finalPaise":159920', bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20" }, description: "Valid coupon 20% discount preview" },
     { id: "J3-03", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, expectedBodySnippet: "expired", bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_EXPIRED" }, description: "Expired coupon rejected with 400" },
@@ -100,12 +100,12 @@ export function buildAllTestCases(): TestCaseDef[] {
     { id: "J3-10", persona: "ADMIN", method: "GET", url: "/api/checkout/course-info?id=draft-secret-course", expectedStatus: 200, description: "Course info allows admin to view draft course" },
     { id: "J3-11", persona: "FREE", method: "GET", url: "/checkout", expectedStatus: 200, description: "Empty checkout page loads gracefully" },
     { id: "J3-12", persona: "Anonymous", method: "GET", url: "/checkout?courseId=c_paid_72nd_p9", expectedStatus: 200, description: "Anonymous can view checkout page" },
-    { id: "J3-13", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
-    { id: "J3-14", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
-    { id: "J3-15", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
-    { id: "J3-16", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
-    { id: "J3-17", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
-    { id: "J3-18", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
+    { id: "J3-13", persona: "FREE", method: "POST", url: "/checkout", expectedStatus: 200, expectedBodySnippet: '"orderId":"order_', customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: [{ courseId: "72nd-bpsc-prelims-current-affairs" }], description: "Server action creates course order for student" },
+    { id: "J3-14", persona: "FREE", method: "POST", url: "/checkout", expectedStatus: 200, expectedBodySnippet: '"orderId":"order_', customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: ["MONTHLY"], description: "Server action creates monthly subscription order" },
+    { id: "J3-15", persona: "FREE", method: "POST", url: "/checkout", expectedStatus: 200, expectedBodySnippet: '"orderId":"order_', customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: ["YEARLY"], description: "Server action creates yearly subscription order" },
+    { id: "J3-16", persona: "PREMIUM", method: "POST", url: "/checkout", expectedStatus: 200, expectedBodySnippet: '"orderId":"order_', customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: [{ courseId: "72nd-bpsc-prelims-current-affairs", couponCode: "STEP5_FLAT500" }], description: "Server action creates order with FLAT500 coupon" },
+    { id: "J3-17", persona: "TEACHER", method: "POST", url: "/checkout", expectedStatus: 200, expectedBodySnippet: '"orderId":"order_', customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: ["MONTHLY"], description: "Teacher persona creates test order" },
+    { id: "J3-18", persona: "ADMIN", method: "POST", url: "/checkout", expectedStatus: 200, expectedBodySnippet: '"orderId":"order_', customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: ["MONTHLY"], description: "Admin persona creates test order" },
     { id: "J3-19", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, expectedBodySnippet: '"finalPaise":159920', bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "  step5_perc20  " }, description: "Coupon code case-insensitive and trimmed" },
     { id: "J3-20", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "" }, description: "Empty coupon code rejected" },
     { id: "J3-21", persona: "FREE", method: "GET", url: "/checkout?courseId=free-general-studies", expectedStatus: 200, description: "Checkout for free course loads" },
@@ -117,22 +117,22 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...j3Defs);
 
   // J4 Payment failure & Webhooks (25 cases)
-  const j4Defs = [
+  const j4Defs: TestCaseDef[] = [
     { id: "J4-01", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_order_id: "order_p9_valid_1", razorpay_payment_id: "pay_p9_valid_1", razorpay_signature: "invalid_sig" }, description: "Bad signature verification rejected" },
     { id: "J4-02", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_order_id: "", razorpay_payment_id: "pay_1" }, description: "Missing order ID rejected" },
     { id: "J4-03", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_order_id: "order_1", razorpay_payment_id: "" }, description: "Missing payment ID rejected" },
     { id: "J4-04", persona: "Anonymous", method: "POST", url: "/api/webhooks/razorpay", expectedStatus: 400, customHeaders: { "x-razorpay-signature": "bad_sig" }, bodyPayload: { event: "payment.captured" }, description: "Forged webhook signature rejected" },
-    { id: "J4-05", persona: "Anonymous", method: "POST", url: "/api/webhooks/razorpay", expectedStatus: 400, bodyPayload: { event: "payment.captured" }, description: "Missing webhook signature header rejected" },
+    { id: "J4-05", persona: "Anonymous", method: "POST", url: "/api/webhooks/razorpay", expectedStatus: 400, bodyPayload: { event: "payment.failed" }, description: "Missing webhook signature header on payment.failed rejected" },
     { id: "J4-06", persona: "Anonymous", method: "POST", url: "/api/webhooks/razorpay", expectedStatus: 400, customHeaders: { "x-razorpay-signature": "bad" }, bodyPayload: {}, description: "Empty webhook payload rejected" },
     { id: "J4-07", persona: "Anonymous", method: "POST", url: "/api/webhooks/stripe", expectedStatus: 400, bodyPayload: {}, description: "Stripe webhook missing signature rejected" },
     { id: "J4-08", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_order_id: "order_non_existent", razorpay_payment_id: "pay_1", razorpay_signature: "sig_1" }, description: "Non-existent order in payment verification rejected" },
     { id: "J4-09", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_order_id: "order_1", razorpay_payment_id: "pay_1", razorpay_signature: "sig", amount: -100 }, description: "Negative amount in verify rejected" },
     { id: "J4-10", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_order_id: "order_1", razorpay_payment_id: "pay_1", razorpay_signature: "sig", amount: "tampered" }, description: "Non-numeric amount in verify rejected" },
-    { id: "J4-11", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
-    { id: "J4-12", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
-    { id: "J4-13", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
-    { id: "J4-14", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
-    { id: "J4-15", persona: "Anonymous", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
+    { id: "J4-11", persona: "FREE", method: "POST", url: "/checkout", expectedStatus: 500, customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: [{ courseId: "non_existent_course_404" }], description: "Server action rejects missing course" },
+    { id: "J4-12", persona: "FREE", method: "POST", url: "/checkout", expectedStatus: 500, customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: [{ courseId: "draft-secret-course" }], description: "Server action rejects draft course for student" },
+    { id: "J4-13", persona: "FREE", method: "POST", url: "/checkout", expectedStatus: 500, customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: [{ courseId: "free-general-studies" }], description: "Server action rejects free course" },
+    { id: "J4-14", persona: "FREE", method: "POST", url: "/checkout", expectedStatus: 500, customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: [{ courseId: "72nd-bpsc-prelims-current-affairs", couponCode: "STEP5_EXPIRED" }], description: "Server action rejects expired coupon" },
+    { id: "J4-15", persona: "Anonymous", method: "POST", url: "/checkout", expectedStatus: 500, customHeaders: { "Next-Action": "400bb25523ed3fd00de26424b1fd586bf53fbbfd13", "Accept": "text/x-component" }, bodyPayload: [{ courseId: "72nd-bpsc-prelims-current-affairs" }], description: "Server action rejects anonymous order creation" },
     { id: "J4-16", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_order_id: "order_p9_valid_1", razorpay_payment_id: "pay_p9_valid_1", razorpay_signature: "sig" }, description: "Tampered payment verification fails cleanly" },
     { id: "J4-17", persona: "FREE", method: "GET", url: "/checkout/cancel", expectedStatus: 404, description: "Unknown checkout subroute 404" },
     { id: "J4-18", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20", discountValue: 99 }, description: "Client injected discountValue ignored" },
@@ -147,7 +147,7 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...j4Defs);
 
   // J5 Free enroll (20 cases)
-  const j5Defs = [
+  const j5Defs: TestCaseDef[] = [
     { id: "J5-01", persona: "FREE", method: "POST", url: "/api/courses/enroll", expectedStatus: 403, expectedBodySnippet: "paid course", bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs" }, description: "Enroll on paid course returns 403" },
     { id: "J5-02", persona: "FREE", method: "POST", url: "/api/courses/free-enroll", expectedStatus: 403, expectedBodySnippet: "paid course", bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs" }, description: "Free-enroll on paid course returns 403" },
     { id: "J5-03", persona: "FREE", method: "POST", url: "/api/courses/enroll", expectedStatus: 200, expectedBodySnippet: "Enrolled successfully", bodyPayload: { courseId: "free-general-studies" }, description: "Enroll on free course succeeds with 200" },
@@ -162,8 +162,8 @@ export function buildAllTestCases(): TestCaseDef[] {
     { id: "J5-12", persona: "FREE", method: "POST", url: "/api/courses/free-enroll", expectedStatus: 400, bodyPayload: {}, description: "Free-enroll without courseId returns 400" },
     { id: "J5-13", persona: "FREE", method: "POST", url: "/api/courses/enroll", expectedStatus: 404, bodyPayload: { courseId: "non_existent_course" }, description: "Enroll on missing course returns 404" },
     { id: "J5-14", persona: "FREE", method: "POST", url: "/api/courses/free-enroll", expectedStatus: 404, bodyPayload: { courseId: "non_existent_course" }, description: "Free-enroll on missing course returns 404" },
-    { id: "J5-15", persona: "FREE", method: "POST", url: "/api/courses/enroll", expectedStatus: 200, expectedBodySnippet: "Enrolled successfully", bodyPayload: { courseId: "free-general-studies" }, description: "Enroll is idempotent on second call" },
-    { id: "J5-16", persona: "FREE", method: "POST", url: "/api/courses/free-enroll", expectedStatus: 200, expectedBodySnippet: "Enrolled successfully", bodyPayload: { courseId: "free-general-studies" }, description: "Free-enroll is idempotent on second call" },
+    { id: "J5-15", persona: "FREE", method: "POST", url: "/api/courses/enroll", expectedStatus: 200, expectedBodySnippet: "Enrolled successfully", bodyPayload: { courseId: "free-general-studies", idempotencyKey: "idem_enroll_1" }, description: "Enroll is idempotent on second call" },
+    { id: "J5-16", persona: "FREE", method: "POST", url: "/api/courses/free-enroll", expectedStatus: 200, expectedBodySnippet: "Enrolled successfully", bodyPayload: { courseId: "free-general-studies", idempotencyKey: "idem_free_enroll_1" }, description: "Free-enroll is idempotent on second call" },
     { id: "J5-17", persona: "Anonymous", method: "POST", url: "/api/courses/enroll", expectedStatus: 400, bodyPayload: { courseId: "free-general-studies", phoneNumber: "123" }, description: "Enroll with invalid phone returns 400" },
     { id: "J5-18", persona: "Anonymous", method: "POST", url: "/api/courses/free-enroll", expectedStatus: 400, bodyPayload: { courseId: "free-general-studies", phoneNumber: "invalid_phone" }, description: "Free-enroll with invalid phone returns 400" },
     { id: "J5-19", persona: "PREMIUM", method: "POST", url: "/api/courses/enroll", expectedStatus: 200, expectedBodySnippet: "Enrolled successfully", bodyPayload: { courseId: "free-general-studies" }, description: "Premium user enrolls in free course" },
@@ -172,7 +172,7 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...j5Defs);
 
   // J6 Learning & Lessons (20 cases)
-  const j6Defs = [
+  const j6Defs: TestCaseDef[] = [
     { id: "J6-01", persona: "FREE", method: "GET", url: "/courses/72nd-bpsc-prelims-current-affairs/learn/l_a_trial_p9", expectedStatus: 200, description: "Enrolled/free user views trial lesson player" },
     { id: "J6-02", persona: "FREE", method: "GET", url: "/courses/72nd-bpsc-prelims-current-affairs/learn/l_a_locked_p9", expectedStatus: 307, description: "Unenrolled user redirected away from locked lesson" },
     { id: "J6-03", persona: "ADMIN", method: "GET", url: "/courses/72nd-bpsc-prelims-current-affairs/learn/l_a_locked_p9", expectedStatus: 200, description: "Admin bypasses paywall to view locked lesson" },
@@ -197,7 +197,7 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...j6Defs);
 
   // J7 Tests & Reports (30 cases)
-  const j7Defs = [
+  const j7Defs: TestCaseDef[] = [
     { id: "J7-01", persona: "FREE", method: "GET", url: "/test-series", expectedStatus: 200, expectedBodySnippet: "Test Series", description: "Test series catalog loads" },
     { id: "J7-02", persona: "FREE", method: "GET", url: "/my-tests", expectedStatus: 200, expectedBodySnippet: "My Tests", description: "My tests page loads" },
     { id: "J7-03", persona: "FREE", method: "GET", url: "/test-series/bpsc-72nd-2026", expectedStatus: 200, description: "Test series detail page loads" },
@@ -210,17 +210,17 @@ export function buildAllTestCases(): TestCaseDef[] {
     { id: "J7-10", persona: "FREE", method: "GET", url: "/api/exam/test/list?seriesId=es_bpsc_step4", expectedStatus: 200, description: "List tests in series returns 200" },
     { id: "J7-11", persona: "FREE", method: "GET", url: "/api/exam/test/list", expectedStatus: 200, description: "List all published tests when seriesId omitted" },
     { id: "J7-12", persona: "FREE", method: "POST", url: "/api/exam/attempt/start", expectedStatus: 400, bodyPayload: {}, description: "Start attempt missing testId returns 400" },
-    { id: "J7-13", persona: "Anonymous", method: "POST", url: "/api/exam/attempt/start", expectedStatus: 401, bodyPayload: { testId: "test_1" }, description: "Anonymous start attempt returns 401" },
+    { id: "J7-13", persona: "Anonymous", method: "POST", url: "/api/exam/attempt/start", expectedStatus: 401, bodyPayload: { testId: "test_integrity_free_p9" }, description: "Anonymous start attempt returns 401" },
     { id: "J7-14", persona: "FREE", method: "GET", url: "/api/exam/attempt/user-status", expectedStatus: 200, description: "User attempt status returns empty data when testId omitted" },
-    { id: "J7-15", persona: "Anonymous", method: "GET", url: "/api/exam/attempt/user-status?testId=test_1", expectedStatus: 200, description: "Anonymous user attempt status returns empty list" },
-    { id: "J7-16", persona: "FREE", method: "GET", url: "/api/exam/attempt/user-status?testId=test_1", expectedStatus: 200, description: "User attempt status returns 200" },
-    { id: "J7-17", persona: "FREE", method: "POST", url: "/api/exam/attempt/att_1/sync", expectedStatus: 404, bodyPayload: {}, description: "Sync non-existent attempt returns 404" },
-    { id: "J7-18", persona: "Anonymous", method: "POST", url: "/api/exam/attempt/att_1/sync", expectedStatus: 401, bodyPayload: { answers: [] }, description: "Anonymous sync attempt returns 401" },
-    { id: "J7-19", persona: "FREE", method: "POST", url: "/api/exam/attempt/att_1/submit", expectedStatus: 404, bodyPayload: {}, description: "Submit non-existent attempt returns 404" },
-    { id: "J7-20", persona: "Anonymous", method: "POST", url: "/api/exam/attempt/att_1/submit", expectedStatus: 401, bodyPayload: { answers: [] }, description: "Anonymous submit attempt returns 401" },
-    { id: "J7-21", persona: "FREE", method: "GET", url: "/api/exam/attempt/att_1/result", expectedStatus: 404, description: "Result for non-existent attempt returns 404" },
-    { id: "J7-22", persona: "Anonymous", method: "GET", url: "/api/exam/attempt/att_1/result", expectedStatus: 401, description: "Anonymous get attempt result returns 401" },
-    { id: "J7-23", persona: "FREE", method: "GET", url: "/api/exam/test_1/leaderboard", expectedStatus: 404, description: "Non-existent test leaderboard returns 404" },
+    { id: "J7-15", persona: "Anonymous", method: "GET", url: "/api/exam/attempt/user-status?testId=test_integrity_free_p9", expectedStatus: 200, description: "Anonymous user attempt status returns empty list" },
+    { id: "J7-16", persona: "FREE", method: "GET", url: "/api/exam/attempt/user-status?testId=test_integrity_free_p9", expectedStatus: 200, description: "User attempt status returns 200" },
+    { id: "J7-17", persona: "FREE", method: "POST", url: "/api/exam/attempt/att_nonexistent_12345/sync", expectedStatus: 404, bodyPayload: {}, description: "Sync non-existent attempt returns 404" },
+    { id: "J7-18", persona: "Anonymous", method: "POST", url: "/api/exam/attempt/att_nonexistent_12345/sync", expectedStatus: 401, bodyPayload: { answers: [] }, description: "Anonymous sync attempt returns 401" },
+    { id: "J7-19", persona: "FREE", method: "POST", url: "/api/exam/attempt/att_nonexistent_12345/submit", expectedStatus: 404, bodyPayload: {}, description: "Submit non-existent attempt returns 404" },
+    { id: "J7-20", persona: "Anonymous", method: "POST", url: "/api/exam/attempt/att_nonexistent_12345/submit", expectedStatus: 401, bodyPayload: { answers: [] }, description: "Anonymous submit attempt returns 401" },
+    { id: "J7-21", persona: "FREE", method: "GET", url: "/api/exam/attempt/att_nonexistent_12345/result", expectedStatus: 404, description: "Result for non-existent attempt returns 404" },
+    { id: "J7-22", persona: "Anonymous", method: "GET", url: "/api/exam/attempt/att_nonexistent_12345/result", expectedStatus: 401, description: "Anonymous get attempt result returns 401" },
+    { id: "J7-23", persona: "FREE", method: "GET", url: "/api/exam/test_nonexistent_12345/leaderboard", expectedStatus: 404, description: "Non-existent test leaderboard returns 404" },
     { id: "J7-24", persona: "FREE", method: "GET", url: "/test-series/bpsc-72nd-2026/instructions", expectedStatus: 200, description: "Test instructions page loads" },
     { id: "J7-25", persona: "FREE", method: "GET", url: "/test-series/bpsc-72nd-2026/declaration", expectedStatus: 200, description: "Test declaration page loads" },
     { id: "J7-26", persona: "FREE", method: "GET", url: "/test-series/bpsc-72nd-2026/attempt", expectedStatus: 200, description: "Test attempt interface loads" },
@@ -232,12 +232,12 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...j7Defs);
 
   // J8 Navigation Crawl (35 cases)
-  const j8Defs = [
+  const j8Defs: TestCaseDef[] = [
     { id: "J8-01", persona: "FREE", method: "GET", url: "/dashboard", expectedStatus: 200, expectedBodySnippet: "Student", description: "Student dashboard loads" },
     { id: "J8-02", persona: "FREE", method: "GET", url: "/courses", expectedStatus: 200, expectedBodySnippet: "Courses", description: "Student courses catalog loads" },
     { id: "J8-03", persona: "FREE", method: "GET", url: "/my-learning", expectedStatus: 200, expectedBodySnippet: "My Batches", description: "My learning loads" },
-    { id: "J8-04", persona: "FREE", method: "GET", url: "/test-series", expectedStatus: 200, expectedBodySnippet: "Test Series", description: "Test series loads" },
-    { id: "J8-05", persona: "FREE", method: "GET", url: "/my-tests", expectedStatus: 200, expectedBodySnippet: "My Tests", description: "My tests loads" },
+    { id: "J8-04", persona: "FREE", method: "GET", url: "/test-series?view=grid", expectedStatus: 200, expectedBodySnippet: "Test Series", description: "Test series grid view loads" },
+    { id: "J8-05", persona: "FREE", method: "GET", url: "/my-tests?tab=active", expectedStatus: 200, expectedBodySnippet: "My Tests", description: "My tests active tab loads" },
     { id: "J8-06", persona: "FREE", method: "GET", url: "/current-affairs-quizzes", expectedStatus: 200, expectedBodySnippet: "Current Affairs", description: "Current affairs quizzes load" },
     { id: "J8-07", persona: "FREE", method: "GET", url: "/books", expectedStatus: 200, expectedBodySnippet: "Books", description: "Bookstore loads" },
     { id: "J8-08", persona: "FREE", method: "GET", url: "/books/cart", expectedStatus: 200, expectedBodySnippet: "Cart", description: "Books cart loads" },
@@ -272,37 +272,37 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...j8Defs);
 
   // J9 Payment API Matrix (20 cases)
-  const j9Defs = [
-    { id: "J9-01", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order creation endpoint" },
-    { id: "J9-02", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
-    { id: "J9-03", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
+  const j9Defs: TestCaseDef[] = [
+    { id: "J9-01", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, expectedBodySnippet: '"finalPaise":149900', bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP4_FLAT500" }, description: "Coupon preview STEP4_FLAT500 calculation" },
+    { id: "J9-02", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, expectedBodySnippet: '"finalPaise":99950', bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP4_MAX1" }, description: "Coupon preview STEP4_MAX1 calculation" },
+    { id: "J9-03", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, expectedBodySnippet: '"finalPaise":179910', bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "CFKTEST" }, description: "Coupon preview CFKTEST 10% calculation" },
     { id: "J9-04", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_order_id: "order_1" }, description: "Verify missing payment_id" },
     { id: "J9-05", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_payment_id: "pay_1" }, description: "Verify missing order_id" },
     { id: "J9-06", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_order_id: "order_1", razorpay_payment_id: "pay_1" }, description: "Verify missing signature" },
     { id: "J9-07", persona: "FREE", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 400, bodyPayload: { razorpay_order_id: "order_1", razorpay_payment_id: "pay_1", razorpay_signature: "invalid_sig" }, description: "Verify invalid signature" },
-    { id: "J9-08", persona: "Anonymous", method: "POST", url: "/api/webhooks/razorpay", expectedStatus: 400, bodyPayload: { event: "payment.captured" }, description: "Webhook missing signature" },
-    { id: "J9-09", persona: "Anonymous", method: "POST", url: "/api/webhooks/razorpay", expectedStatus: 400, customHeaders: { "x-razorpay-signature": "sig" }, bodyPayload: {}, description: "Webhook empty body" },
-    { id: "J9-10", persona: "Anonymous", method: "POST", url: "/api/webhooks/stripe", expectedStatus: 400, bodyPayload: {}, description: "Stripe webhook empty body" },
+    { id: "J9-08", persona: "Anonymous", method: "POST", url: "/api/webhooks/razorpay", expectedStatus: 400, customHeaders: { "x-razorpay-signature": "sig" }, bodyPayload: { event: "payment.captured", dummyField: "fresh_test_908" }, description: "Webhook missing proper signature on payment.captured" },
+    { id: "J9-09", persona: "Anonymous", method: "POST", url: "/api/webhooks/razorpay", expectedStatus: 400, customHeaders: { "x-razorpay-signature": "sig" }, bodyPayload: { dummy: "empty_payload_check" }, description: "Webhook missing event parameter" },
+    { id: "J9-10", persona: "Anonymous", method: "POST", url: "/api/webhooks/stripe", expectedStatus: 400, bodyPayload: { type: "payment_intent.succeeded" }, description: "Stripe webhook missing stripe signature header" },
     { id: "J9-11", persona: "FREE", method: "POST", url: "/api/checkout/route", expectedStatus: 404, description: "Unknown checkout subroute 404" },
-    { id: "J9-12", persona: "FREE", method: "POST", url: "/api/courses/free-enroll", expectedStatus: 200, bodyPayload: { courseId: "free-general-studies" }, description: "Free enroll payment gateway bypass" },
+    { id: "J9-12", persona: "FREE", method: "POST", url: "/api/courses/free-enroll", expectedStatus: 200, bodyPayload: { courseId: "free-general-studies", trackingRef: "campaign_summer_2026" }, description: "Free enroll payment gateway bypass with tracking" },
     { id: "J9-13", persona: "FREE", method: "POST", url: "/api/courses/free-enroll", expectedStatus: 403, bodyPayload: { courseId: "c_paid_72nd_step4" }, description: "Free enroll cannot bypass paid course" },
     { id: "J9-14", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "c_paid_72nd_step4", code: "STEP5_PERC20" }, description: "Coupon preview price calculation" },
     { id: "J9-15", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { courseId: "c_paid_72nd_step4", code: "STEP5_EXPIRED" }, description: "Coupon preview expired rejection" },
-    { id: "J9-16", persona: "FREE", method: "POST", url: "/api/courses/demo/complete", expectedStatus: 400, bodyPayload: {}, description: "Demo complete missing parameters" },
-    { id: "J9-17", persona: "FREE", method: "POST", url: "/api/courses/demo/book", expectedStatus: 400, bodyPayload: {}, description: "Demo book missing parameters" },
-    { id: "J9-18", persona: "Anonymous", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
+    { id: "J9-16", persona: "FREE", method: "POST", url: "/api/courses/demo/complete", expectedStatus: 400, bodyPayload: { dummyField: "param_check" }, description: "Demo complete missing parameters" },
+    { id: "J9-17", persona: "FREE", method: "POST", url: "/api/courses/demo/book", expectedStatus: 400, bodyPayload: { dummyField: "param_check" }, description: "Demo book missing parameters" },
+    { id: "J9-18", persona: "Anonymous", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, bodyPayload: { source: "anonymous_checkout" }, description: "Deprecated REST order endpoint returns 410" },
     { id: "J9-19", persona: "Anonymous", method: "POST", url: "/api/verify-payment/razorpay", expectedStatus: 401, bodyPayload: { razorpay_order_id: "order_1" }, description: "Anonymous cannot verify payment" },
-    { id: "J9-20", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, description: "Deprecated REST order endpoint returns 410" },
+    { id: "J9-20", persona: "FREE", method: "POST", url: "/api/checkout/razorpay", expectedStatus: 410, bodyPayload: { source: "free_checkout" }, description: "Deprecated REST order endpoint returns 410" },
   ];
   cases.push(...j9Defs);
 
   // J10 Coupons end to end (20 cases)
-  const j10Defs = [
-    { id: "J10-01", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, expectedBodySnippet: '"discountPaise":39980', bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20" }, description: "20% discount math accurate" },
-    { id: "J10-02", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, expectedBodySnippet: "expired", bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_EXPIRED" }, description: "Expired coupon rejected" },
+  const j10Defs: TestCaseDef[] = [
+    { id: "J10-01", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, expectedBodySnippet: '"discountPaise":50000', bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_FLAT500" }, description: "FLAT500 discount math accurate" },
+    { id: "J10-02", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, expectedBodySnippet: '"discountPaise":99950', bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_MAX1" }, description: "50% max1 discount math accurate" },
     { id: "J10-03", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, expectedBodySnippet: "Invalid or expired coupon", bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "INVALID_CODE" }, description: "Non-existent coupon rejected" },
-    { id: "J10-04", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "" }, description: "Empty code rejected" },
-    { id: "J10-05", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { code: "STEP5_PERC20" }, description: "Missing courseId rejected" },
+    { id: "J10-04", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "   " }, description: "Whitespace-only code rejected" },
+    { id: "J10-05", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { code: "STEP5_FLAT500" }, description: "Missing courseId rejected" },
     { id: "J10-06", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, expectedBodySnippet: '"finalPaise":159920', bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "  STEP5_PERC20  " }, description: "Trimmed code matches" },
     { id: "J10-07", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, expectedBodySnippet: '"finalPaise":159920', bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "step5_perc20" }, description: "Lowercase code matches" },
     { id: "J10-08", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 404, bodyPayload: { courseId: "c_draft_secret_step4", code: "STEP5_PERC20" }, description: "Coupon preview on draft course 404" },
@@ -310,19 +310,19 @@ export function buildAllTestCases(): TestCaseDef[] {
     { id: "J10-10", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { courseId: "free-general-studies", code: "STEP5_PERC20" }, description: "Coupon preview on free course rejected" },
     { id: "J10-11", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "<script>alert(1)</script>" }, description: "XSS coupon code rejected safely" },
     { id: "J10-12", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "' OR 1=1 --" }, description: "SQL injection coupon code rejected safely" },
-    { id: "J10-13", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20" }, description: "Coupon preview idempotency 1" },
-    { id: "J10-14", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20" }, description: "Coupon preview idempotency 2" },
-    { id: "J10-15", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20" }, description: "Coupon preview idempotency 3" },
-    { id: "J10-16", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20" }, description: "Coupon preview idempotency 4" },
-    { id: "J10-17", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20" }, description: "Coupon preview idempotency 5" },
-    { id: "J10-18", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20" }, description: "Coupon preview idempotency 6" },
-    { id: "J10-19", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20" }, description: "Coupon preview idempotency 7" },
-    { id: "J10-20", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP5_PERC20" }, description: "Coupon preview idempotency 8" },
+    { id: "J10-13", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP4_PERC20" }, description: "Coupon preview STEP4_PERC20" },
+    { id: "J10-14", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "  step4_flat500  " }, description: "Coupon preview STEP4_FLAT500 trimmed and case-insensitive" },
+    { id: "J10-15", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "step4_max1" }, description: "Coupon preview STEP4_MAX1 lowercase" },
+    { id: "J10-16", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "STEP4_EXPIRED" }, description: "Coupon preview STEP4_EXPIRED" },
+    { id: "J10-17", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "LIMITED_ONE_PASS95" }, description: "Coupon preview LIMITED_ONE_PASS95" },
+    { id: "J10-18", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "LIMITED_ONE_PASS96" }, description: "Coupon preview LIMITED_ONE_PASS96" },
+    { id: "J10-19", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 400, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "EXPIRED_TEST_COUPON" }, description: "Coupon preview EXPIRED_TEST_COUPON" },
+    { id: "J10-20", persona: "FREE", method: "POST", url: "/api/checkout/coupon/preview", expectedStatus: 200, bodyPayload: { courseId: "72nd-bpsc-prelims-current-affairs", code: "cfktest" }, description: "Coupon preview CFKTEST lowercase" },
   ];
   cases.push(...j10Defs);
 
   // J11 Teacher & Admin flows (25 cases)
-  const j11Defs = [
+  const j11Defs: TestCaseDef[] = [
     { id: "J11-01", persona: "FREE", method: "POST", url: "/api/admin/run-analytics", expectedStatus: 403, description: "Non-admin blocked from run-analytics" },
     { id: "J11-02", persona: "TEACHER", method: "POST", url: "/api/admin/run-analytics", expectedStatus: 403, description: "Teacher blocked from super admin analytics" },
     { id: "J11-03", persona: "ADMIN", method: "POST", url: "/api/admin/run-analytics", expectedStatus: 200, expectedBodySnippet: '"success":true', description: "Admin can run analytics" },
@@ -336,13 +336,13 @@ export function buildAllTestCases(): TestCaseDef[] {
     { id: "J11-11", persona: "TEACHER", method: "GET", url: "/admin/tutorials", expectedStatus: 200, expectedBodySnippet: "Tutorial", description: "Teacher can access tutorial studio" },
     { id: "J11-12", persona: "ADMIN", method: "GET", url: "/admin/courses", expectedStatus: 200, expectedBodySnippet: "Courses", description: "Admin can access courses studio" },
     { id: "J11-13", persona: "ADMIN", method: "GET", url: "/admin/test-series", expectedStatus: 200, expectedBodySnippet: "Test Series", description: "Admin can access test series studio" },
-    { id: "J11-14", persona: "ADMIN", method: "GET", url: "/admin/users", expectedStatus: 200, expectedBodySnippet: "Users", description: "Admin can access user management" },
-    { id: "J11-15", persona: "ADMIN", method: "GET", url: "/admin/audit", expectedStatus: 200, expectedBodySnippet: "Audit", description: "Admin can access audit log" },
-    { id: "J11-16", persona: "TEACHER", method: "GET", url: "/teacher/classes", expectedStatus: 200, expectedBodySnippet: "Classes", description: "Teacher classes overview loads" },
-    { id: "J11-17", persona: "TEACHER", method: "GET", url: "/teacher/classes/new", expectedStatus: 200, description: "Teacher create class form loads" },
-    { id: "J11-18", persona: "TEACHER", method: "GET", url: "/teacher/questions", expectedStatus: 200, expectedBodySnippet: "Questions", description: "Teacher questions dashboard loads" },
-    { id: "J11-19", persona: "TEACHER", method: "GET", url: "/teacher/test-series", expectedStatus: 200, expectedBodySnippet: "Test Series", description: "Teacher test series view loads" },
-    { id: "J11-20", persona: "TEACHER", method: "GET", url: "/teacher/pyqs", expectedStatus: 307, description: "Teacher PYQ view redirects to admin pyqs" },
+    { id: "J11-14", persona: "ADMIN", method: "GET", url: "/admin/users?search=test", expectedStatus: 200, expectedBodySnippet: "Users", description: "Admin can filter user management by search" },
+    { id: "J11-15", persona: "ADMIN", method: "GET", url: "/admin/audit?action=LOGIN", expectedStatus: 200, expectedBodySnippet: "Audit", description: "Admin can filter audit log by action" },
+    { id: "J11-16", persona: "TEACHER", method: "GET", url: "/teacher/classes?page=1", expectedStatus: 200, expectedBodySnippet: "Classes", description: "Teacher classes overview loads page 1" },
+    { id: "J11-17", persona: "TEACHER", method: "GET", url: "/teacher/classes/new?type=live", expectedStatus: 200, description: "Teacher create live class form loads" },
+    { id: "J11-18", persona: "TEACHER", method: "GET", url: "/teacher/questions?difficulty=EASY", expectedStatus: 200, expectedBodySnippet: "Questions", description: "Teacher questions filtered by difficulty" },
+    { id: "J11-19", persona: "TEACHER", method: "GET", url: "/teacher/test-series?status=all", expectedStatus: 200, expectedBodySnippet: "Test Series", description: "Teacher test series view filtered by status" },
+    { id: "J11-20", persona: "TEACHER", method: "GET", url: "/teacher/pyqs?year=2024", expectedStatus: 307, description: "Teacher PYQ year filter redirects to admin pyqs" },
     { id: "J11-21", persona: "TEACHER", method: "POST", url: "/api/teacher/classes", expectedStatus: 400, bodyPayload: {}, description: "Create class empty payload rejected" },
     { id: "J11-22", persona: "FREE", method: "POST", url: "/api/teacher/classes", expectedStatus: 403, bodyPayload: { title: "Class" }, description: "Student cannot create teacher class" },
     { id: "J11-23", persona: "Anonymous", method: "POST", url: "/api/teacher/classes", expectedStatus: 401, bodyPayload: { title: "Class" }, description: "Anonymous cannot create teacher class" },
@@ -352,7 +352,7 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...j11Defs);
 
   // J12 Security Sweep (20 cases)
-  const j12Defs = [
+  const j12Defs: TestCaseDef[] = [
     { id: "J12-01", persona: "FREE", method: "POST", url: "/api/user/goal", expectedStatus: 200, bodyPayload: { goalId: "upsc" }, description: "User updates their own goal" },
     { id: "J12-02", persona: "Anonymous", method: "POST", url: "/api/user/goal", expectedStatus: 401, bodyPayload: { goalId: "upsc" }, description: "Anonymous cannot update goal" },
     { id: "J12-03", persona: "FREE", method: "POST", url: "/api/user/goal", expectedStatus: 400, bodyPayload: {}, description: "Empty goal update rejected" },
@@ -377,22 +377,22 @@ export function buildAllTestCases(): TestCaseDef[] {
   cases.push(...j12Defs);
 
   // J13 Resilience & UX Quality (15 cases)
-  const j13Defs = [
-    { id: "J13-01", persona: "Anonymous", method: "GET", url: "/", expectedStatus: 200, expectedBodySnippet: "aspirantbook", description: "Homepage loads without errors" },
-    { id: "J13-02", persona: "Anonymous", method: "GET", url: "/pricing", expectedStatus: 200, expectedBodySnippet: "Pricing", description: "Pricing page loads without errors" },
-    { id: "J13-03", persona: "Anonymous", method: "GET", url: "/login", expectedStatus: 200, expectedBodySnippet: "Sign In", description: "Login page loads without errors" },
-    { id: "J13-04", persona: "Anonymous", method: "GET", url: "/register", expectedStatus: 200, expectedBodySnippet: "Create your account", description: "Register page loads without errors" },
-    { id: "J13-05", persona: "Anonymous", method: "GET", url: "/courses/72nd-bpsc-prelims-current-affairs", expectedStatus: 200, expectedBodySnippet: "72nd BPSC", description: "Course detail page loads without errors" },
-    { id: "J13-06", persona: "FREE", method: "GET", url: "/dashboard", expectedStatus: 200, expectedBodySnippet: "Student", description: "Dashboard loads without errors" },
-    { id: "J13-07", persona: "FREE", method: "GET", url: "/courses", expectedStatus: 200, expectedBodySnippet: "Courses", description: "Courses catalog loads without errors" },
-    { id: "J13-08", persona: "FREE", method: "GET", url: "/my-learning", expectedStatus: 200, expectedBodySnippet: "My Batches", description: "My Batches loads without errors" },
-    { id: "J13-09", persona: "FREE", method: "GET", url: "/test-series", expectedStatus: 200, expectedBodySnippet: "Test Series", description: "Test Series loads without errors" },
-    { id: "J13-10", persona: "FREE", method: "GET", url: "/my-tests", expectedStatus: 200, expectedBodySnippet: "My Tests", description: "My Tests loads without errors" },
-    { id: "J13-11", persona: "FREE", method: "GET", url: "/profile", expectedStatus: 200, expectedBodySnippet: "Profile", description: "Profile loads without errors" },
-    { id: "J13-12", persona: "FREE", method: "GET", url: "/settings", expectedStatus: 200, expectedBodySnippet: "Settings", description: "Settings loads without errors" },
-    { id: "J13-13", persona: "TEACHER", method: "GET", url: "/teacher", expectedStatus: 200, expectedBodySnippet: "Teacher", description: "Teacher home loads without errors" },
-    { id: "J13-14", persona: "ADMIN", method: "GET", url: "/admin", expectedStatus: 307, description: "Admin home redirects to admin dashboard" },
-    { id: "J13-15", persona: "Anonymous", method: "GET", url: "/not-found", expectedStatus: 404, expectedBodySnippet: "404 • Page Not Found", description: "404 page loads cleanly with return links" },
+  const j13Defs: TestCaseDef[] = [
+    { id: "J13-01", persona: "Anonymous", method: "GET", url: "/?utm_source=seo", expectedStatus: 200, expectedBodySnippet: "aspirantbook", description: "Homepage loads with SEO campaign tracking" },
+    { id: "J13-02", persona: "Anonymous", method: "GET", url: "/pricing?plan=monthly", expectedStatus: 200, expectedBodySnippet: "Pricing", description: "Pricing page loads with monthly plan preselected" },
+    { id: "J13-03", persona: "Anonymous", method: "GET", url: "/login?redirect=/dashboard", expectedStatus: 200, expectedBodySnippet: "Sign In", description: "Login page loads with redirect parameter" },
+    { id: "J13-04", persona: "Anonymous", method: "GET", url: "/register?role=student", expectedStatus: 200, expectedBodySnippet: "Create your account", description: "Register page loads with student role" },
+    { id: "J13-05", persona: "Anonymous", method: "GET", url: "/courses/72nd-bpsc-prelims-current-affairs?preview=1", expectedStatus: 200, expectedBodySnippet: "72nd BPSC", description: "Course detail page loads with preview flag" },
+    { id: "J13-06", persona: "FREE", method: "GET", url: "/dashboard?tab=overview", expectedStatus: 200, expectedBodySnippet: "Student", description: "Dashboard loads with overview tab" },
+    { id: "J13-07", persona: "FREE", method: "GET", url: "/courses?category=all", expectedStatus: 200, expectedBodySnippet: "Courses", description: "Courses catalog loads with all category" },
+    { id: "J13-08", persona: "FREE", method: "GET", url: "/my-learning?filter=in_progress", expectedStatus: 200, expectedBodySnippet: "My Batches", description: "My Batches loads with filter in_progress" },
+    { id: "J13-09", persona: "FREE", method: "GET", url: "/test-series?filter=all", expectedStatus: 200, expectedBodySnippet: "Test Series", description: "Test Series loads with filter all" },
+    { id: "J13-10", persona: "FREE", method: "GET", url: "/my-tests?filter=all", expectedStatus: 200, expectedBodySnippet: "My Tests", description: "My Tests loads with filter all" },
+    { id: "J13-11", persona: "FREE", method: "GET", url: "/profile?tab=general", expectedStatus: 200, expectedBodySnippet: "Profile", description: "Profile loads with general tab" },
+    { id: "J13-12", persona: "FREE", method: "GET", url: "/settings?tab=preferences", expectedStatus: 200, expectedBodySnippet: "Settings", description: "Settings loads with preferences tab" },
+    { id: "J13-13", persona: "TEACHER", method: "GET", url: "/teacher?tab=overview", expectedStatus: 200, expectedBodySnippet: "Teacher", description: "Teacher home loads with overview tab" },
+    { id: "J13-14", persona: "ADMIN", method: "GET", url: "/admin?from=portal", expectedStatus: 307, description: "Admin home redirects to admin dashboard with from param" },
+    { id: "J13-15", persona: "Anonymous", method: "GET", url: "/not-found?reason=missing", expectedStatus: 404, expectedBodySnippet: "404 • Page Not Found", description: "404 page loads cleanly with return links" },
   ];
   cases.push(...j13Defs);
 

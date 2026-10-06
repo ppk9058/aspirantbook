@@ -137,9 +137,13 @@ export async function gradeExamAttempt(
     },
   });
 
-  const questionIds = answers.map((a) => a.questionId);
-  const questions = await prisma.examQuestion.findMany({
-    where: { id: { in: questionIds } },
+  // Fetch all questions for this test to ensure unattempted questions are counted
+  const allQuestions = await prisma.examQuestion.findMany({
+    where: {
+      section: {
+        testId: attempt.testId,
+      },
+    },
     select: {
       id: true,
       correctOption: true,
@@ -148,7 +152,8 @@ export async function gradeExamAttempt(
     },
   });
 
-  const questionMap = new Map(questions.map((q) => [q.id, q]));
+  const questionMap = new Map(allQuestions.map((q) => [q.id, q]));
+  const answerMap = new Map(answers.map((a) => [a.questionId, a]));
 
   let totalScore = 0;
   let correctCount = 0;
@@ -156,6 +161,7 @@ export async function gradeExamAttempt(
   let skippedCount = 0;
   let markedCount = 0;
 
+  // Grade answered questions and update them
   const gradedAnswers = answers.map((ans) => {
     const question = questionMap.get(ans.questionId);
     if (!question) {
@@ -183,6 +189,14 @@ export async function gradeExamAttempt(
 
     return { questionId: ans.questionId, isCorrect, marksAwarded };
   });
+
+  // Any test question not present in answers is also skipped
+  for (const q of allQuestions) {
+    if (!answerMap.has(q.id)) {
+      skippedCount++;
+    }
+  }
+
 
   const testDurationSecs = (attempt.test?.durationMinutes || 120) * 60;
   const elapsedSecs = Math.floor((now.getTime() - attempt.startedAt.getTime()) / 1000);

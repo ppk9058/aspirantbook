@@ -31,7 +31,8 @@ export async function POST(request: NextRequest) {
     try {
         const session = await auth()
         const body = await request.json()
-        const { orderId, paymentId, signature, plan, courseId, userId: explicitUserId } = body
+        const { orderId, paymentId, signature, plan, courseId, userId: explicitUserId, amount, amountPaise: rawAmountPaise } = body
+        const parsedAmountPaise = rawAmountPaise ? Number(rawAmountPaise) : (amount ? Math.round(Number(amount) * 100) : undefined)
 
         const currentUserId = session?.user?.id || explicitUserId
         const currentUserEmail = session?.user?.email
@@ -146,6 +147,7 @@ export async function POST(request: NextRequest) {
             courseId: targetCourseId,
             plan: plan || (dbOrderRecord.metadata as any)?.plan,
             currentUserId,
+            amountPaise: parsedAmountPaise,
         })
 
         if (!fulfillRes.success) {
