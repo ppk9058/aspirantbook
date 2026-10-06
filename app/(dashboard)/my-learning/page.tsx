@@ -7,20 +7,17 @@ import { formatUtcToIst } from "@/lib/demo/slot-utils"
 export default async function MyLearningPage() {
     const session = await auth()
 
-    if (!session) {
-        redirect("/login")
-    }
-
     let enrollments: any[] = []
     let progressRecords: any[] = []
     let upcomingDemos: any[] = []
     let attendedDemos: any[] = []
 
-    try {
-        const [user, demoBookings] = await Promise.all([
-            prisma.user.findUnique({
-                where: { id: session.user.id },
-                include: {
+    if (session?.user?.id) {
+        try {
+            const [user, demoBookings] = await Promise.all([
+                prisma.user.findUnique({
+                    where: { id: session.user.id },
+                    include: {
                     enrollments: {
                         include: {
                             course: {
@@ -131,6 +128,7 @@ export default async function MyLearningPage() {
     } catch {
         console.warn("Database error on /my-learning, using fallback data.")
     }
+}
 
     // Calculate detailed progress for each regular course
     const coursesWithProgress: any[] = enrollments.map((enrollment) => {

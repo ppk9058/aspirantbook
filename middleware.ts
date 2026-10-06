@@ -48,38 +48,30 @@ export default auth((req) => {
     }
 
 
-    // Public course details page (/courses/[slug]) is accessible to all students (even unlogged)
-    const isCourseDetailsPage =
-        nextUrl.pathname.startsWith("/courses/") && !nextUrl.pathname.includes("/learn")
-
-    // Dashboard & Dashboard Menu Routes Protection — requires verified login (Mobile OTP, Google, or Email/Password)
-    const isDashboardOrMenuRoute =
-        nextUrl.pathname.startsWith("/dashboard") ||
-        (nextUrl.pathname.startsWith("/courses") && !isCourseDetailsPage) ||
-        nextUrl.pathname.startsWith("/tutorials") ||
-        nextUrl.pathname.startsWith("/test-series") ||
-        nextUrl.pathname.startsWith("/my-learning") ||
-        nextUrl.pathname.startsWith("/books") ||
-        nextUrl.pathname.startsWith("/current-affairs-quizzes") ||
-        nextUrl.pathname.startsWith("/pyqs") ||
-        nextUrl.pathname.startsWith("/practice") ||
-        nextUrl.pathname.startsWith("/classroom") ||
-        nextUrl.pathname.startsWith("/learn") ||
-        nextUrl.pathname.startsWith("/leaderboard") ||
+    // Private routes requiring authentication:
+    // /profile, /settings, /subscription, /purchases,
+    // /classroom, /learn (actual video player), /assessments (private tests/attempts),
+    // /doubts (private doubt center), /forms, /tracks, /code-along, /leaderboard
+    const isPrivateRoute =
         nextUrl.pathname.startsWith("/profile") ||
         nextUrl.pathname.startsWith("/settings") ||
         nextUrl.pathname.startsWith("/subscription") ||
         nextUrl.pathname.startsWith("/purchases") ||
+        nextUrl.pathname.startsWith("/classroom") ||
+        nextUrl.pathname.startsWith("/learn") ||
+        nextUrl.pathname.includes("/learn/") ||
+        nextUrl.pathname.startsWith("/assessments") ||
         nextUrl.pathname.startsWith("/doubts") ||
         nextUrl.pathname.startsWith("/forms") ||
         nextUrl.pathname.startsWith("/tracks") ||
         nextUrl.pathname.startsWith("/code-along") ||
-        nextUrl.pathname.startsWith("/assessments")
+        nextUrl.pathname.startsWith("/leaderboard")
 
-    if (isDashboardOrMenuRoute) {
+    if (isPrivateRoute) {
         if (!isAuthenticated) {
             const loginUrl = new URL("/login", nextUrl)
-            loginUrl.searchParams.set("callbackUrl", nextUrl.pathname + nextUrl.search)
+            const safeCb = sanitizeReturnPath(nextUrl.pathname + nextUrl.search, "/dashboard")
+            loginUrl.searchParams.set("callbackUrl", safeCb)
             return NextResponse.redirect(loginUrl)
         }
     }
@@ -111,6 +103,7 @@ export const config = {
         "/courses/:path*",
         "/tutorials/:path*",
         "/test-series/:path*",
+        "/my-tests/:path*",
         "/my-learning/:path*",
         "/books/:path*",
         "/current-affairs-quizzes/:path*",

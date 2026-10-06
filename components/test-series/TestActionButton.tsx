@@ -2,6 +2,8 @@
 
 import React from "react"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { Play, RotateCcw, FileText, ArrowRight } from "lucide-react"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
 import { getExamInstructionsUrl, getExamAttemptUrl, getExamResultUrl } from "@/lib/exam/urls"
@@ -46,8 +48,20 @@ export function TestActionButton({
   onUnlockClick,
   isFreeSample = false,
 }: TestActionButtonProps) {
+  const { data: session } = useSession()
+  const { openMobileAuth } = useMobileAuth()
   const [internalStatus, setInternalStatus] = React.useState<any>(initialStatus || null)
   const [isLoading, setIsLoading] = React.useState(initialLoading || (!initialStatus && !disabled))
+
+  const handleGuestClick = (e: React.MouseEvent, targetUrl: string) => {
+    if (!session?.user) {
+      e.preventDefault()
+      openMobileAuth({
+        actionType: "login",
+        callbackUrl: targetUrl,
+      })
+    }
+  }
 
   React.useEffect(() => {
     if (initialStatus !== undefined) {
@@ -151,6 +165,7 @@ export function TestActionButton({
     return (
       <Link
         href={resumeUrl}
+        onClick={(e) => handleGuestClick(e, resumeUrl)}
         className={`inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold shadow-xs transition-colors ${sizeClasses} ${className}`}
       >
         <Play className="w-3.5 h-3.5 fill-current" />
@@ -179,6 +194,7 @@ export function TestActionButton({
       <div className="inline-flex items-center gap-2">
         <Link
           href={reportUrl}
+          onClick={(e) => handleGuestClick(e, reportUrl)}
           className={`inline-flex items-center justify-center gap-1.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-extrabold shadow-xs transition-colors ${sizeClasses} ${className}`}
         >
           <FileText className="w-3.5 h-3.5" />
@@ -188,6 +204,7 @@ export function TestActionButton({
         {showRetake && (
           <Link
             href={retakeUrl}
+            onClick={(e) => handleGuestClick(e, retakeUrl)}
             title="Retake Test"
             className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors min-h-[44px]"
           >
@@ -209,6 +226,7 @@ export function TestActionButton({
   return (
     <Link
       href={startUrl}
+      onClick={(e) => handleGuestClick(e, startUrl)}
       className={`inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xs transition-colors ${sizeClasses} ${className}`}
     >
       <Play className="w-3.5 h-3.5 fill-current" />

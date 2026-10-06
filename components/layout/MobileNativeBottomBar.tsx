@@ -2,7 +2,9 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { Home, ClipboardList, BookOpen, Zap } from "lucide-react"
+import { getDashboardHref } from "@/lib/auth/roles"
 
 interface MobileNativeBottomBarProps {
     hasActivePass?: boolean
@@ -10,6 +12,8 @@ interface MobileNativeBottomBarProps {
 
 export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBottomBarProps) {
     const pathname = usePathname()
+    const { data: session } = useSession()
+    const homeHref = getDashboardHref(session?.user?.role, !!session?.user)
 
     // 1. Hide completely on full-screen flows:
     // - Test attempt: /test-series/[id]/attempt, /assessments/[id]/take
@@ -63,7 +67,7 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
     const tabs = [
         {
             name: "Home",
-            href: "/dashboard",
+            href: homeHref,
             icon: Home,
             isActive: isHomeActive,
         },

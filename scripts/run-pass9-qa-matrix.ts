@@ -302,13 +302,13 @@ async function run() {
         cookie = await createSessionCookie(`u_coupon_free_${c.id}`, "FREE", `coupon_${c.id}@p9.local`);
       } else if (c.id === "J3-16") {
         // Fresh premium user for J3-16 order with coupon
-        const j316UserId = "u_student_prem_j316";
+        const j316UserId = `u_student_prem_j316_${Date.now()}`;
         await prisma.user.upsert({
           where: { id: j316UserId },
           update: { role: "PREMIUM" },
-          create: { id: j316UserId, email: "prem_j316@p9.local", role: "PREMIUM", name: "Prem J316" }
+          create: { id: j316UserId, email: `prem_${Date.now()}@p9.local`, role: "PREMIUM", name: "Prem J316" }
         });
-        cookie = await createSessionCookie(j316UserId, "PREMIUM", "prem_j316@p9.local");
+        cookie = await createSessionCookie(j316UserId, "PREMIUM", `prem_${Date.now()}@p9.local`);
       } else if (c.persona === "ADMIN") cookie = cookieAdmin;
       else if (c.persona === "TEACHER") cookie = cookieTeacher;
       else if (c.persona === "PREMIUM") cookie = cookiePrem;
@@ -319,6 +319,32 @@ async function run() {
         ...(cookie ? { Cookie: cookie } : {}),
         ...(c.customHeaders || {})
       };
+
+      // Dynamically resolve Next-Action hash if manifest exists
+      if (headers["Next-Action"]) {
+        try {
+          const manifestPath = ".next-test/server/server-reference-manifest.json";
+          if (fs.existsSync(manifestPath)) {
+            const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+            // Look for checkout action hash
+            for (const [hash, val] of Object.entries<any>(manifest.node)) {
+              if (val.workers && val.workers["app/checkout/page"]) {
+                // The checkout server action is createOrderAction (second export or checking id)
+                // Let's check page.js or use the known hash for createOrderAction
+                // In .next-test build: 4064d20105af421290a8129b6959d6e62902951b20 is createOrderAction
+                if (hash.startsWith("4064d2") || hash.startsWith("400bb2")) {
+                  headers["Next-Action"] = hash;
+                  break;
+                }
+              }
+            }
+            // If hash is still hardcoded old hash and not in manifest, map to current createOrderAction hash
+            if (headers["Next-Action"] === "400bb25523ed3fd00de26424b1fd586bf53fbbfd13" && manifest.node["4064d20105af421290a8129b6959d6e62902951b20"]) {
+              headers["Next-Action"] = "4064d20105af421290a8129b6959d6e62902951b20";
+            }
+          }
+        } catch {}
+      }
 
       let body: any = undefined;
       if (c.method !== "GET" && c.method !== "HEAD") {

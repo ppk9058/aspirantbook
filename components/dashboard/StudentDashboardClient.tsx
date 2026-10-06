@@ -34,6 +34,8 @@ import MobileQuickAccessGrid from "@/components/dashboard/mobile/MobileQuickAcce
 import MobileRecommendedSection from "@/components/dashboard/mobile/MobileRecommendedSection"
 import { TestActionButton } from "@/components/test-series/TestActionButton"
 import type { HomepagePromoCard } from "@/lib/homepage-cards-service"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { LogIn } from "lucide-react"
 
 interface StudentDashboardProps {
   user: any
@@ -55,9 +57,20 @@ export default function StudentDashboardClient({
   stats,
 }: StudentDashboardProps) {
   const { selectedGoal, selectedSubGoal, openGoalModal } = useGoal()
+  const { openMobileAuth } = useMobileAuth()
   const [isDoubtModalOpen, setIsDoubtModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<"courses" | "batches" | "live" | "tests" | "tutorials">("courses")
   const [customTests, setCustomTests] = useState<any[]>([])
+
+  const isGuest = !user || !user.id
+
+  const handleLogin = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
+    openMobileAuth({
+      actionType: "login",
+      callbackUrl: "/dashboard",
+    })
+  }
 
   // Filter batches based on active goal / cohort
   const filteredBatches = useMemo(() => {
@@ -409,6 +422,33 @@ export default function StudentDashboardClient({
         </button>
       </div>
 
+      {/* Guest Welcome Banner */}
+      {isGuest && (
+        <div className="bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <div className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+              <LogIn className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
+                To see your enrolled courses, login
+              </h3>
+              <p className="text-xs text-gray-600 dark:text-gray-300">
+                Track your live batches, CBT test progress, certificates and notes.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogin}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 shrink-0"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Login with Mobile</span>
+          </button>
+        </div>
+      )}
+
       {/* Quick Actions 5-Grid (Desktop / Tablet >= 1024px) */}
       <div className="hidden lg:grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
         {/* Action 1: Jump to Learning */}
@@ -571,7 +611,31 @@ export default function StudentDashboardClient({
         {/* Tab 1: Courses */}
         {activeTab === "courses" && (
           <div>
-            {inProgressCourses.length === 0 ? (
+            {isGuest ? (
+              <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center space-y-3">
+                <div className="w-12 h-12 bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-full flex items-center justify-center mx-auto">
+                  <LogIn className="w-6 h-6" />
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white text-base">To see your enrolled courses, login</h4>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto">Sign in with your mobile OTP to view your active enrollments and resume learning.</p>
+                <div className="pt-2 flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleLogin}
+                    className="px-5 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span>Login</span>
+                  </button>
+                  <Link
+                    href="/courses"
+                    className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    Browse Courses
+                  </Link>
+                </div>
+              </div>
+            ) : inProgressCourses.length === 0 ? (
               <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center">
                 <BookOpen className="w-10 h-10 text-gray-400 mx-auto mb-2" />
                 <h4 className="font-bold text-gray-900 dark:text-white text-sm">No courses started yet</h4>

@@ -5,6 +5,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import BookStoreHeader from "@/components/books/BookStoreHeader"
 import { BookCartProvider, useBookCart } from "@/lib/books/cartContext"
+import { useSession } from "next-auth/react"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import {
   Plus,
   Minus,
@@ -21,6 +23,8 @@ import {
 
 function CartPageContent() {
   const router = useRouter()
+  const { data: session } = useSession()
+  const { openMobileAuth } = useMobileAuth()
   const {
     items,
     savedForLater,
@@ -57,6 +61,13 @@ function CartPageContent() {
 
   const handleCheckout = () => {
     if (items.length === 0) return
+    if (!session?.user) {
+      openMobileAuth({
+        actionType: "buy",
+        callbackUrl: "/books/cart",
+      })
+      return
+    }
     setIsOrdering(true)
     setTimeout(() => {
       placeOrder("UPI / Razorpay Instant eBook Access")

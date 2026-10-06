@@ -4,6 +4,8 @@ import React, { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import {
     Pencil,
     ChevronDown,
@@ -19,6 +21,7 @@ import {
     List,
     Video,
     ChevronRight,
+    LogIn,
 } from "lucide-react"
 
 interface LessonItem {
@@ -84,6 +87,9 @@ interface MyLearningClientProps {
 
 export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLearningClientProps) {
     const router = useRouter()
+    const { data: session } = useSession()
+    const { openMobileAuth } = useMobileAuth()
+    const isGuest = !session?.user
     const [viewMode, setViewMode] = useState<"cards" | "list">("cards")
     const [activeTab, setActiveTab] = useState<"in-progress" | "completed">("in-progress")
     const [sortBy, setSortBy] = useState<"last-added" | "title" | "progress">("last-added")
@@ -296,7 +302,35 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                 </div>
 
                 {/* Empty State */}
-                {sortedList.length === 0 ? (
+                {isGuest ? (
+                    <div className="bg-white rounded-3xl border-2 border-indigo-100 dark:border-indigo-900/50 p-10 text-center space-y-4 shadow-sm">
+                        <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+                            <LogIn className="w-6 h-6" />
+                        </div>
+                        <h3 className="font-extrabold text-lg text-gray-900">
+                            To view your enrolled batches &amp; watch history, login
+                        </h3>
+                        <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                            Sign in with your mobile OTP to continue watching your live batches and lessons.
+                        </p>
+                        <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                            <button
+                                type="button"
+                                onClick={() => openMobileAuth({ actionType: "login", callbackUrl: "/my-learning" })}
+                                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2"
+                            >
+                                <LogIn className="w-4 h-4" />
+                                <span>Login with Mobile</span>
+                            </button>
+                            <Link
+                                href="/courses"
+                                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-xs font-bold hover:bg-gray-50 transition-all"
+                            >
+                                Browse Courses
+                            </Link>
+                        </div>
+                    </div>
+                ) : sortedList.length === 0 ? (
                     <div className="bg-white rounded-3xl border-2 border-gray-200 p-12 text-center space-y-4">
                         <BookOpen className="w-12 h-12 text-gray-400 mx-auto" />
                         <h3 className="font-extrabold text-lg text-gray-900">

@@ -24,7 +24,7 @@ interface MobileProfileSheetProps {
 }
 
 export default function MobileProfileSheet({ isOpen, onClose, hasActivePass }: MobileProfileSheetProps) {
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
     const { theme, toggleTheme } = useTheme()
 
     if (!isOpen) return null
@@ -58,7 +58,15 @@ export default function MobileProfileSheet({ isOpen, onClose, hasActivePass }: M
 
                 {/* Student Profile Card (shifted from hamburger menu) */}
                 <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                    {user ? (
+                    {status === "loading" ? (
+                        <div className="flex items-center gap-3 animate-pulse">
+                            <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0" />
+                            <div className="min-w-0 flex-1 space-y-2">
+                                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24" />
+                                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-32" />
+                            </div>
+                        </div>
+                    ) : user ? (
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 font-extrabold text-lg flex items-center justify-center flex-shrink-0 shadow-xs">
                                 {user.name?.[0]?.toUpperCase() || "A"}

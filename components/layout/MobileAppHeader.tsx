@@ -13,7 +13,7 @@ interface MobileAppHeaderProps {
 }
 
 export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps) {
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isProfileOpen, setIsProfileOpen] = useState(false)
     const [unreadCount, setUnreadCount] = useState(0)
@@ -87,15 +87,21 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                         </Link>
 
                         {/* Top-Right Avatar opens dedicated Profile & Account Sheet */}
-                        <button
-                            onClick={() => setIsProfileOpen(true)}
-                            aria-label="Account profile"
-                            className="p-0.5 rounded-full ring-1 ring-slate-200 dark:ring-slate-700 active:scale-95 transition-transform flex-shrink-0"
-                        >
-                            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 font-extrabold text-xs flex items-center justify-center">
-                                {session?.user?.name?.[0]?.toUpperCase() || "A"}
+                        {status === "loading" ? (
+                            <div className="p-0.5 rounded-full ring-1 ring-slate-200 dark:ring-slate-700 flex-shrink-0 animate-pulse">
+                                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-200 dark:bg-slate-700" />
                             </div>
-                        </button>
+                        ) : (
+                            <button
+                                onClick={() => setIsProfileOpen(true)}
+                                aria-label="Account profile"
+                                className="p-0.5 rounded-full ring-1 ring-slate-200 dark:ring-slate-700 active:scale-95 transition-transform flex-shrink-0"
+                            >
+                                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 font-extrabold text-xs flex items-center justify-center">
+                                    {session?.user?.name?.[0]?.toUpperCase() || "A"}
+                                </div>
+                            </button>
+                        )}
                     </div>
                 </div>
             </header>

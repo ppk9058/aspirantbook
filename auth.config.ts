@@ -23,11 +23,6 @@ export const authConfig = {
                 return false // Only TEACHER and ADMIN can access teacher routes
             }
 
-            if (isOnDashboard) {
-                if (isLoggedIn) return true
-                return false // Redirect unauthenticated users to login page
-            }
-
             return true
         },
         redirect({ url, baseUrl }) {

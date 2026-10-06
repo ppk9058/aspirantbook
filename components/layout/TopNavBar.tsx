@@ -18,7 +18,7 @@ import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { getDashboardHref } from "@/lib/auth/roles"
 
 export default function TopNavBar() {
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
     const { theme, toggleTheme } = useTheme()
     const { selectedGoal } = useGoal()
     const { openMobileAuth } = useMobileAuth()
@@ -119,7 +119,15 @@ export default function TopNavBar() {
                     </div>
 
                     {/* Profile Dropdown or Guest Login */}
-                    {session?.user ? (
+                    {status === "loading" ? (
+                        <div className="flex items-center gap-2 p-1 sm:p-1.5" aria-label="Loading profile skeleton">
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                            <div className="hidden md:flex flex-col gap-1 text-left">
+                                <div className="w-16 h-2.5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
+                                <div className="w-10 h-2 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
+                            </div>
+                        </div>
+                    ) : session?.user ? (
                         <div className="relative">
                             <button
                                 onClick={() => setShowProfileMenu(!showProfileMenu)}

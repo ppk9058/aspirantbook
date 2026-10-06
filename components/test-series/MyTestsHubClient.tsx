@@ -3,6 +3,8 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import {
     Play,
     Clock,
@@ -23,6 +25,7 @@ import {
     ArrowRight,
     ChevronDown,
     ChevronUp,
+    LogIn,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -182,6 +185,23 @@ export default function MyTestsHubClient({
     catalogSeries,
 }: Props) {
     const router = useRouter()
+    const { data: session } = useSession()
+    const { openMobileAuth } = useMobileAuth()
+    const isGuest = !session?.user
+
+    const handleAuthAction = (e: React.MouseEvent, targetUrl: string) => {
+        if (isGuest) {
+            e.preventDefault()
+            e.stopPropagation()
+            openMobileAuth({
+                actionType: "login",
+                callbackUrl: targetUrl,
+            })
+            return false
+        }
+        return true
+    }
+
     const [perfTab, setPerfTab] = useState<"ATTEMPTS" | "WEAK_AREAS" | "BOOKMARKS">("ATTEMPTS")
     const [expandedTests, setExpandedTests] = useState<Record<string, boolean>>({})
 
@@ -249,6 +269,7 @@ export default function MyTestsHubClient({
                                     </div>
                                     <Link
                                         href={test.attemptUrl}
+                                        onClick={(e) => handleAuthAction(e, test.attemptUrl)}
                                         className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-sm shadow-sm transition-all active:scale-[0.98] min-h-[44px]"
                                     >
                                         <Play className="w-4 h-4 fill-current" />
@@ -284,7 +305,36 @@ export default function MyTestsHubClient({
                     </Link>
                 </div>
 
-                {enrolledSeries.length === 0 ? (
+                {isGuest ? (
+                    <div className="rounded-2xl border-2 border-teal-100 dark:border-teal-900/40 bg-teal-50/40 dark:bg-teal-950/20 p-8 text-center space-y-4">
+                        <div className="w-14 h-14 rounded-full bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 flex items-center justify-center mx-auto">
+                            <LogIn className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">To see your enrolled tests &amp; series, login</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">
+                                Sign in with your mobile number to view active test enrollments and your test passes.
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap items-center justify-center gap-3">
+                            <button
+                                type="button"
+                                onClick={(e) => handleAuthAction(e, "/my-tests")}
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs transition-colors min-h-[44px]"
+                            >
+                                <LogIn className="w-4 h-4" />
+                                Login with Mobile
+                            </button>
+                            <Link
+                                href="/test-series"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors min-h-[44px]"
+                            >
+                                <Compass className="w-4 h-4" />
+                                Browse Catalog
+                            </Link>
+                        </div>
+                    </div>
+                ) : enrolledSeries.length === 0 ? (
                     /* ── Empty state ── */
                     <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-8 text-center space-y-4">
                         <div className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center mx-auto">
@@ -366,7 +416,9 @@ export default function MyTestsHubClient({
                                             type="button"
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                router.push(series.nextTestUrl)
+                                                if (handleAuthAction(e, series.nextTestUrl)) {
+                                                    router.push(series.nextTestUrl)
+                                                }
                                             }}
                                             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs transition-all active:scale-[0.98] min-h-[40px] whitespace-nowrap cursor-pointer shadow-xs"
                                         >
@@ -511,7 +563,30 @@ export default function MyTestsHubClient({
 
                 {/* TAB: Attempted Mocks */}
                 {perfTab === "ATTEMPTS" && (
-                    recentAttempts.length === 0 ? (
+                    isGuest ? (
+                        <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-sky-100 dark:border-sky-900/40 p-10 text-center space-y-3">
+                            <div className="w-12 h-12 rounded-full bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto">
+                                <LogIn className="w-6 h-6" />
+                            </div>
+                            <p className="text-sm font-bold text-slate-700 dark:text-slate-300">To see your mock test reports &amp; attempt history, login</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-xs mx-auto">
+                                Sign in with your mobile OTP to track your score progression, accuracy, and All-India Rank.
+                            </p>
+                            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={(e) => handleAuthAction(e, "/my-tests")}
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold min-h-[44px]"
+                                >
+                                    <LogIn className="w-4 h-4" />
+                                    Login with Mobile
+                                </button>
+                                <Link href="/test-series" className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold min-h-[44px]">
+                                    Take a Mock Test
+                                </Link>
+                            </div>
+                        </div>
+                    ) : recentAttempts.length === 0 ? (
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-10 text-center space-y-3">
                             <BookOpen className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto" />
                             <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No test attempts yet</p>
@@ -551,13 +626,25 @@ export default function MyTestsHubClient({
                                                 </h3>
                                             </div>
                                             <div className="flex flex-wrap items-center gap-2 shrink-0">
-                                                <Link href={attempt.solutionUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors min-h-[44px] flex items-center">
+                                                <Link
+                                                    href={attempt.solutionUrl}
+                                                    onClick={(e) => handleAuthAction(e, attempt.solutionUrl)}
+                                                    className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors min-h-[44px] flex items-center"
+                                                >
                                                     Mistake Notebook
                                                 </Link>
-                                                <Link href={attempt.leaderboardUrl} className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-purple-700 dark:text-purple-400 transition-colors min-h-[44px] flex items-center">
+                                                <Link
+                                                    href={attempt.leaderboardUrl}
+                                                    onClick={(e) => handleAuthAction(e, attempt.leaderboardUrl)}
+                                                    className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-purple-700 dark:text-purple-400 transition-colors min-h-[44px] flex items-center"
+                                                >
                                                     View AIR #{attempt.rank || "—"}
                                                 </Link>
-                                                <Link href={attempt.reportUrl} className="px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-extrabold transition-all min-h-[44px] flex items-center">
+                                                <Link
+                                                    href={attempt.reportUrl}
+                                                    onClick={(e) => handleAuthAction(e, attempt.reportUrl)}
+                                                    className="px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-extrabold transition-all min-h-[44px] flex items-center"
+                                                >
                                                     Full Report →
                                                 </Link>
                                             </div>

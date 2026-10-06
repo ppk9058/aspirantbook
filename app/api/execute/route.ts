@@ -2,15 +2,25 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { executeCode, formatOutput, isExecutionSuccessful } from "@/lib/execution/piston"
 import { validateTestCase, type TestCase, type TestResult } from "@/lib/execution/validator"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(request: NextRequest) {
     try {
         const session = await auth()
 
-        if (!session?.user?.email) {
+        // Guest or authenticated execution allowed, with IP-based rate limiting (10 req/min)
+        const ip =
+            request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+            request.headers.get("x-real-ip") ||
+            "127.0.0.1"
+
+        const rateLimitKey = session?.user?.id ? `exec_user_${session.user.id}` : `exec_ip_${ip}`
+        const rl = await checkRateLimit(rateLimitKey, 10, 60)
+
+        if (!rl.allowed) {
             return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
+                { error: "Too many requests. Please wait a minute before running code again." },
+                { status: 429 }
             )
         }
 

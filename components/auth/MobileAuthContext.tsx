@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
+import { sanitizeReturnPath } from "@/lib/utils/return-path"
 
 export interface MobileAuthCourseInfo {
     id: string
@@ -18,6 +19,7 @@ export interface MobileAuthCourseInfo {
 export interface MobileAuthOptions {
     course?: MobileAuthCourseInfo | null
     actionType?: "enroll" | "buy" | "details" | "login"
+    callbackUrl?: string
     onSuccess?: (user: any) => void
 }
 
@@ -32,6 +34,7 @@ interface MobileAuthContextType {
     successMessage: string
     activeCourse: MobileAuthCourseInfo | null
     actionType: "enroll" | "buy" | "details" | "login"
+    callbackUrl: string | null
     openMobileAuth: (options?: MobileAuthOptions) => void
     closeMobileAuth: () => void
     setPhoneNumber: (phone: string) => void
@@ -66,12 +69,17 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
     const [successMessage, setSuccessMessage] = useState("")
     const [activeCourse, setActiveCourse] = useState<MobileAuthCourseInfo | null>(null)
     const [actionType, setActionType] = useState<"enroll" | "buy" | "details" | "login">("login")
+    const [callbackUrl, setCallbackUrl] = useState<string | null>(null)
 
     const openMobileAuth = useCallback((options?: MobileAuthOptions) => {
         const course = options?.course || null
         const act = options?.actionType || "login"
+        const rawCb = options?.callbackUrl || null
+        const safeCb = rawCb ? sanitizeReturnPath(rawCb, "") : null
+
         setActiveCourse(course)
         setActionType(act)
+        setCallbackUrl(safeCb)
         setStep("phone")
         setPhoneNumber("")
         setOtp(["", "", "", "", "", ""])
@@ -181,7 +189,14 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
             }
 
             // Step 3: Handle redirection according to requirements
-            if (effectiveAction === "enroll" && activeCourse) {
+            if (callbackUrl) {
+                setSuccessMessage("Logged in successfully! Returning to page...")
+                setTimeout(() => {
+                    setIsOpen(false)
+                    router.push(callbackUrl)
+                    router.refresh()
+                }, 900)
+            } else if (effectiveAction === "enroll" && activeCourse) {
                 // Free course -> enroll without payment page -> show list in My Batches with Watch Now
                 setSuccessMessage("Enrolled successfully! Redirecting to My Batches...")
                 setTimeout(() => {
@@ -220,7 +235,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
             setErrorMessage("Something went wrong. Please try again.")
             setIsVerifying(false)
         }
-    }, [actionType, activeCourse, isVerifying, phoneNumber, router])
+    }, [actionType, activeCourse, callbackUrl, isVerifying, phoneNumber, router])
 
     const handleOtpChange = (
         val: string,
@@ -303,6 +318,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
                 successMessage,
                 activeCourse,
                 actionType,
+                callbackUrl,
                 openMobileAuth,
                 closeMobileAuth,
                 setPhoneNumber,
@@ -335,6 +351,7 @@ export function useMobileAuth() {
             successMessage: "",
             activeCourse: null,
             actionType: "login" as const,
+            callbackUrl: null,
             openMobileAuth: triggerMobileAuth,
             closeMobileAuth: () => {},
             setPhoneNumber: () => {},

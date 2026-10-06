@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import {
     Sparkles,
     Search,
@@ -17,6 +18,7 @@ import {
     Languages,
     BookOpen,
     Filter,
+    LogIn,
 } from "lucide-react"
 import { TestActionButton } from "@/components/test-series/TestActionButton"
 
@@ -107,6 +109,7 @@ const CURATED_CA_QUIZZES: QuizItem[] = [
 
 export default function CurrentAffairsQuizzesClient() {
     const { data: session } = useSession()
+    const { openMobileAuth } = useMobileAuth()
     const [dbQuizzes, setDbQuizzes] = useState<QuizItem[]>([])
     const [localQuizzes, setLocalQuizzes] = useState<QuizItem[]>([])
     const [searchQuery, setSearchQuery] = useState("")
@@ -114,6 +117,20 @@ export default function CurrentAffairsQuizzesClient() {
     const [isLoading, setIsLoading] = useState(true)
 
     const isTeacherOrAdmin = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
+    const isGuest = !session?.user
+
+    const handleAuthAction = (e: React.MouseEvent, targetUrl: string) => {
+        if (isGuest) {
+            e.preventDefault()
+            e.stopPropagation()
+            openMobileAuth({
+                actionType: "login",
+                callbackUrl: targetUrl,
+            })
+            return false
+        }
+        return true
+    }
 
     // Load from database API
     useEffect(() => {
@@ -268,6 +285,7 @@ export default function CurrentAffairsQuizzesClient() {
                         )}
                         <Link
                             href="/test-series/my-tests"
+                            onClick={(e) => handleAuthAction(e, "/test-series/my-tests")}
                             className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 backdrop-blur-xs"
                         >
                             <Award className="w-4 h-4 text-amber-300" />

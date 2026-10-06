@@ -7,6 +7,15 @@ export const revalidate = 60
 export const metadata = {
     title: "Tutorials - aspirantbook",
     description: "Explore interactive text tutorials, code walkthroughs, and step-by-step curriculum.",
+    alternates: {
+        canonical: "/tutorials",
+    },
+    openGraph: {
+        title: "Tutorials - aspirantbook",
+        description: "Explore interactive text tutorials, code walkthroughs, and step-by-step curriculum.",
+        url: "/tutorials",
+        type: "website",
+    },
 }
 
 // Fallback tutorials matching existing database tutorials if DB is temporarily unreachable
