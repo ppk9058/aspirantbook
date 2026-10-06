@@ -14,12 +14,14 @@ import { PrismaClient } from "@prisma/client";
 import { assertTestDb } from "../lib/testing/assert-test-db";
 import { createRazorpayOrder } from "../lib/actions/payment/razorpay";
 import crypto from "crypto";
+import { spawn, ChildProcess } from "child_process";
 
-const TEST_PORT = 3045;
+const TEST_PORT = 3047;
 const BASE_URL = `http://127.0.0.1:${TEST_PORT}`;
 const DOCKER_DB_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
 const TEST_RAZORPAY_SECRET = "QljFqlEML0mHLqEgKOeztfw8";
 const WEBHOOK_SECRET = "whsec_test_secret_12345";
+const SECRET = "test-secret-test-secret-test-secret-32-chars!!";
 
 process.env.TEST_DATABASE_URL = DOCKER_DB_URL;
 process.env.DATABASE_URL = DOCKER_DB_URL;
@@ -51,42 +53,75 @@ async function printCounts(label: string, orderId: string, userId: string, cours
       userId,
       OR: [
         { externalId: orderId },
+        { razorpayOrderId: orderId },
         { metadata: { path: ["orderId"], equals: orderId } }
       ]
     },
-    select: { id: true, status: true, externalId: true, amount: true, metadata: true }
+    select: { id: true, status: true, externalId: true, amount: true }
   });
   const completedPayments = payments.filter(p => p.status === "COMPLETED");
   const enrollments = await prisma.enrollment.findMany({
     where: { userId, courseId },
     select: { id: true, userId: true, courseId: true }
   });
-  console.log(`[${label}] Order: ${orderId} | Total Payments: ${payments.length} | COMPLETED Payments: ${completedPayments.length} | Enrollments: ${enrollments.length}`);
+  console.log(`[${label}] User: ${userId} | Order: ${orderId} | Total Payments: ${payments.length} | COMPLETED Payments: ${completedPayments.length} | Enrollments: ${enrollments.length}`);
 }
 
 async function run() {
-  console.log("=== PASS 9.5: STEP 2 - COMPREHENSIVE PAYMENT MATRIX OVER REAL FLOW ===");
+  console.log("=== PASS 9.6: STEP 3 - COMPREHENSIVE PAYMENT MATRIX OVER REAL FLOW ===");
   console.log(`TEST DB: yes | Host: 127.0.0.1:54329 | DB: trillionskill_test\n`);
 
+  console.log(`Starting isolated Next.js server (.next-test) on port ${TEST_PORT}...`);
+  const serverProc: ChildProcess = spawn("npx", ["next", "start", "-p", String(TEST_PORT)], {
+    env: {
+      ...process.env,
+      PORT: String(TEST_PORT),
+      NEXT_DIST_DIR: ".next-test",
+      DATABASE_URL: DOCKER_DB_URL,
+      DIRECT_URL: DOCKER_DB_URL,
+      TEST_DATABASE_URL: DOCKER_DB_URL,
+      NEXTAUTH_URL: BASE_URL,
+      AUTH_URL: BASE_URL,
+      APP_ENV: "test",
+      NODE_ENV: "production",
+      AUTH_SECRET: SECRET,
+      NEXTAUTH_SECRET: SECRET,
+      RAZORPAY_KEY_SECRET: TEST_RAZORPAY_SECRET,
+      RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
+      RAZORPAY_KEY_ID: "rzp_test_mockkey12345"
+    },
+    stdio: "pipe"
+  });
+
+  for (let i = 0; i < 30; i++) {
+    try {
+      const res = await fetch(`${BASE_URL}/login`, { redirect: "manual" });
+      if (res.status === 200 || res.status === 404 || res.status === 307) break;
+    } catch {}
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  console.log(`Server ready on port ${TEST_PORT}.\n`);
+
+  try {
   // Target User & Course
   const student = await prisma.user.upsert({
-    where: { email: "payment_student_p95@test.local" },
+    where: { email: "payment_student_p96@test.local" },
     update: {},
     create: {
-      id: "u_pay_student_p95",
-      email: "payment_student_p95@test.local",
-      name: "Payment Tester P95",
+      id: "u_pay_student_p96",
+      email: "payment_student_p96@test.local",
+      name: "Payment Tester P96",
       role: "FREE"
     }
   });
 
   const attacker = await prisma.user.upsert({
-    where: { email: "attacker_student_p95@test.local" },
+    where: { email: "attacker_student_p96@test.local" },
     update: {},
     create: {
-      id: "u_attacker_student_p95",
-      email: "attacker_student_p95@test.local",
-      name: "Attacker P95",
+      id: "u_attacker_student_p96",
+      email: "attacker_student_p96@test.local",
+      name: "Attacker P96",
       role: "FREE"
     }
   });
@@ -97,13 +132,13 @@ async function run() {
   if (!targetCourse) throw new Error("Target course not found!");
 
   const otherCourse = await prisma.course.upsert({
-    where: { slug: "other-paid-course-p95" },
+    where: { slug: "other-paid-course-p96" },
     update: {},
     create: {
-      id: "c_other_paid_p95",
-      title: "Other Paid Course P95",
+      id: "c_other_paid_p96",
+      title: "Other Paid Course P96",
       description: "Description for other paid course",
-      slug: "other-paid-course-p95",
+      slug: "other-paid-course-p96",
       price: 4999,
       status: "PUBLISHED",
       isPublished: true,
@@ -113,9 +148,9 @@ async function run() {
   });
 
   // Clean initial state for clean audit
-  await prisma.enrollment.deleteMany({ where: { userId: { in: [student.id, attacker.id] } } });
-  await prisma.payment.deleteMany({ where: { userId: { in: [student.id, attacker.id] } } });
-  await prisma.couponRedemption.deleteMany({ where: { userId: { in: [student.id, attacker.id] } } });
+  await prisma.enrollment.deleteMany({ where: { user: { email: { contains: "p96" } } } });
+  await prisma.payment.deleteMany({ where: { user: { email: { contains: "p96" } } } });
+  await prisma.couponRedemption.deleteMany({ where: { user: { email: { contains: "p96" } } } });
 
   console.log("Initial state clean: 0 payments, 0 enrollments for test users.\n");
 
@@ -135,9 +170,9 @@ async function run() {
   // CASE 2: Bad signature on fresh order
   console.log("\n--- 2. Bad Signature ---");
   const badSigUser = await prisma.user.upsert({
-    where: { email: "badsig_user@test.local" },
+    where: { email: "badsig_user_p96@test.local" },
     update: {},
-    create: { id: "u_badsig_user", email: "badsig_user@test.local", role: "FREE" }
+    create: { id: "u_badsig_p96", email: "badsig_user_p96@test.local", role: "FREE" }
   });
   await prisma.payment.deleteMany({ where: { userId: badSigUser.id } });
   await prisma.enrollment.deleteMany({ where: { userId: badSigUser.id } });
@@ -161,7 +196,9 @@ async function run() {
     body: JSON.stringify({ orderId: ord2.orderId, paymentId: pay3Id, signature: sig3, userId: attacker.id, courseId: targetCourse.id })
   });
   console.log(`Verify status: ${res3.status}`);
-  await printCounts("Case 3 (Other User)", ord2.orderId, student.id, targetCourse.id);
+  // For Case 3, print for the attacker (who attempted verify) AND for the order owner (badSigUser)
+  await printCounts("Case 3 (Attacker)", ord2.orderId, attacker.id, targetCourse.id);
+  await printCounts("Case 3 (Order Owner)", ord2.orderId, badSigUser.id, targetCourse.id);
 
   // CASE 4: Other course mismatch
   console.log("\n--- 4. Other Course Mismatch ---");
@@ -170,10 +207,10 @@ async function run() {
   const res4 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ orderId: ord2.orderId, paymentId: pay4Id, signature: sig4, userId: student.id, courseId: otherCourse.id })
+    body: JSON.stringify({ orderId: ord2.orderId, paymentId: pay4Id, signature: sig4, userId: badSigUser.id, courseId: otherCourse.id })
   });
   console.log(`Verify status: ${res4.status}`);
-  await printCounts("Case 4 (Other Course)", ord2.orderId, student.id, targetCourse.id);
+  await printCounts("Case 4 (Other Course Mismatch)", ord2.orderId, badSigUser.id, otherCourse.id);
 
   // CASE 5: Unknown order
   console.log("\n--- 5. Unknown Order ---");
@@ -193,9 +230,9 @@ async function run() {
   const res6 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ paymentId: "pay_no_order", signature: "sig" })
+    body: JSON.stringify({ userId: student.id, paymentId: "pay_no_order", signature: "sig" })
   });
-  console.log(`Verify status: ${res6.status}`);
+  console.log(`Verify status: ${res6.status} (Expected 400)`);
 
   // CASE 7: Replay x2 on valid order (ord1)
   console.log("\n--- 7. Replay Verification (x2) ---");
@@ -214,25 +251,33 @@ async function run() {
 
   // CASE 8: 5 Parallel Verifies on fresh order
   console.log("\n--- 8. 5 Parallel Verifies ---");
-  const ord8 = await createRazorpayOrder({ courseId: otherCourse.id, userId: student.id });
+  const parallelUser = await prisma.user.upsert({
+    where: { email: "parallel_student_p96@test.local" },
+    update: {},
+    create: { id: "u_par_p96", email: "parallel_student_p96@test.local", role: "FREE" }
+  });
+  const ord8 = await createRazorpayOrder({ courseId: otherCourse.id, userId: parallelUser.id });
   const pay8Id = `pay_parallel_${Date.now()}`;
   const sig8 = generateSignature(ord8.orderId, pay8Id, TEST_RAZORPAY_SECRET);
   const parallelPromises = Array.from({ length: 5 }).map(() =>
     fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId: ord8.orderId, paymentId: pay8Id, signature: sig8, userId: student.id, courseId: otherCourse.id })
+      body: JSON.stringify({ orderId: ord8.orderId, paymentId: pay8Id, signature: sig8, userId: parallelUser.id, courseId: otherCourse.id })
     })
   );
   const parallelResponses = await Promise.all(parallelPromises);
   console.log(`Statuses: ${parallelResponses.map(r => r.status).join(", ")}`);
-  await printCounts("Case 8 (5 Parallel Verifies)", ord8.orderId, student.id, otherCourse.id);
+  await printCounts("Case 8 (5 Parallel Verifies)", ord8.orderId, parallelUser.id, otherCourse.id);
 
   // CASE 9: Webhook alone (no client verify)
   console.log("\n--- 9. Webhook Captured Alone ---");
-  // Clean otherCourse enrollment for test isolation
-  await prisma.enrollment.deleteMany({ where: { userId: student.id, courseId: otherCourse.id } });
-  const ord9 = await createRazorpayOrder({ courseId: otherCourse.id, userId: student.id });
+  const whUser = await prisma.user.upsert({
+    where: { email: "wh_student_p96@test.local" },
+    update: {},
+    create: { id: "u_wh_p96", email: "wh_student_p96@test.local", role: "FREE" }
+  });
+  const ord9 = await createRazorpayOrder({ courseId: otherCourse.id, userId: whUser.id });
   const pay9Id = `pay_wh_alone_${Date.now()}`;
   const whPayload9 = JSON.stringify({
     event: "payment.captured",
@@ -255,7 +300,7 @@ async function run() {
     body: whPayload9
   });
   console.log(`Webhook alone status: ${whRes9.status}`);
-  await printCounts("Case 9 (Webhook Alone)", ord9.orderId, student.id, otherCourse.id);
+  await printCounts("Case 9 (Webhook Alone)", ord9.orderId, whUser.id, otherCourse.id);
 
   // CASE 10: Webhook x2 alone
   console.log("\n--- 10. Webhook x2 Alone ---");
@@ -265,18 +310,22 @@ async function run() {
     body: whPayload9
   });
   console.log(`Webhook second call status: ${whRes10.status}`);
-  await printCounts("Case 10 (Webhook x2 Alone)", ord9.orderId, student.id, otherCourse.id);
+  await printCounts("Case 10 (Webhook x2 Alone)", ord9.orderId, whUser.id, otherCourse.id);
 
   // CASE 11: Verify then Webhook
   console.log("\n--- 11. Verify then Webhook ---");
-  await prisma.enrollment.deleteMany({ where: { userId: attacker.id, courseId: targetCourse.id } });
-  const ord11 = await createRazorpayOrder({ courseId: targetCourse.id, userId: attacker.id });
+  const vWhUser = await prisma.user.upsert({
+    where: { email: "v_wh_user_p96@test.local" },
+    update: {},
+    create: { id: "u_v_wh_p96", email: "v_wh_user_p96@test.local", role: "FREE" }
+  });
+  const ord11 = await createRazorpayOrder({ courseId: targetCourse.id, userId: vWhUser.id });
   const pay11Id = `pay_v_then_wh_${Date.now()}`;
   const sig11 = generateSignature(ord11.orderId, pay11Id, TEST_RAZORPAY_SECRET);
   const vRes11 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ orderId: ord11.orderId, paymentId: pay11Id, signature: sig11, userId: attacker.id, courseId: targetCourse.id })
+    body: JSON.stringify({ orderId: ord11.orderId, paymentId: pay11Id, signature: sig11, userId: vWhUser.id, courseId: targetCourse.id })
   });
   const whPayload11 = JSON.stringify({
     event: "payment.captured",
@@ -289,12 +338,16 @@ async function run() {
     body: whPayload11
   });
   console.log(`Verify status: ${vRes11.status}, Webhook status: ${whRes11.status}`);
-  await printCounts("Case 11 (Verify then Webhook)", ord11.orderId, attacker.id, targetCourse.id);
+  await printCounts("Case 11 (Verify then Webhook)", ord11.orderId, vWhUser.id, targetCourse.id);
 
   // CASE 12: Webhook then Verify
   console.log("\n--- 12. Webhook then Verify ---");
-  await prisma.enrollment.deleteMany({ where: { userId: attacker.id, courseId: otherCourse.id } });
-  const ord12 = await createRazorpayOrder({ courseId: otherCourse.id, userId: attacker.id });
+  const whVUser = await prisma.user.upsert({
+    where: { email: "wh_v_user_p96@test.local" },
+    update: {},
+    create: { id: "u_wh_v_p96", email: "wh_v_user_p96@test.local", role: "FREE" }
+  });
+  const ord12 = await createRazorpayOrder({ courseId: otherCourse.id, userId: whVUser.id });
   const pay12Id = `pay_wh_then_v_${Date.now()}`;
   const whPayload12 = JSON.stringify({
     event: "payment.captured",
@@ -310,10 +363,10 @@ async function run() {
   const vRes12 = await fetch(`${BASE_URL}/api/verify-payment/razorpay`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ orderId: ord12.orderId, paymentId: pay12Id, signature: sig12, userId: attacker.id, courseId: otherCourse.id })
+    body: JSON.stringify({ orderId: ord12.orderId, paymentId: pay12Id, signature: sig12, userId: whVUser.id, courseId: otherCourse.id })
   });
   console.log(`Webhook status: ${whRes12.status}, Verify status: ${vRes12.status}`);
-  await printCounts("Case 12 (Webhook then Verify)", ord12.orderId, attacker.id, otherCourse.id);
+  await printCounts("Case 12 (Webhook then Verify)", ord12.orderId, whVUser.id, otherCourse.id);
 
   // CASE 13: Webhook Bad Signature
   console.log("\n--- 13. Webhook Bad Signature ---");
@@ -325,14 +378,23 @@ async function run() {
   console.log(`Webhook bad signature status: ${badWhRes.status}`);
 
   // CASE 14: payment.failed event releases coupon and marks FAILED
-  console.log("\n--- 14. payment.failed Event ---");
+  console.log("\n--- 14. payment.failed Event with Coupon RELEASED ---");
   const failedUser = await prisma.user.upsert({
-    where: { email: "fail_student@test.local" },
+    where: { email: "fail_student_p96@test.local" },
     update: {},
-    create: { id: "u_fail_student", email: "fail_student@test.local", role: "FREE" }
+    create: { id: "u_fail_p96", email: "fail_student_p96@test.local", role: "FREE" }
   });
   await prisma.payment.deleteMany({ where: { userId: failedUser.id } });
-  const ord14 = await createRazorpayOrder({ courseId: otherCourse.id, userId: failedUser.id });
+  await prisma.couponRedemption.deleteMany({ where: { userId: failedUser.id } });
+
+  const ord14 = await createRazorpayOrder({
+    courseId: targetCourse.id,
+    userId: failedUser.id,
+    couponCode: "STEP5_PERC20"
+  });
+  const redBeforeFail = await prisma.couponRedemption.findFirst({ where: { userId: failedUser.id } });
+  console.log(`Coupon redemption status before failure: ${redBeforeFail?.status}`);
+
   const failWhPayload = JSON.stringify({
     event: "payment.failed",
     payload: { payment: { entity: { id: "pay_failed_14", order_id: ord14.orderId } } }
@@ -344,24 +406,28 @@ async function run() {
     body: failWhPayload
   });
   console.log(`Webhook payment.failed status: ${failWhRes.status}`);
-  const failPmt = await prisma.payment.findFirst({ where: { externalId: ord14.orderId } });
-  console.log(`Payment status after failure: ${failPmt?.status}`);
+  const failPmt = await prisma.payment.findFirst({ where: { razorpayOrderId: ord14.orderId } });
+  const redAfterFail = await prisma.couponRedemption.findFirst({ where: { userId: failedUser.id } });
+  console.log(`Payment status after failure: ${failPmt?.status} | Coupon redemption status: ${redAfterFail?.status}`);
+  await printCounts("Case 14 (Payment Failed Event)", ord14.orderId, failedUser.id, targetCourse.id);
 
   // CASE 15: Already-enrolled user buys again (blocked)
   console.log("\n--- 15. Already-Enrolled User Buys Again (Blocked) ---");
+  await printCounts("Before Buy Again Attempt", ord1.orderId, student.id, targetCourse.id);
   try {
     await createRazorpayOrder({ courseId: targetCourse.id, userId: student.id });
     console.log("FAIL: Already-enrolled order was not blocked!");
   } catch (err: any) {
     console.log(`PASS: Blocked with error: "${err.message}"`);
   }
+  await printCounts("After Buy Again Blocked", ord1.orderId, student.id, targetCourse.id);
 
   // CASE 16: Coupon: RESERVED -> REDEEMED
   console.log("\n--- 16. Coupon RESERVED -> REDEEMED ---");
   const couponUser = await prisma.user.upsert({
-    where: { email: "coupon_student@test.local" },
+    where: { email: "coupon_student_p96@test.local" },
     update: {},
-    create: { id: "u_coupon_student", email: "coupon_student@test.local", role: "FREE" }
+    create: { id: "u_coupon_p96", email: "coupon_student_p96@test.local", role: "FREE" }
   });
   await prisma.enrollment.deleteMany({ where: { userId: couponUser.id } });
   await prisma.payment.deleteMany({ where: { userId: couponUser.id } });
@@ -389,14 +455,45 @@ async function run() {
   console.log(`Verify status: ${cRes.status} | Coupon redemption status after verify: ${redAfter?.status}`);
   await printCounts("Case 16 (Coupon Reserved -> Redeemed)", couponOrder.orderId, couponUser.id, targetCourse.id);
 
-  // CASE 17: Max redemptions 1 concurrency (5 parallel orders)
-  console.log("\n--- 17. Max Redemptions Concurrency (5 Parallel, Max 1) ---");
+  // CASE 17: Verify with an amount different from order (tampered amount in webhook/verify)
+  console.log("\n--- 17. Amount Different from Order ---");
+  const tamperedUser = await prisma.user.upsert({
+    where: { email: "tampered_user_p96@test.local" },
+    update: {},
+    create: { id: "u_tamp_p96", email: "tampered_user_p96@test.local", role: "FREE" }
+  });
+  const tampOrder = await createRazorpayOrder({ courseId: otherCourse.id, userId: tamperedUser.id });
+  const tampWhPayload = JSON.stringify({
+    event: "payment.captured",
+    payload: {
+      payment: {
+        entity: {
+          id: `pay_tamp_${Date.now()}`,
+          order_id: tampOrder.orderId,
+          amount: 100, // 1 Rupee instead of 4999
+          currency: "INR"
+        }
+      }
+    }
+  });
+  const tampWhSig = generateWebhookSignature(tampWhPayload, WEBHOOK_SECRET);
+  const tampWhRes = await fetch(`${BASE_URL}/api/webhooks/razorpay`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-razorpay-signature": tampWhSig },
+    body: tampWhPayload
+  });
+  const tampJson = await tampWhRes.json();
+  console.log(`Tampered amount webhook response: status ${tampWhRes.status}, warning: "${tampJson.warning}"`);
+  await printCounts("Case 17 (Tampered Amount)", tampOrder.orderId, tamperedUser.id, otherCourse.id);
+
+  // CASE 18: Max redemptions 1 concurrency (5 parallel orders)
+  console.log("\n--- 18. Max Redemptions Concurrency (5 Parallel, Max 1) ---");
   const singleCoupon = await prisma.coupon.upsert({
-    where: { code: "LIMITED_ONE_PASS95" },
+    where: { code: "LIMITED_ONE_PASS96" },
     update: { maxRedemptions: 1, isActive: true },
     create: {
-      id: "cpn_limited_one_p95",
-      code: "LIMITED_ONE_PASS95",
+      id: "cpn_limited_one_p96",
+      code: "LIMITED_ONE_PASS96",
       courseId: targetCourse.id,
       discountType: "PERCENT",
       discountValue: 50,
@@ -411,9 +508,9 @@ async function run() {
   const parallelUsers = await Promise.all(
     Array.from({ length: 5 }).map((_, i) =>
       prisma.user.upsert({
-        where: { email: `limited_user_${i}@test.local` },
+        where: { email: `limited_user_p96_${i}@test.local` },
         update: {},
-        create: { id: `u_lim_${i}`, email: `limited_user_${i}@test.local`, role: "FREE" }
+        create: { id: `u_lim_p96_${i}`, email: `limited_user_p96_${i}@test.local`, role: "FREE" }
       })
     )
   );
@@ -423,7 +520,7 @@ async function run() {
       createRazorpayOrder({
         courseId: targetCourse.id,
         userId: u.id,
-        couponCode: "LIMITED_ONE_PASS95"
+        couponCode: "LIMITED_ONE_PASS96"
       })
     )
   );
@@ -434,7 +531,10 @@ async function run() {
   console.log(`Exactly 1 succeeded? ${successes === 1 ? "YES (PASS)" : "NO (FAIL)"}`);
 
   await prisma.$disconnect();
-  console.log("\nALL STEP 2 PAYMENT MATRIX CASES EXECUTED.");
+  console.log("\nALL STEP 3 PAYMENT MATRIX CASES EXECUTED.");
+  } finally {
+    serverProc.kill("SIGTERM");
+  }
 }
 
 run().catch(err => {

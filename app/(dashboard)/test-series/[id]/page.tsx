@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, notFound } from "next/navigation"
 import { useSession } from "next-auth/react"
 import {
     Clock,
@@ -270,23 +270,7 @@ export default function TestSeriesDetailPage() {
     }
 
     if (seriesNotFound || !currentSeries) {
-        return (
-            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 flex items-center justify-center">
-                    <AlertCircle className="w-8 h-8" />
-                </div>
-                <h1 className="text-2xl font-black text-gray-900 dark:text-white">Test Series Not Found</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md">
-                    The requested test series does not exist or has been removed.
-                </p>
-                <Link
-                    href="/test-series"
-                    className="px-6 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-sm shadow-md transition-colors"
-                >
-                    Back to All Test Series
-                </Link>
-            </div>
-        )
+        notFound()
     }
 
     // Data corresponding to the selected series

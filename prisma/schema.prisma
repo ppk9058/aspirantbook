@@ -631,6 +631,8 @@ model Payment {
   paymentMethod    String?
   paymentProvider  String?
   externalId       String?           @unique
+  razorpayOrderId  String?           @unique
+  razorpayPaymentId String?          @unique
   metadata         Json?
   couponId         String?
   couponCode       String?

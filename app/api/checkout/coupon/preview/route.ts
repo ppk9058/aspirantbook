@@ -11,15 +11,12 @@ export async function POST(req: NextRequest) {
             ? `user_${session.user.id}:coupon_preview` 
             : `ip_${ip}:coupon_preview`
 
-        const isTestEnv = process.env.APP_ENV === "test" || process.env.NODE_ENV === "test"
-        if (!isTestEnv) {
-            const rl = await checkRateLimit(rateLimitKey, 10, 60)
-            if (!rl.allowed) {
-                return NextResponse.json(
-                    { error: "Too many requests. Please wait a moment." },
-                    { status: 429 }
-                )
-            }
+        const rl = await checkRateLimit(rateLimitKey, 10, 60)
+        if (!rl.allowed) {
+            return NextResponse.json(
+                { error: "Too many requests. Please wait a moment." },
+                { status: 429 }
+            )
         }
 
         const body = await req.json().catch(() => ({}))

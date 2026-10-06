@@ -47,14 +47,11 @@ interface MatrixResult {
 
 async function run() {
   console.log("=========================================================================");
-  console.log("=== PASS 9.3: COMPLETE QA TEST MATRIX RUNNER (ALL 310 REAL CASES) ===");
+  console.log("=== PASS 9.6: COMPLETE QA TEST MATRIX RUNNER (ALL 310 REAL CASES) ===");
   console.log(`TEST DB: yes | Host: 127.0.0.1:54329 | DB: trillionskill_test`);
   console.log("=========================================================================\n");
 
   const allDefinedCases = buildAllTestCases();
-  const realCasesCount = allDefinedCases.filter(c => c.url && c.expectedStatus).length;
-  const notImplementedCount = allDefinedCases.length - realCasesCount;
-  console.log(`${allDefinedCases.length} total | ${allDefinedCases.length} PASS | 0 FAIL | ${notImplementedCount} NOT IMPLEMENTED\n`);
 
   // Timestamp-based dev DB isolation check before run
   const devDirect = "postgresql://postgres.rcycxzqrehdgwjbcjlqv:PKv%408340665934@aws-1-ap-south-1.pooler.supabase.com:5432/postgres";
@@ -266,7 +263,10 @@ async function run() {
       }
 
       let cookie = "";
-      if (c.persona === "ADMIN") cookie = cookieAdmin;
+      if (c.url.includes("/api/checkout/coupon/preview") && c.persona === "FREE") {
+        // Fresh user per coupon preview test so rate limiter limit (10/min) is tested cleanly per case
+        cookie = await createSessionCookie(`u_coupon_free_${c.id}`, "FREE", `coupon_${c.id}@p9.local`);
+      } else if (c.persona === "ADMIN") cookie = cookieAdmin;
       else if (c.persona === "TEACHER") cookie = cookieTeacher;
       else if (c.persona === "PREMIUM") cookie = cookiePrem;
       else if (c.persona === "FREE") cookie = cookieFree;

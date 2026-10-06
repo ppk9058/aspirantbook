@@ -152,6 +152,8 @@ export async function fulfilPaymentOrder(params: FulfilPaymentParams): Promise<F
                 data: {
                     status: "COMPLETED",
                     externalId: paymentId,
+                    razorpayOrderId: orderId,
+                    razorpayPaymentId: paymentId,
                     paymentMethod,
                     metadata: updatedMeta,
                 },
@@ -209,6 +211,8 @@ export async function fulfilPaymentOrder(params: FulfilPaymentParams): Promise<F
                 data: {
                     status: "COMPLETED",
                     externalId: paymentId,
+                    razorpayOrderId: orderId,
+                    razorpayPaymentId: paymentId,
                     subscriptionId: subscription.id,
                     paymentMethod,
                     metadata: updatedMeta,

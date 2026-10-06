@@ -122,16 +122,7 @@ export default function DashboardShell({
             >
                 <div className={isVideoCoursePage || isBooksPage ? "w-full mx-auto" : "max-w-7xl mx-auto space-y-6"}>
                     {!isVideoCoursePage && !isBooksPage && <Breadcrumbs />}
-                    <Suspense
-                        fallback={
-                            <div className="space-y-6 animate-pulse py-4">
-                                <div className="h-8 w-48 bg-gray-200 dark:bg-slate-800 rounded-lg"></div>
-                                <div className="h-44 bg-gray-200 dark:bg-slate-800 rounded-2xl"></div>
-                            </div>
-                        }
-                    >
-                        {children}
-                    </Suspense>
+                    {children}
                 </div>
             </main>
 

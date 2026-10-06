@@ -225,11 +225,12 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         // Persist server-side order record and coupon redemption
         try {
             if (couponValidation?.tempPaymentId) {
-                // Update externalId on pre-reserved payment row
+                // Update externalId and razorpayOrderId on pre-reserved payment row
                 await prisma.payment.update({
                     where: { id: couponValidation.tempPaymentId },
                     data: {
                         externalId: order.id,
+                        razorpayOrderId: order.id,
                         metadata: {
                             orderId: order.id,
                             courseId: resolvedCourse?.id || courseId || null,
@@ -249,6 +250,7 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
                         status: "PENDING",
                         paymentProvider: "RAZORPAY",
                         externalId: order.id,
+                        razorpayOrderId: order.id,
                         metadata: {
                             orderId: order.id,
                             courseId: resolvedCourse?.id || courseId || null,

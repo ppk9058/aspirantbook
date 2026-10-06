@@ -43,6 +43,13 @@ export async function POST(request: NextRequest) {
             )
         }
 
+        if (!orderId || !paymentId || !signature) {
+            return NextResponse.json(
+                { error: "Missing required fields (orderId, paymentId, signature)" },
+                { status: 400 }
+            )
+        }
+
         // Verify signature
         const isValid = verifyRazorpaySignature({
             orderId,
