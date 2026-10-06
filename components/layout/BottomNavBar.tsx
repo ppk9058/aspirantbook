@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Home, BookOpen, Code, CheckSquare, User, Calendar, PlayCircle, HelpCircle, Shield, Layers, Users, Compass, Book } from "lucide-react"
-import { AppRole } from "@/lib/auth/roles"
+import { AppRole, getDashboardHref } from "@/lib/auth/roles"
 
 const STUDENT_TABS = [
     { name: "Home", href: "/dashboard", icon: Home },
@@ -44,7 +44,15 @@ export default function BottomNavBar() {
         activeRole = "STUDENT"
     }
 
-    const tabs = activeRole === "ADMIN" ? ADMIN_TABS : activeRole === "TEACHER" ? TEACHER_TABS : STUDENT_TABS
+    const homeHref = getDashboardHref(session?.user?.role, !!session?.user)
+
+    const tabs = activeRole === "ADMIN" ? ADMIN_TABS : activeRole === "TEACHER" ? TEACHER_TABS : [
+        { name: "Home", href: homeHref, icon: Home },
+        { name: "Courses", href: "/courses", icon: BookOpen },
+        { name: "Book", href: "/books", icon: Book },
+        { name: "My Batches", href: "/my-learning", icon: Compass },
+        { name: "Profile", href: "/profile", icon: User },
+    ]
 
     const isActive = (href: string) => {
         if (href === "/") return pathname === "/"

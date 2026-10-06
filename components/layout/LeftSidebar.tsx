@@ -30,7 +30,7 @@ import {
 } from "lucide-react"
 import { useState, useEffect, useMemo } from "react"
 import { useSession } from "next-auth/react"
-import { AppRole } from "@/lib/auth/roles"
+import { AppRole, getDashboardHref } from "@/lib/auth/roles"
 
 const TEACHER_NAV = [
     { name: "Teacher Dashboard", href: "/teacher", icon: Home },
@@ -91,9 +91,11 @@ export default function LeftSidebar() {
         activeRole = "STUDENT"
     }
 
+    const homeHref = getDashboardHref(session?.user?.role, !!session?.user)
+
     const studentNav = useMemo(() => {
         return [
-            { name: "Home", href: "/dashboard", icon: Home },
+            { name: "Home", href: homeHref, icon: Home },
             { name: "Courses", href: "/courses", icon: BookOpen },
             { name: "Book", href: "/books", icon: Book },
             { name: "My Batches & enrollment", href: "/my-learning", icon: Compass },
@@ -107,7 +109,7 @@ export default function LeftSidebar() {
             { name: "Payments", href: "/subscription", icon: CreditCard },
             { name: "Profile", href: "/profile", icon: User },
         ]
-    }, [])
+    }, [homeHref])
 
     useEffect(() => {
         const updateState = () => {

@@ -20,7 +20,12 @@ export async function POST(request: NextRequest) {
         if (!rl.allowed) {
             return NextResponse.json(
                 { error: "Too many requests. Please wait a minute before running code again." },
-                { status: 429 }
+                {
+                    status: 429,
+                    headers: {
+                        "Retry-After": "60",
+                    },
+                }
             )
         }
 

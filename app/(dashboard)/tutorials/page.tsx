@@ -4,16 +4,18 @@ import { TutorialsClientView, TutorialItem } from "./TutorialsClientView"
 
 export const revalidate = 60
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+
 export const metadata = {
     title: "Tutorials - aspirantbook",
     description: "Explore interactive text tutorials, code walkthroughs, and step-by-step curriculum.",
     alternates: {
-        canonical: "/tutorials",
+        canonical: `${siteUrl}/tutorials`,
     },
     openGraph: {
         title: "Tutorials - aspirantbook",
         description: "Explore interactive text tutorials, code walkthroughs, and step-by-step curriculum.",
-        url: "/tutorials",
+        url: `${siteUrl}/tutorials`,
         type: "website",
     },
 }
