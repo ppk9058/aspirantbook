@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 import { auth } from "@/auth"
 import { AspirantbookTutorialView } from "@/components/editor/AspirantbookTutorialView"
+import { toSafeCourseDto } from "@/lib/courses/course-dto"
 
 export const dynamic = "force-dynamic"
 
@@ -82,11 +83,51 @@ export default async function TutorialSlugPage({
     }
 
     const isEditor = userRole === "ADMIN" || userRole === "TEACHER"
+    const isPaidCourse = Boolean(course.isPremium || (course.price && course.price > 0))
+
+    let hasAccess = false
+    if (session?.user?.id) {
+        if (isEditor || !isPaidCourse) {
+            hasAccess = true
+        } else {
+            try {
+                const [subCheck, enrollment] = await Promise.all([
+                    prisma.subscription.findFirst({
+                        where: {
+                            userId: session.user.id,
+                            status: "ACTIVE",
+                            endDate: { gte: new Date() },
+                        },
+                        select: { id: true },
+                    }),
+                    prisma.enrollment.findUnique({
+                        where: {
+                            userId_courseId: {
+                                userId: session.user.id,
+                                courseId: course.id,
+                            },
+                        },
+                        select: { id: true },
+                    }),
+                ])
+                if (subCheck || enrollment) {
+                    hasAccess = true
+                }
+            } catch (e) {
+                console.warn("Failed checking tutorial user enrollment:", e)
+                hasAccess = isEditor || !isPaidCourse
+            }
+        }
+    } else {
+        hasAccess = !isPaidCourse
+    }
+
+    const safeCourse = toSafeCourseDto(course, hasAccess, hasAccess)
 
     return (
         <AspirantbookTutorialView
-            course={course as any}
-            chapters={course.chapters as any}
+            course={safeCourse as any}
+            chapters={safeCourse.chapters as any}
             isEditor={isEditor}
         />
     )
