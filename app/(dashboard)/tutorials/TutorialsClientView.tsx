@@ -56,9 +56,10 @@ export interface TutorialItem {
 interface TutorialsClientViewProps {
     initialTutorials: TutorialItem[]
     userRole?: string | null
+    currentGoal?: string | null
 }
 
-export function TutorialsClientView({ initialTutorials, userRole }: TutorialsClientViewProps) {
+export function TutorialsClientView({ initialTutorials, userRole, currentGoal }: TutorialsClientViewProps) {
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("ALL")
     const [selectedDifficulty, setSelectedDifficulty] = useState("ALL")
@@ -66,7 +67,7 @@ export function TutorialsClientView({ initialTutorials, userRole }: TutorialsCli
 
     const canEdit = userRole === "ADMIN" || userRole === "TEACHER"
 
-    // Derive available technology categories
+    // Derive available technology categories strictly relevant to the active goal's tutorials
     const categories = useMemo(() => {
         const set = new Set<string>()
         initialTutorials.forEach((t) => {

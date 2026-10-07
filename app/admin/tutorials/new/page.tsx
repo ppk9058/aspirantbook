@@ -7,6 +7,7 @@ import { createCourseDraft } from "@/lib/actions/admin/courses"
 import { Button } from "@/components/ui/button"
 import { RichContentEditor } from "@/components/editor/RichContentEditor"
 import { TutorialImportModal } from "@/components/editor/TutorialImportModal"
+import { REQUIRED_GOAL_CATEGORIES } from "@/lib/tutorials-goal-categories"
 import {
     Sparkles,
     BookOpen,
@@ -193,16 +194,36 @@ function NewTutorialForm() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
                                 <label className="block text-xs font-extrabold text-[#10162F] mb-1.5 uppercase tracking-wide">
-                                    Subject / Technology *
+                                    Goal Category / Subject *
                                 </label>
-                                <input
-                                    type="text"
-                                    value={technology}
-                                    onChange={(e) => setTechnology(e.target.value)}
-                                    required
-                                    placeholder="Python, Java, AI, Physics, C"
-                                    className="w-full px-3 py-2.5 border-2 border-[#10162F] rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#3A10E5] bg-[#FFFDF9]"
-                                />
+                                <div className="space-y-1.5">
+                                    <select
+                                        value={REQUIRED_GOAL_CATEGORIES.some(c => c.name === technology) ? technology : "__custom__"}
+                                        onChange={(e) => {
+                                            if (e.target.value !== "__custom__") {
+                                                setTechnology(e.target.value)
+                                            }
+                                        }}
+                                        className="w-full px-3 py-2 border-2 border-[#10162F] rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#3A10E5] bg-[#FFFDF9]"
+                                    >
+                                        <option value="__custom__">Custom / Other Technology</option>
+                                        <optgroup label="Goal Categories">
+                                            {REQUIRED_GOAL_CATEGORIES.map((cat) => (
+                                                <option key={cat.slug} value={cat.name}>
+                                                    {cat.name} ({cat.slug})
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    </select>
+                                    <input
+                                        type="text"
+                                        value={technology}
+                                        onChange={(e) => setTechnology(e.target.value)}
+                                        required
+                                        placeholder="UPSC, BPSC, Class 10th, Python..."
+                                        className="w-full px-3 py-2 border-2 border-[#10162F] rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#3A10E5] bg-[#FFFDF9]"
+                                    />
+                                </div>
                             </div>
 
                             <div>

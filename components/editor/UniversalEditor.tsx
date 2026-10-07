@@ -21,6 +21,7 @@ import {
     Clock,
     Award
 } from "lucide-react"
+import { REQUIRED_GOAL_CATEGORIES } from "@/lib/tutorials-goal-categories"
 
 export type EntityType = "course" | "chapter" | "lesson" | "article" | "metadata"
 
@@ -544,16 +545,37 @@ export function UniversalEditor({
                             {/* Technology */}
                             <div>
                                 <label className="block text-xs font-bold uppercase tracking-wider text-[#10162F] mb-1">
-                                    Technology / Language
+                                    Goal Category / Technology
                                 </label>
-                                <input
-                                    type="text"
-                                    value={technology}
-                                    onChange={(e) => setTechnology(e.target.value)}
-                                    disabled={isSaving}
-                                    placeholder="e.g. Python, React, Java"
-                                    className="w-full px-3 py-2 bg-white border-2 border-[#10162F] rounded-xl text-xs font-bold text-[#10162F] focus:outline-none"
-                                />
+                                <div className="space-y-1">
+                                    <select
+                                        value={REQUIRED_GOAL_CATEGORIES.some(c => c.name === technology) ? technology : "__custom__"}
+                                        onChange={(e) => {
+                                            if (e.target.value !== "__custom__") {
+                                                setTechnology(e.target.value)
+                                            }
+                                        }}
+                                        disabled={isSaving}
+                                        className="w-full px-2.5 py-1.5 bg-white border-2 border-[#10162F] rounded-xl text-xs font-bold text-[#10162F] focus:outline-none"
+                                    >
+                                        <option value="__custom__">Custom / Other Technology</option>
+                                        <optgroup label="Goal Categories">
+                                            {REQUIRED_GOAL_CATEGORIES.map((cat) => (
+                                                <option key={cat.slug} value={cat.name}>
+                                                    {cat.name} ({cat.slug})
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    </select>
+                                    <input
+                                        type="text"
+                                        value={technology}
+                                        onChange={(e) => setTechnology(e.target.value)}
+                                        disabled={isSaving}
+                                        placeholder="e.g. UPSC, BPSC, Python..."
+                                        className="w-full px-3 py-1.5 bg-white border-2 border-[#10162F] rounded-xl text-xs font-bold text-[#10162F] focus:outline-none"
+                                    />
+                                </div>
                             </div>
 
                             {/* Estimated Duration */}

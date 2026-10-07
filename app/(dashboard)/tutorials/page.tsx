@@ -108,9 +108,35 @@ const FALLBACK_TUTORIALS: TutorialItem[] = [
     },
 ]
 
+import { cookies } from "next/headers"
+import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
+import { doesCategoryMatchGoal } from "@/lib/tutorials-goal-categories"
+
 export default async function TutorialsPage() {
     const session = await auth()
     const userRole = session?.user?.role || null
+
+    // Determine student's active Global Goal server-side:
+    // 1. Session / DB if logged in
+    // 2. Server memory map
+    // 3. HTTP Cookie 'trillion_selected_goal'
+    let currentGoal: string | null = null
+    const cookieStore = await cookies()
+    const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null
+
+    if (session?.user?.id) {
+        try {
+            const dbUser = await prisma.user.findUnique({
+                where: { id: session.user.id },
+                select: { selectedGoal: true },
+            })
+            currentGoal = dbUser?.selectedGoal || userGoalsMemoryMap.get(session.user.id)?.goalId || cookieGoal || null
+        } catch {
+            currentGoal = userGoalsMemoryMap.get(session.user.id)?.goalId || cookieGoal || null
+        }
+    } else {
+        currentGoal = cookieGoal || null
+    }
 
     let tutorials: TutorialItem[] = []
 
@@ -148,8 +174,16 @@ export default async function TutorialsPage() {
             return true
         })
 
-        if (textTutorials.length > 0) {
-            tutorials = textTutorials.map((t) => ({
+        // Filter by Global Goal server-side (query/data layer):
+        // Edge cases:
+        // - No goal set: show all tutorials (current behavior), no crash.
+        // - Tutorial with no category: hidden for goal-filtered students, visible when no goal is set.
+        const goalFilteredTutorials = textTutorials.filter((t) => {
+            return doesCategoryMatchGoal(t.technology, currentGoal)
+        })
+
+        if (goalFilteredTutorials.length > 0) {
+            tutorials = goalFilteredTutorials.map((t) => ({
                 id: t.id,
                 title: t.title,
                 slug: t.slug,
@@ -172,17 +206,19 @@ export default async function TutorialsPage() {
                 })),
                 _count: t._count,
             }))
-        } else {
+        } else if (!currentGoal) {
             tutorials = FALLBACK_TUTORIALS
+        } else {
+            tutorials = []
         }
     } catch (err: any) {
         console.warn("Database unavailable on /tutorials, serving fallback tutorials:", err.message)
-        tutorials = FALLBACK_TUTORIALS
+        tutorials = !currentGoal ? FALLBACK_TUTORIALS : []
     }
 
     return (
         <div className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
-            <TutorialsClientView initialTutorials={tutorials} userRole={userRole} />
+            <TutorialsClientView initialTutorials={tutorials} userRole={userRole} currentGoal={currentGoal} />
         </div>
     )
 }
