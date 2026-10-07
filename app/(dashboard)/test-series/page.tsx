@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 
 import dynamic from "next/dynamic"
+import { useSession } from "next-auth/react"
 import { useGoal } from "@/components/providers/GoalProvider"
 import GoalIcon from "@/components/layout/GoalIcon"
 import { TEST_SERIES_DATA, TestSeriesItem } from "@/lib/test-series-data"
@@ -175,6 +176,8 @@ function ExamLogo({ logoType }: { logoType: string }) {
 }
 
 export default function TestSeriesPage() {
+    const { data: session } = useSession()
+    const canCreate = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
     const { selectedGoal, selectedGoals, selectedGoalIds, openGoalModal } = useGoal()
     const [selectedCategory, setSelectedCategory] = useState<string>("All")
     const [searchQuery, setSearchQuery] = useState<string>("")
@@ -393,13 +396,15 @@ export default function TestSeriesPage() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
-                    <button
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-black shadow-xs transition-all flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
-                    >
-                        <Plus className="h-4 w-4 stroke-[3]" />
-                        <span>Create Series Package</span>
-                    </button>
+                    {canCreate && (
+                        <button
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-black shadow-xs transition-all flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
+                        >
+                            <Plus className="h-4 w-4 stroke-[3]" />
+                            <span>Create Series Package</span>
+                        </button>
+                    )}
                     <button
                         onClick={() => setFilterByGoal(!filterByGoal)}
                         className="text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-300 text-center py-1 sm:px-2 cursor-pointer"
@@ -760,7 +765,7 @@ export default function TestSeriesPage() {
             )}
 
             {/* Create Test Series Package Modal */}
-            {isCreateModalOpen && (
+            {canCreate && isCreateModalOpen && (
                 <CreateSeriesModal
                     isOpen={isCreateModalOpen}
                     onClose={() => setIsCreateModalOpen(false)}
