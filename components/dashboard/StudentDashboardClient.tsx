@@ -34,6 +34,7 @@ import MobileQuickAccessGrid from "@/components/dashboard/mobile/MobileQuickAcce
 import MobileRecommendedSection from "@/components/dashboard/mobile/MobileRecommendedSection"
 import { TestActionButton } from "@/components/test-series/TestActionButton"
 import type { HomepagePromoCard } from "@/lib/homepage-cards-service"
+import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { LogIn } from "lucide-react"
 
@@ -56,13 +57,14 @@ export default function StudentDashboardClient({
   promoCards = [],
   stats,
 }: StudentDashboardProps) {
+  const { data: session } = useSession()
   const { selectedGoal, selectedSubGoal, openGoalModal } = useGoal()
   const { openMobileAuth } = useMobileAuth()
   const [isDoubtModalOpen, setIsDoubtModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<"courses" | "batches" | "live" | "tests" | "tutorials">("courses")
   const [customTests, setCustomTests] = useState<any[]>([])
 
-  const isGuest = !user || !user.id
+  const isGuest = !session?.user
 
   const handleLogin = (e?: React.MouseEvent) => {
     if (e) e.preventDefault()
@@ -70,6 +72,17 @@ export default function StudentDashboardClient({
       actionType: "login",
       callbackUrl: "/dashboard",
     })
+  }
+
+  const handleOpenDoubtModal = () => {
+    if (isGuest) {
+      openMobileAuth({
+        actionType: "login",
+        onSuccess: () => setIsDoubtModalOpen(true),
+      })
+      return
+    }
+    setIsDoubtModalOpen(true)
   }
 
   // Filter batches based on active goal / cohort
@@ -517,7 +530,7 @@ export default function StudentDashboardClient({
 
         {/* Action 5: Ask a Doubt */}
         <button
-          onClick={() => setIsDoubtModalOpen(true)}
+          onClick={handleOpenDoubtModal}
           className="group text-left p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-amber-400 dark:hover:border-amber-500 shadow-sm transition-all col-span-2 sm:col-span-1"
         >
           <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -942,7 +955,7 @@ export default function StudentDashboardClient({
             View Discussions
           </Link>
           <button
-            onClick={() => setIsDoubtModalOpen(true)}
+            onClick={handleOpenDoubtModal}
             className="px-5 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold shadow-md shadow-[#3AAFA9]/20 flex items-center gap-2 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" />

@@ -70,6 +70,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
     const [activeCourse, setActiveCourse] = useState<MobileAuthCourseInfo | null>(null)
     const [actionType, setActionType] = useState<"enroll" | "buy" | "details" | "login">("login")
     const [callbackUrl, setCallbackUrl] = useState<string | null>(null)
+    const [onSuccessCallback, setOnSuccessCallback] = useState<((user: any) => void) | null>(null)
 
     const openMobileAuth = useCallback((options?: MobileAuthOptions) => {
         const course = options?.course || null
@@ -80,6 +81,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
         setActiveCourse(course)
         setActionType(act)
         setCallbackUrl(safeCb)
+        setOnSuccessCallback(() => options?.onSuccess || null)
         setStep("phone")
         setPhoneNumber("")
         setOtp(["", "", "", "", "", ""])
@@ -188,8 +190,15 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
                 } catch {}
             }
 
-            // Step 3: Handle redirection according to requirements
-            if (callbackUrl) {
+            // Step 3: Handle redirection or custom callback according to requirements
+            if (onSuccessCallback) {
+                setSuccessMessage("Logged in successfully!")
+                setTimeout(() => {
+                    setIsOpen(false)
+                    onSuccessCallback(data.user)
+                    router.refresh()
+                }, 700)
+            } else if (callbackUrl) {
                 setSuccessMessage("Logged in successfully! Returning to page...")
                 setTimeout(() => {
                     setIsOpen(false)
@@ -235,7 +244,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
             setErrorMessage("Something went wrong. Please try again.")
             setIsVerifying(false)
         }
-    }, [actionType, activeCourse, callbackUrl, isVerifying, phoneNumber, router])
+    }, [actionType, activeCourse, callbackUrl, isVerifying, onSuccessCallback, phoneNumber, router])
 
     const handleOtpChange = (
         val: string,

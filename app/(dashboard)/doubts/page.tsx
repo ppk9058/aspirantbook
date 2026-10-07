@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import {
   HelpCircle,
   PlusCircle,
@@ -39,6 +41,8 @@ interface Doubt {
 }
 
 export default function DoubtsPage() {
+  const { data: session } = useSession()
+  const { openMobileAuth } = useMobileAuth()
   const [doubts, setDoubts] = useState<Doubt[]>([])
   const [loading, setLoading] = useState(true)
   const [filterTab, setFilterTab] = useState<"ALL" | "ANSWERED" | "PENDING">("ALL")
@@ -46,6 +50,19 @@ export default function DoubtsPage() {
   const [selectedSubject, setSelectedSubject] = useState<string>("ALL")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
+
+  const isGuest = !session?.user
+
+  const handleOpenDoubtModal = () => {
+    if (isGuest) {
+      openMobileAuth({
+        actionType: "login",
+        onSuccess: () => setIsModalOpen(true),
+      })
+      return
+    }
+    setIsModalOpen(true)
+  }
 
   const fetchDoubts = async () => {
     setLoading(true)
@@ -118,7 +135,7 @@ export default function DoubtsPage() {
             </p>
           </div>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleOpenDoubtModal}
             className="self-start md:self-auto px-6 py-3 rounded-2xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-sm font-bold shadow-lg shadow-[#3AAFA9]/25 flex items-center gap-2 transition-all hover:scale-102"
           >
             <PlusCircle className="w-5 h-5" />
@@ -223,7 +240,7 @@ export default function DoubtsPage() {
             Have a question on your assignments or lessons? Be the first to ask!
           </p>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleOpenDoubtModal}
             className="mt-4 px-5 py-2.5 rounded-xl bg-[#3AAFA9] text-white text-xs font-semibold"
           >
             Ask a Doubt

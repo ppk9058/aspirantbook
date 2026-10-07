@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useRef } from "react"
+import { useSession } from "next-auth/react"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import {
   X,
   HelpCircle,
@@ -35,6 +37,8 @@ export default function DoubtSubmissionModal({
   onSuccess,
   prefillSubject,
 }: DoubtSubmissionModalProps) {
+  const { data: session } = useSession()
+  const { openMobileAuth } = useMobileAuth()
   const [subject, setSubject] = useState(prefillSubject || SUBJECTS[0])
   const [topic, setTopic] = useState("")
   const [questionText, setQuestionText] = useState("")
@@ -80,6 +84,13 @@ export default function DoubtSubmissionModal({
     e.preventDefault()
     if (!questionText.trim()) {
       setErrorMessage("Please enter your question.")
+      return
+    }
+
+    if (!session?.user) {
+      openMobileAuth({
+        actionType: "login",
+      })
       return
     }
 
