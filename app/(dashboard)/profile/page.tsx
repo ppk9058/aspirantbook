@@ -98,10 +98,27 @@ export default async function ProfilePage() {
         )
     }
 
-    // If session exists but user row does not exist in the database, send to /login
-    // to prevent infinite redirect loops.
+    // If session exists but user row does not exist in the database, show clear status
+    // with sign out action so user can log in with valid credentials, avoiding redirect loops.
     if (!user) {
-        redirect("/login?callbackUrl=%2Fprofile")
+        return (
+            <div className="min-h-[50vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-2xl text-amber-600 dark:text-amber-400 font-bold">
+                    User Account Not Found
+                </div>
+                <p className="text-sm text-muted-foreground max-w-md">
+                    Your session is active but your user account record was not found in our database. Please log in again.
+                </p>
+                <form action="/api/auth/logout" method="POST">
+                    <button
+                        type="submit"
+                        className="px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:opacity-95 text-white font-semibold text-sm rounded-xl transition-all"
+                    >
+                        Sign Out & Log In Again
+                    </button>
+                </form>
+            </div>
+        )
     }
 
     const userData = user

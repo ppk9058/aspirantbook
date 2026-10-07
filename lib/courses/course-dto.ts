@@ -62,7 +62,7 @@ export function toSafeLessonDto(
   rawLesson: any,
   hasAccess: boolean,
   allowTrialMedia: boolean = true,
-  isTutorial: boolean = false
+  isFreeTutorial: boolean = false
 ): SafeLessonDto {
   if (!rawLesson) return rawLesson
 
@@ -81,9 +81,9 @@ export function toSafeLessonDto(
     chapterId: rawLesson.chapterId,
   }
 
-  // Text tutorials are public by spec: lesson content is readable by guests and logged-in users alike.
-  // Sensitive video media remains protected by isUnlocked.
-  const allowContent = isUnlocked || (isTutorial && rawLesson.type !== "VIDEO" && !rawLesson.videoUrl)
+  // Free text tutorials are public by spec: lesson content is readable by guests and logged-in users alike.
+  // Paid courses and sensitive video media remain strictly protected by isUnlocked.
+  const allowContent = isUnlocked || (isFreeTutorial && rawLesson.type !== "VIDEO" && !rawLesson.videoUrl)
 
   if (allowContent) {
     safe.content = rawLesson.content ?? null
@@ -114,7 +114,7 @@ export function toSafeChapterDto(
   rawChapter: any,
   hasAccess: boolean,
   allowTrialMedia: boolean = true,
-  isTutorial: boolean = false
+  isFreeTutorial: boolean = false
 ): SafeChapterDto {
   if (!rawChapter) return rawChapter
 
@@ -124,7 +124,7 @@ export function toSafeChapterDto(
     order: rawChapter.order ?? 0,
     courseId: rawChapter.courseId,
     lessons: Array.isArray(rawChapter.lessons)
-      ? rawChapter.lessons.map((l: any) => toSafeLessonDto(l, hasAccess, allowTrialMedia, isTutorial))
+      ? rawChapter.lessons.map((l: any) => toSafeLessonDto(l, hasAccess, allowTrialMedia, isFreeTutorial))
       : [],
   }
 }
@@ -139,16 +139,22 @@ export function toSafeCourseDto(
 ): SafeCourseDto {
   if (!rawCourse) return rawCourse
 
-  let isTutorial = Boolean(rawCourse.externalId)
-  if (!isTutorial && rawCourse.metadataJson) {
-    try {
-      const meta = typeof rawCourse.metadataJson === "string" ? JSON.parse(rawCourse.metadataJson) : rawCourse.metadataJson
-      if (meta?.format === "tutorial") isTutorial = true
-    } catch {}
+  const isPaidCourse = Boolean(rawCourse.isPremium || (rawCourse.price && rawCourse.price > 0))
+  let isFreeTutorial = false
+  if (!isPaidCourse) {
+    if (rawCourse.metadataJson) {
+      try {
+        const meta = typeof rawCourse.metadataJson === "string" ? JSON.parse(rawCourse.metadataJson) : rawCourse.metadataJson
+        if (meta?.format === "tutorial") isFreeTutorial = true
+      } catch {}
+    }
+    if (!isFreeTutorial && rawCourse.externalId) {
+      isFreeTutorial = true
+    }
   }
 
   const chapters: SafeChapterDto[] = Array.isArray(rawCourse.chapters)
-    ? rawCourse.chapters.map((ch: any) => toSafeChapterDto(ch, hasAccess, allowTrialMedia, isTutorial))
+    ? rawCourse.chapters.map((ch: any) => toSafeChapterDto(ch, hasAccess, allowTrialMedia, isFreeTutorial))
     : []
 
   // Count total attachments across all chapters if present

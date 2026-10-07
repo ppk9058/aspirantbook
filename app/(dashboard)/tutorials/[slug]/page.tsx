@@ -17,7 +17,7 @@ export default async function TutorialSlugPage({
 
     const course = await prisma.course.findFirst({
         where: { OR: [{ slug }, { id: slug }] },
-        select: { id: true, slug: true, status: true, isPublished: true, instructorId: true, authorId: true, userId: true },
+        select: { id: true, slug: true, status: true, isPublished: true },
     })
 
     if (!course || !isCourseVisibleToUser(course, userRole, userId)) {
