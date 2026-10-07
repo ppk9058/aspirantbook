@@ -98,10 +98,10 @@ export default async function ProfilePage() {
         )
     }
 
-    // If session exists but user row does not exist in the database, clear session cookies and send to /login
+    // If session exists but user row does not exist in the database, send to /login
     // to prevent infinite redirect loops.
     if (!user) {
-        redirect("/api/auth/logout?callbackUrl=%2Flogin")
+        redirect("/login?callbackUrl=%2Fprofile")
     }
 
     const userData = user

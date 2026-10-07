@@ -29,6 +29,11 @@ export function safeSignOut(callbackUrl: string = "/") {
     }
   }
 
-  // Instant server-side cookie cleanup and redirect
-  window.location.href = `/api/auth/logout?callbackUrl=${encodeURIComponent(callbackUrl)}`
+  // Submit POST form for safe, CSRF-hardened logout
+  const form = document.createElement("form")
+  form.method = "POST"
+  form.action = `/api/auth/logout?callbackUrl=${encodeURIComponent(callbackUrl)}`
+  document.body.appendChild(form)
+  form.submit()
 }
+

@@ -34,10 +34,17 @@ function handleLogout(req: NextRequest) {
   return response
 }
 
-export async function GET(req: NextRequest) {
-  return handleLogout(req)
+export async function GET() {
+  return new NextResponse(JSON.stringify({ error: "Method Not Allowed: Use POST to log out" }), {
+    status: 405,
+    headers: {
+      "Content-Type": "application/json",
+      "Allow": "POST",
+    },
+  })
 }
 
 export async function POST(req: NextRequest) {
   return handleLogout(req)
 }
+

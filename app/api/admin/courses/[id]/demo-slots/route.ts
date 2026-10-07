@@ -9,6 +9,14 @@ interface Params {
 
 export async function GET(req: NextRequest, { params }: Params) {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    if (session.user.role !== "ADMIN" && session.user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Forbidden: Admin or Teacher required" }, { status: 403 })
+    }
+
     const { id } = await params
 
     const slots = await prisma.demoSlot.findMany({

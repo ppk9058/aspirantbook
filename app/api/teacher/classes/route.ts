@@ -6,7 +6,13 @@ import { formatUtcToIst } from "@/lib/demo/slot-utils"
 export async function GET() {
   try {
     const session = await auth()
-    const isTeacher = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    if (session.user.role !== "TEACHER" && session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden: Teacher or Admin required" }, { status: 403 })
+    }
+    const isTeacher = true
 
     // Query real scheduled & live demo slots from PostgreSQL
     const demoSlots = await prisma.demoSlot.findMany({

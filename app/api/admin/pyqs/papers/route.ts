@@ -4,6 +4,14 @@ import { getCurrentUserContext } from "@/lib/auth/rbac"
 
 export async function GET(req: Request) {
   try {
+    const user = await getCurrentUserContext()
+    if (!user.isAuthenticated) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    if (user.role !== "ADMIN" && user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Forbidden: Admin or Teacher required" }, { status: 403 })
+    }
+
     const { searchParams } = new URL(req.url)
     const categoryId = searchParams.get("categoryId") || undefined
     const subExamId = searchParams.get("subExamId") || undefined

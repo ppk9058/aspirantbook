@@ -11,6 +11,7 @@ import { findBatchBySlugOrId } from "@/components/home/homepage-courses.data"
 import { unstable_cache } from "next/cache"
 import { toSafeCourseDto } from "@/lib/courses/course-dto"
 import { isCourseVisibleToUser, isCourseDetailReady } from "@/lib/courses/visibility"
+import { ALL_GOAL_COURSES } from "@/lib/goal-courses-data"
 import { AlertCircle } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -65,7 +66,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         select: { id: true, title: true, description: true, status: true, isPublished: true }
     })
 
-    if (!course || !isCourseVisibleToUser(course, userRole, userId)) {
+    if (!course) {
+        const staticCourse = ALL_GOAL_COURSES.find((c) => c.slug === slug || c.id === slug)
+        if (staticCourse) {
+            return {
+                title: staticCourse.title,
+                description: staticCourse.description,
+            }
+        }
+        notFound()
+    }
+
+    if (!isCourseVisibleToUser(course, userRole, userId)) {
         notFound()
     }
 
@@ -133,8 +145,22 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
     const userRole = session?.user?.role
     const isEditor = userRole === "ADMIN" || userRole === "TEACHER"
 
-    // If the course does not exist in the database, return 404 (notFound)
+    // If the course does not exist in the database, check static catalog before 404
     if (!cachedCourse) {
+        const staticCourse = ALL_GOAL_COURSES.find((c) => c.slug === slug || c.id === slug)
+        if (staticCourse) {
+            return (
+                <CourseComingSoonView
+                    slug={staticCourse.slug}
+                    title={staticCourse.title}
+                    classTag={staticCourse.category || "Video Course"}
+                    targetText={staticCourse.description}
+                    scheduleText={staticCourse.duration}
+                    price={staticCourse.isPremium ? "Premium Batch" : "Free Access"}
+                    image={staticCourse.thumbnailUrl}
+                />
+            )
+        }
         notFound()
     }
 

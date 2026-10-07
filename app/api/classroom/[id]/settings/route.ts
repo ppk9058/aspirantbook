@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { auth } from "@/auth"
 import {
   getClassroomData,
   updateClassroomSettings,
@@ -17,6 +18,11 @@ interface RouteProps {
 
 export async function GET(req: Request, { params }: RouteProps) {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { id } = await params
     const classroom = await getClassroomData(id)
     return NextResponse.json({
@@ -35,6 +41,14 @@ export async function GET(req: Request, { params }: RouteProps) {
 
 export async function POST(req: Request, { params }: RouteProps) {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    if (session.user.role !== "ADMIN" && session.user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Forbidden: Admin or Teacher required" }, { status: 403 })
+    }
+
     const { id } = await params
     const body = await req.json()
     const { action } = body

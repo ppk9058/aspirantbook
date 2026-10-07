@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { auth } from "@/auth"
 import { getClassroomData, generateClassSessionToken } from "@/lib/classroom-service"
 
 export async function POST(
@@ -6,6 +7,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const sessionAuth = await auth()
+    if (!sessionAuth?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { id } = await params
     const body = await req.json().catch(() => ({}))
     const classroom = await getClassroomData(id)
@@ -14,8 +20,9 @@ export async function POST(
       return NextResponse.json({ error: "Classroom not found" }, { status: 404 })
     }
 
-    const userId = body.userId || `stu-${Math.random().toString(36).substring(2, 8)}`
-    const role = body.role === "teacher" ? "teacher" : "student"
+    const userId = sessionAuth.user.id
+    const userRole = (sessionAuth.user as any).role
+    const role = (userRole === "TEACHER" || userRole === "ADMIN") ? "teacher" : "student"
 
     // Verify enrollment entitlement (for public/enrolled classrooms)
     if (!classroom.isEnrolled && role === "student") {
