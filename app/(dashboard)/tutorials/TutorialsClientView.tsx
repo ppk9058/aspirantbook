@@ -206,15 +206,15 @@ export function TutorialsClientView({ initialTutorials, userRole }: TutorialsCli
                     return (
                         <Card
                             key={tutorial.id}
-                            className={`border-2 border-[#10162F] dark:border-gray-700 shadow-[3px_3px_0px_#10162F] dark:shadow-[3px_3px_0px_#374151] overflow-hidden bg-white dark:bg-[#0B132B] transition-all h-full flex flex-col ${accentBorder}`}
+                            className={`border-2 border-[#10162F] dark:border-gray-700 shadow-[3px_3px_0px_#10162F] dark:shadow-[3px_3px_0px_#374151] lg:shadow-[2px_2px_0px_#10162F] lg:dark:shadow-[2px_2px_0px_#374151] overflow-hidden bg-white dark:bg-[#0B132B] transition-all h-full flex flex-col ${accentBorder}`}
                         >
-                            <CardContent className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
-                                <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-5">
-                                    {/* Left Content */}
-                                    <div className="flex-1 min-w-0 w-full">
-                                        <div className="flex items-center gap-2.5 mb-2 flex-wrap">
-                                            <Link href={`/tutorials/${tutorial.slug || tutorial.id}`}>
-                                                <h3 className="text-lg sm:text-xl font-extrabold text-[#10162F] dark:text-white hover:text-[#3A10E5] transition-colors truncate">
+                            <CardContent className="p-5 sm:p-6 lg:py-2.5 lg:px-4 flex-1 flex flex-col justify-between">
+                                <div className="flex flex-col gap-3 lg:gap-1.5">
+                                    {/* Top Row: Title, Badges, and Action Buttons side-by-side on lg: */}
+                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 lg:gap-2">
+                                        <div className="flex items-center gap-2 lg:gap-1.5 flex-wrap min-w-0 flex-1">
+                                            <Link href={`/tutorials/${tutorial.slug || tutorial.id}`} className="min-w-0">
+                                                <h3 className="text-lg sm:text-xl lg:text-base font-extrabold text-[#10162F] dark:text-white hover:text-[#3A10E5] transition-colors truncate">
                                                     {tutorial.title}
                                                 </h3>
                                             </Link>
@@ -222,102 +222,103 @@ export function TutorialsClientView({ initialTutorials, userRole }: TutorialsCli
                                                 variant={tutorial.status === "PUBLISHED" ? "default" : "secondary"}
                                                 className={
                                                     tutorial.status === "PUBLISHED"
-                                                        ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px]"
-                                                        : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold text-[11px]"
+                                                        ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] lg:text-[10px] lg:px-1.5 lg:py-0 shrink-0"
+                                                        : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold text-[11px] lg:text-[10px] lg:px-1.5 lg:py-0 shrink-0"
                                                 }
                                             >
                                                 {tutorial.status}
                                             </Badge>
-                                            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
-                                                <Sparkles className="w-3 h-3 text-[#3A10E5]" />
+                                            <span className="px-2 py-0.5 lg:px-1.5 lg:py-0 rounded text-[11px] lg:text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1 shrink-0">
+                                                <Sparkles className="w-3 h-3 lg:w-2.5 lg:h-2.5 text-[#3A10E5]" />
                                                 🌹 Rosera Editor
                                             </span>
                                         </div>
 
-                                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3.5 line-clamp-2 break-words leading-relaxed">
-                                            {cleanDescriptionSnippet(tutorial.description, 200)}
-                                        </p>
-
-                                        {/* Metadata Tags */}
-                                        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                                            <span className="px-2.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold border border-gray-200 dark:border-gray-700">
-                                                {tutorial.difficulty}
-                                            </span>
-                                            <span>•</span>
-                                            <span className="font-extrabold text-[#10162F] dark:text-white bg-indigo-50/70 dark:bg-indigo-950/40 px-2 py-0.5 rounded border border-indigo-100 dark:border-indigo-900">
-                                                {tutorial.technology || "General"}
-                                            </span>
-                                            <span>•</span>
-                                            <span className="flex items-center gap-1 font-bold text-gray-700 dark:text-gray-300">
-                                                 <BookOpen className="h-3.5 w-3.5 text-[#3A10E5]" />
-                                                {tutorial.chapters?.length || 0} Chapters
-                                            </span>
-                                            <span>•</span>
-                                            <span className="font-bold text-gray-700 dark:text-gray-300">
-                                                {totalLessons} Text Lessons
-                                            </span>
-                                            {tutorial.updatedAt && (
-                                                <>
-                                                    <span className="hidden sm:inline">•</span>
-                                                    <span className="hidden sm:inline text-gray-400" suppressHydrationWarning>
-                                                        Updated {formatDate(tutorial.updatedAt)}
-                                                    </span>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Action Buttons */}
-                                    <div className="flex flex-wrap items-center gap-2.5 flex-shrink-0 self-stretch sm:self-end xl:self-center justify-end">
-                                        {tutorial.chapters && tutorial.chapters.length > 0 && (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => toggleExpand(tutorial.id)}
-                                                className="border-2 border-gray-300 dark:border-gray-700 font-bold hover:bg-gray-100 dark:hover:bg-gray-800 text-xs text-gray-700 dark:text-gray-300 flex items-center gap-1"
-                                            >
-                                                Curriculum
-                                                {isExpanded ? (
-                                                    <ChevronUp className="h-3.5 w-3.5 ml-0.5" />
-                                                ) : (
-                                                    <ChevronDown className="h-3.5 w-3.5 ml-0.5" />
-                                                )}
-                                            </Button>
-                                        )}
-
-                                        {canEdit && (
-                                            <Link href={`/admin/tutorials/${tutorial.id}/edit`}>
+                                        {/* Action Buttons */}
+                                        <div className="flex flex-wrap lg:flex-nowrap items-center gap-2.5 lg:gap-1.5 flex-shrink-0 self-stretch sm:self-end lg:self-center justify-end">
+                                            {tutorial.chapters && tutorial.chapters.length > 0 && (
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="border-2 border-[#10162F] font-bold shadow-[2px_2px_0px_#10162F] hover:bg-[#FFF5EB] text-xs text-[#3A10E5] flex items-center gap-1.5"
+                                                    onClick={() => toggleExpand(tutorial.id)}
+                                                    className="border-2 border-gray-300 dark:border-gray-700 font-bold hover:bg-gray-100 dark:hover:bg-gray-800 text-xs lg:text-xs lg:h-8 lg:px-2.5 text-gray-700 dark:text-gray-300 flex items-center gap-1 shrink-0"
                                                 >
-                                                    <Sparkles className="h-3.5 w-3.5 text-[#FFD15C]" />
-                                                    Edit in Rosera Editor
+                                                    Curriculum
+                                                    {isExpanded ? (
+                                                        <ChevronUp className="h-3.5 w-3.5 lg:h-3 lg:w-3 ml-0.5" />
+                                                    ) : (
+                                                        <ChevronDown className="h-3.5 w-3.5 lg:h-3 lg:w-3 ml-0.5" />
+                                                    )}
+                                                </Button>
+                                            )}
+
+                                            {canEdit && (
+                                                <Link href={`/admin/tutorials/${tutorial.id}/edit`} className="shrink-0">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="border-2 border-[#10162F] font-bold shadow-[2px_2px_0px_#10162F] lg:shadow-[1.5px_1.5px_0px_#10162F] hover:bg-[#FFF5EB] text-xs lg:text-xs lg:h-8 lg:px-2.5 text-[#3A10E5] flex items-center gap-1.5 lg:gap-1"
+                                                    >
+                                                        <Sparkles className="h-3.5 w-3.5 lg:h-3 lg:w-3 text-[#FFD15C]" />
+                                                        Edit in Rosera Editor
+                                                    </Button>
+                                                </Link>
+                                            )}
+
+                                            <Link href={`/tutorials/${tutorial.slug || tutorial.id}`} className="shrink-0">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="border-2 border-[#10162F] font-bold shadow-[2px_2px_0px_#10162F] lg:shadow-[1.5px_1.5px_0px_#10162F] hover:bg-[#FFF5EB] text-xs lg:text-xs lg:h-8 lg:px-2.5 text-[#10162F] dark:text-white flex items-center gap-1.5 lg:gap-1"
+                                                >
+                                                    <Eye className="h-3.5 w-3.5 lg:h-3 lg:w-3" />
+                                                    Overview
                                                 </Button>
                                             </Link>
+
+                                            <Link href={readHref} className="shrink-0">
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-[#3A10E5] hover:bg-[#300ec2] text-white font-extrabold border-2 border-[#10162F] shadow-[3px_3px_0px_#10162F] lg:shadow-[2px_2px_0px_#10162F] flex items-center gap-1.5 lg:gap-1 text-xs lg:text-xs lg:h-8 lg:px-3 active:translate-x-[1px] active:translate-y-[1px]"
+                                                >
+                                                    <Play className="h-3.5 w-3.5 lg:h-3 lg:w-3 fill-current" />
+                                                    Start Tutorial
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    </div>
+
+                                    {/* Middle: Description clamped to 1 line on desktop */}
+                                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-3.5 lg:mb-0 line-clamp-2 lg:line-clamp-1 break-words leading-relaxed">
+                                        {cleanDescriptionSnippet(tutorial.description, 200)}
+                                    </p>
+
+                                    {/* Bottom: Metadata Tags merged into one compact line on desktop */}
+                                    <div className="flex flex-wrap lg:flex-nowrap items-center gap-2.5 sm:gap-3 lg:gap-1.5 text-xs lg:text-xs font-semibold text-gray-500 dark:text-gray-400 overflow-hidden">
+                                        <span className="px-2.5 py-0.5 lg:px-2 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold border border-gray-200 dark:border-gray-700 shrink-0">
+                                            {tutorial.difficulty}
+                                        </span>
+                                        <span>•</span>
+                                        <span className="font-extrabold text-[#10162F] dark:text-white bg-indigo-50/70 dark:bg-indigo-950/40 px-2 py-0.5 lg:px-1.5 rounded border border-indigo-100 dark:border-indigo-900 truncate">
+                                            {tutorial.technology || "General"}
+                                        </span>
+                                        <span>•</span>
+                                        <span className="flex items-center gap-1 font-bold text-gray-700 dark:text-gray-300 shrink-0">
+                                             <BookOpen className="h-3.5 w-3.5 lg:h-3 lg:w-3 text-[#3A10E5]" />
+                                            {tutorial.chapters?.length || 0} Chapters
+                                        </span>
+                                        <span>•</span>
+                                        <span className="font-bold text-gray-700 dark:text-gray-300 shrink-0">
+                                            {totalLessons} Text Lessons
+                                        </span>
+                                        {tutorial.updatedAt && (
+                                            <>
+                                                <span className="hidden sm:inline shrink-0">•</span>
+                                                <span className="hidden sm:inline text-gray-400 shrink-0" suppressHydrationWarning>
+                                                    Updated {formatDate(tutorial.updatedAt)}
+                                                </span>
+                                            </>
                                         )}
-
-                                        <Link href={`/tutorials/${tutorial.slug || tutorial.id}`}>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="border-2 border-[#10162F] font-bold shadow-[2px_2px_0px_#10162F] hover:bg-[#FFF5EB] text-xs text-[#10162F] dark:text-white flex items-center gap-1.5"
-                                            >
-                                                <Eye className="h-3.5 w-3.5" />
-                                                Overview
-                                            </Button>
-                                        </Link>
-
-                                        <Link href={readHref}>
-                                            <Button
-                                                size="sm"
-                                                className="bg-[#3A10E5] hover:bg-[#300ec2] text-white font-extrabold border-2 border-[#10162F] shadow-[3px_3px_0px_#10162F] flex items-center gap-1.5 text-xs active:translate-x-[1px] active:translate-y-[1px]"
-                                            >
-                                                <Play className="h-3.5 w-3.5 fill-current" />
-                                                Start Tutorial
-                                            </Button>
-                                        </Link>
                                     </div>
                                 </div>
 
