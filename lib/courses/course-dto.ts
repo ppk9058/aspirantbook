@@ -61,7 +61,8 @@ export interface SafeCourseDto {
 export function toSafeLessonDto(
   rawLesson: any,
   hasAccess: boolean,
-  allowTrialMedia: boolean = true
+  allowTrialMedia: boolean = true,
+  isTutorial: boolean = false
 ): SafeLessonDto {
   if (!rawLesson) return rawLesson
 
@@ -80,16 +81,24 @@ export function toSafeLessonDto(
     chapterId: rawLesson.chapterId,
   }
 
+  // Text tutorials are public by spec: lesson content is readable by guests and logged-in users alike.
+  // Sensitive video media remains protected by isUnlocked.
+  const allowContent = isUnlocked || (isTutorial && rawLesson.type !== "VIDEO" && !rawLesson.videoUrl)
+
+  if (allowContent) {
+    safe.content = rawLesson.content ?? null
+  } else {
+    safe.content = null
+  }
+
   if (isUnlocked) {
     safe.videoUrl = rawLesson.videoUrl ?? null
-    safe.content = rawLesson.content ?? null
     safe.attachmentType = rawLesson.attachmentType ?? null
     safe.attachmentName = rawLesson.attachmentName ?? null
     safe.attachmentUrl = rawLesson.attachmentUrl ?? null
   } else {
     // Viewer has no access and media is not allowed: strip all content and links
     safe.videoUrl = null
-    safe.content = null
     safe.attachmentType = null
     safe.attachmentName = null
     safe.attachmentUrl = null
@@ -104,7 +113,8 @@ export function toSafeLessonDto(
 export function toSafeChapterDto(
   rawChapter: any,
   hasAccess: boolean,
-  allowTrialMedia: boolean = true
+  allowTrialMedia: boolean = true,
+  isTutorial: boolean = false
 ): SafeChapterDto {
   if (!rawChapter) return rawChapter
 
@@ -114,7 +124,7 @@ export function toSafeChapterDto(
     order: rawChapter.order ?? 0,
     courseId: rawChapter.courseId,
     lessons: Array.isArray(rawChapter.lessons)
-      ? rawChapter.lessons.map((l: any) => toSafeLessonDto(l, hasAccess, allowTrialMedia))
+      ? rawChapter.lessons.map((l: any) => toSafeLessonDto(l, hasAccess, allowTrialMedia, isTutorial))
       : [],
   }
 }
@@ -129,8 +139,16 @@ export function toSafeCourseDto(
 ): SafeCourseDto {
   if (!rawCourse) return rawCourse
 
+  let isTutorial = Boolean(rawCourse.externalId)
+  if (!isTutorial && rawCourse.metadataJson) {
+    try {
+      const meta = typeof rawCourse.metadataJson === "string" ? JSON.parse(rawCourse.metadataJson) : rawCourse.metadataJson
+      if (meta?.format === "tutorial") isTutorial = true
+    } catch {}
+  }
+
   const chapters: SafeChapterDto[] = Array.isArray(rawCourse.chapters)
-    ? rawCourse.chapters.map((ch: any) => toSafeChapterDto(ch, hasAccess, allowTrialMedia))
+    ? rawCourse.chapters.map((ch: any) => toSafeChapterDto(ch, hasAccess, allowTrialMedia, isTutorial))
     : []
 
   // Count total attachments across all chapters if present
