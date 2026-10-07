@@ -214,8 +214,8 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal }:
                                     {/* Top Row: Title, Badges, and Action Buttons side-by-side on lg: */}
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 lg:gap-2">
                                         <div className="flex items-center gap-2 lg:gap-1.5 flex-wrap min-w-0 flex-1">
-                                            <Link href={`/tutorials/${tutorial.slug || tutorial.id}`} className="min-w-0">
-                                                <h3 className="text-lg sm:text-xl lg:text-base font-extrabold text-[#10162F] dark:text-white hover:text-[#3A10E5] transition-colors truncate">
+                                            <Link href={`/tutorials/${tutorial.slug || tutorial.id}`} className="min-w-0 flex-1">
+                                                <h3 className="text-lg sm:text-xl lg:text-base font-extrabold text-[#10162F] dark:text-white hover:text-[#3A10E5] transition-colors truncate lg:whitespace-normal lg:line-clamp-2">
                                                     {tutorial.title}
                                                 </h3>
                                             </Link>
@@ -223,14 +223,14 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal }:
                                                 variant={tutorial.status === "PUBLISHED" ? "default" : "secondary"}
                                                 className={
                                                     tutorial.status === "PUBLISHED"
-                                                        ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] lg:text-[10px] lg:px-1.5 lg:py-0 shrink-0"
-                                                        : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold text-[11px] lg:text-[10px] lg:px-1.5 lg:py-0 shrink-0"
+                                                        ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] lg:hidden shrink-0"
+                                                        : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold text-[11px] lg:hidden shrink-0"
                                                 }
                                             >
                                                 {tutorial.status}
                                             </Badge>
-                                            <span className="px-2 py-0.5 lg:px-1.5 lg:py-0 rounded text-[11px] lg:text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1 shrink-0">
-                                                <Sparkles className="w-3 h-3 lg:w-2.5 lg:h-2.5 text-[#3A10E5]" />
+                                            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center gap-1 lg:hidden shrink-0">
+                                                <Sparkles className="w-3 h-3 text-[#3A10E5]" />
                                                 🌹 Rosera Editor
                                             </span>
                                         </div>
@@ -266,13 +266,13 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal }:
                                                 </Link>
                                             )}
 
-                                            <Link href={`/tutorials/${tutorial.slug || tutorial.id}`} className="shrink-0">
+                                            <Link href={`/tutorials/${tutorial.slug || tutorial.id}`} className="shrink-0 lg:hidden">
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="border-2 border-[#10162F] font-bold shadow-[2px_2px_0px_#10162F] lg:shadow-[1.5px_1.5px_0px_#10162F] hover:bg-[#FFF5EB] text-xs lg:text-xs lg:h-8 lg:px-2.5 text-[#10162F] dark:text-white flex items-center gap-1.5 lg:gap-1"
+                                                    className="border-2 border-[#10162F] font-bold shadow-[2px_2px_0px_#10162F] hover:bg-[#FFF5EB] text-xs text-[#10162F] dark:text-white flex items-center gap-1.5"
                                                 >
-                                                    <Eye className="h-3.5 w-3.5 lg:h-3 lg:w-3" />
+                                                    <Eye className="h-3.5 w-3.5" />
                                                     Overview
                                                 </Button>
                                             </Link>
