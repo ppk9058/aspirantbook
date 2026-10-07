@@ -79,10 +79,6 @@ export default async function ProfilePage() {
         isDbError = true
     }
 
-    if (!user && !isDbError) {
-        redirect("/login")
-    }
-
     const userData = user || {
         id: session.user.id,
         name: session.user.name,
