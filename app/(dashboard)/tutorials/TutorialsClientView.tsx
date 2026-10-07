@@ -186,7 +186,7 @@ export function TutorialsClientView({ initialTutorials, userRole }: TutorialsCli
             </div>
 
             {/* Tutorials List */}
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
                 {filteredTutorials.map((tutorial) => {
                     const totalLessons =
                         tutorial.chapters?.reduce((sum: number, ch) => sum + ch.lessons.length, 0) || 0
@@ -206,12 +206,12 @@ export function TutorialsClientView({ initialTutorials, userRole }: TutorialsCli
                     return (
                         <Card
                             key={tutorial.id}
-                            className={`border-2 border-[#10162F] dark:border-gray-700 shadow-[3px_3px_0px_#10162F] dark:shadow-[3px_3px_0px_#374151] overflow-hidden bg-white dark:bg-[#0B132B] transition-all ${accentBorder}`}
+                            className={`border-2 border-[#10162F] dark:border-gray-700 shadow-[3px_3px_0px_#10162F] dark:shadow-[3px_3px_0px_#374151] overflow-hidden bg-white dark:bg-[#0B132B] transition-all h-full flex flex-col ${accentBorder}`}
                         >
-                            <CardContent className="p-5 sm:p-6">
-                                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+                            <CardContent className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
+                                <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-5">
                                     {/* Left Content */}
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 min-w-0 w-full">
                                         <div className="flex items-center gap-2.5 mb-2 flex-wrap">
                                             <Link href={`/tutorials/${tutorial.slug || tutorial.id}`}>
                                                 <h3 className="text-lg sm:text-xl font-extrabold text-[#10162F] dark:text-white hover:text-[#3A10E5] transition-colors truncate">
@@ -268,7 +268,7 @@ export function TutorialsClientView({ initialTutorials, userRole }: TutorialsCli
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="flex items-center gap-2.5 flex-shrink-0 self-stretch sm:self-end lg:self-center justify-end">
+                                    <div className="flex flex-wrap items-center gap-2.5 flex-shrink-0 self-stretch sm:self-end xl:self-center justify-end">
                                         {tutorial.chapters && tutorial.chapters.length > 0 && (
                                             <Button
                                                 variant="outline"
