@@ -10,7 +10,7 @@ import { getBatchBySlug } from "@/lib/batches-service"
 import { findBatchBySlugOrId } from "@/components/home/homepage-courses.data"
 import { unstable_cache } from "next/cache"
 import { toSafeCourseDto } from "@/lib/courses/course-dto"
-import { isCourseVisibleToUser } from "@/lib/courses/visibility"
+import { isCourseVisibleToUser, isCourseDetailReady } from "@/lib/courses/visibility"
 import { AlertCircle } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -153,6 +153,25 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             <span>Draft Course Preview &mdash; Only visible to Course Creator / Administrators</span>
         </div>
     ) : null
+
+    // If course is visible (published) but has no chapters/lessons ready yet, render Coming Soon
+    const isReady = isCourseDetailReady(course)
+    if (!isReady) {
+        return (
+            <>
+                {draftBanner}
+                <CourseComingSoonView
+                    slug={course.slug || course.id}
+                    title={course.title}
+                    classTag={course.technology || (batch as any)?.classTag || "Video Course"}
+                    targetText={course.description || (batch as any)?.targetText}
+                    scheduleText={(batch as any)?.scheduleText}
+                    price={course.price ? `₹${course.price}` : undefined}
+                    image={course.thumbnailUrl || undefined}
+                />
+            </>
+        )
+    }
 
     let isEnrolled = false
     let hasAccess = false

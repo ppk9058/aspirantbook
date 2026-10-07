@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { getBatchById, updateBatch, deleteBatch } from "@/lib/batches-service";
 
 export async function GET(
@@ -6,6 +7,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (session.user.role !== "ADMIN" && session.user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Forbidden: Admin or Teacher access required" }, { status: 403 });
+    }
+
     const { id } = await params;
     const batch = await getBatchById(id);
     if (!batch) {
@@ -23,6 +32,14 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (session.user.role !== "ADMIN" && session.user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Forbidden: Admin or Teacher access required" }, { status: 403 });
+    }
+
     const { id } = await params;
     const body = await req.json();
     const updated = await updateBatch(id, body);
@@ -41,6 +58,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (session.user.role !== "ADMIN" && session.user.role !== "TEACHER") {
+      return NextResponse.json({ error: "Forbidden: Admin or Teacher access required" }, { status: 403 });
+    }
+
     const { id } = await params;
     const success = await deleteBatch(id);
     if (!success) {
@@ -52,3 +77,4 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete batch" }, { status: 500 });
   }
 }
+

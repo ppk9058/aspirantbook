@@ -38,3 +38,13 @@ export function isCourseVisibleToUser(
   const isFlagPublished = course.isPublished !== false
   return isStatusPublished && isFlagPublished
 }
+
+export function isCourseDetailReady(course: {
+  chapters?: Array<{ lessons?: Array<any> | null }> | null
+} | null | undefined): boolean {
+  if (!course || !course.chapters || course.chapters.length === 0) {
+    return false
+  }
+  return course.chapters.some((ch) => ch.lessons && ch.lessons.length > 0)
+}
+

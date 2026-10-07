@@ -71,26 +71,21 @@ export function CourseComingSoonView({
     }
 
     return (
-        <div className="min-h-screen bg-[#F8F9FC] text-gray-900 pb-20">
-            {/* Top Navbar */}
-            <CuriousNavbar />
-
-            {/* Breadcrumb Bar */}
-            <div className="bg-white border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-                    <button
-                        onClick={() => router.push("/")}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-[#5B47FB] transition-colors cursor-pointer"
-                    >
-                        <ArrowLeft className="h-4 w-4" />
-                        <span>Back to All Batches</span>
-                    </button>
-                    <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-black uppercase tracking-wider shadow-xs">
-                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                            Coming Soon
-                        </span>
-                    </div>
+        <div className="min-h-screen bg-transparent text-gray-900 pb-20">
+            {/* Top Bar Actions */}
+            <div className="py-2 flex items-center justify-between">
+                <button
+                    onClick={() => router.push("/courses")}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-[#5B47FB] transition-colors cursor-pointer"
+                >
+                    <ArrowLeft className="h-4 w-4" />
+                    <span>Back to Courses</span>
+                </button>
+                <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-black uppercase tracking-wider shadow-xs">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                        Coming Soon
+                    </span>
                 </div>
             </div>
 
