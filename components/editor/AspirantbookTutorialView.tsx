@@ -776,7 +776,7 @@ export function AspirantbookTutorialView({
                 </aside>
 
                 {/* RIGHT MAIN CONTENT CANVAS */}
-                <main className="p-5 sm:p-8 lg:p-12 max-w-[1060px] w-full mx-auto">
+                <main className="p-5 sm:p-8 lg:p-12 w-full max-w-full mx-auto">
                     {/* VIEW 1: COURSE OVERVIEW HERO & ROADMAP (Exact Image 1 layout) */}
                     {activeId === "overview" && (
                         <div className="space-y-8 animate-in fade-in-50 duration-200">

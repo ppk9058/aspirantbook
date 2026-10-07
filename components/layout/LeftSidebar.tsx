@@ -65,12 +65,9 @@ export default function LeftSidebar() {
     const pathname = usePathname()
     const { data: session } = useSession()
 
-    // Detect if we are on a course tutorial or learning studio page
-    const isCourseStudio = Boolean(
-        pathname && (
-            (pathname.startsWith("/courses/") && pathname !== "/courses") ||
-            pathname.startsWith("/learn/")
-        )
+    // Auto-collapse sidebar ONLY on tutorial reading pages (/tutorials/<slug>)
+    const isTutorialPage = Boolean(
+        pathname && (pathname.startsWith("/tutorials/") && pathname !== "/tutorials")
     )
 
     const [isCollapsed, setIsCollapsed] = useState(false)
@@ -124,7 +121,7 @@ export default function LeftSidebar() {
         return () => window.removeEventListener("sidebar-toggle", updateState)
     }, [])
 
-    const effectiveCollapsed = overrideState !== null ? overrideState : (isCourseStudio || isCollapsed)
+    const effectiveCollapsed = overrideState !== null ? overrideState : (isTutorialPage || isCollapsed)
 
     const navigation = activeRole === "ADMIN" ? ADMIN_NAV : activeRole === "TEACHER" ? TEACHER_NAV : studentNav
 

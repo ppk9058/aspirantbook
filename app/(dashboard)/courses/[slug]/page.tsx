@@ -1,7 +1,7 @@
 import React, { Suspense } from "react"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import { CourseDetailView } from "./CourseDetailView"
 import { CourseBundleView } from "@/components/course/CourseBundleView"
 import { CourseComingSoonView } from "@/components/course/CourseComingSoonView"
@@ -87,7 +87,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
 }
 
-export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CourseDetailPage({
+    params,
+    searchParams,
+}: {
+    params: Promise<{ slug: string }>
+    searchParams?: Promise<Record<string, string | string[] | undefined>>
+}) {
     const { slug } = await params
 
     // Fetch session, course, and batch concurrently in parallel
@@ -133,6 +139,33 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
     const cachedCourse = rawCachedCourse
     if (cachedCourse) {
+        // Detect if this course is a tutorial (e.g. format: tutorial in metadataJson or externalId set)
+        let isTutorialCourse = Boolean(cachedCourse.externalId)
+        if (cachedCourse.metadataJson) {
+            try {
+                const parsed = JSON.parse(cachedCourse.metadataJson)
+                if (parsed.format === "tutorial" || parsed.meta?.format === "tutorial" || parsed.type === "TUTORIAL") {
+                    isTutorialCourse = true
+                }
+            } catch {}
+        }
+        if (isTutorialCourse) {
+            const sp = searchParams ? await searchParams : {}
+            const searchParamsObj = new URLSearchParams()
+            if (sp) {
+                for (const [key, val] of Object.entries(sp)) {
+                    if (Array.isArray(val)) {
+                        val.forEach((v) => searchParamsObj.append(key, v))
+                    } else if (typeof val === "string") {
+                        searchParamsObj.set(key, val)
+                    }
+                }
+            }
+            const qs = searchParamsObj.toString()
+            const targetUrl = `/tutorials/${cachedCourse.slug || cachedCourse.id}${qs ? `?${qs}` : ""}`
+            permanentRedirect(targetUrl)
+        }
+
         for (const ch of cachedCourse.chapters || []) {
             for (const l of ch.lessons || []) {
                 if ((!l.content || l.content.length === 0) && (l as any).versions?.[0]?.blocks) {

@@ -192,7 +192,7 @@ export function TutorialsClientView({ initialTutorials, userRole }: TutorialsCli
                         tutorial.chapters?.reduce((sum: number, ch) => sum + ch.lessons.length, 0) || 0
 
                     const firstLesson = tutorial.chapters?.[0]?.lessons?.[0]
-                    const readHref = `/courses/${tutorial.slug || tutorial.id}`
+                    const readHref = `/tutorials/${tutorial.slug || tutorial.id}`
 
                     const isExpanded = expandedTutorialId === tutorial.id
 
@@ -213,7 +213,7 @@ export function TutorialsClientView({ initialTutorials, userRole }: TutorialsCli
                                     {/* Left Content */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2.5 mb-2 flex-wrap">
-                                            <Link href={`/courses/${tutorial.slug || tutorial.id}`}>
+                                            <Link href={`/tutorials/${tutorial.slug || tutorial.id}`}>
                                                 <h3 className="text-lg sm:text-xl font-extrabold text-[#10162F] dark:text-white hover:text-[#3A10E5] transition-colors truncate">
                                                     {tutorial.title}
                                                 </h3>
@@ -298,7 +298,7 @@ export function TutorialsClientView({ initialTutorials, userRole }: TutorialsCli
                                             </Link>
                                         )}
 
-                                        <Link href={`/courses/${tutorial.slug || tutorial.id}`}>
+                                        <Link href={`/tutorials/${tutorial.slug || tutorial.id}`}>
                                             <Button
                                                 variant="outline"
                                                 size="sm"

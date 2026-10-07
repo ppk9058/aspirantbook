@@ -53,19 +53,40 @@ export default function DashboardShell({
         )
     )
     const isBooksPage = Boolean(pathname && pathname.startsWith("/books"))
+    const isTutorialPage = Boolean(
+        pathname && (pathname.startsWith("/tutorials/") && pathname !== "/tutorials")
+    )
 
     const [isCollapsed, setIsCollapsed] = useState(false)
+    const [overrideState, setOverrideState] = useState<boolean | null>(null)
+
+    useEffect(() => {
+        setOverrideState(null)
+    }, [pathname])
 
     useEffect(() => {
         const updateState = () => {
             const saved = localStorage.getItem("ts_sidebar_collapsed")
-            setIsCollapsed(saved === "true")
+            if (saved !== null) {
+                setIsCollapsed(saved === "true")
+            }
         }
 
         updateState()
-        window.addEventListener("sidebar-toggle", updateState)
-        return () => window.removeEventListener("sidebar-toggle", updateState)
+        const handleToggle = () => {
+            const saved = localStorage.getItem("ts_sidebar_collapsed")
+            if (saved !== null) {
+                const val = saved === "true"
+                setIsCollapsed(val)
+                setOverrideState(val)
+            }
+        }
+        window.addEventListener("sidebar-toggle", handleToggle)
+        return () => window.removeEventListener("sidebar-toggle", handleToggle)
     }, [])
+
+    const effectiveSidebarCollapsed =
+        overrideState !== null ? overrideState : (isTutorialPage || isCollapsed)
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors w-full max-w-full overflow-x-hidden">
@@ -104,16 +125,34 @@ export default function DashboardShell({
                     isVideoWatchPage
                         ? "lg:ml-0 p-0"
                         : isBooksPage
-                        ? isCollapsed
+                        ? effectiveSidebarCollapsed
                             ? "lg:ml-[68px] pt-0 pb-32 sm:pb-24 lg:pb-8 px-0"
                             : "lg:ml-[240px] pt-0 pb-32 sm:pb-24 lg:pb-8 px-0"
-                        : isCollapsed
+                        : isTutorialPage
+                        ? effectiveSidebarCollapsed
+                            ? "lg:ml-[68px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-0"
+                            : "lg:ml-[240px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-0"
+                        : effectiveSidebarCollapsed
                         ? "lg:ml-[68px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8"
                         : "lg:ml-[240px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8"
                 }`}
             >
-                <div className={isBooksPage ? "w-full mx-auto" : "max-w-7xl mx-auto space-y-6"}>
-                    {!isBooksPage && <Breadcrumbs />}
+                <div
+                    className={
+                        isBooksPage || isTutorialPage
+                            ? "w-full max-w-full mx-auto"
+                            : "max-w-7xl mx-auto space-y-6"
+                    }
+                >
+                    {!isBooksPage && (
+                        isTutorialPage ? (
+                            <div className="px-4 sm:px-6 lg:px-8 pt-2">
+                                <Breadcrumbs />
+                            </div>
+                        ) : (
+                            <Breadcrumbs />
+                        )
+                    )}
                     {children}
                 </div>
             </main>
