@@ -79,25 +79,32 @@ export default async function ProfilePage() {
         isDbError = true
     }
 
-    const userData = user || {
-        id: session.user.id,
-        name: session.user.name,
-        email: session.user.email,
-        role: session.user.role || "STUDENT",
-        createdAt: new Date(),
-        xp: 0,
-        level: 1,
-        streak: 0,
-        enrollments: [],
-        progress: [],
-        achievements: [],
-        subscriptions: [],
-        _count: {
-            enrollments: 0,
-            submissions: 0,
-            achievements: 0,
-        },
+    if (isDbError) {
+        return (
+            <div className="min-h-[50vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
+                <div className="p-3 bg-red-50 dark:bg-red-950/40 rounded-2xl text-red-600 dark:text-red-400 font-bold">
+                    Database Temporarily Unavailable
+                </div>
+                <p className="text-sm text-muted-foreground max-w-md">
+                    We could not retrieve your profile due to a temporary database connection issue. Please refresh or try again in a moment.
+                </p>
+                <Link
+                    href="/profile"
+                    className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm rounded-xl transition-colors"
+                >
+                    Retry Loading Profile
+                </Link>
+            </div>
+        )
     }
+
+    // If session exists but user row does not exist in the database, clear session cookies and send to /login
+    // to prevent infinite redirect loops.
+    if (!user) {
+        redirect("/api/auth/logout?callbackUrl=%2Flogin")
+    }
+
+    const userData = user
 
     const totalEnrollments = userData._count.enrollments
     const totalSubmissions = userData._count.submissions

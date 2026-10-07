@@ -33,11 +33,11 @@ export default function TopNavBar() {
             <div className="h-full px-2 sm:px-6 flex items-center justify-between gap-1.5 sm:gap-2 min-w-0">
                 {/* Logo & Goal Context Selector */}
                 <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
-                    <Link href={homeHref} className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                    <Link href={homeHref} data-testid="brand-logo" className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                         <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] rounded-lg flex items-center justify-center shadow-sm">
                             <span className="text-white font-bold text-base sm:text-lg">T</span>
                         </div>
-                        <span className="text-xl font-bold text-[#05192D] dark:text-white tracking-tight hidden md:inline">aspirantbook</span>
+                        <span data-testid="brand-name" className="text-xl font-bold text-[#05192D] dark:text-white tracking-tight hidden md:inline">aspirantbook</span>
                     </Link>
 
                     {/* Persistent PW-style Goal Switcher */}

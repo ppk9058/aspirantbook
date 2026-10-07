@@ -179,6 +179,7 @@ export default function LeftSidebar() {
                             key={item.name}
                             href={item.href}
                             prefetch={true}
+                            data-testid={`sidebar-item-${item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                             className={`flex items-center ${
                                 effectiveCollapsed ? "justify-center p-2.5" : "gap-3 px-3.5 py-2.5"
                             } text-xs font-semibold rounded-xl transition-all ${

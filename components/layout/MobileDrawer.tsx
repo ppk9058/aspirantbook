@@ -47,16 +47,16 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
 
     // Exact accessible list of items covering old tabs (Book, My Batches, Profile) + full sections
     const drawerNavItems = [
-        { name: "Dashboard / Home", href: homeHref, icon: Home, section: "main" },
-        { name: "My Batches & Enrollments", href: "/my-learning", icon: Layers, section: "main", badge: "Enrolled" },
-        { name: "Online Bookstore", href: "/books", icon: Book, section: "main" },
-        { name: "Test Series & Mocks", href: "/test-series", icon: ClipboardList, section: "explore" },
-        { name: "My Test", href: "/my-tests", icon: ClipboardCheck, section: "explore", badge: "Active" },
-        { name: "Video Courses", href: "/courses", icon: BookOpen, section: "explore" },
-        { name: "Previous Year Papers (PYQs)", href: "/pyqs", icon: FileText, section: "explore" },
-        { name: "Current Affairs & Quizzes", href: "/current-affairs-quizzes", icon: Newspaper, section: "explore" },
-        { name: "Tutorials & Articles", href: "/tutorials", icon: GraduationCap, section: "explore" },
-        { name: "Coding Practice", href: "/practice", icon: Code2, section: "explore" },
+        { name: "Dashboard", href: "/dashboard", icon: Home, section: "main", testId: "mobile-drawer-dashboard" },
+        { name: "My Batches & Enrollments", href: "/my-learning", icon: Layers, section: "main", badge: "Enrolled", testId: "mobile-drawer-learning" },
+        { name: "Online Bookstore", href: "/books", icon: Book, section: "main", testId: "mobile-drawer-books" },
+        { name: "Test Series & Mocks", href: "/test-series", icon: ClipboardList, section: "explore", testId: "mobile-drawer-test-series" },
+        { name: "My Test", href: "/my-tests", icon: ClipboardCheck, section: "explore", badge: "Active", testId: "mobile-drawer-my-tests" },
+        { name: "Video Courses", href: "/courses", icon: BookOpen, section: "explore", testId: "mobile-drawer-courses" },
+        { name: "Previous Year Papers (PYQs)", href: "/pyqs", icon: FileText, section: "explore", testId: "mobile-drawer-pyqs" },
+        { name: "Current Affairs & Quizzes", href: "/current-affairs-quizzes", icon: Newspaper, section: "explore", testId: "mobile-drawer-current-affairs" },
+        { name: "Tutorials & Articles", href: "/tutorials", icon: GraduationCap, section: "explore", testId: "mobile-drawer-tutorials" },
+        { name: "Coding Practice", href: "/practice", icon: Code2, section: "explore", testId: "mobile-drawer-practice" },
     ]
 
     return (
@@ -72,7 +72,7 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
             <div className="relative w-4/5 max-w-xs bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col z-10 border-r border-slate-200 dark:border-slate-800">
                 {/* Drawer Header */}
                 <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                    <Link href={homeHref} onClick={onClose} className="flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-teal-500 rounded-lg">
+                    <Link href={homeHref} onClick={onClose} data-testid="drawer-logo" className="flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-teal-500 rounded-lg">
                         <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-lg flex items-center justify-center shadow-xs">
                             <span className="text-white font-extrabold text-base">T</span>
                         </div>
@@ -83,6 +83,7 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
 
                     <button
                         onClick={onClose}
+                        data-testid="drawer-close"
                         className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         aria-label="Close menu"
                     >
@@ -109,6 +110,7 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
                                 key={item.href}
                                 href={item.href}
                                 onClick={onClose}
+                                data-testid={item.testId}
                                 className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
                                     isActive
                                         ? "bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 font-bold"

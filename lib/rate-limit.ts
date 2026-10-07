@@ -7,12 +7,18 @@ export interface RateLimitResult {
   windowSeconds: number;
 }
 
+let hasWarnedProxy = false;
+
 /**
  * Safely extract client IP taking into account trusted proxy configuration.
  * Ignores client-supplied X-Forwarded-For unless TRUST_PROXY=true (or running behind trusted reverse proxy).
  */
 export function getClientIp(req: Request | { headers: Headers }): string {
   const isTrustedProxy = process.env.TRUST_PROXY === "true";
+  if (process.env.NODE_ENV === "production" && !isTrustedProxy && !hasWarnedProxy) {
+    console.warn("[RateLimit] TRUST_PROXY is not set to 'true'. Client IP will default to 127.0.0.1. Set TRUST_PROXY=true if running behind Nginx/Cloudflare/AWS ALB.");
+    hasWarnedProxy = true;
+  }
   if (isTrustedProxy) {
     const forwarded = req.headers.get("x-forwarded-for");
     if (forwarded) {

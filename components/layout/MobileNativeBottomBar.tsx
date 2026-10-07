@@ -109,6 +109,7 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
                             href={tab.href}
                             prefetch={true}
                             aria-current={active ? "page" : undefined}
+                            data-testid={`mobile-bottom-tab-${tab.name.toLowerCase()}`}
                             className={`flex flex-col items-center justify-center flex-1 h-full min-h-[44px] py-1 text-xs transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:rounded-lg min-w-0 ${
                                 active
                                     ? "text-teal-700 dark:text-teal-400 font-extrabold"

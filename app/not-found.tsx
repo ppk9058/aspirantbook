@@ -21,6 +21,7 @@ export default function NotFound() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-left">
                     <Link
                         href="/dashboard"
+                        data-testid="not-found-dashboard"
                         className="flex flex-col items-start p-3.5 rounded-2xl border border-border bg-background hover:bg-muted/50 transition-colors group min-h-[44px]"
                     >
                         <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
@@ -32,6 +33,7 @@ export default function NotFound() {
 
                     <Link
                         href="/courses"
+                        data-testid="not-found-courses"
                         className="flex flex-col items-start p-3.5 rounded-2xl border border-border bg-background hover:bg-muted/50 transition-colors group min-h-[44px]"
                     >
                         <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
@@ -43,6 +45,7 @@ export default function NotFound() {
 
                     <Link
                         href="/test-series"
+                        data-testid="not-found-test-series"
                         className="flex flex-col items-start p-3.5 rounded-2xl border border-border bg-background hover:bg-muted/50 transition-colors group min-h-[44px]"
                     >
                         <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
