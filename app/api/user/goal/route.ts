@@ -1,43 +1,62 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
-
 import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
+import { parseGoalIds, serializeGoalIds } from "@/lib/goals/student-goals"
 
 export async function GET() {
     try {
         const session = await auth()
         if (!session?.user?.id) {
-            return NextResponse.json({ success: true, goal: null })
+            return NextResponse.json({ success: true, goal: null, goalIds: [] })
         }
 
         // 1. Check DB first (authoritative source of truth)
-        let dbGoal: { goalId: string; subGoalId?: string; updatedAt: string } | null = null
+        let rawGoal: string | null = null
+        let subGoalId: string | undefined = undefined
+        let updatedAt: string = new Date().toISOString()
+
         try {
             const dbUser = await prisma.user.findUnique({
                 where: { id: session.user.id },
                 select: { selectedGoal: true, selectedSubGoal: true, updatedAt: true },
             })
             if (dbUser?.selectedGoal) {
-                dbGoal = {
-                    goalId: dbUser.selectedGoal,
-                    subGoalId: dbUser.selectedSubGoal || undefined,
-                    updatedAt: dbUser.updatedAt.toISOString(),
-                }
-                userGoalsMemoryMap.set(session.user.id, dbGoal)
+                rawGoal = dbUser.selectedGoal
+                subGoalId = dbUser.selectedSubGoal || undefined
+                updatedAt = dbUser.updatedAt.toISOString()
+                userGoalsMemoryMap.set(session.user.id, {
+                    goalId: rawGoal,
+                    subGoalId,
+                    updatedAt,
+                })
             }
         } catch (dbErr) {
             console.warn("Could not fetch user goal from DB:", dbErr)
         }
 
-        let saved = dbGoal || userGoalsMemoryMap.get(session.user.id)
+        if (!rawGoal) {
+            const mem = userGoalsMemoryMap.get(session.user.id)
+            if (mem?.goalId) {
+                rawGoal = mem.goalId
+                subGoalId = mem.subGoalId
+                updatedAt = mem.updatedAt
+            }
+        }
 
-        // Return current saved goal or null (NEVER fallback to skills automatically)
+        const goalIds = parseGoalIds(rawGoal)
+
         return NextResponse.json(
             {
                 success: true,
-                goal: saved || null,
+                goal: rawGoal
+                    ? {
+                          goalId: rawGoal,
+                          goalIds,
+                          subGoalId,
+                          updatedAt,
+                      }
+                    : null,
             },
             {
                 headers: {
@@ -58,15 +77,24 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json()
-        const { goalId, subGoalId } = body
+        const { goalId, goalIds: inputGoalIds, subGoalId } = body
 
-        if (!goalId) {
-            return NextResponse.json({ success: false, error: "goalId is required" }, { status: 400 })
+        let targetGoalIds: string[] = []
+        if (Array.isArray(inputGoalIds) && inputGoalIds.length > 0) {
+            targetGoalIds = inputGoalIds.map((g) => String(g).trim().toLowerCase()).filter(Boolean)
+        } else if (goalId) {
+            targetGoalIds = parseGoalIds(String(goalId))
         }
+
+        if (targetGoalIds.length === 0) {
+            return NextResponse.json({ success: false, error: "At least one goal is required" }, { status: 400 })
+        }
+
+        const serialized = serializeGoalIds(targetGoalIds)
 
         if (session?.user?.id) {
             userGoalsMemoryMap.set(session.user.id, {
-                goalId,
+                goalId: serialized,
                 subGoalId,
                 updatedAt: new Date().toISOString(),
             })
@@ -76,7 +104,7 @@ export async function POST(req: Request) {
                 await prisma.user.update({
                     where: { id: session.user.id },
                     data: {
-                        selectedGoal: goalId,
+                        selectedGoal: serialized,
                         selectedSubGoal: subGoalId || null,
                     },
                 })
@@ -87,11 +115,11 @@ export async function POST(req: Request) {
 
         const res = NextResponse.json({
             success: true,
-            goal: { goalId, subGoalId },
+            goal: { goalId: serialized, goalIds: targetGoalIds, subGoalId },
         })
 
         // Also persist as cookie so server components and client hydrate consistently
-        res.cookies.set("trillion_selected_goal", goalId, {
+        res.cookies.set("trillion_selected_goal", serialized, {
             path: "/",
             maxAge: 31536000,
             sameSite: "lax",

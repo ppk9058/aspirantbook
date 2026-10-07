@@ -1,102 +1,92 @@
-import { prisma } from "@/lib/prisma"
+import { Metadata } from "next"
 import { auth } from "@/auth"
+import { prisma } from "@/lib/prisma"
 import { TutorialsClientView, TutorialItem } from "./TutorialsClientView"
 
-export const revalidate = 60
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
-
-export const metadata = {
-    title: "Tutorials - aspirantbook",
-    description: "Explore interactive text tutorials, code walkthroughs, and step-by-step curriculum.",
-    alternates: {
-        canonical: `${siteUrl}/tutorials`,
-    },
-    openGraph: {
-        title: "Tutorials - aspirantbook",
-        description: "Explore interactive text tutorials, code walkthroughs, and step-by-step curriculum.",
-        url: `${siteUrl}/tutorials`,
-        type: "website",
-    },
+export const metadata: Metadata = {
+    title: "Text-Based Tutorials | aspirantbook",
+    description: "In-depth, step-by-step reading tutorials with interactive code blocks, diagrams, and curriculum authored in Tutorial Studio.",
 }
 
-// Fallback tutorials matching existing database tutorials if DB is temporarily unreachable
 const FALLBACK_TUTORIALS: TutorialItem[] = [
     {
-        id: "cmiixtaz40000xpdblykjk4m4",
-        title: "Generative AI",
-        slug: "generative-ai",
-        description: "Master modern Generative AI, Large Language Models, Prompt Engineering, and RAG architectures.",
+        id: "tut-agentic-engineering",
+        title: "Agentic Engineering: Zero to Hero",
+        slug: "agentic-engineering-zero-to-hero",
+        description: "The complete 35-chapter masterclass on production agentic AI, tool calling, multi-agent swarms, verification, and automated evaluation.",
         status: "PUBLISHED",
-        difficulty: "BEGINNER",
-        technology: "Deep Learning,AI,Gen AI",
+        difficulty: "ADVANCED",
+        technology: "Skill & Tech",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         chapters: [
             {
-                id: "gen-ch1",
-                title: "Introduction to Foundation Models",
+                id: "ae-ch1",
+                title: "Introduction to Agentic Architectures",
                 lessons: [
-                    { id: "gen-l1", title: "What are LLMs and Transformers?" },
-                    { id: "gen-l2", title: "Prompt Engineering & Few-Shot Learning" },
+                    { id: "ae-l1", title: "Why Deterministic Code Meets Autonomous Agents" },
+                    { id: "ae-l2", title: "State Machines vs Autonomous Loops" },
                 ],
             },
             {
-                id: "gen-ch2",
-                title: "Embeddings & Vector Databases",
+                id: "ae-ch2",
+                title: "Tool Calling & Action Protocol",
                 lessons: [
-                    { id: "gen-l3", title: "High-Dimensional Vector Spaces & Cosine Similarity" },
+                    { id: "ae-l3", title: "JSON Schema Definitions & Tool Routing" },
+                    { id: "ae-l4", title: "Error Handling & Self-Correction Loops" },
                 ],
             },
         ],
         _count: { enrollments: 342 },
     },
     {
-        id: "cmtysle1o0000xpgzgh77thhk",
-        title: "Intro to Python",
-        slug: "intro-to-python",
-        description: "Learn Python from the ground up: syntax, data structures, control flow, functions, and OOP.",
+        id: "tut-pyq-masterclass",
+        title: "UPSC CSE GS-1 Conceptual Blueprint",
+        slug: "upsc-cse-gs1-conceptual-blueprint",
+        description: "In-depth textual breakdown of core concepts across Indian Polity, Modern History, Geography, and Economy.",
         status: "PUBLISHED",
-        difficulty: "BEGINNER",
-        technology: "Python",
+        difficulty: "INTERMEDIATE",
+        technology: "UPSC",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         chapters: [
             {
-                id: "py-ch1",
-                title: "Python Fundamentals & Syntax",
-                lessons: [
-                    { id: "py-l1", title: "Variables, Types, and String Formatting" },
-                    { id: "py-l2", title: "Lists, Dictionaries, and Control Flow" },
-                ],
+                id: "upsc-t-ch1",
+                title: "Constitutional Framework & Preamble",
+                lessons: [{ id: "upsc-t-l1", title: "Basic Structure Doctrine & Evolution" }],
             },
         ],
         _count: { enrollments: 890 },
     },
     {
-        id: "cmtyt5drw0002xpon3e8pyueu",
-        title: "Chapter 1: The Foundations of C — From Bare Metal to Execution",
-        slug: "chapter-1-the-foundations-of-c-from-bare-metal-to-execution",
-        description: "Deep dive into memory layout, pointers, stack and heap, system calls, and compilation pipelines.",
+        id: "tut-bpsc-special",
+        title: "BPSC Prelims & Mains Complete Bihar Special",
+        slug: "bpsc-prelims-mains-bihar-special",
+        description: "Exhaustive textual primer on Bihar History, Geography, Economy, Economic Survey, and State Governance for 71st and 72nd CCE.",
         status: "PUBLISHED",
         difficulty: "BEGINNER",
-        technology: "C",
+        technology: "BPSC",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         chapters: [
             {
-                id: "c-ch1",
-                title: "Bare Metal Memory & Pointers",
-                lessons: [
-                    { id: "c-l1", title: "Memory Architecture & Pointer Arithmetic" },
-                    { id: "c-l2", title: "Stack vs Heap Allocation" },
-                ],
+                id: "bpsc-t-ch1",
+                title: "Ancient History of Bihar",
+                lessons: [{ id: "bpsc-t-l1", title: "Magadha Empire & Mauryan Administration" }],
             },
         ],
-        _count: { enrollments: 512 },
+        _count: { enrollments: 520 },
     },
     {
-        id: "cmii4rwbt0001xphj570fmrle",
-        title: "ai course test",
-        slug: "ai-course-test",
-        description: "Hands-on testing and verification of AI models and reasoning frameworks.",
+        id: "tut-genai-mastery",
+        title: "Generative AI Systems & Prompt Engineering",
+        slug: "generative-ai-systems-mastery",
+        description: "Hands-on reading guide covering LLM foundations, context window management, structured outputs, embeddings, and vector databases.",
         status: "PUBLISHED",
         difficulty: "BEGINNER",
-        technology: "AI",
+        technology: "Skill & Tech",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         chapters: [
             {
                 id: "ai-t-ch1",
@@ -109,34 +99,17 @@ const FALLBACK_TUTORIALS: TutorialItem[] = [
 ]
 
 import { cookies } from "next/headers"
-import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
-import { doesCategoryMatchGoal } from "@/lib/tutorials-goal-categories"
+import { getStudentGoals } from "@/lib/goals/student-goals"
+import { doesCategoryMatchAnyGoal } from "@/lib/goals/goal-filters"
 
 export default async function TutorialsPage() {
     const session = await auth()
     const userRole = session?.user?.role || null
 
-    // Determine student's active Global Goal server-side:
-    // 1. Session / DB if logged in
-    // 2. Server memory map
-    // 3. HTTP Cookie 'trillion_selected_goal'
-    let currentGoal: string | null = null
+    // Determine student's active Global Goals server-side (authoritative DB source):
     const cookieStore = await cookies()
     const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null
-
-    if (session?.user?.id) {
-        try {
-            const dbUser = await prisma.user.findUnique({
-                where: { id: session.user.id },
-                select: { selectedGoal: true },
-            })
-            currentGoal = dbUser?.selectedGoal || userGoalsMemoryMap.get(session.user.id)?.goalId || cookieGoal || null
-        } catch {
-            currentGoal = userGoalsMemoryMap.get(session.user.id)?.goalId || cookieGoal || null
-        }
-    } else {
-        currentGoal = cookieGoal || null
-    }
+    const { goalIds, primaryGoal } = await getStudentGoals(session?.user?.id, cookieGoal)
 
     let tutorials: TutorialItem[] = []
 
@@ -174,12 +147,9 @@ export default async function TutorialsPage() {
             return true
         })
 
-        // Filter by Global Goal server-side (query/data layer):
-        // Edge cases:
-        // - No goal set: show all tutorials (current behavior), no crash.
-        // - Tutorial with no category: hidden for goal-filtered students, visible when no goal is set.
+        // Filter by Global Goal server-side (query/data layer with OR logic for multi-goal):
         const goalFilteredTutorials = textTutorials.filter((t) => {
-            return doesCategoryMatchGoal(t.technology, currentGoal)
+            return doesCategoryMatchAnyGoal(t.technology, goalIds)
         })
 
         if (goalFilteredTutorials.length > 0) {
@@ -206,19 +176,24 @@ export default async function TutorialsPage() {
                 })),
                 _count: t._count,
             }))
-        } else if (!currentGoal) {
+        } else if (goalIds.length === 0) {
             tutorials = FALLBACK_TUTORIALS
         } else {
             tutorials = []
         }
     } catch (err: any) {
         console.warn("Database unavailable on /tutorials, serving fallback tutorials:", err.message)
-        tutorials = !currentGoal ? FALLBACK_TUTORIALS : []
+        tutorials = goalIds.length === 0 ? FALLBACK_TUTORIALS : []
     }
 
     return (
         <div className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
-            <TutorialsClientView initialTutorials={tutorials} userRole={userRole} currentGoal={currentGoal} />
+            <TutorialsClientView
+                initialTutorials={tutorials}
+                userRole={userRole}
+                currentGoal={primaryGoal}
+                goalIds={goalIds}
+            />
         </div>
     )
 }

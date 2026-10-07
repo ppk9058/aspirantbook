@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
+import { auth } from "@/auth";
+import { cookies } from "next/headers";
+import { getStudentGoals, parseGoalIds } from "@/lib/goals/student-goals";
+import { applyTestSeriesGoalFilter } from "@/lib/goals/goal-filters";
 
 const getCachedSeriesList = unstable_cache(
   async (category: string | null) => {
@@ -22,6 +26,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
 
+    // Enforce student's active goals from DB/session/cookie as authoritative source
+    const session = await auth();
+    const cookieStore = await cookies();
+    const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null;
+    const { goalIds: userGoalIds } = await getStudentGoals(session?.user?.id, cookieGoal);
+
+    // If query string attempts to pass a goal, ensure it cannot broaden access beyond user's active goals
+    const queryGoal = searchParams.get("goal");
+    const activeGoalIds = queryGoal && userGoalIds.length === 0
+      ? parseGoalIds(queryGoal)
+      : userGoalIds;
+
     let seriesList: any[];
     try {
       seriesList = await getCachedSeriesList(category);
@@ -36,7 +52,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const formatted = seriesList.map((s) => {
+    let formatted = seriesList.map((s) => {
       let meta: any = {};
       try {
         if (s.description && s.description.startsWith("{")) {
@@ -46,6 +62,7 @@ export async function GET(req: NextRequest) {
 
       return {
         id: s.slug || s.id,
+        slug: s.slug,
         title: s.title,
         category: s.category,
         examType: "Civil Services",
@@ -71,11 +88,16 @@ export async function GET(req: NextRequest) {
       };
     });
 
+    // Server-side strict multi-goal filtering
+    if (activeGoalIds.length > 0 && (!category || category === "All")) {
+      formatted = applyTestSeriesGoalFilter(formatted, activeGoalIds);
+    }
+
     return NextResponse.json(
       { success: true, data: formatted },
       {
         headers: {
-          "Cache-Control": "public, max-age=120, stale-while-revalidate=600",
+          "Cache-Control": "private, no-cache, no-store, must-revalidate",
         },
       }
     );

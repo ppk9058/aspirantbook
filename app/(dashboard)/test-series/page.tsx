@@ -25,6 +25,7 @@ import dynamic from "next/dynamic"
 import { useGoal } from "@/components/providers/GoalProvider"
 import GoalIcon from "@/components/layout/GoalIcon"
 import { TEST_SERIES_DATA, TestSeriesItem } from "@/lib/test-series-data"
+import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
 
 const CreateSeriesModal = dynamic(() => import("@/components/exam/CreateSeriesModal"), {
     ssr: false,
@@ -174,7 +175,7 @@ function ExamLogo({ logoType }: { logoType: string }) {
 }
 
 export default function TestSeriesPage() {
-    const { selectedGoal, openGoalModal } = useGoal()
+    const { selectedGoal, selectedGoals, selectedGoalIds, openGoalModal } = useGoal()
     const [selectedCategory, setSelectedCategory] = useState<string>("All")
     const [searchQuery, setSearchQuery] = useState<string>("")
     const [filterByGoal, setFilterByGoal] = useState<boolean>(true)
@@ -259,51 +260,53 @@ export default function TestSeriesPage() {
         })
         let list = Array.from(seriesMap.values())
 
-        // Goal-based filtering / curation when viewing "All"
-        if (filterByGoal && selectedGoal && selectedCategory === "All") {
-            const gid = selectedGoal.id.toLowerCase()
-            const gName = selectedGoal.name.toLowerCase()
-
+        // Goal-based filtering / curation when viewing "All" (multi-goal OR logic)
+        if (filterByGoal && selectedGoals.length > 0 && selectedCategory === "All") {
             const goalMatches = list.filter((item) => {
                 const iGoal = (item.goalId || "").toLowerCase()
                 const iTags = (item.tags || []).map(t => t.toLowerCase())
                 const text = `${item.title} ${item.description || ""} ${item.category}`.toLowerCase()
 
-                // Direct goal match
-                if (iGoal === gid) return true
+                return selectedGoals.some((g) => {
+                    const gid = g.id.toLowerCase()
+                    const gName = g.name.toLowerCase()
 
-                // Strict boundary filtering per target goal
-                if (gid === "bpsc") {
-                    return iGoal === "bpsc" || iTags.includes("bpsc") || text.includes("bpsc") || text.includes("bihar")
-                }
-                if (gid === "upsc") {
-                    return (iGoal === "upsc" || iTags.includes("upsc") || text.includes("upsc")) && !text.includes("bpsc") && !text.includes("bihar")
-                }
-                if (gid === "class-10") {
-                    return iGoal === "class-10" || item.category === "Class 10" || text.includes("class 10") || text.includes("10th")
-                }
-                if (gid === "class-9") {
-                    return iGoal === "class-9" || item.category === "Class 9" || text.includes("class 9") || text.includes("9th")
-                }
-                if (gid === "class-8") {
-                    return iGoal === "class-8" || item.category === "Class 8" || text.includes("class 8") || text.includes("8th")
-                }
-                if (gid === "class-7") {
-                    return iGoal === "class-7" || item.category === "Class 7" || text.includes("class 7") || text.includes("7th")
-                }
-                if (gid === "class-6") {
-                    return iGoal === "class-6" || item.category === "Class 6" || text.includes("class 6") || text.includes("6th")
-                }
-                if (gid === "skills") {
-                    return iGoal === "skills" || item.category === "Skill" || text.includes("coding") || text.includes("programming") || text.includes("python") || text.includes("dsa")
-                }
+                    if (iGoal === gid) return true
 
-                return iTags.includes(gid) || text.includes(gid) || text.includes(gName)
+                    if (gid === "bpsc") {
+                        return iGoal === "bpsc" || iTags.includes("bpsc") || text.includes("bpsc") || text.includes("bihar")
+                    }
+                    if (gid === "upsc") {
+                        return (iGoal === "upsc" || iTags.includes("upsc") || text.includes("upsc")) && !text.includes("bpsc") && !text.includes("bihar")
+                    }
+                    if (gid === "ssc" || gid === "govt-exams") {
+                        return iGoal === "ssc" || iGoal === "govt-exams" || iTags.includes("ssc") || iTags.includes("govt-exams") ||
+                            text.includes("ssc") || text.includes("cgl") || text.includes("banking") || text.includes("railway")
+                    }
+                    if (gid === "class-10") {
+                        return iGoal === "class-10" || item.category === "Class 10" || text.includes("class 10") || text.includes("10th")
+                    }
+                    if (gid === "class-9") {
+                        return iGoal === "class-9" || item.category === "Class 9" || text.includes("class 9") || text.includes("9th")
+                    }
+                    if (gid === "class-8") {
+                        return iGoal === "class-8" || item.category === "Class 8" || text.includes("class 8") || text.includes("8th")
+                    }
+                    if (gid === "class-7") {
+                        return iGoal === "class-7" || item.category === "Class 7" || text.includes("class 7") || text.includes("7th")
+                    }
+                    if (gid === "class-6") {
+                        return iGoal === "class-6" || item.category === "Class 6" || text.includes("class 6") || text.includes("6th")
+                    }
+                    if (gid === "skills") {
+                        return iGoal === "skills" || item.category === "Skill" || text.includes("coding") || text.includes("programming") || text.includes("python") || text.includes("dsa")
+                    }
+
+                    return iTags.includes(gid) || text.includes(gid) || text.includes(gName)
+                })
             })
 
-            if (goalMatches.length > 0) {
-                list = goalMatches
-            }
+            list = goalMatches
         }
 
         return list.filter((item) => {
@@ -318,7 +321,7 @@ export default function TestSeriesPage() {
 
             return matchesCategory && matchesSearch
         })
-    }, [selectedCategory, searchQuery, filterByGoal, selectedGoal, customSeriesPackages])
+    }, [selectedCategory, searchQuery, filterByGoal, selectedGoals, customSeriesPackages])
 
     const toggleSave = (id: string, e: React.MouseEvent) => {
         e.stopPropagation()
@@ -357,6 +360,12 @@ export default function TestSeriesPage() {
                     <span>My Mistake Notebook →</span>
                 </Link>
             </div>
+
+            {/* Shared Goal & Exam Target Bar */}
+            <GoalSelectorBar
+                title="Target Exams & Test Series"
+                subtitle="Showing curated test series and mock exams for your active targets"
+            />
 
             {/* Active Goal Compact Dynamic Banner */}
             <div className="p-3.5 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">

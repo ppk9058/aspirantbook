@@ -4,6 +4,8 @@ import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useGoal } from "@/components/providers/GoalProvider"
+import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
+import { applyPyqGoalFilter } from "@/lib/goals/goal-filters"
 import {
     Search,
     Check,
@@ -980,7 +982,7 @@ const SIDEBAR_CATEGORIES = [
 
 export default function PreviousYearQuestionsPage() {
     const router = useRouter()
-    const { selectedGoal, openGoalModal } = useGoal()
+    const { selectedGoal, selectedGoals, selectedGoalIds, openGoalModal } = useGoal()
     const [dbSeries, setDbSeries] = useState<any[]>([])
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("all")
@@ -998,9 +1000,14 @@ export default function PreviousYearQuestionsPage() {
             .catch(() => {})
     }, [])
 
-    // Filter cards for the lower Explore Section
+    // Filter cards for the lower Explore Section (with multi-goal OR filtering when not set to specific category)
     const filteredPapers = useMemo(() => {
-        return PREVIOUS_YEAR_PAPERS_DATA.filter((item) => {
+        let list = PREVIOUS_YEAR_PAPERS_DATA
+        if (selectedCategory === "all" && selectedGoalIds.length > 0) {
+            list = applyPyqGoalFilter(list, selectedGoalIds)
+        }
+
+        return list.filter((item) => {
             const matchesCategory = selectedCategory === "all" || item.category === selectedCategory
             const searchLower = searchQuery.toLowerCase()
             const matchesSearch =
@@ -1012,27 +1019,30 @@ export default function PreviousYearQuestionsPage() {
 
             return matchesCategory && matchesSearch
         })
-    }, [selectedCategory, searchQuery])
+    }, [selectedCategory, searchQuery, selectedGoalIds])
 
     // Top Enrolled Exams cards matching Image 1 + dynamic real DB series
     const enrolledExams = useMemo(() => {
         const list = [...PREVIOUS_YEAR_PAPERS_DATA.filter((p) => p.isEnrolled)]
-        const currentGoalKey = selectedGoal.id.toLowerCase()
 
-        // Highlight exams relevant to user's targeted goal
+        // Highlight exams relevant to user's targeted goals (multi-goal OR logic)
         dbSeries.forEach((s) => {
             const seriesCat = (s.category || "").toLowerCase()
-            const isMatch = seriesCat.includes(currentGoalKey) || currentGoalKey.includes(seriesCat)
+            const isMatch = selectedGoalIds.some(
+                (gid) => seriesCat.includes(gid) || gid.includes(seriesCat)
+            )
+
             if (isMatch && !list.some((item) => item.id === s.id || item.shortCode === s.title)) {
+                const firstGoalKey = selectedGoalIds[0] || "upsc"
                 list.unshift({
                     id: s.id,
                     title: s.title,
                     shortCode: s.title.length > 25 ? s.title.slice(0, 22) + "..." : s.title,
-                    category: currentGoalKey.includes("bpsc") ? "bpsc" : currentGoalKey.includes("upsc") ? "upsc" : currentGoalKey.includes("10") ? "class-10" : "upsc",
+                    category: firstGoalKey.includes("bpsc") ? "bpsc" : firstGoalKey.includes("upsc") ? "upsc" : firstGoalKey.includes("10") ? "class-10" : "upsc",
                     categoryLabel: s.category || "Official Series",
                     papersCount: s.totalTests || 10,
                     yearsCovered: "2024 - 2026",
-                    logoType: s.logoType || (currentGoalKey.includes("bpsc") ? "bpsc" : "upsc"),
+                    logoType: s.logoType || (firstGoalKey.includes("bpsc") ? "bpsc" : "upsc"),
                     isEnrolled: true,
                     description: s.description || "Official verified previous year exam series and mock papers.",
                     subjects: s.highlights || ["All Subjects", "Full Mock"],
@@ -1041,7 +1051,7 @@ export default function PreviousYearQuestionsPage() {
             }
         })
         return list
-    }, [selectedGoal.id, dbSeries])
+    }, [selectedGoalIds, dbSeries])
 
     const handleDownload = (yearItem: PaperYearDetail, e: React.MouseEvent) => {
         e.stopPropagation()
@@ -1160,6 +1170,12 @@ export default function PreviousYearQuestionsPage() {
                 </div>
             </div>
 
+            {/* Shared Goal & Exam Target Bar */}
+            <GoalSelectorBar
+                title="Target Exams & PYQs"
+                subtitle="Showing previous year questions and papers personalized to your active targets"
+            />
+
             {/* ── SECTION 1: YOUR ENROLLED EXAMS (Matches Image 1) ── */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -1168,7 +1184,7 @@ export default function PreviousYearQuestionsPage() {
                             Your Enrolled Exams
                         </h2>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Active Target: <span className="font-bold text-sky-600 dark:text-sky-400">{selectedGoal.name}</span> &bull; {enrolledExams.length} Active Targets
+                            Active Targets: <span className="font-bold text-sky-600 dark:text-sky-400">{selectedGoals.map(g => g.name).join(", ")}</span> &bull; {enrolledExams.length} Active Targets
                         </p>
                     </div>
 

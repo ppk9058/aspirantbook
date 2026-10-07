@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react"
 import goalsConfig from "@/data/goals-config.json"
+import { parseGoalIds, serializeGoalIds } from "@/lib/goals/student-goals"
 
 export interface SubGoal {
     id: string
@@ -40,6 +41,8 @@ export interface OtherOffering {
 
 export interface GoalContextType {
     selectedGoal: Goal
+    selectedGoals: Goal[]
+    selectedGoalIds: string[]
     selectedSubGoal: SubGoal | null
     isLoaded: boolean
     allGoalsConfig: {
@@ -51,6 +54,8 @@ export interface GoalContextType {
     openGoalModal: () => void
     closeGoalModal: () => void
     selectGoal: (goal: Goal, subGoal?: SubGoal | null) => void
+    toggleGoal: (goal: Goal) => void
+    setGoalIds: (goalIds: string[]) => void
 }
 
 const DEFAULT_GOAL: Goal = (goalsConfig.popularGoals[0] as Goal) || {
@@ -61,8 +66,26 @@ const DEFAULT_GOAL: Goal = (goalsConfig.popularGoals[0] as Goal) || {
     tags: ["upsc", "civil-services"],
 }
 
+export function findGoalById(goalId: string): Goal | null {
+    const popular = goalsConfig.popularGoals.find(g => g.id.toLowerCase() === goalId.toLowerCase())
+    if (popular) return popular as Goal
+
+    for (const cat of goalsConfig.categories) {
+        const found = cat.goals.find(g => g.id.toLowerCase() === goalId.toLowerCase())
+        if (found) {
+            return {
+                ...(found as any),
+                category: cat.title,
+            } as Goal
+        }
+    }
+    return null
+}
+
 const GoalContext = createContext<GoalContextType>({
     selectedGoal: DEFAULT_GOAL,
+    selectedGoals: [DEFAULT_GOAL],
+    selectedGoalIds: [DEFAULT_GOAL.id],
     selectedSubGoal: null,
     isLoaded: false,
     allGoalsConfig: goalsConfig as any,
@@ -70,6 +93,8 @@ const GoalContext = createContext<GoalContextType>({
     openGoalModal: () => {},
     closeGoalModal: () => {},
     selectGoal: () => {},
+    toggleGoal: () => {},
+    setGoalIds: () => {},
 })
 
 const STORAGE_GOAL_KEY = "trillion_selected_goal"
@@ -77,33 +102,35 @@ const STORAGE_SUBGOAL_KEY = "trillion_selected_sub_goal"
 let cachedUserGoalPromise: Promise<any> | null = null
 
 export function GoalProvider({ children }: { children: React.ReactNode }) {
-    const [selectedGoal, setSelectedGoal] = useState<Goal>(DEFAULT_GOAL)
+    const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([DEFAULT_GOAL.id])
     const [selectedSubGoal, setSelectedSubGoal] = useState<SubGoal | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
-    const applyGoalById = (goalId: string, subGoalId?: string | null) => {
-        // Search in popular goals first
-        const popular = goalsConfig.popularGoals.find(g => g.id === goalId)
-        if (popular) {
-            setSelectedGoal(popular as Goal)
-            if (subGoalId && (popular as any).subGoals) {
-                const foundSub = (popular as any).subGoals.find((s: any) => s.id === subGoalId)
+
+    const selectedGoals = useMemo(() => {
+        const list: Goal[] = []
+        for (const gid of selectedGoalIds) {
+            const g = findGoalById(gid)
+            if (g) list.push(g)
+        }
+        return list.length > 0 ? list : [DEFAULT_GOAL]
+    }, [selectedGoalIds])
+
+    const selectedGoal = selectedGoals[0] || DEFAULT_GOAL
+
+    const applyGoalsFromRaw = useCallback((raw: string, subGoalId?: string | null) => {
+        const parsed = parseGoalIds(raw)
+        if (parsed.length > 0) {
+            setSelectedGoalIds(parsed)
+            const first = findGoalById(parsed[0])
+            if (first && subGoalId && (first as any).subGoals) {
+                const foundSub = (first as any).subGoals.find((s: any) => s.id === subGoalId)
                 if (foundSub) setSelectedSubGoal(foundSub)
             } else {
                 setSelectedSubGoal(null)
             }
-            return
         }
-        // Search in all categories
-        for (const cat of goalsConfig.categories) {
-            const found = cat.goals.find(g => g.id === goalId)
-            if (found) {
-                setSelectedGoal(found as Goal)
-                setSelectedSubGoal(null)
-                return
-            }
-        }
-    }
+    }, [])
 
     // Load persisted selection from localStorage or user API
     useEffect(() => {
@@ -112,7 +139,7 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             const savedSubGoalId = localStorage.getItem(STORAGE_SUBGOAL_KEY)
 
             if (savedGoalId) {
-                applyGoalById(savedGoalId, savedSubGoalId)
+                applyGoalsFromRaw(savedGoalId, savedSubGoalId)
             }
             setIsLoaded(true)
 
@@ -124,10 +151,11 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
                         .catch(() => null)
                 }
                 cachedUserGoalPromise.then((data) => {
-                    if (data?.goal?.goalId) {
-                        applyGoalById(data.goal.goalId, data.goal.subGoalId)
+                    if (data?.goal?.goalId || data?.goal?.goalIds) {
+                        const targetRaw = data.goal.goalIds ? data.goal.goalIds.join(",") : data.goal.goalId
+                        applyGoalsFromRaw(targetRaw, data.goal.subGoalId)
                         try {
-                            localStorage.setItem(STORAGE_GOAL_KEY, data.goal.goalId)
+                            localStorage.setItem(STORAGE_GOAL_KEY, targetRaw)
                         } catch {}
                     }
                     setIsLoaded(true)
@@ -147,21 +175,22 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
         const handleCustomGoalChange = (e: any) => {
             const gid = e?.detail?.goalId
             if (gid) {
-                applyGoalById(gid)
+                applyGoalsFromRaw(gid)
                 localStorage.setItem(STORAGE_GOAL_KEY, gid)
             }
         }
         window.addEventListener("goalChange", handleCustomGoalChange)
         return () => window.removeEventListener("goalChange", handleCustomGoalChange)
-    }, [])
+    }, [applyGoalsFromRaw])
 
-    const selectGoal = useCallback((goal: Goal, subGoal: SubGoal | null = null) => {
-        setSelectedGoal(goal)
+    const persistGoals = useCallback((ids: string[], subGoal: SubGoal | null = null) => {
+        const serialized = serializeGoalIds(ids)
+        setSelectedGoalIds(ids)
         setSelectedSubGoal(subGoal)
 
         // Save to localStorage
         try {
-            localStorage.setItem(STORAGE_GOAL_KEY, goal.id)
+            localStorage.setItem(STORAGE_GOAL_KEY, serialized)
             if (subGoal) {
                 localStorage.setItem(STORAGE_SUBGOAL_KEY, subGoal.id)
             } else {
@@ -176,13 +205,37 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                goalId: goal.id,
+                goalId: serialized,
+                goalIds: ids,
                 subGoalId: subGoal?.id,
             }),
         }).catch(() => {})
-
-        setIsGoalModalOpen(false)
     }, [])
+
+    const selectGoal = useCallback((goal: Goal, subGoal: SubGoal | null = null) => {
+        persistGoals([goal.id], subGoal)
+        setIsGoalModalOpen(false)
+    }, [persistGoals])
+
+    const toggleGoal = useCallback((goal: Goal) => {
+        setSelectedGoalIds((prev) => {
+            let next: string[]
+            if (prev.includes(goal.id)) {
+                // Keep at least one goal
+                if (prev.length <= 1) return prev
+                next = prev.filter((id) => id !== goal.id)
+            } else {
+                next = [...prev, goal.id]
+            }
+            persistGoals(next, null)
+            return next
+        })
+    }, [persistGoals])
+
+    const setGoalIds = useCallback((goalIds: string[]) => {
+        if (goalIds.length === 0) return
+        persistGoals(goalIds, null)
+    }, [persistGoals])
 
     const openGoalModal = useCallback(() => setIsGoalModalOpen(true), [])
     const closeGoalModal = useCallback(() => setIsGoalModalOpen(false), [])
@@ -190,6 +243,8 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
     const contextValue = useMemo(
         () => ({
             selectedGoal,
+            selectedGoals,
+            selectedGoalIds,
             selectedSubGoal,
             isLoaded,
             allGoalsConfig: goalsConfig as any,
@@ -197,8 +252,22 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             openGoalModal,
             closeGoalModal,
             selectGoal,
+            toggleGoal,
+            setGoalIds,
         }),
-        [selectedGoal, selectedSubGoal, isLoaded, isGoalModalOpen, openGoalModal, closeGoalModal, selectGoal]
+        [
+            selectedGoal,
+            selectedGoals,
+            selectedGoalIds,
+            selectedSubGoal,
+            isLoaded,
+            isGoalModalOpen,
+            openGoalModal,
+            closeGoalModal,
+            selectGoal,
+            toggleGoal,
+            setGoalIds,
+        ]
     )
 
     return (

@@ -21,6 +21,9 @@ import {
     LogIn,
 } from "lucide-react"
 import { TestActionButton } from "@/components/test-series/TestActionButton"
+import { useGoal } from "@/components/providers/GoalProvider"
+import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
+import { applyQuizGoalFilter } from "@/lib/goals/goal-filters"
 
 interface QuizItem {
     id: string
@@ -109,6 +112,7 @@ const CURATED_CA_QUIZZES: QuizItem[] = [
 
 export default function CurrentAffairsQuizzesClient() {
     const { data: session } = useSession()
+    const { selectedGoal, selectedGoals, selectedGoalIds } = useGoal()
     const { openMobileAuth } = useMobileAuth()
     const [dbQuizzes, setDbQuizzes] = useState<QuizItem[]>([])
     const [localQuizzes, setLocalQuizzes] = useState<QuizItem[]>([])
@@ -221,9 +225,13 @@ export default function CurrentAffairsQuizzesClient() {
         return Array.from(map.values())
     }, [dbQuizzes, localQuizzes])
 
-    // Filter by tab and search
+    // Filter by tab, search, and active goals
     const filteredQuizzes = useMemo(() => {
-        return allQuizzes.filter((q) => {
+        const goalFiltered = selectedGoalIds.length > 0
+            ? applyQuizGoalFilter(allQuizzes, selectedGoalIds)
+            : allQuizzes
+
+        return goalFiltered.filter((q) => {
             const matchesSearch =
                 !searchQuery ||
                 q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -250,7 +258,7 @@ export default function CurrentAffairsQuizzesClient() {
 
             return true
         })
-    }, [allQuizzes, searchQuery, activeFilter])
+    }, [allQuizzes, searchQuery, activeFilter, selectedGoalIds])
 
     return (
         <div className="space-y-8 pb-16">
@@ -284,7 +292,7 @@ export default function CurrentAffairsQuizzesClient() {
                             </Link>
                         )}
                         <Link
-                            href="/test-series/my-tests"
+                            href="/my-tests"
                             onClick={(e) => handleAuthAction(e, "/test-series/my-tests")}
                             className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 backdrop-blur-xs"
                         >
@@ -314,6 +322,12 @@ export default function CurrentAffairsQuizzesClient() {
                     </div>
                 </div>
             </div>
+
+            {/* Shared Goal & Exam Target Bar */}
+            <GoalSelectorBar
+                title="Target Exams & Quizzes"
+                subtitle="Showing daily and weekly quizzes matching your active targets"
+            />
 
             {/* Filter and Search Bar */}
             <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 border-b border-gray-200/80 dark:border-gray-800 pb-4">

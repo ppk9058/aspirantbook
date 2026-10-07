@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
+import { getStudentGoals, parseGoalIds } from "@/lib/goals/student-goals";
+import { applyQuizGoalFilter } from "@/lib/goals/goal-filters";
 
 function mapQuestion(q: any, idx: number) {
   return {
@@ -153,13 +156,28 @@ export async function GET(req: NextRequest) {
       };
     });
 
+    // Enforce student's active goals server-side
+    const cookieStore = await cookies();
+    const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null;
+    const { goalIds: userGoalIds } = await getStudentGoals(session?.user?.id, cookieGoal);
+
+    const queryGoal = searchParams.get("goal");
+    const activeGoalIds = queryGoal && userGoalIds.length === 0
+      ? parseGoalIds(queryGoal)
+      : userGoalIds;
+
+    let finalData = mapped;
+    if (!seriesId && activeGoalIds.length > 0) {
+      finalData = applyQuizGoalFilter(mapped, activeGoalIds);
+    }
+
     return NextResponse.json(
-      { success: true, data: mapped },
+      { success: true, data: finalData },
       {
         headers: {
           "Cache-Control": includeQuestions
             ? "private, no-store"
-            : "public, max-age=60, stale-while-revalidate=300",
+            : "private, no-cache, no-store, must-revalidate",
         },
       }
     );

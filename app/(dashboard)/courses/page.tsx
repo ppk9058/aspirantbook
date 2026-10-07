@@ -4,6 +4,10 @@ import { auth } from "@/auth"
 import CourseClient from "@/components/courses/CourseClient"
 import { classifyCourse } from "@/lib/course-classifier"
 import { cleanDescriptionSnippet } from "@/lib/utils"
+import { cookies } from "next/headers"
+import { getStudentGoals } from "@/lib/goals/student-goals"
+import { applyCourseGoalFilter } from "@/lib/goals/goal-filters"
+import { getCourseBadges } from "@/lib/coupons/badge-query"
 
 const getPublishedDbCourses = unstable_cache(
     async () => {
@@ -59,14 +63,17 @@ const getPublishedDbCourses = unstable_cache(
             }
         })
     },
-    ["published-courses-list-slim-v1"],
+    ["published-courses-list-slim-v2"],
     { revalidate: 60, tags: ["courses"] }
 )
 
-import { getCourseBadges } from "@/lib/coupons/badge-query"
-
 export default async function CoursesPage() {
     const session = await auth()
+
+    // Determine student's active Global Goals server-side (authoritative DB source):
+    const cookieStore = await cookies()
+    const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null
+    const { goalIds, primaryGoal } = await getStudentGoals(session?.user?.id, cookieGoal)
 
     let dbCourses: any[] = []
     let enrolledCourseIds: string[] = []
@@ -85,7 +92,10 @@ export default async function CoursesPage() {
                 : Promise.resolve([]),
         ])
 
-        dbCourses = published
+        // Server-side strict multi-goal filtering
+        const filteredPublished = goalIds.length > 0 ? applyCourseGoalFilter(published, goalIds) : published
+
+        dbCourses = filteredPublished
         enrolledCourseIds = enrollments.map((e) => e.courseId)
         completedCourseIds = enrollments
             .filter((e) => e.completedAt !== null)
@@ -106,6 +116,7 @@ export default async function CoursesPage() {
             completedCourseIds={completedCourseIds}
             bookmarkedCourseIds={bookmarkedCourseIds}
             badgeMap={badgeMap}
+            serverGoalIds={goalIds}
         />
     )
 }

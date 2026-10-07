@@ -53,13 +53,16 @@ export interface TutorialItem {
     }
 }
 
+import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
+
 interface TutorialsClientViewProps {
     initialTutorials: TutorialItem[]
     userRole?: string | null
     currentGoal?: string | null
+    goalIds?: string[]
 }
 
-export function TutorialsClientView({ initialTutorials, userRole, currentGoal }: TutorialsClientViewProps) {
+export function TutorialsClientView({ initialTutorials, userRole, currentGoal, goalIds = [] }: TutorialsClientViewProps) {
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("ALL")
     const [selectedDifficulty, setSelectedDifficulty] = useState("ALL")
@@ -154,6 +157,12 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal }:
                     </div>
                 )}
             </div>
+
+            {/* Shared Goal & Exam Target Bar */}
+            <GoalSelectorBar
+                title="Target Exams & Tutorials"
+                subtitle="Showing tutorials personalized to your active exam targets"
+            />
 
             {/* Filter and Search Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gray-50 dark:bg-gray-900/50 p-3.5 rounded-2xl border-2 border-gray-200 dark:border-gray-800">

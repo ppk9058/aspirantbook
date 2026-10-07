@@ -28,12 +28,15 @@ interface Course {
     subject?: string
 }
 
+import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
+
 interface CourseClientProps {
     dbCourses?: Course[]
     enrolledCourseIds: string[]
     completedCourseIds: string[]
     bookmarkedCourseIds: string[]
     badgeMap?: Record<string, any>
+    serverGoalIds?: string[]
 }
 
 export default function CourseClient({
@@ -42,8 +45,9 @@ export default function CourseClient({
     completedCourseIds,
     bookmarkedCourseIds,
     badgeMap = {},
+    serverGoalIds = [],
 }: CourseClientProps) {
-    const { selectedGoal, openGoalModal } = useGoal()
+    const { selectedGoal, selectedGoals, selectedGoalIds, openGoalModal } = useGoal()
 
     const allCourses = useMemo(() => {
         const combined: Course[] = [...ALL_GOAL_COURSES]
@@ -160,12 +164,15 @@ export default function CourseClient({
     const filteredCourses = useMemo(() => {
         let result = allCourses
 
-        // 1. Goal-based curation filter
-        if (filterByGoal && selectedGoal) {
-            const gid = selectedGoal.id.toLowerCase()
-            const gTags = (selectedGoal.tags || []).map(t => t.toLowerCase())
-
-            result = result.filter(c => isCourseMatchingGoal(c, gid, gTags))
+        // 1. Goal-based curation filter (multi-goal OR logic)
+        if (filterByGoal && selectedGoals.length > 0) {
+            result = result.filter(c => {
+                return selectedGoals.some(g => {
+                    const gid = g.id.toLowerCase()
+                    const gTags = (g.tags || []).map(t => t.toLowerCase())
+                    return isCourseMatchingGoal(c, gid, gTags)
+                })
+            })
         }
 
         // 2. Active Tab (Enrolled / Completed / Bookmarked)
@@ -219,10 +226,10 @@ export default function CourseClient({
         }
 
         return result
-    }, [allCourses, search, activeTab, selectedCategory, filterByGoal, selectedGoal, enrolledCourseIds, completedCourseIds, bookmarkedCourseIds])
+    }, [allCourses, search, activeTab, selectedCategory, filterByGoal, selectedGoals, enrolledCourseIds, completedCourseIds, bookmarkedCourseIds])
 
     const tabs = [
-        { id: 'all', label: filterByGoal ? `${selectedGoal.name} Courses` : 'All Courses', count: filteredCourses.length },
+        { id: 'all', label: filterByGoal ? `Curated Courses (${selectedGoals.map(g => g.name).join(', ')})` : 'All Courses', count: filteredCourses.length },
         { id: 'my', label: 'Enrolled', count: enrolledCourseIds.length },
         { id: 'completed', label: 'Completed', count: completedCourseIds.length },
     ]
@@ -236,11 +243,16 @@ export default function CourseClient({
                         Explore Courses
                     </h1>
                     <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                        Interactive, syllabus-aligned courses curated for your target goal
+                        Interactive, syllabus-aligned courses curated for your target goals
                     </p>
                 </div>
-
             </div>
+
+            {/* Shared Goal & Exam Target Bar */}
+            <GoalSelectorBar
+                title="Target Exams & Courses"
+                subtitle="Showing video and structured courses personalized to your active exam targets"
+            />
 
             {/* Active Goal Dynamic Banner */}
             <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
