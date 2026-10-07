@@ -157,7 +157,7 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal }:
 
             {/* Filter and Search Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gray-50 dark:bg-gray-900/50 p-3.5 rounded-2xl border-2 border-gray-200 dark:border-gray-800">
-                <div className="relative flex-1 max-w-md">
+                <div className="relative flex-1 max-w-md lg:max-w-none lg:flex-1 lg:min-w-[320px]">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
                         type="text"
@@ -169,7 +169,7 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal }:
                 </div>
 
                 {/* Categories */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none flex-shrink-0 max-w-full md:max-w-[60%] lg:max-w-[55%]">
                     {categories.map((cat) => (
                         <button
                             key={cat}
@@ -187,7 +187,7 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal }:
             </div>
 
             {/* Tutorials List */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-x-3 lg:gap-y-3 items-stretch">
                 {filteredTutorials.map((tutorial) => {
                     const totalLessons =
                         tutorial.chapters?.reduce((sum: number, ch) => sum + ch.lessons.length, 0) || 0
@@ -209,10 +209,10 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal }:
                             key={tutorial.id}
                             className={`border-2 border-[#10162F] dark:border-gray-700 shadow-[3px_3px_0px_#10162F] dark:shadow-[3px_3px_0px_#374151] lg:shadow-[2px_2px_0px_#10162F] lg:dark:shadow-[2px_2px_0px_#374151] overflow-hidden bg-white dark:bg-[#0B132B] transition-all h-full flex flex-col ${accentBorder}`}
                         >
-                            <CardContent className="p-5 sm:p-6 lg:py-2.5 lg:px-4 flex-1 flex flex-col justify-between">
-                                <div className="flex flex-col gap-3 lg:gap-1.5">
+                            <CardContent className="p-5 sm:p-6 lg:py-2 lg:px-3 flex-1 flex flex-col justify-between">
+                                <div className="flex flex-col gap-3 lg:gap-1">
                                     {/* Top Row: Title, Badges, and Action Buttons side-by-side on lg: */}
-                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 lg:gap-2">
+                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 lg:gap-1.5">
                                         <div className="flex items-center gap-2 lg:gap-1.5 flex-wrap min-w-0 flex-1">
                                             <Link href={`/tutorials/${tutorial.slug || tutorial.id}`} className="min-w-0 flex-1">
                                                 <h3 className="text-lg sm:text-xl lg:text-base font-extrabold text-[#10162F] dark:text-white hover:text-[#3A10E5] transition-colors truncate lg:whitespace-normal lg:line-clamp-2">
