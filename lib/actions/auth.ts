@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
 import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
 
 const RegisterSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -89,5 +90,6 @@ export async function authenticate(prevState: string | undefined, formData: Form
     } catch {
         target = "/dashboard"
     }
+    revalidatePath("/", "layout")
     redirect(target)
 }

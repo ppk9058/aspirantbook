@@ -19,7 +19,7 @@ export function Providers({
         <SessionProvider
             basePath="/api/auth"
             session={session}
-            refetchOnWindowFocus={false}
+            refetchOnWindowFocus={true}
             refetchInterval={0}
             refetchWhenOffline={false}
         >

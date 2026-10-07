@@ -1,38 +1,70 @@
 "use client"
 
-import { useFormStatus } from "react-dom"
-import { useActionState, useState } from "react"
-import { authenticate } from "@/lib/actions/auth"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Loader2, Eye, EyeOff, Phone } from "lucide-react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 
-function SubmitButton() {
-    const { pending } = useFormStatus()
-    return (
-        <Button
-            className="w-full bg-[#3AAFA9] hover:bg-[#2d8a85] text-white font-bold py-2.5 rounded-xl transition-all shadow-xs"
-            aria-disabled={pending}
-            disabled={pending}
-        >
-            {pending ? (
-                <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
-                </>
-            ) : (
-                "Sign In"
-            )}
-        </Button>
-    )
-}
-
 export function LoginForm() {
-    const [errorMessage, dispatch, isPending] = useActionState(authenticate, undefined)
+    const router = useRouter()
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
+    const [isPending, setIsPending] = useState(false)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const { openMobileAuth } = useMobileAuth()
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setErrorMessage(null)
+        setIsPending(true)
+
+        try {
+            const res = await signIn("credentials", {
+                email,
+                password,
+                redirect: false,
+            })
+
+            if (res?.error) {
+                setErrorMessage("Invalid credentials.")
+                setIsPending(false)
+                return
+            }
+
+            // Sync NextAuth SessionProvider and cross-tab broadcasts
+            try {
+                if (typeof window !== "undefined") {
+                    window.dispatchEvent(new Event("storage"))
+                    if ("BroadcastChannel" in window) {
+                        const bc = new BroadcastChannel("next-auth")
+                        bc.postMessage({ event: "session", data: { trigger: "getSession" } })
+                        bc.close()
+                    }
+                }
+            } catch {}
+
+            // Determine target based on user session role
+            const sessionRes = await fetch("/api/auth/session")
+            const sessionData = await sessionRes.json().catch(() => null)
+            const role = sessionData?.user?.role
+
+            let target = "/dashboard"
+            if (role === "ADMIN") {
+                target = "/admin"
+            } else if (role === "TEACHER") {
+                target = "/teacher"
+            }
+
+            router.push(target)
+            router.refresh()
+        } catch {
+            setErrorMessage("Something went wrong.")
+            setIsPending(false)
+        }
+    }
 
     return (
         <div className="space-y-4">
@@ -87,7 +119,7 @@ export function LoginForm() {
                 </span>
             </div>
 
-            <form action={dispatch} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="email">
                         Email Address
@@ -139,7 +171,22 @@ export function LoginForm() {
                 </div>
 
                 <div className="pt-2">
-                    <SubmitButton />
+                    <Button
+                        type="submit"
+                        data-testid="login-submit"
+                        className="w-full bg-[#3AAFA9] hover:bg-[#2d8a85] text-white font-bold py-2.5 rounded-xl transition-all shadow-xs"
+                        aria-disabled={isPending}
+                        disabled={isPending}
+                    >
+                        {isPending ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Signing in...
+                            </>
+                        ) : (
+                            "Sign In"
+                        )}
+                    </Button>
                 </div>
 
                 {errorMessage && (

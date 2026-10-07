@@ -183,6 +183,18 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
                 return
             }
 
+            // Sync NextAuth SessionProvider and cross-tab broadcasts
+            try {
+                if (typeof window !== "undefined") {
+                    window.dispatchEvent(new Event("storage"))
+                    if ("BroadcastChannel" in window) {
+                        const bc = new BroadcastChannel("next-auth")
+                        bc.postMessage({ event: "session", data: { trigger: "getSession" } })
+                        bc.close()
+                    }
+                }
+            } catch {}
+
             if (data.goalId) {
                 try {
                     localStorage.setItem("trillion_selected_goal", data.goalId)
