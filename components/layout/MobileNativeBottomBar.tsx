@@ -67,7 +67,7 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
     const tabs = [
         {
             name: "Home",
-            href: homeHref,
+            href: "/dashboard",
             icon: Home,
             isActive: isHomeActive,
         },

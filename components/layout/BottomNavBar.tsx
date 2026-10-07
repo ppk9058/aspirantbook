@@ -47,7 +47,7 @@ export default function BottomNavBar() {
     const homeHref = getDashboardHref(session?.user?.role, !!session?.user)
 
     const tabs = activeRole === "ADMIN" ? ADMIN_TABS : activeRole === "TEACHER" ? TEACHER_TABS : [
-        { name: "Home", href: homeHref, icon: Home },
+        { name: "Home", href: "/dashboard", icon: Home },
         { name: "Courses", href: "/courses", icon: BookOpen },
         { name: "Book", href: "/books", icon: Book },
         { name: "My Batches", href: "/my-learning", icon: Compass },
