@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useSession } from "next-auth/react"
 import { ChevronRight, Home } from "lucide-react"
 
 // Custom labels for specific routes
@@ -28,8 +27,7 @@ const SKIP_SEGMENTS = ["tracks"]
 
 export default function Breadcrumbs() {
     const pathname = usePathname()
-    const { data: session } = useSession()
-    const homeHref = session?.user ? "/dashboard" : "/"
+    const homeHref = "/dashboard"
 
     // Don't show breadcrumbs on home page
     if (pathname === "/") return null
