@@ -134,6 +134,25 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
 
     // Load persisted selection from localStorage or user API
     useEffect(() => {
+        // Sync with backend (DB source of truth)
+        const scheduleSync = () => {
+            if (!cachedUserGoalPromise) {
+                cachedUserGoalPromise = fetch("/api/user/goal")
+                    .then((res) => res.json())
+                    .catch(() => null)
+            }
+            cachedUserGoalPromise.then((data) => {
+                if (data?.goal?.goalId || data?.goal?.goalIds) {
+                    const targetRaw = data.goal.goalIds ? data.goal.goalIds.join(",") : data.goal.goalId
+                    applyGoalsFromRaw(targetRaw, data.goal.subGoalId)
+                    try {
+                        localStorage.setItem(STORAGE_GOAL_KEY, targetRaw)
+                    } catch {}
+                }
+                setIsLoaded(true)
+            })
+        }
+
         try {
             const savedGoalId = localStorage.getItem(STORAGE_GOAL_KEY)
             const savedSubGoalId = localStorage.getItem(STORAGE_SUBGOAL_KEY)
@@ -142,25 +161,6 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
                 applyGoalsFromRaw(savedGoalId, savedSubGoalId)
             }
             setIsLoaded(true)
-
-            // Sync with backend (DB source of truth)
-            const scheduleSync = () => {
-                if (!cachedUserGoalPromise) {
-                    cachedUserGoalPromise = fetch("/api/user/goal")
-                        .then((res) => res.json())
-                        .catch(() => null)
-                }
-                cachedUserGoalPromise.then((data) => {
-                    if (data?.goal?.goalId || data?.goal?.goalIds) {
-                        const targetRaw = data.goal.goalIds ? data.goal.goalIds.join(",") : data.goal.goalId
-                        applyGoalsFromRaw(targetRaw, data.goal.subGoalId)
-                        try {
-                            localStorage.setItem(STORAGE_GOAL_KEY, targetRaw)
-                        } catch {}
-                    }
-                    setIsLoaded(true)
-                })
-            }
 
             if (typeof window !== "undefined" && "requestIdleCallback" in window) {
                 (window as any).requestIdleCallback(scheduleSync, { timeout: 2000 })
@@ -172,7 +172,14 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             setIsLoaded(true)
         }
 
+        const handleStorage = () => {
+            cachedUserGoalPromise = null
+            scheduleSync()
+        }
+        window.addEventListener("storage", handleStorage)
+
         const handleCustomGoalChange = (e: any) => {
+            cachedUserGoalPromise = null
             const gid = e?.detail?.goalId
             if (gid) {
                 applyGoalsFromRaw(gid)
@@ -180,7 +187,10 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             }
         }
         window.addEventListener("goalChange", handleCustomGoalChange)
-        return () => window.removeEventListener("goalChange", handleCustomGoalChange)
+        return () => {
+            window.removeEventListener("storage", handleStorage)
+            window.removeEventListener("goalChange", handleCustomGoalChange)
+        }
     }, [applyGoalsFromRaw])
 
     const persistGoals = useCallback((ids: string[], subGoal: SubGoal | null = null) => {
