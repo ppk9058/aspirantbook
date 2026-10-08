@@ -115,15 +115,21 @@ test.describe.serial("Mobile and Tablet Tutorial Chapter Index Off-Canvas Drawer
     const indexVisibleByDefault = (isDrawerOpenDefault || isDesktopSidebarVisible) ? "yes" : "no";
     expect(indexVisibleByDefault).toBe("no");
 
-    // Verify Menu button is present
-    const menuBtn = page.locator('header button[aria-label="Menu"]');
-    const isMenuBtnVisible = await menuBtn.isVisible();
-    const menuButtonPresent = isMenuBtnVisible ? "yes" : "no";
+    // Verify Index button is present (renamed from Menu)
+    const indexBtn = page.locator('header button[aria-label="Index"]');
+    const menuBtn = indexBtn;
+    const isIndexBtnVisible = await indexBtn.isVisible();
+    const menuButtonPresent = isIndexBtnVisible ? "yes" : "no";
     expect(menuButtonPresent).toBe("yes");
+    await expect(indexBtn.getByText("Index")).toBeVisible();
 
-    // Test Open Drawer via Menu tap + measure ms
+    // Verify Download & Export button is REMOVED
+    const downloadExportBtn = page.getByRole("button", { name: /download & export/i });
+    expect(await downloadExportBtn.count()).toBe(0);
+
+    // Test Open Drawer via Index tap + measure ms
     const t0 = Date.now();
-    await menuBtn.click();
+    await indexBtn.click();
     await page.waitForSelector('aside[aria-label="Course Navigation"].translate-x-0', { timeout: 3000 });
     const msToOpen = Date.now() - t0;
     const drawerOpensOnMenuTap = "yes";
@@ -279,15 +285,21 @@ test.describe.serial("Mobile and Tablet Tutorial Chapter Index Off-Canvas Drawer
     const indexVisibleByDefault = (isDrawerOpenDefault || isDesktopSidebarVisible) ? "yes" : "no";
     expect(indexVisibleByDefault).toBe("no");
 
-    // Verify Menu button is present
-    const menuBtn = page.locator('header button[aria-label="Menu"]');
-    const isMenuBtnVisible = await menuBtn.isVisible();
-    const menuButtonPresent = isMenuBtnVisible ? "yes" : "no";
+    // Verify Index button is present (renamed from Menu)
+    const indexBtn = page.locator('header button[aria-label="Index"]');
+    const menuBtn = indexBtn;
+    const isIndexBtnVisible = await indexBtn.isVisible();
+    const menuButtonPresent = isIndexBtnVisible ? "yes" : "no";
     expect(menuButtonPresent).toBe("yes");
+    await expect(indexBtn.getByText("Index")).toBeVisible();
 
-    // Test Open Drawer via Menu tap + measure ms
+    // Verify Download & Export button is REMOVED
+    const downloadExportBtn = page.getByRole("button", { name: /download & export/i });
+    expect(await downloadExportBtn.count()).toBe(0);
+
+    // Test Open Drawer via Index tap + measure ms
     const t0 = Date.now();
-    await menuBtn.click();
+    await indexBtn.click();
     await page.waitForSelector('aside[aria-label="Course Navigation"].translate-x-0', { timeout: 3000 });
     const msToOpen = Date.now() - t0;
     const drawerOpensOnMenuTap = "yes";
@@ -397,19 +409,24 @@ test.describe.serial("Mobile and Tablet Tutorial Chapter Index Off-Canvas Drawer
     expect(hScroll.hasBodyHScroll).toBe(false);
 
     // DOM EVIDENCE AT 1440x900:
-    // 1. Menu button is NOT rendered / visible
-    const menuBtn = page.locator('header button[aria-label="Menu"]');
-    const isMenuBtnVisible = await menuBtn.isVisible();
-    expect(isMenuBtnVisible).toBe(false);
+    // 1. Index button (renamed from Menu) is NOT rendered / visible
+    const indexBtn = page.locator('header button[aria-label="Index"]');
+    const isIndexBtnVisible = await indexBtn.isVisible();
+    expect(isIndexBtnVisible).toBe(false);
 
-    // 2. Desktop sidebar is VISIBLE inline
+    // 2. Download & Export button is REMOVED from desktop
+    const downloadExportBtn = page.getByRole("button", { name: /download & export/i });
+    expect(await downloadExportBtn.count()).toBe(0);
+
+    // 3. Desktop sidebar is VISIBLE inline
     const desktopSidebar = page.locator('aside.hidden.lg\\:block');
     const isDesktopSidebarVisible = await desktopSidebar.isVisible();
     expect(isDesktopSidebarVisible).toBe(true);
 
     const sidebarBox = await desktopSidebar.boundingBox();
     console.log("\n================ DOM EVIDENCE AT 1440x900 ================");
-    console.log(`Menu button visible:      ${isMenuBtnVisible} (Expected: false)`);
+    console.log(`Index button visible:     ${isIndexBtnVisible} (Expected: false)`);
+    console.log(`Download/Export visible:  ${await downloadExportBtn.count() > 0} (Expected: false)`);
     console.log(`Desktop sidebar visible:  ${isDesktopSidebarVisible} (Expected: true)`);
     console.log(`Desktop sidebar width:    ${sidebarBox?.width}px (Expected: ~330px)`);
     console.log(`Desktop sidebar height:   ${sidebarBox?.height}px`);
@@ -441,8 +458,8 @@ test.describe.serial("Mobile and Tablet Tutorial Chapter Index Off-Canvas Drawer
     console.log(
       "Viewport".padEnd(12) + " | " +
       "Default Index".padEnd(14) + " | " +
-      "Menu Btn".padEnd(9) + " | " +
-      "Opens on Menu".padEnd(14) + " | " +
+      "Index Btn".padEnd(9) + " | " +
+      "Opens on Index".padEnd(14) + " | " +
       "Closes on Tap".padEnd(14) + " | " +
       "Title Matches".padEnd(14) + " | " +
       "Closes (X/Backdrop/Esc/Back)".padEnd(28) + " | " +

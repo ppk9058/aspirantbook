@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import Link from "next/link"
-import { Search, Palette, Download, Sparkles, CheckCircle2, Lock, ArrowRight, Settings, Menu, X } from "lucide-react"
+import { Search, Palette, Sparkles, CheckCircle2, Lock, ArrowRight, Settings, Menu, X } from "lucide-react"
 import { RoseraRenderer } from "./RoseraRenderer"
 import { inlineFmt } from "@/lib/rosera/inline"
 import "./rosera.css"
@@ -557,23 +557,6 @@ export function AspirantbookTutorialView({
         }
     }
 
-    const handleExportSite = () => {
-        const fullData = {
-            theme,
-            meta,
-            chapters,
-        }
-        const blob = new Blob([JSON.stringify(fullData, null, 2)], { type: "application/json" })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = `${(course.slug || "tutorial")}.json`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-    }
-
     const colors = theme.colors || {}
     const cBg = colors.bg || "#e4efff"
     const cCard = colors.card || "#f5f9ff"
@@ -763,12 +746,12 @@ export function AspirantbookTutorialView({
                 className="sticky top-0 z-30 flex items-center justify-between px-2.5 sm:px-6 py-2 h-[58px] gap-1.5 sm:gap-4 overflow-hidden"
             >
                 <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 min-w-0">
-                    {/* MOBILE/TABLET MENU BUTTON (< 1024px) */}
+                    {/* MOBILE/TABLET INDEX BUTTON (< 1024px) */}
                     <button
                         ref={menuButtonRef}
                         type="button"
                         onClick={openDrawer}
-                        aria-label="Menu"
+                        aria-label="Index"
                         aria-expanded={isDrawerOpen}
                         style={{
                             backgroundColor: cCard,
@@ -779,7 +762,7 @@ export function AspirantbookTutorialView({
                         className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 h-[44px] min-h-[44px] min-w-[44px] text-xs font-bold hover:brightness-95 active:translate-y-0.5 shadow-[2px_2px_0px_var(--tutorial-ink,#1f2a6b)] cursor-pointer flex-shrink-0"
                     >
                         <Menu className="w-4 h-4" />
-                        <span>Menu</span>
+                        <span>Index</span>
                     </button>
 
                     <Link href="/tutorials" className="flex items-center gap-2 sm:gap-2.5 group min-w-0">
@@ -856,7 +839,7 @@ export function AspirantbookTutorialView({
                     ))}
                 </div>
 
-                {/* Right controls: Progress + Theme + (Download & Export / Studio on Desktop) */}
+                {/* Right controls: Progress + Theme + (Studio on Desktop) */}
                 <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-auto">
                     {/* Progress */}
                     <div className="flex items-center gap-1.5 sm:gap-2">
@@ -903,23 +886,6 @@ export function AspirantbookTutorialView({
                     >
                         <span>🎨</span>
                         <span className="hidden sm:inline">Theme</span>
-                    </button>
-
-                    {/* Download & Export button (Desktop only >= 1024px to keep mobile single-row) */}
-                    <button
-                        type="button"
-                        onClick={handleExportSite}
-                        style={{
-                            backgroundColor: cYellow,
-                            border: `2px solid ${cInk}`,
-                            color: cInk,
-                            borderRadius: "10px",
-                            boxShadow: `2px 2px 0 ${cInk}`,
-                        }}
-                        className="hidden lg:flex px-2.5 sm:px-3 py-1.5 min-h-[44px] text-xs font-bold items-center gap-1.5 hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
-                    >
-                        <span>📥</span>
-                        <span className="hidden sm:inline">Download & Export</span>
                     </button>
 
                     {/* Teacher Studio toggle (if admin/teacher, desktop only) */}
@@ -1123,13 +1089,6 @@ export function AspirantbookTutorialView({
                                             className="asp-btn"
                                         >
                                             <span>▶ Start Reading Tutorial</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={handleExportSite}
-                                            className="asp-btn asp-btn-yellow"
-                                        >
-                                            <span>📥 Download & Export Site</span>
                                         </button>
                                     </div>
                                 </div>
