@@ -34,6 +34,7 @@ const CreateSeriesModal = dynamic(() => import("@/components/exam/CreateSeriesMo
 
 let cachedApiSeries: TestSeriesItem[] | null = null
 let lastApiSeriesFetch = 0
+let cachedUserKey = ""
 const SERIES_CACHE_TTL = 60000 // 60s memory cache
 
 const CATEGORIES = [
@@ -222,6 +223,13 @@ export default function TestSeriesPage() {
                 }
             } catch (e) {}
 
+            // Invalidate cache if user or active goals switched
+            const currentUserKey = `${session?.user?.id || "guest"}_${selectedGoalIds.join(",")}`
+            if (cachedUserKey !== currentUserKey) {
+                cachedApiSeries = null
+                cachedUserKey = currentUserKey
+            }
+
             // Check in-memory client cache first
             if (cachedApiSeries && Date.now() - lastApiSeriesFetch < SERIES_CACHE_TTL) {
                 setCustomSeriesPackages((prev) => {
@@ -252,7 +260,7 @@ export default function TestSeriesPage() {
         load()
         window.addEventListener("storage", load)
         return () => window.removeEventListener("storage", load)
-    }, [])
+    }, [session?.user?.id, selectedGoalIds.join(",")])
 
     const filteredSeries = useMemo(() => {
         // Merge custom series packages with static catalog
