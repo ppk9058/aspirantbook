@@ -181,6 +181,7 @@ export default function GoalModal() {
                                 {selectedGoalIds.length > 1 && (
                                     <button
                                         type="button"
+                                        data-remove-goal={g.id}
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             toggleGoal(g)
@@ -231,6 +232,7 @@ export default function GoalModal() {
                                 return (
                                     <button
                                         key={goal.id}
+                                        data-goal-id={goal.id}
                                         onClick={(e) => handleGoalClick(goal, e)}
                                         className={`relative group p-4 rounded-2xl border text-left transition-all overflow-hidden ${
                                             isSelected
@@ -298,6 +300,7 @@ export default function GoalModal() {
                                             return (
                                                 <button
                                                     key={g.id}
+                                                    data-goal-id={g.id}
                                                     onClick={(e) => {
                                                         const fullGoal =
                                                             allGoalsConfig.popularGoals.find(

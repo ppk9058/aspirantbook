@@ -998,7 +998,7 @@ export default function PreviousYearQuestionsPage() {
                 }
             })
             .catch(() => {})
-    }, [])
+    }, [selectedGoalIds])
 
     // Filter cards for the lower Explore Section (with multi-goal OR filtering when not set to specific category)
     const filteredPapers = useMemo(() => {
@@ -1037,7 +1037,7 @@ export default function PreviousYearQuestionsPage() {
                 list.unshift({
                     id: s.id,
                     title: s.title,
-                    shortCode: s.title.length > 25 ? s.title.slice(0, 22) + "..." : s.title,
+                    shortCode: s.title.length > 40 ? s.title.slice(0, 37) + "..." : s.title,
                     category: firstGoalKey.includes("bpsc") ? "bpsc" : firstGoalKey.includes("upsc") ? "upsc" : firstGoalKey.includes("10") ? "class-10" : "upsc",
                     categoryLabel: s.category || "Official Series",
                     papersCount: s.totalTests || 10,

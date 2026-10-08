@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { unstable_cache } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
@@ -111,6 +113,7 @@ export default async function CoursesPage() {
 
     return (
         <CourseClient
+            key={goalIds.join(",") || "all"}
             dbCourses={dbCourses}
             enrolledCourseIds={enrolledCourseIds}
             completedCourseIds={completedCourseIds}

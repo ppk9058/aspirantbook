@@ -3,6 +3,8 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { TutorialsClientView, TutorialItem } from "./TutorialsClientView"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
     title: "Text-Based Tutorials | aspirantbook",
     description: "In-depth, step-by-step reading tutorials with interactive code blocks, diagrams, and curriculum authored in Tutorial Studio.",
@@ -196,6 +198,7 @@ export default async function TutorialsPage() {
     return (
         <div className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8 pb-24 lg:pb-8">
             <TutorialsClientView
+                key={goalIds.join(",") || "all"}
                 initialTutorials={tutorials}
                 userRole={userRole}
                 currentGoal={primaryGoal}

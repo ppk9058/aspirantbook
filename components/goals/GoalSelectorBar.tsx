@@ -70,6 +70,7 @@ export function GoalSelectorBar({
                         {selectedGoalIds.length > 1 && (
                             <button
                                 type="button"
+                                data-remove-goal={g.id}
                                 onClick={() => toggleGoal(g)}
                                 className="text-teal-500 hover:text-red-600 transition-colors ml-0.5 p-0.5"
                                 title={`Remove ${g.name}`}

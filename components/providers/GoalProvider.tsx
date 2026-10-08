@@ -1,6 +1,7 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react"
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useRouter } from "next/navigation"
 import goalsConfig from "@/data/goals-config.json"
 import { parseGoalIds, serializeGoalIds } from "@/lib/goals/student-goals"
 
@@ -102,10 +103,16 @@ const STORAGE_SUBGOAL_KEY = "trillion_selected_sub_goal"
 let cachedUserGoalPromise: Promise<any> | null = null
 
 export function GoalProvider({ children }: { children: React.ReactNode }) {
+    const router = useRouter()
     const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([DEFAULT_GOAL.id])
     const [selectedSubGoal, setSelectedSubGoal] = useState<SubGoal | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
+
+    const selectedGoalIdsRef = useRef<string[]>(selectedGoalIds)
+    useEffect(() => {
+        selectedGoalIdsRef.current = selectedGoalIds
+    }, [selectedGoalIds])
 
     const selectedGoals = useMemo(() => {
         const list: Goal[] = []
@@ -183,54 +190,71 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
         return () => window.removeEventListener("goalChange", handleCustomGoalChange)
     }, [applyGoalsFromRaw])
 
-    const persistGoals = useCallback((ids: string[], subGoal: SubGoal | null = null) => {
-        const serialized = serializeGoalIds(ids)
-        setSelectedGoalIds(ids)
-        setSelectedSubGoal(subGoal)
+    const persistGoals = useCallback(
+        async (ids: string[], subGoal: SubGoal | null = null) => {
+            const serialized = serializeGoalIds(ids)
+            setSelectedGoalIds(ids)
+            selectedGoalIdsRef.current = ids
+            setSelectedSubGoal(subGoal)
 
-        // Save to localStorage
-        try {
-            localStorage.setItem(STORAGE_GOAL_KEY, serialized)
-            if (subGoal) {
-                localStorage.setItem(STORAGE_SUBGOAL_KEY, subGoal.id)
-            } else {
-                localStorage.removeItem(STORAGE_SUBGOAL_KEY)
+            // Save to localStorage
+            try {
+                localStorage.setItem(STORAGE_GOAL_KEY, serialized)
+                if (subGoal) {
+                    localStorage.setItem(STORAGE_SUBGOAL_KEY, subGoal.id)
+                } else {
+                    localStorage.removeItem(STORAGE_SUBGOAL_KEY)
+                }
+            } catch (e) {
+                console.warn("Failed to save goal to localStorage:", e)
             }
-        } catch (e) {
-            console.warn("Failed to save goal to localStorage:", e)
-        }
 
-        // Save to user API (DB source of truth)
-        fetch("/api/user/goal", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                goalId: serialized,
-                goalIds: ids,
-                subGoalId: subGoal?.id,
-            }),
-        }).catch(() => {})
-    }, [])
+            // Save to user API (DB source of truth and cookie)
+            try {
+                const res = await fetch("/api/user/goal", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        goalId: serialized,
+                        goalIds: ids,
+                        subGoalId: subGoal?.id,
+                    }),
+                })
+                if (res.ok) {
+                    // Refresh server components with updated cookie and DB state
+                    router.refresh()
+                }
+            } catch (err) {
+                console.warn("Failed to persist goal:", err)
+            }
+        },
+        [router]
+    )
 
-    const selectGoal = useCallback((goal: Goal, subGoal: SubGoal | null = null) => {
-        persistGoals([goal.id], subGoal)
-        setIsGoalModalOpen(false)
-    }, [persistGoals])
+    const selectGoal = useCallback(
+        (goal: Goal, subGoal: SubGoal | null = null) => {
+            persistGoals([goal.id], subGoal)
+            setIsGoalModalOpen(false)
+        },
+        [persistGoals]
+    )
 
-    const toggleGoal = useCallback((goal: Goal) => {
-        setSelectedGoalIds((prev) => {
+    const toggleGoal = useCallback(
+        (goal: Goal) => {
+            const current = selectedGoalIdsRef.current
             let next: string[]
-            if (prev.includes(goal.id)) {
+            if (current.includes(goal.id)) {
                 // Keep at least one goal
-                if (prev.length <= 1) return prev
-                next = prev.filter((id) => id !== goal.id)
+                if (current.length <= 1) return
+                next = current.filter((id) => id !== goal.id)
             } else {
-                next = [...prev, goal.id]
+                next = [...current, goal.id]
             }
+            selectedGoalIdsRef.current = next
             persistGoals(next, null)
-            return next
-        })
-    }, [persistGoals])
+        },
+        [persistGoals]
+    )
 
     const setGoalIds = useCallback((goalIds: string[]) => {
         if (goalIds.length === 0) return

@@ -171,7 +171,7 @@ export default function CurrentAffairsQuizzesClient() {
             }
         }
         fetchDbQuizzes()
-    }, [])
+    }, [selectedGoalIds])
 
     // Load custom teacher-authored quizzes from localStorage
     useEffect(() => {

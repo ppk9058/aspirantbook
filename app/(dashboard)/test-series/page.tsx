@@ -201,6 +201,8 @@ export default function TestSeriesPage() {
     }, [selectedGoal.id])
 
     useEffect(() => {
+        cachedApiSeries = null
+        lastApiSeriesFetch = 0
         const load = () => {
             try {
                 const storedTests = localStorage.getItem("ts_custom_tests")
@@ -252,7 +254,7 @@ export default function TestSeriesPage() {
         load()
         window.addEventListener("storage", load)
         return () => window.removeEventListener("storage", load)
-    }, [])
+    }, [selectedGoalIds])
 
     const filteredSeries = useMemo(() => {
         // Merge custom series packages with static catalog
