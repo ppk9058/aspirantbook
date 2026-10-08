@@ -16,9 +16,9 @@ export interface GradedAttemptResult {
   totalCandidates: number;
 }
 
-async function getStoredResult(attemptId: string): Promise<GradedAttemptResult | null> {
+export async function getStoredResult(attemptId: string): Promise<GradedAttemptResult | null> {
   // If another process is currently writing fields, retry with backoff until submittedAt is set
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 30; i++) {
     const attempt = await prisma.examAttempt.findUnique({
       where: { id: attemptId },
       select: {
@@ -119,11 +119,27 @@ export async function gradeExamAttempt(
   }
 
   // If status is SUBMITTED but submittedAt is null (worker crashed or active):
-  // Give an active worker up to 1 second to finish writing
+  // Give an active worker up to 1.5 seconds to finish writing
   if (attempt.status === "SUBMITTED" && attempt.submittedAt === null) {
     const existing = await getStoredResult(attemptId);
     if (existing) return existing;
     // If still null, the previous worker crashed. Proceed to safely re-grade and recover below.
+  }
+
+  // Atomic CAS: claim grading ownership. Only 1 concurrent worker transitions IN_PROGRESS -> SUBMITTED.
+  const cas = await prisma.examAttempt.updateMany({
+    where: {
+      id: attemptId,
+      status: "IN_PROGRESS",
+    },
+    data: {
+      status: "SUBMITTED",
+    },
+  });
+
+  if (cas.count === 0 && attempt.status !== "SUBMITTED") {
+    // Another concurrent worker claimed it first
+    return getStoredResult(attemptId);
   }
 
   // Fetch all saved answers for this attempt
@@ -197,63 +213,39 @@ export async function gradeExamAttempt(
     }
   }
 
-
   const testDurationSecs = (attempt.test?.durationMinutes || 120) * 60;
   const elapsedSecs = Math.floor((now.getTime() - attempt.startedAt.getTime()) / 1000);
   const serverTimeTakenSecs = Math.max(1, Math.min(testDurationSecs, elapsedSecs));
 
-  // Atomic Compare-And-Set & Update: Set status, submittedAt, and scores TOGETHER in one transaction.
-  // Recovers cleanly if previous worker crashed with status SUBMITTED and submittedAt null.
-  const didUpdate = await prisma.$transaction(
-    async (tx) => {
-      for (const ga of gradedAnswers) {
-        await tx.examAttemptAnswer.update({
-          where: {
-            attemptId_questionId: {
-              attemptId,
-              questionId: ga.questionId,
-            },
-          },
-          data: {
-            isCorrect: ga.isCorrect,
-            marksAwarded: ga.marksAwarded,
-          },
-        });
-      }
-
-      const cas = await tx.examAttempt.updateMany({
-        where: {
-          id: attemptId,
-          OR: [
-            { status: "IN_PROGRESS" },
-            { status: "SUBMITTED", submittedAt: null },
-          ],
+  // The CAS winner updates answers and finalizes attempt without lock contention
+  for (const ga of gradedAnswers) {
+    await prisma.examAttemptAnswer.update({
+      where: {
+        attemptId_questionId: {
+          attemptId,
+          questionId: ga.questionId,
         },
-        data: {
-          status: "SUBMITTED",
-          submittedAt: now,
-          score: totalScore,
-          totalMarks: attempt.test?.totalMarks ?? 0,
-          correctCount,
-          wrongCount,
-          skippedCount,
-          markedCount,
-          timeTakenSecs: serverTimeTakenSecs,
-        },
-      });
-
-      return cas.count > 0;
-    },
-    {
-      maxWait: 10000,
-      timeout: 15000,
-    }
-  );
-
-  if (!didUpdate) {
-    // Another concurrent worker committed first
-    return getStoredResult(attemptId);
+      },
+      data: {
+        isCorrect: ga.isCorrect,
+        marksAwarded: ga.marksAwarded,
+      },
+    });
   }
+
+  await prisma.examAttempt.update({
+    where: { id: attemptId },
+    data: {
+      submittedAt: now,
+      score: totalScore,
+      totalMarks: attempt.test?.totalMarks ?? 0,
+      correctCount,
+      wrongCount,
+      skippedCount,
+      markedCount,
+      timeTakenSecs: serverTimeTakenSecs,
+    },
+  });
 
   const newTotalSubmitted = await prisma.examAttempt.count({
     where: { testId: attempt.testId, status: "SUBMITTED" },

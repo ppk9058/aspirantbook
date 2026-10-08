@@ -14,13 +14,13 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ attemptId: string }> }
 ) {
+  const { attemptId } = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { attemptId } = await params;
     if (!attemptId) {
       return NextResponse.json(
         { error: "attemptId is required" },
@@ -63,42 +63,10 @@ export async function POST(
 
     // If already submitted, return existing result idempotently without re-grading
     if (attempt.status === "SUBMITTED") {
-      const totalSubmitted = await prisma.examAttempt.count({
-        where: { testId: attempt.testId, status: "SUBMITTED" },
-      });
-
-      const rank = await prisma.examAttempt.count({
-        where: {
-          testId: attempt.testId,
-          status: "SUBMITTED",
-          score: { gt: attempt.score ?? 0 },
-        },
-      });
-
-      const percentile =
-        totalSubmitted > 1
-          ? parseFloat(
-              (((totalSubmitted - rank) / totalSubmitted) * 100).toFixed(2)
-            )
-          : null;
-
-      return NextResponse.json(
-        {
-          data: {
-            attemptId: attempt.id,
-            score: attempt.score,
-            totalMarks: attempt.totalMarks,
-            correctCount: attempt.correctCount,
-            wrongCount: attempt.wrongCount,
-            skippedCount: attempt.skippedCount,
-            timeTakenSecs: attempt.timeTakenSecs,
-            percentile,
-            allIndiaRank: totalSubmitted > 1 ? rank + 1 : null,
-            totalCandidates: totalSubmitted,
-          },
-        },
-        { status: 200 }
-      );
+      const graded = await gradeExamAttempt(attemptId);
+      if (graded) {
+        return NextResponse.json({ data: graded }, { status: 200 });
+      }
     }
 
     const body = await req.json();
@@ -121,30 +89,35 @@ export async function POST(
 
     // Upsert all final answers
     if (answers.length > 0) {
-      await prisma.$transaction(
-        answers.map((ans) =>
-          prisma.examAttemptAnswer.upsert({
-            where: {
-              attemptId_questionId: {
+      try {
+        await prisma.$transaction(
+          answers.map((ans) =>
+            prisma.examAttemptAnswer.upsert({
+              where: {
+                attemptId_questionId: {
+                  attemptId,
+                  questionId: ans.questionId,
+                },
+              },
+              create: {
                 attemptId,
                 questionId: ans.questionId,
+                selectedOption: ans.selectedOption,
+                isMarked: ans.isMarked ?? false,
+                timeSpentSecs: ans.timeSpentSecs ?? 0,
               },
-            },
-            create: {
-              attemptId,
-              questionId: ans.questionId,
-              selectedOption: ans.selectedOption,
-              isMarked: ans.isMarked ?? false,
-              timeSpentSecs: ans.timeSpentSecs ?? 0,
-            },
-            update: {
-              selectedOption: ans.selectedOption,
-              isMarked: ans.isMarked ?? false,
-              timeSpentSecs: ans.timeSpentSecs ?? 0,
-            },
-          })
-        )
-      );
+              update: {
+                selectedOption: ans.selectedOption,
+                isMarked: ans.isMarked ?? false,
+                timeSpentSecs: ans.timeSpentSecs ?? 0,
+              },
+            })
+          )
+        );
+      } catch (upsertErr) {
+        // Under concurrent double-submit, a peer request may be writing answers concurrently.
+        // We safely proceed to gradeExamAttempt which serializes grading idempotently.
+      }
     }
 
     // Authoritative idempotent server-side grading
@@ -159,6 +132,12 @@ export async function POST(
     return NextResponse.json({ data: graded }, { status: 200 });
   } catch (error) {
     console.error("[POST /api/exam/attempt/:attemptId/submit]", error);
+    try {
+      const graded = await gradeExamAttempt(attemptId);
+      if (graded) {
+        return NextResponse.json({ data: graded }, { status: 200 });
+      }
+    } catch {}
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
