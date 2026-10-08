@@ -8,6 +8,7 @@ import {
   TutorialPackage,
   normalizeBlockWithBid,
 } from "@/lib/validations/tutorial-schema"
+import { validateOrMapCanonicalGoals } from "@/lib/tutorials-goal-categories"
 import crypto from "crypto"
 
 export interface ImportOptions {
@@ -760,19 +761,33 @@ export async function importTutorialPackage(
             slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`
           }
 
-          // Rule 10: New course is published ONLY if publishImmediately is true
+          // Validate meta.subject against canonical goal list
+          const goalValidation = validateOrMapCanonicalGoals(meta.subject)
+          let canonicalTechnology = ""
+          let forceDraft = false
+          if (!goalValidation.isValid) {
+            forceDraft = true
+            warnings.push(goalValidation.error || `Category required: subject '${meta.subject}' does not match any canonical goal. Imported as DRAFT.`)
+          } else {
+            canonicalTechnology = goalValidation.validSlugs.join(",")
+          }
+
+          const effectiveStatus = forceDraft ? "DRAFT" : (publishImmediately ? "PUBLISHED" : "DRAFT")
+          const effectiveIsPublished = forceDraft ? false : Boolean(publishImmediately)
+
+          // Rule 10: New course is published ONLY if publishImmediately is true and category is valid
           targetCourse = (await tx.course.create({
             data: {
               externalId: metaId,
               title: meta.title,
               slug,
               description: meta.intro || `Interactive tutorial: ${meta.title}`,
-              technology: meta.subject || "Interactive Tutorial",
+              technology: canonicalTechnology,
               difficulty: parsedDifficulty,
               duration: parsedDurationMinutes > 0 ? parsedDurationMinutes : 0,
               prerequisites: parsedPrerequisites,
-              status: publishImmediately ? "PUBLISHED" : "DRAFT",
-              isPublished: publishImmediately,
+              status: effectiveStatus,
+              isPublished: effectiveIsPublished,
               theme: effectiveTheme as any,
               metadataJson: JSON.stringify({
                 format: "tutorial",
@@ -790,10 +805,20 @@ export async function importTutorialPackage(
           })) as any
         } else if (updateCourseMeta) {
           // Rule 5: Overwrite course title, description, and theme ONLY if updateCourseMeta is true
+          const updateGoalValidation = validateOrMapCanonicalGoals(meta.subject)
+          let updateCanonicalTech = targetCourse.technology
+          if (meta.subject) {
+            if (updateGoalValidation.isValid) {
+              updateCanonicalTech = updateGoalValidation.validSlugs.join(",")
+            } else {
+              warnings.push(updateGoalValidation.error || `Category required: subject '${meta.subject}' does not match any canonical goal.`)
+            }
+          }
+
           const updateData: any = {
             title: meta.title,
             description: meta.intro || targetCourse.description,
-            technology: meta.subject || targetCourse.technology,
+            technology: updateCanonicalTech,
             difficulty: parsedDifficulty,
             theme: effectiveTheme as any,
             metadataJson: JSON.stringify({

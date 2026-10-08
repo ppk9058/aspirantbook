@@ -547,34 +547,39 @@ export function UniversalEditor({
                                 <label className="block text-xs font-bold uppercase tracking-wider text-[#10162F] mb-1">
                                     Goal Category / Technology
                                 </label>
-                                <div className="space-y-1">
-                                    <select
-                                        value={REQUIRED_GOAL_CATEGORIES.some(c => c.name === technology) ? technology : "__custom__"}
-                                        onChange={(e) => {
-                                            if (e.target.value !== "__custom__") {
-                                                setTechnology(e.target.value)
-                                            }
-                                        }}
-                                        disabled={isSaving}
-                                        className="w-full px-2.5 py-1.5 bg-white border-2 border-[#10162F] rounded-xl text-xs font-bold text-[#10162F] focus:outline-none"
-                                    >
-                                        <option value="__custom__">Custom / Other Technology</option>
-                                        <optgroup label="Goal Categories">
-                                            {REQUIRED_GOAL_CATEGORIES.map((cat) => (
-                                                <option key={cat.slug} value={cat.name}>
-                                                    {cat.name} ({cat.slug})
-                                                </option>
-                                            ))}
-                                        </optgroup>
-                                    </select>
-                                    <input
-                                        type="text"
-                                        value={technology}
-                                        onChange={(e) => setTechnology(e.target.value)}
-                                        disabled={isSaving}
-                                        placeholder="e.g. UPSC, BPSC, Python..."
-                                        className="w-full px-3 py-1.5 bg-white border-2 border-[#10162F] rounded-xl text-xs font-bold text-[#10162F] focus:outline-none"
-                                    />
+                                <div className="space-y-1.5">
+                                    <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-2 border-2 border-[#10162F] rounded-xl bg-[#FFFDF9]">
+                                        {REQUIRED_GOAL_CATEGORIES.map((cat) => {
+                                            const currentSlugs = (technology || "")
+                                                .split(",")
+                                                .map((s) => s.trim().toLowerCase())
+                                                .filter(Boolean)
+                                            const isSelected = currentSlugs.includes(cat.slug)
+                                            return (
+                                                <button
+                                                    key={cat.slug}
+                                                    type="button"
+                                                    disabled={isSaving}
+                                                    onClick={() => {
+                                                        const next = isSelected
+                                                            ? currentSlugs.filter((s) => s !== cat.slug)
+                                                            : [...currentSlugs, cat.slug]
+                                                        setTechnology(next.join(","))
+                                                    }}
+                                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${
+                                                        isSelected
+                                                            ? "bg-[#3A10E5] text-white border-[#10162F] shadow-[1px_1px_0px_#10162F]"
+                                                            : "bg-white text-gray-700 border-gray-300 hover:border-[#10162F]"
+                                                    }`}
+                                                >
+                                                    {cat.name} {isSelected ? "✓" : "+"}
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 font-medium">
+                                        Selected: {(technology || "").split(",").filter(Boolean).length} canonical goal(s)
+                                    </p>
                                 </div>
                             </div>
 

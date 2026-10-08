@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { logContentAudit } from "@/lib/actions/admin/audit"
 import { importTutorialPackage } from "@/lib/actions/admin/tutorial-import"
+import { validateOrMapCanonicalGoals } from "@/lib/tutorials-goal-categories"
 
 interface LessonImport {
   title: string
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
     const {
       courseId,
       title,
-      technology = "Generative AI",
+      technology = "skills,data-science",
       difficulty = "BEGINNER",
       description = "Comprehensive structured tutorial created via Tutorial Studio.",
       theme,
@@ -76,7 +77,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Tutorial title is required" }, { status: 400 })
     }
 
-    const isPublished = status === "PUBLISHED"
+    const goalValidation = validateOrMapCanonicalGoals(technology)
+    const canonicalTechnology = goalValidation.isValid
+      ? goalValidation.validSlugs.join(",")
+      : ""
+    const effectiveStatus = goalValidation.isValid
+      ? ((status as any) || "PUBLISHED")
+      : "DRAFT"
+    const isPublished = effectiveStatus === "PUBLISHED"
 
     // If no chapters provided, create a default orientation chapter
     const normalizedChapters =
@@ -112,9 +120,9 @@ export async function POST(req: Request) {
           data: {
             title: title.trim(),
             description: description.trim(),
-            technology: technology.trim(),
+            technology: canonicalTechnology || course.technology,
             difficulty: (difficulty as any) || "BEGINNER",
-            status: (status as any) || "PUBLISHED",
+            status: (effectiveStatus as any) || "PUBLISHED",
             isPublished,
             metadataJson: theme ? JSON.stringify({ theme }) : undefined,
           },
@@ -172,10 +180,10 @@ export async function POST(req: Request) {
           title: title.trim(),
           slug,
           description: description.trim(),
-          technology: technology.trim(),
+          technology: canonicalTechnology,
           difficulty: (difficulty as any) || "BEGINNER",
           isPremium: false,
-          status: (status as any) || "PUBLISHED",
+          status: (effectiveStatus as any) || "PUBLISHED",
           isPublished,
           thumbnailUrl: "/course-bpsc.svg",
           hasTrialLesson: true,

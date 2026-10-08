@@ -132,6 +132,8 @@ export default async function TutorialsPage() {
             },
         })
 
+        const isStaff = userRole === "ADMIN" || userRole === "TEACHER"
+
         // Strictly include ONLY text-based tutorials created in Tutorial Studio
         // Video courses belong exclusively to the Courses menu
         const textTutorials = dbCourses.filter((c) => {
@@ -144,6 +146,12 @@ export default async function TutorialsPage() {
             const allLessons = c.chapters?.flatMap((ch: any) => ch.lessons || []) || []
             const hasVideoLessons = allLessons.some((l: any) => Boolean(l.videoUrl) || l.type === "VIDEO")
             if (hasVideoLessons) return false
+
+            // Hide tutorials with 0 lessons from student listings (still visible to teacher/admin and Studio)
+            if (!isStaff && allLessons.length === 0) {
+                return false
+            }
+
             return true
         })
 
@@ -176,18 +184,17 @@ export default async function TutorialsPage() {
                 })),
                 _count: t._count,
             }))
-        } else if (goalIds.length === 0) {
-            tutorials = FALLBACK_TUTORIALS
         } else {
+            // Do not re-enable hardcoded fallback tutorials. Return empty array for strict goal isolation
             tutorials = []
         }
     } catch (err: any) {
-        console.warn("Database unavailable on /tutorials, serving fallback tutorials:", err.message)
-        tutorials = goalIds.length === 0 ? FALLBACK_TUTORIALS : []
+        console.warn("Database error on /tutorials:", err.message)
+        tutorials = []
     }
 
     return (
-        <div className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8 pb-24 lg:pb-8">
             <TutorialsClientView
                 initialTutorials={tutorials}
                 userRole={userRole}

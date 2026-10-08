@@ -379,35 +379,79 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal, g
 
                 {filteredTutorials.length === 0 && (
                     <Card className="border-2 border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0B132B]">
-                        <CardContent className="p-12 text-center">
+                        <CardContent className="p-8 sm:p-12 text-center max-w-lg mx-auto">
                             <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-1">
-                                {searchQuery ? "No matching tutorials found" : "No Tutorials Found"}
-                            </h3>
-                            <p className="text-gray-500 dark:text-gray-400 mb-4 text-xs">
-                                {searchQuery
-                                    ? `No tutorials matched "${searchQuery}". Try clearing search or selecting a different category.`
-                                    : "Tutorials authored in Tutorial Studio will appear here."}
-                            </p>
                             {searchQuery ? (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        setSearchQuery("")
-                                        setSelectedCategory("ALL")
-                                        setSelectedDifficulty("ALL")
-                                    }}
-                                    className="border-2 border-[#10162F] font-bold text-xs"
-                                >
-                                    Reset Filters
-                                </Button>
-                            ) : canEdit ? (
-                                <Link href="/admin/tutorials/new">
-                                    <Button className="bg-[#3A10E5] hover:bg-[#300ec2] text-white font-bold">
-                                        Create Tutorial
+                                <>
+                                    <h3 className="font-bold text-gray-900 dark:text-white mb-1">
+                                        No matching tutorials found
+                                    </h3>
+                                    <p className="text-gray-500 dark:text-gray-400 mb-4 text-xs">
+                                        No tutorials matched &quot;{searchQuery}&quot;. Try clearing search or selecting a different category.
+                                    </p>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setSearchQuery("")
+                                            setSelectedCategory("ALL")
+                                            setSelectedDifficulty("ALL")
+                                        }}
+                                        className="min-h-[44px] border-2 border-[#10162F] font-bold text-xs"
+                                    >
+                                        Reset Filters
                                     </Button>
-                                </Link>
-                            ) : null}
+                                </>
+                            ) : goalIds.length > 0 || currentGoal ? (
+                                <>
+                                    <h3 className="text-lg sm:text-xl font-extrabold text-[#10162F] dark:text-white mb-2 tracking-tight">
+                                        No tutorials for {(currentGoal || goalIds[0] || "").toUpperCase()} yet
+                                    </h3>
+                                    <p className="text-gray-600 dark:text-gray-300 mb-6 text-xs sm:text-sm leading-relaxed">
+                                        We haven&apos;t published reading tutorials for {(currentGoal || goalIds[0] || "").toUpperCase()} yet. You can explore structured video courses or practice test series tailored for your target exam.
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                                        <Link href="/courses" className="w-full sm:w-auto">
+                                            <Button className="w-full sm:w-auto min-h-[44px] bg-[#3A10E5] hover:bg-[#300ec2] text-white font-bold text-xs px-5 shadow-[2px_2px_0px_#10162F] border-2 border-[#10162F]">
+                                                Explore Courses
+                                            </Button>
+                                        </Link>
+                                        <Link href="/test-series" className="w-full sm:w-auto">
+                                            <Button
+                                                variant="outline"
+                                                className="w-full sm:w-auto min-h-[44px] border-2 border-[#10162F] dark:border-gray-600 font-bold text-xs px-5 shadow-[2px_2px_0px_#10162F] dark:shadow-none hover:bg-gray-100 dark:hover:bg-gray-800"
+                                            >
+                                                Explore Test Series
+                                            </Button>
+                                        </Link>
+                                        {canEdit && (
+                                            <Link href="/admin/tutorials/new" className="w-full sm:w-auto">
+                                                <Button
+                                                    variant="secondary"
+                                                    className="w-full sm:w-auto min-h-[44px] font-bold text-xs px-5 border-2 border-[#10162F]"
+                                                >
+                                                    + Create Tutorial
+                                                </Button>
+                                            </Link>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <h3 className="font-bold text-gray-900 dark:text-white mb-1">
+                                        No Tutorials Found
+                                    </h3>
+                                    <p className="text-gray-500 dark:text-gray-400 mb-4 text-xs">
+                                        Tutorials authored in Tutorial Studio will appear here.
+                                    </p>
+                                    {canEdit && (
+                                        <Link href="/admin/tutorials/new">
+                                            <Button className="min-h-[44px] bg-[#3A10E5] hover:bg-[#300ec2] text-white font-bold">
+                                                Create Tutorial
+                                            </Button>
+                                        </Link>
+                                    )}
+                                </>
+                            )}
                         </CardContent>
                     </Card>
                 )}

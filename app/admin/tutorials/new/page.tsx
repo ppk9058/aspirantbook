@@ -7,7 +7,7 @@ import { createCourseDraft } from "@/lib/actions/admin/courses"
 import { Button } from "@/components/ui/button"
 import { RichContentEditor } from "@/components/editor/RichContentEditor"
 import { TutorialImportModal } from "@/components/editor/TutorialImportModal"
-import { REQUIRED_GOAL_CATEGORIES } from "@/lib/tutorials-goal-categories"
+import { REQUIRED_GOAL_CATEGORIES, validateOrMapCanonicalGoals } from "@/lib/tutorials-goal-categories"
 import {
     Sparkles,
     BookOpen,
@@ -39,7 +39,7 @@ function NewTutorialForm() {
         `# About this tutorial\n\nLearn step-by-step with structured explanations, code alongs, and practical guides designed for deep conceptual clarity.\n\n### What you'll learn\n- [x] Core fundamental principles\n- [x] Practical real-world examples and step-by-step breakdown\n- [x] Common pitfalls and debugging strategies\n\n> [!TIP]\n> **Study Tip:** Read through each chapter and follow along with the code snippets to reinforce your learning!\n`
     )
     const [difficulty, setDifficulty] = useState("BEGINNER")
-    const [technology, setTechnology] = useState("Python")
+    const [selectedGoals, setSelectedGoals] = useState<string[]>(["skills"])
     const [status, setStatus] = useState<"DRAFT" | "PUBLISHED">("PUBLISHED")
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -52,6 +52,10 @@ function NewTutorialForm() {
             setError("Please provide tutorial content")
             return
         }
+        if (selectedGoals.length === 0) {
+            setError("Please select at least one canonical goal category")
+            return
+        }
 
         setError("")
 
@@ -59,7 +63,7 @@ function NewTutorialForm() {
         formData.append("title", title)
         formData.append("description", description)
         formData.append("difficulty", difficulty)
-        formData.append("technology", technology)
+        formData.append("technology", selectedGoals.join(","))
         formData.append("status", status)
 
         startTransition(async () => {
@@ -191,41 +195,43 @@ function NewTutorialForm() {
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="space-y-4">
                             <div>
                                 <label className="block text-xs font-extrabold text-[#10162F] mb-1.5 uppercase tracking-wide">
-                                    Goal Category / Subject *
+                                    Target Global Goals / Categories * ({selectedGoals.length} selected)
                                 </label>
-                                <div className="space-y-1.5">
-                                    <select
-                                        value={REQUIRED_GOAL_CATEGORIES.some(c => c.name === technology) ? technology : "__custom__"}
-                                        onChange={(e) => {
-                                            if (e.target.value !== "__custom__") {
-                                                setTechnology(e.target.value)
-                                            }
-                                        }}
-                                        className="w-full px-3 py-2 border-2 border-[#10162F] rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#3A10E5] bg-[#FFFDF9]"
-                                    >
-                                        <option value="__custom__">Custom / Other Technology</option>
-                                        <optgroup label="Goal Categories">
-                                            {REQUIRED_GOAL_CATEGORIES.map((cat) => (
-                                                <option key={cat.slug} value={cat.name}>
-                                                    {cat.name} ({cat.slug})
-                                                </option>
-                                            ))}
-                                        </optgroup>
-                                    </select>
-                                    <input
-                                        type="text"
-                                        value={technology}
-                                        onChange={(e) => setTechnology(e.target.value)}
-                                        required
-                                        placeholder="UPSC, BPSC, Class 10th, Python..."
-                                        className="w-full px-3 py-2 border-2 border-[#10162F] rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#3A10E5] bg-[#FFFDF9]"
-                                    />
+                                <p className="text-[11px] text-gray-500 mb-2">
+                                    Select one or more canonical goals so students on those exam tracks can find this tutorial.
+                                </p>
+                                <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 border-2 border-[#10162F] rounded-xl bg-[#FFFDF9]">
+                                    {REQUIRED_GOAL_CATEGORIES.map((cat) => {
+                                        const isSelected = selectedGoals.includes(cat.slug)
+                                        return (
+                                            <button
+                                                key={cat.slug}
+                                                type="button"
+                                                onClick={() => {
+                                                    if (isSelected) {
+                                                        setSelectedGoals(selectedGoals.filter((g) => g !== cat.slug))
+                                                    } else {
+                                                        setSelectedGoals([...selectedGoals, cat.slug])
+                                                    }
+                                                }}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                                                    isSelected
+                                                        ? "bg-[#3A10E5] text-white border-[#10162F] shadow-[2px_2px_0px_#10162F]"
+                                                        : "bg-white text-gray-700 border-gray-300 hover:border-[#10162F]"
+                                                }`}
+                                            >
+                                                {cat.name} ({cat.slug}) {isSelected ? "✓" : "+"}
+                                            </button>
+                                        )
+                                    })}
                                 </div>
                             </div>
+                        </div>
 
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-xs font-extrabold text-[#10162F] mb-1.5 uppercase tracking-wide">
                                     Difficulty Level *
@@ -329,7 +335,12 @@ function NewTutorialForm() {
                 onClose={() => setIsImportModalOpen(false)}
                 onApplyToEditor={(imported) => {
                     if (imported.title) setTitle(imported.title)
-                    if (imported.technology) setTechnology(imported.technology)
+                    if (imported.technology) {
+                        const validated = validateOrMapCanonicalGoals(imported.technology)
+                        if (validated.isValid && validated.validSlugs.length > 0) {
+                            setSelectedGoals(validated.validSlugs)
+                        }
+                    }
                     if (imported.difficulty) setDifficulty(imported.difficulty)
                     if (imported.content) setDescription(imported.content)
                 }}
