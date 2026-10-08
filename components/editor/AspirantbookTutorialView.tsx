@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import Link from "next/link"
-import { Search, Palette, Download, Sparkles, CheckCircle2, Lock, ArrowRight, Settings } from "lucide-react"
+import { Search, Palette, Download, Sparkles, CheckCircle2, Lock, ArrowRight, Settings, Menu, X } from "lucide-react"
 import { RoseraRenderer } from "./RoseraRenderer"
 import { inlineFmt } from "@/lib/rosera/inline"
 import "./rosera.css"
@@ -45,6 +45,136 @@ interface AspirantbookTutorialViewProps {
     onSwitchToStudio?: () => void
 }
 
+interface ChapterIndexContentProps {
+    searchQuery: string
+    setSearchQuery: (q: string) => void
+    activeId: string
+    filteredChapters: Chapter[]
+    doneMap: Record<string, boolean>
+    onSelectOverview: () => void
+    onSelectLesson: (lessonId: string, isLocked: boolean) => void
+    activeItemRef?: React.RefObject<HTMLButtonElement | null>
+    cCard: string
+    cInk: string
+    cGreen: string
+    cSoft: string
+    cPrimary: string
+    prefixId?: string
+}
+
+function ChapterIndexContent({
+    searchQuery,
+    setSearchQuery,
+    activeId,
+    filteredChapters,
+    doneMap,
+    onSelectOverview,
+    onSelectLesson,
+    activeItemRef,
+    cCard,
+    cInk,
+    cGreen,
+    cSoft,
+    cPrimary,
+    prefixId = "nav",
+}: ChapterIndexContentProps) {
+    return (
+        <div className="space-y-3">
+            {/* Real-time Search input */}
+            <div className="relative mb-3">
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search chapters or topics..."
+                    style={{
+                        backgroundColor: cCard,
+                        border: `2px solid ${cInk}`,
+                        borderRadius: "10px",
+                        color: cInk,
+                    }}
+                    className="w-full text-xs font-semibold px-3 py-2.5 pl-8 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[color:var(--tutorial-primary,#3b2fd6)] min-h-[44px]"
+                />
+                <Search className="absolute left-2.5 top-3.5 h-3.5 w-3.5 text-gray-500" />
+            </div>
+
+            {/* Course Overview Link */}
+            <div className="mb-3">
+                <button
+                    type="button"
+                    onClick={onSelectOverview}
+                    className={`asp-nv ${activeId === "overview" ? "active" : ""}`}
+                >
+                    <span className="text-base">📖</span>
+                    <span>Course Overview &amp; Roadmap</span>
+                </button>
+            </div>
+
+            {/* PHASES HIERARCHY */}
+            <div className="space-y-4">
+                {filteredChapters.map((ch, pIdx) => {
+                    const phaseLessons = ch.lessons || []
+
+                    return (
+                        <div key={ch.id || `${prefixId}-phase-${pIdx}`} className="space-y-1">
+                            {/* Green Phase Title */}
+                            <h5
+                                style={{ color: cGreen }}
+                                className="aspirantbook-head font-bold text-xs uppercase tracking-wider px-2 pt-2 pb-1"
+                            >
+                                {ch.title}
+                            </h5>
+
+                            {/* Phase Chapters / Lessons */}
+                            <div className="space-y-0.5">
+                                {phaseLessons.map((l) => {
+                                    const isSelected = activeId === l.id
+                                    const isDone = Boolean(doneMap[l.id])
+
+                                    let isLocked = false
+                                    try {
+                                        const parsed = JSON.parse(l.content)
+                                        if (parsed?.blocks?.[0]?.content?.includes("scheduled for an upcoming release")) {
+                                            isLocked = true
+                                        }
+                                    } catch {}
+
+                                    return (
+                                        <button
+                                            key={`${prefixId}-${l.id}`}
+                                            ref={isSelected && activeItemRef ? activeItemRef : undefined}
+                                            type="button"
+                                            disabled={isLocked}
+                                            onClick={() => onSelectLesson(l.id, isLocked)}
+                                            className={`asp-nv ${isSelected ? "active" : ""} ${isLocked ? "disabled" : ""}`}
+                                            title={isLocked ? "Coming in a later phase" : l.title}
+                                        >
+                                            <span className="truncate pr-1">{l.title}</span>
+                                            {isDone && !isLocked && (
+                                                <span
+                                                    style={{ color: cGreen }}
+                                                    className="ml-auto font-extrabold text-sm flex-shrink-0"
+                                                >
+                                                    ✔
+                                                </span>
+                                            )}
+                                            {isLocked && (
+                                                <span className="ml-auto text-xs opacity-70 flex-shrink-0">
+                                                    🔒
+                                                </span>
+                                            )}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
 export function AspirantbookTutorialView({
     course,
     chapters,
@@ -52,6 +182,122 @@ export function AspirantbookTutorialView({
     onSwitchToStudio,
 }: AspirantbookTutorialViewProps) {
     const [searchQuery, setSearchQuery] = useState("")
+    const [activeId, setActiveId] = useState<string>("overview")
+
+    // Mobile / Tablet Drawer State (< 1024px)
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+    const drawerPushedToHistoryRef = useRef(false)
+    const menuButtonRef = useRef<HTMLButtonElement | null>(null)
+    const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+    const drawerRef = useRef<HTMLElement | null>(null)
+    const activeDrawerItemRef = useRef<HTMLButtonElement | null>(null)
+    const previousDrawerOpenRef = useRef(false)
+
+    // Open drawer and push history state for Back button trapping
+    const openDrawer = useCallback(() => {
+        setIsDrawerOpen(true)
+        try {
+            window.history.pushState({ tutorialDrawerOpen: true }, "")
+            drawerPushedToHistoryRef.current = true
+        } catch {}
+    }, [])
+
+    // Close drawer
+    const closeDrawer = useCallback(() => {
+        setIsDrawerOpen(false)
+        if (drawerPushedToHistoryRef.current) {
+            drawerPushedToHistoryRef.current = false
+            try {
+                window.history.back()
+            } catch {}
+        }
+    }, [])
+
+    // Handle browser back button (popstate)
+    useEffect(() => {
+        const handlePopState = () => {
+            if (isDrawerOpen) {
+                drawerPushedToHistoryRef.current = false
+                setIsDrawerOpen(false)
+            }
+        }
+        window.addEventListener("popstate", handlePopState)
+        return () => window.removeEventListener("popstate", handlePopState)
+    }, [isDrawerOpen])
+
+    // Close drawer on Escape key
+    useEffect(() => {
+        if (!isDrawerOpen) return
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                e.preventDefault()
+                closeDrawer()
+            }
+        }
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [isDrawerOpen, closeDrawer])
+
+    // Focus management: move focus into drawer on open, return to Menu button on close
+    useEffect(() => {
+        if (isDrawerOpen) {
+            const timer = setTimeout(() => {
+                closeButtonRef.current?.focus()
+            }, 50)
+            return () => clearTimeout(timer)
+        } else if (previousDrawerOpenRef.current) {
+            menuButtonRef.current?.focus()
+        }
+        previousDrawerOpenRef.current = isDrawerOpen
+    }, [isDrawerOpen])
+
+    // Lock body scroll while drawer is open
+    useEffect(() => {
+        if (isDrawerOpen) {
+            const originalOverflow = document.body.style.overflow
+            document.body.style.overflow = "hidden"
+            return () => {
+                document.body.style.overflow = originalOverflow
+            }
+        }
+    }, [isDrawerOpen])
+
+    // Scroll active item into view when drawer opens
+    useEffect(() => {
+        if (isDrawerOpen) {
+            const timer = setTimeout(() => {
+                activeDrawerItemRef.current?.scrollIntoView({
+                    block: "nearest",
+                    behavior: "smooth",
+                })
+            }, 100)
+            return () => clearTimeout(timer)
+        }
+    }, [isDrawerOpen, activeId])
+
+    // Tab focus trap inside drawer
+    const handleDrawerKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Tab" && drawerRef.current) {
+            const focusableEls = drawerRef.current.querySelectorAll<HTMLElement>(
+                'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            )
+            if (focusableEls.length === 0) return
+            const firstEl = focusableEls[0]
+            const lastEl = focusableEls[focusableEls.length - 1]
+
+            if (e.shiftKey) {
+                if (document.activeElement === firstEl) {
+                    e.preventDefault()
+                    lastEl.focus()
+                }
+            } else {
+                if (document.activeElement === lastEl) {
+                    e.preventDefault()
+                    firstEl.focus()
+                }
+            }
+        }
+    }
 
     // Parse metadata (theme, meta, includes, stats)
     const { defaultTheme, meta } = useMemo(() => {
@@ -92,7 +338,7 @@ export function AspirantbookTutorialView({
 
         let parsedMeta: any = {
             brand: course.technology || "aspirantbook",
-            subtitle: "Interactive Tutorial Mastery",
+            subtitle: "Zero to Hero Mastery",
             categoryPill: "Mastery Curriculum",
             categorySubtitle: course.technology
                 ? `CURRICULUM · ${course.technology.toUpperCase()}`
@@ -229,9 +475,6 @@ export function AspirantbookTutorialView({
 
         return list
     }, [chapters])
-
-    // Active view: "overview" or lessonId
-    const [activeId, setActiveId] = useState<string>("overview")
 
     // Completed lessons state (synced with localStorage)
     const [doneMap, setDoneMap] = useState<Record<string, boolean>>({})
@@ -439,6 +682,7 @@ export function AspirantbookTutorialView({
                     background: transparent;
                     border-radius: 12px;
                     padding: 8px 12px;
+                    min-height: 44px;
                     margin: 2px 0;
                     font-size: 13.5px;
                     font-weight: 600;
@@ -459,6 +703,13 @@ export function AspirantbookTutorialView({
                 .asp-nv.disabled {
                     opacity: 0.55;
                     cursor: not-allowed;
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                    .aspirantbook-drawer, .aspirantbook-backdrop {
+                        transition: none !important;
+                        animation: none !important;
+                    }
                 }
 
                 /* Action Neo-Brutalist Buttons */
@@ -506,35 +757,55 @@ export function AspirantbookTutorialView({
                 }
             ` }} />
 
-            {/* TOP STICKY BAR matching Image 1 */}
+            {/* TOP STICKY BAR matching Image 1 & 2 */}
             <header
                 style={{ backgroundColor: cCard, borderBottom: `3px solid ${cInk}` }}
-                className="sticky top-0 z-30 flex items-center justify-between px-3 sm:px-6 py-2.5 h-[58px] gap-2 sm:gap-4 overflow-x-auto"
+                className="sticky top-0 z-30 flex items-center justify-between px-2.5 sm:px-6 py-2 h-[58px] gap-1.5 sm:gap-4 overflow-hidden"
             >
-                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                    <Link href="/tutorials" className="flex items-center gap-2.5 group">
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 min-w-0">
+                    {/* MOBILE/TABLET MENU BUTTON (< 1024px) */}
+                    <button
+                        ref={menuButtonRef}
+                        type="button"
+                        onClick={openDrawer}
+                        aria-label="Menu"
+                        aria-expanded={isDrawerOpen}
+                        style={{
+                            backgroundColor: cCard,
+                            border: `2px solid ${cInk}`,
+                            color: cInk,
+                            borderRadius: "10px",
+                        }}
+                        className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 h-[44px] min-h-[44px] min-w-[44px] text-xs font-bold hover:brightness-95 active:translate-y-0.5 shadow-[2px_2px_0px_var(--tutorial-ink,#1f2a6b)] cursor-pointer flex-shrink-0"
+                    >
+                        <Menu className="w-4 h-4" />
+                        <span>Menu</span>
+                    </button>
+
+                    <Link href="/tutorials" className="flex items-center gap-2 sm:gap-2.5 group min-w-0">
                         <div
                             style={{ backgroundColor: cGreen, border: `2px solid ${cInk}` }}
-                            className="w-[36px] h-[36px] rounded-[10px] text-white flex items-center justify-center font-bold text-lg aspirantbook-head shadow-xs"
+                            className="w-[36px] h-[36px] rounded-[10px] text-white flex items-center justify-center font-bold text-lg aspirantbook-head shadow-xs flex-shrink-0"
                         >
                             A
                         </div>
-                        <div className="hidden sm:flex flex-col text-left">
+                        {/* Title & Subtitle: visible on all viewports, truncated on mobile */}
+                        <div className="flex flex-col text-left min-w-0">
                             <span
                                 style={{ color: cInk }}
-                                className="aspirantbook-head font-extrabold text-sm sm:text-base leading-tight tracking-tight"
+                                className="aspirantbook-head font-extrabold text-xs sm:text-sm lg:text-base leading-tight tracking-tight truncate max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-xs lg:max-w-none"
                             >
                                 {meta.brand || meta.title || course.title}
                             </span>
-                            <span className="text-[11px] font-bold text-gray-500 leading-tight">
-                                {meta.subtitle || "Interactive Tutorial"}
+                            <span className="text-[10px] sm:text-[11px] font-bold text-gray-500 leading-tight truncate max-w-[120px] xs:max-w-[160px] sm:max-w-[220px] md:max-w-xs lg:max-w-none">
+                                {meta.subtitle || "Zero to Hero Mastery"}
                             </span>
                         </div>
                     </Link>
 
-                    {/* Category Tags / Pills (Image 1) */}
+                    {/* Category Tags / Pills (Desktop only >= 1024px) */}
                     {(meta.badge1 || meta.badge2) && (
-                        <div className="hidden md:flex items-center gap-1.5 ml-2">
+                        <div className="hidden lg:flex items-center gap-1.5 ml-2">
                             {meta.badge1 && (
                                 <span
                                     style={{
@@ -563,7 +834,7 @@ export function AspirantbookTutorialView({
                     )}
                 </div>
 
-                {/* Phase Tabs in Top Navigation (Image 1) */}
+                {/* Phase Tabs in Top Navigation (Desktop XL only) */}
                 <div className="hidden xl:flex items-center gap-4 text-xs font-bold" style={{ color: cInk }}>
                     {chapters.slice(0, 6).map((ch, idx) => (
                         <button
@@ -585,10 +856,10 @@ export function AspirantbookTutorialView({
                     ))}
                 </div>
 
-                {/* Right controls: Progress + Theme + Download & Export */}
+                {/* Right controls: Progress + Theme + (Download & Export / Studio on Desktop) */}
                 <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-auto">
                     {/* Progress */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                         <span
                             style={{ color: cInk }}
                             className="aspirantbook-head text-xs font-bold"
@@ -597,7 +868,7 @@ export function AspirantbookTutorialView({
                         </span>
                         <div
                             style={{
-                                width: "clamp(60px, 12vw, 120px)",
+                                width: "clamp(48px, 10vw, 120px)",
                                 height: "10px",
                                 backgroundColor: cSoft,
                                 border: `2px solid ${cInk}`,
@@ -617,7 +888,7 @@ export function AspirantbookTutorialView({
                         </div>
                     </div>
 
-                    {/* Theme button */}
+                    {/* Theme button (min 44x44 touch target) */}
                     <button
                         type="button"
                         onClick={cycleTheme}
@@ -627,14 +898,14 @@ export function AspirantbookTutorialView({
                             color: cInk,
                             borderRadius: "10px",
                         }}
-                        className="px-2.5 py-1 text-xs font-bold flex items-center gap-1.5 hover:brightness-95 active:translate-y-0.5 shadow-[2px_2px_0px_var(--tutorial-ink,#1f2a6b)]"
+                        className="px-2.5 py-1.5 min-h-[44px] text-xs font-bold flex items-center gap-1.5 hover:brightness-95 active:translate-y-0.5 shadow-[2px_2px_0px_var(--tutorial-ink,#1f2a6b)] cursor-pointer"
                         title="Switch theme palette"
                     >
                         <span>🎨</span>
                         <span className="hidden sm:inline">Theme</span>
                     </button>
 
-                    {/* Download & Export button */}
+                    {/* Download & Export button (Desktop only >= 1024px to keep mobile single-row) */}
                     <button
                         type="button"
                         onClick={handleExportSite}
@@ -645,13 +916,13 @@ export function AspirantbookTutorialView({
                             borderRadius: "10px",
                             boxShadow: `2px 2px 0 ${cInk}`,
                         }}
-                        className="px-2.5 sm:px-3 py-1 text-xs font-bold flex items-center gap-1.5 hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                        className="hidden lg:flex px-2.5 sm:px-3 py-1.5 min-h-[44px] text-xs font-bold items-center gap-1.5 hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
                     >
                         <span>📥</span>
                         <span className="hidden sm:inline">Download & Export</span>
                     </button>
 
-                    {/* Teacher Studio toggle (if admin/teacher) */}
+                    {/* Teacher Studio toggle (if admin/teacher, desktop only) */}
                     {isEditor && onSwitchToStudio && (
                         <button
                             type="button"
@@ -663,7 +934,7 @@ export function AspirantbookTutorialView({
                                 borderRadius: "10px",
                                 boxShadow: `2px 2px 0 ${cInk}`,
                             }}
-                            className="px-2.5 py-1 text-xs font-bold flex items-center gap-1 hover:brightness-110 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+                            className="hidden lg:flex px-2.5 py-1.5 min-h-[44px] text-xs font-bold items-center gap-1 hover:brightness-110 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
                             title="Switch back to Teacher Studio editor"
                         >
                             <Settings className="w-3.5 h-3.5" />
@@ -673,106 +944,112 @@ export function AspirantbookTutorialView({
                 </div>
             </header>
 
+            {/* Mobile / Tablet Drawer Backdrop */}
+            {isDrawerOpen && (
+                <div
+                    data-testid="tutorial-drawer-backdrop"
+                    className="aspirantbook-backdrop fixed inset-0 z-40 bg-black/50 backdrop-blur-xs transition-opacity lg:hidden"
+                    onClick={closeDrawer}
+                    aria-hidden="true"
+                />
+            )}
+
+            {/* Mobile / Tablet Off-canvas Drawer */}
+            <aside
+                ref={drawerRef}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Course Navigation"
+                onKeyDown={handleDrawerKeyDown}
+                tabIndex={-1}
+                style={{ backgroundColor: cCard, borderRight: `3px solid ${cInk}` }}
+                className={`aspirantbook-drawer fixed inset-y-0 left-0 z-50 w-[85vw] max-w-[380px] h-dvh flex flex-col shadow-2xl transition-transform duration-200 ease-in-out lg:hidden motion-reduce:transition-none motion-reduce:transform-none pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] ${
+                    isDrawerOpen ? "translate-x-0" : "-translate-x-full pointer-events-none"
+                }`}
+                aria-hidden={!isDrawerOpen}
+            >
+                {/* Drawer Header */}
+                <div
+                    style={{ borderBottom: `2px solid ${cInk}` }}
+                    className="flex items-center justify-between px-4 py-3 flex-shrink-0"
+                >
+                    <span
+                        style={{ color: cInk }}
+                        className="aspirantbook-head font-extrabold text-base tracking-tight"
+                    >
+                        Course Navigation
+                    </span>
+                    <button
+                        ref={closeButtonRef}
+                        type="button"
+                        onClick={closeDrawer}
+                        aria-label="Close navigation"
+                        style={{
+                            backgroundColor: cCard,
+                            border: `2px solid ${cInk}`,
+                            color: cInk,
+                        }}
+                        className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-xl flex items-center justify-center hover:brightness-95 active:translate-y-0.5 transition-all cursor-pointer shadow-xs"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                {/* Scrollable Drawer Body */}
+                <div className="flex-1 overflow-y-auto p-3.5 sm:p-4">
+                    <ChapterIndexContent
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        activeId={activeId}
+                        filteredChapters={filteredChapters}
+                        doneMap={doneMap}
+                        onSelectOverview={() => {
+                            setActiveId("overview")
+                            closeDrawer()
+                            window.scrollTo({ top: 0, behavior: "smooth" })
+                        }}
+                        onSelectLesson={(lessonId, isLocked) => {
+                            handleSelectLesson(lessonId, isLocked)
+                            closeDrawer()
+                        }}
+                        activeItemRef={activeDrawerItemRef}
+                        cCard={cCard}
+                        cInk={cInk}
+                        cGreen={cGreen}
+                        cSoft={cSoft}
+                        cPrimary={cPrimary}
+                        prefixId="drawer-nav"
+                    />
+                </div>
+            </aside>
+
             {/* MAIN TWO-COLUMN WORKSPACE: Single Sidebar + Main Canvas */}
             <div className="grid grid-cols-1 lg:grid-cols-[330px_1fr] min-h-[calc(100vh-58px)]">
-                {/* LEFT SIDEBAR (Sticky single navigation index with Search) */}
+                {/* LEFT SIDEBAR (Sticky single navigation index with Search, Desktop only >= 1024px) */}
                 <aside
                     style={{ backgroundColor: cCard, borderRight: `3px solid ${cInk}` }}
-                    className="p-3.5 sm:p-4 lg:sticky lg:top-[58px] lg:h-[calc(100vh-58px)] overflow-y-auto"
+                    className="hidden lg:block p-3.5 sm:p-4 lg:sticky lg:top-[58px] lg:h-[calc(100vh-58px)] overflow-y-auto"
                 >
-                    {/* Real-time Search input (Image 1) */}
-                    <div className="relative mb-3">
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search chapters or topics..."
-                            style={{
-                                backgroundColor: cCard,
-                                border: `2px solid ${cInk}`,
-                                borderRadius: "10px",
-                                color: cInk,
-                            }}
-                            className="w-full text-xs font-semibold px-3 py-2 pl-8 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[color:var(--tutorial-primary,#3b2fd6)]"
-                        />
-                        <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-500" />
-                    </div>
-
-                    {/* Course Overview Link */}
-                    <div className="mb-3">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setActiveId("overview")
-                                window.scrollTo({ top: 0, behavior: "smooth" })
-                            }}
-                            className={`asp-nv ${activeId === "overview" ? "active" : ""}`}
-                        >
-                            <span className="text-base">📖</span>
-                            <span>Course Overview & Roadmap</span>
-                        </button>
-                    </div>
-
-                    {/* PHASES HIERARCHY */}
-                    <div className="space-y-4">
-                        {filteredChapters.map((ch, pIdx) => {
-                            const phaseLessons = ch.lessons || []
-
-                            return (
-                                <div key={ch.id || pIdx} className="space-y-1">
-                                    {/* Green Phase Title (Image 1) */}
-                                    <h5
-                                        style={{ color: cGreen }}
-                                        className="aspirantbook-head font-bold text-xs uppercase tracking-wider px-2 pt-2 pb-1"
-                                    >
-                                        {ch.title}
-                                    </h5>
-
-                                    {/* Phase Chapters / Lessons */}
-                                    <div className="space-y-0.5">
-                                        {phaseLessons.map((l) => {
-                                            const isSelected = activeId === l.id
-                                            const isDone = Boolean(doneMap[l.id])
-
-                                            let isLocked = false
-                                            try {
-                                                const parsed = JSON.parse(l.content)
-                                                if (parsed?.blocks?.[0]?.content?.includes("scheduled for an upcoming release")) {
-                                                    isLocked = true
-                                                }
-                                            } catch {}
-
-                                            return (
-                                                <button
-                                                    key={l.id}
-                                                    type="button"
-                                                    disabled={isLocked}
-                                                    onClick={() => handleSelectLesson(l.id, isLocked)}
-                                                    className={`asp-nv ${isSelected ? "active" : ""} ${isLocked ? "disabled" : ""}`}
-                                                    title={isLocked ? "Coming in a later phase" : l.title}
-                                                >
-                                                    <span className="truncate pr-1">{l.title}</span>
-                                                    {isDone && !isLocked && (
-                                                        <span
-                                                            style={{ color: cGreen }}
-                                                            className="ml-auto font-extrabold text-sm flex-shrink-0"
-                                                        >
-                                                            ✔
-                                                        </span>
-                                                    )}
-                                                    {isLocked && (
-                                                        <span className="ml-auto text-xs opacity-70 flex-shrink-0">
-                                                            🔒
-                                                        </span>
-                                                    )}
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-                            )
-                        })}
-                    </div>
+                    <ChapterIndexContent
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        activeId={activeId}
+                        filteredChapters={filteredChapters}
+                        doneMap={doneMap}
+                        onSelectOverview={() => {
+                            setActiveId("overview")
+                            window.scrollTo({ top: 0, behavior: "smooth" })
+                        }}
+                        onSelectLesson={(lessonId, isLocked) => {
+                            handleSelectLesson(lessonId, isLocked)
+                        }}
+                        cCard={cCard}
+                        cInk={cInk}
+                        cGreen={cGreen}
+                        cSoft={cSoft}
+                        cPrimary={cPrimary}
+                        prefixId="desktop-nav"
+                    />
                 </aside>
 
                 {/* RIGHT MAIN CONTENT CANVAS */}
