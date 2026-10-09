@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import {
     Plus,
@@ -38,140 +38,80 @@ interface ManageTestItem {
     createdAt: string
 }
 
-const SAMPLE_TESTS: ManageTestItem[] = [
-    {
-        id: "bpsc-ft-1",
-        seriesId: "bpsc-72nd-2026",
-        title: "72nd BPSC Prelims Full Mock Test 1 (New 4-Option Negative Marking)",
-        category: "Civil Services",
-        type: "Full Mock Test",
-        accessMode: "FREE",
-        questions: 150,
-        duration: 120,
-        attempts: 1240,
-        avgScore: 84.5,
-        status: "PUBLISHED",
-        createdAt: "Sep 22, 2026",
-    },
-    {
-        id: "bpsc-bb-1",
-        seriesId: "bpsc-bihar-special-2026",
-        title: "Blissful Bihar: Bihar Budget 2026-27 & Economic Survey High Yield",
-        category: "Civil Services",
-        type: "Chapter Test",
-        accessMode: "PRO",
-        questions: 30,
-        duration: 30,
-        attempts: 856,
-        avgScore: 21.2,
-        status: "PUBLISHED",
-        createdAt: "Sep 23, 2026",
-    },
-    {
-        id: "upsc-csat-1",
-        seriesId: "upsc-prelims-2026",
-        title: "UPSC CSE 2027: CSAT Speed Booster & Analytical Reasoning",
-        category: "Civil Services",
-        type: "Sectional Test",
-        accessMode: "PRO",
-        questions: 50,
-        duration: 60,
-        attempts: 412,
-        avgScore: 32.8,
-        status: "LIVE",
-        createdAt: "Sep 24, 2026",
-    },
-    {
-        id: "uppcs-mock-2",
-        seriesId: "bpsc-72nd-2026",
-        title: "UPPCS 2026 General Studies Paper 1 Comprehensive Test",
-        category: "State PCS",
-        type: "Full Mock Test",
-        accessMode: "PRO",
-        questions: 150,
-        duration: 120,
-        attempts: 0,
-        avgScore: 0,
-        status: "DRAFT",
-        createdAt: "Sep 25, 2026",
-    },
-]
-
 export default function TeacherTestSeriesManagePage() {
-    const [tests, setTests] = useState<ManageTestItem[]>(SAMPLE_TESTS)
+    const [tests, setTests] = useState<ManageTestItem[]>([])
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedTab, setSelectedTab] = useState<"ALL" | "PUBLISHED" | "DRAFT" | "LIVE">("ALL")
     const [statusFilter, setStatusFilter] = useState("ALL")
     const [isCreatePackageModalOpen, setIsCreatePackageModalOpen] = useState(false)
 
-    useEffect(() => {
-        const loadAllTests = async () => {
-            const items: ManageTestItem[] = []
+    const loadAllTests = useCallback(async () => {
+        const items: ManageTestItem[] = []
 
-            // 1. Fetch from server DB
-            try {
-                const res = await fetch("/api/exam/test/list")
-                const data = await res.json()
-                if (data.success && Array.isArray(data.data)) {
-                    data.data.forEach((t: any) => {
-                        items.push({
-                            id: t.id,
-                            seriesId: t.seriesId || (t.title?.toLowerCase().includes("upsc") ? "upsc-prelims-2026" : "bpsc-72nd-2026"),
-                            title: t.title,
-                            category: t.series?.category || t.series?.title || (t.title?.toLowerCase().includes("upsc") ? "UPSC" : "Civil Services"),
-                            type: t.testType || "Full Mock",
-                            accessMode: t.accessMode === "FREE" ? "FREE" : "PRO",
-                            questions: t.totalQuestions || 100,
-                            duration: t.durationMinutes || 120,
-                            attempts: t.attemptsCount || 0,
-                            avgScore: 0,
-                            status: t.isLive ? "LIVE" : "PUBLISHED",
-                            createdAt: t.createdAt ? new Date(t.createdAt).toLocaleDateString() : "Recent",
-                        })
+        // 1. Fetch from server DB
+        try {
+            const res = await fetch("/api/exam/test/list")
+            const data = await res.json()
+            if (data.success && Array.isArray(data.data)) {
+                data.data.forEach((t: any) => {
+                    const qCount = typeof t.questions === "number" ? t.questions : (typeof t.totalQuestions === "number" ? t.totalQuestions : 0)
+                    const dMinutes = typeof t.durationMinutes === "number" ? t.durationMinutes : (typeof t.duration === "number" ? t.duration : 60)
+                    const attempts = typeof t.attempts === "number" ? t.attempts : (typeof t.attemptsCount === "number" ? t.attemptsCount : 0)
+
+                    items.push({
+                        id: t.id,
+                        seriesId: t.seriesSlug || t.seriesId || "",
+                        title: t.title,
+                        category: t.category || t.series?.category || "General Studies",
+                        type: t.testType || "Full Mock",
+                        accessMode: t.accessMode === "FREE" ? "FREE" : "PRO",
+                        questions: qCount,
+                        duration: dMinutes,
+                        attempts,
+                        avgScore: 0,
+                        status: t.isPublished ? (t.isLive ? "LIVE" : "PUBLISHED") : "DRAFT",
+                        createdAt: t.createdAt ? new Date(t.createdAt).toLocaleDateString() : "Recent",
                     })
-                }
-            } catch (err) {
-                console.warn("Could not fetch DB tests:", err)
-            }
-
-            // 2. Load from localStorage
-            try {
-                const stored = localStorage.getItem("ts_custom_tests")
-                if (stored) {
-                    const parsed = JSON.parse(stored)
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        parsed.forEach((t: any) => {
-                            if (!items.some((existing) => existing.id === t.id)) {
-                                items.push({
-                                    id: t.id,
-                                    seriesId: t.seriesId || (t.category?.toLowerCase().includes("upsc") || t.title?.toLowerCase().includes("upsc") ? "upsc-prelims-2026" : "bpsc-72nd-2026"),
-                                    title: t.title || "Teacher Authored Mock Test",
-                                    category: t.category || "Civil Services",
-                                    type: "Teacher Full Mock",
-                                    accessMode: t.isFree ? "FREE" : "PRO",
-                                    questions: t.questions || (t.questionsList ? t.questionsList.length : 5),
-                                    duration: t.durationMinutes || 10,
-                                    attempts: t.attempts || 0,
-                                    avgScore: 0,
-                                    status: "PUBLISHED",
-                                    createdAt: "Today",
-                                })
-                            }
-                        })
-                    }
-                }
-            } catch (e) {}
-
-            if (items.length > 0) {
-                setTests((prev) => {
-                    const existingIds = new Set(items.map((m) => m.id))
-                    return [...items, ...prev.filter((p) => !existingIds.has(p.id))]
                 })
             }
+        } catch (err) {
+            console.warn("Could not fetch DB tests:", err)
         }
 
-        loadAllTests()
+        // 2. Load from localStorage
+        try {
+            const stored = localStorage.getItem("ts_custom_tests")
+            if (stored) {
+                const parsed = JSON.parse(stored)
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    parsed.forEach((t: any) => {
+                        if (!items.some((existing) => existing.id === t.id)) {
+                            items.push({
+                                id: t.id,
+                                seriesId: t.seriesId || "",
+                                title: t.title || "Teacher Authored Mock Test",
+                                category: t.category || "General Studies",
+                                type: "Teacher Full Mock",
+                                accessMode: t.isFree ? "FREE" : "PRO",
+                                questions: typeof t.questions === "number" ? t.questions : (t.questionsList ? t.questionsList.length : 0),
+                                duration: typeof t.durationMinutes === "number" ? t.durationMinutes : 60,
+                                attempts: t.attempts || 0,
+                                avgScore: 0,
+                                status: "DRAFT",
+                                createdAt: "Today",
+                            })
+                        }
+                    })
+                }
+            }
+        } catch (e) {}
+
+        setTests(items)
     }, [])
+
+    useEffect(() => {
+        loadAllTests()
+    }, [loadAllTests])
 
     const filteredTests = tests.filter((t) => {
         const matchesTab = selectedTab === "ALL" || t.status === selectedTab
@@ -276,8 +216,10 @@ export default function TeacherTestSeriesManagePage() {
                         </div>
                     </div>
                     <div className="mt-3">
-                        <span className="text-2xl font-black text-gray-900 dark:text-white">68.4%</span>
-                        <span className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold ml-2">Healthy</span>
+                        <span className="text-2xl font-black text-gray-900 dark:text-white">—</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold ml-2">
+                            {totalAttempts > 0 ? "Awaiting submissions" : "No submissions yet"}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -402,7 +344,7 @@ export default function TeacherTestSeriesManagePage() {
                                     <td className="py-4 px-6 text-right">
                                         <div className="flex items-center justify-end gap-2">
                                             <Link
-                                                href={`/test-series/${test.seriesId || (test.category?.toLowerCase().includes("upsc") ? "upsc-prelims-2026" : "bpsc-72nd-2026")}?testId=${test.id}`}
+                                                href={`/test-series/${test.seriesId || "upsc-prelims-2026"}?testId=${test.id}`}
                                                 target="_blank"
                                                 className="px-2.5 py-1 rounded-lg border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 text-xs font-bold transition-colors flex items-center gap-1"
                                                 title="Open in Student View"
@@ -411,7 +353,7 @@ export default function TeacherTestSeriesManagePage() {
                                                 <ArrowUpRight className="h-3 w-3" />
                                             </Link>
                                             <Link
-                                                href={`/test-series/${test.id}/attempt?testId=${test.id}&title=${encodeURIComponent(test.title)}&questions=${test.questions}&marks=150&duration=${test.duration}`}
+                                                href={`/test-series/${test.seriesId || test.id}/attempt?testId=${test.id}&title=${encodeURIComponent(test.title)}&questions=${test.questions}&duration=${test.duration}`}
                                                 target="_blank"
                                                 className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-[#00A8FF] hover:border-[#00A8FF]/40 transition-colors"
                                                 title="Preview CBT Arena"
@@ -425,13 +367,14 @@ export default function TeacherTestSeriesManagePage() {
                                             >
                                                 <BarChart3 className="h-4 w-4" />
                                             </Link>
-                                            <Link
-                                                href="/teacher/test-series/create"
-                                                className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-purple-500 hover:border-purple-500/40 transition-colors"
-                                                title="Edit in Studio"
+                                            <button
+                                                disabled
+                                                className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50 transition-colors"
+                                                title="Edit coming soon"
+                                                aria-label="Edit coming soon"
                                             >
                                                 <Pencil className="h-4 w-4" />
-                                            </Link>
+                                            </button>
                                             <button
                                                 onClick={() => handleDelete(test.id)}
                                                 className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-colors"
@@ -454,7 +397,8 @@ export default function TeacherTestSeriesManagePage() {
                 onClose={() => setIsCreatePackageModalOpen(false)}
                 defaultCategory="UPSC"
                 onCreated={() => {
-                    // Refreshes view
+                    setIsCreatePackageModalOpen(false)
+                    loadAllTests()
                 }}
             />
         </div>

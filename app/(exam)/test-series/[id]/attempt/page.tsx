@@ -306,8 +306,10 @@ function Arena() {
     const searchParams = useSearchParams()
     const router = useRouter()
 
-    const seriesId = params?.id as string
-    const testId = searchParams.get("testId")
+    const paramId = (params?.id as string) || ""
+    const queryTestId = searchParams.get("testId")
+    const testId = queryTestId || paramId
+    const seriesId = queryTestId ? paramId : (customTestRecord?.series?.slug || customTestRecord?.seriesId || paramId)
     const urlAttemptId = searchParams.get("attemptId")
     const lang = (searchParams.get("lang") ?? "English") as "English" | "Hindi"
 

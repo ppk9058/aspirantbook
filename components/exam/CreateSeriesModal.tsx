@@ -60,21 +60,10 @@ export default function CreateSeriesModal({
     const [logoType, setLogoType] = useState<any>(
         defaultCategory.toLowerCase().includes("bpsc") ? "bpsc" : "upsc"
     )
-    const [usersCount, setUsersCount] = useState("248.5k")
-    const [totalTests, setTotalTests] = useState(120)
-    const [freeTests, setFreeTests] = useState(3)
     const [languages, setLanguages] = useState("English, Hindi")
-    const [highlights, setHighlights] = useState<string[]>([
-        "35 Full Length GS Paper I Simulated Tests",
-        "15 Full Length CSAT Paper II Tests",
-        "20 Years Official PYQs with Detailed Solutions",
-        "Weekly All-India Live Ranking",
-        "In-depth Negative Marking Analysis"
-    ])
-    const [moreTestsCount, setMoreTestsCount] = useState(250)
-    const [description, setDescription] = useState(
-        "Complete comprehensive test series strictly aligned with the latest syllabus, negative marking pattern, and in-depth video explanations."
-    )
+    const [highlights, setHighlights] = useState<string[]>([""])
+    const [description, setDescription] = useState("")
+    const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [createdItem, setCreatedItem] = useState<TestSeriesItem | null>(null)
 
@@ -101,46 +90,32 @@ export default function CreateSeriesModal({
         if (!title.trim()) return
 
         setIsSubmitting(true)
+        setError(null)
         const finalCategory = customCategory.trim() || category
         const payload = {
             title: title.trim(),
             category: finalCategory,
             logoType,
-            users: usersCount,
-            totalTests: Number(totalTests) || 0,
-            freeTests: Number(freeTests) || 0,
             languages,
-            highlights: highlights.filter((h) => h.trim().length > 0),
-            moreTestsCount: Number(moreTestsCount) || 0,
+            highlights: highlights.map((h) => h.trim()).filter((h) => h.length > 0),
             description: description.trim(),
         }
 
         try {
-            // 1. Save to Database via API
             const res = await fetch("/api/exam/series/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             })
-            let newItem: TestSeriesItem
+            const json = await res.json()
 
-            if (res.ok) {
-                const json = await res.json()
-                newItem = json.data
-            } else {
-                // Client-side fallback slug
-                const slug = title
-                    .toLowerCase()
-                    .replace(/[^\w\s-]/g, "")
-                    .replace(/[\s_-]+/g, "-")
-                newItem = {
-                    id: slug,
-                    ...payload,
-                    examType: "Civil Services",
-                }
+            if (!res.ok || !json.data) {
+                throw new Error(json.error || `Failed to create package (status: ${res.status})`)
             }
 
-            // 2. Persist to localStorage for instantaneous client UI reactivity
+            const newItem: TestSeriesItem = json.data
+
+            // Persist to localStorage cache only after DB write succeeds
             try {
                 const existing = JSON.parse(
                     localStorage.getItem("ts_custom_series_packages") || "[]"
@@ -155,8 +130,9 @@ export default function CreateSeriesModal({
 
             setCreatedItem(newItem)
             if (onCreated) onCreated(newItem)
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error creating test series:", err)
+            setError(err.message || "Failed to create package. Please try again.")
         } finally {
             setIsSubmitting(false)
         }
@@ -232,6 +208,12 @@ export default function CreateSeriesModal({
                     <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row">
                         {/* Left Form Controls */}
                         <div className="flex-1 p-6 space-y-5 max-h-[75vh] overflow-y-auto border-r border-gray-100">
+                            {error && (
+                                <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl font-bold border border-red-200">
+                                    {error}
+                                </div>
+                            )}
+
                             {/* Title */}
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 mb-1">
@@ -294,73 +276,18 @@ export default function CreateSeriesModal({
                                 </div>
                             </div>
 
-                            {/* Metric Badges (Users, Total Tests, Free Tests, Languages) */}
-                            <div className="grid grid-cols-3 gap-3">
-                                <div>
-                                    <label className="block text-[11px] font-bold text-gray-600 mb-1">
-                                        User Badge
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={usersCount}
-                                        onChange={(e) => setUsersCount(e.target.value)}
-                                        placeholder="e.g. 248.5k"
-                                        className="w-full px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-semibold"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-[11px] font-bold text-gray-600 mb-1">
-                                        Total Tests
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={totalTests}
-                                        onChange={(e) => setTotalTests(Number(e.target.value))}
-                                        className="w-full px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-semibold"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-[11px] font-bold text-gray-600 mb-1">
-                                        Free Tests
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={freeTests}
-                                        onChange={(e) => setFreeTests(Number(e.target.value))}
-                                        className="w-full px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-semibold"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Languages & More Tests count */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-[11px] font-bold text-gray-600 mb-1">
-                                        Languages Supported
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={languages}
-                                        onChange={(e) => setLanguages(e.target.value)}
-                                        placeholder="e.g. English, Hindi"
-                                        className="w-full px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-semibold"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-[11px] font-bold text-gray-600 mb-1">
-                                        "+ More Tests" Label
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={moreTestsCount}
-                                        onChange={(e) => setMoreTestsCount(Number(e.target.value))}
-                                        placeholder="250"
-                                        className="w-full px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-semibold"
-                                    />
-                                </div>
+                            {/* Languages */}
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-1">
+                                    Languages Supported
+                                </label>
+                                <input
+                                    type="text"
+                                    value={languages}
+                                    onChange={(e) => setLanguages(e.target.value)}
+                                    placeholder="e.g. English, Hindi"
+                                    className="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-xs font-semibold"
+                                />
                             </div>
 
                             {/* Flash Card Highlights (Bullet points) */}
@@ -372,7 +299,7 @@ export default function CreateSeriesModal({
                                     <button
                                         type="button"
                                         onClick={handleAddHighlight}
-                                        className="text-[11px] font-bold text-[#00A8FF] hover:underline flex items-center gap-1"
+                                        className="text-[11px] font-bold text-[#00A8FF] hover:underline flex items-center gap-1 cursor-pointer"
                                     >
                                         <Plus className="h-3 w-3" /> Add Bullet
                                     </button>
@@ -386,14 +313,14 @@ export default function CreateSeriesModal({
                                                 type="text"
                                                 value={h}
                                                 onChange={(e) => handleUpdateHighlight(idx, e.target.value)}
-                                                placeholder={`Highlight ${idx + 1}`}
+                                                placeholder={`e.g. Highlight ${idx + 1}`}
                                                 className="flex-1 px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-medium focus:ring-1 focus:ring-[#00A8FF]"
                                             />
                                             {highlights.length > 1 && (
                                                 <button
                                                     type="button"
                                                     onClick={() => handleRemoveHighlight(idx)}
-                                                    className="p-1.5 text-gray-400 hover:text-red-500 rounded"
+                                                    className="p-1.5 text-gray-400 hover:text-red-500 rounded cursor-pointer"
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5" />
                                                 </button>
@@ -422,14 +349,14 @@ export default function CreateSeriesModal({
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50"
+                                    className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-bold hover:bg-gray-50 cursor-pointer"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isSubmitting || !title.trim()}
-                                    className="px-6 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white text-xs font-extrabold shadow-sm transition-all disabled:opacity-50 flex items-center gap-2"
+                                    className="px-6 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white text-xs font-extrabold shadow-sm transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                                 >
                                     {isSubmitting ? (
                                         <span>Creating...</span>
@@ -453,10 +380,10 @@ export default function CreateSeriesModal({
                             <div className="w-full bg-white rounded-2xl border border-gray-200 p-4 shadow-sm space-y-3.5">
                                 <div className="flex items-center justify-between">
                                     <div className="w-10 h-10 rounded-full bg-slate-100 border border-gray-200 flex items-center justify-center text-[10px] font-black uppercase text-slate-700">
-                                        {logoType.slice(0, 4)}
+                                        {(logoType || "gen").slice(0, 4)}
                                     </div>
                                     <span className="px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-bold flex items-center gap-1">
-                                        ⚡ {usersCount || "0k"} Users
+                                        ⚡ 0 Users
                                     </span>
                                 </div>
 
@@ -465,13 +392,13 @@ export default function CreateSeriesModal({
                                         {title || "Your Test Series Title Will Appear Here"}
                                     </h4>
                                     <div className="flex items-center gap-2 text-[11px] text-gray-500 font-semibold mt-1">
-                                        <span>{totalTests} Total Tests</span>
+                                        <span>0 Total Tests</span>
                                         <span>•</span>
-                                        <span className="text-emerald-600 font-bold">{freeTests} Free Tests</span>
+                                        <span className="text-emerald-600 font-bold">0 Free Tests</span>
                                     </div>
                                     <div className="text-[10px] text-gray-400 flex items-center gap-1 mt-0.5">
                                         <Globe className="h-2.5 w-2.5" />
-                                        <span>{languages}</span>
+                                        <span>{languages || "English, Hindi"}</span>
                                     </div>
                                 </div>
 
@@ -482,10 +409,8 @@ export default function CreateSeriesModal({
                                             <span className="line-clamp-1">{h}</span>
                                         </li>
                                     ))}
-                                    {moreTestsCount > 0 && (
-                                        <li className="text-[10px] font-bold text-emerald-600 pl-2.5 pt-0.5">
-                                            +{moreTestsCount} more tests
-                                        </li>
+                                    {highlights.filter(h => h.trim().length > 0).length === 0 && (
+                                        <li className="text-[11px] text-gray-400 italic">No highlights added</li>
                                     )}
                                 </ul>
 

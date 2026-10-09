@@ -54,6 +54,49 @@ export async function GET(
           },
         },
       });
+
+      if (!test) {
+        test = await prisma.examTest.findFirst({
+          where: {
+            OR: [
+              { seriesId: testId },
+              { series: { slug: testId } },
+            ],
+          },
+          orderBy: { createdAt: "asc" },
+          include: {
+            series: {
+              select: { id: true, slug: true, title: true },
+            },
+            sections: {
+              orderBy: { order: "asc" },
+              include: {
+                questions: {
+                  orderBy: { order: "asc" },
+                  select: {
+                    id: true,
+                    questionEn: true,
+                    questionHi: true,
+                    optionAEn: true,
+                    optionBEn: true,
+                    optionCEn: true,
+                    optionDEn: true,
+                    optionAHi: true,
+                    optionBHi: true,
+                    optionCHi: true,
+                    optionDHi: true,
+                    questionType: true,
+                    subject: true,
+                    positiveMarks: true,
+                    negativeMarks: true,
+                    order: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
     } catch (dbErr) {
       console.error("[EXAM_QUESTIONS_DB_ERROR]", dbErr);
       return NextResponse.json({ error: "Failed to fetch test questions" }, { status: 500 });
@@ -66,7 +109,8 @@ export async function GET(
     if (!test.isPublished) {
       const isCreator = test.createdById === session.user.id;
       const isAdmin = (session.user as any).role === "ADMIN";
-      if (!isCreator && !isAdmin) {
+      const isTeacher = (session.user as any).role === "TEACHER";
+      if (!isCreator && !isAdmin && !isTeacher) {
         return NextResponse.json({ error: "Test not found" }, { status: 404 });
       }
     }

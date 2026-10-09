@@ -21,15 +21,11 @@ export async function POST(req: NextRequest) {
     const {
       title,
       slug: rawSlug,
-      category = "UPSC",
+      category,
       examName,
       logoType = "general",
-      users = "12.5k",
-      totalTests = 10,
-      freeTests = 2,
       languages = "English, Hindi",
       highlights = [],
-      moreTestsCount = 5,
       description = "",
       isPublished = true,
       isPro = true,
@@ -39,6 +35,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
+    if (!category || typeof category !== "string" || !category.trim()) {
+      return NextResponse.json({ error: "Category is required" }, { status: 400 });
+    }
+
     const slug = (rawSlug || title)
       .toLowerCase()
       .trim()
@@ -46,30 +46,23 @@ export async function POST(req: NextRequest) {
       .replace(/[\s_-]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
-    const metadataObj = {
-      description,
-      highlights: Array.isArray(highlights) && highlights.length > 0 ? highlights : [
-        "Full Length Simulated Mock Tests",
-        "Subject-Wise Sectional Tests",
-        "Official Previous Year Papers",
-        "Weekly Live All-India Ranking"
-      ],
-      logoType,
-      users,
-      moreTestsCount: Number(moreTestsCount) || 5,
-    };
+    const cleanHighlights = Array.isArray(highlights)
+      ? highlights.map((h: any) => String(h).trim()).filter((h: string) => h.length > 0)
+      : [];
 
-    // Upsert or create series
+    const cleanDescription = description && typeof description === "string" ? description.trim() : null;
+
+    // Upsert or create series with real columns
     const series = await prisma.examSeries.upsert({
       where: { slug },
       update: {
         title: title.trim(),
-        category,
-        examName: examName || category,
-        description: JSON.stringify(metadataObj),
-        totalTests: Number(totalTests) || 0,
-        freeTests: Number(freeTests) || 0,
-        languages,
+        category: category.trim(),
+        examName: examName || category.trim(),
+        description: cleanDescription,
+        logoType: logoType || "general",
+        highlights: cleanHighlights,
+        languages: languages || "English, Hindi",
         isPublished: Boolean(isPublished),
         isPro: Boolean(isPro),
       },
@@ -77,12 +70,15 @@ export async function POST(req: NextRequest) {
         id: slug,
         slug,
         title: title.trim(),
-        category,
-        examName: examName || category,
-        description: JSON.stringify(metadataObj),
-        totalTests: Number(totalTests) || 0,
-        freeTests: Number(freeTests) || 0,
-        languages,
+        category: category.trim(),
+        examName: examName || category.trim(),
+        description: cleanDescription,
+        logoType: logoType || "general",
+        highlights: cleanHighlights,
+        totalTests: 0,
+        freeTests: 0,
+        usersCount: 0,
+        languages: languages || "English, Hindi",
         isPublished: Boolean(isPublished),
         isPro: Boolean(isPro),
         createdById: session.user.id,
@@ -91,19 +87,22 @@ export async function POST(req: NextRequest) {
 
     const formattedItem = {
       id: series.slug,
+      slug: series.slug,
       title: series.title,
       category: series.category,
+      examName: series.examName,
       examType: "Civil Services",
-      logoType,
-      users,
-      totalTests: series.totalTests,
-      freeTests: series.freeTests,
+      logoType: series.logoType || "general",
+      users: `${series.usersCount || 0}`,
+      totalTests: series.totalTests || 0,
+      freeTests: series.freeTests || 0,
       languages: series.languages,
-      highlights: metadataObj.highlights,
-      moreTestsCount: metadataObj.moreTestsCount,
-      description,
-      goalId: category.toLowerCase().replace(/\s+/g, "-"),
-      tags: [category.toLowerCase()],
+      highlights: series.highlights || [],
+      description: series.description || "",
+      goalId: series.category.toLowerCase().replace(/\s+/g, "-"),
+      tags: [series.category.toLowerCase()],
+      isFree: series.isFree ?? false,
+      isPro: series.isPro ?? false,
     };
 
     return NextResponse.json({ success: true, data: formattedItem });

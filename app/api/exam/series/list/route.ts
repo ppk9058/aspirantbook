@@ -14,6 +14,12 @@ const getCachedSeriesList = unstable_cache(
     }
     return await prisma.examSeries.findMany({
       where,
+      include: {
+        tests: {
+          where: { isPublished: true },
+          select: { accessMode: true },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
   },
@@ -25,6 +31,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
+    const includeAll = searchParams.get("includeAll") === "1" || searchParams.get("all") === "1";
 
     // Enforce student's active goals from DB/session/cookie as authoritative source
     const session = await auth();
@@ -48,39 +55,61 @@ export async function GET(req: NextRequest) {
       }
       seriesList = await prisma.examSeries.findMany({
         where,
+        include: {
+          tests: {
+            where: { isPublished: true },
+            select: { accessMode: true },
+          },
+        },
         orderBy: { createdAt: "desc" },
       });
     }
 
     let formatted = seriesList.map((s) => {
-      let meta: any = {};
-      try {
-        if (s.description && s.description.startsWith("{")) {
-          meta = JSON.parse(s.description);
+      let highlights: string[] = Array.isArray(s.highlights) && s.highlights.length > 0 ? s.highlights : [];
+      let cleanDescription = (s.description || "").trim();
+      let logoType = s.logoType && s.logoType !== "general" ? s.logoType : null;
+
+      // Safe legacy fallback: parse metadata if logoType/highlights columns are empty and description has JSON
+      if (cleanDescription.startsWith("{") && cleanDescription.endsWith("}")) {
+        try {
+          const meta = JSON.parse(cleanDescription);
+          if (!logoType && meta.logoType) {
+            logoType = meta.logoType;
+          }
+          if (highlights.length === 0 && Array.isArray(meta.highlights)) {
+            highlights = meta.highlights.filter((h: any) => typeof h === "string" && h.trim().length > 0);
+          }
+          cleanDescription = (meta.description || meta.overview || meta.subtitle || "").trim();
+        } catch {
+          cleanDescription = "";
         }
-      } catch (e) {}
+      }
+
+      if (!logoType) {
+        logoType = s.logoType || (s.slug.includes("upsc") ? "upsc" : s.slug.includes("bpsc") ? "bpsc" : "general");
+      }
+
+      const publishedTests = s.tests || [];
+      const totalTestsCount = publishedTests.length;
+      const freeTestsCount = publishedTests.filter((t: any) => t.accessMode === "FREE").length;
+      const usersCount = s.usersCount || 0;
+      const usersStr = usersCount >= 1000 ? `${(usersCount / 1000).toFixed(1)}k` : `${usersCount}`;
 
       return {
         id: s.slug || s.id,
         slug: s.slug,
         title: s.title,
         category: s.category,
+        examName: s.examName,
         examType: "Civil Services",
-        logoType: meta.logoType || (s.slug.includes("upsc") ? "upsc" : s.slug.includes("bpsc") ? "bpsc" : "general"),
-        users: meta.users || (s.usersCount > 0 ? `${(s.usersCount / 1000).toFixed(1)}k` : "12.5k"),
-        totalTests: s.totalTests || 10,
-        freeTests: s.freeTests || 2,
+        logoType,
+        users: usersStr,
+        totalTests: totalTestsCount,
+        freeTests: freeTestsCount,
         languages: s.languages || "English, Hindi",
-        highlights: Array.isArray(meta.highlights) && meta.highlights.length > 0
-          ? meta.highlights
-          : [
-              "Full Length Simulated Mock Tests",
-              "Subject-Wise Sectional Tests",
-              "Official Previous Year Papers",
-              "Weekly All-India Live Ranking"
-            ],
-        moreTestsCount: meta.moreTestsCount || 10,
-        description: meta.description || s.description || "",
+        highlights,
+        description: cleanDescription,
         goalId: s.category.toLowerCase().replace(/\s+/g, "-"),
         tags: [s.category.toLowerCase()],
         isFree: s.isFree ?? false,
@@ -89,7 +118,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Server-side strict multi-goal filtering
-    if (activeGoalIds.length > 0 && (!category || category === "All")) {
+    if (!includeAll && activeGoalIds.length > 0 && (!category || category === "All")) {
       formatted = applyTestSeriesGoalFilter(formatted, activeGoalIds);
     }
 

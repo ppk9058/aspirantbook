@@ -2,7 +2,7 @@
 
 import { useState, useCallback, Suspense, useEffect } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { TEST_SERIES_DATA, getTestSeriesById } from "@/lib/test-series-data"
 import { parseAndValidateQuestion } from "@/lib/exam/question-parser"
 import CreateSeriesModal from "@/components/exam/CreateSeriesModal"
@@ -88,6 +88,16 @@ interface FormData {
     // Step 3
     questions: Question[]
 }
+
+const TEST_TYPE_MAP: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL_TEST" | "PREVIOUS_YEAR" | "LIVE_SPEED"> = {
+    "Full Mock Test": "FULL_MOCK",
+    "Chapter Test": "CHAPTER_TEST",
+    "Sectional Test": "SECTIONAL_TEST",
+    "Previous Year Paper": "PREVIOUS_YEAR",
+    "Live Speed Test": "LIVE_SPEED",
+}
+
+const NEGATIVE_MARK_OPTIONS = [0, 0.25, 0.33, 0.5, 0.66]
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -265,8 +275,6 @@ const TEST_TYPES = [
     "Live Speed Test",
 ]
 
-const NEGATIVE_MARK_OPTIONS = [0, 0.25, 0.33]
-
 const AI_DEMO_QUESTIONS = [
     {
         q: "Which article of the Indian Constitution deals with the Right to Equality?",
@@ -377,28 +385,23 @@ function CardHeader({ title, subtitle }: { title: string; subtitle?: string }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 function CreateTestContent() {
+    const router = useRouter()
     const searchParams = useSearchParams()
     const querySeriesId = searchParams.get("seriesId") || ""
     const queryCategory = searchParams.get("category") || ""
 
-    const matchedSeries = querySeriesId
-        ? TEST_SERIES_DATA.find((s) => s.id === querySeriesId)
-        : queryCategory
-        ? TEST_SERIES_DATA.find((s) => s.category.toLowerCase().includes(queryCategory.toLowerCase()))
-        : null
-
-    const initialSeriesId = querySeriesId || (matchedSeries ? matchedSeries.id : "upsc-prelims-2026")
-    const initialCategory = queryCategory || (matchedSeries ? matchedSeries.category : "UPSC")
-    const initialExamName = matchedSeries ? matchedSeries.title : "UPSC Civil Services Examination"
-
     const [step, setStep] = useState(1)
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const [apiError, setApiError] = useState<string | null>(null)
+    const [apiErrorDetails, setApiErrorDetails] = useState<string[]>([])
+    const [draftWarnings, setDraftWarnings] = useState<string[]>([])
     const [showAiModal, setShowAiModal] = useState(false)
     const [aiPrompt, setAiPrompt] = useState("")
     const [aiLoading, setAiLoading] = useState(false)
     const [showPreview, setShowPreview] = useState(false)
     const [published, setPublished] = useState(false)
     const [showToast, setShowToast] = useState(false)
+    const [toastMessage, setToastMessage] = useState("")
     const [bulkImportOpen, setBulkImportOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [savedTestId, setSavedTestId] = useState<string | null>(null)
@@ -408,21 +411,28 @@ function CreateTestContent() {
     const [uploadSuccess, setUploadSuccess] = useState<string | null>(null)
     const [isUploading, setIsUploading] = useState(false)
 
-    const defaultSection = emptySection()
-    defaultSection.name = "General Studies"
-    defaultSection.numQuestions = 5
+    const defaultSection: Section = {
+        id: generateId(),
+        name: "General Studies",
+        nameHindi: "",
+        numQuestions: 10,
+        positiveMarks: 1,
+        negativeMarks: 0.33,
+        hasSectionalTime: false,
+        sectionalTimeMinutes: 20,
+    }
 
     const [formData, setFormData] = useState<FormData>({
-        seriesId: initialSeriesId,
+        seriesId: querySeriesId || "",
         title: "",
         titleHindi: "",
-        examCategory: initialCategory,
-        examName: initialExamName,
+        examCategory: "",
+        examName: "",
         testType: "Full Mock Test",
         accessMode: "free",
-        durationMinutes: matchedSeries?.duration ? parseInt(matchedSeries.duration) || 120 : 120,
-        totalQuestions: matchedSeries?.questions || 100,
-        totalMarks: matchedSeries?.questions ? matchedSeries.questions * 2 : 200,
+        durationMinutes: 60,
+        totalQuestions: 10,
+        totalMarks: 10,
         isLive: false,
         liveStartAt: "",
         liveEndAt: "",
@@ -431,48 +441,37 @@ function CreateTestContent() {
     })
 
     const [isCreateSeriesModalOpen, setIsCreateSeriesModalOpen] = useState(false)
-    const [customSeriesPackages, setCustomSeriesPackages] = useState<any[]>([])
+    const [seriesPackages, setSeriesPackages] = useState<any[]>([])
 
-    useEffect(() => {
+    const fetchSeriesList = useCallback(async () => {
         try {
-            const stored = localStorage.getItem("ts_custom_series_packages")
-            if (stored) {
-                const parsed = JSON.parse(stored)
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    setCustomSeriesPackages(parsed)
-                }
+            const res = await fetch("/api/exam/series/list")
+            const j = await res.json()
+            if (j.success && Array.isArray(j.data)) {
+                setSeriesPackages(j.data)
             }
-            fetch("/api/exam/series/list")
-                .then((r) => r.json())
-                .then((j) => {
-                    if (j.success && Array.isArray(j.data)) {
-                        setCustomSeriesPackages((prev) => {
-                            const map = new Map<string, any>()
-                            prev.forEach((p) => map.set(p.id, p))
-                            j.data.forEach((p: any) => map.set(p.id, p))
-                            return Array.from(map.values())
-                        })
-                    }
-                })
-                .catch(() => {})
-        } catch (e) {}
+        } catch (e) {
+            console.warn("Could not load series packages from DB", e)
+        }
     }, [])
 
     useEffect(() => {
-        if (querySeriesId) {
-            const series =
-                customSeriesPackages.find((s) => s.id === querySeriesId) ||
-                TEST_SERIES_DATA.find((s) => s.id === querySeriesId)
-            if (series) {
+        fetchSeriesList()
+    }, [fetchSeriesList])
+
+    useEffect(() => {
+        if (querySeriesId && seriesPackages.length > 0) {
+            const match = seriesPackages.find((s) => s.id === querySeriesId || s.slug === querySeriesId)
+            if (match) {
                 setFormData((prev) => ({
                     ...prev,
-                    seriesId: series.id,
-                    examCategory: series.category,
-                    examName: series.title,
+                    seriesId: match.id,
+                    examCategory: match.category,
+                    examName: match.title,
                 }))
             }
         }
-    }, [querySeriesId, customSeriesPackages])
+    }, [querySeriesId, seriesPackages])
 
     // Current question navigation per section
     const [currentSection, setCurrentSection] = useState(0)
@@ -562,14 +561,9 @@ function CreateTestContent() {
     const validateStep1 = (): boolean => {
         const errs: Record<string, string> = {}
         if (!formData.title.trim()) errs.title = "Test title is required"
-        if (!formData.examCategory) errs.examCategory = "Please select an exam category"
-        if (!formData.examName.trim()) errs.examName = "Exam name is required"
+        if (!formData.seriesId) errs.seriesId = "Please select a target test series package"
         if (!formData.durationMinutes || formData.durationMinutes < 1)
             errs.durationMinutes = "Duration must be at least 1 minute"
-        if (!formData.totalQuestions || formData.totalQuestions < 1)
-            errs.totalQuestions = "Total questions must be at least 1"
-        if (!formData.totalMarks || formData.totalMarks < 1)
-            errs.totalMarks = "Total marks must be at least 1"
         if (formData.isLive && !formData.liveStartAt)
             errs.liveStartAt = "Live start time is required"
         if (formData.isLive && !formData.liveEndAt)
@@ -585,6 +579,15 @@ function CreateTestContent() {
             if (!sec.numQuestions || sec.numQuestions < 1)
                 errs[`section_${idx}_numQ`] = "Must have at least 1 question"
         })
+
+        const sectionalTimeSum = formData.sections
+            .filter((s) => s.hasSectionalTime)
+            .reduce((sum, s) => sum + (s.sectionalTimeMinutes || 0), 0)
+
+        if (sectionalTimeSum > formData.durationMinutes) {
+            errs.sectionalTime = `Total sectional time (${sectionalTimeSum}m) cannot exceed total test duration (${formData.durationMinutes}m)`
+        }
+
         setErrors(errs)
         return Object.keys(errs).length === 0
     }
@@ -620,7 +623,9 @@ function CreateTestContent() {
     const currentQ = questionsForCurrentSection[currentQIdx] ?? null
 
     const isQuestionFilled = (q: Question) =>
-        q.textEnglish.trim() !== "" && q.correctAnswer !== null
+        q.textEnglish.trim() !== "" &&
+        q.options.every((o) => o.english.trim() !== "") &&
+        q.correctAnswer !== null
 
     const completedCount = formData.questions.filter(isQuestionFilled).length
     const totalQCount = formData.questions.length
@@ -940,51 +945,149 @@ function CreateTestContent() {
         reader.readAsText(file, "UTF-8")
     }
 
-    const handlePublish = async () => {
-        setIsSaving(true)
-        try {
-            const mappedSections = formData.sections.map((sec) => {
-                const secQs = formData.questions.filter((q) => q.sectionId === sec.id)
-                return {
-                    title: sec.name,
-                    titleHi: sec.nameHindi,
+    const buildMappedSections = () => {
+        return formData.sections.map((sec) => {
+            const secQs = formData.questions.filter((q) => q.sectionId === sec.id)
+            return {
+                title: sec.name,
+                titleHi: sec.nameHindi,
+                positiveMarks: sec.positiveMarks,
+                negativeMarks: sec.negativeMarks,
+                timeLimitMins: sec.hasSectionalTime ? sec.sectionalTimeMinutes : null,
+                questions: secQs.map((q) => ({
+                    questionEn: q.textEnglish,
+                    questionHi: q.textHindi,
+                    options: q.options.map((o) => o.english),
+                    optionsHi: q.options.map((o) => o.hindi),
+                    correctOption: (q.correctAnswer !== null ? ["A", "B", "C", "D"][q.correctAnswer] : "A") || "A",
+                    explanationEn: q.explanationEnglish,
+                    explanationHi: q.explanationHindi,
+                    videoUrl: q.videoUrl,
+                    difficulty: q.difficulty?.toUpperCase() || "MODERATE",
+                    subject: q.subject || formData.examCategory || "General Studies",
+                    topic: q.topic || "",
                     positiveMarks: sec.positiveMarks,
-                    timeLimitMins: sec.hasSectionalTime ? sec.sectionalTimeMinutes : null,
-                    questions: secQs.map((q) => ({
-                        questionEn: q.textEnglish,
-                        questionHi: q.textHindi,
-                        options: q.options.map((o) => o.english),
-                        correctOption: (q.correctAnswer !== null ? ["A", "B", "C", "D"][q.correctAnswer] : "A") || "A",
-                        explanationEn: q.explanationEnglish,
-                        explanationHi: q.explanationHindi,
-                        videoUrl: q.videoUrl,
-                        difficulty: q.difficulty?.toUpperCase() || "MODERATE",
-                        subject: q.subject,
-                        topic: q.topic,
-                    })),
-                }
-            })
+                    negativeMarks: sec.negativeMarks,
+                })),
+            }
+        })
+    }
 
-            const isCurrentAffairs = (formData.examCategory || "").toLowerCase().includes("current affair")
-            const activeSeriesId = formData.seriesId || (isCurrentAffairs ? "current-affairs-quizzes" : (formData.examCategory?.toLowerCase().includes("upsc") ? "upsc-prelims-2026" : "bpsc-72nd-2026"))
-            const seriesMeta = TEST_SERIES_DATA.find((s) => s.id === activeSeriesId)
-            const activeCategory = isCurrentAffairs ? "Current Affairs Quizzes" : (formData.examCategory || seriesMeta?.category || "Civil Services")
-            const activeSeriesTitle = isCurrentAffairs ? "Current Affairs and Quizzes Series" : (seriesMeta?.title || `${formData.examName || activeCategory} Mock Test Series`)
+    const handleSaveDraft = async () => {
+        if (!formData.title.trim()) {
+            setApiError("Please enter a test title before saving draft.")
+            setApiErrorDetails([])
+            return
+        }
+        if (!formData.seriesId) {
+            setApiError("Please select a target test series package before saving draft.")
+            setApiErrorDetails([])
+            return
+        }
+        setIsSaving(true)
+        setApiError(null)
+        setApiErrorDetails([])
+        setDraftWarnings([])
+        try {
+            const mappedSections = buildMappedSections()
+            const mappedTestType = TEST_TYPE_MAP[formData.testType]
+            if (!mappedTestType) {
+                setApiError(`Invalid test type selected: "${formData.testType}". Please select a valid test type in Step 1.`)
+                setApiErrorDetails([])
+                setIsSaving(false)
+                return
+            }
+            const mappedAccessMode = formData.accessMode === "free" ? "FREE" : "PRO"
 
             const res = await fetch("/api/exam/test/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    seriesId: activeSeriesId,
-                    title: formData.title || (isCurrentAffairs ? "Current Affairs Daily Quiz" : `${activeCategory} Mock Test`),
+                    seriesId: formData.seriesId,
+                    title: formData.title,
                     titleHi: formData.titleHindi,
-                    category: activeCategory,
-                    seriesTitle: activeSeriesTitle,
-                    testType: formData.testType.toUpperCase().replace(/\s+/g, "_"),
-                    accessMode: formData.accessMode.toUpperCase(),
+                    testType: mappedTestType,
+                    accessMode: mappedAccessMode,
                     durationMinutes: formData.durationMinutes,
-                    totalQuestions: formData.totalQuestions,
-                    totalMarks: formData.totalMarks,
+                    isLive: formData.isLive,
+                    liveStartAt: formData.liveStartAt || null,
+                    liveEndAt: formData.liveEndAt || null,
+                    sections: mappedSections,
+                    isPublished: false,
+                }),
+            })
+
+            const json = await res.json()
+            if (!res.ok || !json.data?.id) {
+                const errMsg = json.error || `Save draft failed with status ${res.status}`
+                setApiError(errMsg)
+                if (Array.isArray(json.details)) setApiErrorDetails(json.details)
+                throw new Error(errMsg)
+            }
+
+            setSavedTestId(json.data.id)
+            if (Array.isArray(json.warnings) && json.warnings.length > 0) {
+                setDraftWarnings(json.warnings)
+                setToastMessage(`Draft saved! Warning: ${json.warnings.length} incomplete question(s) were not saved.`)
+                setShowToast(true)
+            } else {
+                setDraftWarnings([])
+                setToastMessage(json.data.message || "Draft saved successfully!")
+                setShowToast(true)
+                setTimeout(() => {
+                    router.push("/teacher/test-series")
+                }, 1200)
+            }
+        } catch (e: any) {
+            console.error("Failed to save draft", e)
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    const handlePublish = async () => {
+        if (totalIncomplete > 0) {
+            setApiError(`Cannot publish test: ${totalIncomplete} questions are incomplete. Finish them or save as draft.`)
+            setApiErrorDetails(
+                incompleteSummary.map((s) => `${s.sectionName}: Incomplete Question(s) ${s.incompleteNumbers.join(", ")}`)
+            )
+            return
+        }
+        if (!formData.title.trim()) {
+            setApiError("Please enter a test title before publishing.")
+            setApiErrorDetails([])
+            return
+        }
+        if (!formData.seriesId) {
+            setApiError("Please select a target test series package before publishing.")
+            setApiErrorDetails([])
+            return
+        }
+        setIsSaving(true)
+        setApiError(null)
+        setApiErrorDetails([])
+        setDraftWarnings([])
+        try {
+            const mappedSections = buildMappedSections()
+            const mappedTestType = TEST_TYPE_MAP[formData.testType]
+            if (!mappedTestType) {
+                setApiError(`Invalid test type selected: "${formData.testType}". Please select a valid test type in Step 1.`)
+                setApiErrorDetails([])
+                setIsSaving(false)
+                return
+            }
+            const mappedAccessMode = formData.accessMode === "free" ? "FREE" : "PRO"
+
+            const res = await fetch("/api/exam/test/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    seriesId: formData.seriesId,
+                    title: formData.title,
+                    titleHi: formData.titleHindi,
+                    testType: mappedTestType,
+                    accessMode: mappedAccessMode,
+                    durationMinutes: formData.durationMinutes,
                     isLive: formData.isLive,
                     liveStartAt: formData.liveStartAt || null,
                     liveEndAt: formData.liveEndAt || null,
@@ -995,37 +1098,44 @@ function CreateTestContent() {
 
             const json = await res.json()
             if (!res.ok || !json.data?.id) {
-                throw new Error(json.error || `Publish failed with status ${res.status}`)
+                const errMsg = json.error || `Publish failed with status ${res.status}`
+                setApiError(errMsg)
+                if (Array.isArray(json.details)) setApiErrorDetails(json.details)
+                throw new Error(errMsg)
             }
 
             const publishedId = json.data.id
             setSavedTestId(publishedId)
-
-            // Clear draft from localStorage after successful publish
-            try {
-                localStorage.removeItem("ts_draft_test")
-                const existingStr = localStorage.getItem("ts_custom_tests") || "[]"
-                const existing = JSON.parse(existingStr)
-                if (Array.isArray(existing)) {
-                    const filtered = existing.filter((t: any) => t.id !== publishedId && t.title !== formData.title)
-                    localStorage.setItem("ts_custom_tests", JSON.stringify(filtered))
-                }
-            } catch (storageErr) {
-                console.warn("Could not clean up draft in localStorage", storageErr)
-            }
-
             setPublished(true)
+            setToastMessage("Test published successfully! 🎉 Redirecting to tests...")
             setShowToast(true)
+            setTimeout(() => {
+                router.push("/teacher/test-series")
+            }, 1500)
         } catch (e: any) {
             console.error("Failed to publish test", e)
-            alert(e.message || "Failed to publish test to the server. Please check all fields and try again.")
         } finally {
             setIsSaving(false)
         }
     }
 
-    // ── Compute total questions across sections ──
-    const totalSectionQuestions = formData.sections.reduce((s, sec) => s + sec.numQuestions, 0)
+    // ── Computed totals across sections ──
+    const computedTotalQuestions = formData.sections.reduce((s, sec) => s + sec.numQuestions, 0)
+    const computedTotalMarks = formData.sections.reduce((s, sec) => s + sec.numQuestions * sec.positiveMarks, 0)
+    const totalSectionQuestions = computedTotalQuestions
+    const totalIncomplete = formData.questions.length - completedCount
+
+    const incompleteSummary = formData.sections.map((sec) => {
+        const secQs = formData.questions.filter((q) => q.sectionId === sec.id)
+        const incompleteNumbers: number[] = []
+        secQs.forEach((q, idx) => {
+            if (!isQuestionFilled(q)) incompleteNumbers.push(idx + 1)
+        })
+        return {
+            sectionName: sec.name || "Section",
+            incompleteNumbers,
+        }
+    }).filter((item) => item.incompleteNumbers.length > 0)
 
     // ─────────────────────────────────────────────────────────────────────────
     // RENDER
@@ -1038,7 +1148,7 @@ function CreateTestContent() {
                 <div className="fixed top-20 right-6 z-[9999] bg-[#00D084] text-white px-6 py-4 rounded-2xl shadow-2xl font-bold text-sm flex flex-col sm:flex-row items-center gap-4 animate-in slide-in-from-right-5 border-2 border-white/20">
                     <div className="flex items-center gap-2">
                         <CheckCircle2 className="h-5 w-5 shrink-0" />
-                        <span>Test published successfully! 🎉</span>
+                        <span>{toastMessage || "Saved successfully!"}</span>
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
                         <Link
@@ -1152,112 +1262,48 @@ function CreateTestContent() {
                                 value={formData.seriesId}
                                 onChange={(e) => {
                                     const sid = e.target.value
-                                    const seriesMatch =
-                                        customSeriesPackages.find((s) => s.id === sid) ||
-                                        TEST_SERIES_DATA.find((s) => s.id === sid)
+                                    const seriesMatch = seriesPackages.find((s) => s.id === sid)
                                     setFormData((prev) => ({
                                         ...prev,
                                         seriesId: sid,
-                                        examCategory: seriesMatch ? seriesMatch.category : prev.examCategory,
-                                        examName: seriesMatch ? seriesMatch.title : prev.examName,
-                                        totalQuestions: seriesMatch?.questions || prev.totalQuestions,
-                                        durationMinutes: seriesMatch?.duration ? parseInt(seriesMatch.duration) || prev.durationMinutes : prev.durationMinutes,
+                                        examCategory: seriesMatch ? seriesMatch.category : "",
+                                        examName: seriesMatch ? seriesMatch.title : "",
                                     }))
+                                    setErrors((prev) => {
+                                        const next = { ...prev }
+                                        delete next.seriesId
+                                        return next
+                                    })
                                 }}
                                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all shadow-xs"
                             >
-                                {customSeriesPackages.length > 0 && (
-                                    <optgroup label="Custom Created Series Packages">
-                                        {customSeriesPackages.map((s) => (
-                                            <option key={s.id} value={s.id}>
-                                                {s.title} ({s.category})
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                )}
-                                <optgroup label="Civil Services (UPSC)">
-                                    {TEST_SERIES_DATA.filter((s) => s.category === "UPSC").map((s) => (
-                                        <option key={s.id} value={s.id}>
-                                            {s.title}
-                                        </option>
-                                    ))}
-                                </optgroup>
-                                <optgroup label="State PCS (BPSC)">
-                                    {TEST_SERIES_DATA.filter((s) => s.category === "BPSC" || s.category === "BPSC TRE").map((s) => (
-                                        <option key={s.id} value={s.id}>
-                                            {s.title}
-                                        </option>
-                                    ))}
-                                </optgroup>
-                                <optgroup label="School Foundation (Classes 6-10)">
-                                    {TEST_SERIES_DATA.filter((s) => s.category.startsWith("Class")).map((s) => (
-                                        <option key={s.id} value={s.id}>
-                                            {s.title}
-                                        </option>
-                                    ))}
-                                </optgroup>
-                                <optgroup label="Skills & Technology">
-                                    {TEST_SERIES_DATA.filter((s) => s.category === "Web Development" || s.category === "Data Science").map((s) => (
-                                        <option key={s.id} value={s.id}>
-                                            {s.title}
-                                        </option>
-                                    ))}
-                                </optgroup>
-                                <optgroup label="Current Affairs">
-                                    <option value="current-affairs-quizzes">Daily & Monthly Current Affairs Quizzes</option>
-                                </optgroup>
+                                <option value="">Select a test series package...</option>
+                                {seriesPackages.map((s) => (
+                                    <option key={s.id} value={s.id}>
+                                        {s.title} ({s.category})
+                                    </option>
+                                ))}
                             </select>
+                            <FieldError msg={errors.seriesId} />
                         </div>
 
-                        {/* Category & Exam Name */}
+                        {/* Category & Exam Name (Read-only, derived) */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                                    Exam Category <span className="text-[#EF4444]">*</span>
+                                    Exam Category <span className="text-gray-400 font-normal">(derived from package)</span>
                                 </label>
-                                <select
-                                    value={formData.examCategory}
-                                    onChange={(e) => {
-                                        const newCat = e.target.value
-                                        let newSeriesId = formData.seriesId
-                                        if (newCat.toLowerCase().includes("upsc") && !formData.seriesId.includes("upsc")) {
-                                            newSeriesId = "upsc-prelims-2026"
-                                        } else if (newCat.toLowerCase().includes("bpsc") && !formData.seriesId.includes("bpsc")) {
-                                            newSeriesId = "bpsc-72nd-2026"
-                                        } else if (newCat.toLowerCase().includes("current") && !formData.seriesId.includes("current")) {
-                                            newSeriesId = "current-affairs-quizzes"
-                                        }
-                                        const matching = TEST_SERIES_DATA.find((s) => s.id === newSeriesId)
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            examCategory: newCat,
-                                            seriesId: newSeriesId,
-                                            examName: matching ? matching.title : prev.examName,
-                                        }))
-                                    }}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all"
-                                >
-                                    <option value="">Select category…</option>
-                                    {EXAM_CATEGORIES.map((c) => (
-                                        <option key={c} value={c}>
-                                            {c}
-                                        </option>
-                                    ))}
-                                </select>
-                                <FieldError msg={errors.examCategory} />
+                                <div className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 text-sm font-medium text-gray-800 dark:text-gray-200 select-none">
+                                    {formData.examCategory || <span className="text-gray-400 italic font-normal">Choose a package above</span>}
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                                    Exam Name <span className="text-[#EF4444]">*</span>
+                                    Exam Name <span className="text-gray-400 font-normal">(derived from package)</span>
                                 </label>
-                                <input
-                                    type="text"
-                                    value={formData.examName}
-                                    onChange={(e) => updateField("examName", e.target.value)}
-                                    placeholder="e.g. UPSC CSE / BPSC Exam"
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all"
-                                />
-                                <FieldError msg={errors.examName} />
+                                <div className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 text-sm font-medium text-gray-800 dark:text-gray-200 select-none">
+                                    {formData.examName || <span className="text-gray-400 italic font-normal">Choose a package above</span>}
+                                </div>
                             </div>
                         </div>
 
@@ -1303,7 +1349,7 @@ function CreateTestContent() {
                                     Free Test
                                     {formData.accessMode === "free" && (
                                         <span className="ml-1 px-2 py-0.5 bg-white text-emerald-950 rounded-full text-[10px] font-black">
-                                            ACTIVE
+                                             ACTIVE
                                         </span>
                                     )}
                                 </button>
@@ -1337,53 +1383,21 @@ function CreateTestContent() {
                             )}
                         </div>
 
-                        {/* Duration, Questions, Marks */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                                    Duration (minutes) <span className="text-[#EF4444]">*</span>
-                                </label>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    value={formData.durationMinutes}
-                                    onChange={(e) =>
-                                        updateField("durationMinutes", parseInt(e.target.value) || 0)
-                                    }
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all"
-                                />
-                                <FieldError msg={errors.durationMinutes} />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                                    Total Questions <span className="text-[#EF4444]">*</span>
-                                </label>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    value={formData.totalQuestions}
-                                    onChange={(e) =>
-                                        updateField("totalQuestions", parseInt(e.target.value) || 0)
-                                    }
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all"
-                                />
-                                <FieldError msg={errors.totalQuestions} />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                                    Total Marks <span className="text-[#EF4444]">*</span>
-                                </label>
-                                <input
-                                    type="number"
-                                    min={1}
-                                    value={formData.totalMarks}
-                                    onChange={(e) =>
-                                        updateField("totalMarks", parseInt(e.target.value) || 0)
-                                    }
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all"
-                                />
-                                <FieldError msg={errors.totalMarks} />
-                            </div>
+                        {/* Duration */}
+                        <div>
+                            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                                Duration (minutes) <span className="text-[#EF4444]">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                min={1}
+                                value={formData.durationMinutes}
+                                onChange={(e) =>
+                                    updateField("durationMinutes", parseInt(e.target.value) || 0)
+                                }
+                                className="w-full max-w-xs px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all"
+                            />
+                            <FieldError msg={errors.durationMinutes} />
                         </div>
 
                         {/* Is Live Toggle */}
@@ -1566,21 +1580,45 @@ function CreateTestContent() {
                                             <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                                                 −ve Marks
                                             </label>
-                                            <select
-                                                value={sec.negativeMarks}
-                                                onChange={(e) =>
-                                                    updateSection(idx, {
-                                                        negativeMarks: parseFloat(e.target.value),
-                                                    })
-                                                }
-                                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
-                                            >
-                                                {NEGATIVE_MARK_OPTIONS.map((v) => (
-                                                    <option key={v} value={v}>
-                                                        {v === 0 ? "No negative marking" : `-${v}`}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            <div className="flex gap-2">
+                                                <select
+                                                    value={
+                                                        NEGATIVE_MARK_OPTIONS.includes(sec.negativeMarks as any)
+                                                            ? sec.negativeMarks
+                                                            : "custom"
+                                                    }
+                                                    onChange={(e) => {
+                                                        const val = e.target.value
+                                                        if (val === "custom") {
+                                                            updateSection(idx, { negativeMarks: 0.25 })
+                                                        } else {
+                                                            updateSection(idx, { negativeMarks: parseFloat(val) })
+                                                        }
+                                                    }}
+                                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
+                                                >
+                                                    {NEGATIVE_MARK_OPTIONS.map((v) => (
+                                                        <option key={v} value={v}>
+                                                            {v === 0 ? "No negative marking" : `-${v}`}
+                                                        </option>
+                                                    ))}
+                                                    <option value="custom">Custom value...</option>
+                                                </select>
+                                                {!NEGATIVE_MARK_OPTIONS.includes(sec.negativeMarks as any) && (
+                                                    <input
+                                                        type="number"
+                                                        min={0}
+                                                        step={0.01}
+                                                        value={sec.negativeMarks}
+                                                        onChange={(e) => {
+                                                            const v = parseFloat(e.target.value)
+                                                            updateSection(idx, { negativeMarks: isNaN(v) ? 0 : v })
+                                                        }}
+                                                        placeholder="0.75"
+                                                        className="w-24 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
+                                                    />
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1611,7 +1649,7 @@ function CreateTestContent() {
                                             </span>
                                         </div>
                                         {sec.hasSectionalTime && (
-                                            <div className="flex items-center gap-2">
+                                             <div className="flex items-center gap-2">
                                                 <input
                                                     type="number"
                                                     min={1}
@@ -1639,22 +1677,39 @@ function CreateTestContent() {
                                 Add Section
                             </button>
 
-                            {/* Totals summary */}
-                            <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-semibold text-gray-600 dark:text-gray-400">
-                                <Layers className="h-4 w-4 text-[#00A8FF]" />
-                                <span>
-                                    <span className="font-black text-gray-900 dark:text-white">
-                                        {formData.sections.length}
-                                    </span>{" "}
-                                    section{formData.sections.length !== 1 ? "s" : ""}
-                                </span>
-                                <span className="text-gray-300">|</span>
-                                <span>
-                                    Total Questions:{" "}
-                                    <span className="font-black text-gray-900 dark:text-white">
-                                        {totalSectionQuestions}
+                            {errors.sectionalTime && (
+                                <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-xl text-xs text-red-600 dark:text-red-400 font-semibold">
+                                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                                    <span>{errors.sectionalTime}</span>
+                                </div>
+                            )}
+
+                            {/* Totals summary live footer */}
+                            <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                                <div className="flex items-center gap-2">
+                                    <Layers className="h-4 w-4 text-[#00A8FF]" />
+                                    <span>
+                                        <span className="font-black text-gray-900 dark:text-white">
+                                            {formData.sections.length}
+                                        </span>{" "}
+                                        section{formData.sections.length !== 1 ? "s" : ""}
                                     </span>
-                                </span>
+                                </div>
+                                <div className="flex items-center gap-4 sm:gap-6">
+                                    <span>
+                                        Total Questions:{" "}
+                                        <span className="font-black text-gray-900 dark:text-white">
+                                            {computedTotalQuestions}
+                                        </span>
+                                    </span>
+                                    <span className="text-gray-300 dark:text-gray-600">|</span>
+                                    <span>
+                                        Total Marks:{" "}
+                                        <span className="font-black text-[#00D084]">
+                                            {computedTotalMarks}
+                                        </span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1687,10 +1742,10 @@ function CreateTestContent() {
                     <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 shadow-sm">
                         <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-bold text-gray-600 dark:text-gray-400">
-                                Questions Authored
+                                Questions Complete
                             </span>
                             <span className="text-xs font-black text-[#00A8FF]">
-                                {completedCount} / {totalQCount}
+                                {completedCount} of {totalQCount} complete
                             </span>
                         </div>
                         <div className="w-full h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -1741,7 +1796,7 @@ function CreateTestContent() {
                                                                 : "text-gray-400"
                                                         }`}
                                                     >
-                                                        {filled}/{qsForSec.length} done
+                                                        {filled}/{qsForSec.length} complete
                                                     </span>
                                                 </button>
                                             )
@@ -1771,8 +1826,9 @@ function CreateTestContent() {
                                                             ? "bg-[#00A8FF] text-white border-[#00A8FF] shadow-sm scale-105"
                                                             : done
                                                             ? "bg-[#00D084]/15 text-[#00D084] border-[#00D084]/30"
-                                                            : "bg-gray-50 dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-gray-700 hover:border-[#00A8FF]/50"
+                                                            : "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700/50 hover:border-amber-400"
                                                     }`}
+                                                    title={`Q${qi + 1}: ${done ? "Complete" : "Incomplete"}`}
                                                 >
                                                     {qi + 1}
                                                 </button>
@@ -1782,11 +1838,11 @@ function CreateTestContent() {
                                     <div className="flex items-center gap-3 mt-3 text-[10px] text-gray-500">
                                         <span className="flex items-center gap-1">
                                             <span className="w-2.5 h-2.5 rounded bg-[#00D084]/30 inline-block" />
-                                            Done
+                                            Complete
                                         </span>
                                         <span className="flex items-center gap-1">
-                                            <span className="w-2.5 h-2.5 rounded bg-gray-200 dark:bg-gray-700 inline-block" />
-                                            Empty
+                                            <span className="w-2.5 h-2.5 rounded bg-amber-400 inline-block" />
+                                            Incomplete
                                         </span>
                                         <span className="flex items-center gap-1">
                                             <span className="w-2.5 h-2.5 rounded bg-[#00A8FF] inline-block" />
@@ -1820,10 +1876,15 @@ function CreateTestContent() {
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        {isQuestionFilled(currentQ) && (
+                                        {isQuestionFilled(currentQ) ? (
                                             <span className="flex items-center gap-1 text-[#00D084] text-xs font-bold">
                                                 <CheckCircle2 className="h-4 w-4" />
-                                                Saved
+                                                Complete
+                                            </span>
+                                        ) : (
+                                            <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-xs font-bold">
+                                                <AlertTriangle className="h-3.5 w-3.5" />
+                                                Incomplete
                                             </span>
                                         )}
                                     </div>
@@ -2179,12 +2240,12 @@ function CreateTestContent() {
                                             },
                                             {
                                                 label: "Questions",
-                                                val: totalSectionQuestions,
+                                                val: computedTotalQuestions,
                                                 color: "text-[#9333EA]",
                                             },
                                             {
                                                 label: "Total Marks",
-                                                val: formData.totalMarks,
+                                                val: computedTotalMarks,
                                                 color: "text-[#00D084]",
                                             },
                                         ].map(({ label, val, color }) => (
@@ -2225,7 +2286,7 @@ function CreateTestContent() {
                                                         {sec.name || "Unnamed Section"}
                                                     </span>
                                                     <span className="text-xs text-gray-500 font-semibold">
-                                                        {filled}/{qsForSec.length} authored
+                                                        {filled}/{qsForSec.length} complete
                                                     </span>
                                                 </div>
                                                 <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -2252,20 +2313,59 @@ function CreateTestContent() {
                                 </div>
                             </div>
 
-                            {/* Warnings */}
-                            {completedCount < totalQCount && (
+                            {/* Incomplete questions warning banner */}
+                            {totalIncomplete > 0 && (
                                 <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-xl">
                                     <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                                    <div>
+                                    <div className="space-y-1">
                                         <p className="text-sm font-bold text-amber-800 dark:text-amber-300">
-                                            {totalQCount - completedCount} question
-                                            {totalQCount - completedCount !== 1 ? "s" : ""} incomplete
+                                            {totalIncomplete} question{totalIncomplete !== 1 ? "s" : ""} incomplete. Save as draft, or finish them to publish.
                                         </p>
-                                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
-                                            Questions must have text and a selected correct answer to be complete.
-                                            You can still publish as a draft.
+                                        <p className="text-xs text-amber-700 dark:text-amber-400">
+                                            Questions must have English text, all 4 options, and a selected correct answer to be published.
                                         </p>
+                                        {incompleteSummary.length > 0 && (
+                                            <div className="mt-2 space-y-1 pt-1.5 border-t border-amber-200/70 dark:border-amber-700/40">
+                                                {incompleteSummary.map((s, idx) => (
+                                                    <div key={idx} className="text-xs text-amber-800 dark:text-amber-300 font-medium">
+                                                        <span className="font-bold">{s.sectionName}:</span> Incomplete Question(s) {s.incompleteNumbers.join(", ")}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
+                                </div>
+                            )}
+
+                            {/* Real API Error feedback */}
+                            {apiError && (
+                                <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-xl space-y-2">
+                                    <div className="flex items-center gap-2 text-sm font-bold text-red-700 dark:text-red-400">
+                                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                                        <span>{apiError}</span>
+                                    </div>
+                                    {apiErrorDetails.length > 0 && (
+                                        <ul className="list-disc list-inside text-xs text-red-600 dark:text-red-400 pl-2 space-y-1">
+                                            {apiErrorDetails.map((det, i) => (
+                                                <li key={i}>{det}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Draft Warnings feedback */}
+                            {draftWarnings.length > 0 && (
+                                <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-300 dark:border-amber-900/50 rounded-xl space-y-2">
+                                    <div className="flex items-center gap-2 text-sm font-bold text-amber-800 dark:text-amber-300">
+                                        <AlertCircle className="h-4 w-4 shrink-0" />
+                                        <span>Draft saved! Notice: {draftWarnings.length} incomplete question(s) were not saved:</span>
+                                    </div>
+                                    <ul className="list-disc list-inside text-xs text-amber-700 dark:text-amber-400 pl-2 space-y-1">
+                                        {draftWarnings.map((warn, i) => (
+                                            <li key={i}>{warn}</li>
+                                        ))}
+                                    </ul>
                                 </div>
                             )}
 
@@ -2291,7 +2391,7 @@ function CreateTestContent() {
                                             <span>Open Student View →</span>
                                         </Link>
                                         <Link
-                                            href={`/test-series/${savedTestId}/attempt?testId=${savedTestId}&title=${encodeURIComponent(formData.title)}&questions=${formData.questions.length}&marks=${formData.questions.length}&duration=${formData.durationMinutes}`}
+                                            href={`/test-series/${savedTestId}/attempt?testId=${savedTestId}&title=${encodeURIComponent(formData.title)}&questions=${formData.questions.length}&marks=${computedTotalMarks}&duration=${formData.durationMinutes}`}
                                             className="px-4 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-black text-xs shadow-md transition-all flex items-center gap-1.5"
                                         >
                                             <span>Preview in CBT Arena →</span>
@@ -2325,21 +2425,24 @@ function CreateTestContent() {
                                 Preview
                             </button>
                             <button
-                                onClick={() => {
-                                    setShowToast(true)
-                                    setTimeout(() => setShowToast(false), 4000)
-                                }}
-                                className="flex items-center gap-2 px-5 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer"
+                                disabled={isSaving}
+                                onClick={handleSaveDraft}
+                                className="flex items-center gap-2 px-5 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-50 transition-all cursor-pointer"
                             >
                                 <Save className="h-4 w-4" />
-                                Save Draft
+                                {isSaving ? "Saving..." : "Save Draft"}
                             </button>
                             <button
+                                disabled={isSaving || totalIncomplete > 0}
                                 onClick={handlePublish}
-                                className="flex items-center gap-2 px-8 py-3 bg-[#00A8FF] hover:bg-[#0096e6] text-white font-black text-sm rounded-xl shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+                                className={`flex items-center gap-2 px-8 py-3 text-white font-black text-sm rounded-xl shadow-lg transition-all ${
+                                    totalIncomplete > 0 || isSaving
+                                        ? "bg-gray-400 dark:bg-gray-700 cursor-not-allowed opacity-60"
+                                        : "bg-[#00A8FF] hover:bg-[#0096e6] active:scale-[0.98] cursor-pointer"
+                                }`}
                             >
                                 <Rocket className="h-4 w-4" />
-                                Publish Test
+                                {isSaving ? "Publishing..." : "Publish Test"}
                             </button>
                         </div>
                     </div>
@@ -2643,13 +2746,18 @@ function CreateTestContent() {
                 onClose={() => setIsCreateSeriesModalOpen(false)}
                 defaultCategory={formData.examCategory || "UPSC"}
                 onCreated={(newPkg) => {
-                    setCustomSeriesPackages((prev) => [newPkg, ...prev.filter((p) => p.id !== newPkg.id)])
+                    setSeriesPackages((prev) => [newPkg, ...prev.filter((p) => p.id !== newPkg.id)])
                     setFormData((prev) => ({
                         ...prev,
                         seriesId: newPkg.id,
                         examCategory: newPkg.category,
                         examName: newPkg.title,
                     }))
+                    setErrors((prev) => {
+                        const next = { ...prev }
+                        delete next.seriesId
+                        return next
+                    })
                 }}
             />
         </div>

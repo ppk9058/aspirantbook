@@ -69,8 +69,8 @@ export default function TestSeriesDetailPage() {
         session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
 
     const initialStatic = getTestSeriesById(seriesId)
-    const [seriesNotFound, setSeriesNotFound] = useState(!initialStatic && !seriesId.startsWith("es_"))
-    const [seriesLoading, setSeriesLoading] = useState(false)
+    const [seriesNotFound, setSeriesNotFound] = useState(false)
+    const [seriesLoading, setSeriesLoading] = useState(!initialStatic)
     const [customSeriesPackage, setCustomSeriesPackage] = useState<TestSeriesItem | null>(initialStatic || null)
     const [allSeriesList, setAllSeriesList] = useState<any[]>([])
     const [submittedAttempts, setSubmittedAttempts] = useState<Record<string, string>>({})
@@ -80,19 +80,21 @@ export default function TestSeriesDetailPage() {
     useEffect(() => {
         let isMounted = true
         try {
-            fetch("/api/exam/series/list")
+            fetch("/api/exam/series/list?includeAll=1")
                 .then((res) => res.json())
                 .then((json) => {
                     if (!isMounted) return
                     if (json.success && Array.isArray(json.data)) {
                         setAllSeriesList(json.data)
-                        const found = json.data.find((s: any) => s.id === seriesId || s.id.toLowerCase() === seriesId.toLowerCase() || s.slug === seriesId)
+                        const found = json.data.find((s: any) => s.id === seriesId || s.id?.toLowerCase() === seriesId?.toLowerCase() || s.slug === seriesId || s.slug?.toLowerCase() === seriesId?.toLowerCase())
                         if (found) {
                             setCustomSeriesPackage(found)
+                            setSeriesNotFound(false)
                         } else {
                             const staticSeries = getTestSeriesById(seriesId)
                             if (staticSeries) {
                                 setCustomSeriesPackage(staticSeries)
+                                setSeriesNotFound(false)
                             } else {
                                 setSeriesNotFound(true)
                             }
@@ -101,6 +103,7 @@ export default function TestSeriesDetailPage() {
                         const staticSeries = getTestSeriesById(seriesId)
                         if (staticSeries) {
                             setCustomSeriesPackage(staticSeries)
+                            setSeriesNotFound(false)
                         } else {
                             setSeriesNotFound(true)
                         }
@@ -109,7 +112,13 @@ export default function TestSeriesDetailPage() {
                 })
                 .catch(() => {
                     if (isMounted) {
-                        setSeriesNotFound(true)
+                        const staticSeries = getTestSeriesById(seriesId)
+                        if (staticSeries) {
+                            setCustomSeriesPackage(staticSeries)
+                            setSeriesNotFound(false)
+                        } else {
+                            setSeriesNotFound(true)
+                        }
                         setSeriesLoading(false)
                     }
                 })

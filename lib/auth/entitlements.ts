@@ -122,6 +122,7 @@ export async function checkTestAccess(
   const role = userRole || "STUDENT"
 
   if (role === "ADMIN") return { allowed: true, reason: "ADMIN_OVERRIDE" }
+  if (role === "TEACHER") return { allowed: true, reason: "TEACHER_ACCESS" }
 
   if (!userId) {
     return {

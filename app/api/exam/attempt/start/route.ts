@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Validate test exists, is published, has positive duration, and has questions
-    const test = await prisma.examTest.findUnique({
+    let test = await prisma.examTest.findUnique({
       where: { id: testId },
       select: {
         id: true,
@@ -91,13 +91,81 @@ export async function POST(req: NextRequest) {
     });
 
     if (!test) {
+      test = await prisma.examTest.findFirst({
+        where: {
+          OR: [
+            { seriesId: testId },
+            { series: { slug: testId } },
+          ],
+        },
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          title: true,
+          titleHi: true,
+          durationMinutes: true,
+          totalMarks: true,
+          totalQuestions: true,
+          positiveMarks: true,
+          negativeMarks: true,
+          seriesId: true,
+          accessMode: true,
+          createdById: true,
+          series: {
+            select: {
+              id: true,
+              slug: true,
+            },
+          },
+          isPublished: true,
+          sections: {
+            orderBy: { order: "asc" },
+            select: {
+              id: true,
+              title: true,
+              titleHi: true,
+              order: true,
+              positiveMarks: true,
+              negativeMarks: true,
+              timeLimitMins: true,
+              questions: {
+                orderBy: { order: "asc" },
+                select: {
+                  id: true,
+                  questionEn: true,
+                  questionHi: true,
+                  optionAEn: true,
+                  optionBEn: true,
+                  optionCEn: true,
+                  optionDEn: true,
+                  optionAHi: true,
+                  optionBHi: true,
+                  optionCHi: true,
+                  optionDHi: true,
+                  questionType: true,
+                  subject: true,
+                  positiveMarks: true,
+                  negativeMarks: true,
+                  order: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
+
+    const resolvedTestId = test.id;
 
     if (!test.isPublished) {
       const isCreator = test.createdById === session.user.id;
       const isAdmin = session.user.role === "ADMIN";
-      if (!isCreator && !isAdmin) {
+      const isTeacher = session.user.role === "TEACHER";
+      if (!isCreator && !isAdmin && !isTeacher) {
         return NextResponse.json(
           { error: "Test is not published yet" },
           { status: 403 }
@@ -140,7 +208,7 @@ export async function POST(req: NextRequest) {
       const openAttempts = await prisma.examAttempt.findMany({
         where: {
           userId,
-          testId,
+          testId: resolvedTestId,
           status: "IN_PROGRESS",
         },
         select: {
@@ -177,13 +245,13 @@ export async function POST(req: NextRequest) {
     // No grading or heavy queries inside this transaction.
     const result = await prisma.$transaction(
       async (tx) => {
-        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId + ":" + testId}))`;
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId + ":" + resolvedTestId}))`;
 
         // Check for an existing active IN_PROGRESS attempt
         const existing = await tx.examAttempt.findFirst({
           where: {
             userId,
-            testId,
+            testId: resolvedTestId,
             status: "IN_PROGRESS",
           },
           select: {
@@ -239,7 +307,7 @@ export async function POST(req: NextRequest) {
         const attempt = await tx.examAttempt.create({
           data: {
             userId,
-            testId,
+            testId: resolvedTestId,
             language,
             status: "IN_PROGRESS",
           },

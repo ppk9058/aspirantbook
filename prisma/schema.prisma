@@ -821,6 +821,8 @@ model ExamSeries {
   category     String       // e.g. "Civil Services"
   description  String?
   thumbnailUrl String?
+  logoType     String?
+  highlights   String[]     @default([])
   isFree       Boolean      @default(false)
   isPublished  Boolean      @default(false)
   isPro        Boolean      @default(false)

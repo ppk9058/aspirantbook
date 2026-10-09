@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "ExamSeries" ADD COLUMN IF NOT EXISTS "logoType" TEXT DEFAULT 'general',
+ADD COLUMN IF NOT EXISTS "highlights" TEXT[] DEFAULT ARRAY[]::TEXT[];
