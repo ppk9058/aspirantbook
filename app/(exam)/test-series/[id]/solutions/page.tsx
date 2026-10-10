@@ -71,16 +71,25 @@ interface AttemptMeta {
 }
 
 import { useSession } from "next-auth/react"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 
 function SolutionsContent() {
     const params = useParams()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
+    const { openMobileAuth } = useMobileAuth()
     const seriesId = (params?.id as string) || "test-series"
     const attemptId = searchParams.get("attemptId")
     const testId = searchParams.get("testId")
     const isTeacherOrAdmin = (session?.user as any)?.role === "TEACHER" || (session?.user as any)?.role === "ADMIN"
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            const currentUrl = typeof window !== "undefined" ? window.location.href : ""
+            openMobileAuth({ actionType: "login", callbackUrl: currentUrl })
+        }
+    }, [status, openMobileAuth])
 
     const [currentIdx, setCurrentIdx] = useState(0)
     const [filter, setFilter] = useState<"ALL" | "WRONG" | "SKIPPED" | "CORRECT" | "BOOKMARKED">("ALL")
@@ -283,6 +292,31 @@ function SolutionsContent() {
     const wrongCount = questions.filter((q) => q.status === "WRONG").length
     const correctCount = questions.filter((q) => q.status === "CORRECT").length
     const skippedCount = questions.filter((q) => q.status === "SKIPPED").length
+
+    if (status === "unauthenticated" || (!session?.user && status !== "loading")) {
+        return (
+            <div className="h-[100dvh] w-full max-w-full flex flex-col items-center justify-center bg-gray-50 p-6" style={{ fontFamily: "sans-serif" }}>
+                <div className="max-w-md w-full bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-200 space-y-4">
+                    <div className="w-14 h-14 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center mx-auto">
+                        <BookOpen className="w-7 h-7" />
+                    </div>
+                    <h2 className="text-xl font-black text-gray-900">Sign In to View Solutions</h2>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                        Please sign in with your mobile number to view detailed question explanations, correct answers, and analysis.
+                    </p>
+                    <button
+                        onClick={() => {
+                            const currentUrl = typeof window !== "undefined" ? window.location.href : ""
+                            openMobileAuth({ actionType: "login", callbackUrl: currentUrl })
+                        }}
+                        className="w-full min-h-[44px] py-3 px-6 rounded-xl bg-gradient-to-r from-[#00A8FF] to-[#0096e6] text-white font-bold text-sm shadow-md hover:shadow-[#00A8FF]/25 transition-all cursor-pointer"
+                    >
+                        Sign In with Mobile OTP
+                    </button>
+                </div>
+            </div>
+        )
+    }
 
     if (isLoading) {
         return (

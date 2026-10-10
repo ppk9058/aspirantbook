@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
+import { getAttemptRanking } from "@/lib/exam-ranking";
 
 export async function GET(
   _req: NextRequest,
@@ -63,7 +64,7 @@ export async function GET(
     }
 
     if (attempt.status !== "SUBMITTED") {
-      const durationMinutes = attempt.test?.durationMinutes || 120;
+      const durationMinutes = attempt.test!.durationMinutes;
       const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
       const graceDeadlineMs = deadlineMs + 30 * 1000;
 
@@ -230,25 +231,8 @@ export async function GET(
 
     const subjectBreakdown = Array.from(subjectMap.values());
 
-    // Calculate percentile
-    const totalSubmitted = await prisma.examAttempt.count({
-      where: { testId: attempt.testId, status: "SUBMITTED" },
-    });
-
-    const rank = await prisma.examAttempt.count({
-      where: {
-        testId: attempt.testId,
-        status: "SUBMITTED",
-        score: { gt: attempt.score ?? 0 },
-      },
-    });
-
-    const percentile =
-      totalSubmitted > 1
-        ? parseFloat(
-            (((totalSubmitted - rank) / totalSubmitted) * 100).toFixed(2)
-          )
-        : null;
+    // Calculate authoritative ranking using shared helper
+    const ranking = await getAttemptRanking(attempt.id);
 
     return NextResponse.json(
       {
@@ -267,9 +251,10 @@ export async function GET(
           tabSwitchCount: attempt.tabSwitchCount,
           startedAt: attempt.startedAt,
           submittedAt: attempt.submittedAt,
-          percentile,
-          allIndiaRank: totalSubmitted > 1 ? rank + 1 : null,
-          totalCandidates: totalSubmitted,
+          percentile: ranking.percentile,
+          allIndiaRank: ranking.rank,
+          totalCandidates: ranking.totalCandidates,
+          isStaffAttempt: Boolean(ranking.isStaff),
           test: attempt.test,
           questionAnalysis,
           timeAnalysis,

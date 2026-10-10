@@ -91,10 +91,10 @@ export async function GET(req: NextRequest) {
       let attemptCount = 0;
 
       for (const att of tAttempts) {
-        totalMarks = att.test.totalMarks || att.totalMarks || 150;
+        totalMarks = att.test.totalMarks;
 
         if (att.status === "IN_PROGRESS") {
-          const durationMins = att.test.durationMinutes || 120;
+          const durationMins = att.test.durationMinutes;
           const deadlineMs = att.startedAt.getTime() + durationMins * 60 * 1000;
           const graceMs = deadlineMs + 30 * 1000;
 

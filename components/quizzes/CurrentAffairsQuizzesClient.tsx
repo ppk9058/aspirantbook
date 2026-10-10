@@ -43,81 +43,13 @@ interface QuizItem {
     tags?: string[]
 }
 
-const CURATED_CA_QUIZZES: QuizItem[] = [
-    {
-        id: "ca-national-sep26",
-        seriesId: "current-affairs-quizzes",
-        title: "National & International Current Affairs Weekly Quiz (Sept 2026)",
-        titleHi: "राष्ट्रीय एवं अंतर्राष्ट्रीय समसामयिकी साप्ताहिक क्विज (सितम्बर 2026)",
-        category: "Current Affairs Quizzes",
-        testType: "WEEKLY_QUIZ",
-        questions: 10,
-        marks: 20,
-        durationMinutes: 15,
-        languages: "English, Hindi",
-        isFree: true,
-        attempts: 1450,
-        isNew: true,
-        tags: ["national", "international", "weekly"],
-    },
-    {
-        id: "ca-economy-budget",
-        seriesId: "current-affairs-quizzes",
-        title: "Economic Survey, Union Budget & RBI Monetary Policy Quiz",
-        titleHi: "आर्थिक सर्वेक्षण, केंद्रीय बजट एवं आरबीआई मौद्रिक नीति क्विज",
-        category: "Current Affairs Quizzes",
-        testType: "SPECIAL_QUIZ",
-        questions: 15,
-        marks: 30,
-        durationMinutes: 20,
-        languages: "English, Hindi",
-        isFree: true,
-        attempts: 2190,
-        isNew: false,
-        tags: ["economy", "budget", "rbi"],
-    },
-    {
-        id: "ca-bihar-special",
-        seriesId: "current-affairs-quizzes",
-        title: "72nd BPSC Current Affairs & Bihar Special Speed Test",
-        titleHi: "72वीं बीपीएससी समसामयिकी एवं बिहार विशेष स्पीड टेस्ट",
-        category: "Current Affairs Quizzes",
-        testType: "STATE_SPECIAL",
-        questions: 15,
-        marks: 30,
-        durationMinutes: 20,
-        languages: "English, Hindi",
-        isFree: true,
-        attempts: 3820,
-        isNew: true,
-        tags: ["bpsc", "state", "bihar"],
-    },
-    {
-        id: "ca-environment-scitech",
-        seriesId: "current-affairs-quizzes",
-        title: "Science, Tech, Defense & Climate Action Current Affairs",
-        titleHi: "विज्ञान, प्रौद्योगिकी, रक्षा एवं पर्यावरण समसामयिकी क्विज",
-        category: "Current Affairs Quizzes",
-        testType: "TOPIC_TEST",
-        questions: 10,
-        marks: 20,
-        durationMinutes: 15,
-        languages: "English, Hindi",
-        isFree: true,
-        attempts: 980,
-        isNew: false,
-        tags: ["science", "defense", "environment"],
-    },
-]
-
 export default function CurrentAffairsQuizzesClient() {
     const { data: session } = useSession()
     const { selectedGoal, selectedGoals, selectedGoalIds } = useGoal()
     const { openMobileAuth } = useMobileAuth()
     const [dbQuizzes, setDbQuizzes] = useState<QuizItem[]>([])
-    const [localQuizzes, setLocalQuizzes] = useState<QuizItem[]>([])
     const [searchQuery, setSearchQuery] = useState("")
-    const [activeFilter, setActiveFilter] = useState<"all" | "daily" | "weekly" | "special" | "teacher">("all")
+    const [activeFilter, setActiveFilter] = useState<"all" | "daily" | "weekly" | "special">("all")
     const [isLoading, setIsLoading] = useState(true)
 
     const isTeacherOrAdmin = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
@@ -147,19 +79,17 @@ export default function CurrentAffairsQuizzesClient() {
                         setDbQuizzes(
                             json.data.map((t: any) => ({
                                 id: t.id,
-                                seriesId: t.seriesSlug || t.seriesId || "current-affairs-quizzes",
+                                seriesId: t.seriesSlug || t.seriesId,
                                 title: t.title,
                                 titleHi: t.titleHi,
-                                category: t.category || "Current Affairs Quizzes",
+                                category: t.category,
                                 testType: t.testType,
                                 questions: t.questions,
                                 marks: t.marks,
                                 durationMinutes: t.durationMinutes,
-                                languages: t.languages || "English, Hindi",
+                                languages: t.languages,
                                 isFree: t.isFree,
-                                attempts: t.attempts || 120,
-                                isNew: true,
-                                tags: ["daily", "news"],
+                                attempts: t.attempts,
                             }))
                         )
                     }
@@ -173,57 +103,7 @@ export default function CurrentAffairsQuizzesClient() {
         fetchDbQuizzes()
     }, [selectedGoalIds])
 
-    // Load custom teacher-authored quizzes from localStorage
-    useEffect(() => {
-        try {
-            const raw = localStorage.getItem("ts_custom_tests")
-            if (raw) {
-                const parsed = JSON.parse(raw)
-                const caTests = parsed.filter(
-                    (t: any) =>
-                        (t.category || "").toLowerCase().includes("current affair") ||
-                        (t.title || "").toLowerCase().includes("current affair") ||
-                        (t.title || "").toLowerCase().includes("quiz")
-                )
-                setLocalQuizzes(
-                    caTests.map((t: any) => ({
-                        id: t.id,
-                        seriesId: t.seriesId || "current-affairs-quizzes",
-                        title: t.title,
-                        titleHi: t.titleHi,
-                        category: t.category || "Current Affairs Quizzes",
-                        questions: t.questions || (t.questionsList ? t.questionsList.length : 5),
-                        marks: t.marks || (t.questionsList ? t.questionsList.length : 5),
-                        durationMinutes: t.durationMinutes || 10,
-                        languages: t.languages || "English, Hindi",
-                        isFree: t.isFree !== false,
-                        attempts: t.attempts || 0,
-                        isNew: true,
-                        isTeacherAuthored: true,
-                        tags: ["teacher", "daily"],
-                    }))
-                )
-            }
-        } catch (e) {
-            console.warn("Could not parse local custom tests", e)
-        }
-    }, [])
-
-    // Combine all sources, deduplicating by ID
-    const allQuizzes = useMemo(() => {
-        const map = new Map<string, QuizItem>()
-
-        // 1. Curated defaults
-        CURATED_CA_QUIZZES.forEach((q) => map.set(q.id, q))
-
-        // 2. Database tests
-        dbQuizzes.forEach((q) => map.set(q.id, q))
-
-        // 3. LocalStorage tests (highest priority for newly created tests)
-        localQuizzes.forEach((q) => map.set(q.id, q))
-
-        return Array.from(map.values())
-    }, [dbQuizzes, localQuizzes])
+    const allQuizzes = dbQuizzes
 
     // Filter by tab, search, and active goals
     const filteredQuizzes = useMemo(() => {
@@ -252,10 +132,6 @@ export default function CurrentAffairsQuizzesClient() {
                     q.title.toLowerCase().includes("bpsc")
                 )
             }
-            if (activeFilter === "teacher") {
-                return q.isTeacherAuthored === true
-            }
-
             return true
         })
     }, [allQuizzes, searchQuery, activeFilter, selectedGoalIds])
@@ -303,22 +179,10 @@ export default function CurrentAffairsQuizzesClient() {
                 </div>
 
                 {/* Key Metrics Pill Bar */}
-                <div className="mt-6 pt-5 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                <div className="mt-6 pt-5 border-t border-white/15 grid grid-cols-1 gap-4 text-center">
                     <div>
                         <span className="text-xl sm:text-2xl font-black text-white">{allQuizzes.length}</span>
-                        <p className="text-[11px] text-white/70 uppercase font-semibold">Active Quizzes</p>
-                    </div>
-                    <div>
-                        <span className="text-xl sm:text-2xl font-black text-teal-200">100% Free</span>
-                        <p className="text-[11px] text-white/70 uppercase font-semibold">Public Access</p>
-                    </div>
-                    <div>
-                        <span className="text-xl sm:text-2xl font-black text-white">Bilingual</span>
-                        <p className="text-[11px] text-white/70 uppercase font-semibold">English &amp; Hindi</p>
-                    </div>
-                    <div>
-                        <span className="text-xl sm:text-2xl font-black text-amber-300">Live CBT</span>
-                        <p className="text-[11px] text-white/70 uppercase font-semibold">Instant Result &amp; Rank</p>
+                        <p className="text-[11px] text-white/70 uppercase font-semibold">Quizzes from the database</p>
                     </div>
                 </div>
             </div>
@@ -338,7 +202,6 @@ export default function CurrentAffairsQuizzesClient() {
                         { id: "daily", label: "Daily Speed Tests" },
                         { id: "weekly", label: "Weekly Roundups" },
                         { id: "special", label: "State & Economy Specials" },
-                        ...(localQuizzes.length > 0 ? [{ id: "teacher", label: "Faculty Authored" }] : []),
                     ].map((tab) => {
                         const isSelected = activeFilter === tab.id
                         return (
@@ -371,10 +234,10 @@ export default function CurrentAffairsQuizzesClient() {
             </div>
 
             {/* Quizzes Grid */}
-            {filteredQuizzes.length === 0 ? (
+            {isLoading ? <div className="py-12 text-center text-sm text-gray-500">Loading quizzes…</div> : filteredQuizzes.length === 0 ? (
                 <div className="text-center py-16 bg-white dark:bg-[#05192D] rounded-3xl border border-gray-200 dark:border-gray-800 p-8 space-y-3">
                     <FileQuestion className="w-12 h-12 text-gray-400 mx-auto" />
-                    <h3 className="font-extrabold text-gray-900 dark:text-white text-base">No quizzes found</h3>
+                    <h3 className="font-extrabold text-gray-900 dark:text-white text-base">No quizzes available yet</h3>
                     <p className="text-xs text-gray-500 max-w-sm mx-auto">
                         No current affairs quizzes match your current filter or search query. Try changing filters or search terms.
                     </p>
@@ -391,14 +254,16 @@ export default function CurrentAffairsQuizzesClient() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {filteredQuizzes.map((quiz) => {
-                        const targetSeriesId = quiz.seriesId || "current-affairs-quizzes"
+                        const targetSeriesId = quiz.seriesId
+                        if (!targetSeriesId) return null
                         const attemptHref = `/test-series/${targetSeriesId}/instructions?testId=${quiz.id}&title=${encodeURIComponent(
                             quiz.title
                         )}&questions=${quiz.questions}&marks=${quiz.marks}&duration=${quiz.durationMinutes}`
 
-                        return (
+                            return (
                             <div
                                 key={quiz.id}
+                                data-testid="current-affairs-quiz-card"
                                 className="group relative bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-teal-500/50 shadow-xs hover:shadow-xl transition-all duration-300 p-5 flex flex-col justify-between"
                             >
                                 <div className="space-y-3">
@@ -465,7 +330,7 @@ export default function CurrentAffairsQuizzesClient() {
                                 {/* Footer Action */}
                                 <div className="mt-5 pt-3 flex items-center justify-between gap-3">
                                     <span className="text-[11px] font-semibold text-gray-400">
-                                        {(quiz.attempts || 100).toLocaleString()}+ attempted
+                                        {typeof quiz.attempts === "number" ? `${quiz.attempts.toLocaleString()} attempted` : null}
                                     </span>
                                     <TestActionButton
                                         testId={quiz.id}

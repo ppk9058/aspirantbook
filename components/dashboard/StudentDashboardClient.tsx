@@ -62,7 +62,7 @@ export default function StudentDashboardClient({
   const { openMobileAuth } = useMobileAuth()
   const [isDoubtModalOpen, setIsDoubtModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<"courses" | "batches" | "live" | "tests" | "tutorials">("courses")
-  const [customTests, setCustomTests] = useState<any[]>([])
+  const [mockTests, setMockTests] = useState<any[]>([])
 
   const isGuest = !session?.user
 
@@ -122,16 +122,6 @@ export default function StudentDashboardClient({
   }, [recommendedCourses, selectedGoal])
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("ts_custom_tests")
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setCustomTests(parsed.map((t: any) => ({ ...t, isLocalDraft: true })))
-        }
-      }
-    } catch (e) {}
-
     // Only fetch remote test catalog over network when user opens the tests tab
     if (activeTab !== "tests") return
 
@@ -142,7 +132,7 @@ export default function StudentDashboardClient({
         if (res.ok && isMounted) {
           const json = await res.json()
           if (json.success && Array.isArray(json.data)) {
-            setCustomTests(json.data.map((t: any) => ({ ...t, isLocalDraft: false })))
+            setMockTests(json.data)
           }
         }
       } catch (err) {}
@@ -774,58 +764,43 @@ export default function StudentDashboardClient({
         {/* Tab 4: Tests */}
         {activeTab === "tests" && (
           <div className="space-y-4">
-            {customTests.map((ct) => {
-              const isLocal = !!ct.isLocalDraft
-              return (
-                <div
-                  key={ct.id}
-                  className="bg-gradient-to-r from-emerald-500/10 to-teal-500/5 rounded-2xl border-2 border-emerald-500/30 p-5 shadow-sm space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {isLocal ? (
-                        <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-[11px] font-bold">
-                          Draft (only on this device)
-                        </span>
-                      ) : (
-                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-black uppercase">
-                          Faculty Mock
-                        </span>
-                      )}
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#00A8FF]/10 text-[#00A8FF] text-[11px] font-bold">
-                        {ct.category || "Civil Services"}
-                      </span>
-                      {Boolean(ct.isFreeSample || (ct.seriesIsPro && (ct.isFree || ct.accessMode === "FREE"))) && (
-                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-extrabold uppercase">
-                          Free sample
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-gray-500 font-semibold">{ct.durationMinutes || 10} Mins</span>
-                  </div>
-                  <h4 className="font-black text-base text-gray-900 dark:text-white">{ct.title}</h4>
-                  <div className="pt-2 flex items-center justify-between border-t border-emerald-100 dark:border-gray-800">
-                    <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">
-                      {ct.questions || (ct.questionsList ? ct.questionsList.length : 5)} Questions • Bilingual (English/Hindi)
+            {mockTests.map((ct) => (
+              <div
+                key={ct.id}
+                className="bg-gradient-to-r from-emerald-500/10 to-teal-500/5 rounded-2xl border-2 border-emerald-500/30 p-5 shadow-sm space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-black uppercase">
+                      Faculty Mock
                     </span>
-                    {isLocal ? (
-                      <span className="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 text-xs font-bold cursor-not-allowed select-none">
-                        Draft (only on this device)
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#00A8FF]/10 text-[#00A8FF] text-[11px] font-bold">
+                      {ct.category || "Civil Services"}
+                    </span>
+                    {Boolean(ct.isFreeSample || (ct.seriesIsPro && (ct.isFree || ct.accessMode === "FREE"))) && (
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-extrabold uppercase">
+                        Free sample
                       </span>
-                    ) : (
-                      <TestActionButton
-                        testId={ct.id}
-                        seriesId={ct.seriesId || "bpsc-72nd-2026"}
-                        testTitle={ct.title}
-                        returnPath="/dashboard"
-                        size="sm"
-                        isFreeSample={Boolean(ct.isFreeSample || (ct.seriesIsPro && (ct.isFree || ct.accessMode === "FREE")))}
-                      />
                     )}
                   </div>
+                  <span className="text-xs text-gray-500 font-semibold">{ct.durationMinutes || 10} Mins</span>
                 </div>
-              )
-            })}
+                <h4 className="font-black text-base text-gray-900 dark:text-white">{ct.title}</h4>
+                <div className="pt-2 flex items-center justify-between border-t border-emerald-100 dark:border-gray-800">
+                  <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">
+                    {ct.questions || (ct.questionsList ? ct.questionsList.length : 5)} Questions • Bilingual (English/Hindi)
+                  </span>
+                  <TestActionButton
+                    testId={ct.id}
+                    seriesId={ct.seriesId || "bpsc-72nd-2026"}
+                    testTitle={ct.title}
+                    returnPath="/dashboard"
+                    size="sm"
+                    isFreeSample={Boolean(ct.isFreeSample || (ct.seriesIsPro && (ct.isFree || ct.accessMode === "FREE")))}
+                  />
+                </div>
+              </div>
+            ))}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {upcomingTests.map((t) => (

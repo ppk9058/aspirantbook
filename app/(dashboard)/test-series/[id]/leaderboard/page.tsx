@@ -3,6 +3,8 @@
 import { useState, useEffect, Suspense } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import {
     Trophy,
     Award,
@@ -31,34 +33,46 @@ interface LeaderboardEntry {
     timeSecs: number
     percentile: number
     accuracy: number
-    state: string
 }
 
 function LeaderboardContent() {
     const params = useParams()
     const router = useRouter()
-    const testId = (params?.id as string) || "bpsc-ft-1"
+    const testId = params?.id as string
+    const { data: session, status } = useSession()
+    const { openMobileAuth } = useMobileAuth()
 
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState("")
-    const [selectedState, setSelectedState] = useState("All")
-    const [testTitle, setTestTitle] = useState("72nd BPSC CCE 2026 Full Mock Test 1")
+    const [testTitle, setTestTitle] = useState("")
     const [toppers, setToppers] = useState<LeaderboardEntry[]>([])
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
     const [currentUserRank, setCurrentUserRank] = useState<LeaderboardEntry | null>(null)
-    const [totalCandidates, setTotalCandidates] = useState(1280)
+    const [totalCandidates, setTotalCandidates] = useState(0)
 
     useEffect(() => {
+        if (status === "unauthenticated") {
+            const currentUrl = typeof window !== "undefined" ? window.location.href : ""
+            openMobileAuth({ actionType: "login", callbackUrl: currentUrl })
+        }
+    }, [status, openMobileAuth])
+
+    useEffect(() => {
+        if (!session?.user) {
+            setLoading(false)
+            return
+        }
+
         async function fetchLeaderboard() {
             try {
-                const res = await fetch(`/api/exam/${testId}/leaderboard?search=${search}&state=${selectedState}`)
+                const res = await fetch(`/api/exam/${testId}/leaderboard?search=${encodeURIComponent(search)}`)
                 const json = await res.json()
                 if (json.data) {
                     setTestTitle(json.data.testTitle)
                     setToppers(json.data.toppers || [])
                     setLeaderboard(json.data.leaderboard || [])
                     setCurrentUserRank(json.data.currentUserRank || null)
-                    setTotalCandidates(json.data.totalCandidates || 1280)
+                    setTotalCandidates(json.data.totalCandidates)
                 }
             } catch (e) {
                 console.error("Error fetching leaderboard", e)
@@ -67,12 +81,37 @@ function LeaderboardContent() {
             }
         }
         fetchLeaderboard()
-    }, [testId, search, selectedState])
+    }, [testId, search, session])
 
     const formatTime = (secs: number) => {
         const m = Math.floor(secs / 60)
         const s = secs % 60
         return `${m}m ${s}s`
+    }
+
+    if (status === "unauthenticated" || (!session?.user && status !== "loading")) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-[#060f1c] flex items-center justify-center p-6">
+                <div className="max-w-md w-full bg-white dark:bg-[#0a1628] rounded-3xl p-8 border border-gray-200 dark:border-gray-800 text-center shadow-xl space-y-4">
+                    <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto">
+                        <Trophy className="w-8 h-8" />
+                    </div>
+                    <h2 className="text-xl font-black text-gray-900 dark:text-white">Sign In to View Leaderboard</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Please sign in with your mobile number to view the All India Rankings and performance analytics.
+                    </p>
+                    <button
+                        onClick={() => {
+                            const currentUrl = typeof window !== "undefined" ? window.location.href : ""
+                            openMobileAuth({ actionType: "login", callbackUrl: currentUrl })
+                        }}
+                        className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-[#00A8FF] to-[#0096e6] text-white font-bold shadow-md hover:shadow-[#00A8FF]/25 transition-all cursor-pointer"
+                    >
+                        Sign In with Mobile OTP
+                    </button>
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -95,13 +134,13 @@ function LeaderboardContent() {
                                 <span className="text-xs text-gray-400 font-medium">• All India Percentile</span>
                             </div>
                             <h1 className="text-base sm:text-lg font-black text-gray-900 dark:text-white line-clamp-1">
-                                {testTitle}
+                                {testTitle || "Leaderboard"}
                             </h1>
                         </div>
                     </div>
 
                     <Link
-                        href={`/test-series/${testId}/attempt?title=${encodeURIComponent(testTitle)}&questions=150&marks=150&duration=120`}
+                        href={`/test-series/${testId}/attempt`}
                         className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#00A8FF] to-[#0096e6] text-white text-xs font-bold shadow-md hover:shadow-[#00A8FF]/20 transition-all active:scale-[0.98]"
                     >
                         <Play className="h-3.5 w-3.5 fill-current" />
@@ -137,7 +176,6 @@ function LeaderboardContent() {
                                 </div>
                                 <span className="text-xs font-bold text-gray-200">AIR 2</span>
                                 <h3 className="text-base font-extrabold text-white mt-0.5">{toppers[1].name}</h3>
-                                <p className="text-[11px] text-cyan-200">{toppers[1].state}</p>
                                 <div className="mt-3 pt-3 border-t border-white/10 w-full flex justify-around text-xs">
                                     <div>
                                         <p className="text-[10px] text-white/70 uppercase">Score</p>
@@ -162,7 +200,6 @@ function LeaderboardContent() {
                                 </div>
                                 <span className="text-xs font-extrabold text-amber-300">AIR 1</span>
                                 <h3 className="text-lg font-black text-white mt-0.5">{toppers[0].name}</h3>
-                                <p className="text-xs text-cyan-200">{toppers[0].state}</p>
                                 <div className="mt-4 pt-3 border-t border-white/20 w-full flex justify-around text-xs">
                                     <div>
                                         <p className="text-[10px] text-white/70 uppercase">Score</p>
@@ -188,7 +225,6 @@ function LeaderboardContent() {
                                 </div>
                                 <span className="text-xs font-bold text-gray-200">AIR 3</span>
                                 <h3 className="text-base font-extrabold text-white mt-0.5">{toppers[2].name}</h3>
-                                <p className="text-[11px] text-cyan-200">{toppers[2].state}</p>
                                 <div className="mt-3 pt-3 border-t border-white/10 w-full flex justify-around text-xs">
                                     <div>
                                         <p className="text-[10px] text-white/70 uppercase">Score</p>
@@ -214,20 +250,6 @@ function LeaderboardContent() {
                         </div>
 
                         <div className="flex items-center gap-3 w-full sm:w-auto">
-                            {/* State filter */}
-                            <select
-                                value={selectedState}
-                                onChange={(e) => setSelectedState(e.target.value)}
-                                className="px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#071d33] text-xs font-semibold text-gray-700 dark:text-gray-300"
-                            >
-                                <option value="All">All States</option>
-                                <option value="Bihar">Bihar</option>
-                                <option value="Uttar Pradesh">Uttar Pradesh</option>
-                                <option value="Delhi">Delhi</option>
-                                <option value="Rajasthan">Rajasthan</option>
-                                <option value="Madhya Pradesh">Madhya Pradesh</option>
-                            </select>
-
                             {/* Search */}
                             <div className="relative flex-1 sm:w-64">
                                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
@@ -249,7 +271,6 @@ function LeaderboardContent() {
                                 <tr>
                                     <th className="py-4 px-6 text-center w-16">Rank</th>
                                     <th className="py-4 px-4">Candidate</th>
-                                    <th className="py-4 px-4">State</th>
                                     <th className="py-4 px-4 text-center">Score</th>
                                     <th className="py-4 px-4 text-center">Accuracy</th>
                                     <th className="py-4 px-4 text-center">Correct / Wrong</th>
@@ -260,7 +281,7 @@ function LeaderboardContent() {
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
                                 {leaderboard.map((entry) => (
                                     <tr
-                                        key={entry.id}
+                                        key={entry.userId || entry.id || entry.rank}
                                         className={`hover:bg-gray-50/60 dark:hover:bg-gray-800/40 transition-colors ${
                                             entry.rank <= 3 ? "bg-amber-50/20 dark:bg-amber-900/5 font-semibold" : ""
                                         }`}
@@ -292,7 +313,6 @@ function LeaderboardContent() {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="py-4 px-4 text-gray-500">{entry.state}</td>
                                         <td className="py-4 px-4 text-center font-black text-sm text-[#00A8FF]">
                                             {entry.score.toFixed(2)}
                                         </td>
@@ -329,20 +349,18 @@ function LeaderboardContent() {
                         </div>
                         <div>
                             <p className="text-xs font-bold text-gray-500">Your Current Standing</p>
-                            <p className="text-sm font-black text-gray-900 dark:text-white">
-                                Rank #128 <span className="text-xs font-semibold text-emerald-500">(Top 10%)</span>
-                            </p>
+                            {currentUserRank && <p className="text-sm font-black text-gray-900 dark:text-white">Rank #{currentUserRank.rank}</p>}
                         </div>
                     </div>
 
                     <div className="flex items-center gap-6">
                         <div className="hidden sm:block text-right">
                             <p className="text-xs text-gray-400">Target Topper Score</p>
-                            <p className="text-sm font-black text-amber-500">{toppers[0]?.score || 142.5} pts</p>
+                            {toppers[0] && <p className="text-sm font-black text-amber-500">{toppers[0].score} pts</p>}
                         </div>
 
                         <Link
-                            href={`/test-series/${testId}/result?score=85&totalMarks=150`}
+                            href={`/test-series/${testId}/result`}
                             className="px-5 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors"
                         >
                             View Your Analysis

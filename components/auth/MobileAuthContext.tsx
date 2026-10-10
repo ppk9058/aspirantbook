@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
@@ -63,6 +63,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
     const [step, setStep] = useState<"phone" | "otp">("phone")
     const [phoneNumber, setPhoneNumber] = useState("")
     const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""])
+    const otpRef = useRef<string[]>(["", "", "", "", "", ""])
     const [countdown, setCountdown] = useState(30)
     const [isVerifying, setIsVerifying] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
@@ -84,6 +85,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
         setOnSuccessCallback(() => options?.onSuccess || null)
         setStep("phone")
         setPhoneNumber("")
+        otpRef.current = ["", "", "", "", "", ""]
         setOtp(["", "", "", "", "", ""])
         setErrorMessage("")
         setSuccessMessage("")
@@ -123,11 +125,13 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
         setErrorMessage("")
         setStep("otp")
         setCountdown(30)
+        otpRef.current = ["", "", "", "", "", ""]
         setOtp(["", "", "", "", "", ""])
     }, [phoneNumber])
 
     const handleResendOtp = useCallback(() => {
         setCountdown(30)
+        otpRef.current = ["", "", "", "", "", ""]
         setOtp(["", "", "", "", "", ""])
         setErrorMessage("")
     }, [])
@@ -264,24 +268,16 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
         inputRefs: React.MutableRefObject<(HTMLInputElement | null)[]>
     ) => {
         const cleaned = val.replace(/\D/g, "")
-        if (!cleaned) {
-            const next = [...otp]
-            next[index] = ""
-            setOtp(next)
-            return
-        }
+        const char = cleaned ? cleaned.slice(-1) : ""
+        otpRef.current[index] = char
+        setOtp([...otpRef.current])
 
-        const char = cleaned.slice(-1)
-        const next = [...otp]
-        next[index] = char
-        setOtp(next)
-
-        if (index < 5) {
+        if (char && index < 5) {
             inputRefs.current[index + 1]?.focus()
         }
 
-        const fullOtp = next.join("")
-        if (fullOtp.length === 6) {
+        const fullOtp = otpRef.current.join("")
+        if (fullOtp.length === 6 && !otpRef.current.includes("")) {
             verifyOtp(fullOtp)
         }
     }
@@ -292,11 +288,13 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
         inputRefs: React.MutableRefObject<(HTMLInputElement | null)[]>
     ) => {
         if (e.key === "Backspace") {
-            if (!otp[index] && index > 0) {
-                const next = [...otp]
-                next[index - 1] = ""
-                setOtp(next)
+            if (!otpRef.current[index] && index > 0) {
+                otpRef.current[index - 1] = ""
+                setOtp([...otpRef.current])
                 inputRefs.current[index - 1]?.focus()
+            } else {
+                otpRef.current[index] = ""
+                setOtp([...otpRef.current])
             }
         } else if (e.key === "ArrowLeft" && index > 0) {
             inputRefs.current[index - 1]?.focus()
@@ -317,7 +315,8 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
         for (let i = 0; i < pasted.length; i++) {
             next[i] = pasted[i]
         }
-        setOtp(next)
+        otpRef.current = next
+        setOtp([...next])
 
         if (pasted.length === 6) {
             verifyOtp(pasted)

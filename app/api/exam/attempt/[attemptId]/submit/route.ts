@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
+import { getAttemptRanking } from "@/lib/exam-ranking";
 
 interface AnswerPayload {
   questionId: string;
@@ -61,26 +62,9 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // If already submitted, return existing result idempotently without re-grading
+    // If already submitted, return existing result idempotently without re-grading (canonical deduped ranking)
     if (attempt.status === "SUBMITTED") {
-      const totalSubmitted = await prisma.examAttempt.count({
-        where: { testId: attempt.testId, status: "SUBMITTED" },
-      });
-
-      const rank = await prisma.examAttempt.count({
-        where: {
-          testId: attempt.testId,
-          status: "SUBMITTED",
-          score: { gt: attempt.score ?? 0 },
-        },
-      });
-
-      const percentile =
-        totalSubmitted > 1
-          ? parseFloat(
-              (((totalSubmitted - rank) / totalSubmitted) * 100).toFixed(2)
-            )
-          : null;
+      const ranking = await getAttemptRanking(attempt.id);
 
       return NextResponse.json(
         {
@@ -92,9 +76,9 @@ export async function POST(
             wrongCount: attempt.wrongCount,
             skippedCount: attempt.skippedCount,
             timeTakenSecs: attempt.timeTakenSecs,
-            percentile,
-            allIndiaRank: totalSubmitted > 1 ? rank + 1 : null,
-            totalCandidates: totalSubmitted,
+            percentile: ranking.percentile,
+            allIndiaRank: ranking.rank,
+            totalCandidates: ranking.totalCandidates,
           },
         },
         { status: 200 }
@@ -113,7 +97,7 @@ export async function POST(
 
     // Check server deadline with ~30s grace period.
     // If expired: do NOT discard answers with 410! Upsert final answers, grade the attempt, and return the result.
-    const durationMinutes = attempt.test?.durationMinutes || 120;
+    const durationMinutes = attempt.test!.durationMinutes;
     const testDurationSecs = durationMinutes * 60;
     const deadlineMs = attempt.startedAt.getTime() + testDurationSecs * 1000;
     const graceDeadlineMs = deadlineMs + 30 * 1000;

@@ -25,16 +25,19 @@ import dynamic from "next/dynamic"
 import { useSession } from "next-auth/react"
 import { useGoal } from "@/components/providers/GoalProvider"
 import GoalIcon from "@/components/layout/GoalIcon"
-import { TEST_SERIES_DATA, TestSeriesItem } from "@/lib/test-series-data"
 import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
+
+interface TestSeriesItem {
+    id: string; slug?: string; title: string; category: string; description?: string
+    goalId?: string; tags: string[]; highlights: string[]; totalTests: number
+    freeTests: number; users: string; logoType: string; isFree: boolean; isPro: boolean
+    languages: string
+}
 
 const CreateSeriesModal = dynamic(() => import("@/components/exam/CreateSeriesModal"), {
     ssr: false,
 })
 
-let cachedApiSeries: TestSeriesItem[] | null = null
-let lastApiSeriesFetch = 0
-const SERIES_CACHE_TTL = 60000 // 60s memory cache
 
 const CATEGORIES = [
     "All",
@@ -186,8 +189,8 @@ export default function TestSeriesPage() {
     const [activeModalSeries, setActiveModalSeries] = useState<TestSeriesItem | null>(null)
     const [isPassModalOpen, setIsPassModalOpen] = useState(false)
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-    const [customTests, setCustomTests] = useState<any[]>([])
-    const [customSeriesPackages, setCustomSeriesPackages] = useState<TestSeriesItem[]>([])
+    const [seriesPackages, setSeriesPackages] = useState<TestSeriesItem[]>([])
+    const [seriesLoading, setSeriesLoading] = useState(true)
 
     // Dynamic mistake notebook / solutions link based on selected goal
     const pyqSolutionLink = useMemo(() => {
@@ -201,69 +204,18 @@ export default function TestSeriesPage() {
     }, [selectedGoal.id])
 
     useEffect(() => {
-        cachedApiSeries = null
-        lastApiSeriesFetch = 0
-        const load = () => {
-            try {
-                const storedTests = localStorage.getItem("ts_custom_tests")
-                if (storedTests) {
-                    const parsed = JSON.parse(storedTests)
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        setCustomTests(parsed)
-                    }
-                }
-            } catch (e) {}
-
-            try {
-                const storedSeries = localStorage.getItem("ts_custom_series_packages")
-                if (storedSeries) {
-                    const parsed = JSON.parse(storedSeries)
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        setCustomSeriesPackages(parsed)
-                    }
-                }
-            } catch (e) {}
-
-            // Check in-memory client cache first
-            if (cachedApiSeries && Date.now() - lastApiSeriesFetch < SERIES_CACHE_TTL) {
-                setCustomSeriesPackages((prev) => {
-                    const map = new Map<string, TestSeriesItem>()
-                    prev.forEach((s) => map.set(s.id, s))
-                    cachedApiSeries!.forEach((s: any) => map.set(s.id, s))
-                    return Array.from(map.values())
-                })
-            } else {
-                fetch("/api/exam/series/list")
-                    .then((res) => res.json())
-                    .then((json) => {
-                        if (json.success && Array.isArray(json.data)) {
-                            cachedApiSeries = json.data
-                            lastApiSeriesFetch = Date.now()
-                            setCustomSeriesPackages((prev) => {
-                                const map = new Map<string, TestSeriesItem>()
-                                prev.forEach((s) => map.set(s.id, s))
-                                json.data.forEach((s: any) => map.set(s.id, s))
-                                return Array.from(map.values())
-                            })
-                        }
-                    })
-                    .catch(() => {})
-            }
-        }
-
-        load()
-        window.addEventListener("storage", load)
-        return () => window.removeEventListener("storage", load)
-    }, [selectedGoalIds])
+        let active = true
+        const url = filterByGoal ? "/api/exam/series/list" : "/api/exam/series/list?includeAll=true"
+        fetch(url)
+            .then((res) => res.json())
+            .then((json) => { if (active && json.success && Array.isArray(json.data)) setSeriesPackages(json.data) })
+            .catch(() => { if (active) setSeriesPackages([]) })
+            .finally(() => { if (active) setSeriesLoading(false) })
+        return () => { active = false }
+    }, [selectedGoalIds, filterByGoal])
 
     const filteredSeries = useMemo(() => {
-        // Merge custom series packages with static catalog
-        const seriesMap = new Map<string, TestSeriesItem>()
-        customSeriesPackages.forEach((s) => seriesMap.set(s.id, s))
-        TEST_SERIES_DATA.forEach((s) => {
-            if (!seriesMap.has(s.id)) seriesMap.set(s.id, s)
-        })
-        let list = Array.from(seriesMap.values())
+        let list = seriesPackages
 
         // Goal-based filtering / curation when viewing "All" (multi-goal OR logic)
         if (filterByGoal && selectedGoals.length > 0 && selectedCategory === "All") {
@@ -326,7 +278,7 @@ export default function TestSeriesPage() {
 
             return matchesCategory && matchesSearch
         })
-    }, [selectedCategory, searchQuery, filterByGoal, selectedGoals, customSeriesPackages])
+    }, [selectedCategory, searchQuery, filterByGoal, selectedGoals, seriesPackages])
 
     const toggleSave = (id: string, e: React.MouseEvent) => {
         e.stopPropagation()
@@ -417,29 +369,6 @@ export default function TestSeriesPage() {
             </div>
 
             {/* Teacher Authored Tests Available Notification Banner */}
-            {customTests.length > 0 && (
-                <div className="p-3.5 sm:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-in fade-in-50">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black text-lg shrink-0 shadow-md">
-                            📝
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                                <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 uppercase tracking-wider">
-                                    Draft
-                                </span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold truncate">
-                                    {customTests.length} Unsaved Local Draft{customTests.length > 1 ? "s" : ""}
-                                </span>
-                            </div>
-                            <h3 className="text-xs sm:text-sm font-black text-gray-900 dark:text-white mt-0.5 truncate">
-                                {customTests[0].title}
-                            </h3>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Top Pass Hero Banner - Compact & Clean */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#003B73] via-[#005B96] to-[#00A896] text-white shadow-lg p-4 sm:p-6 border border-white/10">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
@@ -517,24 +446,36 @@ export default function TestSeriesPage() {
 
             {/* Full-width Test Series Grid */}
             <div className="w-full">
-                    {filteredSeries.length === 0 ? (
+                    {seriesLoading ? (
+                        <div className="p-12 text-center text-sm text-gray-500">Loading test series…</div>
+                    ) : filteredSeries.length === 0 ? (
                         <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-2xl p-12 text-center shadow-xs">
                             <HelpCircle className="h-10 w-10 text-gray-400 mx-auto mb-3" />
                             <h3 className="text-base font-bold text-gray-800 dark:text-gray-200">
                                 No Test Series Found
                             </h3>
                             <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
-                                No test series matched your search "{searchQuery}" in category "{selectedCategory}".
+                                {seriesPackages.length === 0 ? "No test series available yet." : `No test series matched your search "${searchQuery}" in category "${selectedCategory}".`}
                             </p>
-                            <button
-                                onClick={() => {
-                                    setSelectedCategory("All")
-                                    setSearchQuery("")
-                                }}
-                                className="mt-4 px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold rounded-xl"
-                            >
-                                Reset Filters
-                            </button>
+                            <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+                                {filterByGoal && (
+                                    <button
+                                        onClick={() => setFilterByGoal(false)}
+                                        className="px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold rounded-xl cursor-pointer"
+                                    >
+                                        Show all exam tests
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        setSelectedCategory("All")
+                                        setSearchQuery("")
+                                    }}
+                                    className="px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-bold rounded-xl cursor-pointer"
+                                >
+                                    Reset Filters
+                                </button>
+                            </div>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
@@ -590,11 +531,6 @@ export default function TestSeriesPage() {
                                                         <span className="line-clamp-1">{point}</span>
                                                     </li>
                                                 ))}
-                                                <li className="pt-0.5">
-                                                    <span className="text-emerald-700 dark:text-emerald-400 font-bold text-xs">
-                                                        +{item.moreTestsCount} more tests
-                                                    </span>
-                                                </li>
                                             </ul>
 
                                             {/* Bottom Action Buttons: View Test Series + Add Button */}
@@ -733,18 +669,18 @@ export default function TestSeriesPage() {
 
                         <div className="p-4 rounded-2xl bg-gradient-to-r from-[#003B73] to-[#00A896] text-white space-y-2">
                             <p className="text-xs uppercase font-extrabold tracking-wider text-cyan-200">All-In-One Pass</p>
-                            <h3 className="text-2xl font-black">₹399 / Year</h3>
-                            <p className="text-xs text-white/80">Unlimited access to 700+ UPSC, BPSC, School & Skill Mock Test Series.</p>
+
+                            <p className="text-xs text-white/80">Unlimited access to UPSC, BPSC, School & Skill test series.</p>
                         </div>
 
                         <div className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300">
                             <div className="flex items-center gap-2 font-semibold">
                                 <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>70,000+ Mock Tests for UPSC, BPSC, School & Skill Exams</span>
+                                <span>Mock tests for UPSC, BPSC, School & Skill exams</span>
                             </div>
                             <div className="flex items-center gap-2 font-semibold">
                                 <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>17,000+ Previous Year Papers with instant detailed solutions</span>
+                                <span>Previous Year Papers with instant detailed solutions</span>
                             </div>
                             <div className="flex items-center gap-2 font-semibold">
                                 <Check className="h-4 w-4 text-[#00D084]" />
@@ -760,7 +696,7 @@ export default function TestSeriesPage() {
                             href="/subscription"
                             className="block w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm text-center shadow-lg transition-transform active:scale-[0.99]"
                         >
-                            Subscribe Now - ₹399
+                            Subscribe Now
                         </Link>
                     </div>
                 </div>
@@ -773,7 +709,7 @@ export default function TestSeriesPage() {
                     onClose={() => setIsCreateModalOpen(false)}
                     defaultCategory={selectedCategory === "All" ? "UPSC" : selectedCategory}
                     onCreated={(newSeries) => {
-                        setCustomSeriesPackages((prev) => [newSeries, ...prev.filter((p) => p.id !== newSeries.id)])
+                        setSeriesPackages((prev) => [newSeries, ...prev.filter((p) => p.id !== newSeries.id)])
                     }}
                 />
             )}

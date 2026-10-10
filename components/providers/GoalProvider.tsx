@@ -2,8 +2,26 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import goalsConfig from "@/data/goals-config.json"
 import { parseGoalIds, serializeGoalIds } from "@/lib/goals/student-goals"
+
+function getClientCookie(name: string): string | null {
+    if (typeof document === "undefined") return null
+    const match = document.cookie.match(new RegExp("(^|;\\s*)" + name + "=([^;]*)"))
+    if (!match) return null
+    try {
+        return decodeURIComponent(match[2])
+    } catch {
+        return match[2]
+    }
+}
+
+function setGuestGoalCookie(serialized: string) {
+    if (typeof document === "undefined") return
+    const maxAge = 31536000 // 1 year, matching app/api/user/goal/route.ts:124
+    document.cookie = `trillion_selected_goal=${encodeURIComponent(serialized)}; path=/; max-age=${maxAge}; SameSite=Lax`
+}
 
 export interface SubGoal {
     id: string
@@ -104,6 +122,7 @@ let cachedUserGoalPromise: Promise<any> | null = null
 
 export function GoalProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter()
+    const { data: session, status } = useSession()
     const [selectedGoalIds, setSelectedGoalIds] = useState<string[]>([DEFAULT_GOAL.id])
     const [selectedSubGoal, setSelectedSubGoal] = useState<SubGoal | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
@@ -139,19 +158,50 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
         }
     }, [])
 
+    const lastRefreshedMismatchRef = useRef<string | null>(null)
+
     // Load persisted selection from localStorage or user API
     useEffect(() => {
         try {
             const savedGoalId = localStorage.getItem(STORAGE_GOAL_KEY)
             const savedSubGoalId = localStorage.getItem(STORAGE_SUBGOAL_KEY)
+            const cookieGoal = getClientCookie(STORAGE_GOAL_KEY)
+
+            let needsRouterRefresh = false
 
             if (savedGoalId) {
                 applyGoalsFromRaw(savedGoalId, savedSubGoalId)
+                if (cookieGoal !== savedGoalId) {
+                    setGuestGoalCookie(savedGoalId)
+                    const mismatchKey = `${savedGoalId}:::${cookieGoal}`
+                    if (lastRefreshedMismatchRef.current !== mismatchKey) {
+                        lastRefreshedMismatchRef.current = mismatchKey
+                        needsRouterRefresh = true
+                    }
+                } else {
+                    lastRefreshedMismatchRef.current = null
+                }
+            } else if (cookieGoal) {
+                applyGoalsFromRaw(cookieGoal)
+                try {
+                    localStorage.setItem(STORAGE_GOAL_KEY, cookieGoal)
+                } catch {}
+                lastRefreshedMismatchRef.current = null
+            } else {
+                lastRefreshedMismatchRef.current = null
             }
+
+            if (needsRouterRefresh) {
+                router.refresh()
+            }
+
             setIsLoaded(true)
 
-            // Sync with backend (DB source of truth)
+            // Sync with backend (DB source of truth) for authenticated users
             const scheduleSync = () => {
+                if (status === "unauthenticated" || (!session?.user?.id && status !== "loading")) {
+                    return
+                }
                 if (!cachedUserGoalPromise) {
                     cachedUserGoalPromise = fetch("/api/user/goal")
                         .then((res) => res.json())
@@ -164,6 +214,7 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
                         try {
                             localStorage.setItem(STORAGE_GOAL_KEY, targetRaw)
                         } catch {}
+                        setGuestGoalCookie(targetRaw)
                     }
                     setIsLoaded(true)
                 })
@@ -183,12 +234,16 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             const gid = e?.detail?.goalId
             if (gid) {
                 applyGoalsFromRaw(gid)
-                localStorage.setItem(STORAGE_GOAL_KEY, gid)
+                try {
+                    localStorage.setItem(STORAGE_GOAL_KEY, gid)
+                } catch {}
+                setGuestGoalCookie(gid)
+                router.refresh()
             }
         }
         window.addEventListener("goalChange", handleCustomGoalChange)
         return () => window.removeEventListener("goalChange", handleCustomGoalChange)
-    }, [applyGoalsFromRaw])
+    }, [applyGoalsFromRaw, router, session?.user?.id, status])
 
     const persistGoals = useCallback(
         async (ids: string[], subGoal: SubGoal | null = null) => {
@@ -207,6 +262,16 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
                 }
             } catch (e) {
                 console.warn("Failed to save goal to localStorage:", e)
+            }
+
+            // Always write client cookie (Rule a & Rule 1)
+            setGuestGoalCookie(serialized)
+
+            // If guest (not authenticated), do NOT call auth-only POST /api/user/goal
+            const isGuest = status === "unauthenticated" || !session?.user?.id
+            if (isGuest) {
+                router.refresh()
+                return
             }
 
             // Save to user API (DB source of truth and cookie)
@@ -228,7 +293,7 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
                 console.warn("Failed to persist goal:", err)
             }
         },
-        [router]
+        [router, session?.user?.id, status]
     )
 
     const selectGoal = useCallback(

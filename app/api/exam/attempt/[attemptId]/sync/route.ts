@@ -153,7 +153,7 @@ export async function POST(
 
     // Check deadline + 30s grace period:
     // If expired, do NOT discard answers with 410; grade the attempt and finalize it!
-    const durationMinutes = attempt.test?.durationMinutes || 120;
+    const durationMinutes = attempt.test!.durationMinutes;
     const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
     const graceDeadlineMs = deadlineMs + 30 * 1000;
 

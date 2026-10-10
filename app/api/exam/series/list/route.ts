@@ -1,37 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { unstable_cache } from "next/cache";
 import { auth } from "@/auth";
 import { cookies } from "next/headers";
 import { getStudentGoals, parseGoalIds } from "@/lib/goals/student-goals";
 import { applyTestSeriesGoalFilter } from "@/lib/goals/goal-filters";
 
-const getCachedSeriesList = unstable_cache(
-  async (category: string | null) => {
-    const where: any = { isPublished: true };
-    if (category && category !== "All") {
-      where.category = { equals: category, mode: "insensitive" };
-    }
-    return await prisma.examSeries.findMany({
-      where,
-      include: {
-        tests: {
-          where: { isPublished: true },
-          select: { accessMode: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-  },
-  ["exam-series-list-catalog"],
-  { revalidate: 60, tags: ["exam-series"] }
-);
-
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
-    const includeAll = searchParams.get("includeAll") === "1" || searchParams.get("all") === "1";
+    const includeAll = searchParams.get("includeAll") === "true";
 
     // Enforce student's active goals from DB/session/cookie as authoritative source
     const session = await auth();
@@ -45,25 +23,20 @@ export async function GET(req: NextRequest) {
       ? parseGoalIds(queryGoal)
       : userGoalIds;
 
-    let seriesList: any[];
-    try {
-      seriesList = await getCachedSeriesList(category);
-    } catch (cacheErr) {
-      const where: any = { isPublished: true };
-      if (category && category !== "All") {
-        where.category = { equals: category, mode: "insensitive" };
-      }
-      seriesList = await prisma.examSeries.findMany({
-        where,
-        include: {
-          tests: {
-            where: { isPublished: true },
-            select: { accessMode: true },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      });
+    const where: any = { isPublished: true };
+    if (category && category !== "All") {
+      where.category = { equals: category, mode: "insensitive" };
     }
+    const seriesList = await prisma.examSeries.findMany({
+      where,
+      include: {
+        tests: {
+          where: { isPublished: true },
+          select: { accessMode: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
 
     let formatted = seriesList.map((s) => {
       let highlights: string[] = Array.isArray(s.highlights) && s.highlights.length > 0 ? s.highlights : [];
@@ -93,7 +66,7 @@ export async function GET(req: NextRequest) {
       const publishedTests = s.tests || [];
       const totalTestsCount = publishedTests.length;
       const freeTestsCount = publishedTests.filter((t: any) => t.accessMode === "FREE").length;
-      const usersCount = s.usersCount || 0;
+      const usersCount = s.usersCount;
       const usersStr = usersCount >= 1000 ? `${(usersCount / 1000).toFixed(1)}k` : `${usersCount}`;
 
       return {
@@ -107,7 +80,7 @@ export async function GET(req: NextRequest) {
         users: usersStr,
         totalTests: totalTestsCount,
         freeTests: freeTestsCount,
-        languages: s.languages || "English, Hindi",
+        languages: s.languages,
         highlights,
         description: cleanDescription,
         goalId: s.category.toLowerCase().replace(/\s+/g, "-"),

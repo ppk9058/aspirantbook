@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
           select: {
             id: true,
             slug: true,
+            isPublished: true,
           },
         },
         isPublished: true,
@@ -91,14 +92,30 @@ export async function POST(req: NextRequest) {
     });
 
     if (!test) {
+      const isAdmin = session.user.role === "ADMIN";
       test = await prisma.examTest.findFirst({
         where: {
-          OR: [
-            { seriesId: testId },
-            { series: { slug: testId } },
+          AND: [
+            {
+              OR: [
+                { seriesId: testId },
+                { series: { slug: testId } },
+              ],
+            },
+            ...(!isAdmin
+              ? [
+                  {
+                    OR: [
+                      { isPublished: true, series: { isPublished: true } },
+                      { createdById: session.user.id },
+                      { series: { createdById: session.user.id } },
+                    ],
+                  },
+                ]
+              : []),
           ],
         },
-        orderBy: { createdAt: "asc" },
+        orderBy: [{ isPublished: "desc" }, { createdAt: "asc" }],
         select: {
           id: true,
           title: true,
@@ -115,6 +132,8 @@ export async function POST(req: NextRequest) {
             select: {
               id: true,
               slug: true,
+              isPublished: true,
+              createdById: true,
             },
           },
           isPublished: true,
@@ -161,11 +180,20 @@ export async function POST(req: NextRequest) {
 
     const resolvedTestId = test.id;
 
-    if (!test.isPublished) {
-      const isCreator = test.createdById === session.user.id;
-      const isAdmin = session.user.role === "ADMIN";
-      const isTeacher = session.user.role === "TEACHER";
-      if (!isCreator && !isAdmin && !isTeacher) {
+    const isAdmin = session.user.role === "ADMIN";
+    const isOwner =
+      test.createdById === session.user.id ||
+      (test.series && test.series.createdById === session.user.id);
+    const isPrivileged = isOwner || isAdmin;
+
+    if (!isPrivileged) {
+      if (test.series && !test.series.isPublished) {
+        return NextResponse.json(
+          { error: "Test series is not published yet" },
+          { status: 404 }
+        );
+      }
+      if (!test.isPublished) {
         return NextResponse.json(
           { error: "Test is not published yet" },
           { status: 403 }

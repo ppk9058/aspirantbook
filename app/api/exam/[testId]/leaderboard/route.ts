@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getTestRankings } from "@/lib/exam-ranking";
 
 export async function GET(
   req: NextRequest,
@@ -48,46 +49,23 @@ export async function GET(
       }
     }
 
-    // Fetch all submitted attempts for this test
-    const attempts = await prisma.examAttempt.findMany({
-      where: {
-        testId,
-        status: "SUBMITTED",
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
-        },
-      },
-      orderBy: [
-        { score: "desc" },
-        { timeTakenSecs: "asc" },
-      ],
-      take: 100,
-    });
+    // Fetch deduplicated qualifying rankings using canonical ranking helper
+    const { totalCandidates, rankedAttempts } = await getTestRankings(testId);
 
-    const totalCandidates = attempts.length;
-    const rankList = attempts.map((a, idx) => ({
-      name: a.user.name || "Candidate",
-      avatar: a.user.image,
+    const rankList = rankedAttempts.map((a) => ({
+      id: a.userId,
+      userId: a.userId,
+      attemptId: a.attemptId,
+      name: a.name,
+      avatar: a.avatar,
       score: a.score,
-      rank: idx + 1,
+      rank: a.rank,
       correct: a.correctCount,
       wrong: a.wrongCount,
       timeSecs: a.timeTakenSecs,
-      percentile:
-        a.percentile ??
-        (totalCandidates > 0
-          ? Math.round(((totalCandidates - idx) / totalCandidates) * 100)
-          : 0),
-      accuracy: Math.round(
-        (a.correctCount / Math.max(1, a.correctCount + a.wrongCount)) * 100
-      ),
-      isCurrentUser: a.user.id === session.user.id,
+      percentile: a.percentile,
+      accuracy: a.accuracy,
+      isCurrentUser: a.userId === session.user.id,
     }));
 
     // Filter by search if requested
@@ -105,8 +83,8 @@ export async function GET(
       currentUserRank = myAttempt;
     }
 
-    // Real score distribution buckets
-    const totalMarks = test.totalMarks || 100;
+    // Real score distribution buckets (calculated across deduped candidates)
+    const totalMarks = test.totalMarks;
     const step = Math.max(1, Math.round(totalMarks / 5));
     const buckets = [
       { min: 0, max: step, label: `0-${step}`, count: 0 },
@@ -115,7 +93,7 @@ export async function GET(
       { min: step * 3, max: step * 4, label: `${step * 3}-${step * 4}`, count: 0 },
       { min: step * 4, max: totalMarks, label: `${step * 4}-${totalMarks}`, count: 0 },
     ];
-    for (const a of attempts) {
+    for (const a of rankedAttempts) {
       const s = a.score || 0;
       for (let i = buckets.length - 1; i >= 0; i--) {
         if (s >= buckets[i].min || i === 0) {

@@ -624,7 +624,6 @@ scripts/seed-assessment.ts
 scripts/seed-audit-users.ts
 scripts/seed-batches.js
 scripts/seed-bpsc-course.ts
-scripts/seed-ca-quiz.ts
 scripts/seed-rbac-users.ts
 scripts/setup-audit-auth.ts
 scripts/setup-stripe-webhook.sh

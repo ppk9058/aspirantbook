@@ -9,16 +9,38 @@ export interface UserGoalSelection {
     updatedAt: string
 }
 
+const KNOWN_GOAL_IDS = new Set<string>()
+for (const g of (goalsConfig as any).popularGoals || []) {
+    if (g.id) KNOWN_GOAL_IDS.add(g.id.toLowerCase())
+}
+for (const cat of (goalsConfig as any).categories || []) {
+    for (const g of cat.goals || []) {
+        if (g.id) KNOWN_GOAL_IDS.add(g.id.toLowerCase())
+    }
+}
+
+export function isValidGoalId(id: string): boolean {
+    return KNOWN_GOAL_IDS.has(id.trim().toLowerCase())
+}
+
 /**
  * Normalizes any stored goal string (which may be a comma-separated list like "upsc,ssc"
  * or a single goal ID "upsc") into a clean array of lowercase IDs.
  */
-export function parseGoalIds(rawGoal: string | null | undefined): string[] {
+export function parseGoalIds(rawGoal: string | null | undefined, validateAgainstKnown = false): string[] {
     if (!rawGoal || !rawGoal.trim()) return []
-    return rawGoal
+    let cleaned = rawGoal
+    try {
+        cleaned = decodeURIComponent(rawGoal)
+    } catch {}
+    const parsed = cleaned
         .split(",")
         .map((g) => g.trim().toLowerCase())
         .filter(Boolean)
+    if (validateAgainstKnown) {
+        return parsed.filter((g) => KNOWN_GOAL_IDS.has(g))
+    }
+    return parsed
 }
 
 /**
@@ -63,7 +85,8 @@ export async function getStudentGoals(
         rawGoal = cookieGoal
     }
 
-    const goalIds = parseGoalIds(rawGoal)
+    const validated = parseGoalIds(rawGoal, true)
+    const goalIds = validated.length > 0 ? validated : parseGoalIds(rawGoal)
     const primaryGoal = goalIds.length > 0 ? goalIds[0] : null
 
     return { primaryGoal, goalIds }

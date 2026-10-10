@@ -42,6 +42,12 @@ export async function GET(
             positiveMarks: true,
             negativeMarks: true,
             seriesId: true,
+            series: {
+              select: {
+                id: true,
+                slug: true,
+              },
+            },
             sections: {
               orderBy: { order: "asc" },
               select: {
@@ -97,7 +103,7 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const durationMinutes = attempt.test?.durationMinutes || 120;
+    const durationMinutes = attempt.test!.durationMinutes;
     const deadline = new Date(
       attempt.startedAt.getTime() + durationMinutes * 60 * 1000
     ).toISOString();
@@ -112,6 +118,8 @@ export async function GET(
         data: {
           attemptId: attempt.id,
           testId: attempt.testId,
+          seriesId: attempt.test?.seriesId,
+          seriesSlug: attempt.test?.series?.slug,
           status: attempt.status,
           language: attempt.language,
           startedAt: attempt.startedAt.toISOString(),

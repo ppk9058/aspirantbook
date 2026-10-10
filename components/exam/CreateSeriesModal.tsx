@@ -15,7 +15,6 @@ import {
     BookOpen,
     Eye
 } from "lucide-react"
-import { TestSeriesItem } from "@/lib/test-series-data"
 
 const LOGO_OPTIONS = [
     { id: "upsc", label: "UPSC Emblem" },
@@ -43,7 +42,7 @@ const CATEGORY_OPTIONS = [
 interface CreateSeriesModalProps {
     isOpen: boolean
     onClose: () => void
-    onCreated?: (series: TestSeriesItem) => void
+    onCreated?: (series: any) => void
     defaultCategory?: string
 }
 
@@ -65,7 +64,7 @@ export default function CreateSeriesModal({
     const [description, setDescription] = useState("")
     const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [createdItem, setCreatedItem] = useState<TestSeriesItem | null>(null)
+    const [createdItem, setCreatedItem] = useState<any | null>(null)
 
     if (!isOpen) return null
 
@@ -113,20 +112,7 @@ export default function CreateSeriesModal({
                 throw new Error(json.error || `Failed to create package (status: ${res.status})`)
             }
 
-            const newItem: TestSeriesItem = json.data
-
-            // Persist to localStorage cache only after DB write succeeds
-            try {
-                const existing = JSON.parse(
-                    localStorage.getItem("ts_custom_series_packages") || "[]"
-                )
-                const filtered = existing.filter((item: any) => item.id !== newItem.id)
-                localStorage.setItem(
-                    "ts_custom_series_packages",
-                    JSON.stringify([newItem, ...filtered])
-                )
-                window.dispatchEvent(new Event("storage"))
-            } catch (err) {}
+            const newItem = json.data
 
             setCreatedItem(newItem)
             if (onCreated) onCreated(newItem)

@@ -1,0 +1,11 @@
+REPORT.md
+package-lock.json
+scripts/pass*/
+docs/
+package.json
+README.md
+AGENTS.md
+components.json
+tsconfig.json
+scripts/*
+!scripts/seed-docker-test-db.ts

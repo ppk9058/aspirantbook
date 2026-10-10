@@ -19,18 +19,14 @@ function mapQuestion(q: any, idx: number) {
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const role = (session.user as any)?.role;
+    const role = (session?.user as any)?.role;
     const isAdmin = role === "ADMIN";
     const isTeacher = role === "TEACHER";
 
     const { searchParams } = new URL(req.url);
     const seriesId = searchParams.get("seriesId");
     const category = searchParams.get("category");
-    // Only ADMIN or TEACHER can ever request includeQuestions; disallowed for students
+    const includeAll = searchParams.get("includeAll") === "true";
     const includeQuestions =
       (isAdmin || isTeacher) && searchParams.get("includeQuestions") === "1";
 
@@ -43,7 +39,7 @@ export async function GET(req: NextRequest) {
       conditions.push({
         OR: [
           { isPublished: true },
-          { createdById: session.user.id },
+          { createdById: session?.user?.id ?? "" },
         ],
       });
     } else {
@@ -87,10 +83,34 @@ export async function GET(req: NextRequest) {
         isPublished: true,
         createdById: true,
         _count: {
-          select: { attempts: true },
+          select: {
+            attempts: {
+              where: {
+                user: {
+                  role: {
+                    notIn: ["TEACHER", "ADMIN"],
+                  },
+                },
+              },
+            },
+          },
+        },
+        attempts: {
+          where: {
+            user: {
+              role: {
+                notIn: ["TEACHER", "ADMIN"],
+              },
+            },
+            status: "SUBMITTED",
+          },
+          select: {
+            score: true,
+            totalMarks: true,
+          },
         },
         series: {
-          select: { title: true, category: true, slug: true, isFree: true, isPro: true },
+          select: { title: true, category: true, slug: true, isFree: true, isPro: true, languages: true },
         },
         ...(includeQuestions
           ? {
@@ -129,19 +149,28 @@ export async function GET(req: NextRequest) {
         ? (t.sections || []).reduce((acc: number, s: any) => acc + (s.questions?.length || 0), 0)
         : 0;
       const isFreeSample = Boolean(t.series?.isPro && t.accessMode === "FREE");
+      const submittedAttempts = t.attempts || [];
+      const avgScore =
+        submittedAttempts.length > 0
+          ? Math.round(
+              (submittedAttempts.reduce((sum: number, a: any) => sum + (a.score ?? 0), 0) /
+                submittedAttempts.length) *
+                10
+            ) / 10
+          : 0;
       return {
         id: t.id,
         seriesId: t.seriesId,
         seriesSlug: t.series?.slug || t.seriesId,
-        seriesTitle: t.series?.title || "Test Series",
-        category: t.series?.category || "General Studies",
+        seriesTitle: t.series?.title,
+        category: t.series?.category,
         title: t.title,
         titleHi: t.titleHi,
         testType: t.testType,
-        questions: t.totalQuestions || qCount || 5,
-        marks: t.totalMarks || qCount || 5,
-        durationMinutes: t.durationMinutes || 10,
-        languages: "English, Hindi",
+        questions: t.totalQuestions,
+        marks: t.totalMarks,
+        durationMinutes: t.durationMinutes,
+        languages: t.series?.languages,
         accessMode: t.accessMode,
         isFree: t.accessMode === "FREE",
         seriesIsPro: Boolean(t.series?.isPro),
@@ -149,8 +178,10 @@ export async function GET(req: NextRequest) {
         isFreeSample,
         isPublished: t.isPublished,
         attempts: t._count?.attempts ?? 0,
+        submittedAttemptsCount: submittedAttempts.length,
+        avgScore,
         questionsList:
-          includeQuestions && (isAdmin || t.createdById === session.user.id)
+          includeQuestions && (isAdmin || t.createdById === session?.user?.id)
             ? (t.sections || []).flatMap((s: any) => (s.questions || []).map(mapQuestion))
             : [],
       };
@@ -167,7 +198,7 @@ export async function GET(req: NextRequest) {
       : userGoalIds;
 
     let finalData = mapped;
-    if (!seriesId && activeGoalIds.length > 0) {
+    if (!includeAll && !seriesId && activeGoalIds.length > 0) {
       finalData = applyQuizGoalFilter(mapped, activeGoalIds);
     }
 

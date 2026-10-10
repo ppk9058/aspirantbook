@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { parseAndValidateQuestion, NormalizedQuestionInput } from "@/lib/exam/question-parser";
@@ -322,6 +323,9 @@ export async function POST(req: NextRequest) {
         timeout: 30000,
       }
     );
+
+    revalidateTag("exam-series");
+    revalidatePath("/test-series");
 
     return NextResponse.json({
       success: true,

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo, Suspense } from "react"
 import { useSearchParams, useParams, useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
+import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import {
   Trophy,
   Download,
@@ -375,6 +377,8 @@ function ResultContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { data: session, status } = useSession()
+  const { openMobileAuth } = useMobileAuth()
 
   const seriesId = (params?.id as string) || "bpsc-72nd-2026"
   const attemptId = searchParams.get("attemptId")
@@ -386,6 +390,19 @@ function ResultContent() {
   const [retryTrigger, setRetryTrigger] = useState(0)
 
   useEffect(() => {
+    if (status === "unauthenticated") {
+      const currentUrl = typeof window !== "undefined" ? window.location.href : ""
+      openMobileAuth({ actionType: "login", callbackUrl: currentUrl })
+    }
+  }, [status, openMobileAuth])
+
+  useEffect(() => {
+    if (status === "loading") return
+    if (!session?.user) {
+      setLoading(false)
+      return
+    }
+
     if (!attemptId) {
       setError("No attempt ID provided. Please complete an exam attempt first.")
       setLoading(false)
@@ -443,13 +460,38 @@ function ResultContent() {
     return () => {
       isSubscribed = false
     }
-  }, [attemptId, retryTrigger])
+  }, [attemptId, retryTrigger, session, status])
 
   // State
   const [activeSection, setActiveSection] = useState<"analysis" | "questions">("analysis")
   const [qPage, setQPage] = useState(0)
   const [showSolution, setShowSolution] = useState<QuestionRow | null>(null)
   const [expandSubject, setExpandSubject] = useState(true)
+
+  if (status === "unauthenticated" || (!session?.user && status !== "loading")) {
+    return (
+      <div style={{ minHeight: "100dvh", width: "100%", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "'Inter', system-ui, sans-serif" }}>
+        <div style={{ maxWidth: 440, width: "100%", background: "#fff", borderRadius: 24, padding: 32, border: "1px solid #e2e8f0", textAlign: "center", boxShadow: "0 20px 40px rgba(0,0,0,0.05)", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+          <div style={{ width: 64, height: 64, borderRadius: 20, background: "#f0f9ff", color: "#0ea5e9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Trophy style={{ width: 32, height: 32 }} />
+          </div>
+          <h2 style={{ fontSize: 20, fontWeight: 900, color: "#0f172a", margin: 0 }}>Sign In to View Exam Result</h2>
+          <p style={{ fontSize: 13, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+            Please sign in with your mobile number to access your detailed scorecard, accuracy breakdown, and rank analysis.
+          </p>
+          <button
+            onClick={() => {
+              const currentUrl = typeof window !== "undefined" ? window.location.href : ""
+              openMobileAuth({ actionType: "login", callbackUrl: currentUrl })
+            }}
+            style={{ width: "100%", padding: "14px 24px", borderRadius: 14, background: "linear-gradient(135deg, #00A8FF, #0096e6)", color: "#fff", border: "none", fontSize: 14, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(0,168,255,0.3)" }}
+          >
+            Sign In with Mobile OTP
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -537,6 +579,7 @@ function ResultContent() {
   const totalCandidates = typeof serverResult.totalCandidates === "number" && serverResult.totalCandidates > 0 ? serverResult.totalCandidates : null
   const rank = typeof serverResult.allIndiaRank === "number" ? serverResult.allIndiaRank : null
   const percentile = typeof serverResult.percentile === "number" ? serverResult.percentile : null
+  const isStaff = Boolean(serverResult.isStaffAttempt || (session?.user as any)?.role === "TEACHER" || (session?.user as any)?.role === "ADMIN")
 
   const passed = totalMarks > 0 ? (score / totalMarks) * 100 >= 40 : true
   const timeMins = Math.floor(timeSecs / 60)
@@ -743,7 +786,9 @@ function ResultContent() {
                   {passed ? "✓ PASSED" : "✗ FAILED"}
                 </div>
                 <div style={{ fontSize: 13, opacity: 0.9 }}>
-                  {percentile !== null ? (
+                  {isStaff ? (
+                    <span>Preview attempt: rank not counted</span>
+                  ) : percentile !== null ? (
                     <>Better than <strong>{percentile}%</strong> students</>
                   ) : (
                     <span>Percentile: <em>Not available</em></span>
@@ -766,12 +811,23 @@ function ResultContent() {
             >
               <Trophy style={{ width: 28, height: 28, color: "#fbbf24", marginBottom: 6 }} />
               <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 700, letterSpacing: 0.5 }}>ALL INDIA RANK</div>
-              <div style={{ fontSize: rank !== null ? 28 : 18, fontWeight: 900, color: "#fbbf24" }}>
-                {rank !== null ? `#${rank}` : "Not available"}
-              </div>
-              <div style={{ fontSize: 11, opacity: 0.8 }}>
-                {totalCandidates !== null ? `out of ${totalCandidates} candidate${totalCandidates === 1 ? "" : "s"}` : "Rank pending peer attempts"}
-              </div>
+              {isStaff ? (
+                <>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: "#fbbf24", margin: "6px 0" }}>
+                    Preview attempt: rank not counted
+                  </div>
+                  <div style={{ fontSize: 11, opacity: 0.8 }}>Faculty preview mode</div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: rank !== null ? 28 : 18, fontWeight: 900, color: "#fbbf24" }}>
+                    {rank !== null ? `#${rank}` : "Not available"}
+                  </div>
+                  <div style={{ fontSize: 11, opacity: 0.8 }}>
+                    {totalCandidates !== null ? `out of ${totalCandidates} candidate${totalCandidates === 1 ? "" : "s"}` : "Rank pending peer attempts"}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

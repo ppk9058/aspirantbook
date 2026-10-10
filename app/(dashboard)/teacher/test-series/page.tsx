@@ -34,6 +34,7 @@ interface ManageTestItem {
     duration: number
     attempts: number
     avgScore: number
+    submittedCount?: number
     status: "PUBLISHED" | "DRAFT" | "LIVE"
     createdAt: string
 }
@@ -68,7 +69,8 @@ export default function TeacherTestSeriesManagePage() {
                         questions: qCount,
                         duration: dMinutes,
                         attempts,
-                        avgScore: 0,
+                        avgScore: typeof t.avgScore === "number" ? t.avgScore : 0,
+                        submittedCount: typeof t.submittedAttemptsCount === "number" ? t.submittedAttemptsCount : (typeof t.avgScore === "number" && t.avgScore > 0 ? attempts : 0),
                         status: t.isPublished ? (t.isLive ? "LIVE" : "PUBLISHED") : "DRAFT",
                         createdAt: t.createdAt ? new Date(t.createdAt).toLocaleDateString() : "Recent",
                     })
@@ -77,34 +79,6 @@ export default function TeacherTestSeriesManagePage() {
         } catch (err) {
             console.warn("Could not fetch DB tests:", err)
         }
-
-        // 2. Load from localStorage
-        try {
-            const stored = localStorage.getItem("ts_custom_tests")
-            if (stored) {
-                const parsed = JSON.parse(stored)
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    parsed.forEach((t: any) => {
-                        if (!items.some((existing) => existing.id === t.id)) {
-                            items.push({
-                                id: t.id,
-                                seriesId: t.seriesId || "",
-                                title: t.title || "Teacher Authored Mock Test",
-                                category: t.category || "General Studies",
-                                type: "Teacher Full Mock",
-                                accessMode: t.isFree ? "FREE" : "PRO",
-                                questions: typeof t.questions === "number" ? t.questions : (t.questionsList ? t.questionsList.length : 0),
-                                duration: typeof t.durationMinutes === "number" ? t.durationMinutes : 60,
-                                attempts: t.attempts || 0,
-                                avgScore: 0,
-                                status: "DRAFT",
-                                createdAt: "Today",
-                            })
-                        }
-                    })
-                }
-            }
-        } catch (e) {}
 
         setTests(items)
     }, [])
@@ -123,6 +97,10 @@ export default function TeacherTestSeriesManagePage() {
 
     const totalAttempts = tests.reduce((acc, curr) => acc + curr.attempts, 0)
     const publishedCount = tests.filter((t) => t.status === "PUBLISHED").length
+    const totalSubmittedAttempts = tests.reduce((acc, curr) => acc + (curr.submittedCount ?? 0), 0)
+    const overallAvgScore = totalSubmittedAttempts > 0
+        ? Math.round((tests.reduce((acc, curr) => acc + (curr.avgScore * (curr.submittedCount ?? 0)), 0) / totalSubmittedAttempts) * 10) / 10
+        : null
 
     const handleDelete = (id: string) => {
         if (confirm("Are you sure you want to delete this test?")) {
@@ -216,9 +194,11 @@ export default function TeacherTestSeriesManagePage() {
                         </div>
                     </div>
                     <div className="mt-3">
-                        <span className="text-2xl font-black text-gray-900 dark:text-white">—</span>
+                        <span className="text-2xl font-black text-gray-900 dark:text-white">
+                            {overallAvgScore !== null ? `${overallAvgScore} pts` : "—"}
+                        </span>
                         <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold ml-2">
-                            {totalAttempts > 0 ? "Awaiting submissions" : "No submissions yet"}
+                            {totalAttempts > 0 ? (totalSubmittedAttempts > 0 ? "Class average" : "Awaiting submissions") : "No submissions yet"}
                         </span>
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getAttemptRanking } from "./exam-ranking";
 
 export interface GradedAttemptResult {
   attemptId: string;
@@ -42,22 +43,7 @@ async function getStoredResult(attemptId: string): Promise<GradedAttemptResult |
     if (!attempt) return null;
 
     if (attempt.status === "SUBMITTED" && attempt.submittedAt !== null) {
-      const totalSubmitted = await prisma.examAttempt.count({
-        where: { testId: attempt.testId, status: "SUBMITTED" },
-      });
-
-      const rank = await prisma.examAttempt.count({
-        where: {
-          testId: attempt.testId,
-          status: "SUBMITTED",
-          score: { gt: attempt.score ?? 0 },
-        },
-      });
-
-      const percentile =
-        totalSubmitted > 1
-          ? parseFloat((((totalSubmitted - rank) / totalSubmitted) * 100).toFixed(2))
-          : null;
+      const ranking = await getAttemptRanking(attempt.id);
 
       return {
         attemptId: attempt.id,
@@ -70,9 +56,9 @@ async function getStoredResult(attemptId: string): Promise<GradedAttemptResult |
         skippedCount: attempt.skippedCount ?? 0,
         markedCount: attempt.markedCount ?? 0,
         timeTakenSecs: attempt.timeTakenSecs ?? 0,
-        percentile,
-        allIndiaRank: totalSubmitted > 1 ? rank + 1 : null,
-        totalCandidates: totalSubmitted,
+        percentile: ranking.percentile,
+        allIndiaRank: ranking.rank,
+        totalCandidates: ranking.totalCandidates,
       };
     }
 
@@ -198,7 +184,7 @@ export async function gradeExamAttempt(
   }
 
 
-  const testDurationSecs = (attempt.test?.durationMinutes || 120) * 60;
+  const testDurationSecs = (attempt.test!.durationMinutes) * 60;
   const elapsedSecs = Math.floor((now.getTime() - attempt.startedAt.getTime()) / 1000);
   const serverTimeTakenSecs = Math.max(1, Math.min(testDurationSecs, elapsedSecs));
 
@@ -255,22 +241,7 @@ export async function gradeExamAttempt(
     return getStoredResult(attemptId);
   }
 
-  const newTotalSubmitted = await prisma.examAttempt.count({
-    where: { testId: attempt.testId, status: "SUBMITTED" },
-  });
-
-  const rank = await prisma.examAttempt.count({
-    where: {
-      testId: attempt.testId,
-      status: "SUBMITTED",
-      score: { gt: totalScore },
-    },
-  });
-
-  const percentile =
-    newTotalSubmitted > 1
-      ? parseFloat((((newTotalSubmitted - rank) / newTotalSubmitted) * 100).toFixed(2))
-      : null;
+  const ranking = await getAttemptRanking(attemptId);
 
   return {
     attemptId,
@@ -283,8 +254,8 @@ export async function gradeExamAttempt(
     skippedCount,
     markedCount,
     timeTakenSecs: serverTimeTakenSecs,
-    percentile,
-    allIndiaRank: newTotalSubmitted > 1 ? rank + 1 : null,
-    totalCandidates: newTotalSubmitted,
+    percentile: ranking.percentile,
+    allIndiaRank: ranking.rank,
+    totalCandidates: ranking.totalCandidates,
   };
 }

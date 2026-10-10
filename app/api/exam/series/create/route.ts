@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -84,6 +85,9 @@ export async function POST(req: NextRequest) {
         createdById: session.user.id,
       },
     });
+
+    revalidateTag("exam-series");
+    revalidatePath("/test-series");
 
     const formattedItem = {
       id: series.slug,

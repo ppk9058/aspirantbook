@@ -3,7 +3,6 @@
 import { useState, useCallback, Suspense, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
-import { TEST_SERIES_DATA, getTestSeriesById } from "@/lib/test-series-data"
 import { parseAndValidateQuestion } from "@/lib/exam/question-parser"
 import CreateSeriesModal from "@/components/exam/CreateSeriesModal"
 import {
@@ -1950,6 +1949,7 @@ function CreateTestContent() {
                                                     >
                                                         <button
                                                             type="button"
+                                                            data-testid={`authoring-correct-${letter}`}
                                                             onClick={() =>
                                                                 updateQuestion(currentQ.id, {
                                                                     correctAnswer: oi as 0 | 1 | 2 | 3,

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidateTag } from "next/cache"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 
@@ -101,11 +102,14 @@ export async function POST(req: NextRequest) {
         },
     })
 
-    // Bump usersCount on series
-    await prisma.examSeries.update({
-        where: { id: resolvedId },
-        data: { usersCount: { increment: 1 } },
-    }).catch(() => {}) // non-fatal
+    // Bump usersCount on series for student enrollments only (not teacher/admin)
+    if (session.user.role !== "TEACHER" && session.user.role !== "ADMIN") {
+        await prisma.examSeries.update({
+            where: { id: resolvedId },
+            data: { usersCount: { increment: 1 } },
+        }).catch(() => {}) // non-fatal
+        revalidateTag("exam-series")
+    }
 
     return NextResponse.json({ success: true, enrollment })
 }

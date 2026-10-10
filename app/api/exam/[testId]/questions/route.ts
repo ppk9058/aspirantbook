@@ -109,8 +109,7 @@ export async function GET(
     if (!test.isPublished) {
       const isCreator = test.createdById === session.user.id;
       const isAdmin = (session.user as any).role === "ADMIN";
-      const isTeacher = (session.user as any).role === "TEACHER";
-      if (!isCreator && !isAdmin && !isTeacher) {
+      if (!isCreator && !isAdmin) {
         return NextResponse.json({ error: "Test not found" }, { status: 404 });
       }
     }
@@ -177,7 +176,7 @@ export async function GET(
         );
       }
 
-      const durationMinutes = test.durationMinutes || 120;
+      const durationMinutes = test.durationMinutes;
       const graceDeadlineMs =
         activeAttempt.startedAt.getTime() +
         durationMinutes * 60 * 1000 +
