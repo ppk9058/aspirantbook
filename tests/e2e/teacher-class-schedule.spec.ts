@@ -97,14 +97,9 @@ test.describe("Teacher Class Schedule E2E", () => {
     expect(slot!.topic).toBe(topicTitle)
     expect(slot!.startTime.toISOString()).toBe(expectedUtc)
 
-    // Redirects / appears on My Classes
-    await page.waitForURL("**/teacher/classes", { timeout: 15_000 }).catch(async () => {
-      // If auto-redirect is delayed, click the link
-      const goBtn = page.getByRole("link", { name: /Go to My Classes List/i })
-      if (await goBtn.isVisible()) {
-        await goBtn.click()
-      }
-    })
+    // Navigate to My Classes
+    await page.getByRole("link", { name: /Go to My Classes/i }).click()
+    await page.waitForURL("**/teacher/classes", { timeout: 15_000 })
     await expect(page).toHaveURL(/.*\/teacher\/classes/)
     await expect(page.getByText(topicTitle)).toBeVisible({ timeout: 15_000 })
   })

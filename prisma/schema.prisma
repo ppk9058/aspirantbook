@@ -41,6 +41,7 @@ model User {
   demoBookingsV2     DemoBooking[]
   demoStageSessions  DemoStageSession[]
   couponRedemptions  CouponRedemption[]
+  createdDemoSlots   DemoSlot[]          @relation("UserCreatedDemoSlots")
 
   @@index([email])
   @@index([role])
@@ -282,6 +283,7 @@ enum WhatsAppMessageStatus {
 
 model DemoSlot {
   id               String            @id @default(cuid())
+  createdById      String?
   courseId         String
   startTime        DateTime          // UTC datetime
   durationMinutes  Int               @default(60)
@@ -305,11 +307,13 @@ model DemoSlot {
   updatedAt        DateTime          @updatedAt
 
   course           Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdBy        User?             @relation("UserCreatedDemoSlots", fields: [createdById], references: [id], onDelete: SetNull)
   bookings         DemoBooking[]
   chatMessages     DemoChatMessage[]
   stageSessions    DemoStageSession[]
 
   @@index([courseId])
+  @@index([createdById])
   @@index([startTime])
   @@index([status])
 }

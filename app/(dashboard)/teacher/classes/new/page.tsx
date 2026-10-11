@@ -11,7 +11,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react"
-import { istToUtcIso, isIstDateTimeInFuture } from "@/lib/demo/slot-utils"
+import { istToUtcIso, isIstDateTimeInFuture, formatUtcToIst } from "@/lib/demo/slot-utils"
 
 interface CourseOption {
   id: string
@@ -118,9 +118,6 @@ export default function ScheduleClassPage() {
 
       setSuccessDetails(data)
       setIsSuccess(true)
-      setTimeout(() => {
-        router.push("/teacher/classes")
-      }, 1500)
     } catch (err: any) {
       console.error("Error scheduling class:", err)
       setError(err?.message || "Network error. Please try again.")
@@ -130,12 +127,29 @@ export default function ScheduleClassPage() {
   }
 
   const courseSlug = successDetails?.slot?.course?.slug
-  const demoUrl = courseSlug && successDetails?.slot?.id
-    ? `/courses/${courseSlug}/demo?slot=${successDetails.slot.id}`
-    : "/teacher/classes"
-  const landingUrl = typeof window !== "undefined"
-    ? `${window.location.origin}${courseSlug ? `/courses/${courseSlug}` : ""}`
-    : `https://trillionskill.com${courseSlug ? `/courses/${courseSlug}` : ""}`
+  const slotId = successDetails?.slot?.id
+  const studentJoinUrl = typeof window !== "undefined" && courseSlug && slotId
+    ? `${window.location.origin}/courses/${courseSlug}/demo?slot=${slotId}`
+    : `/courses/${courseSlug || "course"}/demo?slot=${slotId || ""}`
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        const textarea = document.createElement("textarea")
+        textarea.value = text
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand("copy")
+        document.body.removeChild(textarea)
+      }
+      setCopiedLink(true)
+      setTimeout(() => setCopiedLink(false), 2000)
+    } catch {
+      window.prompt("Copy student join link:", text)
+    }
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-12">
@@ -161,45 +175,41 @@ export default function ScheduleClassPage() {
         </div>
 
         {isSuccess ? (
-          <div role="status" className="py-6 space-y-4 text-center">
+          <div role="status" className="py-6 space-y-5 text-center">
             <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
             <div className="space-y-1">
-              <h3 className="font-extrabold text-lg text-gray-900 dark:text-white">
-                Lecture & Demo Slot Scheduled!
+              <h3 className="font-extrabold text-xl text-gray-900 dark:text-white">
+                {successDetails?.slot?.topic || topic}
               </h3>
-              <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                Class scheduled successfully!
+              <p className="text-xs font-semibold text-teal-600 dark:text-teal-400">
+                {successDetails?.slot?.startTime
+                  ? formatUtcToIst(successDetails.slot.startTime).fullLabel
+                  : "Scheduled in IST"}
               </p>
-              <p className="text-xs text-gray-500">
-                This session has been added to your classes and synced to the course demo slots. Redirecting to My Classes...
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                Class scheduled successfully!
               </p>
             </div>
 
-            {/* Campaign Links Box */}
+            {/* Student Join Link Card */}
             <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-left space-y-3">
               <span className="text-xs font-bold text-gray-700 dark:text-gray-300 block uppercase tracking-wider">
-                Facebook & Social Media Ad Campaign URL:
+                Student Join URL:
               </span>
               <div className="flex items-center gap-2 bg-white dark:bg-black p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-mono">
-                <span className="truncate flex-1 text-gray-900 dark:text-gray-100">
-                  {landingUrl}
+                <span className="truncate flex-1 text-gray-900 dark:text-gray-100 select-all">
+                  {studentJoinUrl}
                 </span>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (typeof window !== "undefined") {
-                      navigator.clipboard.writeText(landingUrl)
-                      setCopiedLink(true)
-                      setTimeout(() => setCopiedLink(false), 2000)
-                    }
-                  }}
-                  className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shrink-0 cursor-pointer"
+                  onClick={() => copyToClipboard(studentJoinUrl)}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shrink-0 cursor-pointer transition-colors"
                 >
-                  {copiedLink ? "Copied ✓" : "Copy Link"}
+                  {copiedLink ? "Copied" : "Copy link"}
                 </button>
               </div>
               <p className="text-[11px] text-gray-500">
-                Put this link in your Facebook/Instagram ads. When students click, they arrive on the course page where they can pick this slot and register their mobile number.
+                Share this direct live demo link with your learners or across marketing channels.
               </p>
             </div>
 
@@ -208,14 +218,23 @@ export default function ScheduleClassPage() {
                 href="/teacher/classes"
                 className="flex-1 py-3 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold text-xs transition-colors text-center"
               >
-                Go to My Classes List
+                Go to My Classes
               </Link>
-              <Link
-                href={demoUrl}
-                className="flex-1 py-3 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white font-bold text-xs transition-colors text-center"
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSuccess(false)
+                  setSuccessDetails(null)
+                  setTopic("")
+                  setCourseId("")
+                  setDate("")
+                  setTime("")
+                  setDuration("60")
+                }}
+                className="flex-1 py-3 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white font-bold text-xs transition-colors text-center cursor-pointer"
               >
-                Preview Live Classroom →
-              </Link>
+                Schedule another
+              </button>
             </div>
           </div>
         ) : (

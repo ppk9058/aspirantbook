@@ -12,13 +12,20 @@ export async function GET() {
     if (session.user.role !== "TEACHER" && session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden: Teacher or Admin required" }, { status: 403 })
     }
-    const isTeacher = true
+    const isAdmin = session.user.role === "ADMIN"
 
     // Query real scheduled & live demo slots from PostgreSQL
+    // Legacy rows with createdById NULL are visible to ADMIN only.
+    // Teachers see only their own slots.
+    const whereClause: any = {
+      status: { in: ["SCHEDULED", "LIVE"] },
+    }
+    if (!isAdmin) {
+      whereClause.createdById = session.user.id
+    }
+
     const demoSlots = await prisma.demoSlot.findMany({
-      where: {
-        status: { in: ["SCHEDULED", "LIVE"] },
-      },
+      where: whereClause,
       include: {
         course: { select: { id: true, slug: true, title: true } },
         _count: { select: { bookings: true } },
@@ -74,6 +81,7 @@ export async function POST(req: NextRequest) {
     const channelName = `demo_${courseId.slice(-6)}_${Date.now()}`
     const newSlot = await prisma.demoSlot.create({
       data: {
+        createdById: session.user.id,
         courseId,
         topic,
         facultyName: session?.user?.name || "Senior Faculty",

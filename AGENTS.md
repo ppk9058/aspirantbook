@@ -9,7 +9,7 @@ Read this file at the start of every task. The full UI standard lives in
 - Dev (Supabase) DB from `.env` / `.env.local`: SELECT only. No writes. Never touch data on localhost:3000.
 - Never run: `prisma db push`, anything against PROD, `git push`, branch create or switch. Stay on the current branch.
 - Never print `.env*` values or `.auth/` contents; never commit them.
-- Commit only after `npx tsc --noEmit`, `npm run lint` and the relevant Playwright tests pass. Never push, amend or force.
+- Never commit, push, amend or force unless the task says so; the user commits. Before reporting done, tsc, lint and the relevant Playwright tests must pass.
 - Do not edit package.json or the lockfile unless the task needs it; say so first.
 
 ## 1. Product reality (why these rules exist)
@@ -22,20 +22,27 @@ Read this file at the start of every task. The full UI standard lives in
 For any UI work (page, component, layout or styling bug) load the `responsive-ui` skill and read docs/engineering/responsive-ui-standards.md first. Core rules: mobile-first (360px primary), no horizontal page scroll, dvh not vh, 44px touch targets, Tailwind tokens only (no hex, no pure black), dark mode, same features on mobile and desktop, empty/loading/error states.
 
 ## 3. Definition of done
-- UI changes: checklist in skill `responsive-ui`; include screenshots at 390x844, 768x1024 and 1440x900 (light + dark).
+- UI changes: follow the responsive-ui skill checklist; one Playwright check per new or changed page. Screenshots only if the user asks.
 - All changes: `npm run lint`, `npx tsc --noEmit` (legacy errors exist: compare to baseline, no NEW errors) and the relevant Playwright tests pass; report RAW output.
 
 ## 4. Working method
-1. Stay on the current branch (never create or switch). Small commits, only after checks pass; never push.
+1. Stay on the current branch (never create or switch). Never commit or push unless the task says so. The user commits.
 2. Any bug: (a) reproduce the exact bug on real data first, read-only (DB SELECT / curl); (b) fix the root cause; (c) add a regression test that fails before the fix and passes after; (d) report RAW command output as proof.
-3. Large work: first a read-only report or plan (file:line), wait for approval, then build in milestones.
-4. Changing an existing screen: update every place the same UI exists (desktop, mobile variant, studio/preview, tutorials/Rosera renderer) together.
-5. "Build passes" or string checks like "Matches: true" are not proof. For UI, provide screenshots from a logged-in STUDENT account.
+3. Large work (a new module, or a change touching 5+ files): first a read-only report or plan (file:line), wait for approval, then build in milestones. Small fixes and single-feature tasks go straight to build.
+4. Changing an existing screen: if the same UI exists elsewhere (desktop, mobile variant, studio/preview, tutorials/Rosera renderer), list those places in the report and ask before changing them.
+5. 'Build passes' or string checks like 'Matches: true' are not proof. For a new or changed UI page, one Playwright check (page loads, no empty/error state, one known fixture value).
 6. If you assume something or cannot verify something, say so. Never claim "fixed" without evidence.
+- Never use a silent catch (`.catch(() => {})` or empty catch). Every fetch/action needs a visible success and error state.
+- Page and API must agree on the response shape. When adding a page that reads an API, open the API route and match its shape.
+- Touch only the files the task names. If another file needs a change, stop and ask first.
+- New or changed UI page: add ONE Playwright check that the page loads, shows no empty/error state, and shows one known fixture value.
+- Mutation proofs (break, show FAIL, revert) only for security rules: ownership, role blocks, data exclusion. Other fixes need fail-before / pass-after only.
+- Run the regression suites once, at the end, not repeatedly.
 
 ## 5. Data and safety
 - Never delete user data, lessons, courses or progress. Archive instead. Never change existing internal ids.
 - Destructive DB operations or migrations: ask first. Use `prisma migrate`; never `db push` (see section 0).
+- Never change the Prisma schema without asking.
 - Do not write runtime data to disk (serverless is read-only and multi-instance). Use the database.
 - Validate all server action input; check roles on the server (ADMIN / TEACHER / STUDENT). Creator actions are never shown to students.
 - Sanitize any imported or user-supplied HTML/SVG. Untrusted HTML runs only in a sandboxed iframe without `allow-same-origin`.

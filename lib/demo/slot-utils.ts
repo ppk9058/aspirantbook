@@ -104,3 +104,28 @@ export function isIstDateTimeInFuture(dateStr: string, timeStr: string): boolean
   return !isNaN(d.getTime()) && d.getTime() > Date.now()
 }
 
+/**
+ * Extracts YYYY-MM-DD (dateStr) and HH:mm (timeStr) in IST (Asia/Kolkata) from a UTC Date or string.
+ */
+export function utcToIstDateAndTime(utcDate: Date | string): { dateStr: string; timeStr: string } {
+  const d = typeof utcDate === "string" ? new Date(utcDate) : utcDate
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  })
+  const parts = formatter.formatToParts(d)
+  const partMap: Record<string, string> = {}
+  parts.forEach((p) => {
+    partMap[p.type] = p.value
+  })
+  const dateStr = `${partMap.year}-${partMap.month}-${partMap.day}`
+  const timeStr = `${partMap.hour}:${partMap.minute}`
+  return { dateStr, timeStr }
+}
+
+
