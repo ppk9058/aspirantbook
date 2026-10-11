@@ -14,11 +14,11 @@ export async function GET() {
     }
     const isAdmin = session.user.role === "ADMIN"
 
-    // Query real scheduled & live demo slots from PostgreSQL
+    // Query demo slots from PostgreSQL: SCHEDULED, LIVE, ENDED, CANCELLED
     // Legacy rows with createdById NULL are visible to ADMIN only.
     // Teachers see only their own slots.
     const whereClause: any = {
-      status: { in: ["SCHEDULED", "LIVE"] },
+      status: { in: ["SCHEDULED", "LIVE", "ENDED", "CANCELLED"] },
     }
     if (!isAdmin) {
       whereClause.createdById = session.user.id
@@ -30,10 +30,39 @@ export async function GET() {
         course: { select: { id: true, slug: true, title: true } },
         _count: { select: { bookings: true } },
       },
-      orderBy: [
-        { status: "desc" },
-        { startTime: "asc" },
-      ],
+    })
+
+    // Sort: LIVE first, SCHEDULED by startTime asc, ENDED by startTime desc, then CANCELLED by startTime desc
+    const statusPriority = (status: string) => {
+      switch (status) {
+        case "LIVE":
+          return 0
+        case "SCHEDULED":
+          return 1
+        case "ENDED":
+          return 2
+        case "CANCELLED":
+          return 3
+        default:
+          return 4
+      }
+    }
+
+    demoSlots.sort((a, b) => {
+      const pA = statusPriority(a.status)
+      const pB = statusPriority(b.status)
+      if (pA !== pB) return pA - pB
+
+      const timeA = new Date(a.startTime).getTime()
+      const timeB = new Date(b.startTime).getTime()
+
+      if (a.status === "SCHEDULED") {
+        return timeA - timeB // asc
+      }
+      if (a.status === "ENDED" || a.status === "CANCELLED") {
+        return timeB - timeA // desc
+      }
+      return timeA - timeB
     })
 
     const transformedDemoClasses = demoSlots.map((s) => {
@@ -41,10 +70,18 @@ export async function GET() {
       return {
         id: s.id,
         title: `🔴 Live Demo: ${s.topic}`,
+        topic: s.topic,
         batch: s.course?.title || "Demo Batch",
+        courseSlug: s.course?.slug,
         time: ist.fullLabel,
-        status: s.status === "LIVE" ? "LIVE NOW" : "SCHEDULED",
+        startTimeUtc: s.startTime.toISOString(),
+        status: s.status === "LIVE" ? "LIVE NOW" : s.status,
+        rawStatus: s.status,
+        durationMinutes: s.durationMinutes,
+        startedAt: s.startedAt ? s.startedAt.toISOString() : null,
+        endedAt: s.endedAt ? s.endedAt.toISOString() : null,
         studentsCount: s._count.bookings,
+        bookingsCount: s._count.bookings,
         demoLink: `/courses/${s.course?.slug}/demo?slot=${s.id}`,
       }
     })

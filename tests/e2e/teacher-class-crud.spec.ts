@@ -339,8 +339,11 @@ test.describe("Teacher Class Full CRUD, Ownership & Safety E2E", () => {
     await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
     await mirrorCookies(page)
 
-    // 1. In UI, Edit and Cancel buttons are disabled
+    // 1. In UI, switch to Live tab and verify Edit and Cancel buttons are disabled
     await page.goto("/teacher/classes", { waitUntil: "domcontentloaded" })
+    await expect(page.locator('[data-testid="tab-live"]')).toBeVisible()
+    await expect(page.locator('[data-testid="count-live"]')).toContainText("1")
+    await page.locator('[data-testid="tab-live"]').click()
     const card = page.locator(`[data-testid="class-card-${liveSlot.id}"]`)
     await expect(card).toBeVisible({ timeout: 15_000 })
     await expect(card.getByText("LIVE NOW")).toBeVisible()
@@ -362,5 +365,173 @@ test.describe("Teacher Class Full CRUD, Ownership & Safety E2E", () => {
     // 3. API returns 400 on cancel attempt
     const cancelRes = await page.request.delete(`/api/teacher/classes/${liveSlot.id}`)
     expect(cancelRes.status()).toBe(400)
+  })
+
+  test("CRUD-07: Class history tabs, counts, read-only cards, and student exclusion", async ({ page, browser }) => {
+    // Clean up any slots created by teacherA in prior tests to have exact isolated tab counts
+    await prisma.demoBooking.deleteMany({ where: { slot: { createdById: teacherA.id } } }).catch(() => {})
+    await prisma.demoSlot.deleteMany({ where: { createdById: teacherA.id } }).catch(() => {})
+
+    // 1. Fixture: Create slots for Teacher A in SCHEDULED, LIVE, ENDED, and CANCELLED
+    const now = Date.now()
+    const scheduledSlot = await prisma.demoSlot.create({
+      data: {
+        createdById: teacherA.id,
+        courseId: course.id,
+        topic: `Upcoming Hist Slot ${nonce}`,
+        facultyName: "Teacher A",
+        startTime: new Date(now + 24 * 60 * 60 * 1000),
+        durationMinutes: 45,
+        agoraChannelName: `demo_hist_sched_${Date.now()}`,
+        status: "SCHEDULED",
+      },
+    })
+
+    const liveSlot = await prisma.demoSlot.create({
+      data: {
+        createdById: teacherA.id,
+        courseId: course.id,
+        topic: `Live Hist Slot ${nonce}`,
+        facultyName: "Teacher A",
+        startTime: new Date(now - 15 * 60 * 1000),
+        durationMinutes: 60,
+        agoraChannelName: `demo_hist_live_${Date.now()}`,
+        status: "LIVE",
+      },
+    })
+
+    const endedSlot = await prisma.demoSlot.create({
+      data: {
+        createdById: teacherA.id,
+        courseId: course.id,
+        topic: `Ended Hist Slot ${nonce}`,
+        facultyName: "Teacher A",
+        startTime: new Date(now - 2 * 24 * 60 * 60 * 1000),
+        durationMinutes: 50,
+        agoraChannelName: `demo_hist_ended_${Date.now()}`,
+        status: "ENDED",
+        startedAt: new Date(now - 2 * 24 * 60 * 60 * 1000),
+        endedAt: new Date(now - 2 * 24 * 60 * 60 * 1000 + 50 * 60 * 1000),
+      },
+    })
+
+    // Add bookings to ended slot to verify bookingsCount
+    await prisma.demoBooking.create({
+      data: {
+        slotId: endedSlot.id,
+        studentId: studentUser.id,
+        courseId: course.id,
+        mobile: "+919876543210",
+        status: "BOOKED",
+      },
+    })
+
+    const cancelledSlot = await prisma.demoSlot.create({
+      data: {
+        createdById: teacherA.id,
+        courseId: course.id,
+        topic: `Cancelled Hist Slot ${nonce}`,
+        facultyName: "Teacher A",
+        startTime: new Date(now + 48 * 60 * 60 * 1000),
+        durationMinutes: 30,
+        agoraChannelName: `demo_hist_canc_${Date.now()}`,
+        status: "CANCELLED",
+      },
+    })
+
+    // Create a legacy slot with createdById: null
+    const legacyHistSlot = await prisma.demoSlot.create({
+      data: {
+        createdById: null,
+        courseId: course.id,
+        topic: `Legacy Hist Slot ${nonce}`,
+        facultyName: "Legacy Faculty",
+        startTime: new Date(now + 36 * 60 * 60 * 1000),
+        durationMinutes: 60,
+        agoraChannelName: `demo_hist_leg_${Date.now()}`,
+        status: "SCHEDULED",
+      },
+    })
+
+    // 2. Login as Teacher A and view My Classes
+    await loginThroughUi(page, teacherA.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+    await page.goto("/teacher/classes", { waitUntil: "domcontentloaded" })
+
+    // Page loads, no alert error
+    await expect(page.locator('[role="alert"]')).not.toBeVisible()
+
+    // Tab counts match fixture
+    await expect(page.locator('[data-testid="tab-upcoming"]')).toBeVisible()
+    await expect(page.locator('[data-testid="count-upcoming"]')).toContainText("1")
+    await expect(page.locator('[data-testid="count-live"]')).toContainText("1")
+    await expect(page.locator('[data-testid="count-past"]')).toContainText("1")
+    await expect(page.locator('[data-testid="count-cancelled"]')).toContainText("1")
+
+    // Check Upcoming tab has Edit, Cancel, Copy Link
+    const schedCard = page.locator(`[data-testid="class-card-${scheduledSlot.id}"]`)
+    await expect(schedCard).toBeVisible()
+    await expect(schedCard.getByRole("button", { name: /Copy Link/i })).toBeVisible()
+    await expect(schedCard.getByRole("link", { name: /Edit/i })).toBeVisible()
+    await expect(schedCard.getByRole("button", { name: /Cancel/i })).toBeVisible()
+
+    // Switch to Past tab: read-only, displays bookingsCount, NO Edit/Cancel/Join
+    await page.locator('[data-testid="tab-past"]').click()
+    const endedCard = page.locator(`[data-testid="class-card-${endedSlot.id}"]`)
+    await expect(endedCard).toBeVisible()
+    await expect(endedCard.getByText("Completed", { exact: true })).toBeVisible()
+    await expect(endedCard.locator(`[data-testid="booking-count-${endedSlot.id}"]`)).toContainText("1")
+    await expect(endedCard.getByRole("button", { name: /Edit/i })).not.toBeVisible()
+    await expect(endedCard.getByRole("link", { name: /Edit/i })).not.toBeVisible()
+    await expect(endedCard.getByRole("button", { name: /Cancel/i })).not.toBeVisible()
+    await expect(endedCard.getByRole("link", { name: /Join Live Demo/i })).not.toBeVisible()
+
+    // Switch to Cancelled tab: read-only, NO Edit/Cancel/Join
+    await page.locator('[data-testid="tab-cancelled"]').click()
+    const cancCard = page.locator(`[data-testid="class-card-${cancelledSlot.id}"]`)
+    await expect(cancCard).toBeVisible()
+    await expect(cancCard.getByText("Cancelled", { exact: true })).toBeVisible()
+    await expect(cancCard.getByRole("button", { name: /Edit/i })).not.toBeVisible()
+    await expect(cancCard.getByRole("link", { name: /Edit/i })).not.toBeVisible()
+    await expect(cancCard.getByRole("button", { name: /Cancel/i })).not.toBeVisible()
+    await expect(cancCard.getByRole("link", { name: /Join Live Demo/i })).not.toBeVisible()
+
+    // 3. API assertions: Teacher B does NOT see Teacher A's slots
+    const teacherBPage = await browser.newPage()
+    await loginThroughUi(teacherBPage, teacherB.email)
+    await teacherBPage.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    const teacherBListRes = await teacherBPage.request.get("/api/teacher/classes")
+    const teacherBListData = await teacherBListRes.json()
+    const teacherBIds = (teacherBListData.classes || []).map((c: any) => c.id)
+    expect(teacherBIds).not.toContain(scheduledSlot.id)
+    expect(teacherBIds).not.toContain(liveSlot.id)
+    expect(teacherBIds).not.toContain(endedSlot.id)
+    expect(teacherBIds).not.toContain(cancelledSlot.id)
+    expect(teacherBIds).not.toContain(legacyHistSlot.id)
+    await teacherBPage.close()
+
+    // 4. API assertions: Admin sees all including legacyHistSlot
+    const adminPage = await browser.newPage()
+    await loginThroughUi(adminPage, adminUser.email)
+    await adminPage.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    const adminListRes = await adminPage.request.get("/api/teacher/classes")
+    const adminListData = await adminListRes.json()
+    const adminIds = (adminListData.classes || []).map((c: any) => c.id)
+    expect(adminIds).toContain(scheduledSlot.id)
+    expect(adminIds).toContain(liveSlot.id)
+    expect(adminIds).toContain(endedSlot.id)
+    expect(adminIds).toContain(cancelledSlot.id)
+    expect(adminIds).toContain(legacyHistSlot.id)
+    await adminPage.close()
+
+    // Clean up created slots
+    await prisma.demoBooking.deleteMany({ where: { slotId: endedSlot.id } }).catch(() => {})
+    await prisma.demoSlot.deleteMany({
+      where: {
+        id: { in: [scheduledSlot.id, liveSlot.id, endedSlot.id, cancelledSlot.id, legacyHistSlot.id] },
+      },
+    }).catch(() => {})
   })
 })

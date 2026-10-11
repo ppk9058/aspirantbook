@@ -112,6 +112,22 @@ export default function TeacherClassesPage() {
     }
   }
 
+  const [activeTab, setActiveTab] = useState<"upcoming" | "live" | "past" | "cancelled">("upcoming")
+
+  const upcomingClasses = classes.filter((c) => c.rawStatus === "SCHEDULED" || (!c.rawStatus && c.status === "SCHEDULED"))
+  const liveClasses = classes.filter((c) => c.rawStatus === "LIVE" || c.status === "LIVE NOW")
+  const pastClasses = classes.filter((c) => c.rawStatus === "ENDED" || c.status === "ENDED")
+  const cancelledClasses = classes.filter((c) => c.rawStatus === "CANCELLED" || c.status === "CANCELLED")
+
+  const currentTabClasses =
+    activeTab === "upcoming"
+      ? upcomingClasses
+      : activeTab === "live"
+      ? liveClasses
+      : activeTab === "past"
+      ? pastClasses
+      : cancelledClasses
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -160,21 +176,136 @@ export default function TeacherClassesPage() {
         </div>
       )}
 
+      {/* Tabs navigation */}
+      <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-800 pb-2 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setActiveTab("upcoming")}
+          data-testid="tab-upcoming"
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
+            activeTab === "upcoming"
+              ? "bg-[#3AAFA9] text-white shadow-sm"
+              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+          }`}
+        >
+          <span>Upcoming</span>
+          <span
+            data-testid="count-upcoming"
+            className={`px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+              activeTab === "upcoming"
+                ? "bg-white/20 text-white"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+            }`}
+          >
+            {upcomingClasses.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("live")}
+          data-testid="tab-live"
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
+            activeTab === "live"
+              ? "bg-red-500 text-white shadow-sm"
+              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+          }`}
+        >
+          <span className="flex items-center gap-1.5">
+            <Radio className="w-3.5 h-3.5" />
+            <span>Live</span>
+          </span>
+          <span
+            data-testid="count-live"
+            className={`px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+              activeTab === "live"
+                ? "bg-white/20 text-white"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+            }`}
+          >
+            {liveClasses.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("past")}
+          data-testid="tab-past"
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
+            activeTab === "past"
+              ? "bg-[#3AAFA9] text-white shadow-sm"
+              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+          }`}
+        >
+          <span>Past</span>
+          <span
+            data-testid="count-past"
+            className={`px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+              activeTab === "past"
+                ? "bg-white/20 text-white"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+            }`}
+          >
+            {pastClasses.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("cancelled")}
+          data-testid="tab-cancelled"
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
+            activeTab === "cancelled"
+              ? "bg-gray-700 text-white shadow-sm"
+              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+          }`}
+        >
+          <span>Cancelled</span>
+          <span
+            data-testid="count-cancelled"
+            className={`px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+              activeTab === "cancelled"
+                ? "bg-white/20 text-white"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+            }`}
+          >
+            {cancelledClasses.length}
+          </span>
+        </button>
+      </div>
+
       <div className="space-y-4">
         {loading ? (
           <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center text-gray-400 text-xs">
             <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-[#3AAFA9]" />
             Loading scheduled classes...
           </div>
-        ) : classes.length === 0 ? (
-          <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center text-gray-500">
+        ) : currentTabClasses.length === 0 ? (
+          <div
+            data-testid={`empty-state-${activeTab}`}
+            className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center text-gray-500"
+          >
             <Calendar className="w-10 h-10 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">No scheduled lectures yet</p>
-            <p className="text-xs text-gray-400 mt-1">Click &quot;Schedule New Class&quot; to create a new live broadcast.</p>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              {activeTab === "upcoming" && "No upcoming scheduled classes"}
+              {activeTab === "live" && "No classes currently live"}
+              {activeTab === "past" && "No past classes found"}
+              {activeTab === "cancelled" && "No cancelled classes found"}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              {activeTab === "upcoming" && 'Click "Schedule New Class" to create a new live broadcast.'}
+              {activeTab === "live" && "Classes currently broadcasting will appear here."}
+              {activeTab === "past" && "Completed sessions and past lectures will appear here."}
+              {activeTab === "cancelled" && "Cancelled classes are archived here for your records."}
+            </p>
           </div>
         ) : (
-          classes.map((cls) => {
-            const isLive = cls.status === "LIVE NOW"
+          currentTabClasses.map((cls) => {
+            const isLive = cls.rawStatus === "LIVE" || cls.status === "LIVE NOW"
+            const isPast = cls.rawStatus === "ENDED" || cls.status === "ENDED"
+            const isCancelled = cls.rawStatus === "CANCELLED" || cls.status === "CANCELLED"
+            const isReadOnly = isPast || isCancelled
+
             return (
               <div
                 key={cls.id}
@@ -183,12 +314,25 @@ export default function TeacherClassesPage() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    {isLive ? (
+                    {isLive && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/15 text-red-500 text-[11px] font-bold animate-pulse">
                         <Radio className="w-3 h-3" />
                         LIVE NOW
                       </span>
-                    ) : (
+                    )}
+                    {isPast && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gray-500/15 text-gray-600 dark:text-gray-400 text-[11px] font-semibold">
+                        <Check className="w-3 h-3 text-emerald-500" />
+                        Completed
+                      </span>
+                    )}
+                    {isCancelled && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-[11px] font-semibold">
+                        <AlertTriangle className="w-3 h-3" />
+                        Cancelled
+                      </span>
+                    )}
+                    {!isLive && !isPast && !isCancelled && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-500 text-[11px] font-semibold">
                         <Clock className="w-3 h-3" />
                         Scheduled
@@ -196,92 +340,117 @@ export default function TeacherClassesPage() {
                     )}
                     <span className="text-xs font-semibold text-gray-500">{cls.batch}</span>
                   </div>
-                  <span className="text-xs text-gray-400">{cls.time}</span>
+                  <div className="flex items-center gap-3 text-xs text-gray-400">
+                    {cls.durationMinutes && <span>{cls.durationMinutes} mins</span>}
+                    <span>{cls.time}</span>
+                  </div>
                 </div>
 
                 <h3 className="font-bold text-base text-gray-900 dark:text-white">{cls.title}</h3>
 
+                {/* Additional timestamps for past classes */}
+                {isPast && (cls.startedAt || cls.endedAt) && (
+                  <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-500 bg-gray-50 dark:bg-gray-900/50 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
+                    {cls.startedAt && (
+                      <span>
+                        <strong className="text-gray-700 dark:text-gray-300">Started:</strong>{" "}
+                        {new Date(cls.startedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    )}
+                    {cls.endedAt && (
+                      <span>
+                        <strong className="text-gray-700 dark:text-gray-300">Ended:</strong>{" "}
+                        {new Date(cls.endedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-between gap-3">
                   <span className="text-xs text-gray-400 flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5" />
-                    {cls.studentsCount} Students registered
+                    <span data-testid={`booking-count-${cls.id}`}>
+                      {cls.bookingsCount ?? cls.studentsCount} Students registered
+                    </span>
                   </span>
 
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {/* Copy Link */}
-                    <button
-                      type="button"
-                      onClick={() => handleCopyLink(cls)}
-                      className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      {copiedId === cls.id ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-500" />
-                          <span className="text-emerald-600 dark:text-emerald-400">Copied</span>
-                        </>
+                  {!isReadOnly && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {/* Copy Link */}
+                      <button
+                        type="button"
+                        onClick={() => handleCopyLink(cls)}
+                        className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        {copiedId === cls.id ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-500" />
+                            <span className="text-emerald-600 dark:text-emerald-400">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>Copy Link</span>
+                          </>
+                        )}
+                      </button>
+
+                      {/* Edit */}
+                      {isLive ? (
+                        <button
+                          type="button"
+                          disabled
+                          title="LIVE NOW classes cannot be edited"
+                          className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-400 text-xs font-semibold flex items-center gap-1.5 opacity-50 cursor-not-allowed"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </button>
                       ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5" />
-                          <span>Copy Link</span>
-                        </>
+                        <Link
+                          href={`/teacher/classes/${cls.id}/edit`}
+                          className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </Link>
                       )}
-                    </button>
 
-                    {/* Edit */}
-                    {isLive ? (
-                      <button
-                        type="button"
-                        disabled
-                        title="LIVE NOW classes cannot be edited"
-                        className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-800 text-gray-400 text-xs font-semibold flex items-center gap-1.5 opacity-50 cursor-not-allowed"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                        <span>Edit</span>
-                      </button>
-                    ) : (
+                      {/* Cancel */}
+                      {isLive ? (
+                        <button
+                          type="button"
+                          disabled
+                          title="LIVE NOW classes cannot be cancelled"
+                          className="px-3 py-1.5 rounded-xl border border-red-200/50 dark:border-red-900/50 text-red-300 dark:text-red-800 text-xs font-semibold flex items-center gap-1.5 opacity-50 cursor-not-allowed"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Cancel</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCancelError(null)
+                            setClassToCancel(cls)
+                          }}
+                          className="px-3 py-1.5 rounded-xl border border-red-200 dark:border-red-900/60 hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Cancel</span>
+                        </button>
+                      )}
+
+                      {/* Join Live Demo */}
                       <Link
-                        href={`/teacher/classes/${cls.id}/edit`}
-                        className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                        href={cls.demoLink || "/teacher/classes"}
+                        className="px-4 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
                       >
-                        <Edit2 className="w-3.5 h-3.5" />
-                        <span>Edit</span>
+                        <Video className="w-3.5 h-3.5" />
+                        <span>Join Live Demo</span>
                       </Link>
-                    )}
-
-                    {/* Cancel */}
-                    {isLive ? (
-                      <button
-                        type="button"
-                        disabled
-                        title="LIVE NOW classes cannot be cancelled"
-                        className="px-3 py-1.5 rounded-xl border border-red-200/50 dark:border-red-900/50 text-red-300 dark:text-red-800 text-xs font-semibold flex items-center gap-1.5 opacity-50 cursor-not-allowed"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Cancel</span>
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCancelError(null)
-                          setClassToCancel(cls)
-                        }}
-                        className="px-3 py-1.5 rounded-xl border border-red-200 dark:border-red-900/60 hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Cancel</span>
-                      </button>
-                    )}
-
-                    {/* Join Live Demo */}
-                    <Link
-                      href={cls.demoLink || "/teacher/classes"}
-                      className="px-4 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
-                    >
-                      <Video className="w-3.5 h-3.5" />
-                      <span>Join Live Demo</span>
-                    </Link>
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )
