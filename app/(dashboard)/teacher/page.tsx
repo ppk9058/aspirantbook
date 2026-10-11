@@ -16,30 +16,36 @@ import {
 } from "lucide-react"
 import { getAllDoubts } from "@/lib/doubts-service"
 import { getAllBatches } from "@/lib/batches-service"
+import { prisma } from "@/lib/prisma"
+import { formatUtcToIst } from "@/lib/demo/slot-utils"
 
 export default async function TeacherDashboardPage() {
   const doubts = await getAllDoubts().catch(() => [])
   const pendingDoubts = doubts.filter((d) => d.status === "PENDING")
   const batches = await getAllBatches().catch(() => [])
 
-  const scheduledClasses = [
-    {
-      id: "half-yearly-6",
-      title: "Science & Physics: Motion & Measurement of Distances",
-      batch: "Champs 2.0 (Class 6)",
-      time: "Today, 5:00 PM - 6:30 PM",
-      status: "LIVE NOW",
-      studentsCount: 976,
+  const demoSlots = await prisma.demoSlot.findMany({
+    where: { status: { in: ["SCHEDULED", "LIVE"] } },
+    include: {
+      course: { select: { id: true, slug: true, title: true } },
+      _count: { select: { bookings: true } },
     },
-    {
-      id: "python-masterclass",
-      title: "Python Vectorization & Matrix Ops with NumPy",
-      batch: "Foundation Batch 2026",
-      time: "Tomorrow, 10:00 AM - 11:30 AM",
-      status: "UPCOMING",
-      studentsCount: 340,
-    },
-  ]
+    orderBy: [{ status: "desc" }, { startTime: "asc" }],
+    take: 5,
+  }).catch(() => [])
+
+  const scheduledClasses = demoSlots.map((s) => {
+    const ist = formatUtcToIst(s.startTime)
+    return {
+      id: s.id,
+      title: `Live Demo: ${s.topic}`,
+      batch: s.course?.title || "Demo Batch",
+      time: ist.fullLabel,
+      status: s.status === "LIVE" ? "LIVE NOW" : "SCHEDULED",
+      studentsCount: s._count.bookings,
+      demoLink: `/courses/${s.course?.slug}/demo?slot=${s.id}`,
+    }
+  })
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -61,11 +67,11 @@ export default async function TeacherDashboardPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              href="/classroom/half-yearly-6?role=teacher"
-              className="px-6 py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-red-600/30 flex items-center gap-2 transition-all hover:scale-102 animate-pulse"
+              href="/teacher/classes/new"
+              className="px-6 py-3.5 rounded-2xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white font-bold text-xs sm:text-sm shadow-lg shadow-[#3AAFA9]/30 flex items-center gap-2 transition-all hover:scale-102"
             >
-              <Radio className="w-4 h-4" />
-              <span>Launch Live Studio</span>
+              <PlusCircle className="w-4 h-4" />
+              <span>Schedule New Class</span>
             </Link>
           </div>
         </div>
@@ -80,8 +86,13 @@ export default async function TeacherDashboardPage() {
               <Video className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-gray-900 dark:text-white mt-2">2</p>
-          <p className="text-[11px] text-emerald-500 font-medium mt-0.5">1 Live &bull; 1 Scheduled</p>
+          <p className="text-2xl font-black text-gray-900 dark:text-white mt-2">
+            {scheduledClasses.length}
+          </p>
+          <p className="text-[11px] text-emerald-500 font-medium mt-0.5">
+            {scheduledClasses.filter((c) => c.status === "LIVE NOW").length} Live &bull;{" "}
+            {scheduledClasses.filter((c) => c.status !== "LIVE NOW").length} Scheduled
+          </p>
         </div>
 
         <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
@@ -178,11 +189,11 @@ export default async function TeacherDashboardPage() {
                     {cls.studentsCount} Students registered
                   </span>
                   <Link
-                    href={`/classroom/${cls.id}?role=teacher`}
-                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+                    href={cls.demoLink || "/teacher/classes"}
+                    className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
                   >
-                    <Radio className="w-3.5 h-3.5" />
-                    <span>Enter Studio</span>
+                    <Video className="w-3.5 h-3.5" />
+                    <span>Join Demo</span>
                   </Link>
                 </div>
               </div>

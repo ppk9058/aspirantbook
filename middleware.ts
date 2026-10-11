@@ -72,14 +72,13 @@ export default auth((req) => {
 
     // Private routes requiring authentication:
     // /profile, /settings, /subscription, /purchases,
-    // /classroom, /learn (actual video player), /assessments (private tests/attempts),
+    // /learn (actual video player), /assessments (private tests/attempts),
     // /doubts (private doubt center), /forms, /tracks, /code-along, /leaderboard
     const isPrivateRoute =
         nextUrl.pathname.startsWith("/profile") ||
         nextUrl.pathname.startsWith("/settings") ||
         nextUrl.pathname.startsWith("/subscription") ||
         nextUrl.pathname.startsWith("/purchases") ||
-        nextUrl.pathname.startsWith("/classroom") ||
         nextUrl.pathname.startsWith("/learn") ||
         nextUrl.pathname.includes("/learn/") ||
         nextUrl.pathname.startsWith("/assessments") ||
@@ -138,7 +137,6 @@ export const config = {
         "/current-affairs-quizzes/:path*",
         "/pyqs/:path*",
         "/practice/:path*",
-        "/classroom/:path*",
         "/learn/:path*",
         "/leaderboard/:path*",
         "/profile/:path*",

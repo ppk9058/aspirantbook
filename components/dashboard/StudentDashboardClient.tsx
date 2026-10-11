@@ -29,7 +29,6 @@ import ActivityFeed from "@/components/dashboard/ActivityFeed"
 import DoubtSubmissionModal from "@/components/student/DoubtSubmissionModal"
 import { isCourseMatchingGoal, isTextTutorialCourse } from "@/lib/course-classifier"
 import MobilePromoCarousel from "@/components/dashboard/mobile/MobilePromoCarousel"
-import MobileLivePill from "@/components/dashboard/mobile/MobileLivePill"
 import MobileQuickAccessGrid from "@/components/dashboard/mobile/MobileQuickAccessGrid"
 import MobileRecommendedSection from "@/components/dashboard/mobile/MobileRecommendedSection"
 import { TestActionButton } from "@/components/test-series/TestActionButton"
@@ -61,7 +60,7 @@ export default function StudentDashboardClient({
   const { selectedGoal, selectedSubGoal, openGoalModal } = useGoal()
   const { openMobileAuth } = useMobileAuth()
   const [isDoubtModalOpen, setIsDoubtModalOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<"courses" | "batches" | "live" | "tests" | "tutorials">("courses")
+  const [activeTab, setActiveTab] = useState<"courses" | "batches" | "tests" | "tutorials">("courses")
   const [mockTests, setMockTests] = useState<any[]>([])
 
   const isGuest = !session?.user
@@ -142,100 +141,6 @@ export default function StudentDashboardClient({
       isMounted = false
     }
   }, [activeTab])
-
-  // Dynamic upcoming live class schedule based on active goal
-  const todayLiveClass = useMemo(() => {
-    const gid = selectedGoal.id.toLowerCase()
-    if (gid === "bpsc") {
-      return {
-        id: "class-live-bpsc",
-        title: "72nd BPSC CCE: Bihar Special Geography, River Systems & Economy",
-        subject: "General Studies & Bihar GK",
-        batchName: "BPSC 72nd Foundation 2026",
-        teacher: "Dr. A. K. Verma (Ex-State PSC Advisor)",
-        teacherAvatar: "/batch-blue.svg",
-        timeText: "Today, 6:00 PM - 7:30 PM",
-        status: "LIVE",
-        viewersCount: 482,
-      }
-    }
-    if (gid === "upsc") {
-      return {
-        id: "class-live-upsc",
-        title: "UPSC CSE GS-2: Fundamental Rights, Judicial Review & Basic Structure",
-        subject: "Indian Polity & Governance",
-        batchName: "UPSC Sankalp Batch 2026",
-        teacher: "Prof. S. R. Iyengar (Civil Services Mentor)",
-        teacherAvatar: "/batch-purple.svg",
-        timeText: "Today, 7:00 PM - 8:30 PM",
-        status: "LIVE",
-        viewersCount: 615,
-      }
-    }
-    if (gid === "class-10" || gid.startsWith("class-")) {
-      return {
-        id: "class-live-school",
-        title: "Class 10th CBSE: Quadratic Equations & Trigonometry Board Exemplar",
-        subject: "Mathematics",
-        batchName: "Super 50 Board Toppers Batch",
-        teacher: "Er. Ramesh Chandra (Senior CBSE Examiner)",
-        teacherAvatar: "/batch-emerald.svg",
-        timeText: "Today, 5:00 PM - 6:30 PM",
-        status: "LIVE",
-        viewersCount: 390,
-      }
-    }
-    if (gid === "govt-exams" || gid === "ssc") {
-      return {
-        id: "class-live-ssc",
-        title: "SSC CGL 2026: Compound Interest & Time-Speed-Distance Tricks",
-        subject: "Quantitative Aptitude",
-        batchName: "SSC CGL Officer Batch 2026",
-        teacher: "Rakesh Yadav Sir (Quant Specialist)",
-        teacherAvatar: "/batch-blue.svg",
-        timeText: "Today, 6:30 PM - 8:00 PM",
-        status: "LIVE",
-        viewersCount: 540,
-      }
-    }
-    if (gid === "data-science") {
-      return {
-        id: "class-live-ds",
-        title: "Deep Learning & Transformer Architectures: Attention & RAG",
-        subject: "Data Science & AI",
-        batchName: "AI Engineers Batch 2026",
-        teacher: "Prof. Rajesh Sharma (AI Research Fellow)",
-        teacherAvatar: "/batch-purple.svg",
-        timeText: "Today, 6:00 PM - 7:30 PM",
-        status: "LIVE",
-        viewersCount: 420,
-      }
-    }
-    if (gid === "dsa-interview") {
-      return {
-        id: "class-live-dsa",
-        title: "Dynamic Programming Patterns & Hard Graph Algorithms",
-        subject: "DSA & Coding Interviews",
-        batchName: "FAANG SDE Interview Sprint",
-        teacher: "Arjun Verma (Ex-Google SDE-3)",
-        teacherAvatar: "/batch-blue.svg",
-        timeText: "Today, 7:00 PM - 8:30 PM",
-        status: "LIVE",
-        viewersCount: 512,
-      }
-    }
-    return {
-      id: "class-live-101",
-      title: "Data Science & Neural Networks: Vectorization & Gradient Descent",
-      subject: "Python & Machine Learning",
-      batchName: "AI Engineers Batch 2026",
-      teacher: "Prof. Rajesh Sharma",
-      teacherAvatar: "/batch-blue.svg",
-      timeText: "Today, 6:00 PM - 7:30 PM",
-      status: "LIVE",
-      viewersCount: 342,
-    }
-  }, [selectedGoal.id])
 
   const upcomingTests = useMemo(() => {
     const gid = selectedGoal.id.toLowerCase()
@@ -369,9 +274,6 @@ export default function StudentDashboardClient({
     <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* MOBILE-ONLY SECTION (< 1024px): Principle 3 Native Mobile Look */}
       <div className="lg:hidden space-y-3 -mx-4 sm:-mx-6 -mt-2">
-        {/* Floating Live Pill (shown only when live count > 0) */}
-        <MobileLivePill />
-
         {/* Promo Carousel from real homepage-cards.json data */}
         {promoCards && promoCards.length > 0 && (
           <MobilePromoCarousel cards={promoCards} />
@@ -486,19 +388,19 @@ export default function StudentDashboardClient({
           </p>
         </Link>
 
-        {/* Action 3: Upcoming Class */}
+        {/* Action 3: Previous Year Papers */}
         <Link
-          href={`/classroom/${todayLiveClass.id}`}
-          className="group p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-red-400 dark:hover:border-red-500 shadow-sm transition-all"
+          href="/pyqs"
+          className="group p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm transition-all"
         >
-          <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-            <Radio className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <FileText className="w-5 h-5" />
           </div>
           <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">
-            Live Classroom
+            Previous Year Papers
           </h3>
           <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
-            Join teacher & chat
+            Official PYQ Archives
           </p>
         </Link>
 
@@ -563,18 +465,6 @@ export default function StudentDashboardClient({
             >
               <Layers className="w-4 h-4" />
               <span>My Batches ({filteredBatches.length})</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("live")}
-              className={`pb-2 text-xs sm:text-sm font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
-                activeTab === "live"
-                  ? "border-[#3AAFA9] text-[#3AAFA9]"
-                  : "border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
-              }`}
-            >
-              <Video className="w-4 h-4" />
-              <span>Live Classes (1)</span>
             </button>
 
             <button
@@ -736,32 +626,7 @@ export default function StudentDashboardClient({
           </div>
         )}
 
-        {/* Tab 3: Live Classes */}
-        {activeTab === "live" && (
-          <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-sm text-gray-900 dark:text-white">
-                  Today's Classroom Broadcast
-                </h3>
-                <p className="text-xs text-gray-500">Live interaction, real-time polls, and doubt solving</p>
-              </div>
-              <Link
-                href={`/classroom/${todayLiveClass.id}`}
-                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5"
-              >
-                <Radio className="w-3.5 h-3.5" />
-                <span>Enter Live Class</span>
-              </Link>
-            </div>
-            <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-              <h4 className="font-semibold text-xs text-gray-900 dark:text-white">{todayLiveClass.title}</h4>
-              <p className="text-[11px] text-gray-500 mt-1">Instructor: {todayLiveClass.teacher} &bull; {todayLiveClass.timeText}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 4: Tests */}
+        {/* Tab 3: Tests */}
         {activeTab === "tests" && (
           <div className="space-y-4">
             {mockTests.map((ct) => (

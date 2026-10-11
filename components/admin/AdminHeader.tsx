@@ -166,7 +166,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
                                     {user?.name || "Admin Authority"}
                                 </span>
                                 <span className="text-[10px] text-purple-600 font-semibold leading-tight">
-                                    Super Admin
+                                    {user?.role === "TEACHER" ? "Teacher" : "Super Admin"}
                                 </span>
                             </div>
                             <ChevronDown className="h-3.5 w-3.5 text-gray-500 hidden sm:block opacity-70" />
@@ -187,7 +187,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
                                                 {user?.name || "Admin User"}
                                             </p>
                                             <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
-                                                ADMIN
+                                                {user?.role === "TEACHER" ? "TEACHER" : "ADMIN"}
                                             </span>
                                         </div>
                                         <p className="text-[11px] text-gray-500 truncate mt-0.5">

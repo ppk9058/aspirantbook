@@ -25,14 +25,12 @@ interface QuickAccessItem {
 
 const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
   {
-    id: "live",
-    name: "Live Classes",
-    href: "/classroom/upsc-foundation",
-    icon: Radio,
-    iconBg: "bg-rose-50 dark:bg-rose-950/40",
-    iconColor: "text-rose-600 dark:text-rose-400",
-    badge: "LIVE",
-    badgeColor: "bg-rose-700 text-white",
+    id: "books",
+    name: "Bookstore",
+    href: "/books",
+    icon: BookOpen,
+    iconBg: "bg-indigo-50 dark:bg-indigo-950/40",
+    iconColor: "text-indigo-600 dark:text-indigo-400",
   },
   {
     id: "tests",

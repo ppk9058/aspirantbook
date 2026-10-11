@@ -369,8 +369,8 @@ export function buildAllTestCases(): TestCaseDef[] {
     { id: "J12-14", persona: "FREE", method: "GET", url: "/api/courses/video-courses", expectedStatus: 200, description: "Video courses list returns 200" },
     { id: "J12-15", persona: "FREE", method: "POST", url: "/api/courses/teacher-photo-upload", expectedStatus: 403, bodyPayload: {}, description: "Student cannot upload teacher photo" },
     { id: "J12-16", persona: "TEACHER", method: "POST", url: "/api/courses/teacher-photo-upload", expectedStatus: 400, bodyPayload: {}, description: "Teacher photo upload empty payload rejected" },
-    { id: "J12-17", persona: "FREE", method: "GET", url: "/api/classroom/live-status", expectedStatus: 200, expectedBodySnippet: '"success":true', description: "Live classroom status returns 200" },
-    { id: "J12-18", persona: "Anonymous", method: "GET", url: "/api/classroom/live-status", expectedStatus: 200, expectedBodySnippet: '"success":true', description: "Anonymous live status returns 200" },
+    { id: "J12-17", persona: "FREE", method: "GET", url: "/api/classroom/live-status", expectedStatus: 404, description: "Removed live classroom status returns 404" },
+    { id: "J12-18", persona: "Anonymous", method: "GET", url: "/api/classroom/live-status", expectedStatus: 404, description: "Removed anonymous live status returns 404" },
     { id: "J12-19", persona: "FREE", method: "GET", url: "/api/exam/ai-parse", expectedStatus: 405, description: "GET on AI-parse endpoint rejected" },
     { id: "J12-20", persona: "FREE", method: "POST", url: "/api/exam/ai-parse", expectedStatus: 403, bodyPayload: {}, description: "AI-parse student access forbidden" },
   ];

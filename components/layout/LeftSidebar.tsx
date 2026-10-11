@@ -42,7 +42,6 @@ const TEACHER_NAV = [
     { name: "Tutorial Studio", href: "/admin/tutorials", icon: BookOpen },
     { name: "Book", href: "/books", icon: Book },
     { name: "My Classes", href: "/teacher/classes", icon: Calendar },
-    { name: "Live Studio", href: "/classroom/half-yearly-6?role=teacher", icon: PlayCircle },
     { name: "Pending Doubts", href: "/teacher/questions", icon: HelpCircle },
     { name: "Profile", href: "/profile", icon: User },
 ]
@@ -103,7 +102,6 @@ export default function LeftSidebar() {
             { name: "My Test", href: "/my-tests", icon: ClipboardCheck },
             { name: "Previous Year Questions", href: "/pyqs", icon: FileText },
             { name: "Coding Practice", href: "/practice", icon: Code2 },
-            { name: "Live Classes", href: "/classroom/half-yearly-6", icon: PlayCircle },
             { name: "Payments", href: "/subscription", icon: CreditCard },
             { name: "Profile", href: "/profile", icon: User },
         ]

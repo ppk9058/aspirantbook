@@ -64,6 +64,14 @@ test.describe("Teacher Studio Navigation, Allowlist & Super-Admin Route Protecti
     expect(await activeAdminNavTutorials.count()).toBe(1)
     await expect(activeAdminNavTutorials).toHaveText(/Tutorial Studio/)
 
+    // AdminHeader shows "Teacher" and not "Super Admin"
+    await expect(page.locator("header")).not.toContainText("Super Admin")
+    const headerTeacher = page.locator("header").getByText("Teacher", { exact: true }).first()
+    await expect(headerTeacher).toBeAttached()
+    if (!page.viewportSize() || page.viewportSize()!.width >= 1280) {
+      await expect(headerTeacher).toBeVisible()
+    }
+
     // 3. PYQ Studio
     const resPyqs = await page.goto("/admin/pyqs", { waitUntil: "domcontentloaded" })
     expect(resPyqs?.status()).toBe(200)

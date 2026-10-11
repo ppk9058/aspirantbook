@@ -191,15 +191,8 @@ export default function BatchDetailClient({ batch }: BatchDetailClientProps) {
               </p>
             </div>
 
-            {/* Starts / Ends Timeline Pill & Live Classroom Action */}
+            {/* Starts / Ends Timeline Pill */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0 self-start md:self-auto">
-              <Link
-                href={`/classroom/${batch.slug}`}
-                className="bg-red-500 hover:bg-red-600 text-white rounded-2xl px-4 py-3 flex items-center gap-2.5 shadow-md hover:shadow-lg transition-all text-xs font-black shrink-0 cursor-pointer animate-pulse"
-              >
-                <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
-                <span>Join Live Classroom ↗</span>
-              </Link>
               <div className="bg-[#FFF8F4] border border-[#FFE0D0] rounded-2xl p-4 flex items-center gap-3 shrink-0">
                 <div className="w-10 h-10 rounded-xl bg-[#F26522] text-white flex items-center justify-center shrink-0">
                   <Calendar className="h-5 w-5" />
@@ -770,14 +763,6 @@ export default function BatchDetailClient({ batch }: BatchDetailClientProps) {
                     <ArrowRight className="h-5 w-5 stroke-[2.5]" />
                   </button>
 
-                  <Link
-                    href={`/classroom/${batch.slug}`}
-                    className="w-full py-2.5 rounded-xl border border-red-500/30 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-                    <span>Join Ongoing Live Masterclass ↗</span>
-                  </Link>
-
                   <p className="text-[11px] text-center text-gray-500 font-medium">
                     ⚡ Instant Course Access &bull; 100% Satisfaction Guarantee
                   </p>
@@ -910,10 +895,10 @@ export default function BatchDetailClient({ batch }: BatchDetailClientProps) {
 
                   <div className="pt-2 space-y-2">
                     <Link
-                      href={`/classroom/${batch.slug}`}
+                      href="/my-learning"
                       className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#F26522] to-[#FF7A38] hover:from-[#E05310] hover:to-[#F26522] text-white font-extrabold text-sm shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
                     >
-                      <span>Enter Live Classroom Now 🚀</span>
+                      <span>View My Batches & Learning 🚀</span>
                       <ArrowRight className="h-4 w-4 stroke-[2.5]" />
                     </Link>
                     <button

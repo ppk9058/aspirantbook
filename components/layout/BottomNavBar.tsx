@@ -17,7 +17,7 @@ const STUDENT_TABS = [
 const TEACHER_TABS = [
     { name: "Home", href: "/teacher", icon: Home },
     { name: "Classes", href: "/teacher/classes", icon: Calendar },
-    { name: "Studio", href: "/classroom/half-yearly-6?role=teacher", icon: PlayCircle },
+    { name: "Tests", href: "/teacher/test-series", icon: CheckSquare },
     { name: "Doubts", href: "/teacher/questions", icon: HelpCircle },
     { name: "Profile", href: "/profile", icon: User },
 ]

@@ -186,7 +186,7 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                                     {user?.name || "Admin Authority"}
                                 </div>
                                 <div className="text-[10px] text-purple-400 font-medium truncate">
-                                    {user?.email || "Super Admin"}
+                                    {user?.email || (user?.role === "TEACHER" ? "Teacher" : "Super Admin")}
                                 </div>
                             </div>
                         </button>
