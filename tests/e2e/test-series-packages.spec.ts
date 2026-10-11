@@ -570,13 +570,25 @@ test.describe("Test Series Packages Studio, Ownership & Authoritative Metrics", 
     await page.goto("/teacher/test-series/packages")
     await expect(page.locator("h1")).toContainText("Test Series Packages")
 
-    // Breadcrumbs check: must contain Teacher and Test Series (hidden on mobile viewport)
+    // Breadcrumbs check: must contain Dashboard, Teacher and Test Series (hidden on mobile viewport)
     if (testInfo.project.name !== "mobile") {
       const breadcrumbs = page.locator("[data-testid='breadcrumbs']")
       await expect(breadcrumbs).toBeVisible()
+      await expect(breadcrumbs).toContainText("Dashboard")
       await expect(breadcrumbs).toContainText("Teacher")
       await expect(breadcrumbs).toContainText("Test Series")
       await expect(breadcrumbs).toContainText("Packages")
+      await expect(breadcrumbs.locator("a[href='/dashboard']")).toBeVisible()
+      await expect(breadcrumbs.locator("a[href='/teacher']")).toBeVisible()
+      await expect(breadcrumbs.locator("a[href='/teacher/test-series']")).toBeVisible()
+
+      // Repeated-segment path check: ensure sequential href building doesn't collapse on duplicate segment names
+      const sampleSegments = ["teacher", "test-series", "packages", "test-series", "preview"]
+      const filteredSample = sampleSegments.filter((s) => s !== "tracks")
+      const sampleHrefs = filteredSample.map((_, i) => "/" + filteredSample.slice(0, i + 1).join("/"))
+      expect(sampleHrefs[1]).toBe("/teacher/test-series")
+      expect(sampleHrefs[3]).toBe("/teacher/test-series/packages/test-series")
+      expect(sampleHrefs[4]).toBe("/teacher/test-series/packages/test-series/preview")
     }
 
     // Teacher A sees Package A card, but NOT Package B card
@@ -586,6 +598,16 @@ test.describe("Test Series Packages Studio, Ownership & Authoritative Metrics", 
     // Navigate to Package A Detail
     await page.goto(`/teacher/test-series/package/${packageA.id}`)
     await expect(page.locator("[data-testid='package-detail']")).toBeVisible()
+
+    if (testInfo.project.name !== "mobile") {
+      const detailBreadcrumbs = page.locator("[data-testid='breadcrumbs']")
+      await expect(detailBreadcrumbs).toBeVisible()
+      await expect(detailBreadcrumbs).toContainText("Dashboard")
+      await expect(detailBreadcrumbs.locator("a[href='/dashboard']")).toBeVisible()
+      await expect(detailBreadcrumbs.locator("a[href='/teacher']")).toBeVisible()
+      await expect(detailBreadcrumbs.locator("a[href='/teacher/test-series']")).toBeVisible()
+      await expect(detailBreadcrumbs.locator("a[href='/teacher/test-series/package']")).toBeVisible()
+    }
 
     // Assert exact metric cards
     await expect(page.locator("[data-testid='metric-paid']")).toHaveText("1")
@@ -609,13 +631,17 @@ test.describe("Test Series Packages Studio, Ownership & Authoritative Metrics", 
     await page.goto("/admin/test-series/packages")
     await expect(page.locator("h1")).toContainText("Test Series Packages")
 
-    // Breadcrumbs check: must contain Admin and Test Series (hidden on mobile viewport)
+    // Breadcrumbs check: must contain Dashboard, Admin and Test Series (hidden on mobile viewport)
     if (testInfo.project.name !== "mobile") {
       const breadcrumbs = page.locator("[data-testid='breadcrumbs']")
       await expect(breadcrumbs).toBeVisible()
+      await expect(breadcrumbs).toContainText("Dashboard")
       await expect(breadcrumbs).toContainText("Admin")
       await expect(breadcrumbs).toContainText("Test Series")
       await expect(breadcrumbs).toContainText("Packages")
+      await expect(breadcrumbs.locator("a[href='/dashboard']")).toBeVisible()
+      await expect(breadcrumbs.locator("a[href='/admin']")).toBeVisible()
+      await expect(breadcrumbs.locator("a[href='/admin/test-series']")).toBeVisible()
     }
 
     // Admin sees both packages

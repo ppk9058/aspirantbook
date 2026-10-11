@@ -42,8 +42,7 @@ export default function Breadcrumbs() {
     const breadcrumbs = segments
         .filter(segment => !SKIP_SEGMENTS.includes(segment))
         .map((segment, index, filteredSegments) => {
-            const originalIndex = segments.indexOf(segment)
-            const href = "/" + segments.slice(0, originalIndex + 1).join("/")
+            const href = "/" + filteredSegments.slice(0, index + 1).join("/")
 
             const label = ROUTE_LABELS[segment] || segment
                 .split("-")
@@ -63,10 +62,11 @@ export default function Breadcrumbs() {
         <nav aria-label="Breadcrumb" data-testid="breadcrumbs" className="hidden sm:flex items-center space-x-1.5 text-xs text-gray-500 dark:text-gray-400 mb-4 overflow-x-auto whitespace-nowrap py-1">
             <Link
                 href={homeHref}
-                className="hover:text-[#3AAFA9] dark:hover:text-[#3AAFA9] transition-colors flex items-center p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5"
+                className="hover:text-[#3AAFA9] dark:hover:text-[#3AAFA9] transition-colors flex items-center gap-1.5 p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5"
                 title="Home"
             >
                 <Home className="h-3.5 w-3.5" />
+                <span>Dashboard</span>
             </Link>
 
             {breadcrumbs.map((crumb, idx) => {
