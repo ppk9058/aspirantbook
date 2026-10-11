@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { safeSignOut } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
+import { isTeacherAllowedAdminPath } from "@/lib/auth/roles"
 import {
     LayoutDashboard,
     BookOpen,
@@ -104,19 +105,19 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >
-                {/* Logo & Platform Header - Clickable to Home */}
+                {/* Logo & Platform Header - Clickable to Home or Teacher Dashboard */}
                 <div className="p-4 flex items-center justify-between border-b border-slate-800">
                     <Link
-                        href="/"
+                        href={user?.role === "TEACHER" ? "/teacher" : "/"}
                         className="flex items-center gap-3 group transition-transform active:scale-95"
-                        title="Return to aspirantbook Home Page"
+                        title={user?.role === "TEACHER" ? "Return to Teacher Dashboard" : "Return to aspirantbook Home Page"}
                     >
                         <div className="h-9 w-9 bg-purple-600 rounded-lg flex items-center justify-center shadow-md group-hover:bg-purple-500 transition-colors flex-shrink-0">
                             <span className="text-white font-black text-base">A</span>
                         </div>
                         <div>
                             <div className="text-sm font-bold text-white flex items-center gap-1.5 group-hover:text-purple-300 transition-colors">
-                                <span>Admin Portal</span>
+                                <span>{user?.role === "TEACHER" ? "Teacher Studio" : "Admin Portal"}</span>
                                 <ArrowUpRight className="h-3.5 w-3.5 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>
                             <div className="text-xs text-purple-400 font-medium">aspirantbook</div>
@@ -137,7 +138,12 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                 <div className="flex-1 overflow-y-auto py-4 px-3">
                     <nav className="space-y-1">
                         {adminNavigation
-                            .filter((item) => !(item as any).adminOnly || user?.role === "ADMIN")
+                            .filter((item) => {
+                                if (user?.role === "TEACHER") {
+                                    return isTeacherAllowedAdminPath(item.href)
+                                }
+                                return !(item as any).adminOnly || user?.role === "ADMIN"
+                            })
                             .map((item) => {
                             const active = isRouteActive(item)
                             return (
@@ -207,21 +213,21 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                         </div>
                     </div>
 
-                    {/* Dedicated Return to Home Button */}
+                    {/* Dedicated Return to Home / Teacher Dashboard Button */}
                     <Link
-                        href="/"
+                        href={user?.role === "TEACHER" ? "/teacher" : "/"}
                         className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 active:scale-[0.98] transition-all shadow-md group"
-                        title="Exit Admin and return to Home Page"
+                        title={user?.role === "TEACHER" ? "Exit Studio and return to Teacher Dashboard" : "Exit Admin and return to Home Page"}
                     >
                         <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-                        <span>Return to Home</span>
+                        <span>{user?.role === "TEACHER" ? "Teacher Dashboard" : "Return to Home"}</span>
                     </Link>
 
                     {/* Status indicator */}
                     <div className="flex items-center justify-between px-2 text-[11px] text-slate-400">
                         <span className="flex items-center gap-1.5 font-medium">
                             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            Admin Mode
+                            {user?.role === "TEACHER" ? "Teacher Mode" : "Admin Mode"}
                         </span>
                         <span className="text-[10px] text-slate-500">aspirantbook</span>
                     </div>

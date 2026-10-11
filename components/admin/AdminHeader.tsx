@@ -98,11 +98,11 @@ export function AdminHeader({ user }: AdminHeaderProps) {
 
                     <div className="flex items-center gap-2 text-sm">
                         <Link
-                            href="/admin/dashboard"
+                            href={user?.role === "TEACHER" ? "/teacher" : "/admin/dashboard"}
                             className="flex items-center gap-1.5 font-bold text-gray-900 hover:text-purple-600 transition-colors"
                         >
                             <Shield className="h-4 w-4 text-purple-600" />
-                            <span className="hidden sm:inline">Admin Portal</span>
+                            <span className="hidden sm:inline">{user?.role === "TEACHER" ? "Teacher Portal" : "Admin Portal"}</span>
                         </Link>
 
                         <ChevronRight className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />

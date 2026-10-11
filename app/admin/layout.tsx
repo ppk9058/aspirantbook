@@ -2,7 +2,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { AdminNav } from "@/components/admin/AdminNav"
 import { AdminHeader } from "@/components/admin/AdminHeader"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
+import { isTeacherAllowedAdminPath } from "@/lib/auth/roles"
 
 export default async function AdminLayout({
     children,
@@ -11,20 +12,23 @@ export default async function AdminLayout({
 }) {
     const session = await auth()
     const cookieStore = await cookies()
+    const headerList = await headers()
     const demoRole = cookieStore.get("ts_demo_role")?.value
     const effectiveRole = session?.user?.role || demoRole
+    const pathname = headerList.get("x-pathname") || ""
 
-    // Redirect non-admin users (Teachers get redirected to /teacher, Students/guests to /)
+    // Redirect non-admin users (Teachers get redirected to /teacher unless allowed studio, Students/guests to /)
     if (effectiveRole === "TEACHER") {
-        redirect("/teacher")
-    }
-    if (!effectiveRole || effectiveRole !== "ADMIN") {
+        if (!isTeacherAllowedAdminPath(pathname)) {
+            redirect("/teacher")
+        }
+    } else if (!effectiveRole || effectiveRole !== "ADMIN") {
         redirect("/")
     }
 
     const effectiveUser = {
-        name: session?.user?.name || "Admin Authority",
-        email: session?.user?.email || "admin@aspirantbook.com",
+        name: session?.user?.name || (effectiveRole === "TEACHER" ? "Teacher" : "Admin Authority"),
+        email: session?.user?.email || (effectiveRole === "TEACHER" ? "teacher@aspirantbook.com" : "admin@aspirantbook.com"),
         role: effectiveRole,
         image: session?.user?.image,
     }

@@ -47,3 +47,28 @@ export function getDashboardHref(rawRole?: string | null, isAuthenticated: boole
   return "/dashboard"
 }
 
+/**
+ * Shared allowlist of admin studio routes accessible by TEACHER.
+ * All other /admin/* and /api/admin/* routes remain strictly restricted to ADMIN.
+ */
+export const TEACHER_ALLOWED_ADMIN_STUDIOS = [
+  "/admin/courses",
+  "/admin/tutorials",
+  "/admin/pyqs",
+  "/admin/batches",
+  "/admin/books",
+] as const
+
+/**
+ * Checks whether an admin or api/admin path is within the allowed teacher studios.
+ */
+export function isTeacherAllowedAdminPath(pathname: string): boolean {
+  if (!pathname) return false
+  const normalized = pathname.startsWith("/api/admin/")
+    ? pathname.replace("/api/admin/", "/admin/")
+    : pathname
+  return TEACHER_ALLOWED_ADMIN_STUDIOS.some(
+    (prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`)
+  )
+}
+

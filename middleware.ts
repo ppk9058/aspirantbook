@@ -2,6 +2,7 @@ import NextAuth from "next-auth"
 import { authConfig } from "./auth.config"
 import { NextResponse } from "next/server"
 import { sanitizeReturnPath } from "./lib/utils/return-path"
+import { isTeacherAllowedAdminPath } from "./lib/auth/roles"
 
 const { auth } = NextAuth(authConfig)
 
@@ -29,27 +30,31 @@ export default auth((req) => {
         return new URL(path, reqOrigin)
     }
 
-    // Admin APIs Protection — ADMIN only
+    // Admin APIs Protection — ADMIN or allowed TEACHER studios
     if (nextUrl.pathname.startsWith("/api/admin")) {
         if (!isAuthenticated) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
-        if (effectiveRole !== "ADMIN") {
+        if (effectiveRole === "TEACHER") {
+            if (!isTeacherAllowedAdminPath(nextUrl.pathname)) {
+                return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 })
+            }
+        } else if (effectiveRole !== "ADMIN") {
             return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 })
         }
     }
 
-    // Admin & Studios Route Protection — All /admin/* blocked for TEACHER, redirect to /teacher
+    // Admin & Studios Route Protection — All non-studio /admin/* blocked for TEACHER (redirect to /teacher)
     if (nextUrl.pathname.startsWith("/admin")) {
         if (!isAuthenticated) {
             return NextResponse.redirect(toRequestUrl("/login"))
         }
 
         if (effectiveRole === "TEACHER") {
-            return NextResponse.redirect(toRequestUrl("/teacher"))
-        }
-
-        if (effectiveRole !== "ADMIN") {
+            if (!isTeacherAllowedAdminPath(nextUrl.pathname)) {
+                return NextResponse.redirect(toRequestUrl("/teacher"))
+            }
+        } else if (effectiveRole !== "ADMIN") {
             return NextResponse.redirect(toRequestUrl("/"))
         }
     }
@@ -109,7 +114,13 @@ export default auth((req) => {
         }
     }
 
-    return NextResponse.next()
+    const requestHeaders = new Headers(req.headers)
+    requestHeaders.set("x-pathname", nextUrl.pathname)
+    return NextResponse.next({
+        request: {
+            headers: requestHeaders,
+        },
+    })
 })
 
 export const config = {

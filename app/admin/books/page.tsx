@@ -19,7 +19,7 @@ export default async function AdminBookstorePage() {
 
   // STRICT ACCESS: Only ADMIN role can access Online Bookstore admin panel
   if (effectiveRole !== "ADMIN") {
-    redirect("/admin?error=unauthorized_bookstore")
+    redirect("/teacher?error=unauthorized_bookstore")
   }
 
   const [books, orders, coupons, stats] = await Promise.all([
