@@ -49,6 +49,15 @@ export async function GET(
       }
     }
 
+    // Ownership check: a TEACHER cannot view submissions/rankings for another teacher's test
+    const userRole = (session.user as any).role;
+    if (userRole === "TEACHER" && test.createdById !== session.user.id) {
+      return NextResponse.json(
+        { error: "Forbidden: You cannot view submissions for another teacher's test" },
+        { status: 403 }
+      );
+    }
+
     // Fetch deduplicated qualifying rankings using canonical ranking helper
     const { totalCandidates, rankedAttempts } = await getTestRankings(testId);
 

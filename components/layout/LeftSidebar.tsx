@@ -136,6 +136,7 @@ export default function LeftSidebar() {
     const isActive = (href: string) => {
         if (href === "/") return pathname === "/"
         if (href === "/dashboard") return pathname === "/dashboard"
+        if (href === "/teacher") return pathname === "/teacher"
         if (href === "/courses") return pathname === "/courses"
         if (href === "/my-tests") return pathname === "/my-tests" || pathname === "/test-series/my-tests"
         if (href === "/test-series") return pathname === "/test-series" || (pathname.startsWith("/test-series") && !pathname.includes("/my-tests"))

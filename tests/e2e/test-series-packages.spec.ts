@@ -699,4 +699,95 @@ test.describe("Test Series Packages Studio, Ownership & Authoritative Metrics", 
       await expect(studioLink).toHaveAttribute("href", "/teacher/test-series")
     }
   })
+
+  test("T-PKG-08: Submissions page displays correct metrics and rankings, error state, and highlights single sidebar item", async ({ page }, testInfo) => {
+    // 1. Teacher A opens Submissions of their test (testA1)
+    await loginThroughUi(page, teacherA.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    // Check sidebar highlight on /teacher/test-series/packages
+    await page.goto("/teacher/test-series/packages")
+    if (testInfo.project.name !== "mobile") {
+      const activeNavItems = page.locator("aside nav a.bg-\\[\\#3AAFA9\\]")
+      await expect(activeNavItems).toHaveCount(1)
+      await expect(page.locator("[data-testid='sidebar-item-teacher-dashboard']")).not.toHaveClass(/bg-\[#3AAFA9\]/)
+      await expect(page.locator("[data-testid='sidebar-item-test-series-studio']")).toHaveClass(/bg-\[#3AAFA9\]/)
+    }
+
+    // Navigate to Submissions page for testA1
+    await page.goto(`/teacher/test-series/${testA1.id}/submissions`)
+
+    // Header asserts test title (not id)
+    const heading = page.locator("[data-testid='submissions-title']")
+    await expect(heading).toBeVisible()
+    await expect(heading).toContainText(testA1.title)
+    await expect(heading).not.toContainText(testA1.id)
+
+    // Metric cards: 2 candidates, highest 80, average 70.0 (staff attempt excluded)
+    await expect(page.locator("[data-testid='metric-candidates']")).toHaveText("2")
+    await expect(page.locator("[data-testid='metric-highest-score']")).toHaveText("80")
+    await expect(page.locator("[data-testid='metric-class-average']")).toContainText("70.0")
+
+    // Ranks and student names
+    const rows = page.locator("[data-testid='submission-row']")
+    await expect(rows).toHaveCount(2)
+
+    // First row: Student 4 with score 80 and rank #1
+    await expect(rows.nth(0).locator("[data-testid='candidate-name']")).toHaveText(student4.name)
+    await expect(rows.nth(0).locator("[data-testid='candidate-rank']")).toHaveText("#1")
+    await expect(rows.nth(0).locator("[data-testid='candidate-score']")).toHaveText("80")
+
+    // Second row: Student 5 with score 60 and rank #2
+    await expect(rows.nth(1).locator("[data-testid='candidate-name']")).toHaveText(student5.name)
+    await expect(rows.nth(1).locator("[data-testid='candidate-rank']")).toHaveText("#2")
+    await expect(rows.nth(1).locator("[data-testid='candidate-score']")).toHaveText("60")
+
+    // Verify staff attempt (Teacher A with score 100) is completely absent from table
+    const tableText = await page.locator("table").innerText()
+    expect(tableText).not.toContain(teacherA.name)
+    expect(tableText).not.toContain("100")
+
+    // 2. Error state test: simulate failing request
+    await page.route(`**/api/exam/${testA1.id}/leaderboard*`, async (route) => {
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "Internal server error" }),
+      })
+    })
+    await page.reload({ waitUntil: "domcontentloaded" })
+    await expect(page.locator("[data-testid='submissions-error']")).toBeVisible()
+    await expect(page.locator("[data-testid='submissions-error']")).toContainText("Failed to load submissions")
+    await page.unroute(`**/api/exam/${testA1.id}/leaderboard*`)
+  })
+
+  test("T-PKG-09: Submissions page enforces ownership 403 on non-owner Teacher B", async ({ page }) => {
+    // Teacher B opening Teacher A's test submissions -> 403 Forbidden
+    await loginThroughUi(page, teacherB.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    // Direct API check: returns 403
+    const forbiddenApi = await page.request.get(`/api/exam/${testA1.id}/leaderboard`)
+    expect(forbiddenApi.status()).toBe(403)
+
+    // UI navigation check: shows 403 Access Denied banner
+    await page.goto(`/teacher/test-series/${testA1.id}/submissions`)
+    await expect(page.locator("[data-testid='submissions-forbidden']")).toBeVisible()
+    await expect(page.locator("[data-testid='submissions-forbidden']")).toContainText("Access Denied (403)")
+  })
+
+  test("T-PKG-10: Admin is allowed to view any test submissions via API and UI", async ({ page }) => {
+    // Admin opening Teacher A's test submissions -> 200 allowed
+    await loginThroughUi(page, admin.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    // Direct API check: returns 200
+    const adminApi = await page.request.get(`/api/exam/${testA1.id}/leaderboard`)
+    expect(adminApi.status()).toBe(200)
+
+    // UI navigation check
+    await page.goto(`/teacher/test-series/${testA1.id}/submissions`)
+    await expect(page.locator("[data-testid='submissions-title']")).toContainText(testA1.title)
+    await expect(page.locator("[data-testid='metric-candidates']")).toHaveText("2")
+  })
 })
