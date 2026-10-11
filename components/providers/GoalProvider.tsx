@@ -245,9 +245,14 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
         return () => window.removeEventListener("goalChange", handleCustomGoalChange)
     }, [applyGoalsFromRaw, router, session?.user?.id, status])
 
+    const persistAbortControllerRef = useRef<AbortController | null>(null)
+
     const persistGoals = useCallback(
         async (ids: string[], subGoal: SubGoal | null = null) => {
             const serialized = serializeGoalIds(ids)
+            cachedUserGoalPromise = Promise.resolve({
+                goal: { goalId: serialized, goalIds: ids, subGoalId: subGoal?.id },
+            })
             setSelectedGoalIds(ids)
             selectedGoalIdsRef.current = ids
             setSelectedSubGoal(subGoal)
@@ -274,10 +279,17 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
                 return
             }
 
+            if (persistAbortControllerRef.current) {
+                persistAbortControllerRef.current.abort()
+            }
+            const controller = new AbortController()
+            persistAbortControllerRef.current = controller
+
             // Save to user API (DB source of truth and cookie)
             try {
                 const res = await fetch("/api/user/goal", {
                     method: "POST",
+                    signal: controller.signal,
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         goalId: serialized,
@@ -289,8 +301,10 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
                     // Refresh server components with updated cookie and DB state
                     router.refresh()
                 }
-            } catch (err) {
-                console.warn("Failed to persist goal:", err)
+            } catch (err: any) {
+                if (err?.name !== "AbortError") {
+                    console.warn("Failed to persist goal:", err)
+                }
             }
         },
         [router, session?.user?.id, status]

@@ -11,63 +11,68 @@ import { getStudentGoals } from "@/lib/goals/student-goals"
 import { applyCourseGoalFilter } from "@/lib/goals/goal-filters"
 import { getCourseBadges } from "@/lib/coupons/badge-query"
 
-const getPublishedDbCourses = unstable_cache(
-    async () => {
-        const courses = await prisma.course.findMany({
-            where: {
-                status: "PUBLISHED",
-            },
-            orderBy: {
-                createdAt: "desc",
-            },
-            select: {
-                id: true,
-                title: true,
-                slug: true,
-                description: true,
-                thumbnailUrl: true,
-                difficulty: true,
-                rating: true,
-                enrollmentCount: true,
-                duration: true,
-                isPremium: true,
-                technology: true,
-                chapters: {
-                    select: {
-                        lessons: {
-                            select: { type: true, videoUrl: true },
-                        },
+async function fetchPublishedDbCourses() {
+    const courses = await prisma.course.findMany({
+        where: {
+            status: "PUBLISHED",
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+        select: {
+            id: true,
+            title: true,
+            slug: true,
+            description: true,
+            thumbnailUrl: true,
+            difficulty: true,
+            rating: true,
+            enrollmentCount: true,
+            duration: true,
+            isPremium: true,
+            technology: true,
+            chapters: {
+                select: {
+                    lessons: {
+                        select: { type: true, videoUrl: true },
                     },
                 },
             },
-        })
+        },
+    })
 
-        // Pre-classify on server to completely omit nested chapters/lessons payload
-        return courses.map((c) => {
-            const classified = classifyCourse(c)
-            return {
-                id: c.id,
-                title: c.title,
-                slug: c.slug,
-                description: c.description ? cleanDescriptionSnippet(c.description, 200) : "",
-                thumbnailUrl: c.thumbnailUrl,
-                difficulty: c.difficulty,
-                rating: c.rating,
-                enrollmentCount: c.enrollmentCount,
-                duration: c.duration,
-                isPremium: c.isPremium,
-                technology: c.technology,
-                isTutorial: classified.isTutorial,
-                goalId: classified.goalId,
-                category: classified.category,
-                subject: classified.subject,
-                tags: classified.tags,
-            }
-        })
-    },
+    // Pre-classify on server to completely omit nested chapters/lessons payload
+    return courses.map((c) => {
+        const classified = classifyCourse(c)
+        return {
+            id: c.id,
+            title: c.title,
+            slug: c.slug,
+            description: c.description ? cleanDescriptionSnippet(c.description, 200) : "",
+            thumbnailUrl: c.thumbnailUrl,
+            difficulty: c.difficulty,
+            rating: c.rating,
+            enrollmentCount: c.enrollmentCount,
+            duration: c.duration,
+            isPremium: c.isPremium,
+            technology: c.technology,
+            isTutorial: classified.isTutorial,
+            goalId: classified.goalId,
+            category: classified.category,
+            subject: classified.subject,
+            tags: classified.tags,
+        }
+    })
+}
+
+const getCachedPublishedDbCourses = unstable_cache(
+    fetchPublishedDbCourses,
     ["published-courses-list-slim-v2"],
     { revalidate: 60, tags: ["courses"] }
 )
+
+const getPublishedDbCourses =
+    process.env.APP_ENV === "test" ? fetchPublishedDbCourses : getCachedPublishedDbCourses
 
 export default async function CoursesPage() {
     const session = await auth()

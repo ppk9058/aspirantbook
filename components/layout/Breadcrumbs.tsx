@@ -18,6 +18,10 @@ const ROUTE_LABELS: Record<string, string> = {
     "settings": "Settings",
     "profile": "Profile",
     "admin": "Admin",
+    "teacher": "Teacher",
+    "test-series": "Test Series",
+    "packages": "Packages",
+    "package": "Package",
     "users": "Users",
     "dashboard": "Dashboard",
 }

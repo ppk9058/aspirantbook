@@ -14,14 +14,17 @@ export default async function AdminLayout({
     const demoRole = cookieStore.get("ts_demo_role")?.value
     const effectiveRole = session?.user?.role || demoRole
 
-    // Redirect non-admin and non-teacher users (Students get redirected to home)
-    if (!effectiveRole || (effectiveRole !== "ADMIN" && effectiveRole !== "TEACHER")) {
+    // Redirect non-admin users (Teachers get redirected to /teacher, Students/guests to /)
+    if (effectiveRole === "TEACHER") {
+        redirect("/teacher")
+    }
+    if (!effectiveRole || effectiveRole !== "ADMIN") {
         redirect("/")
     }
 
     const effectiveUser = {
-        name: session?.user?.name || (effectiveRole === "TEACHER" ? "Prof. Rajesh Sharma" : "Admin Authority"),
-        email: session?.user?.email || (effectiveRole === "TEACHER" ? "teacher@aspirantbook.com" : "admin@aspirantbook.com"),
+        name: session?.user?.name || "Admin Authority",
+        email: session?.user?.email || "admin@aspirantbook.com",
         role: effectiveRole,
         image: session?.user?.image,
     }

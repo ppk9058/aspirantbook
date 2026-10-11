@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { getLeaderboard, getUserRank } from '@/lib/redis'
 import { prisma } from '@/lib/prisma'
 
 export async function GET(request: Request) {
@@ -14,82 +13,69 @@ export async function GET(request: Request) {
         const limit = parseInt(searchParams.get('limit') || '100')
         const offset = parseInt(searchParams.get('offset') || '0')
 
-        // Get leaderboard from Redis (or fallback to Postgres when Redis cache is cold)
-        const leaderboard = await getLeaderboard(limit, offset)
-        let enrichedLeaderboard: Array<{ rank: number; user: any; xp: number }> = []
+        // Total eligible student count (excluding staff and users with 0 XP)
+        const totalEligible = await prisma.user.count({
+            where: {
+                role: { notIn: ["TEACHER", "ADMIN"] },
+                xp: { gt: 0 },
+            },
+        })
 
-        if (leaderboard.length > 0) {
-            // Get user details for each entry (strictly excluding TEACHER and ADMIN staff)
-            const userIds = leaderboard.map((entry) => entry.userId)
-            const users = await prisma.user.findMany({
-                where: {
-                    id: { in: userIds },
-                    role: { notIn: ["TEACHER", "ADMIN"] },
-                },
-                select: {
-                    id: true,
-                    name: true,
-                    image: true,
-                    xp: true,
-                    level: true,
-                    streak: true,
-                },
-            })
+        // Query Postgres with pre-paging staff filter and deterministic ordering
+        const dbUsers = await prisma.user.findMany({
+            where: {
+                role: { notIn: ["TEACHER", "ADMIN"] },
+                xp: { gt: 0 },
+            },
+            orderBy: [
+                { xp: 'desc' },
+                { id: 'asc' },
+            ],
+            take: limit,
+            skip: offset,
+            select: {
+                id: true,
+                name: true,
+                image: true,
+                xp: true,
+                level: true,
+                streak: true,
+            },
+        })
 
-            // Combine leaderboard data with user details and re-index ranks
-            enrichedLeaderboard = leaderboard
-                .map((entry) => {
-                    const user = users.find((u) => u.id === entry.userId)
-                    if (!user) return null
-                    return {
-                        user,
-                        xp: entry.xp,
-                    }
-                })
-                .filter((entry): entry is { user: (typeof users)[0]; xp: number } => entry !== null)
-                .map((entry, idx) => ({
-                    rank: offset + idx + 1,
-                    user: entry.user,
-                    xp: entry.xp,
-                }))
-        } else {
-            // DB fallback: query Postgres directly, strictly excluding staff
-            const dbUsers = await prisma.user.findMany({
-                where: {
-                    role: { notIn: ["TEACHER", "ADMIN"] },
-                    xp: { gt: 0 },
-                },
-                orderBy: { xp: 'desc' },
-                take: limit,
-                skip: offset,
-                select: {
-                    id: true,
-                    name: true,
-                    image: true,
-                    xp: true,
-                    level: true,
-                    streak: true,
-                },
-            })
-
-            enrichedLeaderboard = dbUsers.map((user, idx) => ({
-                rank: offset + idx + 1,
-                user,
-                xp: user.xp,
-            }))
-        }
+        const enrichedLeaderboard = dbUsers.map((user, idx) => ({
+            rank: offset + idx + 1,
+            user,
+            xp: user.xp,
+        }))
 
         // Get current user's rank (staff members receive no student rank)
         let currentUserRank = null
         const isStaff = (session.user as any).role === "TEACHER" || (session.user as any).role === "ADMIN"
         if (session.user.id && !isStaff) {
-            currentUserRank = await getUserRank(session.user.id)
+            const currentUser = await prisma.user.findUnique({
+                where: { id: session.user.id },
+                select: { xp: true },
+            })
+            if (currentUser && currentUser.xp > 0) {
+                const higherCount = await prisma.user.count({
+                    where: {
+                        role: { notIn: ["TEACHER", "ADMIN"] },
+                        xp: { gt: 0 },
+                        OR: [
+                            { xp: { gt: currentUser.xp } },
+                            { xp: currentUser.xp, id: { lt: session.user.id } },
+                        ],
+                    },
+                })
+                currentUserRank = higherCount + 1
+            }
         }
 
         return NextResponse.json({
             leaderboard: enrichedLeaderboard,
             currentUserRank,
-            total: enrichedLeaderboard.length,
+            total: totalEligible,
         })
     } catch (error) {
         console.error('Leaderboard API error:', error)

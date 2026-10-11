@@ -53,6 +53,19 @@ export async function POST(req: NextRequest) {
 
     const cleanDescription = description && typeof description === "string" ? description.trim() : null;
 
+    // Server-side ownership check: teachers cannot modify other teachers' series packages
+    const existingSeries = await prisma.examSeries.findUnique({
+      where: { slug },
+      select: { id: true, createdById: true },
+    });
+
+    if (existingSeries && role === "TEACHER" && existingSeries.createdById !== session.user.id) {
+      return NextResponse.json(
+        { error: "Forbidden: You cannot modify a series package created by another teacher" },
+        { status: 403 }
+      );
+    }
+
     // Upsert or create series with real columns
     const series = await prisma.examSeries.upsert({
       where: { slug },

@@ -128,16 +128,23 @@ export default function TeacherTestSeriesManagePage() {
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
-                    <button
-                        onClick={() => setIsCreatePackageModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-800 dark:text-gray-200 font-bold text-sm shadow-xs transition-all cursor-pointer"
+                    <Link
+                        href="/teacher/test-series/packages"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-800 dark:text-gray-200 font-bold text-sm shadow-xs transition-all min-h-[44px]"
                     >
                         <Layers className="h-4 w-4 text-[#00A8FF]" />
-                        <span>+ New Series Package (Flash Card)</span>
+                        <span>View Packages</span>
+                    </Link>
+                    <button
+                        onClick={() => setIsCreatePackageModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-800 dark:text-gray-200 font-bold text-sm shadow-xs transition-all cursor-pointer min-h-[44px]"
+                    >
+                        <Plus className="h-4 w-4 text-[#00A8FF]" />
+                        <span>+ New Series Package</span>
                     </button>
                     <Link
                         href="/teacher/test-series/create"
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#00A8FF] to-[#0080ff] hover:from-[#0096e6] hover:to-[#0070e6] text-white font-bold text-sm shadow-lg shadow-[#00A8FF]/20 transition-all active:scale-[0.98]"
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#00A8FF] to-[#0080ff] hover:from-[#0096e6] hover:to-[#0070e6] text-white font-bold text-sm shadow-lg shadow-[#00A8FF]/20 transition-all active:scale-[0.98] min-h-[44px]"
                     >
                         <Plus className="h-4 w-4 stroke-[3]" />
                         <span>Create Individual Test</span>

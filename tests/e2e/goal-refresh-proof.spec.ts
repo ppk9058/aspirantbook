@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 const TEST_DB_URL =
   process.env.TEST_DATABASE_URL ||
   "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
-const BASE = "http://localhost:3045";
+const BASE = process.env.BASE_URL || "http://127.0.0.1:3045";
 
 const prisma = new PrismaClient({
   datasources: { db: { url: TEST_DB_URL } },
@@ -462,22 +462,15 @@ test.describe.serial("Goal Refresh Proof Suite (No Manual Reload)", () => {
       });
       const page = await context.newPage();
 
-      page.on("request", (req) => {
-        if (req.url().includes("/api/user/goal")) {
-          console.log(`[REQ] ${req.method()} ${req.postData() || ""}`);
-        }
-      });
-      page.on("response", async (res) => {
-        if (res.url().includes("/api/user/goal")) {
-          console.log(`[RES] ${res.status()} ${await res.text()}`);
-        }
-      });
+
 
       // Log in student once
-      await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${BASE}/login`);
       await page.locator('input[type="email"]').fill(STUDENT_EMAIL);
       await page.locator('input[type="password"]').fill(PASSWORD);
+      const resPromise = page.waitForResponse((r) => r.url().includes("/api/auth/callback/credentials") && r.request().method() === "POST");
       await page.locator('button[type="submit"]').click();
+      await resPromise;
       await page.waitForURL((url) => !url.pathname.includes("/login"), {
         timeout: 15000,
       });

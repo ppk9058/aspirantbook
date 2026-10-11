@@ -87,6 +87,10 @@ async function main() {
   console.log(`Teacher excluded from Page 2: ${!teacherInP2}`);
   console.log(`Admin excluded from Page 2: ${!adminInP2}`);
 
+  if (teacherInP1 || adminInP1 || teacherInP2 || adminInP2) {
+    throw new Error("Staff (TEACHER or ADMIN) found in leaderboard response!");
+  }
+
   const p1Ranks = json1.leaderboard.map((e: any) => e.rank);
   const p2Ranks = json2.leaderboard.map((e: any) => e.rank);
   console.log(`Page 1 Ranks: [${p1Ranks.join(", ")}] (expected: [1, 2])`);
@@ -99,7 +103,53 @@ async function main() {
     throw new Error(`Page 2 ranks restarted or incorrect: got [${p2Ranks.join(", ")}]`);
   }
 
-  console.log("\nALL XP LEADERBOARD PAGING AND PRE-PAGING STAFF EXCLUSION CHECKS PASSED!");
+  // 1. Discriminating check: No duplicate user IDs across pages
+  const p1Ids = json1.leaderboard.map((e: any) => e.user.id);
+  const p2Ids = json2.leaderboard.map((e: any) => e.user.id);
+  const allIds = [...p1Ids, ...p2Ids];
+  const uniqueIds = new Set(allIds);
+  console.log(`Unique user IDs across pages: ${uniqueIds.size} / ${allIds.length}`);
+  if (uniqueIds.size !== allIds.length) {
+    const duplicates = allIds.filter((id, index) => allIds.indexOf(id) !== index);
+    throw new Error(`Duplicate user ID(s) found across pages: ${duplicates.join(", ")}`);
+  }
+
+  // 2. Discriminating check: Total eligible user count
+  const expectedTotal = await prisma.user.count({
+    where: {
+      role: { notIn: ["TEACHER", "ADMIN"] },
+      xp: { gt: 0 },
+    },
+  });
+  console.log(`Reported Page 1 total: ${json1.total}, Page 2 total: ${json2.total}, Expected eligible total: ${expectedTotal}`);
+  if (json1.total !== expectedTotal) {
+    throw new Error(`Page 1 reported total ${json1.total} does not match actual eligible user count ${expectedTotal}`);
+  }
+  if (json2.total !== expectedTotal) {
+    throw new Error(`Page 2 reported total ${json2.total} does not match actual eligible user count ${expectedTotal}`);
+  }
+
+  // 3. Discriminating check: Union of pages must match prefix of full ordered eligible list
+  const expectedPrefix = await prisma.user.findMany({
+    where: {
+      role: { notIn: ["TEACHER", "ADMIN"] },
+      xp: { gt: 0 },
+    },
+    orderBy: [{ xp: "desc" }, { id: "asc" }],
+    take: 4,
+    select: { id: true, xp: true },
+  });
+  console.log(`Checking prefix match against top ${expectedPrefix.length} eligible users from DB:`);
+  for (let i = 0; i < expectedPrefix.length; i++) {
+    const expected = expectedPrefix[i];
+    const actualId = allIds[i];
+    console.log(`  Index ${i}: expected user ${expected.id} (${expected.xp} XP), got ${actualId}`);
+    if (actualId !== expected.id) {
+      throw new Error(`Leaderboard ordering mismatch at index ${i}: expected user ${expected.id}, got ${actualId}`);
+    }
+  }
+
+  console.log("\nALL XP LEADERBOARD DISCRIMINATING CHECKS PASSED!");
 
   await ctx.dispose();
   await prisma.$disconnect();

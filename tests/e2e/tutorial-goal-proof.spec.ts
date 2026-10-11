@@ -13,7 +13,7 @@ const prisma = new PrismaClient({
   },
 });
 
-const BASE = "http://localhost:3045";
+const BASE = process.env.BASE_URL || "http://127.0.0.1:3045";
 const ts = Date.now();
 
 const MARKER_UPSC = `CANARY_UPSC_TUTORIAL_${ts}`;

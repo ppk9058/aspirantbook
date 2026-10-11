@@ -14,34 +14,42 @@ export default auth((req) => {
     const isAuthenticated = isLoggedIn || Boolean(demoRole)
     const subscriptionStatus = req.auth?.user?.subscriptionStatus
 
-    // Determine actual request origin from incoming request headers
-    const reqHost = req.headers.get("x-forwarded-host") || req.headers.get("host") || nextUrl.host
+    // Determine actual request origin from incoming request headers (prefer host header to preserve 127.0.0.1 vs localhost)
+    const reqHost = req.headers.get("host") || req.headers.get("x-forwarded-host") || nextUrl.host
     const reqProto = req.headers.get("x-forwarded-proto") || (nextUrl.protocol.replace(":", "") || "http")
     const reqOrigin = `${reqProto}://${reqHost}`
+
+    if (reqHost && nextUrl.host !== reqHost) {
+        try {
+            nextUrl.host = reqHost
+        } catch {}
+    }
 
     const toRequestUrl = (path: string) => {
         return new URL(path, reqOrigin)
     }
 
-    // Admin & Studios Route Protection
+    // Admin APIs Protection — ADMIN only
+    if (nextUrl.pathname.startsWith("/api/admin")) {
+        if (!isAuthenticated) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+        if (effectiveRole !== "ADMIN") {
+            return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 })
+        }
+    }
+
+    // Admin & Studios Route Protection — All /admin/* blocked for TEACHER, redirect to /teacher
     if (nextUrl.pathname.startsWith("/admin")) {
         if (!isAuthenticated) {
             return NextResponse.redirect(toRequestUrl("/login"))
         }
-        
-        // Super admin only routes
-        const isAdminOnly = nextUrl.pathname.startsWith("/admin/users") ||
-                            nextUrl.pathname.startsWith("/admin/audit") ||
-                            nextUrl.pathname.startsWith("/admin/settings")
-        
-        if (isAdminOnly && effectiveRole !== "ADMIN") {
+
+        if (effectiveRole === "TEACHER") {
             return NextResponse.redirect(toRequestUrl("/teacher"))
         }
 
-        // All studio routes (courses, test-series, pyqs, exercises, assessments, batches, dashboard)
-        // are open to both TEACHER and ADMIN
-        const isAllowed = effectiveRole === "ADMIN" || effectiveRole === "TEACHER"
-        if (!isAllowed) {
+        if (effectiveRole !== "ADMIN") {
             return NextResponse.redirect(toRequestUrl("/"))
         }
     }
@@ -107,6 +115,7 @@ export default auth((req) => {
 export const config = {
     matcher: [
         "/admin/:path*",
+        "/api/admin/:path*",
         "/teacher/:path*",
         "/dashboard/:path*",
         "/courses/:path*",

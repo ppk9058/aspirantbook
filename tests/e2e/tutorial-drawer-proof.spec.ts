@@ -7,7 +7,7 @@ import fs from "fs";
 const TEST_DB_URL =
   process.env.TEST_DATABASE_URL ||
   "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
-const BASE = "http://localhost:3045";
+const BASE = process.env.BASE_URL || "http://127.0.0.1:3045";
 
 const prisma = new PrismaClient({
   datasources: { db: { url: TEST_DB_URL } },
@@ -72,7 +72,7 @@ test.describe.serial("Mobile and Tablet Tutorial Chapter Index Off-Canvas Drawer
     const page = await context.newPage();
 
     // Login
-    await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/login`);
     await page.locator('input[type="email"]').fill(STUDENT_EMAIL);
     await page.locator('input[type="password"]').fill(PASSWORD);
     await page.locator('button[type="submit"]').click();
@@ -247,7 +247,7 @@ test.describe.serial("Mobile and Tablet Tutorial Chapter Index Off-Canvas Drawer
     const page = await context.newPage();
 
     // Login
-    await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/login`);
     await page.locator('input[type="email"]').fill(STUDENT_EMAIL);
     await page.locator('input[type="password"]').fill(PASSWORD);
     await page.locator('button[type="submit"]').click();
@@ -386,7 +386,7 @@ test.describe.serial("Mobile and Tablet Tutorial Chapter Index Off-Canvas Drawer
     const page = await context.newPage();
 
     // Login
-    await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE}/login`);
     await page.locator('input[type="email"]').fill(STUDENT_EMAIL);
     await page.locator('input[type="password"]').fill(PASSWORD);
     await page.locator('button[type="submit"]').click();

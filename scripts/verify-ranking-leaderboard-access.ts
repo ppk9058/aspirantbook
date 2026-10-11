@@ -11,6 +11,7 @@ import bcrypt from "bcryptjs"
 import { chromium } from "playwright"
 import { getTestRankings, getAttemptRanking } from "../lib/exam-ranking"
 
+const TEST_DB_URL = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || ""
 const BASE_URL = "http://127.0.0.1:3045"
 const prisma = new PrismaClient({ datasourceUrl: TEST_DB_URL })
 

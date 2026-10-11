@@ -14,7 +14,18 @@ export const authConfig = {
         },
         redirect({ url, baseUrl }) {
             if (url.startsWith("/")) return `${baseUrl}${url}`
-            else if (new URL(url).origin === baseUrl) return url
+            try {
+                const u = new URL(url)
+                const b = new URL(baseUrl)
+                if (
+                    u.origin === baseUrl ||
+                    ((u.hostname === "127.0.0.1" || u.hostname === "localhost") &&
+                     (b.hostname === "127.0.0.1" || b.hostname === "localhost") &&
+                     u.port === b.port)
+                ) {
+                    return url
+                }
+            } catch {}
             return baseUrl
         },
         jwt({ token, user, trigger, session }) {

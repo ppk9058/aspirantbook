@@ -36,7 +36,7 @@ import { AppRole, getDashboardHref } from "@/lib/auth/roles"
 const TEACHER_NAV = [
     { name: "Teacher Dashboard", href: "/teacher", icon: Home },
     { name: "Video Courses Studio", href: "/admin/courses", icon: Video },
-    { name: "Test Series Studio", href: "/admin/test-series", icon: PencilRuler },
+    { name: "Test Series Studio", href: "/teacher/test-series", icon: PencilRuler },
     { name: "Current Affairs & Quizzes", href: "/current-affairs-quizzes", icon: Newspaper },
     { name: "PYQ Studio", href: "/admin/pyqs", icon: FileText },
     { name: "Tutorial Studio", href: "/admin/tutorials", icon: BookOpen },
