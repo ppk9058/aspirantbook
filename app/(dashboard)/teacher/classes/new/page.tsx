@@ -1,52 +1,141 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   ArrowLeft,
   Calendar,
   Clock,
-  Video,
   CheckCircle2,
-  Sparkles,
   Loader2,
+  AlertCircle,
 } from "lucide-react"
+import { istToUtcIso, isIstDateTimeInFuture } from "@/lib/demo/slot-utils"
+
+interface CourseOption {
+  id: string
+  title: string
+}
 
 export default function ScheduleClassPage() {
   const router = useRouter()
   const [topic, setTopic] = useState("")
-  const [batch, setBatch] = useState("Champs 2.0 (Class 6)")
-  const [subject, setSubject] = useState("Science & Physics")
+  const [courseId, setCourseId] = useState("")
   const [date, setDate] = useState("")
   const [time, setTime] = useState("")
   const [duration, setDuration] = useState("60")
+
+  const [courses, setCourses] = useState<CourseOption[]>([])
+  const [loadingCourses, setLoadingCourses] = useState(true)
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [successDetails, setSuccessDetails] = useState<any | null>(null)
   const [copiedLink, setCopiedLink] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    let isMounted = true
+    fetch("/api/teacher/courses")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to load courses (${res.status})`)
+        }
+        return res.json()
+      })
+      .then((data) => {
+        if (isMounted && Array.isArray(data.courses)) {
+          setCourses(data.courses)
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch published courses:", err)
+      })
+      .finally(() => {
+        if (isMounted) setLoadingCourses(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
+    const errs: Record<string, string> = {}
+
+    if (!topic.trim()) {
+      errs.topic = "Class topic is required."
+    }
+    if (!courseId) {
+      errs.courseId = "Please select a course."
+    }
+    if (!date) {
+      errs.date = "Date is required."
+    }
+    if (!time) {
+      errs.time = "Start time is required."
+    }
+
+    if (date && time) {
+      if (!isIstDateTimeInFuture(date, time)) {
+        errs.time = "Start time must be in the future."
+      }
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setValidationErrors(errs)
+      setError(Object.values(errs)[0])
+      return
+    }
+
+    setValidationErrors({})
     setIsSubmitting(true)
 
     try {
+      const startTimeUtc = istToUtcIso(date, time)
       const res = await fetch("/api/teacher/classes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, batch, subject, date, time, duration }),
+        body: JSON.stringify({
+          topic: topic.trim(),
+          courseId,
+          startTimeUtc,
+          durationMinutes: Number(duration),
+        }),
       })
-      const data = await res.json()
-      if (res.ok) {
-        setSuccessDetails(data)
-        setIsSuccess(true)
+
+      const data = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        const errorMsg = data?.error || `Failed to schedule class (Status ${res.status})`
+        setError(errorMsg)
+        return
       }
-    } catch (err) {
-      console.error(err)
+
+      setSuccessDetails(data)
+      setIsSuccess(true)
+      setTimeout(() => {
+        router.push("/teacher/classes")
+      }, 1500)
+    } catch (err: any) {
+      console.error("Error scheduling class:", err)
+      setError(err?.message || "Network error. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
   }
+
+  const courseSlug = successDetails?.slot?.course?.slug
+  const demoUrl = courseSlug && successDetails?.slot?.id
+    ? `/courses/${courseSlug}/demo?slot=${successDetails.slot.id}`
+    : "/teacher/classes"
+  const landingUrl = typeof window !== "undefined"
+    ? `${window.location.origin}${courseSlug ? `/courses/${courseSlug}` : ""}`
+    : `https://trillionskill.com${courseSlug ? `/courses/${courseSlug}` : ""}`
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-12">
@@ -72,14 +161,17 @@ export default function ScheduleClassPage() {
         </div>
 
         {isSuccess ? (
-          <div className="py-6 space-y-4 text-center">
+          <div role="status" className="py-6 space-y-4 text-center">
             <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
             <div className="space-y-1">
               <h3 className="font-extrabold text-lg text-gray-900 dark:text-white">
                 Lecture & Demo Slot Scheduled!
               </h3>
+              <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                Class scheduled successfully!
+              </p>
               <p className="text-xs text-gray-500">
-                This session has been added to your classes and synced to the course demo slots.
+                This session has been added to your classes and synced to the course demo slots. Redirecting to My Classes...
               </p>
             </div>
 
@@ -90,16 +182,13 @@ export default function ScheduleClassPage() {
               </span>
               <div className="flex items-center gap-2 bg-white dark:bg-black p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-mono">
                 <span className="truncate flex-1 text-gray-900 dark:text-gray-100">
-                  {typeof window !== "undefined"
-                    ? `${window.location.origin}${successDetails?.directDemoLink ? successDetails.directDemoLink.replace('/demo', '') : '/courses/72nd-bpsc-prelims-current-affairs'}`
-                    : "https://trillionskill.com/courses/72nd-bpsc-prelims-current-affairs"}
+                  {landingUrl}
                 </span>
                 <button
                   type="button"
                   onClick={() => {
                     if (typeof window !== "undefined") {
-                      const url = `${window.location.origin}${successDetails?.directDemoLink ? successDetails.directDemoLink.replace('/demo', '') : '/courses/72nd-bpsc-prelims-current-affairs'}`
-                      navigator.clipboard.writeText(url)
+                      navigator.clipboard.writeText(landingUrl)
                       setCopiedLink(true)
                       setTimeout(() => setCopiedLink(false), 2000)
                     }
@@ -122,7 +211,7 @@ export default function ScheduleClassPage() {
                 Go to My Classes List
               </Link>
               <Link
-                href={successDetails?.directDemoLink || "/courses/72nd-bpsc-prelims-current-affairs/demo"}
+                href={demoUrl}
                 className="flex-1 py-3 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white font-bold text-xs transition-colors text-center"
               >
                 Preview Live Classroom →
@@ -130,87 +219,149 @@ export default function ScheduleClassPage() {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            {error && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-semibold flex items-start gap-2"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+
             <div>
-              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+              <label htmlFor="topic" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                 Class Topic / Lecture Title <span className="text-red-500">*</span>
               </label>
               <input
+                id="topic"
+                name="topic"
                 type="text"
-                required
                 placeholder="e.g. Electric Charges, Coulomb's Law & Field Lines"
                 value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                onChange={(e) => {
+                  setTopic(e.target.value)
+                  if (validationErrors.topic) {
+                    setValidationErrors((prev) => {
+                      const next = { ...prev }
+                      delete next.topic
+                      return next
+                    })
+                  }
+                }}
+                className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] ${
+                  validationErrors.topic ? "border-red-500" : "border-gray-300 dark:border-gray-700"
+                }`}
               />
+              {validationErrors.topic && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.topic}</p>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                  Target Batch
-                </label>
-                <select
-                  value={batch}
-                  onChange={(e) => setBatch(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
-                >
-                  <option value="Champs 2.0 (Class 6)">Champs 2.0 (Class 6)</option>
-                  <option value="Foundation Batch 2026">Foundation Batch 2026</option>
-                  <option value="Full-Stack Web Engineering">Full-Stack Web Engineering</option>
-                  <option value="DSA & Competitive Programming">DSA & Competitive Programming</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                  Subject
-                </label>
-                <select
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
-                >
-                  <option value="Science & Physics">Science & Physics</option>
-                  <option value="Python & AI">Python & AI</option>
-                  <option value="Mathematics & Aptitude">Mathematics & Aptitude</option>
-                  <option value="Algorithms & Data Structures">Algorithms & Data Structures</option>
-                </select>
-              </div>
+            <div>
+              <label htmlFor="courseId" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                Target Course <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="courseId"
+                name="courseId"
+                value={courseId}
+                onChange={(e) => {
+                  setCourseId(e.target.value)
+                  if (validationErrors.courseId) {
+                    setValidationErrors((prev) => {
+                      const next = { ...prev }
+                      delete next.courseId
+                      return next
+                    })
+                  }
+                }}
+                disabled={loadingCourses}
+                className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] disabled:opacity-60 ${
+                  validationErrors.courseId ? "border-red-500" : "border-gray-300 dark:border-gray-700"
+                }`}
+              >
+                <option value="">
+                  {loadingCourses ? "Loading published courses..." : "Select a published course..."}
+                </option>
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+              {validationErrors.courseId && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.courseId}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                  Date <span className="text-red-500">*</span>
+                <label htmlFor="date" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                  Date (IST) <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="date"
+                  name="date"
                   type="date"
-                  required
                   value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                  onChange={(e) => {
+                    setDate(e.target.value)
+                    if (validationErrors.date) {
+                      setValidationErrors((prev) => {
+                        const next = { ...prev }
+                        delete next.date
+                        return next
+                      })
+                    }
+                  }}
+                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] ${
+                    validationErrors.date ? "border-red-500" : "border-gray-300 dark:border-gray-700"
+                  }`}
                 />
+                {validationErrors.date && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.date}</p>
+                )}
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                  Start Time <span className="text-red-500">*</span>
+                <label htmlFor="time" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                  Start Time (IST) <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="time"
+                  name="time"
                   type="time"
-                  required
                   value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                  onChange={(e) => {
+                    setTime(e.target.value)
+                    if (validationErrors.time) {
+                      setValidationErrors((prev) => {
+                        const next = { ...prev }
+                        delete next.time
+                        return next
+                      })
+                    }
+                  }}
+                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] ${
+                    validationErrors.time ? "border-red-500" : "border-gray-300 dark:border-gray-700"
+                  }`}
                 />
+                {validationErrors.time && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.time}</p>
+                )}
               </div>
 
+
               <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                <label htmlFor="duration" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                   Duration (Mins)
                 </label>
                 <select
+                  id="duration"
+                  name="duration"
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
                   className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"

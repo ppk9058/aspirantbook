@@ -82,3 +82,25 @@ export function isSlotExpired(startTime: Date | string, durationMinutes = 60): b
   const end = new Date(start.getTime() + durationMinutes * 60 * 1000)
   return end < new Date()
 }
+
+/**
+ * Converts a date string (YYYY-MM-DD) and time string (HH:mm or HH:mm:ss) entered in IST (Asia/Kolkata)
+ * into a UTC ISO string (e.g. "2026-10-15T09:00:00.000Z").
+ */
+export function istToUtcIso(dateStr: string, timeStr: string): string {
+  const formattedTime = timeStr.length === 5 ? `${timeStr}:00` : timeStr
+  const istString = `${dateStr}T${formattedTime}+05:30`
+  const d = new Date(istString)
+  return d.toISOString()
+}
+
+/**
+ * Checks if a date and time entered in IST is in the future.
+ */
+export function isIstDateTimeInFuture(dateStr: string, timeStr: string): boolean {
+  const formattedTime = timeStr.length === 5 ? `${timeStr}:00` : timeStr
+  const istString = `${dateStr}T${formattedTime}+05:30`
+  const d = new Date(istString)
+  return !isNaN(d.getTime()) && d.getTime() > Date.now()
+}
+
