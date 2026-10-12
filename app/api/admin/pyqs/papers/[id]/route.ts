@@ -24,6 +24,18 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
 
     const { id } = await params
+    const existing = await getPaperById(id)
+    if (!existing) {
+      return NextResponse.json({ error: "Paper not found" }, { status: 404 })
+    }
+
+    // Ownership check: Teacher can only edit their own papers; legacy null creatorId is admin-only
+    if (user.role !== "ADMIN") {
+      if (!existing.creatorId || existing.creatorId !== user.userId) {
+        return NextResponse.json({ error: "Forbidden: You can only edit papers you created" }, { status: 403 })
+      }
+    }
+
     const body = await req.json()
     const updated = await updatePaper({ id, ...body })
     return NextResponse.json(updated)
@@ -41,6 +53,18 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     const { id } = await params
+    const existing = await getPaperById(id)
+    if (!existing) {
+      return NextResponse.json({ error: "Paper not found" }, { status: 404 })
+    }
+
+    // Ownership check: Teacher can only delete their own papers; legacy null creatorId is admin-only
+    if (user.role !== "ADMIN") {
+      if (!existing.creatorId || existing.creatorId !== user.userId) {
+        return NextResponse.json({ error: "Forbidden: You can only delete papers you created" }, { status: 403 })
+      }
+    }
+
     await deletePaper(id)
     return NextResponse.json({ success: true, message: "Paper deleted successfully" })
   } catch (error: any) {

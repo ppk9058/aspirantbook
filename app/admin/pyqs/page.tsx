@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { ensureDefaultPyqData } from "@/lib/pyqs-service"
+import { ensureDefaultPyqData, getAllPapers } from "@/lib/pyqs-service"
 import Link from "next/link"
 import {
   FileText,
@@ -33,14 +33,7 @@ export default async function AdminPyqsPage() {
       },
     }),
     prisma.pyqSubExam.count(),
-    prisma.pyqPaper.findMany({
-      orderBy: [{ year: "desc" }, { createdAt: "desc" }],
-      include: {
-        category: { select: { name: true, slug: true, badgeColor: true } },
-        subExam: { select: { name: true, slug: true } },
-        _count: { select: { leads: true, unlocks: true } },
-      },
-    }),
+    getAllPapers({ includeAllStatuses: true }),
     prisma.pyqLeadCapture.count(),
   ])
 

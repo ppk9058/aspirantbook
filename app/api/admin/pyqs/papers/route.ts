@@ -26,6 +26,7 @@ export async function GET(req: Request) {
       stage,
       accessType,
       includeAllStatuses: true,
+      creatorId: user.role === "ADMIN" ? undefined : user.userId,
     })
 
     return NextResponse.json(papers)

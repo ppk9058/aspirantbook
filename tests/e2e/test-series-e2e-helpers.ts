@@ -46,8 +46,8 @@ export async function loginThroughUi(page: Page, email: string) {
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const sessionResponse = await page.request.get("/api/auth/session");
     if (sessionResponse.ok()) {
-      const session = await sessionResponse.json() as { user?: { id: string; role: string } };
-      if (session.user?.id) return session;
+      const session = await sessionResponse.json() as { user?: { id: string; role: string } } | null;
+      if (session?.user?.id) return session;
     }
     await page.waitForTimeout(500);
   }

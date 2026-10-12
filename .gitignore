@@ -66,3 +66,4 @@ logs/
 artifacts/
 .env.test
 graphify-out/
+uploads/

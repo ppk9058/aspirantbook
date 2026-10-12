@@ -46,6 +46,7 @@ export function PyqUploadStudioClient({ categories }: { categories: Category[] }
   const [year, setYear] = useState<number>(new Date().getFullYear())
   const [stage, setStage] = useState<string>("PRELIMS")
   const [shift, setShift] = useState("Shift 1 (Morning)")
+  const [subject, setSubject] = useState("")
   const [durationMin, setDurationMin] = useState<number>(120)
   const [totalMarks, setTotalMarks] = useState<number>(150)
   const [totalQuestions, setTotalQuestions] = useState<number>(150)
@@ -155,6 +156,7 @@ export function PyqUploadStudioClient({ categories }: { categories: Category[] }
         year: Number(year),
         stage,
         shift: shift.trim() || undefined,
+        subject: subject.trim() || undefined,
         durationMin: Number(durationMin),
         totalMarks: Number(totalMarks),
         totalQuestions: Number(totalQuestions),
@@ -319,6 +321,32 @@ export function PyqUploadStudioClient({ categories }: { categories: Category[] }
               placeholder="e.g. 69th BPSC PYQ Full Length Official Paper"
               className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 font-medium"
             />
+          </div>
+
+          {/* Subject Field */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Subject (e.g. General Studies, Mathematics, History, Hindi)
+            </label>
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="e.g. General Studies - 1, Science, Social Science"
+              className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 font-medium"
+            />
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {["General Studies", "History", "Polity", "Geography", "Mathematics", "Science", "Hindi"].map((sug) => (
+                <button
+                  key={sug}
+                  type="button"
+                  onClick={() => setSubject(sug)}
+                  className="px-2 py-0.5 rounded text-[11px] bg-gray-100 hover:bg-orange-100 hover:text-orange-700 text-gray-600 font-medium transition-colors cursor-pointer"
+                >
+                  +{sug}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

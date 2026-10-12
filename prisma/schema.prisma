@@ -1203,6 +1203,7 @@ model PyqPaper {
 
   // Status & Metrics
   status         String         @default("PUBLISHED") // DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED
+  subject        String?
   downloadCount  Int            @default(0)
   attemptCount   Int            @default(0)
   createdAt      DateTime       @default(now())
@@ -1216,6 +1217,7 @@ model PyqPaper {
   @@index([categoryId, year])
   @@index([subExamId])
   @@index([accessType])
+  @@index([subject])
 }
 
 model PyqLeadCapture {

@@ -9,7 +9,7 @@ export async function GET() {
       return NextResponse.json({ error: "Access Denied: Only Teachers and Admins can view leads" }, { status: 403 })
     }
 
-    const leads = await getLeadsList()
+    const leads = await getLeadsList(user.role === "TEACHER" ? user.userId : undefined)
     return NextResponse.json(leads)
   } catch (error: any) {
     console.error("GET /api/admin/pyqs/leads error:", error)

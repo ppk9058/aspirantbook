@@ -1,11 +1,20 @@
 import { prisma } from "@/lib/prisma"
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Users, ArrowLeft, Download, Phone, Calendar, FileText, ShieldCheck } from "lucide-react"
+import { Users, ArrowLeft, Download, Phone, Calendar, FileText, ShieldCheck, Mail } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
 export default async function AdminPyqLeadsPage() {
+  const session = await auth()
+  if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "TEACHER")) {
+    redirect("/auth/signin")
+  }
+
+  const isTeacher = session.user.role === "TEACHER"
   const leads = await prisma.pyqLeadCapture.findMany({
+    where: isTeacher ? { paper: { creatorId: session.user.id } } : {},
     orderBy: { createdAt: "desc" },
     take: 300,
     include: {
@@ -13,11 +22,22 @@ export default async function AdminPyqLeadsPage() {
         select: {
           title: true,
           year: true,
+          creatorId: true,
           category: { select: { name: true } },
         },
       },
     },
   })
+
+  const userIds = leads.map((l) => l.userId).filter((id): id is string => Boolean(id))
+  const users =
+    userIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: userIds } },
+          select: { id: true, email: true, name: true },
+        })
+      : []
+  const userMap = new Map(users.map((u) => [u.id, u]))
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -78,9 +98,17 @@ export default async function AdminPyqLeadsPage() {
               ) : (
                 leads.map((lead) => (
                   <tr key={lead.id} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-gray-900 flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                      +91 {lead.phoneNumber}
+                    <td className="py-3.5 px-4 font-mono font-bold text-gray-900">
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>+91 {lead.phoneNumber}</span>
+                      </div>
+                      {lead.userId && userMap.get(lead.userId)?.email && (
+                        <div className="text-[11px] font-sans font-normal text-gray-500 mt-0.5 flex items-center gap-1">
+                          <Mail className="w-3 h-3 text-gray-400 shrink-0" />
+                          <span>{userMap.get(lead.userId)?.email}</span>
+                        </div>
+                      )}
                     </td>
                     <td className="py-3.5 px-4 font-medium text-gray-800 max-w-sm truncate">
                       {lead.paper.title} ({lead.paper.year})
