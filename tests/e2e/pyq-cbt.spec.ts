@@ -331,4 +331,135 @@ test.describe("PYQ CBT Real Authoring Link & Student Attempt E2E (Gates B & C)",
     })
     expect(guestRes.status()).toBe(401)
   })
+
+  test("CBT-08: PYQ Studio one-click test creation button, paper preselection, foreign paper rejection & manage test link (desktop & mobile)", async ({ page }) => {
+    const unlinkedNonce = newNonce()
+    // 1. Create an unlinked paper for Teacher A
+    const paperAUnlinked = await prisma.pyqPaper.create({
+      data: {
+        title: `BPSC Paper Unlinked ${unlinkedNonce}`,
+        slug: `bpsc-unlinked-${slugFor(unlinkedNonce)}`,
+        categoryId: category.id,
+        year: 2023,
+        stage: "PRELIMS",
+        subject: "General Studies Unlinked",
+        paperPdfUrl: "/uploads/pyq-private/dummy.pdf",
+        accessType: "FREE",
+        status: "PUBLISHED",
+        creatorId: teacherA.id,
+        hasCbtMode: false,
+        cbtTestId: null,
+      },
+    })
+
+    // 2. Create a linked paper for Teacher A
+    const paperALinked = await prisma.pyqPaper.create({
+      data: {
+        title: `BPSC Paper Linked ${unlinkedNonce}`,
+        slug: `bpsc-linked-${slugFor(unlinkedNonce)}`,
+        categoryId: category.id,
+        year: 2024,
+        stage: "PRELIMS",
+        subject: "General Studies Linked",
+        paperPdfUrl: "/uploads/pyq-private/dummy.pdf",
+        accessType: "FREE",
+        status: "PUBLISHED",
+        creatorId: teacherA.id,
+        hasCbtMode: true,
+        cbtTestId: "test-cbt-linked-id",
+      },
+    })
+
+    // 3. Create a paper for Teacher B
+    const paperBOwned = await prisma.pyqPaper.create({
+      data: {
+        title: `BPSC Teacher B Paper ${unlinkedNonce}`,
+        slug: `bpsc-teacher-b-${slugFor(unlinkedNonce)}`,
+        categoryId: category.id,
+        year: 2022,
+        stage: "PRELIMS",
+        subject: "General Studies B",
+        paperPdfUrl: "/uploads/pyq-private/dummy.pdf",
+        accessType: "FREE",
+        status: "PUBLISHED",
+        creatorId: teacherB.id,
+        hasCbtMode: false,
+        cbtTestId: null,
+      },
+    })
+
+    try {
+      await loginThroughUi(page, teacherA.email)
+
+      const viewports = [
+        { name: "desktop", width: 1280, height: 800 },
+        { name: "mobile", width: 390, height: 844 },
+      ]
+
+      for (const vp of viewports) {
+        await page.setViewportSize({ width: vp.width, height: vp.height })
+
+        // (a) PYQ Studio shows header button with the right href
+        await page.goto("/teacher/pyqs", { waitUntil: "domcontentloaded" })
+        const headerBtn = page.getByRole("link", { name: "Create PYQ Test (JSON)" })
+        await expect(headerBtn).toBeVisible({ timeout: 15_000 })
+        await expect(headerBtn).toHaveAttribute("href", "/teacher/test-series/create?type=PYQ")
+
+        // (d) Linked paper shows "Manage test" with the correct href
+        const rowLinked = page.locator("tr", { hasText: paperALinked.title })
+        await expect(rowLinked).toBeVisible()
+        const manageBtn = rowLinked.getByRole("link", { name: /Manage test/i })
+        await expect(manageBtn).toBeVisible()
+        await expect(manageBtn).toHaveAttribute("href", "/teacher/test-series")
+
+        // (b) Clicking row action for unlinked paper opens create with PYQ preselected and own paper preselected
+        const rowUnlinked = page.locator("tr", { hasText: paperAUnlinked.title })
+        await expect(rowUnlinked).toBeVisible()
+        const createBtn = rowUnlinked.getByRole("link", { name: /Create test/i })
+        await expect(createBtn).toBeVisible()
+        await expect(createBtn).toHaveAttribute(
+          "href",
+          `/teacher/test-series/create?type=PYQ&paperId=${paperAUnlinked.id}`
+        )
+
+        await createBtn.click()
+        await expect(page).toHaveURL(
+          new RegExp(`/teacher/test-series/create\\?type=PYQ&paperId=${paperAUnlinked.id}`),
+          { timeout: 15_000 }
+        )
+
+        // Verify PYQ option is preselected in the test type buttons
+        const pyqTypeBtn = page.getByRole("button", { name: "PYQ", exact: true })
+        await expect(pyqTypeBtn).toBeVisible()
+        await expect(pyqTypeBtn).toHaveClass(/bg-sky-700/)
+
+        // Verify own paper is preselected
+        const paperSelect = page.getByRole("combobox", { name: "Select PYQ Paper" })
+        await expect(paperSelect).toBeVisible()
+        await expect(paperSelect).toHaveValue(paperAUnlinked.id)
+        await expect(page.locator('[data-testid="paper-warning"]')).not.toBeVisible()
+
+        // (c) Opening create with Teacher B's paperId does not preselect it and shows visible message
+        await page.goto(`/teacher/test-series/create?type=PYQ&paperId=${paperBOwned.id}`, {
+          waitUntil: "domcontentloaded",
+        })
+
+        const foreignTypeBtn = page.getByRole("button", { name: "PYQ", exact: true })
+        await expect(foreignTypeBtn).toBeVisible()
+        await expect(foreignTypeBtn).toHaveClass(/bg-sky-700/)
+
+        const foreignPaperSelect = page.getByRole("combobox", { name: "Select PYQ Paper" })
+        await expect(foreignPaperSelect).toBeVisible()
+        await expect(foreignPaperSelect).toHaveValue("")
+
+        const warningMsg = page.locator('[data-testid="paper-warning"]')
+        await expect(warningMsg).toBeVisible()
+        await expect(warningMsg).toContainText(/Specified PYQ paper was not found or is not accessible/i)
+      }
+    } finally {
+      await prisma.pyqPaper.deleteMany({
+        where: { id: { in: [paperAUnlinked.id, paperALinked.id, paperBOwned.id] } },
+      }).catch(() => {})
+    }
+  })
 })

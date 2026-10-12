@@ -391,6 +391,12 @@ function CreateTestContent() {
     const searchParams = useSearchParams()
     const querySeriesId = searchParams.get("seriesId") || ""
     const queryCategory = searchParams.get("category") || ""
+    const queryType = searchParams.get("type") || ""
+    const queryPaperId = searchParams.get("paperId") || ""
+
+    const initialTestType = queryType === "PYQ" || (queryPaperId && !queryType)
+        ? "PYQ"
+        : (TEST_TYPES.includes(queryType) ? queryType : "Full Mock Test")
 
     const [step, setStep] = useState(1)
     const [errors, setErrors] = useState<Record<string, string>>({})
@@ -412,6 +418,9 @@ function CreateTestContent() {
     const [uploadError, setUploadError] = useState<string | null>(null)
     const [uploadSuccess, setUploadSuccess] = useState<string | null>(null)
     const [isUploading, setIsUploading] = useState(false)
+    const [paperWarning, setPaperWarning] = useState<string | null>(null)
+    const [pyqFetchError, setPyqFetchError] = useState<string | null>(null)
+    const [pyqPapersLoaded, setPyqPapersLoaded] = useState(false)
 
     const defaultSection: Section = {
         id: generateId(),
@@ -426,11 +435,12 @@ function CreateTestContent() {
 
     const [formData, setFormData] = useState<FormData>({
         seriesId: querySeriesId || "",
+        pyqPaperId: "",
         title: "",
         titleHindi: "",
         examCategory: "",
         examName: "",
-        testType: "Full Mock Test",
+        testType: initialTestType,
         accessMode: "free",
         durationMinutes: 60,
         totalQuestions: 10,
@@ -467,17 +477,25 @@ function CreateTestContent() {
     const fetchPyqPapers = useCallback(async () => {
         try {
             setLoadingPyqPapers(true)
+            setPyqFetchError(null)
             const res = await fetch("/api/admin/pyqs/papers")
             if (res.ok) {
                 const data = await res.json()
                 if (Array.isArray(data)) {
                     setPyqPapers(data)
+                } else {
+                    setPyqPapers([])
                 }
+            } else {
+                const errData = await res.json().catch(() => ({}))
+                setPyqFetchError(errData.error || `Failed to load PYQ papers (${res.status})`)
             }
-        } catch (e) {
+        } catch (e: any) {
+            setPyqFetchError(e.message || "Failed to load PYQ papers")
             console.warn("Could not load PYQ papers", e)
         } finally {
             setLoadingPyqPapers(false)
+            setPyqPapersLoaded(true)
         }
     }, [])
 
@@ -486,6 +504,27 @@ function CreateTestContent() {
             fetchPyqPapers()
         }
     }, [formData.testType, fetchPyqPapers])
+
+    useEffect(() => {
+        if (!queryPaperId || !pyqPapersLoaded) return
+
+        const matched = pyqPapers.find((p) => p.id === queryPaperId)
+        if (matched) {
+            setFormData((prev) => ({
+                ...prev,
+                pyqPaperId: matched.id,
+                title: prev.title || `${matched.title} - Official CBT Mock`,
+            }))
+            setPaperWarning(null)
+        } else {
+            // Foreign or unknown paperId
+            setFormData((prev) => ({
+                ...prev,
+                pyqPaperId: "",
+            }))
+            setPaperWarning("Specified PYQ paper was not found or is not accessible.")
+        }
+    }, [queryPaperId, pyqPapers, pyqPapersLoaded])
 
     useEffect(() => {
         if (querySeriesId && seriesPackages.length > 0) {
@@ -1379,12 +1418,33 @@ function CreateTestContent() {
                                 <p className="text-[11px] text-amber-700 dark:text-amber-300">
                                     Choose the PYQ paper to link this CBT test with. Questions imported via JSON will power this test.
                                 </p>
+                                {paperWarning && (
+                                    <div
+                                        data-testid="paper-warning"
+                                        className="p-3 bg-amber-100/90 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs rounded-xl flex items-center gap-2"
+                                    >
+                                        <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+                                        <span>{paperWarning}</span>
+                                    </div>
+                                )}
+
+                                {pyqFetchError && (
+                                    <div
+                                        data-testid="pyq-fetch-error"
+                                        className="p-3 bg-red-50 dark:bg-red-950/50 border border-red-300 dark:border-red-700 text-red-800 dark:text-red-300 text-xs rounded-xl flex items-center gap-2"
+                                    >
+                                        <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                                        <span>{pyqFetchError}</span>
+                                    </div>
+                                )}
+
                                 <select
                                     value={formData.pyqPaperId || ""}
                                     onChange={(e) => {
                                         const pId = e.target.value
                                         const p = pyqPapers.find((item) => item.id === pId)
                                         updateField("pyqPaperId", pId)
+                                        setPaperWarning(null)
                                         if (p && !formData.title) {
                                             updateField("title", `${p.title} - Official CBT Mock`)
                                         }
@@ -1399,7 +1459,7 @@ function CreateTestContent() {
                                         </option>
                                     ))}
                                 </select>
-                                {pyqPapers.length === 0 && !loadingPyqPapers && (
+                                {pyqPapers.length === 0 && !loadingPyqPapers && !pyqFetchError && (
                                     <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
                                         No PYQ papers found. Please upload a PYQ paper first in the PYQ studio.
                                     </p>

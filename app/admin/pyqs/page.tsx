@@ -90,6 +90,14 @@ export default async function AdminPyqsPage() {
           </Link>
 
           <Link
+            href={`${basePath}/test-series/create?type=PYQ`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-sm shadow-indigo-500/20 transition-all hover:scale-[1.02]"
+          >
+            <Plus className="w-4 h-4" />
+            Create PYQ Test (JSON)
+          </Link>
+
+          <Link
             href="/pyqs"
             target="_blank"
             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
@@ -160,7 +168,7 @@ export default async function AdminPyqsPage() {
       </div>
 
       {/* Interactive Papers Directory Client Component */}
-      <PyqPapersListClient initialPapers={papers as any} categories={categories} />
+      <PyqPapersListClient initialPapers={papers as any} categories={categories} basePath={basePath} />
     </div>
   )
 }

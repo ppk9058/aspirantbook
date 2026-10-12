@@ -52,9 +52,11 @@ interface Category {
 export function PyqPapersListClient({
   initialPapers,
   categories,
+  basePath = "/admin",
 }: {
   initialPapers: Paper[]
   categories: Category[]
+  basePath?: string
 }) {
   const [papers, setPapers] = useState<Paper[]>(initialPapers)
   const [mounted, setMounted] = useState(false)
@@ -470,6 +472,26 @@ export function PyqPapersListClient({
                   {/* Actions */}
                   <td className="py-3.5 px-4 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-1.5">
+                      {paper.hasCbtMode || paper.cbtTestId ? (
+                        <Link
+                          href={`${basePath}/test-series`}
+                          className="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
+                          title="Manage test"
+                          aria-label={`Manage test for ${paper.title}`}
+                        >
+                          <Zap className="w-4 h-4" />
+                        </Link>
+                      ) : (
+                        <Link
+                          href={`${basePath}/test-series/create?type=PYQ&paperId=${paper.id}`}
+                          className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                          title="Create test"
+                          aria-label={`Create test for ${paper.title}`}
+                        >
+                          <Zap className="w-4 h-4" />
+                        </Link>
+                      )}
+
                       <button
                         onClick={() => openEditModal(paper)}
                         className="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
