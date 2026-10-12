@@ -22,6 +22,7 @@ const VALID_TEST_TYPES: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL
   "SECTIONAL TEST": "SECTIONAL_TEST",
   PREVIOUS_YEAR: "PREVIOUS_YEAR",
   "PREVIOUS YEAR PAPER": "PREVIOUS_YEAR",
+  PYQ: "PREVIOUS_YEAR",
   LIVE_SPEED: "LIVE_SPEED",
   "LIVE SPEED TEST": "LIVE_SPEED",
 };
@@ -61,37 +62,12 @@ export async function POST(req: NextRequest) {
       liveEndAt,
       sections,
       isPublished,
+      pyqPaperId,
     } = body;
 
     if (!title || typeof title !== "string" || !title.trim()) {
       return NextResponse.json({ error: "Test title is required" }, { status: 400 });
     }
-
-    // Series must exist in database
-    if (!seriesId || typeof seriesId !== "string" || !seriesId.trim()) {
-      return NextResponse.json(
-        { error: "Please select a test series package" },
-        { status: 400 }
-      );
-    }
-
-    const existingSeries = await prisma.examSeries.findFirst({
-      where: {
-        OR: [
-          { id: seriesId.trim() },
-          { slug: seriesId.trim() },
-        ],
-      },
-    });
-
-    if (!existingSeries) {
-      return NextResponse.json(
-        { error: `Test series package "${seriesId}" was not found. Please select an existing series package.` },
-        { status: 400 }
-      );
-    }
-
-    const targetSeriesId = existingSeries.id;
 
     // Validate and map testType enum (supports both UI labels and Prisma enum values)
     const rawTestType = String(testType || "").trim().toUpperCase();
@@ -101,11 +77,94 @@ export async function POST(req: NextRequest) {
         {
           error: "Invalid test type",
           details: [
-            `Invalid testType "${testType}". Allowed values: FULL_MOCK, CHAPTER_TEST, SECTIONAL_TEST, PREVIOUS_YEAR, LIVE_SPEED (or UI labels: Full Mock Test, Chapter Test, Sectional Test, Previous Year Paper, Live Speed Test).`,
+            `Invalid testType "${testType}". Allowed values: FULL_MOCK, CHAPTER_TEST, SECTIONAL_TEST, PREVIOUS_YEAR, PYQ, LIVE_SPEED (or UI labels: Full Mock Test, Chapter Test, Sectional Test, Previous Year Paper, PYQ, Live Speed Test).`,
           ],
         },
         { status: 400 }
       );
+    }
+
+    let targetSeriesId: string;
+
+    if (mappedTestType === "PREVIOUS_YEAR" || pyqPaperId) {
+      // Find or create hidden system ExamSeries for PYQ papers
+      let pyqSeries = await prisma.examSeries.findFirst({
+        where: { slug: "pyq-system-series" },
+      });
+      if (!pyqSeries) {
+        pyqSeries = await prisma.examSeries.create({
+          data: {
+            title: "Previous Year Question Papers",
+            slug: "pyq-system-series",
+            examName: "PYQ",
+            category: "PYQ",
+            isPublished: false,
+            isFree: true,
+            createdById: session.user.id,
+          },
+        });
+      }
+      targetSeriesId = pyqSeries.id;
+    } else {
+      // Series must exist in database for regular tests
+      if (!seriesId || typeof seriesId !== "string" || !seriesId.trim()) {
+        return NextResponse.json(
+          { error: "Please select a test series package" },
+          { status: 400 }
+        );
+      }
+
+      const existingSeries = await prisma.examSeries.findFirst({
+        where: {
+          OR: [
+            { id: seriesId.trim() },
+            { slug: seriesId.trim() },
+          ],
+        },
+      });
+
+      if (!existingSeries) {
+        return NextResponse.json(
+          { error: `Test series package "${seriesId}" was not found. Please select an existing series package.` },
+          { status: 400 }
+        );
+      }
+
+      targetSeriesId = existingSeries.id;
+    }
+
+    // Server-side PYQ paper validation (B3)
+    if (pyqPaperId && typeof pyqPaperId === "string") {
+      const paper = await prisma.pyqPaper.findUnique({
+        where: { id: pyqPaperId.trim() },
+      });
+      if (!paper) {
+        return NextResponse.json(
+          { error: "Selected PYQ paper not found" },
+          { status: 404 }
+        );
+      }
+
+      // Teacher may only link a test to a paper they own
+      if (role === "TEACHER" && paper.creatorId !== session.user.id) {
+        return NextResponse.json(
+          { error: "Forbidden: You can only link a test to a PYQ paper you own" },
+          { status: 403 }
+        );
+      }
+
+      // Paper already linked to an active published test: reject with clear error
+      if (paper.cbtTestId && paper.hasCbtMode) {
+        const existingLinked = await prisma.examTest.findUnique({
+          where: { id: paper.cbtTestId },
+        });
+        if (existingLinked && existingLinked.isPublished) {
+          return NextResponse.json(
+            { error: `Paper "${paper.title}" is already linked to active published test "${existingLinked.title}"` },
+            { status: 400 }
+          );
+        }
+      }
     }
 
     // Validate and map accessMode enum (supports both UI labels and Prisma enum values)
@@ -313,6 +372,17 @@ export async function POST(req: NextRequest) {
           await tx.examSeries.update({
             where: { id: targetSeriesId },
             data: { totalTests: { increment: 1 } },
+          });
+        }
+
+        // Link to PYQ paper if pyqPaperId provided (B2: active link only if published)
+        if (pyqPaperId && typeof pyqPaperId === "string") {
+          await tx.pyqPaper.update({
+            where: { id: pyqPaperId.trim() },
+            data: {
+              cbtTestId: newTest.id,
+              hasCbtMode: isPublishMode,
+            },
           });
         }
 

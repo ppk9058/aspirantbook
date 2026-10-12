@@ -26,6 +26,7 @@ export default async function AttemptPage({ params, searchParams }: AttemptPageP
         select: {
             id: true,
             isPublished: true,
+            testType: true,
             createdById: true,
             series: {
                 select: {
@@ -41,8 +42,9 @@ export default async function AttemptPage({ params, searchParams }: AttemptPageP
     if (testRow) {
         const isTestOwner = currentUserId && testRow.createdById === currentUserId
         const isSeriesOwner = currentUserId && testRow.series?.createdById === currentUserId
+        const isPyqTest = testRow.testType === "PREVIOUS_YEAR"
         // If series is unpublished and user is not admin/series owner -> 404
-        if (testRow.series && !testRow.series.isPublished && !isAdmin && !isSeriesOwner) {
+        if (testRow.series && !testRow.series.isPublished && !isAdmin && !isSeriesOwner && !isPyqTest) {
             notFound()
         }
         // If test is unpublished (draft) and user is not admin/test owner -> 404

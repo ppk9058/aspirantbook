@@ -26,6 +26,7 @@ export default async function InstructionsPage({ params, searchParams }: Instruc
         select: {
             id: true,
             isPublished: true,
+            testType: true,
             createdById: true,
             series: {
                 select: {
@@ -41,7 +42,8 @@ export default async function InstructionsPage({ params, searchParams }: Instruc
     if (testRow) {
         const isTestOwner = currentUserId && testRow.createdById === currentUserId
         const isSeriesOwner = currentUserId && testRow.series?.createdById === currentUserId
-        if (testRow.series && !testRow.series.isPublished && !isAdmin && !isSeriesOwner) {
+        const isPyqTest = testRow.testType === "PREVIOUS_YEAR"
+        if (testRow.series && !testRow.series.isPublished && !isAdmin && !isSeriesOwner && !isPyqTest) {
             notFound()
         }
         if (!testRow.isPublished && !isAdmin && !isTestOwner) {

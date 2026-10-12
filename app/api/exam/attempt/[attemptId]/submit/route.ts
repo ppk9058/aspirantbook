@@ -140,6 +140,14 @@ export async function POST(
       );
     }
 
+    // Increment PyqPaper attemptCount if linked to this test
+    if (attempt.testId) {
+      await prisma.pyqPaper.updateMany({
+        where: { cbtTestId: attempt.testId },
+        data: { attemptCount: { increment: 1 } },
+      });
+    }
+
     return NextResponse.json({ data: graded }, { status: 200 });
   } catch (error) {
     console.error("[POST /api/exam/attempt/:attemptId/submit]", error);

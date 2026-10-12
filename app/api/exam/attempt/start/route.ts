@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
         totalQuestions: true,
         positiveMarks: true,
         negativeMarks: true,
+        testType: true,
         seriesId: true,
         accessMode: true,
         createdById: true,
@@ -125,6 +126,7 @@ export async function POST(req: NextRequest) {
           totalQuestions: true,
           positiveMarks: true,
           negativeMarks: true,
+          testType: true,
           seriesId: true,
           accessMode: true,
           createdById: true,
@@ -187,7 +189,8 @@ export async function POST(req: NextRequest) {
     const isPrivileged = isOwner || isAdmin;
 
     if (!isPrivileged) {
-      if (test.series && !test.series.isPublished) {
+      const isPyqTest = test.testType === "PREVIOUS_YEAR";
+      if (test.series && !test.series.isPublished && !isPyqTest) {
         return NextResponse.json(
           { error: "Test series is not published yet" },
           { status: 404 }

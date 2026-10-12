@@ -70,6 +70,7 @@ interface Question {
 interface FormData {
     // Step 1
     seriesId: string
+    pyqPaperId?: string
     title: string
     titleHindi: string
     examCategory: string
@@ -94,6 +95,7 @@ const TEST_TYPE_MAP: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL_TE
     "Sectional Test": "SECTIONAL_TEST",
     "Previous Year Paper": "PREVIOUS_YEAR",
     "Live Speed Test": "LIVE_SPEED",
+    "PYQ": "PREVIOUS_YEAR",
 }
 
 const NEGATIVE_MARK_OPTIONS = [0, 0.25, 0.33, 0.5, 0.66]
@@ -272,6 +274,7 @@ const TEST_TYPES = [
     "Sectional Test",
     "Previous Year Paper",
     "Live Speed Test",
+    "PYQ",
 ]
 
 const AI_DEMO_QUESTIONS = [
@@ -457,6 +460,32 @@ function CreateTestContent() {
     useEffect(() => {
         fetchSeriesList()
     }, [fetchSeriesList])
+
+    const [pyqPapers, setPyqPapers] = useState<any[]>([])
+    const [loadingPyqPapers, setLoadingPyqPapers] = useState(false)
+
+    const fetchPyqPapers = useCallback(async () => {
+        try {
+            setLoadingPyqPapers(true)
+            const res = await fetch("/api/admin/pyqs/papers")
+            if (res.ok) {
+                const data = await res.json()
+                if (Array.isArray(data)) {
+                    setPyqPapers(data)
+                }
+            }
+        } catch (e) {
+            console.warn("Could not load PYQ papers", e)
+        } finally {
+            setLoadingPyqPapers(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (formData.testType === "PYQ") {
+            fetchPyqPapers()
+        }
+    }, [formData.testType, fetchPyqPapers])
 
     useEffect(() => {
         if (querySeriesId && seriesPackages.length > 0) {
@@ -978,8 +1007,13 @@ function CreateTestContent() {
             setApiErrorDetails([])
             return
         }
-        if (!formData.seriesId) {
+        if (!formData.seriesId && formData.testType !== "PYQ") {
             setApiError("Please select a target test series package before saving draft.")
+            setApiErrorDetails([])
+            return
+        }
+        if (formData.testType === "PYQ" && !formData.pyqPaperId) {
+            setApiError("Please select a target PYQ paper to link this test to.")
             setApiErrorDetails([])
             return
         }
@@ -1002,7 +1036,8 @@ function CreateTestContent() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    seriesId: formData.seriesId,
+                    seriesId: formData.seriesId || undefined,
+                    pyqPaperId: formData.pyqPaperId || undefined,
                     title: formData.title,
                     titleHi: formData.titleHindi,
                     testType: mappedTestType,
@@ -1057,8 +1092,13 @@ function CreateTestContent() {
             setApiErrorDetails([])
             return
         }
-        if (!formData.seriesId) {
+        if (!formData.seriesId && formData.testType !== "PYQ") {
             setApiError("Please select a target test series package before publishing.")
+            setApiErrorDetails([])
+            return
+        }
+        if (formData.testType === "PYQ" && !formData.pyqPaperId) {
+            setApiError("Please select a target PYQ paper to link this test to.")
             setApiErrorDetails([])
             return
         }
@@ -1081,7 +1121,8 @@ function CreateTestContent() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    seriesId: formData.seriesId,
+                    seriesId: formData.seriesId || undefined,
+                    pyqPaperId: formData.pyqPaperId || undefined,
                     title: formData.title,
                     titleHi: formData.titleHindi,
                     testType: mappedTestType,
@@ -1328,6 +1369,43 @@ function CreateTestContent() {
                                 ))}
                             </div>
                         </div>
+
+                        {/* PYQ Paper Selector when testType is PYQ */}
+                        {formData.testType === "PYQ" && (
+                            <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 space-y-2">
+                                <label className="block text-xs font-bold text-amber-900 dark:text-amber-200">
+                                    Target PYQ Paper <span className="text-[#EF4444]">*</span>
+                                </label>
+                                <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                                    Choose the PYQ paper to link this CBT test with. Questions imported via JSON will power this test.
+                                </p>
+                                <select
+                                    value={formData.pyqPaperId || ""}
+                                    onChange={(e) => {
+                                        const pId = e.target.value
+                                        const p = pyqPapers.find((item) => item.id === pId)
+                                        updateField("pyqPaperId", pId)
+                                        if (p && !formData.title) {
+                                            updateField("title", `${p.title} - Official CBT Mock`)
+                                        }
+                                    }}
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-semibold text-gray-800 dark:text-gray-200 focus:outline-hidden focus:border-[#00A8FF]"
+                                    aria-label="Select PYQ Paper"
+                                >
+                                    <option value="">-- Select PYQ Paper --</option>
+                                    {pyqPapers.map((paper) => (
+                                        <option key={paper.id} value={paper.id}>
+                                            {paper.title} ({paper.year} • {paper.stage || "Prelims"} • Status: {paper.status})
+                                        </option>
+                                    ))}
+                                </select>
+                                {pyqPapers.length === 0 && !loadingPyqPapers && (
+                                    <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                                        No PYQ papers found. Please upload a PYQ paper first in the PYQ studio.
+                                    </p>
+                                )}
+                            </div>
+                        )}
 
                         {/* Access Mode */}
                         <div>
