@@ -45,7 +45,7 @@ export default async function AdminPyqLeadsPage() {
       <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <Link
-            href="/admin/pyqs"
+            href={isTeacher ? "/teacher/pyqs" : "/admin/pyqs"}
             className="text-xs font-semibold text-gray-500 hover:text-orange-600 flex items-center gap-1 transition-colors mb-2"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back to PYQ Directory

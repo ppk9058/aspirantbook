@@ -17,11 +17,14 @@ import {
   ShieldCheck,
   Edit3,
 } from "lucide-react"
+import { auth } from "@/auth"
 import { PyqPapersListClient } from "@/components/admin/pyqs/PyqPapersListClient"
 
 export const dynamic = "force-dynamic"
 
 export default async function AdminPyqsPage() {
+  const session = await auth()
+  const basePath = session?.user?.role === "TEACHER" ? "/teacher" : "/admin"
   await ensureDefaultPyqData()
 
   // Fetch all stats and papers
@@ -63,7 +66,7 @@ export default async function AdminPyqsPage() {
 
         <div className="flex flex-wrap items-center gap-2.5">
           <Link
-            href="/admin/pyqs/categories"
+            href={`${basePath}/pyqs/categories`}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
           >
             <FolderTree className="w-4 h-4 text-gray-600" />
@@ -71,7 +74,7 @@ export default async function AdminPyqsPage() {
           </Link>
 
           <Link
-            href="/admin/pyqs/leads"
+            href={`${basePath}/pyqs/leads`}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
           >
             <Users className="w-4 h-4 text-gray-600" />
@@ -79,7 +82,7 @@ export default async function AdminPyqsPage() {
           </Link>
 
           <Link
-            href="/admin/pyqs/upload"
+            href={`${basePath}/pyqs/upload`}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 shadow-sm shadow-orange-500/20 transition-all hover:scale-[1.02]"
           >
             <Plus className="w-4 h-4" />

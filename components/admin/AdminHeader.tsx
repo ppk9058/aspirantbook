@@ -47,6 +47,18 @@ const routeNameMap: Record<string, string> = {
     "/admin/analytics": "Analytics",
     "/admin/audit": "Audit Logs",
     "/admin/settings": "System Settings",
+    "/teacher": "Teacher Dashboard",
+    "/teacher/courses": "Video Course Studio",
+    "/teacher/courses/new": "Create Video Course",
+    "/teacher/tutorials": "Tutorial Studio",
+    "/teacher/tutorials/new": "Create Tutorial",
+    "/teacher/test-series": "Test Series Studio",
+    "/teacher/pyqs": "PYQ Studio",
+    "/teacher/pyqs/upload": "Upload PYQ Paper",
+    "/teacher/pyqs/categories": "Exam Categories & Types",
+    "/teacher/pyqs/leads": "Student PDF Download Leads",
+    "/teacher/batches": "Batches & Prep",
+    "/teacher/batches/new": "Create New Batch",
 }
 
 export function AdminHeader({ user }: AdminHeaderProps) {
@@ -68,10 +80,12 @@ export function AdminHeader({ user }: AdminHeaderProps) {
 
     // Generate readable page title / breadcrumbs
     const currentTitle = routeNameMap[pathname] || (
-        pathname.startsWith("/admin/courses/") && pathname.endsWith("/edit")
+        (pathname.startsWith("/admin/courses/") || pathname.startsWith("/teacher/courses/")) && pathname.endsWith("/edit")
             ? "Edit Course"
-            : pathname.startsWith("/admin/batches/") && pathname.endsWith("/edit")
+            : (pathname.startsWith("/admin/batches/") || pathname.startsWith("/teacher/batches/")) && pathname.endsWith("/edit")
             ? "Edit Batch"
+            : (pathname.startsWith("/admin/tutorials/") || pathname.startsWith("/teacher/tutorials/")) && pathname.endsWith("/edit")
+            ? "Edit Tutorial"
             : pathname.startsWith("/admin/users/")
             ? "User Details"
             : "Admin Console"

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -28,10 +29,13 @@ interface CourseEditClientProps {
 export default function CourseEditClient({
     course,
     chapters: initialChapters,
-    backUrl = "/admin/tutorials",
+    backUrl,
     studioTitle = "Tutorial Studio (Rosera Editor)",
 }: CourseEditClientProps) {
     const router = useRouter()
+    const { data: session } = useSession()
+    const isTeacher = session?.user?.role === "TEACHER"
+    const effectiveBackUrl = backUrl || (isTeacher ? "/teacher/tutorials" : "/admin/tutorials")
     const [chapters, setChapters] = useState(initialChapters)
     const [selectedId, setSelectedId] = useState<string | null>(null)
     const [selectedType, setSelectedType] = useState<"chapter" | "lesson" | null>(null)
@@ -155,7 +159,7 @@ export default function CourseEditClient({
                 {/* Top Navigation Row: Back button & Breadcrumbs & Quick Actions */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-gray-200">
                     <div className="flex items-center gap-3">
-                        <Link href={backUrl}>
+                        <Link href={effectiveBackUrl}>
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -184,7 +188,7 @@ export default function CourseEditClient({
                             <span>📥 Merge Next Phase</span>
                         </Button>
 
-                        <Link href={`/admin/courses/${course.id}/edit`}>
+                        <Link href={`${isTeacher ? "/teacher" : "/admin"}/courses/${course.id}/edit`}>
                             <Button
                                 variant="outline"
                                 size="sm"

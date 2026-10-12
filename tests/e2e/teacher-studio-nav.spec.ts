@@ -15,21 +15,24 @@ test.describe("Teacher Studio Navigation, Allowlist & Super-Admin Route Protecti
 
   let nonce: string
   let teacherUser: any
+  let adminUser: any
   let studentUser: any
 
   test.beforeAll(async () => {
     nonce = newNonce()
     teacherUser = await createActor(nonce, UserRole.TEACHER, "teacher-nav")
+    adminUser = await createActor(nonce, UserRole.ADMIN, "admin-nav")
     studentUser = await createActor(nonce, UserRole.FREE, "student-nav")
   })
 
   test.afterAll(async () => {
-    if (teacherUser?.id) {
-      await prisma.user.deleteMany({ where: { id: { in: [teacherUser.id, studentUser?.id].filter(Boolean) } } }).catch(() => {})
+    const userIds = [teacherUser?.id, adminUser?.id, studentUser?.id].filter(Boolean)
+    if (userIds.length > 0) {
+      await prisma.user.deleteMany({ where: { id: { in: userIds } } }).catch(() => {})
     }
   })
 
-  test("T-NAV-01: Teacher can open allowed studios from TEACHER_NAV without bouncing, with correct sidebar highlight", async ({ page }) => {
+  test("T-NAV-01: Teacher opens each TEACHER_NAV studio: URL is /teacher/<studio>, page renders cleanly, exactly one active sidebar item", async ({ page }) => {
     await loginThroughUi(page, teacherUser.email)
     await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
 
@@ -46,60 +49,63 @@ test.describe("Teacher Studio Navigation, Allowlist & Super-Admin Route Protecti
     }))
     await page.context().addCookies(localhostCookies)
 
-    // 1. Video Courses Studio
-    const resCourses = await page.goto("/admin/courses", { waitUntil: "domcontentloaded" })
-    expect(resCourses?.status()).toBe(200)
-    await expect(page).toHaveURL(/.*\/admin\/courses/)
-    expect(await page.locator("body").innerText()).not.toContain("Application error")
-    // Sidebar highlight: exactly one nav link in AdminNav should be active (bg-purple-600)
-    const activeAdminNavCourses = page.locator("aside nav a.bg-purple-600")
-    expect(await activeAdminNavCourses.count()).toBe(1)
-    await expect(activeAdminNavCourses).toHaveText(/Video Course Studio/)
+    const studios = [
+      { name: "Video Courses Studio", href: "/teacher/courses", label: /Video Course/ },
+      { name: "Test Series Studio", href: "/teacher/test-series", label: /Test Series/ },
+      { name: "PYQ Studio", href: "/teacher/pyqs", label: /PYQ/ },
+      { name: "Tutorial Studio", href: "/teacher/tutorials", label: /Tutorial/ },
+      { name: "Batches & Prep", href: "/teacher/batches", label: /Batches/ },
+    ]
 
-    // 2. Tutorial Studio
-    const resTutorials = await page.goto("/admin/tutorials", { waitUntil: "domcontentloaded" })
-    expect(resTutorials?.status()).toBe(200)
-    await expect(page).toHaveURL(/.*\/admin\/tutorials/)
-    const activeAdminNavTutorials = page.locator("aside nav a.bg-purple-600")
-    expect(await activeAdminNavTutorials.count()).toBe(1)
-    await expect(activeAdminNavTutorials).toHaveText(/Tutorial Studio/)
+    for (const studio of studios) {
+      const res = await page.goto(studio.href, { waitUntil: "domcontentloaded" })
+      expect(res?.status()).toBe(200)
+      await expect(page).toHaveURL(new RegExp(studio.href))
+      const bodyText = await page.locator("body").innerText()
+      expect(bodyText).not.toContain("Application error")
 
-    // AdminHeader shows "Teacher" and not "Super Admin"
-    await expect(page.locator("header")).not.toContainText("Super Admin")
-    const headerTeacher = page.locator("header").getByText("Teacher", { exact: true }).first()
-    await expect(headerTeacher).toBeAttached()
-    if (!page.viewportSize() || page.viewportSize()!.width >= 1280) {
-      await expect(headerTeacher).toBeVisible()
+      // LeftSidebar highlight: exactly one nav link in LeftSidebar should be active (bg-[#3AAFA9])
+      const activeNavItems = page.locator("aside nav a.bg-\\[\\#3AAFA9\\]")
+      expect(await activeNavItems.count()).toBe(1)
+      await expect(activeNavItems).toContainText(studio.label)
     }
 
-    // 3. PYQ Studio
-    const resPyqs = await page.goto("/admin/pyqs", { waitUntil: "domcontentloaded" })
-    expect(resPyqs?.status()).toBe(200)
-    await expect(page).toHaveURL(/.*\/admin\/pyqs/)
-    const activeAdminNavPyqs = page.locator("aside nav a.bg-purple-600")
-    expect(await activeAdminNavPyqs.count()).toBe(1)
-    await expect(activeAdminNavPyqs).toHaveText(/PYQ Studio/)
-
-    // 4. Batches & Prep
-    const resBatches = await page.goto("/admin/batches", { waitUntil: "domcontentloaded" })
-    expect(resBatches?.status()).toBe(200)
-    await expect(page).toHaveURL(/.*\/admin\/batches/)
-    const activeAdminNavBatches = page.locator("aside nav a.bg-purple-600")
-    expect(await activeAdminNavBatches.count()).toBe(1)
-    await expect(activeAdminNavBatches).toHaveText(/Batches & Prep/)
-
-    // 5. Test Series Studio (/teacher/test-series)
-    const resTestSeries = await page.goto("/teacher/test-series", { waitUntil: "domcontentloaded" })
-    expect(resTestSeries?.status()).toBe(200)
-    await expect(page).toHaveURL(/.*\/teacher\/test-series/)
-
-    // 6. Teacher Dashboard (/teacher)
+    // Teacher Dashboard (/teacher) also has exactly one active nav item
     const resTeacherDash = await page.goto("/teacher", { waitUntil: "domcontentloaded" })
     expect(resTeacherDash?.status()).toBe(200)
     await expect(page).toHaveURL(/.*\/teacher$/)
+    const activeDashNav = page.locator("aside nav a.bg-\\[\\#3AAFA9\\]")
+    expect(await activeDashNav.count()).toBe(1)
+    await expect(activeDashNav).toContainText(/Teacher Dashboard/)
   })
 
-  test("T-NAV-02: Teacher is strictly blocked from super-admin routes with 307 redirect to /teacher", async ({ page }) => {
+  test("T-NAV-02: Old /admin/<studio> routes strictly redirect teacher to /teacher/<studio>", async ({ page }) => {
+    await loginThroughUi(page, teacherUser.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    const oldStudios = [
+      { oldUrl: "/admin/courses", expectedUrl: "/teacher/courses" },
+      { oldUrl: "/admin/tutorials", expectedUrl: "/teacher/tutorials" },
+      { oldUrl: "/admin/pyqs", expectedUrl: "/teacher/pyqs" },
+      { oldUrl: "/admin/batches", expectedUrl: "/teacher/batches" },
+    ]
+
+    for (const item of oldStudios) {
+      // 1. Direct HTTP request returns 307 redirect
+      const res = await page.request.get(item.oldUrl, { maxRedirects: 0 })
+      expect(res.status()).toBe(307)
+      const location = res.headers()["location"]
+      expect(location).toMatch(new RegExp(`${item.expectedUrl}$`))
+
+      // 2. Direct browser navigation lands cleanly on /teacher/<studio>
+      await page.goto(item.oldUrl)
+      await expect(page).toHaveURL(new RegExp(`${item.expectedUrl}`))
+      const bodyText = await page.locator("body").innerText()
+      expect(bodyText).not.toContain("Application error")
+    }
+  })
+
+  test("T-NAV-03: Teacher is strictly blocked from super-admin routes with 307 redirect to /teacher", async ({ page }) => {
     await loginThroughUi(page, teacherUser.email)
     await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
 
@@ -109,6 +115,7 @@ test.describe("Teacher Studio Navigation, Allowlist & Super-Admin Route Protecti
       "/admin/users",
       "/admin/audit",
       "/admin/settings",
+      "/admin/books",
       "/admin/analytics",
       "/admin/homepage-cards",
     ]
@@ -131,17 +138,36 @@ test.describe("Teacher Studio Navigation, Allowlist & Super-Admin Route Protecti
     await expect(page).toHaveURL(/.*\/teacher/)
   })
 
-  test("T-NAV-03: Student and guest are blocked from admin studio routes", async ({ page }) => {
+  test("T-NAV-04: Admin still opens /admin/pyqs directly without redirect", async ({ page }) => {
+    await loginThroughUi(page, adminUser.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    const res = await page.goto("/admin/pyqs", { waitUntil: "domcontentloaded" })
+    expect(res?.status()).toBe(200)
+    await expect(page).toHaveURL(/.*\/admin\/pyqs/)
+    expect(await page.locator("body").innerText()).not.toContain("Application error")
+
+    // AdminNav is rendered with active item
+    const activeAdminNav = page.locator("aside nav a.bg-purple-600")
+    expect(await activeAdminNav.count()).toBe(1)
+    await expect(activeAdminNav).toHaveText(/PYQ Studio/)
+  })
+
+  test("T-NAV-05: Student and guest are blocked from admin and teacher studio routes", async ({ page }) => {
     // 1. Guest (unauthenticated) -> redirects to /login
     const guestRes = await page.request.get("/admin/courses", { maxRedirects: 0 })
     expect(guestRes.status()).toBe(307)
     expect(guestRes.headers()["location"]).toMatch(/\/login$/)
 
+    const guestTeacherRes = await page.request.get("/teacher/courses", { maxRedirects: 0 })
+    expect(guestTeacherRes.status()).toBe(307)
+    expect(guestTeacherRes.headers()["location"]).toMatch(/\/login$/)
+
     // 2. Student (logged-in) -> redirects to /
     await loginThroughUi(page, studentUser.email)
     await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
 
-    for (const studioRoute of ["/admin/courses", "/admin/tutorials", "/admin/pyqs", "/admin/batches"]) {
+    for (const studioRoute of ["/admin/courses", "/admin/tutorials", "/admin/pyqs", "/admin/batches", "/teacher/courses", "/teacher/pyqs"]) {
       const stuRes = await page.request.get(studioRoute, { maxRedirects: 0 })
       expect(stuRes.status()).toBe(307)
       expect(stuRes.headers()["location"]).toMatch(/\/$/)

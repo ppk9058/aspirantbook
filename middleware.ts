@@ -51,9 +51,11 @@ export default auth((req) => {
         }
 
         if (effectiveRole === "TEACHER") {
-            if (!isTeacherAllowedAdminPath(nextUrl.pathname)) {
-                return NextResponse.redirect(toRequestUrl("/teacher"))
+            if (isTeacherAllowedAdminPath(nextUrl.pathname)) {
+                const teacherPath = nextUrl.pathname.replace(/^\/admin/, "/teacher")
+                return NextResponse.redirect(toRequestUrl(teacherPath + nextUrl.search))
             }
+            return NextResponse.redirect(toRequestUrl("/teacher"))
         } else if (effectiveRole !== "ADMIN") {
             return NextResponse.redirect(toRequestUrl("/"))
         }

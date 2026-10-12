@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import {
   FolderTree,
   Plus,
@@ -42,6 +43,8 @@ interface Category {
 }
 
 export function ExamCategoriesManagerClient({ initialCategories }: { initialCategories: Category[] }) {
+  const { data: session } = useSession()
+  const isTeacher = session?.user?.role === "TEACHER"
   const [categories, setCategories] = useState<Category[]>(initialCategories)
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>(
     initialCategories[0]?.id || ""
@@ -294,7 +297,7 @@ export function ExamCategoriesManagerClient({ initialCategories }: { initialCate
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Link
-              href="/admin/pyqs"
+              href={isTeacher ? "/teacher/pyqs" : "/admin/pyqs"}
               className="text-xs font-semibold text-gray-500 hover:text-orange-600 flex items-center gap-1 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back to PYQ Studio

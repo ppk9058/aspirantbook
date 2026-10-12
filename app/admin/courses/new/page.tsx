@@ -49,9 +49,10 @@ export default async function NewVideoCoursePage() {
         console.error("Error creating generalized video course draft:", err.message)
     }
 
+    const basePath = user.role === "TEACHER" ? "/teacher" : "/admin"
     if (targetCourseId) {
-        redirect(`/admin/courses/${targetCourseId}/edit`)
+        redirect(`${basePath}/courses/${targetCourseId}/edit`)
     } else {
-        redirect("/admin/courses")
+        redirect(`${basePath}/courses`)
     }
 }

@@ -16,6 +16,7 @@ export default async function AdminTutorialsPage() {
     if (!user.isAuthenticated || (user.role !== "ADMIN" && user.role !== "TEACHER")) {
         redirect("/")
     }
+    const basePath = user.role === "TEACHER" ? "/teacher" : "/admin"
 
     let tutorials: any[] = []
     let dbError: string | null = null
@@ -79,7 +80,7 @@ export default async function AdminTutorialsPage() {
                 </div>
                 <div className="flex items-center gap-2.5 flex-wrap">
                     <TutorialStudioImportButton />
-                    <Link href="/admin/tutorials/new">
+                    <Link href={`${basePath}/tutorials/new`}>
                         <Button className="bg-[#3A10E5] hover:bg-[#300ec2] text-white font-black border-2 border-[#10162F] shadow-[3px_3px_0px_#10162F] flex items-center gap-2 text-xs py-2 px-3.5 active:translate-x-[1px] active:translate-y-[1px]">
                             <Sparkles className="h-4 w-4 text-[#FFD15C]" />
                             🌹 Create Tutorial (Rosera Editor)
@@ -148,7 +149,7 @@ export default async function AdminTutorialsPage() {
                                                 View Live
                                             </Button>
                                         </Link>
-                                        <Link href={`/admin/tutorials/${tutorial.id}/edit`}>
+                                        <Link href={`${basePath}/tutorials/${tutorial.id}/edit`}>
                                             <Button
                                                 size="sm"
                                                 className="border-2 border-[#10162F] font-black shadow-[2px_2px_0px_#10162F] bg-[#3A10E5] hover:bg-[#300ec2] text-xs text-white flex items-center gap-1.5"
@@ -171,7 +172,7 @@ export default async function AdminTutorialsPage() {
                             <h3 className="font-bold text-gray-900 mb-1">No Tutorials Found</h3>
                             <p className="text-gray-500 mb-4 text-xs">Create your first interactive tutorial using the Rosera Editor.</p>
                             <div className="flex items-center justify-center gap-3 flex-wrap">
-                                <Link href="/admin/tutorials/new">
+                                <Link href={`${basePath}/tutorials/new`}>
                                     <Button className="bg-[#3A10E5] hover:bg-[#300ec2] text-white font-black border-2 border-[#10162F] shadow-[2px_2px_0px_#10162F] flex items-center gap-2 text-xs py-2 px-3.5">
                                         <Sparkles className="h-4 w-4 text-[#FFD15C]" />
                                         🌹 Create Tutorial with Rosera Editor

@@ -78,7 +78,9 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
         if (item.href === "/admin/dashboard") {
             return pathname === "/admin" || pathname === "/admin/dashboard"
         }
-        return pathname.startsWith(item.matchPrefix)
+        const isTeacher = user?.role === "TEACHER"
+        const prefix = isTeacher ? item.matchPrefix.replace("/admin/", "/teacher/") : item.matchPrefix
+        return pathname.startsWith(prefix) || pathname.startsWith(item.matchPrefix)
     }
 
     const openProfileDialog = () => {
@@ -145,11 +147,13 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                                 return !(item as any).adminOnly || user?.role === "ADMIN"
                             })
                             .map((item) => {
+                            const isTeacher = user?.role === "TEACHER"
+                            const itemHref = isTeacher ? item.href.replace("/admin/", "/teacher/") : item.href
                             const active = isRouteActive(item)
                             return (
                                 <Link
                                     key={item.name}
-                                    href={item.href}
+                                    href={itemHref}
                                     className={cn(
                                         "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                                         active

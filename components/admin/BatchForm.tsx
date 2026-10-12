@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import {
   Save,
   ArrowLeft,
@@ -25,6 +26,9 @@ interface BatchFormProps {
 
 export default function BatchForm({ initialData, isEditing = false }: BatchFormProps) {
   const router = useRouter()
+  const { data: session } = useSession()
+  const isTeacher = session?.user?.role === "TEACHER"
+  const batchesUrl = isTeacher ? "/teacher/batches" : "/admin/batches"
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -203,7 +207,7 @@ export default function BatchForm({ initialData, isEditing = false }: BatchFormP
       const saved = await res.json()
       setSuccessMessage("Batch saved successfully!")
       setTimeout(() => {
-        router.push("/admin/batches")
+        router.push(batchesUrl)
         router.refresh()
       }, 1000)
     } catch (err: any) {
@@ -219,7 +223,7 @@ export default function BatchForm({ initialData, isEditing = false }: BatchFormP
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs">
         <div className="flex items-center gap-3">
           <Link
-            href="/admin/batches"
+            href={batchesUrl}
             className="p-2 rounded-xl hover:bg-gray-100 text-gray-600 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -831,7 +835,7 @@ export default function BatchForm({ initialData, isEditing = false }: BatchFormP
       {/* Submit Bottom Bar */}
       <div className="flex items-center justify-end gap-3 pt-4">
         <Link
-          href="/admin/batches"
+          href={batchesUrl}
           className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-bold transition-all"
         >
           Cancel

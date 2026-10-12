@@ -15,11 +15,12 @@ export default async function AdminDashboardLayout({
     const effectiveRole = session?.user?.role || demoRole
     const pathname = headerList.get("x-pathname") || ""
 
-    // Block non-admin users (Teachers redirected to /teacher unless allowed studio, others to /)
+    // Block non-admin users (Teachers redirected to matching /teacher studio if allowed, else /teacher; others to /)
     if (effectiveRole === "TEACHER") {
-        if (!isTeacherAllowedAdminPath(pathname)) {
-            redirect("/teacher")
+        if (isTeacherAllowedAdminPath(pathname)) {
+            redirect(pathname.replace(/^\/admin/, "/teacher"))
         }
+        redirect("/teacher")
     } else if (!effectiveRole || effectiveRole !== "ADMIN") {
         redirect("/")
     }

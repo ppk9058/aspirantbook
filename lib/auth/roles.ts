@@ -56,7 +56,6 @@ export const TEACHER_ALLOWED_ADMIN_STUDIOS = [
   "/admin/tutorials",
   "/admin/pyqs",
   "/admin/batches",
-  "/admin/books",
 ] as const
 
 /**

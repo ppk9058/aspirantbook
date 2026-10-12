@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import {
   ArrowLeft,
@@ -84,6 +85,9 @@ interface CourseEditProps {
 
 export function VideoCourseEditorClient({ course: initialCourse }: CourseEditProps) {
   const router = useRouter()
+  const { data: session } = useSession()
+  const isTeacher = session?.user?.role === "TEACHER"
+  const coursesUrl = isTeacher ? "/teacher/courses" : "/admin/courses"
   const [course, setCourse] = useState(initialCourse)
   const [chapters, setChapters] = useState<ChapterItem[]>(initialCourse.chapters)
 
@@ -937,7 +941,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
-              href="/admin/courses"
+              href={coursesUrl}
               className="text-xs font-semibold text-gray-500 hover:text-orange-600 flex items-center gap-1 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Video Course Studio
@@ -950,7 +954,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
 
           <div className="flex items-center gap-2.5">
             <Link
-              href={`/admin/tutorials/${course.id}/edit`}
+              href={isTeacher ? `/teacher/tutorials/${course.id}/edit` : `/admin/tutorials/${course.id}/edit`}
               className="px-3 py-1.5 rounded-xl text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors flex items-center gap-1.5"
             >
               <BookOpen className="w-3.5 h-3.5 text-[#3A10E5]" />

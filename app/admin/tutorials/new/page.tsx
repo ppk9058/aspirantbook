@@ -3,6 +3,7 @@
 import React, { useState, useTransition, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import { createCourseDraft } from "@/lib/actions/admin/courses"
 import { Button } from "@/components/ui/button"
 import { RichContentEditor } from "@/components/editor/RichContentEditor"
@@ -29,6 +30,9 @@ import {
 
 function NewTutorialForm() {
     const router = useRouter()
+    const { data: session } = useSession()
+    const isTeacher = session?.user?.role === "TEACHER"
+    const tutorialsUrl = isTeacher ? "/teacher/tutorials" : "/admin/tutorials"
     const [isPending, startTransition] = useTransition()
     const [error, setError] = useState("")
     const [isImportModalOpen, setIsImportModalOpen] = useState(false)
@@ -65,6 +69,7 @@ function NewTutorialForm() {
         formData.append("difficulty", difficulty)
         formData.append("technology", selectedGoals.join(","))
         formData.append("status", status)
+        formData.append("returnUrl", `${tutorialsUrl}/[id]/edit`)
 
         startTransition(async () => {
             try {
@@ -89,7 +94,7 @@ function NewTutorialForm() {
                     <div>
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <Link
-                                href="/admin/tutorials"
+                                href={tutorialsUrl}
                                 className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-black hover:underline mr-2"
                             >
                                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -301,7 +306,7 @@ function NewTutorialForm() {
                     {/* Action Bar */}
                     <div className="flex items-center justify-end gap-3 pt-4 border-t-2 border-[#10162F]">
                         <Link
-                            href="/admin/tutorials"
+                            href={tutorialsUrl}
                             className="px-4 py-2.5 rounded-xl border-2 border-[#10162F] text-[#10162F] font-bold text-xs bg-white hover:bg-gray-100 transition-colors"
                         >
                             Cancel

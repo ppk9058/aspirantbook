@@ -5,10 +5,13 @@ import { Badge } from "@/components/ui/badge"
 import { prisma } from "@/lib/prisma"
 import { Edit, Eye, AlertCircle, Video, BookOpen, ArrowRight, Plus } from "lucide-react"
 import { cleanDescriptionSnippet, formatDate } from "@/lib/utils"
+import { auth } from "@/auth"
 
 export const dynamic = "force-dynamic"
 
 export default async function CoursesPage() {
+    const session = await auth()
+    const basePath = session?.user?.role === "TEACHER" ? "/teacher" : "/admin"
     let courses: any[] = []
     let dbError: string | null = null
 
@@ -61,7 +64,7 @@ export default async function CoursesPage() {
                         Author and manage full-length video courses, video uploads, PDF downloads, and custom pricing ({displayCourses.length} video courses)
                     </p>
                 </div>
-                <Link href="/admin/courses/new">
+                <Link href={`${basePath}/courses/new`}>
                     <Button className="bg-orange-600 hover:bg-orange-700 text-white font-extrabold border-2 border-[#10162F] shadow-[3px_3px_0px_#10162F] flex items-center gap-2">
                         <Plus className="h-4 w-4" />
                         + Create Video Course
@@ -89,7 +92,7 @@ export default async function CoursesPage() {
                         <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                     <Link
-                        href="/admin/tutorials"
+                        href={`${basePath}/tutorials`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-indigo-300 font-bold text-[#3A10E5] hover:bg-indigo-100 transition-colors shrink-0"
                     >
                         <span>Tutorial Studio</span>
@@ -152,7 +155,7 @@ export default async function CoursesPage() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-center">
-                                        <Link href={`/admin/courses/${course.id}/edit`}>
+                                        <Link href={`${basePath}/courses/${course.id}/edit`}>
                                             <Button
                                                 variant="outline"
                                                 size="sm"

@@ -17,18 +17,19 @@ export default async function AdminLayout({
     const effectiveRole = session?.user?.role || demoRole
     const pathname = headerList.get("x-pathname") || ""
 
-    // Redirect non-admin users (Teachers get redirected to /teacher unless allowed studio, Students/guests to /)
+    // Redirect non-admin users (Teachers redirected to matching /teacher studio if allowed, else /teacher; Students/guests to /)
     if (effectiveRole === "TEACHER") {
-        if (!isTeacherAllowedAdminPath(pathname)) {
-            redirect("/teacher")
+        if (isTeacherAllowedAdminPath(pathname)) {
+            redirect(pathname.replace(/^\/admin/, "/teacher"))
         }
+        redirect("/teacher")
     } else if (!effectiveRole || effectiveRole !== "ADMIN") {
         redirect("/")
     }
 
     const effectiveUser = {
-        name: session?.user?.name || (effectiveRole === "TEACHER" ? "Teacher" : "Admin Authority"),
-        email: session?.user?.email || (effectiveRole === "TEACHER" ? "teacher@aspirantbook.com" : "admin@aspirantbook.com"),
+        name: session?.user?.name || "Admin Authority",
+        email: session?.user?.email || "admin@aspirantbook.com",
         role: effectiveRole,
         image: session?.user?.image,
     }

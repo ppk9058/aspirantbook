@@ -20,6 +20,8 @@ const ROUTE_LABELS: Record<string, string> = {
     "admin": "Admin",
     "teacher": "Teacher",
     "test-series": "Test Series",
+    "pyqs": "PYQ Studio",
+    "batches": "Batches & Prep",
     "packages": "Packages",
     "package": "Package",
     "users": "Users",

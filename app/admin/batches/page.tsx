@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useSession } from "next-auth/react"
 import {
   Plus,
   Search,
@@ -18,6 +19,9 @@ import {
 import type { Batch } from "@/lib/batches-service"
 
 export default function AdminBatchesListPage() {
+  const { data: session } = useSession()
+  const isTeacher = session?.user?.role === "TEACHER"
+  const basePath = isTeacher ? "/teacher" : "/admin"
   const [batches, setBatches] = useState<Batch[]>([])
   const [loading, setLoading] = useState(true)
   const [filterClass, setFilterClass] = useState("all")
@@ -95,7 +99,7 @@ export default function AdminBatchesListPage() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <Link
-            href="/admin/batches/new"
+            href={`${basePath}/batches/new`}
             className="px-5 py-2.5 rounded-xl bg-[#5B47FB] hover:bg-[#4A38E8] text-white font-extrabold text-sm shadow-md flex items-center gap-2 transition-all cursor-pointer"
           >
             <Plus className="h-4 w-4" />
@@ -230,7 +234,7 @@ export default function AdminBatchesListPage() {
                             <ExternalLink className="h-4 w-4" />
                           </Link>
                           <Link
-                            href={`/admin/batches/${batch.id}/edit`}
+                            href={`${basePath}/batches/${batch.id}/edit`}
                             className="p-2 text-[#5B47FB] hover:bg-purple-50 rounded-lg transition-colors"
                             title="Edit Batch"
                           >

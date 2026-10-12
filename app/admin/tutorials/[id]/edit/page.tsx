@@ -64,7 +64,7 @@ export default async function TutorialEditPage({
         <CourseEditClient
             course={course}
             chapters={course.chapters}
-            backUrl="/admin/tutorials"
+            backUrl={user.role === "TEACHER" ? "/teacher/tutorials" : "/admin/tutorials"}
             studioTitle="Tutorial Studio (Rosera Editor)"
         />
     )

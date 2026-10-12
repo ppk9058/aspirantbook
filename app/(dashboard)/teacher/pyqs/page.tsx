@@ -1,5 +1,1 @@
-import { redirect } from "next/navigation"
-
-export default function TeacherPyqsPage() {
-  redirect("/admin/pyqs")
-}
+export { default, dynamic } from "@/app/admin/pyqs/page"

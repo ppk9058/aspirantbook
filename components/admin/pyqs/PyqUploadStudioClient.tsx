@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import {
   UploadCloud,
   FileText,
@@ -36,6 +37,10 @@ interface Category {
 
 export function PyqUploadStudioClient({ categories }: { categories: Category[] }) {
   const router = useRouter()
+  const { data: session } = useSession()
+  const isTeacher = session?.user?.role === "TEACHER"
+  const pyqsUrl = isTeacher ? "/teacher/pyqs" : "/admin/pyqs"
+  const categoriesUrl = isTeacher ? "/teacher/pyqs/categories" : "/admin/pyqs/categories"
 
   // Form State
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>(
@@ -183,7 +188,7 @@ export function PyqUploadStudioClient({ categories }: { categories: Category[] }
 
       setSuccessMessage(`Official PYQ Paper "${title}" successfully published!`)
       setTimeout(() => {
-        router.push("/admin/pyqs")
+        router.push(pyqsUrl)
       }, 1500)
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to publish paper")
@@ -198,7 +203,7 @@ export function PyqUploadStudioClient({ categories }: { categories: Category[] }
       <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
         <div>
           <Link
-            href="/admin/pyqs"
+            href={pyqsUrl}
             className="text-xs font-semibold text-gray-500 hover:text-orange-600 flex items-center gap-1 transition-colors mb-2"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back to PYQ Directory
@@ -238,7 +243,7 @@ export function PyqUploadStudioClient({ categories }: { categories: Category[] }
               Exam Category & Sub-Exam Head
             </h2>
             <Link
-              href="/admin/pyqs/categories"
+              href={categoriesUrl}
               target="_blank"
               className="text-xs text-orange-600 hover:underline font-medium"
             >
@@ -709,7 +714,7 @@ export function PyqUploadStudioClient({ categories }: { categories: Category[] }
 
           <div className="flex items-center gap-3">
             <Link
-              href="/admin/pyqs"
+              href={pyqsUrl}
               className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl"
             >
               Cancel

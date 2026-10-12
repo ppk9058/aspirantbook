@@ -270,14 +270,14 @@ export default async function TeacherDashboardPage() {
                 <span>Create Test</span>
               </Link>
               <Link
-                href="/admin/pyqs/upload"
+                href="/teacher/pyqs/upload"
                 className="p-2.5 rounded-xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-orange-500 text-gray-800 dark:text-gray-200 font-semibold flex items-center gap-1.5"
               >
                 <Upload className="w-3.5 h-3.5 text-orange-500" />
                 <span>Upload PYQ</span>
               </Link>
               <Link
-                href="/admin/pyqs"
+                href="/teacher/pyqs"
                 className="p-2.5 rounded-xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-orange-500 text-gray-800 dark:text-gray-200 font-semibold flex items-center gap-1.5 col-span-2"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
