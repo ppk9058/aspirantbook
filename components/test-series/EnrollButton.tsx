@@ -134,6 +134,7 @@ export default function EnrollButton({
             onClick={handleEnroll}
             disabled={isProcessing}
             data-testid="series-enroll-btn"
+            data-hydrated="true"
             className={`rounded-xl font-extrabold flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
                 effectiveIsFree
                     ? "bg-[#1448d8] hover:bg-[#0f37a8] text-white shadow-md"

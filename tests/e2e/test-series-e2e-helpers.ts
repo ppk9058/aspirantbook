@@ -44,19 +44,34 @@ export async function loginAs(page: Page, email: string, password = PASSWORD) {
   // Clear any existing session cookies
   await page.context().clearCookies();
 
-  const csrfRes = await fetch(`${BASE}/api/auth/csrf`);
-  const { csrfToken } = await csrfRes.json();
-  const csrfCookies = csrfRes.headers.getSetCookie();
+  let loginRes: Response | null = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const csrfRes = await fetch(`${BASE}/api/auth/csrf`);
+      const { csrfToken } = await csrfRes.json();
+      const csrfCookies = csrfRes.headers.getSetCookie();
 
-  const loginRes = await fetch(`${BASE}/api/auth/callback/credentials`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Cookie": csrfCookies.join("; "),
-    },
-    body: new URLSearchParams({ email, password, csrfToken, json: "true" }),
-    redirect: "manual",
-  });
+      loginRes = await fetch(`${BASE}/api/auth/callback/credentials`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Cookie": csrfCookies.join("; "),
+        },
+        body: new URLSearchParams({ email, password, csrfToken, json: "true" }),
+        redirect: "manual",
+      });
+      if (loginRes.ok || loginRes.status === 302) {
+        break;
+      }
+    } catch (err) {
+      if (attempt === 3) throw err;
+      await new Promise((r) => setTimeout(r, 600));
+    }
+  }
+
+  if (!loginRes) {
+    throw new Error(`Failed to contact credentials callback for ${email}`);
+  }
 
   const sessionCookies = loginRes.headers.getSetCookie();
   const tokenCookie = sessionCookies.find((c) => c.startsWith("authjs.session-token="));

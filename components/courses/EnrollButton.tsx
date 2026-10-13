@@ -24,8 +24,13 @@ export default function EnrollButton({
     price = 499,
 }: EnrollButtonProps) {
     const [isEnrolled, setIsEnrolled] = useState(initialEnrolled)
+    const [isMounted, setIsMounted] = useState(false)
     const router = useRouter()
     const { handleBuyNow, isProcessing } = useSamePageBuyNow()
+
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
 
     useEffect(() => {
         setIsEnrolled(initialEnrolled)
@@ -83,6 +88,7 @@ export default function EnrollButton({
             onClick={handleClick}
             disabled={isProcessing}
             data-testid="enroll-buy-btn"
+            data-hydrated={isMounted ? "true" : undefined}
             className={`font-black text-sm sm:text-base px-8 py-6 rounded-xl border-2 border-[#10162F] shadow-[3px_3px_0px_0px_#10162F] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer ${
                 isPremium
                     ? "bg-[#1448d8] hover:bg-[#0f37a8] text-white"
