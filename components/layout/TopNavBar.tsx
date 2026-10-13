@@ -16,6 +16,7 @@ import { useGoal } from "@/components/providers/GoalProvider"
 import GoalModal from "@/components/layout/GoalModal"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { getDashboardHref } from "@/lib/auth/roles"
+import ProfileDropdown from "@/components/layout/ProfileDropdown"
 
 export default function TopNavBar() {
     const { data: session, status } = useSession()
@@ -119,91 +120,7 @@ export default function TopNavBar() {
                     </div>
 
                     {/* Profile Dropdown or Guest Login */}
-                    {status === "loading" ? (
-                        <div className="flex items-center gap-2 p-1 sm:p-1.5" aria-label="Loading profile skeleton">
-                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-200 dark:bg-gray-800 animate-pulse" />
-                            <div className="hidden md:flex flex-col gap-1 text-left">
-                                <div className="w-16 h-2.5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
-                                <div className="w-10 h-2 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
-                            </div>
-                        </div>
-                    ) : session?.user ? (
-                        <div className="relative">
-                            <button
-                                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                                className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                                aria-label="User menu"
-                            >
-                                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-sm">
-                                    {session.user.name?.[0]?.toUpperCase() || session.user.email?.[0]?.toUpperCase() || "U"}
-                                </div>
-                                <div className="hidden md:flex flex-col text-left">
-                                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 leading-tight">
-                                        {session.user.name || session.user.email?.split("@")[0] || "Learner"}
-                                    </span>
-                                    <span className="text-[10px] text-gray-500 capitalize leading-tight">
-                                        {session.user.role === "ADMIN" ? "Admin" : session.user.role === "TEACHER" ? "Teacher" : "Student"}
-                                    </span>
-                                </div>
-                            </button>
-
-                            {showProfileMenu && (
-                                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#0a2540] rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-1.5 z-50">
-                                    <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
-                                        <div className="flex items-center justify-between gap-2">
-                                            <p className="text-xs font-semibold text-gray-900 dark:text-white truncate">
-                                                {session.user.name || "Learner"}
-                                            </p>
-                                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                                {session.user.role === "ADMIN" ? "Admin" : session.user.role === "TEACHER" ? "Teacher" : "Student"}
-                                            </span>
-                                        </div>
-                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">{session.user.email}</p>
-                                    </div>
-                                    <Link
-                                        href="/profile"
-                                        onClick={() => setShowProfileMenu(false)}
-                                        className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-                                    >
-                                        <User className="h-4 w-4 text-gray-400" />
-                                        <span>My Profile</span>
-                                    </Link>
-                                    <Link
-                                        href="/purchases"
-                                        onClick={() => setShowProfileMenu(false)}
-                                        className="flex items-center gap-2.5 px-4 py-2 text-xs text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 transition-colors font-semibold"
-                                    >
-                                        <ShoppingBag className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                                        <span>My Purchase</span>
-                                    </Link>
-                                    <Link
-                                        href="/settings"
-                                        onClick={() => setShowProfileMenu(false)}
-                                        className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-                                    >
-                                        <Settings className="h-4 w-4 text-gray-400" />
-                                        <span>Settings</span>
-                                    </Link>
-                                    <div className="border-t border-gray-100 dark:border-gray-800 my-1" />
-                                    <button
-                                        onClick={() => safeSignOut("/")}
-                                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
-                                    >
-                                        <LogOut className="h-4 w-4" />
-                                        <span>Sign Out</span>
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <button
-                            type="button"
-                            onClick={() => openMobileAuth({ actionType: "login" })}
-                            className="px-3.5 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm transition-all cursor-pointer"
-                        >
-                            Login / Register
-                        </button>
-                    )}
+                    <ProfileDropdown hideMyPurchase={false} />
                 </div>
             </div>
             {/* PW-Style Select Your Goal Modal */}

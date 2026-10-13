@@ -3,9 +3,11 @@
 import React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Search, ShoppingCart, PackageCheck, BookOpen, User } from "lucide-react"
+import { Search, ShoppingCart, PackageCheck, BookOpen, User, Heart } from "lucide-react"
 import { useBookCart } from "@/lib/books/cartContext"
+import { useWishlist } from "@/lib/books/wishlistContext"
 import { useSession } from "next-auth/react"
+import ProfileDropdown from "@/components/layout/ProfileDropdown"
 
 interface BookStoreHeaderProps {
   searchQuery?: string
@@ -18,6 +20,7 @@ export default function BookStoreHeader({
 }: BookStoreHeaderProps) {
   const router = useRouter()
   const { totalCount, orders, setIsCartOpen } = useBookCart()
+  const { wishlistIds } = useWishlist()
   const { data: session } = useSession()
 
   const userName = session?.user?.name || "Student"
@@ -60,8 +63,25 @@ export default function BookStoreHeader({
           </div>
         </div>
 
-        {/* Right Actions: My Orders, My Cart, Profile */}
+        {/* Right Actions: Wishlist, My Orders, My Cart, Profile */}
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          {/* Wishlist Button */}
+          <Link
+            href="/books/wishlist"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 min-h-[44px] rounded-xl text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 transition-all text-xs sm:text-sm font-bold relative group"
+            title="Saved Books & Wishlist"
+          >
+            <div className="relative flex items-center">
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 dark:text-slate-300 group-hover:text-rose-500 transition-colors" />
+              {wishlistIds.length > 0 && (
+                <span className="absolute -top-1.5 -right-2 px-1.5 py-0.2 min-w-4 text-[10px] font-black rounded-full bg-rose-600 text-white flex items-center justify-center leading-none shadow-xs">
+                  {wishlistIds.length}
+                </span>
+              )}
+            </div>
+            <span className="hidden sm:inline">Wishlist</span>
+          </Link>
+
           {/* My Orders Button */}
           <Link
             href="/books/orders"
@@ -81,6 +101,8 @@ export default function BookStoreHeader({
 
           {/* My Cart Button (User requirement: "My cart (instead of My bag)") */}
           <button
+            type="button"
+            data-testid="header-cart-btn"
             onClick={() => setIsCartOpen(true)}
             className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 min-h-[44px] rounded-xl text-slate-700 dark:text-slate-300 hover:text-sky-700 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-slate-700 transition-all text-xs sm:text-sm font-bold relative group border border-transparent hover:border-sky-200"
             title="Open Flipkart-style My Cart"
@@ -96,14 +118,8 @@ export default function BookStoreHeader({
             <span className="hidden sm:inline">My Cart</span>
           </button>
 
-          {/* User Initial Avatar */}
-          <Link
-            href="/profile"
-            className="w-8 h-8 sm:w-9 sm:h-9 min-h-[36px] min-w-[36px] rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 font-extrabold flex items-center justify-center text-xs sm:text-sm shadow-2xs hover:scale-105 transition-transform"
-            title={userName}
-          >
-            {userInitial}
-          </Link>
+          {/* User Profile Dropdown (hideMyPurchase={true} because /books has My Orders) */}
+          <ProfileDropdown hideMyPurchase={true} />
         </div>
       </div>
     </header>
