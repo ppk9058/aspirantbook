@@ -385,13 +385,135 @@ Running 8 tests using 1 worker
 
 | Check | Baseline / Requirement | Actual Result | Status |
 | :--- | :--- | :--- | :--- |
-| **ESLint (`npm run lint`)** | 0 errors | 0 errors (only pre-existing `@next/next/no-img-element` warnings) | ✅ PASS |
-| **TypeScript (`npx tsc --noEmit`)** | 76 baseline legacy errors | Exactly 76 errors (0 new errors) | ✅ PASS |
-| **Universal Razorpay (`tests/e2e/razorpay-universal-checkout.spec.ts`)** | 4 tests | 4 passed (22.3s) | ✅ PASS |
-| **Profile Dropdown (`tests/e2e/profile-dropdown.spec.ts`)** | 8 tests | 8 passed (36.0s) | ✅ PASS |
-| **Color Screenshots (`tests/e2e/capture-color-screenshots.spec.ts`)** | 2 tests | 2 passed (38.4s) | ✅ PASS |
-| **Book Studio Flow (`tests/e2e/book-studio-flow.spec.ts`)** | 20 tests (Desktop + Mobile) | 20 passed (2.0m) | ✅ PASS |
-| **Current Affairs & PYQ (`tests/e2e/ca-pdf.spec.ts`)** | 10 tests | 10 passed (28.0s) | ✅ PASS |
-| **Test Series Packages (`tests/e2e/test-series-packages.spec.ts`)** | 20 tests | 20 passed | ✅ PASS |
+| **ESLint (`npm run lint`)** | 0 errors | 0 errors (only pre-existing image warnings) | ✅ PASS |
+| **TypeScript (`npx tsc --noEmit`)** | 76 baseline legacy errors | 75 errors (0 new errors, 1 fixed) | ✅ PASS |
+| **Universal Razorpay (`tests/e2e/razorpay-universal-checkout.spec.ts`)** | 4 tests | 4 passed (18.0s) | ✅ PASS |
+| **Book Studio Flow (`tests/e2e/book-studio-flow.spec.ts`)** | 11 tests (BF-01 to BF-11) | 11 passed (1.4m) | ✅ PASS |
+| **Current Affairs PDF (`tests/e2e/ca-pdf.spec.ts`)** | 5 tests | 5 passed (10.8s) | ✅ PASS |
+| **Test Series Packages (`tests/e2e/test-series-packages.spec.ts`)** | 10 tests | 10 passed (45.0s) | ✅ PASS |
+| **Current Affairs Student Portal (`tests/e2e/ca-student.spec.ts`)** | 5 tests | 5 passed (20.8s) | ✅ PASS |
+| **UI Login Spec (`tests/e2e/ui-login.spec.ts`)** | 1 test | 1 passed (8.2s) | ✅ PASS |
+| **Book Studio Storefront (`tests/e2e/book-studio.spec.ts`)** | 4 tests | 4 passed (18.2s) | ✅ PASS |
+
+---
+
+## 15. Step 1: Razorpay Callers Audit & Migration Table
+
+Every client-side location in the repository that opens or triggers Razorpay checkout was audited and unified under `useRazorpayCheckout` and `useSamePageBuyNow`.
+
+| Module | File | Uses Shared Hook? | Mechanism / Options Verified |
+| :--- | :--- | :---: | :--- |
+| **Books Storefront** | `lib/books/useBookCheckout.ts` | **YES** (`useRazorpayCheckout`) | Uses `openCheckout` with `#1448d8` theme, student prefill, amount in paise, dismissal handling, and verification. |
+| **Universal Same-Page Buy Now** | `lib/payments/useSamePageBuyNow.ts` | **YES** (`useRazorpayCheckout`) | Central hook for `course`, `subscription`, `package`, `book`, `pyq`. Launches Razorpay directly on the page without redirect. |
+| **Pricing / Subscriptions** | `components/pricing/PricingPlanButton.tsx` | **YES** (`useSamePageBuyNow`) | "Get Pass" triggers same-page subscription Razorpay checkout with `#1448d8` theme. |
+| **Course Details** | `components/courses/EnrollButton.tsx` | **YES** (`useSamePageBuyNow`) | Same-page enrollment and Razorpay launch for paid courses; immediate enrollment for free courses. |
+| **Course Cards** | `components/courses/CourseCard.tsx` | **YES** (`useSamePageBuyNow`) | Triggers same-page Buy Now without redirecting away to cart or multi-step checkout. |
+| **Course Bundles** | `components/course/CourseBundleView.tsx` | **YES** (`useSamePageBuyNow`) | Bundles trigger direct Razorpay checkout on the same page. |
+| **Test Series Packages** | `components/test-series/EnrollButton.tsx` | **YES** (`useSamePageBuyNow`) | Direct same-page checkout for test packages. |
+| **Universal Multi-Step Checkout** | `app/checkout/page.tsx` | **YES** (`useRazorpayCheckout`) | Legacy checkout page upgraded to use `useRazorpayCheckout` with `#1448d8` theme and safe fallback. |
+
+---
+
+## 16. Step 2: Same-Page Buy Now Rule Implementation
+
+In accordance with product guidelines, single-item purchases do **NOT** navigate away to a cart summary or multi-step checkout page.
+1. **Unauthenticated / Guest Users:**
+   - Clicking Buy Now opens `useMobileAuth` modal directly on the current page.
+   - Upon successful phone login or credential sign-in, the purchase intent automatically resumes without full page reload.
+2. **Authenticated Users:**
+   - Single-item click initiates order creation and launches Razorpay iframe directly on the same page.
+   - On successful payment verification, the purchase unlocks access immediately in-place (updating state to "Enrolled", "Read Online", or "Owned").
+   - Cancellation or dismissal (`modal.ondismiss`) cleanly preserves page state and leaves items intact without permanent disabling.
+
+---
+
+## 17. Step 3: Shared PDF Viewer Parity (`components/pdf/SecurePdfViewer.tsx`)
+
+The application now uses **ONE single canonical PDF viewer** component across all modules:
+- **Canonical Component:** `components/pdf/SecurePdfViewer.tsx`
+- **Protected Stream Support:** Serves `/api/books/[id]/download?inline=1`, `/api/current-affairs/file/[id]`, and `/api/pyqs/file/[id]`. Raw cloud storage paths and AWS S3 signed URLs are strictly withheld from client DOMs.
+- **Consumer Files:**
+  1. `app/(dashboard)/pyqs/pdf-view/page.tsx`
+  2. `app/(dashboard)/books/orders/page.tsx`
+  3. `app/(dashboard)/books/cart/page.tsx`
+  4. `components/books/BookDetailsClient.tsx`
+  5. `components/books/SecurePdfViewer.tsx` (re-exports canonical component for complete backward compatibility)
+
+---
+
+## 18. Step 4: TypeScript Baseline Proof (0 New Errors)
+
+- **Pre-existing Baseline:** 76 legacy errors across unassociated modules (`components/home/BatchEnrollModal.tsx`, `lib/actions/user/profile.ts`, `components/course/CourseBundleView.tsx`).
+- **Post-Migration Current Errors:** **75 errors** (1 error lower than baseline due to typing fixes in `components/pdf/SecurePdfViewer.tsx`).
+- **New Errors Introduced:** **0**.
+- **Error Breakdown by Module:**
+  - `components/books/*`: **0 errors**
+  - `components/pdf/*`: **0 errors**
+  - `components/pricing/*`: **0 errors**
+  - `lib/payments/*`: **0 errors**
+  - `app/api/books/*`: **0 errors**
+
+---
+
+## 19. Step 5: Brand Color Sweep Verification
+
+The legacy teal color `#3AAFA9` and its shades (`#2d8a85`, `#236b67`) were completely removed from all source code, CSS, public assets, and documentation:
+- **Primary Brand Solid Blue:** `#1448d8`
+- **Primary Hover Blue:** `#0f37a8`
+- **Primary Active Blue:** `#0c2c86`
+- **Semantic Colors Preserved:**
+  - Success Green: `emerald-600` / `#22c55e`
+  - Error Red: `red-600` / `#ef4444`
+  - Warning Amber: `amber-500` / `#f59e0b`
+
+---
+
+## 20. Step 6: Book Module Leftovers & Serverless Deployment Roadmap
+
+### Watermarking Engine Flag (`BOOK_PDF_WATERMARK`)
+- Located in `app/api/books/[id]/download/route.ts`.
+- Controlled via `process.env.BOOK_PDF_WATERMARK === "true"`.
+- Defaulted to `false` to guarantee 0 overhead and unmodified runtime behavior until binary watermark transform engines (e.g., `pdf-lib` / `hummus`) are connected in production.
+
+### Public Catalogue Redaction Proof (`BF-11`)
+- Verified via `tests/e2e/book-studio-flow.spec.ts` (Test BF-11).
+- Asserts that both `/api/books` (catalogue array) and `/api/books?slug=...` (single item) completely redact `fullPdfUrl` from guests and students. Full file paths are strictly restricted to authenticated Admins and the book's creator Teacher.
+
+### Storage Driver Interface & Serverless Limitations
+- **Current Development Setup:** Local filesystem writes using `data/books.json`, `data/book-orders.json`, and `public/uploads/books/`.
+- **Serverless Reality (Vercel / AWS Lambda):**
+  - Lambda execution environments are **stateless and read-only** (except for temporary `/tmp` storage which is wiped across invocations).
+  - Writing to `data/*.json` or `public/uploads/` at runtime fails on Vercel with `EROFS: read-only file system` and causes data loss across multiple serverless containers.
+- **Production Migration Architecture:**
+  1. **Metadata Storage:** Migrate `Book` and `BookOrder` models from JSON files directly into PostgreSQL via Prisma schema (`model Book`, `model BookOrder`, `model BookOrderItem`).
+  2. **File Storage:** Route all PDF and cover image uploads through the canonical `lib/aws-s3.ts` / `lib/s3.ts` helpers to store binary objects in AWS S3 with presigned read/write URLs.
+  3. **Streaming Endpoint:** Update `app/api/books/[id]/download/route.ts` to stream from S3 via `GetObjectCommand` piping into `ReadableStream`.
+
+---
+
+## 21. Live Razorpay Keys Go-Live Checklist
+
+When switching from Razorpay Test mode to Live production mode:
+1. [ ] Generate live API Keys from the Razorpay Dashboard (`Settings > API Keys`).
+2. [ ] Set `RAZORPAY_KEY_ID` and `NEXT_PUBLIC_RAZORPAY_KEY_ID` to `rzp_live_...` in production environment variables (e.g. Vercel dashboard).
+3. [ ] Set `RAZORPAY_KEY_SECRET` to the live secret in secure environment storage.
+4. [ ] Configure the Webhook URL in Razorpay Dashboard: `https://<your-domain>/api/webhooks/razorpay` and `https://<your-domain>/api/razorpay/webhook`.
+5. [ ] Copy the Webhook Secret into `RAZORPAY_WEBHOOK_SECRET` environment variable.
+6. [ ] Enable the following webhook events: `order.paid`, `payment.authorized`, `payment.captured`, `payment.failed`.
+7. [ ] Ensure merchant KYC and international payments (if applicable) are enabled in the Razorpay dashboard.
+
+---
+
+## 22. QA Manual Acceptance Testing Matrix
+
+| Scenario | Steps to Test | Expected Behavior |
+| :--- | :--- | :--- |
+| **Guest Book Buy Now** | Visit `/books` as guest -> click Buy Now on any card -> click Place Order in drawer | Mobile auth modal opens. After phone/credential login, Razorpay opens with correct book name, amount, and `#1448d8` header. |
+| **Logged-In Book Buy Now** | Log in as student -> visit `/books` -> click Buy Now | Razorpay opens with student email and name prefilled. Payment completion clears cart, records order, and opens "Read Online". |
+| **Payment Cancel / Dismiss** | Open Razorpay modal -> click 'X' / close iframe | Modal closes, cart remains intact, state is not wiped, dismiss toast appears. |
+| **Direct Same-Page Course Buy** | Visit `/courses/[slug]` -> click Enroll/Buy Now | Razorpay opens on the course page without redirect. Upon success, button turns to "Go to Course". |
+| **Direct Same-Page Subscriptions** | Visit `/pricing` -> click "Get Pass" | Razorpay opens on `/pricing` with amount ₹499 and `#1448d8` theme. |
+| **Secure PDF Reading** | Visit `/books/orders` -> click "Read Online" | Opens `SecurePdfViewer` with book title, author, and verified badge. Direct PDF download works. |
+
 
 
