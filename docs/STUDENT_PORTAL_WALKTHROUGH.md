@@ -53,7 +53,7 @@ This walkthrough documents the implementation of the first two phases of the asp
   - Tutorials
   - Real World Projects
   - Code Along
-- Active state highlighting (teal #3AAFA9)
+- Active state highlighting (solid blue #1448d8)
 - Smooth expand/collapse animations
 
 **Navigation Items**:
@@ -253,7 +253,7 @@ This walkthrough documents the implementation of the first two phases of the asp
 - **Language indicator**: Shows current language
 - **Reset button**: Restore starter code
 - **Run button**: Execute code (green #1DB954)
-- **Submit button**: Submit solution (teal #3AAFA9)
+- **Submit button**: Submit solution (solid blue #1448d8)
 
 **State Management**:
 - Code state (editable)
@@ -275,7 +275,7 @@ This walkthrough documents the implementation of the first two phases of the asp
 
 **Design**:
 - White background
-- Teal active tab indicator
+- Solid blue active tab indicator
 - Border left for separation
 - Padding for readability
 
@@ -302,7 +302,7 @@ This walkthrough documents the implementation of the first two phases of the asp
 ```css
 --primary: #05192D;        /* Dark Navy - Sidebar */
 --secondary: #1DB954;      /* Green - Success/Run */
---accent: #3AAFA9;         /* Teal - Links/Submit */
+--accent: #1448d8;         /* Solid Blue - Links/Submit */
 --background: #F8F9FA;     /* Light Gray */
 --card: #FFFFFF;           /* White */
 --text-primary: #212529;   /* Dark Gray */

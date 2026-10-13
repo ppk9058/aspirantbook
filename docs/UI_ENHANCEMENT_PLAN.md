@@ -205,7 +205,7 @@ import 'react-circular-progressbar/dist/styles.css'
       <p className="text-sm text-gray-500 mb-4">
         {chaptersCompleted}/{totalChapters} chapters completed
       </p>
-      <button className="w-full bg-[#3AAFA9] text-white py-2 rounded-lg font-medium hover:bg-[#2d8a85] transition">
+      <button className="w-full bg-[#1448d8] text-white py-2 rounded-lg font-medium hover:bg-[#0f37a8] transition">
         Resume Learning
       </button>
     </div>

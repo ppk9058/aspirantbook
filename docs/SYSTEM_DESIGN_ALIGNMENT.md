@@ -58,7 +58,7 @@ cat prisma/schema.prisma | grep "model " | wc -l
 ```css
 Primary: #05192D (Dark Navy - Header/Sidebar)
 Secondary: #1DB954 (Green - Progress/Success)
-Accent: #3AAFA9 (Teal - Buttons/Links)
+Accent: #1448d8 (Solid Blue - Buttons/Links)
 Background: #F8F9FA (Light Gray)
 Cards: #FFFFFF
 Text Primary: #212529
@@ -71,7 +71,7 @@ Error: #DC3545
 ```css
 --primary: #05192D;        ✅ MATCH
 --secondary: #1DB954;      ✅ MATCH
---accent: #3AAFA9;         ✅ MATCH
+--accent: #1448d8;         ✅ MATCH
 --background: #F8F9FA;     ✅ MATCH
 --card: #FFFFFF;           ✅ MATCH
 --text-primary: #212529;   ✅ MATCH

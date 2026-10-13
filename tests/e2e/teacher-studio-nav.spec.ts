@@ -65,7 +65,7 @@ test.describe("Teacher Studio Navigation, Allowlist & Super-Admin Route Protecti
       expect(bodyText).not.toContain("Application error")
 
       // LeftSidebar highlight: exactly one nav link in LeftSidebar should be active (bg-[#3AAFA9])
-      const activeNavItems = page.locator("aside nav a.bg-\\[\\#3AAFA9\\]")
+      const activeNavItems = page.locator("aside nav a.bg-\\[\\#1448d8\\]")
       expect(await activeNavItems.count()).toBe(1)
       await expect(activeNavItems).toContainText(studio.label)
     }
@@ -74,7 +74,7 @@ test.describe("Teacher Studio Navigation, Allowlist & Super-Admin Route Protecti
     const resTeacherDash = await page.goto("/teacher", { waitUntil: "domcontentloaded" })
     expect(resTeacherDash?.status()).toBe(200)
     await expect(page).toHaveURL(/.*\/teacher$/)
-    const activeDashNav = page.locator("aside nav a.bg-\\[\\#3AAFA9\\]")
+    const activeDashNav = page.locator("aside nav a.bg-\\[\\#1448d8\\]")
     expect(await activeDashNav.count()).toBe(1)
     await expect(activeDashNav).toContainText(/Teacher Dashboard/)
   })

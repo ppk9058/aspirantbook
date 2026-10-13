@@ -858,7 +858,7 @@ Notification sent
 ```css
 --primary: #05192D     /* Dark Navy - Headers, Sidebar */
 --secondary: #1DB954   /* Green - Success, Progress */
---accent: #3AAFA9      /* Teal - CTAs, Links */
+--accent: #1448d8      /* Solid Blue - CTAs, Links */
 --background: #F8F9FA  /* Light Gray - Page background */
 --card: #FFFFFF        /* White - Card backgrounds */
 --text-primary: #212529    /* Dark gray - Main text */

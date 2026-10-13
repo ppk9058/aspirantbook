@@ -45,7 +45,7 @@ async function main() {
   // 2. Active highlight check
   console.log("\n--- SECTION 8.2: ACTIVE HIGHLIGHT VERIFICATION ---");
   const firstClass = await firstNavLink.getAttribute("class");
-  const isActive = firstClass?.includes("bg-[#3AAFA9]") || firstClass?.includes("text-white");
+  const isActive = firstClass?.includes("bg-[#1448d8]") || firstClass?.includes("text-white");
   console.log(`Active state class detected on /dashboard: ${isActive ? "PASS (Highlighted)" : "FAIL"}`);
 
   // 3. Navigation test from another page (e.g. /courses) back to /dashboard
