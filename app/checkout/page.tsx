@@ -25,7 +25,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import Script from "next/script"
 import Image from "next/image"
-import { loadRazorpayScript } from "@/lib/payments/razorpayClient"
+import { useRazorpayCheckout } from "@/lib/payments/useRazorpayCheckout"
 
 declare global {
     interface Window {
@@ -63,6 +63,7 @@ function CheckoutContent() {
     const [isLoading, setIsLoading] = useState(false)
     const [paymentMethod, setPaymentMethod] = useState<"stripe" | "razorpay">("razorpay")
     const [isDetectingLocation, setIsDetectingLocation] = useState(false)
+    const { openCheckout } = useRazorpayCheckout()
 
     // Coupon State
     const [couponInput, setCouponInput] = useState(couponParam || "")
@@ -307,14 +308,20 @@ function CheckoutContent() {
                 couponCode: appliedCoupon?.code || undefined,
             })
 
-            const options = {
+            await openCheckout({
                 key: order.keyId,
                 amount: order.amount,
                 currency: order.currency,
                 name: "aspirantbook",
                 description: course ? course.title : `${planParam} Subscription`,
                 order_id: order.orderId,
-                handler: async function (response: any) {
+                prefill: {
+                    name: activeUser?.name || "Student",
+                    email: (activeUser as any)?.email || (phoneNumber ? `mobile_${phoneNumber}@aspirantbook.local` : ""),
+                    contact: phoneNumber || (activeUser as any)?.phoneNumber || "",
+                },
+                themeColor: "#1448d8",
+                onSuccess: async (response) => {
                     try {
                         const verifyRes = await fetch("/api/verify-payment/razorpay", {
                             method: "POST",
@@ -343,35 +350,19 @@ function CheckoutContent() {
                         }
                     } catch {
                         router.push(course ? "/my-learning" : "/my-tests")
+                    } finally {
+                        setIsLoading(false)
                     }
                 },
-                prefill: {
-                    name: activeUser?.name || "Student",
-                    email: (activeUser as any)?.email || (phoneNumber ? `mobile_${phoneNumber}@aspirantbook.local` : ""),
-                    contact: phoneNumber || (activeUser as any)?.phoneNumber || "",
-                },
-                theme: {
-                    color: "#5B47FB",
-                },
-            }
-
-            if (typeof window === "undefined" || !window.Razorpay) {
-                const loaded = await loadRazorpayScript()
-                if (!loaded || !window.Razorpay) {
-                    setPhoneError("Payment gateway is initializing. Please wait a few seconds and try again.")
+                onDismiss: () => {
                     setIsLoading(false)
-                    return
-                }
-            }
-
-            const rzp = new window.Razorpay(options)
-            rzp.on("payment.failed", function (failRes: any) {
-                console.error("Razorpay payment failed:", failRes.error)
-                setPhoneError(failRes.error?.description || "Payment failed or was canceled.")
-                setIsLoading(false)
+                    setPhoneError("Payment was cancelled.")
+                },
+                onError: (desc) => {
+                    setIsLoading(false)
+                    setPhoneError(desc)
+                },
             })
-            rzp.open()
-            setIsLoading(false)
         } catch (error: any) {
             console.error("Payment failed:", error)
             setPhoneError(error.message || "Failed to start payment. Please check your connection.")
