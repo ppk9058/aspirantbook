@@ -17,8 +17,10 @@ if (!["127.0.0.1", "localhost"].includes(parsedTestDatabaseUrl.hostname) ||
   throw new Error("E2E specs require the Docker trillionskill_test database.");
 }
 
+import { DEFAULT_TEST_PASSWORD } from "../support/test-credentials";
+
 export const prisma = new PrismaClient({ datasourceUrl: TEST_DATABASE_URL });
-export const PASSWORD = "E2E!localPass9";
+export const PASSWORD = DEFAULT_TEST_PASSWORD;
 
 export function newNonce() {
   return `E2E-${new Date().toISOString().replace(/[-:.TZ]/g, "")}-${Math.random().toString(36).slice(2, 7)}`;
@@ -36,22 +38,60 @@ export async function createActor(nonce: string, role: UserRole, label: string) 
   });
 }
 
-export async function loginThroughUi(page: Page, email: string) {
-  await page.goto("/login");
-  await page.getByLabel("Email Address").fill(email);
-  await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
-  const responsePromise = page.waitForResponse((r) => r.url().includes("/api/auth/callback/credentials") && r.request().method() === "POST");
-  await page.getByRole("button", { name: "Sign In" }).click();
-  const response = await responsePromise;
-  for (let attempt = 0; attempt < 30; attempt += 1) {
-    const sessionResponse = await page.request.get("/api/auth/session");
-    if (sessionResponse.ok()) {
-      const session = await sessionResponse.json() as { user?: { id: string; role: string } } | null;
-      if (session?.user?.id) return session;
-    }
-    await page.waitForTimeout(500);
+const BASE = process.env.BASE_URL || "http://127.0.0.1:3045";
+
+export async function loginAs(page: Page, email: string, password = PASSWORD) {
+  // Clear any existing session cookies
+  await page.context().clearCookies();
+
+  const csrfRes = await fetch(`${BASE}/api/auth/csrf`);
+  const { csrfToken } = await csrfRes.json();
+  const csrfCookies = csrfRes.headers.getSetCookie();
+
+  const loginRes = await fetch(`${BASE}/api/auth/callback/credentials`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Cookie": csrfCookies.join("; "),
+    },
+    body: new URLSearchParams({ email, password, csrfToken, json: "true" }),
+    redirect: "manual",
+  });
+
+  const sessionCookies = loginRes.headers.getSetCookie();
+  const tokenCookie = sessionCookies.find((c) => c.startsWith("authjs.session-token="));
+  if (!tokenCookie) {
+    throw new Error(`Failed to obtain authjs.session-token for ${email} (status ${loginRes.status})`);
   }
-  throw new Error(`Credential sign-in returned ${response.status()}, but no authenticated session was established.`);
+
+  const tokenVal = tokenCookie.split(";")[0].split("=")[1];
+  const urlObj = new URL(BASE);
+  const cookieDomain = urlObj.hostname;
+
+  await page.context().addCookies([
+    {
+      name: "authjs.session-token",
+      value: tokenVal,
+      domain: cookieDomain,
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+  ]);
+
+  // Verify session via page.request using the authenticated context cookies
+  const sessionRes = await page.request.get(`${BASE}/api/auth/session`);
+  const session = sessionRes.ok() ? await sessionRes.json() : null;
+
+  if (!session?.user?.email || session.user.email.toLowerCase() !== email.toLowerCase()) {
+    throw new Error(`loginAs failed: session user ${session?.user?.email} does not match expected ${email}`);
+  }
+
+  return session;
+}
+
+export async function loginThroughUi(page: Page, email: string) {
+  return loginAs(page, email);
 }
 
 export async function beginArtifacts(context: BrowserContext) {
