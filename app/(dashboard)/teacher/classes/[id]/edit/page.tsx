@@ -160,7 +160,7 @@ export default function EditClassPage({
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto py-12 text-center text-xs text-gray-500">
-        <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-[#3AAFA9]" />
+        <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-[#1448d8]" />
         Loading lecture details...
       </div>
     )
@@ -178,7 +178,7 @@ export default function EditClassPage({
 
       <div className="bg-white dark:bg-[#05192D] rounded-3xl border border-gray-200 dark:border-gray-800 p-6 sm:p-8 shadow-xl space-y-6">
         <div>
-          <span className="px-3 py-1 rounded-full bg-[#3AAFA9]/10 text-[#3AAFA9] text-xs font-bold">
+          <span className="px-3 py-1 rounded-full bg-[#1448d8]/10 text-[#1448d8] text-xs font-bold">
             Edit Lecture
           </span>
           <h1 className="text-2xl font-black text-gray-900 dark:text-white mt-2">
@@ -251,7 +251,7 @@ export default function EditClassPage({
                     })
                   }
                 }}
-                className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] disabled:opacity-50 ${
+                className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8] disabled:opacity-50 ${
                   validationErrors.topic ? "border-red-500" : "border-gray-300 dark:border-gray-700"
                 }`}
               />
@@ -279,7 +279,7 @@ export default function EditClassPage({
                     })
                   }
                 }}
-                className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] disabled:opacity-50 ${
+                className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8] disabled:opacity-50 ${
                   validationErrors.courseId ? "border-red-500" : "border-gray-300 dark:border-gray-700"
                 }`}
               >
@@ -316,7 +316,7 @@ export default function EditClassPage({
                       })
                     }
                   }}
-                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] disabled:opacity-50 ${
+                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8] disabled:opacity-50 ${
                     validationErrors.date ? "border-red-500" : "border-gray-300 dark:border-gray-700"
                   }`}
                 />
@@ -345,7 +345,7 @@ export default function EditClassPage({
                       })
                     }
                   }}
-                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] disabled:opacity-50 ${
+                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8] disabled:opacity-50 ${
                     validationErrors.time ? "border-red-500" : "border-gray-300 dark:border-gray-700"
                   }`}
                 />
@@ -364,7 +364,7 @@ export default function EditClassPage({
                   disabled={status !== "SCHEDULED"}
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] disabled:opacity-50"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8] disabled:opacity-50"
                 >
                   <option value="45">45 minutes</option>
                   <option value="60">60 minutes</option>
@@ -384,7 +384,7 @@ export default function EditClassPage({
               <button
                 type="submit"
                 disabled={isSubmitting || status !== "SCHEDULED"}
-                className="px-6 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold shadow-md shadow-[#3AAFA9]/20 flex items-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold shadow-md shadow-[#1448d8]/20 flex items-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 {isSubmitting ? (
                   <>

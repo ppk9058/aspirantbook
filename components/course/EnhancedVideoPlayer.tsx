@@ -303,11 +303,11 @@ export default function EnhancedVideoPlayer({
                                 onChange={(e) => handleSeek(parseFloat(e.target.value))}
                                 className="w-full h-2 sm:h-1.5 py-2 -my-2 bg-white/30 rounded-full appearance-none cursor-pointer touch-none
                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 
-                  [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#3AAFA9]
+                  [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#1448d8]
                   [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:rounded-full 
-                  [&::-moz-range-thumb]:bg-[#3AAFA9] [&::-moz-range-thumb]:border-0"
+                  [&::-moz-range-thumb]:bg-[#1448d8] [&::-moz-range-thumb]:border-0"
                                 style={{
-                                    background: `linear-gradient(to right, #3AAFA9 0%, #3AAFA9 ${progress}%, rgba(255,255,255,0.3) ${progress}%, rgba(255,255,255,0.3) 100%)`
+                                    background: `linear-gradient(to right, #1448d8 0%, #1448d8 ${progress}%, rgba(255,255,255,0.3) ${progress}%, rgba(255,255,255,0.3) 100%)`
                                 }}
                             />
                         </div>
@@ -316,21 +316,21 @@ export default function EnhancedVideoPlayer({
                         <div className="flex items-center justify-between text-white gap-2 sm:gap-4">
                             {/* Left Controls */}
                             <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                                <button onClick={togglePlay} className="p-1 sm:p-0 hover:text-[#3AAFA9] transition-colors active:scale-90" aria-label={isPlaying ? "Pause" : "Play"}>
+                                <button onClick={togglePlay} className="p-1 sm:p-0 hover:text-[#1448d8] transition-colors active:scale-90" aria-label={isPlaying ? "Pause" : "Play"}>
                                     {isPlaying ? <Pause className="h-5 w-5 sm:h-6 sm:w-6" /> : <Play className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />}
                                 </button>
 
-                                <button onClick={() => skip(-10)} className="p-1 sm:p-0 hover:text-[#3AAFA9] transition-colors active:scale-90" aria-label="Rewind 10 seconds">
+                                <button onClick={() => skip(-10)} className="p-1 sm:p-0 hover:text-[#1448d8] transition-colors active:scale-90" aria-label="Rewind 10 seconds">
                                     <SkipBack className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </button>
 
-                                <button onClick={() => skip(10)} className="p-1 sm:p-0 hover:text-[#3AAFA9] transition-colors active:scale-90" aria-label="Forward 10 seconds">
+                                <button onClick={() => skip(10)} className="p-1 sm:p-0 hover:text-[#1448d8] transition-colors active:scale-90" aria-label="Forward 10 seconds">
                                     <SkipForward className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </button>
 
                                 {/* Volume (hidden on small phones, where physical buttons are standard) */}
                                 <div className="hidden sm:flex items-center gap-2">
-                                    <button onClick={toggleMute} className="hover:text-[#3AAFA9] transition-colors" aria-label="Toggle mute">
+                                    <button onClick={toggleMute} className="hover:text-[#1448d8] transition-colors" aria-label="Toggle mute">
                                         {isMuted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                                     </button>
                                     <input
@@ -358,7 +358,7 @@ export default function EnhancedVideoPlayer({
                                 <div className="relative">
                                     <button
                                         onClick={() => setShowSpeedMenu(!showSpeedMenu)}
-                                        className="text-xs sm:text-sm font-semibold hover:text-[#3AAFA9] transition-colors px-1 sm:px-1.5 py-0.5 rounded bg-white/10 sm:bg-transparent"
+                                        className="text-xs sm:text-sm font-semibold hover:text-[#1448d8] transition-colors px-1 sm:px-1.5 py-0.5 rounded bg-white/10 sm:bg-transparent"
                                         aria-label="Playback speed"
                                     >
                                         {playbackSpeed}x
@@ -369,7 +369,7 @@ export default function EnhancedVideoPlayer({
                                                 <button
                                                     key={speed}
                                                     onClick={() => changeSpeed(speed)}
-                                                    className={`block w-full px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-800 transition-colors ${speed === playbackSpeed ? 'text-[#3AAFA9] font-bold' : ''
+                                                    className={`block w-full px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-800 transition-colors ${speed === playbackSpeed ? 'text-[#1448d8] font-bold' : ''
                                                         }`}
                                                 >
                                                     {speed}x
@@ -383,7 +383,7 @@ export default function EnhancedVideoPlayer({
                                 <div className="relative">
                                     <button
                                         onClick={() => setShowQualityMenu(!showQualityMenu)}
-                                        className="p-1 sm:p-0 hover:text-[#3AAFA9] transition-colors"
+                                        className="p-1 sm:p-0 hover:text-[#1448d8] transition-colors"
                                         aria-label="Quality settings"
                                     >
                                         <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -394,7 +394,7 @@ export default function EnhancedVideoPlayer({
                                                 <button
                                                     key={q}
                                                     onClick={() => { setQuality(q); setShowQualityMenu(false) }}
-                                                    className={`block w-full px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-800 transition-colors ${q === quality ? 'text-[#3AAFA9] font-bold' : ''
+                                                    className={`block w-full px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-800 transition-colors ${q === quality ? 'text-[#1448d8] font-bold' : ''
                                                         }`}
                                                 >
                                                     {q}
@@ -405,12 +405,12 @@ export default function EnhancedVideoPlayer({
                                 </div>
 
                                 {/* Picture-in-Picture */}
-                                <button onClick={togglePiP} className="hidden sm:block hover:text-[#3AAFA9] transition-colors" aria-label="Picture in Picture">
+                                <button onClick={togglePiP} className="hidden sm:block hover:text-[#1448d8] transition-colors" aria-label="Picture in Picture">
                                     <PictureInPicture className="h-5 w-5" />
                                 </button>
 
                                 {/* Fullscreen */}
-                                <button onClick={toggleFullscreen} className="p-1 sm:p-0 hover:text-[#3AAFA9] transition-colors active:scale-90" aria-label="Toggle Fullscreen">
+                                <button onClick={toggleFullscreen} className="p-1 sm:p-0 hover:text-[#1448d8] transition-colors active:scale-90" aria-label="Toggle Fullscreen">
                                     {isFullscreen ? <Minimize className="h-4 w-4 sm:h-5 sm:w-5" /> : <Maximize className="h-4 w-4 sm:h-5 sm:w-5" />}
                                 </button>
                             </div>

@@ -25,7 +25,7 @@ export default function DailyGoalCard({
                     <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
                         isCompleted
                             ? "bg-[#1DB954]/20 text-[#1DB954]"
-                            : "bg-[#3AAFA9]/15 text-[#3AAFA9]"
+                            : "bg-[#1448d8]/15 text-[#1448d8]"
                     }`}>
                         {isCompleted ? <CheckCircle className="h-6 w-6" /> : <Target className="h-6 w-6" />}
                     </div>
@@ -51,11 +51,11 @@ export default function DailyGoalCard({
                     <div className="w-28 sm:w-36">
                         <div className="flex justify-between text-[11px] font-medium mb-1 text-gray-600 dark:text-gray-300">
                             <span>Progress</span>
-                            <span className="font-bold text-[#3AAFA9]">{percentage}%</span>
+                            <span className="font-bold text-[#1448d8]">{percentage}%</span>
                         </div>
                         <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-gradient-to-r from-[#3AAFA9] to-[#1DB954] transition-all duration-500 rounded-full"
+                                className="h-full bg-gradient-to-r from-[#1448d8] to-[#1DB954] transition-all duration-500 rounded-full"
                                 style={{ width: `${percentage}%` }}
                             />
                         </div>
@@ -63,7 +63,7 @@ export default function DailyGoalCard({
 
                     <Link
                         href="/courses"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-[#3AAFA9] hover:bg-[#2d8a85] rounded-lg transition-colors whitespace-nowrap"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-[#1448d8] hover:bg-[#0f37a8] rounded-lg transition-colors whitespace-nowrap"
                     >
                         <span>Learn</span>
                         <ArrowRight className="h-3.5 w-3.5" />

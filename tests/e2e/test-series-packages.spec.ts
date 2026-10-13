@@ -708,10 +708,10 @@ test.describe("Test Series Packages Studio, Ownership & Authoritative Metrics", 
     // Check sidebar highlight on /teacher/test-series/packages
     await page.goto("/teacher/test-series/packages")
     if (testInfo.project.name !== "mobile") {
-      const activeNavItems = page.locator("aside nav a.bg-\\[\\#3AAFA9\\]")
+      const activeNavItems = page.locator("aside nav a.bg-\\[\\#1448d8\\], aside nav a.bg-\\[\\#3AAFA9\\]")
       await expect(activeNavItems).toHaveCount(1)
-      await expect(page.locator("[data-testid='sidebar-item-teacher-dashboard']")).not.toHaveClass(/bg-\[#3AAFA9\]/)
-      await expect(page.locator("[data-testid='sidebar-item-test-series-studio']")).toHaveClass(/bg-\[#3AAFA9\]/)
+      await expect(page.locator("[data-testid='sidebar-item-teacher-dashboard']")).not.toHaveClass(/bg-\[#(1448d8|3AAFA9)\]/)
+      await expect(page.locator("[data-testid='sidebar-item-test-series-studio']")).toHaveClass(/bg-\[#(1448d8|3AAFA9)\]/)
     }
 
     // Navigate to Submissions page for testA1

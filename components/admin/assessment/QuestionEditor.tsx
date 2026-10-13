@@ -61,7 +61,7 @@ export default function QuestionEditor({ question, index, onChange, onRemove }: 
                     <select
                         value={question.type}
                         onChange={(e) => handleTypeChange(e.target.value as QuestionType)}
-                        className="text-sm border-gray-300 rounded-md focus:ring-[#3AAFA9] focus:border-[#3AAFA9]"
+                        className="text-sm border-gray-300 rounded-md focus:ring-[#1448d8] focus:border-[#1448d8]"
                     >
                         <option value="MULTIPLE_CHOICE">Multiple Choice</option>
                         <option value="CODE_COMPLETION">Code Completion</option>
@@ -74,7 +74,7 @@ export default function QuestionEditor({ question, index, onChange, onRemove }: 
                         type="number"
                         value={question.points}
                         onChange={(e) => onChange(index, { ...question, points: parseInt(e.target.value) || 0 })}
-                        className="w-20 text-sm border-gray-300 rounded-md focus:ring-[#3AAFA9] focus:border-[#3AAFA9]"
+                        className="w-20 text-sm border-gray-300 rounded-md focus:ring-[#1448d8] focus:border-[#1448d8]"
                         placeholder="Points"
                     />
                     <span className="text-sm text-gray-500">pts</span>
@@ -94,7 +94,7 @@ export default function QuestionEditor({ question, index, onChange, onRemove }: 
                         value={question.question}
                         onChange={(e) => onChange(index, { ...question, question: e.target.value })}
                         rows={3}
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                         placeholder="Enter your question here..."
                     />
                 </div>
@@ -109,13 +109,13 @@ export default function QuestionEditor({ question, index, onChange, onRemove }: 
                                     name={`correct-${index}`}
                                     checked={question.correctAnswer === String(optIndex)}
                                     onChange={() => onChange(index, { ...question, correctAnswer: String(optIndex) })}
-                                    className="text-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                    className="text-[#1448d8] focus:ring-[#1448d8]"
                                 />
                                 <input
                                     type="text"
                                     value={option}
                                     onChange={(e) => handleOptionChange(optIndex, e.target.value)}
-                                    className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                    className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                     placeholder={`Option ${optIndex + 1}`}
                                 />
                                 <button
@@ -128,7 +128,7 @@ export default function QuestionEditor({ question, index, onChange, onRemove }: 
                         ))}
                         <button
                             onClick={addOption}
-                            className="text-sm text-[#3AAFA9] hover:text-[#2d8a85] font-medium flex items-center gap-1"
+                            className="text-sm text-[#1448d8] hover:text-[#0f37a8] font-medium flex items-center gap-1"
                         >
                             <Plus className="h-4 w-4" /> Add Option
                         </button>
@@ -158,7 +158,7 @@ export default function QuestionEditor({ question, index, onChange, onRemove }: 
                             type="text"
                             value={question.correctAnswer}
                             onChange={(e) => onChange(index, { ...question, correctAnswer: e.target.value })}
-                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                             placeholder="Enter the exact correct answer"
                         />
                     </div>
@@ -170,7 +170,7 @@ export default function QuestionEditor({ question, index, onChange, onRemove }: 
                         value={question.explanation || ""}
                         onChange={(e) => onChange(index, { ...question, explanation: e.target.value })}
                         rows={2}
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                         placeholder="Explain why this is the correct answer..."
                     />
                 </div>

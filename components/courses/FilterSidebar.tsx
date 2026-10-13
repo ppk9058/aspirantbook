@@ -75,7 +75,7 @@ export default function FilterSidebar({ filters, onChange, onClose }: FilterSide
                     {hasActiveFilters && (
                         <button
                             onClick={handleClearAll}
-                            className="text-[11px] font-medium text-[#3AAFA9] hover:underline flex items-center gap-1"
+                            className="text-[11px] font-medium text-[#1448d8] hover:underline flex items-center gap-1"
                         >
                             <RotateCcw className="h-3 w-3" />
                             Reset
@@ -106,7 +106,7 @@ export default function FilterSidebar({ filters, onChange, onClose }: FilterSide
                             onClick={() => handleTypeChange(t)}
                             className={`py-1.5 px-2 rounded-lg text-xs font-semibold capitalize transition-all ${
                                 filters.type === t
-                                    ? "bg-[#3AAFA9] text-white shadow-xs"
+                                    ? "bg-[#1448d8] text-white shadow-xs"
                                     : "bg-gray-100 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                             }`}
                         >
@@ -128,7 +128,7 @@ export default function FilterSidebar({ filters, onChange, onClose }: FilterSide
                             onClick={() => handleDifficultyChange(option.value)}
                             className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                                 filters.difficulty === option.value
-                                    ? "bg-[#3AAFA9]/15 text-[#3AAFA9] font-bold"
+                                    ? "bg-[#1448d8]/15 text-[#1448d8] font-bold"
                                     : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
                             }`}
                         >
@@ -150,7 +150,7 @@ export default function FilterSidebar({ filters, onChange, onClose }: FilterSide
                                 id={`tech-${tech}`}
                                 checked={filters.technologies.includes(tech)}
                                 onCheckedChange={() => handleTechnologyToggle(tech)}
-                                className="rounded data-[state=checked]:bg-[#3AAFA9] data-[state=checked]:border-[#3AAFA9]"
+                                className="rounded data-[state=checked]:bg-[#1448d8] data-[state=checked]:border-[#1448d8]"
                             />
                             <Label
                                 htmlFor={`tech-${tech}`}
@@ -168,7 +168,7 @@ export default function FilterSidebar({ filters, onChange, onClose }: FilterSide
                 <div className="mt-5 pt-3 border-t border-gray-100 dark:border-gray-800 lg:hidden">
                     <Button
                         onClick={onClose}
-                        className="w-full bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-semibold py-2 rounded-xl"
+                        className="w-full bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-semibold py-2 rounded-xl"
                     >
                         Apply Filters
                     </Button>

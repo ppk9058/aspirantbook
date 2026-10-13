@@ -149,7 +149,7 @@ export default function TeacherClassesPage() {
 
         <Link
           href="/teacher/classes/new"
-          className="px-5 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold shadow-md shadow-[#3AAFA9]/20 flex items-center gap-2 transition-all self-start sm:self-auto"
+          className="px-5 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold shadow-md shadow-[#1448d8]/20 flex items-center gap-2 transition-all self-start sm:self-auto"
         >
           <PlusCircle className="w-4 h-4" />
           <span>Schedule New Class</span>
@@ -184,7 +184,7 @@ export default function TeacherClassesPage() {
           data-testid="tab-upcoming"
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
             activeTab === "upcoming"
-              ? "bg-[#3AAFA9] text-white shadow-sm"
+              ? "bg-[#1448d8] text-white shadow-sm"
               : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
           }`}
         >
@@ -233,7 +233,7 @@ export default function TeacherClassesPage() {
           data-testid="tab-past"
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
             activeTab === "past"
-              ? "bg-[#3AAFA9] text-white shadow-sm"
+              ? "bg-[#1448d8] text-white shadow-sm"
               : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
           }`}
         >
@@ -277,7 +277,7 @@ export default function TeacherClassesPage() {
       <div className="space-y-4">
         {loading ? (
           <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center text-gray-400 text-xs">
-            <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-[#3AAFA9]" />
+            <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-[#1448d8]" />
             Loading scheduled classes...
           </div>
         ) : currentTabClasses.length === 0 ? (

@@ -96,7 +96,7 @@ export default function ProfileDropdown({
         aria-label="User menu"
         aria-expanded={showProfileMenu}
       >
-        <div className="w-8 h-8 bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-sm">
+        <div className="w-8 h-8 bg-gradient-to-br from-[#1448d8] to-[#1DB954] rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-sm">
           {initial}
         </div>
         <div className="hidden md:flex flex-col text-left">

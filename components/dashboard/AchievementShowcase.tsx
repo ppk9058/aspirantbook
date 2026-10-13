@@ -94,7 +94,7 @@ export default function AchievementShowcase({ achievements }: AchievementShowcas
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Trophy className="h-5 w-5 text-[#3AAFA9]" />
+                        <Trophy className="h-5 w-5 text-[#1448d8]" />
                         <CardTitle className="text-lg">Achievements</CardTitle>
                     </div>
                     <div className="text-sm text-gray-600">
@@ -117,14 +117,14 @@ export default function AchievementShowcase({ achievements }: AchievementShowcas
                                 whileHover={{ scale: isLocked ? 1 : 1.05 }}
                                 className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer ${isLocked
                                     ? 'border-gray-200 bg-gray-50'
-                                    : 'border-[#3AAFA9]/30 bg-gradient-to-br from-[#3AAFA9]/5 to-[#1DB954]/5'
+                                    : 'border-[#1448d8]/30 bg-gradient-to-br from-[#1448d8]/5 to-[#1DB954]/5'
                                     }`}
                             >
                                 {/* Icon */}
                                 <div className={`mb-3 ${isLocked ? 'grayscale opacity-40' : ''}`}>
                                     <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full ${isLocked
                                         ? 'bg-gray-200'
-                                        : 'bg-gradient-to-br from-[#3AAFA9] to-[#2d8a85]'
+                                        : 'bg-gradient-to-br from-[#1448d8] to-[#0f37a8]'
                                         }`}>
                                         {isLocked ? (
                                             <Lock className="h-6 w-6 text-gray-400" />
@@ -166,7 +166,7 @@ export default function AchievementShowcase({ achievements }: AchievementShowcas
 
                                 {/* Unlocked date */}
                                 {!isLocked && achievement.unlockedAt && (
-                                    <div className="text-xs text-[#3AAFA9] mt-2">
+                                    <div className="text-xs text-[#1448d8] mt-2">
                                         Unlocked {new Date(achievement.unlockedAt).toLocaleDateString('en-US', {
                                             month: 'short',
                                             day: 'numeric'

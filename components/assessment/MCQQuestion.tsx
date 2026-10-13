@@ -28,14 +28,14 @@ export default function MCQQuestion({ question, answer, onAnswerChange }: MCQQue
                             key={index}
                             onClick={() => onAnswerChange(String(index))}
                             className={`w-full text-left p-4 rounded-lg border-2 transition-all ${isSelected
-                                    ? "border-[#3AAFA9] bg-[#3AAFA9]/10"
+                                    ? "border-[#1448d8] bg-[#1448d8]/10"
                                     : "border-gray-200 hover:border-gray-300 bg-white"
                                 }`}
                         >
                             <div className="flex items-start gap-3">
                                 <div
                                     className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-medium ${isSelected
-                                            ? "bg-[#3AAFA9] text-white"
+                                            ? "bg-[#1448d8] text-white"
                                             : "bg-gray-100 text-gray-600"
                                         }`}
                                 >

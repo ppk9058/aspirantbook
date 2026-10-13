@@ -32,7 +32,7 @@ export default function WelcomeBanner({ user }: WelcomeBannerProps) {
     return (
         <div className="relative overflow-hidden bg-gradient-to-r from-teal-50 via-cyan-50 to-indigo-50 dark:from-[#05192D] dark:via-[#0a2540] dark:to-[#0d2f52] rounded-2xl p-6 sm:p-7 text-gray-900 dark:text-white shadow-lg border border-teal-100 dark:border-transparent">
             {/* Subtle brand glow circles */}
-            <div className="absolute top-0 right-0 w-72 h-72 bg-[#3AAFA9]/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-72 h-72 bg-[#1448d8]/15 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-10 right-32 w-56 h-56 bg-[#1DB954]/15 rounded-full blur-2xl pointer-events-none" />
 
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -58,7 +58,7 @@ export default function WelcomeBanner({ user }: WelcomeBannerProps) {
                         </div>
                         <div className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-gradient-to-r from-[#3AAFA9] to-[#1DB954] transition-all duration-300 rounded-full"
+                                className="h-full bg-gradient-to-r from-[#1448d8] to-[#1DB954] transition-all duration-300 rounded-full"
                                 style={{ width: `${xpPercentage}%` }}
                             />
                         </div>
@@ -79,7 +79,7 @@ export default function WelcomeBanner({ user }: WelcomeBannerProps) {
 
                     <Link
                         href="/courses"
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#3AAFA9] to-[#2d8a85] hover:from-[#2d8a85] hover:to-[#236b67] text-white font-semibold text-xs transition-all shadow-sm hover:shadow active:scale-95"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#1448d8] to-[#0f37a8] hover:from-[#0f37a8] hover:to-[#0b297c] text-white font-semibold text-xs transition-all shadow-sm hover:shadow active:scale-95"
                     >
                         <PlayCircle className="h-4 w-4" />
                         <span>Resume Lesson</span>

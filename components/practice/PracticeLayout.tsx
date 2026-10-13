@@ -99,7 +99,7 @@ export default function PracticeLayout({
                     onClick={() => setActiveMobileView("instructions")}
                     className={`flex-1 py-2.5 font-semibold text-center border-b-2 transition-colors ${
                         activeMobileView === "instructions"
-                            ? "border-[#3AAFA9] text-[#3AAFA9]"
+                            ? "border-[#1448d8] text-[#1448d8]"
                             : "border-transparent text-gray-500"
                     }`}
                 >
@@ -109,7 +109,7 @@ export default function PracticeLayout({
                     onClick={() => setActiveMobileView("editor")}
                     className={`flex-1 py-2.5 font-semibold text-center border-b-2 transition-colors ${
                         activeMobileView === "editor"
-                            ? "border-[#3AAFA9] text-[#3AAFA9]"
+                            ? "border-[#1448d8] text-[#1448d8]"
                             : "border-transparent text-gray-500"
                     }`}
                 >
@@ -119,7 +119,7 @@ export default function PracticeLayout({
                     onClick={() => setActiveMobileView("output")}
                     className={`flex-1 py-2.5 font-semibold text-center border-b-2 transition-colors ${
                         activeMobileView === "output"
-                            ? "border-[#3AAFA9] text-[#3AAFA9]"
+                            ? "border-[#1448d8] text-[#1448d8]"
                             : "border-transparent text-gray-500"
                     }`}
                 >
@@ -136,11 +136,11 @@ export default function PracticeLayout({
                     } lg:flex lg:w-[28%] flex-col bg-white dark:bg-[#05192D] border-r border-gray-200 dark:border-gray-800 overflow-y-auto p-5`}
                 >
                     <div className="mb-4">
-                        <span className="text-[10px] font-bold text-[#3AAFA9] uppercase tracking-wider">
+                        <span className="text-[10px] font-bold text-[#1448d8] uppercase tracking-wider">
                             Interactive Exercise
                         </span>
                         <h2 className="text-lg font-bold text-gray-900 dark:text-white mt-1">{title}</h2>
-                        <span className="inline-block mt-2 px-2.5 py-0.5 text-[10px] font-semibold rounded-md bg-[#3AAFA9]/10 text-[#3AAFA9] capitalize">
+                        <span className="inline-block mt-2 px-2.5 py-0.5 text-[10px] font-semibold rounded-md bg-[#1448d8]/10 text-[#1448d8] capitalize">
                             {language}
                         </span>
                     </div>
@@ -195,7 +195,7 @@ export default function PracticeLayout({
                             <button
                                 onClick={handleRun}
                                 disabled={isRunning}
-                                className="flex items-center gap-1.5 px-3 py-1 bg-[#3AAFA9] hover:bg-[#2d8a85] text-white rounded-lg text-xs font-semibold shadow-xs disabled:opacity-50 transition-all"
+                                className="flex items-center gap-1.5 px-3 py-1 bg-[#1448d8] hover:bg-[#0f37a8] text-white rounded-lg text-xs font-semibold shadow-xs disabled:opacity-50 transition-all"
                             >
                                 <Play className="h-3.5 w-3.5 fill-current" />
                                 <span>{isRunning ? "Running..." : "Run"}</span>
@@ -240,7 +240,7 @@ export default function PracticeLayout({
                     {/* Header */}
                     <div className="h-11 bg-[#202020] border-b border-gray-800 px-3 flex items-center justify-between">
                         <div className="flex items-center gap-1.5 text-xs font-mono font-semibold text-gray-300">
-                            <Terminal className="h-3.5 w-3.5 text-[#3AAFA9]" />
+                            <Terminal className="h-3.5 w-3.5 text-[#1448d8]" />
                             <span>Execution Output</span>
                         </div>
                     </div>

@@ -53,7 +53,7 @@ export default async function TeacherDashboardPage() {
       <div className="relative overflow-hidden bg-gradient-to-r from-[#05192D] via-[#0a2540] to-[#0d2f52] rounded-3xl p-6 sm:p-8 text-white shadow-xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3AAFA9]/20 border border-[#3AAFA9]/30 text-teal-300 text-xs font-semibold">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1448d8]/20 border border-[#1448d8]/30 text-teal-300 text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5 text-teal-300" />
               Teacher Operational Cockpit
             </span>
@@ -68,7 +68,7 @@ export default async function TeacherDashboardPage() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/teacher/classes/new"
-              className="px-6 py-3.5 rounded-2xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white font-bold text-xs sm:text-sm shadow-lg shadow-[#3AAFA9]/30 flex items-center gap-2 transition-all hover:scale-102"
+              className="px-6 py-3.5 rounded-2xl bg-[#1448d8] hover:bg-[#0f37a8] text-white font-bold text-xs sm:text-sm shadow-lg shadow-[#1448d8]/30 flex items-center gap-2 transition-all hover:scale-102"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Schedule New Class</span>
@@ -82,7 +82,7 @@ export default async function TeacherDashboardPage() {
         <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500">Today's Classes</span>
-            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-[#3AAFA9] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-[#1448d8] flex items-center justify-center">
               <Video className="w-4 h-4" />
             </div>
           </div>
@@ -105,7 +105,7 @@ export default async function TeacherDashboardPage() {
           <p className="text-2xl font-black text-gray-900 dark:text-white mt-2">
             {pendingDoubts.length}
           </p>
-          <Link href="/teacher/questions" className="text-[11px] text-[#3AAFA9] hover:underline font-medium mt-0.5 inline-block">
+          <Link href="/teacher/questions" className="text-[11px] text-[#1448d8] hover:underline font-medium mt-0.5 inline-block">
             View queue & answer &rarr;
           </Link>
         </div>
@@ -148,7 +148,7 @@ export default async function TeacherDashboardPage() {
             </div>
             <Link
               href="/teacher/classes/new"
-              className="px-3.5 py-1.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-1.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span>Schedule Class</span>
@@ -212,7 +212,7 @@ export default async function TeacherDashboardPage() {
             </div>
             <Link
               href="/teacher/questions"
-              className="text-xs text-[#3AAFA9] hover:underline font-semibold flex items-center gap-1"
+              className="text-xs text-[#1448d8] hover:underline font-semibold flex items-center gap-1"
             >
               <span>View all</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -232,7 +232,7 @@ export default async function TeacherDashboardPage() {
                   className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm space-y-2"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded-md bg-[#3AAFA9]/10 text-[#3AAFA9] text-[10px] font-bold">
+                    <span className="px-2 py-0.5 rounded-md bg-[#1448d8]/10 text-[#1448d8] text-[10px] font-bold">
                       {doubt.subject}
                     </span>
                     <span className="text-[11px] text-gray-400">
@@ -248,7 +248,7 @@ export default async function TeacherDashboardPage() {
                     <span className="text-gray-400">From: {doubt.studentName}</span>
                     <Link
                       href="/teacher/questions"
-                      className="text-[#3AAFA9] hover:underline font-semibold"
+                      className="text-[#1448d8] hover:underline font-semibold"
                     >
                       Answer &rarr;
                     </Link>
@@ -264,9 +264,9 @@ export default async function TeacherDashboardPage() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <Link
                 href="/teacher/tests/new"
-                className="p-2.5 rounded-xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-[#3AAFA9] text-gray-800 dark:text-gray-200 font-semibold flex items-center gap-1.5"
+                className="p-2.5 rounded-xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-[#1448d8] text-gray-800 dark:text-gray-200 font-semibold flex items-center gap-1.5"
               >
-                <PlusCircle className="w-3.5 h-3.5 text-[#3AAFA9]" />
+                <PlusCircle className="w-3.5 h-3.5 text-[#1448d8]" />
                 <span>Create Test</span>
               </Link>
               <Link

@@ -64,7 +64,7 @@ export default function Breadcrumbs() {
         <nav aria-label="Breadcrumb" data-testid="breadcrumbs" className="hidden sm:flex items-center space-x-1.5 text-xs text-gray-500 dark:text-gray-400 mb-4 overflow-x-auto whitespace-nowrap py-1">
             <Link
                 href={homeHref}
-                className="hover:text-[#3AAFA9] dark:hover:text-[#3AAFA9] transition-colors flex items-center gap-1.5 p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5"
+                className="hover:text-[#1448d8] dark:hover:text-[#1448d8] transition-colors flex items-center gap-1.5 p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5"
                 title="Home"
             >
                 <Home className="h-3.5 w-3.5" />
@@ -88,7 +88,7 @@ export default function Breadcrumbs() {
                         ) : (
                             <Link
                                 href={crumb.href}
-                                className="hover:text-[#3AAFA9] dark:hover:text-[#3AAFA9] transition-colors truncate max-w-[140px]"
+                                className="hover:text-[#1448d8] dark:hover:text-[#1448d8] transition-colors truncate max-w-[140px]"
                             >
                                 {crumb.label}
                             </Link>

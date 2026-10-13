@@ -116,7 +116,7 @@ export default function AdminDashboard() {
                         </Button>
                     </Link>
                     <Link href="/admin/courses/new">
-                        <Button className="bg-[#3AAFA9] hover:bg-[#2d8a85]">
+                        <Button className="bg-[#1448d8] hover:bg-[#0f37a8]">
                             <Plus className="h-4 w-4 mr-2" />
                             Create Course
                         </Button>
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <Link href="/admin/courses/new">
                             <Button variant="outline" className="w-full justify-start">
-                                <Plus className="h-4 w-4 mr-2 text-[#3AAFA9]" />
+                                <Plus className="h-4 w-4 mr-2 text-[#1448d8]" />
                                 Create New Course
                             </Button>
                         </Link>

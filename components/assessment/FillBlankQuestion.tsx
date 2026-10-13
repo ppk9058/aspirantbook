@@ -24,7 +24,7 @@ export default function FillBlankQuestion({ question, answer, onAnswerChange }: 
                     value={answer || ""}
                     onChange={(e) => onAnswerChange(e.target.value)}
                     placeholder="Type your answer here..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3AAFA9] focus:border-transparent outline-none transition-all"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1448d8] focus:border-transparent outline-none transition-all"
                 />
             </div>
         </div>

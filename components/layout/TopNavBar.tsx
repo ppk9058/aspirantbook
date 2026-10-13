@@ -35,7 +35,7 @@ export default function TopNavBar() {
                 {/* Logo & Goal Context Selector */}
                 <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
                     <Link href={homeHref} data-testid="brand-logo" className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] rounded-lg flex items-center justify-center shadow-sm">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#1448d8] to-[#1DB954] rounded-lg flex items-center justify-center shadow-sm">
                             <span className="text-white font-bold text-base sm:text-lg">T</span>
                         </div>
                         <span data-testid="brand-name" className="text-xl font-bold text-[#05192D] dark:text-white tracking-tight hidden md:inline">aspirantbook</span>
@@ -62,7 +62,7 @@ export default function TopNavBar() {
                             name="q"
                             type="text"
                             placeholder={`Search for '${selectedGoal.name}' courses, tests, notes... (Cmd+K)`}
-                            className="w-full pl-9 pr-4 py-1.5 text-sm bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] focus:border-transparent transition-all"
+                            className="w-full pl-9 pr-4 py-1.5 text-sm bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1448d8] focus:border-transparent transition-all"
                         />
                     </form>
                 </div>
@@ -101,7 +101,7 @@ export default function TopNavBar() {
                             <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-[#0a2540] rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50">
                                 <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                                     <h3 className="font-semibold text-sm text-gray-900 dark:text-white">Notifications</h3>
-                                    <span className="text-xs text-[#3AAFA9] font-medium cursor-pointer">Mark all read</span>
+                                    <span className="text-xs text-[#1448d8] font-medium cursor-pointer">Mark all read</span>
                                 </div>
                                 <div className="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
                                     <div className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">

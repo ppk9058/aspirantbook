@@ -172,7 +172,7 @@ function ExamLogo({ logoType }: { logoType: string }) {
     }
 
     return (
-        <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#3AAFA9] to-[#00A8FF] text-white flex items-center justify-center shadow-xs font-black text-xs">
+        <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#1448d8] to-[#00A8FF] text-white flex items-center justify-center shadow-xs font-black text-xs">
             TEST
         </div>
     )
@@ -327,7 +327,7 @@ export default function TestSeriesPage() {
             {/* Active Goal Compact Dynamic Banner */}
             <div className="p-3.5 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-[#3AAFA9] to-[#1DB954] text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-xs shrink-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-[#1448d8] to-[#1DB954] text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-xs shrink-0">
                         <GoalIcon name={selectedGoal.icon} className="h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
                     <div className="min-w-0 flex-1">

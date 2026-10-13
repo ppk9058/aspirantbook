@@ -39,7 +39,7 @@ export default function SearchBar({
                 value={localValue}
                 onChange={(e) => setLocalValue(e.target.value)}
                 placeholder={placeholder}
-                className="w-full h-10 pl-10 pr-10 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#05192D] text-xs sm:text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] focus:border-transparent transition-all shadow-xs"
+                className="w-full h-10 pl-10 pr-10 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#05192D] text-xs sm:text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8] focus:border-transparent transition-all shadow-xs"
             />
             {localValue && (
                 <button

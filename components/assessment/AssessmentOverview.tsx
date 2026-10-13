@@ -198,7 +198,7 @@ export default function AssessmentOverview({ assessment, userId }: AssessmentOve
                 <button
                     onClick={handleStartAssessment}
                     disabled={isStarting}
-                    className="px-8 py-3 bg-[#3AAFA9] hover:bg-[#2d8a85] text-white rounded-lg font-medium text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-8 py-3 bg-[#1448d8] hover:bg-[#0f37a8] text-white rounded-lg font-medium text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isStarting ? "Starting..." : hasAttempted ? "Retake Assessment" : "Start Assessment"}
                 </button>

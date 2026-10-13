@@ -295,7 +295,7 @@ export default function StudentDashboardClient({
       {/* Active Goal / Cohort Context Ribbon (PW Style) */}
       <div className="hidden lg:flex flex-wrap items-center justify-between gap-3 p-3.5 sm:px-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 text-slate-800 dark:text-slate-200">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#3AAFA9] to-[#1DB954] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#1448d8] to-[#1DB954] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
             <GoalIcon name={selectedGoal.icon} className="h-4 w-4" />
           </div>
           <div>
@@ -346,7 +346,7 @@ export default function StudentDashboardClient({
           <button
             type="button"
             onClick={handleLogin}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 shrink-0"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 shrink-0"
           >
             <LogIn className="w-4 h-4" />
             <span>Login with Mobile</span>
@@ -359,7 +359,7 @@ export default function StudentDashboardClient({
         {/* Action 1: Jump to Learning */}
         <Link
           href={inProgressCourses[0] ? `/courses/${inProgressCourses[0].course.slug}` : "/courses"}
-          className="group p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-[#3AAFA9] dark:hover:border-[#3AAFA9] shadow-sm transition-all"
+          className="group p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-[#1448d8] dark:hover:border-[#1448d8] shadow-sm transition-all"
         >
           <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
             <PlayCircle className="w-5 h-5" />
@@ -447,7 +447,7 @@ export default function StudentDashboardClient({
               onClick={() => setActiveTab("courses")}
               className={`pb-2 text-xs sm:text-sm font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
                 activeTab === "courses"
-                  ? "border-[#3AAFA9] text-[#3AAFA9]"
+                  ? "border-[#1448d8] text-[#1448d8]"
                   : "border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
               }`}
             >
@@ -459,7 +459,7 @@ export default function StudentDashboardClient({
               onClick={() => setActiveTab("batches")}
               className={`pb-2 text-xs sm:text-sm font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
                 activeTab === "batches"
-                  ? "border-[#3AAFA9] text-[#3AAFA9]"
+                  ? "border-[#1448d8] text-[#1448d8]"
                   : "border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
               }`}
             >
@@ -471,7 +471,7 @@ export default function StudentDashboardClient({
               onClick={() => setActiveTab("tests")}
               className={`pb-2 text-xs sm:text-sm font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
                 activeTab === "tests"
-                  ? "border-[#3AAFA9] text-[#3AAFA9]"
+                  ? "border-[#1448d8] text-[#1448d8]"
                   : "border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
               }`}
             >
@@ -494,7 +494,7 @@ export default function StudentDashboardClient({
 
           <Link
             href="/my-learning"
-            className="text-xs text-[#3AAFA9] hover:underline font-semibold hidden sm:flex items-center gap-1"
+            className="text-xs text-[#1448d8] hover:underline font-semibold hidden sm:flex items-center gap-1"
           >
             <span>Full Hub</span>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -515,7 +515,7 @@ export default function StudentDashboardClient({
                   <button
                     type="button"
                     onClick={handleLogin}
-                    className="px-5 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2"
+                    className="px-5 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2"
                   >
                     <LogIn className="w-4 h-4" />
                     <span>Login</span>
@@ -535,7 +535,7 @@ export default function StudentDashboardClient({
                 <p className="text-xs text-gray-500 mt-1">Enroll in any of our specialized tracks below to jumpstart your career.</p>
                 <Link
                   href="/courses"
-                  className="mt-4 inline-block px-4 py-2 rounded-xl bg-[#3AAFA9] text-white text-xs font-semibold"
+                  className="mt-4 inline-block px-4 py-2 rounded-xl bg-[#1448d8] text-white text-xs font-semibold"
                 >
                   Explore Courses
                 </Link>
@@ -546,7 +546,7 @@ export default function StudentDashboardClient({
                   <Link
                     key={course.id}
                     href={`/courses/${course.slug}`}
-                    className="group flex flex-col justify-between bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-[#3AAFA9]/50 shadow-sm p-4 relative transition-all"
+                    className="group flex flex-col justify-between bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-[#1448d8]/50 shadow-sm p-4 relative transition-all"
                   >
                     <div className="flex items-start gap-3.5">
                       <div className="relative w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-800 flex-shrink-0 overflow-hidden border border-gray-100 dark:border-gray-800">
@@ -558,16 +558,16 @@ export default function StudentDashboardClient({
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#3AAFA9]/20 to-[#1DB954]/20 text-[#3AAFA9]">
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1448d8]/20 to-[#1DB954]/20 text-[#1448d8]">
                             <BookOpen className="h-6 w-6" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#3AAFA9] bg-[#3AAFA9]/10 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#1448d8] bg-[#1448d8]/10 px-2 py-0.5 rounded-full">
                           {course.difficulty}
                         </span>
-                        <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white mt-1 line-clamp-1 group-hover:text-[#3AAFA9] transition-colors">
+                        <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white mt-1 line-clamp-1 group-hover:text-[#1448d8] transition-colors">
                           {course.title}
                         </h3>
                         <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
@@ -579,7 +579,7 @@ export default function StudentDashboardClient({
                     <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800/80">
                       <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-[#3AAFA9] to-[#1DB954] rounded-full transition-all duration-500"
+                          className="h-full bg-gradient-to-r from-[#1448d8] to-[#1DB954] rounded-full transition-all duration-500"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
@@ -610,12 +610,12 @@ export default function StudentDashboardClient({
                 </h3>
                 <p className="text-xs text-gray-500 line-clamp-2">{batch.scheduleText}</p>
                 <div className="pt-2 flex items-center justify-between border-t border-gray-100 dark:border-gray-800">
-                  <span className="text-xs text-[#3AAFA9] font-semibold">
+                  <span className="text-xs text-[#1448d8] font-semibold">
                     {batch.teachers?.length || 1} Faculty Assigned
                   </span>
                   <Link
                     href={`/batches/${batch.slug}`}
-                    className="text-xs font-semibold text-gray-700 dark:text-gray-300 hover:text-[#3AAFA9] flex items-center gap-1"
+                    className="text-xs font-semibold text-gray-700 dark:text-gray-300 hover:text-[#1448d8] flex items-center gap-1"
                   >
                     <span>View Batch Schedule</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -796,7 +796,7 @@ export default function StudentDashboardClient({
           </Link>
           <button
             onClick={handleOpenDoubtModal}
-            className="px-5 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold shadow-md shadow-[#3AAFA9]/20 flex items-center gap-2 transition-colors"
+            className="px-5 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold shadow-md shadow-[#1448d8]/20 flex items-center gap-2 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Ask a Doubt</span>

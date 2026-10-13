@@ -64,7 +64,7 @@ export default function LessonSidebar({
     const getIconColor = (lesson: Lesson) => {
         if (lesson.completed) return 'text-green-500'
         if (lesson.locked) return 'text-gray-400'
-        if (lesson.id === currentLessonId) return 'text-[#3AAFA9]'
+        if (lesson.id === currentLessonId) return 'text-[#1448d8]'
         return 'text-gray-600'
     }
 
@@ -106,7 +106,7 @@ export default function LessonSidebar({
                     </div>
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-[#3AAFA9] transition-all duration-300"
+                            className="h-full bg-[#1448d8] transition-all duration-300"
                             style={{ width: `${calculateTotalProgress()}%` }}
                         />
                     </div>
@@ -169,7 +169,7 @@ export default function LessonSidebar({
                                                         onClick={() => isClickable && onLessonClick(lesson.id)}
                                                         disabled={lesson.locked}
                                                         className={`w-full px-4 py-3 pl-12 flex items-center gap-3 transition-colors ${isCurrent
-                                                                ? 'bg-[#3AAFA9]/10 border-l-4 border-[#3AAFA9]'
+                                                                ? 'bg-[#1448d8]/10 border-l-4 border-[#1448d8]'
                                                                 : lesson.locked
                                                                     ? 'opacity-60 cursor-not-allowed'
                                                                     : 'hover:bg-gray-50 cursor-pointer'
@@ -177,7 +177,7 @@ export default function LessonSidebar({
                                                     >
                                                         <Icon className={`h-4 w-4 ${iconColor} flex-shrink-0`} />
                                                         <div className="flex-1 text-left">
-                                                            <p className={`text-sm ${isCurrent ? 'font-semibold text-[#3AAFA9]' : 'text-gray-900'}`}>
+                                                            <p className={`text-sm ${isCurrent ? 'font-semibold text-[#1448d8]' : 'text-gray-900'}`}>
                                                                 {lesson.title}
                                                             </p>
                                                             <p className="text-xs text-gray-600 mt-0.5">

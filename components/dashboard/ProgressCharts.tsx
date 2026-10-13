@@ -54,10 +54,10 @@ export default function ProgressCharts({ activityData, skillData }: ProgressChar
     // Get intensity color based on count
     const getIntensityColor = (count: number) => {
         if (count === 0) return "bg-gray-100"
-        if (count === 1) return "bg-[#3AAFA9]/20"
-        if (count === 2) return "bg-[#3AAFA9]/40"
-        if (count === 3) return "bg-[#3AAFA9]/60"
-        return "bg-[#3AAFA9]/80"
+        if (count === 1) return "bg-[#1448d8]/20"
+        if (count === 2) return "bg-[#1448d8]/40"
+        if (count === 3) return "bg-[#1448d8]/60"
+        return "bg-[#1448d8]/80"
     }
 
     // Calculate total learning time (mock)
@@ -71,7 +71,7 @@ export default function ProgressCharts({ activityData, skillData }: ProgressChar
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Calendar className="h-5 w-5 text-[#3AAFA9]" />
+                            <Calendar className="h-5 w-5 text-[#1448d8]" />
                             <CardTitle className="text-lg">Learning Activity</CardTitle>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -125,7 +125,7 @@ export default function ProgressCharts({ activityData, skillData }: ProgressChar
             <Card className="border-none shadow-sm">
                 <CardHeader>
                     <div className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-[#3AAFA9]" />
+                        <TrendingUp className="h-5 w-5 text-[#1448d8]" />
                         <CardTitle className="text-lg">Skill Progress</CardTitle>
                     </div>
                 </CardHeader>
@@ -147,7 +147,7 @@ export default function ProgressCharts({ activityData, skillData }: ProgressChar
                                     </div>
                                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                                         <motion.div
-                                            className="h-full bg-gradient-to-r from-[#3AAFA9] to-[#2d8a85] rounded-full"
+                                            className="h-full bg-gradient-to-r from-[#1448d8] to-[#0f37a8] rounded-full"
                                             initial={{ width: 0 }}
                                             animate={{ width: `${percentage}%` }}
                                             transition={{ duration: 1, delay: index * 0.1 + 0.5 }}

@@ -75,7 +75,7 @@ export default async function AdminExercisesPage() {
                             <p className="text-gray-600 mb-4">No exercises created yet</p>
                             <Link
                                 href="/admin/exercises/create"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-[#3AAFA9] hover:bg-[#2d8a85] text-white rounded-lg transition-colors font-medium"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-[#1448d8] hover:bg-[#0f37a8] text-white rounded-lg transition-colors font-medium"
                             >
                                 <Plus className="h-4 w-4" />
                                 Create First Exercise

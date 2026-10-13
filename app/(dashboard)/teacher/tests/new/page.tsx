@@ -147,7 +147,7 @@ export default function CreateTestPage() {
                   placeholder="e.g. Unit Test: Python OOPs & Collections"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
                 />
               </div>
 
@@ -158,7 +158,7 @@ export default function CreateTestPage() {
                 <select
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
                 >
                   <option value="Python">Python</option>
                   <option value="Science">Science & Physics</option>
@@ -177,7 +177,7 @@ export default function CreateTestPage() {
                   max="180"
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
                 />
               </div>
             </div>
@@ -350,7 +350,7 @@ export default function CreateTestPage() {
               <button
                 type="submit"
                 disabled={isSubmitting || questions.length === 0 || !title.trim()}
-                className="px-6 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold shadow-md shadow-[#3AAFA9]/20 flex items-center gap-2 transition-colors disabled:opacity-50"
+                className="px-6 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold shadow-md shadow-[#1448d8]/20 flex items-center gap-2 transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>

@@ -9,7 +9,7 @@ test.describe("Profile Dropdown on /books and /dashboard (Task B)", () => {
     student = await createActor(nonce, "FREE", "dropstudent")
   })
 
-  test("PD-01: Guest on /books sees login button; no dropdown", async ({ page }) => {
+  test("PD-01: Guest on /books sees login button; no dropdown", async ({ page }, testInfo) => {
     await page.context().clearCookies()
     await page.goto("/books", { waitUntil: "domcontentloaded" })
 
@@ -18,10 +18,14 @@ test.describe("Profile Dropdown on /books and /dashboard (Task B)", () => {
     await expect(loginBtn).toBeVisible({ timeout: 10_000 })
     await expect(page.locator('[data-testid="profile-dropdown-trigger"]')).toHaveCount(0)
 
-    // My Orders, Wishlist, My Cart remain present
-    await expect(page.locator('text=Wishlist')).toBeVisible()
-    await expect(page.locator('text=My Orders')).toBeVisible()
-    await expect(page.locator('text=My Cart')).toBeVisible()
+    // On desktop, full text labels are visible; on mobile, icon links exist
+    if (testInfo.project.name !== "mobile") {
+      await expect(page.locator('text=Wishlist')).toBeVisible()
+      await expect(page.locator('text=My Orders')).toBeVisible()
+      await expect(page.locator('text=My Cart')).toBeVisible()
+    } else {
+      await expect(page.locator('a[href="/books/wishlist"]')).toBeVisible()
+    }
   })
 
   test("PD-02: Logged-in student on /books opens dropdown: sees My Profile, Settings, Sign Out, does NOT see My Purchase", async ({ page }) => {
@@ -53,7 +57,10 @@ test.describe("Profile Dropdown on /books and /dashboard (Task B)", () => {
     await expect(menu).toHaveCount(0)
   })
 
-  test("PD-03: Logged-in student on /dashboard opens dropdown: sees My Purchase intact", async ({ page }) => {
+  test("PD-03: Logged-in student on /dashboard opens dropdown: sees My Purchase intact", async ({ page }, testInfo) => {
+    // TopNavBar is visible on desktop (lg+ viewports); mobile shell uses mobile header/tabs
+    if (testInfo.project.name === "mobile") return
+
     await loginAs(page, student.email)
     await page.goto("/dashboard", { waitUntil: "networkidle" })
 

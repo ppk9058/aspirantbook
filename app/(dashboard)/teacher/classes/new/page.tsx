@@ -163,7 +163,7 @@ export default function ScheduleClassPage() {
 
       <div className="bg-white dark:bg-[#05192D] rounded-3xl border border-gray-200 dark:border-gray-800 p-6 sm:p-8 shadow-xl space-y-6">
         <div>
-          <span className="px-3 py-1 rounded-full bg-[#3AAFA9]/10 text-[#3AAFA9] text-xs font-bold">
+          <span className="px-3 py-1 rounded-full bg-[#1448d8]/10 text-[#1448d8] text-xs font-bold">
             Live Classroom Schedule
           </span>
           <h1 className="text-2xl font-black text-gray-900 dark:text-white mt-2">
@@ -231,7 +231,7 @@ export default function ScheduleClassPage() {
                   setTime("")
                   setDuration("60")
                 }}
-                className="flex-1 py-3 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white font-bold text-xs transition-colors text-center cursor-pointer"
+                className="flex-1 py-3 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white font-bold text-xs transition-colors text-center cursor-pointer"
               >
                 Schedule another
               </button>
@@ -270,7 +270,7 @@ export default function ScheduleClassPage() {
                     })
                   }
                 }}
-                className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] ${
+                className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8] ${
                   validationErrors.topic ? "border-red-500" : "border-gray-300 dark:border-gray-700"
                 }`}
               />
@@ -298,7 +298,7 @@ export default function ScheduleClassPage() {
                   }
                 }}
                 disabled={loadingCourses}
-                className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] disabled:opacity-60 ${
+                className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8] disabled:opacity-60 ${
                   validationErrors.courseId ? "border-red-500" : "border-gray-300 dark:border-gray-700"
                 }`}
               >
@@ -336,7 +336,7 @@ export default function ScheduleClassPage() {
                       })
                     }
                   }}
-                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] ${
+                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8] ${
                     validationErrors.date ? "border-red-500" : "border-gray-300 dark:border-gray-700"
                   }`}
                 />
@@ -364,7 +364,7 @@ export default function ScheduleClassPage() {
                       })
                     }
                   }}
-                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] ${
+                  className={`w-full text-sm px-3.5 py-2.5 rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8] ${
                     validationErrors.time ? "border-red-500" : "border-gray-300 dark:border-gray-700"
                   }`}
                 />
@@ -383,7 +383,7 @@ export default function ScheduleClassPage() {
                   name="duration"
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
                 >
                   <option value="45">45 minutes</option>
                   <option value="60">60 minutes</option>
@@ -403,7 +403,7 @@ export default function ScheduleClassPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold shadow-md shadow-[#3AAFA9]/20 flex items-center gap-2 transition-colors disabled:opacity-50"
+                className="px-6 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold shadow-md shadow-[#1448d8]/20 flex items-center gap-2 transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>

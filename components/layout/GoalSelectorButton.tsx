@@ -38,7 +38,7 @@ export default function GoalSelectorButton() {
             title="Click to add or switch your Target Exams & Goals"
             aria-label="Switch or Add Goals"
         >
-            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-[#3AAFA9]/15 text-[#2d8a85] dark:text-[#3AAFA9] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-[#1448d8]/15 text-[#0f37a8] dark:text-[#1448d8] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
                 <GoalIcon name={selectedGoal.icon} className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
             </div>
 

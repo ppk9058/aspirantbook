@@ -84,7 +84,7 @@ export function Chatbot() {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 data-ai-button="true"
-                className={`fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-3 sm:right-5 z-40 h-10 w-10 sm:h-12 sm:w-12 p-2 sm:p-2.5 rounded-full bg-gradient-to-r from-[#3AAFA9] to-[#1DB954] text-white shadow-lg hover:shadow-xl items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation ${
+                className={`fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-3 sm:right-5 z-40 h-10 w-10 sm:h-12 sm:w-12 p-2 sm:p-2.5 rounded-full bg-gradient-to-r from-[#1448d8] to-[#1DB954] text-white shadow-lg hover:shadow-xl items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation ${
                     isStickyBarPage ? "hidden sm:flex" : "flex"
                 }`}
                 aria-label="Open AI Learning Assistant"
@@ -98,7 +98,7 @@ export function Chatbot() {
                     {/* Header */}
                     <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#05192D] to-[#0a2540] text-white border-b border-gray-800">
                         <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-[#3AAFA9]/20 border border-[#3AAFA9]/40 flex items-center justify-center text-[#3AAFA9]">
+                            <div className="w-8 h-8 rounded-lg bg-[#1448d8]/20 border border-[#1448d8]/40 flex items-center justify-center text-[#1448d8]">
                                 <Bot className="h-4 w-4" />
                             </div>
                             <div>
@@ -129,7 +129,7 @@ export function Chatbot() {
                                 <div
                                     className={`max-w-[85%] rounded-2xl px-3.5 py-2 leading-relaxed ${
                                         m.role === "user"
-                                            ? "bg-[#3AAFA9] text-white rounded-br-xs shadow-xs"
+                                            ? "bg-[#1448d8] text-white rounded-br-xs shadow-xs"
                                             : "bg-white dark:bg-gray-800/90 text-gray-800 dark:text-gray-100 border border-gray-200/80 dark:border-gray-700/80 rounded-bl-xs shadow-xs"
                                     }`}
                                 >
@@ -163,12 +163,12 @@ export function Chatbot() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 placeholder="Ask a doubt or request a hint..."
-                                className="flex-1 px-3 py-2 text-xs bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                                className="flex-1 px-3 py-2 text-xs bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
                             />
                             <button
                                 type="submit"
                                 disabled={!input.trim() || isTyping}
-                                className="p-2 bg-[#3AAFA9] hover:bg-[#2d8a85] disabled:opacity-50 text-white rounded-xl transition-colors"
+                                className="p-2 bg-[#1448d8] hover:bg-[#0f37a8] disabled:opacity-50 text-white rounded-xl transition-colors"
                             >
                                 <Send className="h-4 w-4" />
                             </button>

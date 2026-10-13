@@ -120,10 +120,10 @@ export default function DoubtsPage() {
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header Banner */}
       <div className="relative overflow-hidden bg-gradient-to-r from-[#05192D] via-[#0a2540] to-[#0d2f52] rounded-3xl p-6 sm:p-8 text-white shadow-xl">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-[#3AAFA9]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#1448d8]/15 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3AAFA9]/20 border border-[#3AAFA9]/30 text-teal-300 text-xs font-semibold mb-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1448d8]/20 border border-[#1448d8]/30 text-teal-300 text-xs font-semibold mb-3">
               <HelpCircle className="w-3.5 h-3.5" />
               <span>Doubt Solving & Mentorship Center</span>
             </div>
@@ -136,7 +136,7 @@ export default function DoubtsPage() {
           </div>
           <button
             onClick={handleOpenDoubtModal}
-            className="self-start md:self-auto px-6 py-3 rounded-2xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-sm font-bold shadow-lg shadow-[#3AAFA9]/25 flex items-center gap-2 transition-all hover:scale-102"
+            className="self-start md:self-auto px-6 py-3 rounded-2xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-sm font-bold shadow-lg shadow-[#1448d8]/25 flex items-center gap-2 transition-all hover:scale-102"
           >
             <PlusCircle className="w-5 h-5" />
             <span>Ask a Doubt Now</span>
@@ -153,7 +153,7 @@ export default function DoubtsPage() {
               onClick={() => setFilterTab("ALL")}
               className={`flex-1 sm:flex-initial px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 filterTab === "ALL"
-                  ? "bg-white dark:bg-[#05192D] text-[#3AAFA9] shadow-sm"
+                  ? "bg-white dark:bg-[#05192D] text-[#1448d8] shadow-sm"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900"
               }`}
             >
@@ -189,7 +189,7 @@ export default function DoubtsPage() {
               placeholder="Search concepts or questions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+              className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
             />
           </div>
         </div>
@@ -204,7 +204,7 @@ export default function DoubtsPage() {
               onClick={() => setSelectedSubject("ALL")}
               className={`px-3 py-1 rounded-full text-xs font-medium flex-shrink-0 transition-colors ${
                 selectedSubject === "ALL"
-                  ? "bg-[#3AAFA9] text-white"
+                  ? "bg-[#1448d8] text-white"
                   : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200"
               }`}
             >
@@ -216,7 +216,7 @@ export default function DoubtsPage() {
                 onClick={() => setSelectedSubject(sub)}
                 className={`px-3 py-1 rounded-full text-xs font-medium flex-shrink-0 transition-colors ${
                   selectedSubject === sub
-                    ? "bg-[#3AAFA9] text-white"
+                    ? "bg-[#1448d8] text-white"
                     : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200"
                 }`}
               >
@@ -232,7 +232,7 @@ export default function DoubtsPage() {
         <div className="py-16 text-center text-gray-400">Loading doubt discussions...</div>
       ) : filteredDoubts.length === 0 ? (
         <div className="py-16 text-center bg-white dark:bg-[#05192D] rounded-3xl border border-gray-200 dark:border-gray-800 p-8">
-          <div className="w-14 h-14 rounded-2xl bg-[#3AAFA9]/10 text-[#3AAFA9] flex items-center justify-center mx-auto mb-3">
+          <div className="w-14 h-14 rounded-2xl bg-[#1448d8]/10 text-[#1448d8] flex items-center justify-center mx-auto mb-3">
             <HelpCircle className="w-7 h-7" />
           </div>
           <h3 className="text-base font-bold text-gray-900 dark:text-white">No doubts found</h3>
@@ -241,7 +241,7 @@ export default function DoubtsPage() {
           </p>
           <button
             onClick={handleOpenDoubtModal}
-            className="mt-4 px-5 py-2.5 rounded-xl bg-[#3AAFA9] text-white text-xs font-semibold"
+            className="mt-4 px-5 py-2.5 rounded-xl bg-[#1448d8] text-white text-xs font-semibold"
           >
             Ask a Doubt
           </button>
@@ -256,7 +256,7 @@ export default function DoubtsPage() {
               {/* Question Header */}
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-md bg-[#3AAFA9]/10 text-[#3AAFA9] text-[11px] font-semibold">
+                  <span className="px-2.5 py-0.5 rounded-md bg-[#1448d8]/10 text-[#1448d8] text-[11px] font-semibold">
                     {doubt.subject}
                   </span>
                   {doubt.topic && (
@@ -307,7 +307,7 @@ export default function DoubtsPage() {
                       href={doubt.attachment.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 hover:border-[#3AAFA9] transition-colors"
+                      className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 hover:border-[#1448d8] transition-colors"
                     >
                       <FileText className="w-4 h-4 text-red-500" />
                       <span>{doubt.attachment.name}</span>

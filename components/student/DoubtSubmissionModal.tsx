@@ -163,7 +163,7 @@ export default function DoubtSubmissionModal({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#0a2540]/40">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#3AAFA9]/15 flex items-center justify-center text-[#3AAFA9]">
+            <div className="w-9 h-9 rounded-xl bg-[#1448d8]/15 flex items-center justify-center text-[#1448d8]">
               <HelpCircle className="w-5 h-5" />
             </div>
             <div>
@@ -215,7 +215,7 @@ export default function DoubtSubmissionModal({
                 <select
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
                 >
                   {SUBJECTS.map((s) => (
                     <option key={s} value={s}>
@@ -235,7 +235,7 @@ export default function DoubtSubmissionModal({
                   placeholder="e.g. Backpropagation, Dynamic Programming, Async/Await"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                  className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
                 />
               </div>
 
@@ -250,7 +250,7 @@ export default function DoubtSubmissionModal({
                   placeholder="Explain what you are trying to solve, where you are getting stuck, and what you have already tried..."
                   value={questionText}
                   onChange={(e) => setQuestionText(e.target.value)}
-                  className="w-full text-sm p-3.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] resize-none"
+                  className="w-full text-sm p-3.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8] resize-none"
                 />
               </div>
 
@@ -271,9 +271,9 @@ export default function DoubtSubmissionModal({
                 {!file ? (
                   <label
                     htmlFor="doubt-file-upload"
-                    className="cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-[#3AAFA9] dark:hover:border-[#3AAFA9] rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center transition-colors bg-gray-50/50 dark:bg-gray-900/30"
+                    className="cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-[#1448d8] dark:hover:border-[#1448d8] rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center transition-colors bg-gray-50/50 dark:bg-gray-900/30"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-[#3AAFA9]/10 text-[#3AAFA9] flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-[#1448d8]/10 text-[#1448d8] flex items-center justify-center">
                       <Upload className="w-5 h-5" />
                     </div>
                     <div>
@@ -332,7 +332,7 @@ export default function DoubtSubmissionModal({
                 <button
                   type="submit"
                   disabled={isSubmitting || !questionText.trim()}
-                  className="px-5 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-semibold shadow-md shadow-[#3AAFA9]/20 flex items-center gap-2 disabled:opacity-50 transition-colors"
+                  className="px-5 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-semibold shadow-md shadow-[#1448d8]/20 flex items-center gap-2 disabled:opacity-50 transition-colors"
                 >
                   {isSubmitting ? (
                     <>

@@ -6,8 +6,8 @@
 // Brand Colors (use Tailwind classes when possible, these are for JS logic)
 export const colors = {
   brand: {
-    primary: '#3AAFA9',
-    primaryHover: '#2d8a85',
+    primary: '#1448d8',
+    primaryHover: '#0f37a8',
     secondary: '#1DB954',
     navy: '#05192D',
     navyLight: '#0a2540',

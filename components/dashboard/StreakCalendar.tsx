@@ -40,7 +40,7 @@ export default function StreakCalendar({
                     </div>
                 </div>
 
-                <div className="text-[11px] text-[#3AAFA9] font-semibold flex items-center gap-1">
+                <div className="text-[11px] text-[#1448d8] font-semibold flex items-center gap-1">
                     <CalendarIcon className="h-3 w-3" />
                     Past 7 Days
                 </div>
@@ -59,7 +59,7 @@ export default function StreakCalendar({
                             <div
                                 className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-xs font-semibold transition-all ${
                                     count > 0
-                                        ? "bg-[#3AAFA9] text-white shadow-xs"
+                                        ? "bg-[#1448d8] text-white shadow-xs"
                                         : "bg-gray-100 dark:bg-gray-800 text-gray-400"
                                 } ${isToday ? "ring-2 ring-orange-500 ring-offset-2 dark:ring-offset-[#05192D]" : ""}`}
                                 title={mounted ? `${dateStr}: ${count} lessons` : `${count} lessons`}

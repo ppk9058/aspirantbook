@@ -175,7 +175,7 @@ export default function TeacherQuestionsPage() {
             onClick={() => setFilterTab("ALL")}
             className={`flex-1 sm:flex-initial px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${
               filterTab === "ALL"
-                ? "bg-white dark:bg-[#05192D] text-[#3AAFA9] shadow-sm"
+                ? "bg-white dark:bg-[#05192D] text-[#1448d8] shadow-sm"
                 : "text-gray-600 dark:text-gray-400 hover:text-gray-900"
             }`}
           >
@@ -190,7 +190,7 @@ export default function TeacherQuestionsPage() {
             placeholder="Search student or concept..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+            className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
           />
         </div>
       </div>
@@ -214,7 +214,7 @@ export default function TeacherQuestionsPage() {
               {/* Question metadata */}
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-md bg-[#3AAFA9]/10 text-[#3AAFA9] text-[11px] font-bold">
+                  <span className="px-2.5 py-0.5 rounded-md bg-[#1448d8]/10 text-[#1448d8] text-[11px] font-bold">
                     {doubt.subject}
                   </span>
                   {doubt.topic && (
@@ -270,7 +270,7 @@ export default function TeacherQuestionsPage() {
                       href={doubt.attachment.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:border-[#3AAFA9]"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:border-[#1448d8]"
                     >
                       <FileText className="w-4 h-4 text-red-500" />
                       <span>{doubt.attachment.name}</span>
@@ -299,7 +299,7 @@ export default function TeacherQuestionsPage() {
               <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex justify-end">
                 <button
                   onClick={() => handleOpenAnswerModal(doubt)}
-                  className="px-4 py-2 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+                  className="px-4 py-2 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{doubt.status === "ANSWERED" ? "Edit Answer" : "Write Official Answer"}</span>
@@ -350,7 +350,7 @@ export default function TeacherQuestionsPage() {
                   placeholder="Provide a clear, pedagogical explanation with formulas, code snippets, or rationale..."
                   value={answerText}
                   onChange={(e) => setAnswerText(e.target.value)}
-                  className="w-full text-xs sm:text-sm p-3.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] resize-none"
+                  className="w-full text-xs sm:text-sm p-3.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8] resize-none"
                 />
               </div>
 
@@ -365,7 +365,7 @@ export default function TeacherQuestionsPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || !answerText.trim()}
-                  className="px-5 py-2.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold shadow-md shadow-[#3AAFA9]/20 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold shadow-md shadow-[#1448d8]/20 flex items-center gap-1.5 transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>

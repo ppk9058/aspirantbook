@@ -174,8 +174,8 @@ export async function ensureDefaultPyqData() {
   ]
 
   for (const head of standardExamHeads) {
-    const existingCat = await prisma.pyqCategory.findUnique({
-      where: { slug: head.slug },
+    const existingCat = await prisma.pyqCategory.findFirst({
+      where: { OR: [{ slug: head.slug }, { name: head.name }] },
     })
 
     let catId = existingCat?.id

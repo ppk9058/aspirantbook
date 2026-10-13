@@ -125,7 +125,7 @@ export function LoginForm() {
                         Email Address
                     </label>
                     <input
-                        className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] dark:text-white"
+                        className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1448d8] dark:text-white"
                         id="email"
                         type="email"
                         name="email"
@@ -142,7 +142,7 @@ export function LoginForm() {
                     </label>
                     <div className="relative">
                         <input
-                            className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] dark:text-white pr-10"
+                            className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1448d8] dark:text-white pr-10"
                             id="password"
                             type={showPassword ? "text" : "password"}
                             name="password"
@@ -164,17 +164,17 @@ export function LoginForm() {
 
                 <div className="flex items-center justify-between text-xs">
                     <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" className="rounded border-gray-300 text-[#3AAFA9] focus:ring-[#3AAFA9]" />
+                        <input type="checkbox" className="rounded border-gray-300 text-[#1448d8] focus:ring-[#1448d8]" />
                         <span className="text-gray-600 dark:text-gray-400">Remember me</span>
                     </label>
-                    <a href="#" className="text-[#3AAFA9] font-medium hover:underline">Forgot password?</a>
+                    <a href="#" className="text-[#1448d8] font-medium hover:underline">Forgot password?</a>
                 </div>
 
                 <div className="pt-2">
                     <Button
                         type="submit"
                         data-testid="login-submit"
-                        className="w-full bg-[#3AAFA9] hover:bg-[#2d8a85] text-white font-bold py-2.5 rounded-xl transition-all shadow-xs"
+                        className="w-full bg-[#1448d8] hover:bg-[#0f37a8] text-white font-bold py-2.5 rounded-xl transition-all shadow-xs"
                         aria-disabled={isPending}
                         disabled={isPending}
                     >

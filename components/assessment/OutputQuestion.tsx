@@ -24,7 +24,7 @@ export default function OutputQuestion({ question, answer, onAnswerChange }: Out
                     onChange={(e) => onAnswerChange(e.target.value)}
                     placeholder="Enter the expected output..."
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3AAFA9] focus:border-transparent outline-none transition-all font-mono text-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1448d8] focus:border-transparent outline-none transition-all font-mono text-sm"
                 />
             </div>
         </div>

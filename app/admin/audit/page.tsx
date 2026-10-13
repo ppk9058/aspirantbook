@@ -122,7 +122,7 @@ export default function AdminAuditPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-              <Shield className="w-6 h-6 text-[#3AAFA9]" />
+              <Shield className="w-6 h-6 text-[#1448d8]" />
               Platform Audit Logs & Security Trail
             </h1>
             <p className="text-xs text-gray-500 mt-1">
@@ -148,7 +148,7 @@ export default function AdminAuditPage() {
               onClick={() => setSelectedRole(role)}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
                 selectedRole === role
-                  ? "bg-white dark:bg-[#05192D] text-[#3AAFA9] shadow-sm"
+                  ? "bg-white dark:bg-[#05192D] text-[#1448d8] shadow-sm"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900"
               }`}
             >
@@ -164,7 +164,7 @@ export default function AdminAuditPage() {
             placeholder="Search action or resource..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+            className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
           />
         </div>
       </div>

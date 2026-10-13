@@ -136,7 +136,7 @@ export default function AssessmentForm({ initialData }: AssessmentFormProps) {
                     <button
                         onClick={() => handleSubmit(true)}
                         disabled={isLoading}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#3AAFA9] hover:bg-[#2d8a85] text-white rounded-lg font-medium disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2 bg-[#1448d8] hover:bg-[#0f37a8] text-white rounded-lg font-medium disabled:opacity-50"
                     >
                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         {initialData ? "Update Assessment" : "Publish Assessment"}
@@ -156,7 +156,7 @@ export default function AssessmentForm({ initialData }: AssessmentFormProps) {
                                 type="text"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                 placeholder="e.g., Python Basics Final Exam"
                             />
                         </div>
@@ -167,7 +167,7 @@ export default function AssessmentForm({ initialData }: AssessmentFormProps) {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={3}
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                 placeholder="Brief description of what this assessment covers..."
                             />
                         </div>
@@ -178,7 +178,7 @@ export default function AssessmentForm({ initialData }: AssessmentFormProps) {
                                 <select
                                     value={formData.technology}
                                     onChange={(e) => setFormData({ ...formData, technology: e.target.value })}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                 >
                                     <option value="Python">Python</option>
                                     <option value="JavaScript">JavaScript</option>
@@ -193,7 +193,7 @@ export default function AssessmentForm({ initialData }: AssessmentFormProps) {
                                 <select
                                     value={formData.difficulty}
                                     onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as Difficulty })}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                 >
                                     <option value="BEGINNER">Beginner</option>
                                     <option value="INTERMEDIATE">Intermediate</option>
@@ -209,7 +209,7 @@ export default function AssessmentForm({ initialData }: AssessmentFormProps) {
                                     type="number"
                                     value={formData.duration}
                                     onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                 />
                             </div>
 
@@ -219,7 +219,7 @@ export default function AssessmentForm({ initialData }: AssessmentFormProps) {
                                     type="number"
                                     value={formData.passingScore}
                                     onChange={(e) => setFormData({ ...formData, passingScore: parseInt(e.target.value) })}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                 />
                             </div>
                         </div>
@@ -251,7 +251,7 @@ export default function AssessmentForm({ initialData }: AssessmentFormProps) {
                                 <p className="text-gray-500 mb-4">No questions added yet</p>
                                 <button
                                     onClick={addQuestion}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#3AAFA9] hover:bg-[#2d8a85] text-white rounded-lg transition-colors font-medium"
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#1448d8] hover:bg-[#0f37a8] text-white rounded-lg transition-colors font-medium"
                                 >
                                     <Plus className="h-4 w-4" />
                                     Add First Question

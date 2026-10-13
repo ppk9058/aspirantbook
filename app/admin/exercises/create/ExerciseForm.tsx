@@ -105,7 +105,7 @@ export default function ExerciseForm({ initialData, lessons }: ExerciseFormProps
                 <button
                     onClick={handleSubmit}
                     disabled={isLoading}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-[#3AAFA9] hover:bg-[#2d8a85] text-white rounded-lg font-medium disabled:opacity-50 shadow-sm"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-[#1448d8] hover:bg-[#0f37a8] text-white rounded-lg font-medium disabled:opacity-50 shadow-sm"
                 >
                     {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     {initialData ? "Update Exercise" : "Create Exercise"}
@@ -150,7 +150,7 @@ export default function ExerciseForm({ initialData, lessons }: ExerciseFormProps
                                     type="text"
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                     placeholder="e.g., Sum of Two Numbers"
                                 />
                             </div>
@@ -161,7 +161,7 @@ export default function ExerciseForm({ initialData, lessons }: ExerciseFormProps
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     rows={8}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9] font-mono text-sm"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8] font-mono text-sm"
                                     placeholder="Describe the problem..."
                                 />
                             </div>
@@ -172,7 +172,7 @@ export default function ExerciseForm({ initialData, lessons }: ExerciseFormProps
                                     <select
                                         value={formData.language}
                                         onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                     >
                                         <option value="python">Python</option>
                                         <option value="javascript">JavaScript</option>
@@ -185,7 +185,7 @@ export default function ExerciseForm({ initialData, lessons }: ExerciseFormProps
                                     <select
                                         value={formData.difficulty}
                                         onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as Difficulty })}
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                     >
                                         <option value="BEGINNER">Beginner</option>
                                         <option value="INTERMEDIATE">Intermediate</option>
@@ -199,7 +199,7 @@ export default function ExerciseForm({ initialData, lessons }: ExerciseFormProps
                                 <select
                                     value={formData.lessonId}
                                     onChange={(e) => setFormData({ ...formData, lessonId: e.target.value })}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                 >
                                     <option value="">-- Select a Lesson --</option>
                                     {lessons.map((lesson) => (

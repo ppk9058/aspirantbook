@@ -181,7 +181,7 @@ export default function LeftSidebar() {
                                 effectiveCollapsed ? "justify-center p-2.5" : "gap-3 px-3.5 py-2.5"
                             } text-xs font-semibold rounded-xl transition-all ${
                                 active
-                                    ? "bg-[#3AAFA9] text-white shadow-sm"
+                                    ? "bg-[#1448d8] text-white shadow-sm"
                                     : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
                             }`}
                             title={effectiveCollapsed ? item.name : undefined}
@@ -201,10 +201,10 @@ export default function LeftSidebar() {
                             <Target className="h-3.5 w-3.5 text-[#1DB954]" />
                             Daily Goal
                         </span>
-                        <span className="text-[#3AAFA9] font-bold">15 / 30m</span>
+                        <span className="text-[#1448d8] font-bold">15 / 30m</span>
                     </div>
                     <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-[#3AAFA9] to-[#1DB954] w-1/2 rounded-full" />
+                        <div className="h-full bg-gradient-to-r from-[#1448d8] to-[#1DB954] w-1/2 rounded-full" />
                     </div>
                 </div>
             )}

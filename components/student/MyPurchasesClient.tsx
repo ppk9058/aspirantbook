@@ -59,10 +59,10 @@ export default function MyPurchasesClient({
     <div className="space-y-6 sm:space-y-8 pb-16 max-w-7xl mx-auto">
       {/* Hero Profile & Purchase Banner (matching /profile styling) */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-teal-50 via-cyan-50 to-indigo-50 dark:from-[#05192D] dark:via-[#0a2540] dark:to-[#0d2f52] p-6 sm:p-8 text-gray-900 dark:text-white border border-teal-100 dark:border-gray-800 shadow-xl">
-        <div className="absolute top-0 right-0 w-72 h-72 bg-[#3AAFA9]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-72 h-72 bg-[#1448d8]/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-          <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-gradient-to-br from-[#3AAFA9] to-[#1DB954] text-white flex items-center justify-center font-extrabold text-3xl shadow-lg border-2 border-white/40 flex-shrink-0">
+          <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-gradient-to-br from-[#1448d8] to-[#1DB954] text-white flex items-center justify-center font-extrabold text-3xl shadow-lg border-2 border-white/40 flex-shrink-0">
             {user.name?.[0]?.toUpperCase() || "U"}
           </div>
 

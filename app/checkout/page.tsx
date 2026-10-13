@@ -310,7 +310,7 @@ function CheckoutContent() {
 
             await openCheckout({
                 key: order.keyId,
-                amount: order.amount,
+                amount: Number(order.amount),
                 currency: order.currency,
                 name: "aspirantbook",
                 description: course ? course.title : `${planParam} Subscription`,

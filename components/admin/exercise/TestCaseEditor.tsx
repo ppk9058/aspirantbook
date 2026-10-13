@@ -61,7 +61,7 @@ export default function TestCaseEditor({ testCases, onChange }: TestCaseEditorPr
                                 <textarea
                                     value={testCase.input}
                                     onChange={(e) => updateTestCase(index, "input", e.target.value)}
-                                    className="w-full text-sm font-mono rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                    className="w-full text-sm font-mono rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                     rows={2}
                                     placeholder="Input data..."
                                 />
@@ -71,7 +71,7 @@ export default function TestCaseEditor({ testCases, onChange }: TestCaseEditorPr
                                 <textarea
                                     value={testCase.expectedOutput}
                                     onChange={(e) => updateTestCase(index, "expectedOutput", e.target.value)}
-                                    className="w-full text-sm font-mono rounded-md border-gray-300 shadow-sm focus:border-[#3AAFA9] focus:ring-[#3AAFA9]"
+                                    className="w-full text-sm font-mono rounded-md border-gray-300 shadow-sm focus:border-[#1448d8] focus:ring-[#1448d8]"
                                     rows={2}
                                     placeholder="Expected output..."
                                 />
@@ -112,7 +112,7 @@ export default function TestCaseEditor({ testCases, onChange }: TestCaseEditorPr
                         <button
                             type="button"
                             onClick={addTestCase}
-                            className="text-[#3AAFA9] hover:underline text-sm font-medium"
+                            className="text-[#1448d8] hover:underline text-sm font-medium"
                         >
                             Add your first test case
                         </button>

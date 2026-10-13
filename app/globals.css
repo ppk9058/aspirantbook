@@ -107,7 +107,7 @@
 
 /* Focus styles */
 *:focus-visible {
-  outline: 2px solid #3AAFA9;
+  outline: 2px solid #1448d8;
   outline-offset: 2px;
 }
 

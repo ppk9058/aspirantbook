@@ -22,7 +22,7 @@ export function ResizableLayout({
                 {leftPanel}
             </Panel>
 
-            <PanelResizeHandle className="w-1 bg-gray-200 hover:bg-[#3AAFA9] transition-colors flex items-center justify-center group z-10">
+            <PanelResizeHandle className="w-1 bg-gray-200 hover:bg-[#1448d8] transition-colors flex items-center justify-center group z-10">
                 <div className="h-8 w-1 bg-gray-300 rounded-full group-hover:bg-white" />
             </PanelResizeHandle>
 
@@ -34,7 +34,7 @@ export function ResizableLayout({
                         {rightTopPanel}
                     </Panel>
 
-                    <PanelResizeHandle className="h-1 bg-gray-700 hover:bg-[#3AAFA9] transition-colors flex items-center justify-center group z-10">
+                    <PanelResizeHandle className="h-1 bg-gray-700 hover:bg-[#1448d8] transition-colors flex items-center justify-center group z-10">
                         <div className="w-8 h-1 bg-gray-600 rounded-full group-hover:bg-white" />
                     </PanelResizeHandle>
 

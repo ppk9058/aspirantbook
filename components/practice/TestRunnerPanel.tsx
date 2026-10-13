@@ -34,7 +34,7 @@ export function TestRunnerPanel({
                     className={cn(
                         "px-4 h-full text-xs font-medium flex items-center gap-2 border-r border-gray-700 transition-colors",
                         activeTab === 'tests'
-                            ? "bg-[#1e1e1e] text-white border-t-2 border-t-[#3AAFA9]"
+                            ? "bg-[#1e1e1e] text-white border-t-2 border-t-[#1448d8]"
                             : "text-gray-400 hover:bg-[#2d2d2d]"
                     )}
                 >
@@ -46,7 +46,7 @@ export function TestRunnerPanel({
                     className={cn(
                         "px-4 h-full text-xs font-medium flex items-center gap-2 border-r border-gray-700 transition-colors",
                         activeTab === 'console'
-                            ? "bg-[#1e1e1e] text-white border-t-2 border-t-[#3AAFA9]"
+                            ? "bg-[#1e1e1e] text-white border-t-2 border-t-[#1448d8]"
                             : "text-gray-400 hover:bg-[#2d2d2d]"
                     )}
                 >

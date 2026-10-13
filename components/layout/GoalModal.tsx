@@ -129,7 +129,7 @@ export default function GoalModal() {
                 {/* Modal Header */}
                 <div className="shrink-0 px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-[#07172B] z-10 shadow-2xs">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-[#3AAFA9]/10 text-[#3AAFA9]">
+                        <div className="p-2 rounded-xl bg-[#1448d8]/10 text-[#1448d8]">
                             <Sparkles className="h-4 w-4" />
                         </div>
 
@@ -151,7 +151,7 @@ export default function GoalModal() {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={closeGoalModal}
-                            className="px-3.5 py-1.5 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold transition-colors"
+                            className="px-3.5 py-1.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold transition-colors"
                         >
                             Done
                         </button>
@@ -207,7 +207,7 @@ export default function GoalModal() {
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                             placeholder="Search your exam, class, or goal (e.g. UPSC, 10th, BPSC, SSC, AI)..."
-                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] focus:bg-white dark:focus:bg-slate-900 transition-all"
+                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8] focus:bg-white dark:focus:bg-slate-900 transition-all"
                         />
                         {searchQuery && (
                             <button
@@ -242,7 +242,7 @@ export default function GoalModal() {
                                     >
                                         {/* Selection indicator pill */}
                                         {isSelected ? (
-                                            <span className="absolute top-2.5 right-2.5 flex items-center justify-center w-5 h-5 rounded-full bg-[#3AAFA9] text-white">
+                                            <span className="absolute top-2.5 right-2.5 flex items-center justify-center w-5 h-5 rounded-full bg-[#1448d8] text-white">
                                                 <Check className="h-3 w-3 stroke-[3]" />
                                             </span>
                                         ) : (
@@ -255,7 +255,7 @@ export default function GoalModal() {
                                             <GoalIcon name={goal.icon} className="h-5 w-5" />
                                         </div>
 
-                                        <h4 className="font-extrabold text-sm text-slate-900 dark:text-white leading-tight group-hover:text-[#3AAFA9] transition-colors">
+                                        <h4 className="font-extrabold text-sm text-slate-900 dark:text-white leading-tight group-hover:text-[#1448d8] transition-colors">
                                             {goal.name}
                                         </h4>
 

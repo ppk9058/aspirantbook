@@ -40,7 +40,7 @@ export default function FormPage({ params }: { params: Promise<{ slug: string }>
         <p className="text-sm text-gray-500">The requested form does not exist or has been closed.</p>
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3AAFA9] text-white text-xs font-semibold"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1448d8] text-white text-xs font-semibold"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
@@ -179,7 +179,7 @@ export default function FormPage({ params }: { params: Promise<{ slug: string }>
               <span className="text-gray-500">Submission Reference ID</span>
               <button
                 onClick={copyRefId}
-                className="inline-flex items-center gap-1 text-[#3AAFA9] hover:underline font-semibold"
+                className="inline-flex items-center gap-1 text-[#1448d8] hover:underline font-semibold"
               >
                 {copiedId ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                 <span>{copiedId ? "Copied" : "Copy"}</span>
@@ -198,7 +198,7 @@ export default function FormPage({ params }: { params: Promise<{ slug: string }>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
               href="/dashboard"
-              className="px-6 py-3 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold shadow-md shadow-[#3AAFA9]/20 transition-all"
+              className="px-6 py-3 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold shadow-md shadow-[#1448d8]/20 transition-all"
             >
               Go to Learning Dashboard
             </Link>
@@ -217,7 +217,7 @@ export default function FormPage({ params }: { params: Promise<{ slug: string }>
           {/* Header Banner */}
           <div className="p-6 sm:p-8 bg-gradient-to-r from-[#05192D] via-[#0a2540] to-[#0d2f52] text-white relative">
             <div className="relative z-10 space-y-2">
-              <span className="inline-block px-3 py-1 rounded-full bg-[#3AAFA9]/20 border border-[#3AAFA9]/40 text-teal-300 text-xs font-bold">
+              <span className="inline-block px-3 py-1 rounded-full bg-[#1448d8]/20 border border-[#1448d8]/40 text-teal-300 text-xs font-bold">
                 {formDef.badge}
               </span>
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight">{formDef.title}</h1>
@@ -248,7 +248,7 @@ export default function FormPage({ params }: { params: Promise<{ slug: string }>
                         placeholder={field.placeholder}
                         value={formData[field.name] || ""}
                         onChange={(e) => handleInputChange(field.name, e.target.value)}
-                        className="w-full text-sm p-3.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9] resize-none"
+                        className="w-full text-sm p-3.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8] resize-none"
                       />
                       {field.helpText && <p className="text-[11px] text-gray-400">{field.helpText}</p>}
                     </div>
@@ -265,7 +265,7 @@ export default function FormPage({ params }: { params: Promise<{ slug: string }>
                         required={field.required}
                         value={formData[field.name] || ""}
                         onChange={(e) => handleInputChange(field.name, e.target.value)}
-                        className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
                       >
                         <option value="">-- Please Select --</option>
                         {field.options?.map((opt) => (
@@ -297,9 +297,9 @@ export default function FormPage({ params }: { params: Promise<{ slug: string }>
                       {!file ? (
                         <label
                           htmlFor={`file-${field.name}`}
-                          className="cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-[#3AAFA9] dark:hover:border-[#3AAFA9] rounded-2xl p-5 flex flex-col items-center justify-center gap-2 text-center transition-colors bg-gray-50/50 dark:bg-gray-900/30"
+                          className="cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-[#1448d8] dark:hover:border-[#1448d8] rounded-2xl p-5 flex flex-col items-center justify-center gap-2 text-center transition-colors bg-gray-50/50 dark:bg-gray-900/30"
                         >
-                          <div className="w-10 h-10 rounded-xl bg-[#3AAFA9]/10 text-[#3AAFA9] flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-xl bg-[#1448d8]/10 text-[#1448d8] flex items-center justify-center">
                             <Upload className="w-5 h-5" />
                           </div>
                           <div>
@@ -358,7 +358,7 @@ export default function FormPage({ params }: { params: Promise<{ slug: string }>
                       placeholder={field.placeholder}
                       value={formData[field.name] || ""}
                       onChange={(e) => handleInputChange(field.name, e.target.value)}
-                      className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3AAFA9]"
+                      className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1448d8]"
                     />
                     {field.helpText && <p className="text-[11px] text-gray-400">{field.helpText}</p>}
                   </div>
@@ -383,7 +383,7 @@ export default function FormPage({ params }: { params: Promise<{ slug: string }>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-3 rounded-xl bg-[#3AAFA9] hover:bg-[#2d8a85] text-white text-xs font-bold shadow-lg shadow-[#3AAFA9]/25 flex items-center gap-2 disabled:opacity-50 transition-colors"
+                className="px-6 py-3 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold shadow-lg shadow-[#1448d8]/25 flex items-center gap-2 disabled:opacity-50 transition-colors"
               >
                 {isSubmitting ? (
                   <>

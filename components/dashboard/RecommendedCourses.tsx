@@ -32,7 +32,7 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <div className="flex items-center gap-1.5 text-xs font-black text-[#3AAFA9] uppercase tracking-wider mb-1">
+                    <div className="flex items-center gap-1.5 text-xs font-black text-[#1448d8] uppercase tracking-wider mb-1">
                         <Sparkles className="h-3.5 w-3.5" />
                         <span>Recommended Curricula &bull; {goalName}</span>
                     </div>
@@ -42,7 +42,7 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
                 </div>
                 <Link
                     href="/courses"
-                    className="text-xs font-extrabold text-[#3AAFA9] hover:text-[#2d8a85] flex items-center gap-1 transition-colors self-start sm:self-auto"
+                    className="text-xs font-extrabold text-[#1448d8] hover:text-[#0f37a8] flex items-center gap-1 transition-colors self-start sm:self-auto"
                 >
                     <span>View All Catalog</span>
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -55,7 +55,7 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
                     <Link
                         key={course.id}
                         href={`/courses/${course.slug}`}
-                        className="group flex flex-col justify-between bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-[#3AAFA9]/60 dark:hover:border-[#3AAFA9]/60 shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden"
+                        className="group flex flex-col justify-between bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-[#1448d8]/60 dark:hover:border-[#1448d8]/60 shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden"
                     >
                         {/* Course Image Banner */}
                         <div className="relative h-44 w-full bg-gradient-to-br from-teal-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 overflow-hidden">
@@ -79,7 +79,7 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
                             {/* Top Badges */}
                             <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
                                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-slate-900/80 dark:bg-white/20 backdrop-blur-md text-white shadow-xs uppercase tracking-wider flex items-center gap-1">
-                                    <Video className="w-3 h-3 text-[#3AAFA9]" />
+                                    <Video className="w-3 h-3 text-[#1448d8]" />
                                     Course
                                 </span>
                                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/95 dark:bg-black/80 backdrop-blur-md text-emerald-700 dark:text-emerald-400 shadow-xs">
@@ -97,7 +97,7 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
                         {/* Content Area */}
                         <div className="p-5 flex-1 flex flex-col justify-between">
                             <div>
-                                <h3 className="font-extrabold text-base text-gray-900 dark:text-white line-clamp-1 group-hover:text-[#3AAFA9] transition-colors">
+                                <h3 className="font-extrabold text-base text-gray-900 dark:text-white line-clamp-1 group-hover:text-[#1448d8] transition-colors">
                                     {course.title}
                                 </h3>
                                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 line-clamp-2 leading-relaxed">
@@ -108,7 +108,7 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
                             <div className="mt-5 pt-3.5 border-t border-gray-100 dark:border-gray-800/80">
                                 <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
                                     <span className="flex items-center gap-1 font-medium">
-                                        <Clock className="h-3.5 w-3.5 text-[#3AAFA9]" />
+                                        <Clock className="h-3.5 w-3.5 text-[#1448d8]" />
                                         12h curriculum
                                     </span>
                                     <span className="flex items-center gap-1 font-medium">
@@ -117,7 +117,7 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
                                     </span>
                                 </div>
 
-                                <button className="w-full py-2.5 px-4 rounded-xl bg-teal-50 hover:bg-[#3AAFA9] dark:bg-teal-950/40 dark:hover:bg-[#3AAFA9] text-teal-800 hover:text-white dark:text-teal-300 dark:hover:text-white border border-teal-200/80 dark:border-teal-800/60 font-black text-xs flex items-center justify-center gap-2 transition-all group-hover:bg-[#3AAFA9] group-hover:text-white group-hover:border-transparent shadow-2xs">
+                                <button className="w-full py-2.5 px-4 rounded-xl bg-teal-50 hover:bg-[#1448d8] dark:bg-teal-950/40 dark:hover:bg-[#1448d8] text-teal-800 hover:text-white dark:text-teal-300 dark:hover:text-white border border-teal-200/80 dark:border-teal-800/60 font-black text-xs flex items-center justify-center gap-2 transition-all group-hover:bg-[#1448d8] group-hover:text-white group-hover:border-transparent shadow-2xs">
                                     <PlayCircle className="h-4 w-4" />
                                     <span>Explore Course</span>
                                 </button>

@@ -78,7 +78,7 @@ export default function ContentTabs({
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`relative flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors ${activeTab === tab.id
-                                    ? 'text-[#3AAFA9]'
+                                    ? 'text-[#1448d8]'
                                     : 'text-gray-600 hover:text-gray-900'
                                     }`}
                             >
@@ -87,7 +87,7 @@ export default function ContentTabs({
 
                                 {activeTab === tab.id && (
                                     <motion.div
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#3AAFA9]"
+                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1448d8]"
                                         layoutId="activeTabIndicator"
                                         transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                     />
@@ -116,7 +116,7 @@ export default function ContentTabs({
                                 <ul className="space-y-2">
                                     {courseData.objectives.map((objective, index) => (
                                         <li key={index} className="flex items-start gap-3">
-                                            <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#3AAFA9] flex-shrink-0" />
+                                            <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#1448d8] flex-shrink-0" />
                                             <span className="text-gray-700">{objective}</span>
                                         </li>
                                     ))}
@@ -182,7 +182,7 @@ export default function ContentTabs({
                                                 <p className="text-sm text-gray-600">{resource.type} • {resource.size}</p>
                                             </div>
                                         </div>
-                                        <button className="px-4 py-2 bg-[#3AAFA9] text-white text-sm font-semibold rounded-lg hover:bg-[#2d8a85] transition-colors">
+                                        <button className="px-4 py-2 bg-[#1448d8] text-white text-sm font-semibold rounded-lg hover:bg-[#0f37a8] transition-colors">
                                             Download
                                         </button>
                                     </div>
@@ -201,7 +201,7 @@ export default function ContentTabs({
                     <div>
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-bold text-gray-900">My Notes</h3>
-                            <button className="px-4 py-2 bg-[#3AAFA9] text-white text-sm font-semibold rounded-lg hover:bg-[#2d8a85] transition-colors">
+                            <button className="px-4 py-2 bg-[#1448d8] text-white text-sm font-semibold rounded-lg hover:bg-[#0f37a8] transition-colors">
                                 + Add Note
                             </button>
                         </div>
@@ -214,7 +214,7 @@ export default function ContentTabs({
                                         className="p-4 bg-gray-50 rounded-lg border border-gray-200"
                                     >
                                         <div className="flex items-center gap-2 mb-2">
-                                            <button className="px-2 py-1 bg-[#3AAFA9] text-white text-xs font-mono rounded font-semibold hover:bg-[#2d8a85] transition-colors">
+                                            <button className="px-2 py-1 bg-[#1448d8] text-white text-xs font-mono rounded font-semibold hover:bg-[#0f37a8] transition-colors">
                                                 {formatTime(note.timestamp)}
                                             </button>
                                             <span className="text-xs text-gray-500">
@@ -239,7 +239,7 @@ export default function ContentTabs({
                     <div>
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-bold text-gray-900">Q&A</h3>
-                            <button className="px-4 py-2 bg-[#3AAFA9] text-white text-sm font-semibold rounded-lg hover:bg-[#2d8a85] transition-colors">
+                            <button className="px-4 py-2 bg-[#1448d8] text-white text-sm font-semibold rounded-lg hover:bg-[#0f37a8] transition-colors">
                                 Ask Question
                             </button>
                         </div>
