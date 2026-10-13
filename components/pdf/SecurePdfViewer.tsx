@@ -7,7 +7,8 @@ export interface SecurePdfViewerProps {
   isOpen: boolean
   onClose: () => void
   /** Protected or stream source URL (e.g. /api/books/[id]/download?inline=1 or /api/current-affairs/file/[id] or /api/pyqs/file/[id]) */
-  src: string
+  src?: string
+  bookId?: string
   title: string
   subtitle?: string
   author?: string
@@ -33,6 +34,7 @@ export default function SecurePdfViewer({
   isOpen,
   onClose,
   src,
+  bookId,
   title,
   subtitle,
   author,
@@ -42,6 +44,9 @@ export default function SecurePdfViewer({
   className = "",
   testId = "secure-pdf-viewer-modal",
 }: SecurePdfViewerProps) {
+  const resolvedSrc = src || (bookId ? `/api/books/${bookId}/download?inline=1` : "")
+  const resolvedDownloadUrl = downloadUrl || (bookId ? `/api/books/${bookId}/download?download=true` : undefined)
+
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -100,9 +105,9 @@ export default function SecurePdfViewer({
 
           {/* Action Controls */}
           <div className="flex items-center gap-2 shrink-0">
-            {downloadAllowed && downloadUrl && (
+            {downloadAllowed && resolvedDownloadUrl && (
               <a
-                href={downloadUrl}
+                href={resolvedDownloadUrl}
                 download
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white transition-colors shadow-2xs"
               >
@@ -125,7 +130,7 @@ export default function SecurePdfViewer({
         {/* Secure PDF Iframe Viewport */}
         <div className="flex-1 bg-gray-100 dark:bg-slate-950 relative overflow-hidden">
           <iframe
-            src={src}
+            src={resolvedSrc}
             className="w-full h-full border-0"
             title={`PDF Reader: ${title}`}
           />
