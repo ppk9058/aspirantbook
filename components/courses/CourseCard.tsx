@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react"
 import { Star, Users, Clock, PlayCircle, BookOpen } from "lucide-react"
 import { cleanDescriptionSnippet } from "@/lib/utils"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 import { CoursePromoBadge } from "@/components/course/CoursePromoBadge"
 import type { CourseBadgeInfo } from "@/lib/coupons/badge-query"
 
@@ -41,6 +42,8 @@ function CourseCard({
     const { data: session } = useSession()
     const { openMobileAuth } = useMobileAuth()
 
+    const { handleBuyNow, isProcessing } = useSamePageBuyNow()
+
     const isAboveFold = typeof index === "number" && index < 4
     const hours = Math.floor(course.duration / 60)
     const minutes = course.duration % 60
@@ -57,44 +60,34 @@ function CourseCard({
             return
         }
 
-        if (session?.user) {
-            // Logged in
-            if (isFree) {
-                try {
-                    await fetch("/api/auth/mobile-login", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            phoneNumber: (session.user as any).phoneNumber || "0000000000",
-                            courseId: course.slug || course.id,
-                        }),
-                    })
-                } catch (err) {
-                    console.error("Enrollment error:", err)
-                }
+        if (isFree) {
+            await handleBuyNow({
+                type: "course",
+                id: course.id,
+                slug: course.slug,
+                title: course.title,
+                price: "Free",
+                isFree: true,
+                image: course.thumbnailUrl || undefined,
+            }, () => {
                 router.push("/my-learning")
                 router.refresh()
-            } else {
-                if (promoBadge?.code) {
-                    router.push(`/checkout?courseId=${course.slug}&coupon=${encodeURIComponent(promoBadge.code)}`)
-                } else {
-                    router.push(`/courses/${course.slug}`)
-                }
-            }
-        } else {
-            // Unauthenticated -> Open Mobile Number & OTP Modal
-            openMobileAuth({
-                course: {
-                    id: course.id,
-                    slug: course.slug,
-                    title: course.title,
-                    price: isFree ? "Free" : "Pro",
-                    isFree,
-                    image: course.thumbnailUrl || undefined,
-                },
-                actionType: isFree ? "enroll" : "buy",
             })
+            return
         }
+
+        // Paid course: direct same-page Buy Now
+        await handleBuyNow({
+            type: "course",
+            id: course.id,
+            slug: course.slug,
+            title: course.title,
+            price: 499,
+            isFree: false,
+            image: course.thumbnailUrl || undefined,
+        }, () => {
+            router.refresh()
+        })
     }
 
     return (

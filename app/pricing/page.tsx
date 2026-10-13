@@ -1,10 +1,9 @@
 import { auth } from "@/auth"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Check, X, Crown } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import PricingPlanButton from "@/components/pricing/PricingPlanButton"
 
 export default async function PricingPage() {
     const session = await auth()
@@ -61,13 +60,13 @@ export default async function PricingPage() {
     ]
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-950 py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         Simple, Transparent Pricing
                     </h1>
-                    <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-xl text-gray-600 dark:text-slate-400 max-w-2xl mx-auto">
                         Start for free, upgrade when you're ready. No hidden fees.
                     </p>
                 </div>
@@ -78,12 +77,12 @@ export default async function PricingPage() {
                             key={plan.name}
                             className={`relative bg-white dark:bg-slate-900 border-2 rounded-3xl transition-all duration-300 flex flex-col justify-between overflow-hidden ${
                                 plan.name === "PREMIUM"
-                                    ? "border-teal-500/80 dark:border-teal-400 shadow-xl shadow-teal-500/10 ring-2 ring-teal-500/20"
+                                    ? "border-[#1448d8] dark:border-blue-500 shadow-xl shadow-blue-500/10 ring-2 ring-blue-500/20"
                                     : "border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700"
                             }`}
                         >
                             {plan.name === "PREMIUM" && (
-                                <div className="absolute top-0 right-0 left-0 bg-gradient-to-r from-teal-600 via-emerald-600 to-indigo-600 py-1.5 px-4 text-center">
+                                <div className="absolute top-0 right-0 left-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 py-1.5 px-4 text-center">
                                     <span className="text-white font-black tracking-wider uppercase text-[11px] flex items-center justify-center gap-1.5">
                                         <Crown className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
                                         Recommended • Complete All-Access Pass
@@ -91,7 +90,7 @@ export default async function PricingPage() {
                                 </div>
                             )}
 
-                            <CardHeader className={`text-center pb-4 ${plan.name === "PREMIUM" ? "pt-9 sm:pt-10 bg-gradient-to-b from-teal-50/50 to-transparent dark:from-teal-950/20" : "pt-7"}`}>
+                            <CardHeader className={`text-center pb-4 ${plan.name === "PREMIUM" ? "pt-9 sm:pt-10 bg-gradient-to-b from-blue-50/50 to-transparent dark:from-blue-950/20" : "pt-7"}`}>
                                 <CardTitle className="text-center">
                                     <div className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">
                                         {plan.name === "PREMIUM" ? "Pro Learner" : "Starter"}
@@ -100,7 +99,7 @@ export default async function PricingPage() {
                                         {plan.name} PASS
                                     </div>
                                     <div className="flex items-baseline justify-center gap-1 mb-2">
-                                        <span className={`text-4xl sm:text-5xl font-black tracking-tight ${plan.name === "PREMIUM" ? "text-teal-700 dark:text-teal-400" : "text-slate-900 dark:text-white"}`}>
+                                        <span className={`text-4xl sm:text-5xl font-black tracking-tight ${plan.name === "PREMIUM" ? "text-blue-700 dark:text-blue-400" : "text-slate-900 dark:text-white"}`}>
                                             {plan.price}
                                         </span>
                                         <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-bold">
@@ -140,29 +139,22 @@ export default async function PricingPage() {
                                 </div>
 
                                 <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                                    <Link href={plan.buttonLink} className="block w-full">
-                                        <Button
-                                            className={`w-full min-h-[48px] rounded-2xl font-black text-sm transition-all cursor-pointer ${
-                                                plan.name === "PREMIUM"
-                                                    ? "bg-gradient-to-r from-teal-600 hover:from-teal-700 to-emerald-600 hover:to-emerald-700 text-white shadow-lg shadow-teal-500/25"
-                                                    : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
-                                            }`}
-                                            disabled={plan.name === "FREE" && !!user}
-                                        >
-                                            {plan.name === "PREMIUM" && <Crown className="mr-2 h-4 w-4 fill-amber-300 text-amber-300" />}
-                                            {plan.buttonText}
-                                        </Button>
-                                    </Link>
+                                    <PricingPlanButton
+                                        planName={plan.name}
+                                        planPrice={plan.price}
+                                        buttonText={plan.buttonText}
+                                        buttonLink={plan.buttonLink}
+                                        isCurrentUserPlan={plan.name === "FREE" && !!user}
+                                    />
                                 </div>
                             </CardContent>
                         </Card>
                     ))}
                 </div>
 
-
                 <div className="mt-12 text-center">
-                    <p className="text-gray-600">
-                        Have questions? <Link href="/contact" className="text-purple-600 hover:underline">Contact our support team</Link>
+                    <p className="text-gray-600 dark:text-slate-400">
+                        Have questions? <Link href="/contact" className="text-blue-600 hover:underline">Contact our support team</Link>
                     </p>
                 </div>
             </div>

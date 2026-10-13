@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { CheckCheck, Plus, Loader2, ShieldCheck, ArrowRight } from "lucide-react"
+import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 
 interface EnrollButtonProps {
     seriesId: string          // slug or id
@@ -22,10 +23,10 @@ export default function EnrollButton({
 }: EnrollButtonProps) {
     const { data: session } = useSession()
     const router = useRouter()
+    const { handleBuyNow, isProcessing } = useSamePageBuyNow()
 
     const [enrolled, setEnrolled] = useState(false)
     const [loading, setLoading] = useState(true)
-    const [enrolling, setEnrolling] = useState(false)
     const [effectiveIsFree, setEffectiveIsFree] = useState<boolean>(isFree)
 
     // Update effectiveIsFree when isFree prop changes
@@ -42,7 +43,6 @@ export default function EnrollButton({
                 if (!isMounted) return
                 setEnrolled(!!d.enrolled)
                 if (d.series) {
-                    // Authoritative pricing flags from server
                     const serverFree = !!d.series.isFree || !d.series.isPro
                     setEffectiveIsFree(serverFree)
                 }
@@ -58,37 +58,42 @@ export default function EnrollButton({
     }, [seriesId, session?.user?.id])
 
     const handleEnroll = async () => {
-        if (!session?.user?.id) {
-            router.push("/login")
-            return
-        }
-        if (enrolled || enrolling) return
+        if (enrolled || isProcessing) return
 
         if (!effectiveIsFree) {
-            router.push("/subscription")
+            // Paid series / Pro pass: Open Razorpay checkout on the SAME page
+            await handleBuyNow(
+                {
+                    type: "package",
+                    id: seriesId,
+                    slug: seriesId,
+                    title: `Test Series Pass (${seriesId})`,
+                    price: 499,
+                    isFree: false,
+                },
+                () => {
+                    setEnrolled(true)
+                    onEnrolled?.()
+                }
+            )
             return
         }
 
-        setEnrolling(true)
-        try {
-            const res = await fetch("/api/exam/series/enroll", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ seriesId, enrollType: "FREE" }),
-            })
-            const data = await res.json()
-            if (data.success) {
+        // Free series enrollment
+        await handleBuyNow(
+            {
+                type: "package",
+                id: seriesId,
+                slug: seriesId,
+                title: `Test Series (${seriesId})`,
+                price: "Free",
+                isFree: true,
+            },
+            () => {
                 setEnrolled(true)
                 onEnrolled?.()
-            } else if (res.status === 403 || res.status === 402) {
-                // If server informs series is paid/pro, route to subscription
-                router.push("/subscription")
             }
-        } catch {
-            // silent
-        } finally {
-            setEnrolling(false)
-        }
+        )
     }
 
     const sizeClasses = {
@@ -113,6 +118,7 @@ export default function EnrollButton({
         return (
             <button
                 onClick={() => router.push("/my-tests")}
+                data-testid="series-enrolled-btn"
                 className={`rounded-xl font-extrabold flex items-center justify-center gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer transition-all active:scale-[0.98] shadow-md ${sizeClasses[size]} ${className}`}
                 aria-label="View in My Tests"
             >
@@ -123,26 +129,26 @@ export default function EnrollButton({
         )
     }
 
-
     return (
         <button
             onClick={handleEnroll}
-            disabled={enrolling}
+            disabled={isProcessing}
+            data-testid="series-enroll-btn"
             className={`rounded-xl font-extrabold flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
                 effectiveIsFree
-                    ? "bg-sky-700 hover:bg-sky-800 text-white shadow-md"
-                    : "bg-emerald-700 hover:bg-emerald-800 text-white shadow-md"
+                    ? "bg-[#1448d8] hover:bg-[#0f37a8] text-white shadow-md"
+                    : "bg-[#1448d8] hover:bg-[#0f37a8] text-white shadow-md"
             } ${sizeClasses[size]} ${className}`}
             aria-label={effectiveIsFree ? "Enroll Free" : "Get Pass"}
         >
-            {enrolling ? (
+            {isProcessing ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
             ) : effectiveIsFree ? (
                 <Plus className="w-4 h-4 stroke-[2.5]" />
             ) : (
                 <ShieldCheck className="w-4 h-4" />
             )}
-            {enrolling ? "Enrolling…" : effectiveIsFree ? "Enroll Free" : "Get Pass"}
+            {isProcessing ? "Processing…" : effectiveIsFree ? "Enroll Free" : "Get Pass"}
         </button>
     )
 }

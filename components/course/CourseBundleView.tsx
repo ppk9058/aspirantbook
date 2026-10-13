@@ -34,6 +34,7 @@ import type { Batch } from "@/lib/batches-service"
 import CuriousNavbar from "@/components/common/CuriousNavbar"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 import { CourseTeachersSection } from "./CourseTeachersSection"
 import ScheduleDemoModal from "./ScheduleDemoModal"
 
@@ -100,6 +101,7 @@ export function CourseBundleView({
   const router = useRouter()
   const { data: session } = useSession()
   const { openMobileAuth } = useMobileAuth()
+  const { handleBuyNow, isProcessing } = useSamePageBuyNow()
   const [activeTab, setActiveTab] = useState<string>("syllabus")
   const [expandedChapters, setExpandedChapters] = useState<{ [key: string]: boolean }>({
     [course.chapters[0]?.id || ""]: true,
@@ -135,22 +137,21 @@ export function CourseBundleView({
     }
   }, [session, course.slug])
 
-  const handleBuyClick = () => {
-    if (session?.user) {
-      router.push(`/checkout?courseId=${course.slug || course.id}`)
-    } else {
-      openMobileAuth({
-        course: {
-          id: course.id,
-          slug: course.slug,
-          title: course.title,
-          price: course.price,
-          isFree: false,
-          image: course.thumbnailUrl || undefined,
-        },
-        actionType: "buy",
-      })
-    }
+  const handleBuyClick = async () => {
+    await handleBuyNow(
+      {
+        type: "course",
+        id: course.id,
+        slug: course.slug,
+        title: course.title,
+        price: course.price,
+        isFree: false,
+        image: course.thumbnailUrl || undefined,
+      },
+      () => {
+        router.refresh()
+      }
+    )
   }
 
   const handleEnrollClick = async () => {

@@ -5,7 +5,9 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useBookCart } from "@/lib/books/cartContext"
 import { useSession } from "next-auth/react"
-import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { useBookCheckout } from "@/lib/books/useBookCheckout"
+import PaymentSuccessModal from "./PaymentSuccessModal"
+import SecurePdfViewer from "./SecurePdfViewer"
 import {
   X,
   Plus,
@@ -19,12 +21,11 @@ import {
   Sparkles,
   ShoppingBag,
   ExternalLink,
+  BookOpen,
 } from "lucide-react"
 
 export default function CartDrawer() {
-  const router = useRouter()
   const { data: session } = useSession()
-  const { openMobileAuth } = useMobileAuth()
   const {
     items,
     savedForLater,
@@ -51,10 +52,21 @@ export default function CartDrawer() {
 
   const [couponInput, setCouponInput] = useState("")
   const [couponMessage, setCouponMessage] = useState<{ text: string; isError: boolean } | null>(null)
-  const [isCheckingOut, setIsCheckingOut] = useState(false)
-  const [orderSuccessId, setOrderSuccessId] = useState<string | null>(null)
 
-  if (!isCartOpen) return null
+  const {
+    initiateCheckout,
+    isCheckingOut,
+    completedOrder,
+    isSuccessModalOpen,
+    closeSuccessModal,
+    alreadyOwnedBook,
+    clearAlreadyOwned,
+    activeReaderBook,
+    openReaderForBook,
+    closeReader,
+  } = useBookCheckout()
+
+  if (!isCartOpen && !isSuccessModalOpen && !activeReaderBook) return null
 
   const handleApplyCoupon = (codeToApply?: string) => {
     const code = codeToApply || couponInput
@@ -66,33 +78,22 @@ export default function CartDrawer() {
 
   const handlePlaceOrder = () => {
     if (items.length === 0) return
-    if (!session?.user) {
-      setIsCartOpen(false)
-      openMobileAuth({
-        actionType: "buy",
-        callbackUrl: "/books/cart",
-      })
-      return
-    }
-    setIsCheckingOut(true)
-    setTimeout(() => {
-      const order = placeOrder("UPI / Razorpay Instant eBook Access")
-      setIsCheckingOut(false)
-      setOrderSuccessId(order.id)
-    }, 700)
+    initiateCheckout()
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop */}
-      <div
-        onClick={() => setIsCartOpen(false)}
-        className="absolute inset-0 bg-black/50 backdrop-blur-2xs transition-opacity duration-200"
-      />
+    <div className="fixed inset-0 z-50 overflow-hidden pointer-events-none">
+      {isCartOpen && (
+        <div className="pointer-events-auto">
+          {/* Backdrop */}
+          <div
+            onClick={() => setIsCartOpen(false)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-2xs transition-opacity duration-200"
+          />
 
-      {/* Slide-over Panel */}
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
-        <div className="w-screen max-w-xl bg-white shadow-2xl flex flex-col">
+          {/* Slide-over Panel */}
+          <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10 z-50">
+            <div data-testid="cart-drawer-panel" className="w-screen max-w-xl bg-white shadow-2xl flex flex-col">
           {/* Drawer Header */}
           <div className="px-5 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -125,42 +126,8 @@ export default function CartDrawer() {
             </div>
           </div>
 
-          {/* Success Screen after Order Placement */}
-          {orderSuccessId ? (
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center animate-in zoom-in-75">
-                <CheckCircle2 className="w-10 h-10" />
-              </div>
-              <h3 className="text-2xl font-black text-gray-900">Order Placed Successfully!</h3>
-              <p className="text-xs text-gray-500 max-w-xs">
-                Your eBook has been activated instantly in your library with high-res PDF and reader access.
-              </p>
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 font-semibold w-full max-w-sm">
-                ⚡ Instant Digital Access Unlocked! No shipping waiting period.
-              </div>
-              <div className="flex flex-col w-full max-w-xs gap-2.5 pt-2">
-                <button
-                  onClick={() => {
-                    setIsCartOpen(false)
-                    setOrderSuccessId(null)
-                    router.push("/books/orders")
-                  }}
-                  className="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-md transition-colors"
-                >
-                  Go to My Orders &amp; Read Online
-                </button>
-                <button
-                  onClick={() => {
-                    setIsCartOpen(false)
-                    setOrderSuccessId(null)
-                  }}
-                  className="w-full py-2.5 rounded-xl border border-gray-300 text-gray-700 font-bold text-xs hover:bg-gray-50 transition-colors"
-                >
-                  Continue Shopping
-                </button>
-              </div>
-            </div>
-          ) : items.length === 0 && savedForLater.length === 0 ? (
+          {/* Cart Contents */}
+          {items.length === 0 && savedForLater.length === 0 ? (
             /* Empty Cart View */
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
               <div className="w-20 h-20 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center">
@@ -463,8 +430,40 @@ export default function CartDrawer() {
             </div>
           )}
 
+          {/* Already Owned Alert Banner */}
+          {alreadyOwnedBook && (
+            <div className="mx-5 mb-3 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between gap-3 shadow-2xs">
+              <div className="min-w-0">
+                <p className="font-extrabold truncate">Already Owned</p>
+                <p className="text-[11px] text-amber-700 truncate">
+                  You already own &quot;{alreadyOwnedBook.bookTitle}&quot;.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    openReaderForBook(alreadyOwnedBook.bookId, alreadyOwnedBook.bookTitle)
+                    clearAlreadyOwned()
+                    setIsCartOpen(false)
+                  }}
+                  className="px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-black text-[11px] transition-colors"
+                >
+                  Read Now
+                </button>
+                <button
+                  type="button"
+                  onClick={clearAlreadyOwned}
+                  className="p-1 text-amber-500 hover:text-amber-800"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Drawer Footer with Sticky Checkout Bar */}
-          {items.length > 0 && !orderSuccessId && (
+          {items.length > 0 && (
             <div className="p-4 bg-white border-t border-gray-200 flex items-center justify-between gap-4 shadow-lg">
               <div>
                 <span className="text-[11px] text-gray-400 block font-semibold">Total Payable</span>
@@ -475,6 +474,7 @@ export default function CartDrawer() {
 
               <button
                 type="button"
+                data-testid="cart-drawer-checkout-btn"
                 disabled={isCheckingOut}
                 onClick={handlePlaceOrder}
                 className="flex-1 py-3 px-6 bg-[#fb641b] hover:bg-[#e85813] text-white font-black text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
@@ -490,8 +490,33 @@ export default function CartDrawer() {
               </button>
             </div>
           )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Payment Success Modal */}
+      <PaymentSuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={closeSuccessModal}
+        order={completedOrder}
+        onReadNow={(bookId, title, author) => {
+          openReaderForBook(bookId, title, author)
+          setIsCartOpen(false)
+        }}
+      />
+
+      {/* Secure PDF Viewer */}
+      {activeReaderBook && (
+        <SecurePdfViewer
+          bookId={activeReaderBook.bookId}
+          title={activeReaderBook.title}
+          author={activeReaderBook.author}
+          isOpen={Boolean(activeReaderBook)}
+          onClose={closeReader}
+          downloadAllowed={true}
+        />
+      )}
     </div>
   )
 }

@@ -23,7 +23,6 @@ import { createCheckoutSession } from "@/lib/actions/payment/stripe"
 import { createRazorpayOrder } from "@/lib/actions/payment/razorpay"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import Script from "next/script"
 import Image from "next/image"
 import { useRazorpayCheckout } from "@/lib/payments/useRazorpayCheckout"
 
@@ -396,7 +395,6 @@ function CheckoutContent() {
         <div className="min-h-screen bg-[#F9FAFB] py-10 selection:bg-orange-100">
             <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
             <link rel="preconnect" href="https://checkout.razorpay.com" crossOrigin="anonymous" />
-            <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
