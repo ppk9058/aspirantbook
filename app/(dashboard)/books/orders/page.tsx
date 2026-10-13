@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import Link from "next/link"
 import BookStoreHeader from "@/components/books/BookStoreHeader"
 import CartDrawer from "@/components/books/CartDrawer"
-import EBookReaderModal from "@/components/books/EBookReaderModal"
+import SecurePdfViewer from "@/components/pdf/SecurePdfViewer"
 import { BookCartProvider, useBookCart } from "@/lib/books/cartContext"
 import { BOOKS_DATA } from "@/lib/books/data"
 import { Book } from "@/lib/books/types"
@@ -49,22 +49,13 @@ function OrdersContent() {
     },
   ]
 
-  const handleDownloadPdf = (book: Book) => {
+  const handleDownloadPdf = (book: Book, orderNumber?: string) => {
     setDownloadingId(book.id)
+    const downloadUrl = `/api/books/${book.id}/download?download=true${orderNumber ? `&order=${encodeURIComponent(orderNumber)}` : ""}`
+    window.open(downloadUrl, "_blank")
     setTimeout(() => {
       setDownloadingId(null)
-      const blob = new Blob([
-        `%PDF-1.4\naspirantbook Official eBook Verified Delivery\nTitle: ${book.title}\nEdition: ${book.edition}\nPages: ${book.pages}\nStatus: Active Student License\n`
-      ], { type: "application/pdf" })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `${book.slug}-official-ebook.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    }, 600)
+    }, 1000)
   }
 
   const handleDownloadInvoice = (orderNumber: string) => {
@@ -81,8 +72,17 @@ function OrdersContent() {
     URL.revokeObjectURL(url)
   }
 
+  const [mounted, setMounted] = React.useState(false)
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-20">
+    <div
+      data-testid="orders-page-root"
+      data-hydrated={mounted ? "true" : "false"}
+      className="min-h-screen bg-gray-50/50 pb-20"
+    >
       <BookStoreHeader />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
@@ -207,7 +207,7 @@ function OrdersContent() {
 
                       <button
                         type="button"
-                        onClick={() => handleDownloadPdf(item.book)}
+                        onClick={() => handleDownloadPdf(item.book, order.orderNumber)}
                         disabled={downloadingId === item.book.id}
                         className="flex-1 sm:flex-initial px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 text-gray-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                       >
@@ -225,13 +225,17 @@ function OrdersContent() {
         </div>
       </div>
 
-      {/* Interactive eBook Reader Modal */}
+      {/* Secure Purchased PDF Viewer Modal */}
       {selectedBookForReader && (
-        <EBookReaderModal
-          book={selectedBookForReader}
+        <SecurePdfViewer
+          src={`/api/books/${encodeURIComponent(selectedBookForReader.id)}/download?inline=1`}
+          downloadUrl={`/api/books/${encodeURIComponent(selectedBookForReader.id)}/download?download=true`}
+          title={selectedBookForReader.title}
+          author={selectedBookForReader.author}
           isOpen={Boolean(selectedBookForReader)}
           onClose={() => setSelectedBookForReader(null)}
-          initialPageIndex={1}
+          downloadAllowed={true}
+          badgeLabel="Verified eBook"
         />
       )}
 
@@ -241,10 +245,14 @@ function OrdersContent() {
   )
 }
 
+import { WishlistProvider } from "@/lib/books/wishlistContext"
+
 export default function OrdersPage() {
   return (
-    <BookCartProvider>
-      <OrdersContent />
-    </BookCartProvider>
+    <WishlistProvider>
+      <BookCartProvider>
+        <OrdersContent />
+      </BookCartProvider>
+    </WishlistProvider>
   )
 }

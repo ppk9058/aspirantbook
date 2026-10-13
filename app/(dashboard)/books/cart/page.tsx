@@ -20,11 +20,13 @@ import {
   Zap,
   Lock,
 } from "lucide-react"
+import { useBookCheckout } from "@/lib/books/useBookCheckout"
+import PaymentSuccessModal from "@/components/books/PaymentSuccessModal"
+import SecurePdfViewer from "@/components/pdf/SecurePdfViewer"
 
 function CartPageContent() {
   const router = useRouter()
   const { data: session } = useSession()
-  const { openMobileAuth } = useMobileAuth()
   const {
     items,
     savedForLater,
@@ -48,8 +50,19 @@ function CartPageContent() {
 
   const [couponInput, setCouponInput] = useState("")
   const [couponMessage, setCouponMessage] = useState<{ text: string; isError: boolean } | null>(null)
-  const [isOrdering, setIsOrdering] = useState(false)
-  const [orderDone, setOrderDone] = useState(false)
+
+  const {
+    initiateCheckout,
+    isCheckingOut,
+    completedOrder,
+    isSuccessModalOpen,
+    closeSuccessModal,
+    alreadyOwnedBook,
+    clearAlreadyOwned,
+    activeReaderBook,
+    openReaderForBook,
+    closeReader,
+  } = useBookCheckout()
 
   const handleApplyCoupon = (codeToApply?: string) => {
     const code = codeToApply || couponInput
@@ -61,22 +74,10 @@ function CartPageContent() {
 
   const handleCheckout = () => {
     if (items.length === 0) return
-    if (!session?.user) {
-      openMobileAuth({
-        actionType: "buy",
-        callbackUrl: "/books/cart",
-      })
-      return
-    }
-    setIsOrdering(true)
-    setTimeout(() => {
-      placeOrder("UPI / Razorpay Instant eBook Access")
-      setIsOrdering(false)
-      setOrderDone(true)
-    }, 700)
+    initiateCheckout()
   }
 
-  if (orderDone) {
+  if (completedOrder) {
     return (
       <div className="min-h-screen bg-gray-50/50 pb-20">
         <BookStoreHeader />
@@ -241,11 +242,11 @@ function CartPageContent() {
                 <div className="p-4 bg-gray-50 border-t border-gray-200 flex justify-end">
                   <button
                     type="button"
-                    disabled={isOrdering}
+                    disabled={isCheckingOut}
                     onClick={handleCheckout}
                     className="py-3 px-8 bg-[#fb641b] hover:bg-[#e85813] text-white font-black text-sm rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50"
                   >
-                    {isOrdering ? "Processing Order..." : "PLACE ORDER"}
+                    {isCheckingOut ? "Processing Payment..." : "PLACE ORDER"}
                   </button>
                 </div>
               </div>
@@ -425,11 +426,11 @@ function CartPageContent() {
 
                 <button
                   type="button"
-                  disabled={isOrdering}
+                  disabled={isCheckingOut}
                   onClick={handleCheckout}
                   className="w-full py-3.5 bg-[#fb641b] hover:bg-[#e85813] text-white font-black text-sm rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50 mt-2"
                 >
-                  {isOrdering ? "Processing Order..." : "PLACE ORDER"}
+                  {isCheckingOut ? "Processing Payment..." : "PLACE ORDER"}
                 </button>
 
                 <div className="flex items-center justify-center gap-2 text-[11px] text-gray-400 pt-2">
@@ -441,6 +442,30 @@ function CartPageContent() {
           </div>
         )}
       </div>
+
+      {/* Payment Success Modal */}
+      <PaymentSuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={closeSuccessModal}
+        order={completedOrder}
+        onReadNow={(bookId, title, author) => {
+          openReaderForBook(bookId, title, author)
+        }}
+      />
+
+      {/* Secure PDF Viewer */}
+      {activeReaderBook && (
+        <SecurePdfViewer
+          src={`/api/books/${encodeURIComponent(activeReaderBook.bookId)}/download?inline=1`}
+          downloadUrl={`/api/books/${encodeURIComponent(activeReaderBook.bookId)}/download?download=true`}
+          title={activeReaderBook.title}
+          author={activeReaderBook.author}
+          isOpen={Boolean(activeReaderBook)}
+          onClose={closeReader}
+          downloadAllowed={true}
+          badgeLabel="Verified eBook"
+        />
+      )}
     </div>
   )
 }
