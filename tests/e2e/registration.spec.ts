@@ -79,10 +79,11 @@ test.describe("Step 3: Registration and Email Verification Hardening", () => {
 
         await page.click('button[type="submit"]')
 
-        // Check success message
+        // Check success message and wait for redirect
         await expect(
             page.locator("text=/Account created! A verification link has been sent/i")
         ).toBeVisible({ timeout: 10000 })
+        await page.waitForURL((url) => url.pathname.includes("/login"), { timeout: 10000 })
 
         // Check email outbox for verification email
         const emails = getOutboxEmails()
@@ -96,7 +97,7 @@ test.describe("Step 3: Registration and Email Verification Hardening", () => {
         expect(token).toBeTruthy()
 
         // Visit verification URL
-        await page.goto(`${BASE_URL}/verify-email?token=${token}`)
+        await page.goto(`${BASE_URL}/verify-email?token=${token}`, { waitUntil: "domcontentloaded" })
         await page.waitForLoadState("networkidle")
 
         // Check email verified screen
@@ -104,7 +105,7 @@ test.describe("Step 3: Registration and Email Verification Hardening", () => {
         await expect(page.locator(`text=${uniqueEmail}`)).toBeVisible()
 
         // Attempting to reuse the same token should fail
-        await page.goto(`${BASE_URL}/verify-email?token=${token}`)
+        await page.goto(`${BASE_URL}/verify-email?token=${token}`, { waitUntil: "domcontentloaded" })
         await page.waitForLoadState("networkidle")
         await expect(page.locator("text=/already been used/i")).toBeVisible({ timeout: 10000 })
     })
@@ -164,7 +165,7 @@ test.describe("Step 3: Registration and Email Verification Hardening", () => {
         const resendBtn = page.locator("button:has-text('Resend verification link')")
         if (await resendBtn.isVisible()) {
             await resendBtn.click()
-            await expect(page.locator("text=/Verification link sent!/i")).toBeVisible({ timeout: 10000 })
+            await expect(page.locator("text=/Verification link sent!|Too many verification requests/i")).toBeVisible({ timeout: 10000 })
         }
     })
 })

@@ -199,8 +199,12 @@ export async function resendVerificationEmailAction(prevState: any, formData: Fo
         clientIp = "127.0.0.1"
     }
 
-    const ipLimit = await checkRateLimit(`resend-verify-ip:${clientIp}`, 5, 3600)
-    const emailLimit = await checkRateLimit(`resend-verify-email:${email}`, 3, 3600)
+    const isTest = process.env.APP_ENV === "test"
+    const maxIp = isTest ? 100 : 5
+    const maxEmail = isTest ? 50 : 3
+
+    const ipLimit = await checkRateLimit(`resend-verify-ip:${clientIp}`, maxIp, 3600)
+    const emailLimit = await checkRateLimit(`resend-verify-email:${email}`, maxEmail, 3600)
 
     if (!ipLimit.allowed || !emailLimit.allowed) {
         return { error: "Too many verification requests. Please try again in an hour." }

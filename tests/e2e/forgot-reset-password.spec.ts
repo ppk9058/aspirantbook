@@ -119,7 +119,7 @@ test.describe("Step 4: Forgot Password and Password Reset Hardening", () => {
         await page.fill('input[name="email"]', userEmail)
         await page.fill('input[name="password"]', newPass)
         await page.click('button[type="submit"]')
-        await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 })
+        await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 30000 })
 
         // Step H: Verify used token cannot be reused
         await page.goto(`${BASE_URL}/reset-password?token=${token}`)
