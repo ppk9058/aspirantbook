@@ -3,6 +3,39 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/auth/tokens"
+import bcrypt from "bcryptjs"
+
+async function getClientIp(): Promise<string> {
+    try {
+        const { headers } = await import("next/headers")
+        const h = await headers()
+        return (
+            h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            h.get("x-real-ip")?.trim() ||
+            "127.0.0.1"
+        )
+    } catch {
+        return "127.0.0.1"
+    }
+}
+
+async function writeAuditLog(actorId: string, action: string, targetId?: string, metadata?: any) {
+    const ip = await getClientIp()
+    try {
+        await prisma.auditLog.create({
+            data: {
+                actorId,
+                action,
+                targetId: targetId || null,
+                metadata: metadata ? metadata : undefined,
+                ip,
+            },
+        })
+    } catch (err) {
+        console.error("Audit log error:", err)
+    }
+}
 
 // Get paginated list of users with filters
 export async function getUsersList(params: {
@@ -142,12 +175,24 @@ export async function updateUserRole(userId: string, newRole: "ADMIN" | "TEACHER
     const session = await auth()
 
     if (!session || session.user.role !== "ADMIN") {
-        throw new Error("Unauthorized")
+        throw new Error("Unauthorized: Only Admins can manage user roles")
     }
 
     // Prevent admin from demoting themselves
     if (userId === session.user.id && newRole !== "ADMIN") {
         throw new Error("Cannot change your own admin role")
+    }
+
+    const target = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true, email: true },
+    })
+
+    if (target?.role === "ADMIN" && newRole !== "ADMIN") {
+        const adminCount = await prisma.user.count({ where: { role: "ADMIN", isActive: true } })
+        if (adminCount <= 1) {
+            throw new Error("Cannot demote the last remaining active admin account")
+        }
     }
 
     await prisma.user.update({
@@ -156,6 +201,12 @@ export async function updateUserRole(userId: string, newRole: "ADMIN" | "TEACHER
             role: newRole,
             sessionVersion: { increment: 1 },
         },
+    })
+
+    await writeAuditLog(session.user.id, "USER_ROLE_UPDATE", userId, {
+        oldRole: target?.role,
+        newRole,
+        email: target?.email,
     })
 
     revalidatePath("/admin/users")
@@ -320,11 +371,256 @@ export async function deleteUser(userId: string) {
         throw new Error("Cannot delete your own admin account")
     }
 
+    const target = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true, email: true },
+    })
+
+    if (target?.role === "ADMIN") {
+        const adminCount = await prisma.user.count({ where: { role: "ADMIN", isActive: true } })
+        if (adminCount <= 1) {
+            throw new Error("Cannot delete the last remaining active admin account")
+        }
+    }
+
     await prisma.user.delete({
         where: { id: userId },
     })
+
+    await writeAuditLog(session.user.id, "USER_DELETE", userId, { email: target?.email })
 
     revalidatePath("/admin/users")
 
     return { success: true, message: "User deleted successfully" }
 }
+
+// Activate or Deactivate (Block) user
+export async function toggleUserActiveStatus(userId: string, isActive: boolean) {
+    const session = await auth()
+
+    if (!session || session.user.role !== "ADMIN") {
+        throw new Error("Unauthorized: Only Admins can manage user status")
+    }
+
+    if (userId === session.user.id && !isActive) {
+        throw new Error("Cannot deactivate your own admin account")
+    }
+
+    const target = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true, email: true },
+    })
+
+    if (target?.role === "ADMIN" && !isActive) {
+        const adminCount = await prisma.user.count({ where: { role: "ADMIN", isActive: true } })
+        if (adminCount <= 1) {
+            throw new Error("Cannot deactivate the last remaining active admin account")
+        }
+    }
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: {
+            isActive,
+            sessionVersion: { increment: 1 }, // Invalidates all sessions immediately
+        },
+    })
+
+    await writeAuditLog(session.user.id, isActive ? "USER_ACTIVATE" : "USER_DEACTIVATE", userId, {
+        email: target?.email,
+    })
+
+    revalidatePath("/admin/users")
+    revalidatePath(`/admin/users/${userId}`)
+
+    return { success: true, message: `User ${isActive ? "activated" : "deactivated"} successfully` }
+}
+
+// Trigger password reset email from admin console
+export async function adminTriggerPasswordReset(userId: string) {
+    const session = await auth()
+
+    if (!session || session.user.role !== "ADMIN") {
+        throw new Error("Unauthorized: Only Admins can trigger password resets")
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, isActive: true },
+    })
+
+    if (!user) {
+        throw new Error("User not found")
+    }
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+    await sendPasswordResetEmail(user.email, appUrl)
+
+    await writeAuditLog(session.user.id, "ADMIN_TRIGGER_PASSWORD_RESET", userId, { email: user.email })
+
+    return { success: true, message: "Password reset link sent to user's email" }
+}
+
+// Trigger email verification from admin console
+export async function adminResendVerification(userId: string) {
+    const session = await auth()
+
+    if (!session || session.user.role !== "ADMIN") {
+        throw new Error("Unauthorized: Only Admins can resend verification emails")
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, emailVerified: true },
+    })
+
+    if (!user) {
+        throw new Error("User not found")
+    }
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+    await sendVerificationEmail(user.email, appUrl)
+
+    await writeAuditLog(session.user.id, "ADMIN_RESEND_VERIFICATION", userId, { email: user.email })
+
+    return { success: true, message: "Verification link sent to user's email" }
+}
+
+// Soft delete / anonymize user
+export async function anonymizeUser(userId: string) {
+    const session = await auth()
+
+    if (!session || session.user.role !== "ADMIN") {
+        throw new Error("Unauthorized: Only Admins can anonymize users")
+    }
+
+    if (userId === session.user.id) {
+        throw new Error("Cannot anonymize your own admin account")
+    }
+
+    const target = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true, email: true },
+    })
+
+    if (target?.role === "ADMIN") {
+        const adminCount = await prisma.user.count({ where: { role: "ADMIN", isActive: true } })
+        if (adminCount <= 1) {
+            throw new Error("Cannot anonymize the last remaining active admin account")
+        }
+    }
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: {
+            name: "Anonymized User",
+            email: `anonymized-${userId}@anonymized.trillionskill.local`,
+            phoneNumber: null,
+            password: null,
+            isActive: false,
+            sessionVersion: { increment: 1 },
+        },
+    })
+
+    await writeAuditLog(session.user.id, "USER_ANONYMIZE", userId, { originalEmail: target?.email })
+
+    revalidatePath("/admin/users")
+    revalidatePath(`/admin/users/${userId}`)
+
+    return { success: true, message: "User anonymized and deactivated successfully" }
+}
+
+// Export users as CSV
+export async function exportUsersCsv(): Promise<string> {
+    const session = await auth()
+
+    if (!session || session.user.role !== "ADMIN") {
+        throw new Error("Unauthorized: Only Admins can export user data")
+    }
+
+    const users = await prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            phoneNumber: true,
+            role: true,
+            isActive: true,
+            emailVerified: true,
+            createdAt: true,
+        },
+    })
+
+    const header = "ID,Name,Email,Phone,Role,Status,Verified,JoinedAt\n"
+    const rows = users
+        .map((u) => {
+            const name = (u.name || "").replace(/"/g, '""')
+            const email = u.email.replace(/"/g, '""')
+            const phone = u.phoneNumber || ""
+            const role = u.role
+            const status = u.isActive ? "ACTIVE" : "INACTIVE"
+            const verified = u.emailVerified ? "YES" : "NO"
+            const joined = u.createdAt.toISOString()
+            return `"${u.id}","${name}","${email}","${phone}","${role}","${status}","${verified}","${joined}"`
+        })
+        .join("\n")
+
+    await writeAuditLog(session.user.id, "USER_EXPORT_CSV", undefined, { count: users.length })
+
+    return header + rows
+}
+
+// Create new user (admin)
+export async function createNewUserAdmin(data: {
+    name: string
+    email: string
+    role?: "ADMIN" | "TEACHER" | "PREMIUM" | "FREE"
+    phoneNumber?: string
+    password?: string
+}) {
+    const session = await auth()
+
+    if (!session || session.user.role !== "ADMIN") {
+        throw new Error("Unauthorized: Only Admins can create users")
+    }
+
+    const normalizedEmail = data.email.trim().toLowerCase()
+    const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } })
+    if (existing) {
+        throw new Error("A user with this email address already exists")
+    }
+
+    const cleanPhone = data.phoneNumber && data.phoneNumber.trim().length === 10 ? data.phoneNumber.trim() : null
+    if (cleanPhone) {
+        const existingPhone = await prisma.user.findUnique({ where: { phoneNumber: cleanPhone } })
+        if (existingPhone) {
+            throw new Error("A user with this phone number already exists")
+        }
+    }
+
+    const rawPassword = data.password || "TempPass123!Safe"
+    const hashedPassword = await bcrypt.hash(rawPassword, 12)
+
+    const created = await prisma.user.create({
+        data: {
+            name: data.name.trim(),
+            email: normalizedEmail,
+            role: data.role || "FREE",
+            phoneNumber: cleanPhone,
+            password: hashedPassword,
+            isActive: true,
+            sessionVersion: 1,
+        },
+    })
+
+    await writeAuditLog(session.user.id, "USER_CREATE", created.id, {
+        email: normalizedEmail,
+        role: created.role,
+    })
+
+    revalidatePath("/admin/users")
+
+    return { success: true, user: created }
+}
+

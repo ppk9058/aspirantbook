@@ -2,18 +2,36 @@ import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Users, Search, UserPlus } from "lucide-react"
+import { Users, Search, Download, ChevronLeft, ChevronRight } from "lucide-react"
 import UserRoleBadge from "@/components/admin/UserRoleBadge"
 import SubscriptionStatusBadge from "@/components/admin/SubscriptionStatusBadge"
+import CreateUserModal from "@/components/admin/CreateUserModal"
 
 export default async function UsersPage({
     searchParams,
 }: {
-    searchParams: Promise<{ search?: string; role?: string }>
+    searchParams: Promise<{
+        search?: string
+        role?: string
+        status?: string
+        verified?: string
+        page?: string
+    }>
 }) {
-    const { search: searchQuery, role: roleFilter } = await searchParams
+    const {
+        search: searchQuery,
+        role: roleFilter,
+        status: statusFilter,
+        verified: verifiedFilter,
+        page: pageParam,
+    } = await searchParams
+
     const search = searchQuery || ""
     const role = roleFilter || "ALL"
+    const status = statusFilter || "ALL"
+    const verified = verifiedFilter || "ALL"
+    const currentPage = Math.max(1, parseInt(pageParam || "1", 10))
+    const pageSize = 25
 
     // Build where clause
     const where: any = {}
@@ -30,7 +48,19 @@ export default async function UsersPage({
         where.role = role
     }
 
-    const [users, totalUsers, freeUsers, premiumUsers, adminUsers] = await Promise.all([
+    if (status === "ACTIVE") {
+        where.isActive = true
+    } else if (status === "BLOCKED") {
+        where.isActive = false
+    }
+
+    if (verified === "VERIFIED") {
+        where.emailVerified = { not: null }
+    } else if (verified === "UNVERIFIED") {
+        where.emailVerified = null
+    }
+
+    const [users, totalFiltered, totalUsers, freeUsers, premiumUsers, adminUsers] = await Promise.all([
         prisma.user.findMany({
             where,
             orderBy: { createdAt: "desc" },
@@ -46,13 +76,17 @@ export default async function UsersPage({
                     },
                 },
             },
-            take: 50, // Limit for performance
+            skip: (currentPage - 1) * pageSize,
+            take: pageSize,
         }),
+        prisma.user.count({ where }),
         prisma.user.count(),
         prisma.user.count({ where: { role: "FREE" } }),
         prisma.user.count({ where: { role: "PREMIUM" } }),
         prisma.user.count({ where: { role: "ADMIN" } }),
     ])
+
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize))
 
     return (
         <div className="p-8">
@@ -61,6 +95,17 @@ export default async function UsersPage({
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
                     <p className="text-gray-600 mt-1">{totalUsers} total users</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <CreateUserModal />
+                    <a
+                        href="/api/admin/users/export"
+                        download
+                        className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 shadow-xs transition-colors"
+                    >
+                        <Download className="h-4 w-4" />
+                        Export CSV
+                    </a>
                 </div>
             </div>
 
@@ -115,26 +160,45 @@ export default async function UsersPage({
             {/* Search and Filters */}
             <Card className="mb-6">
                 <CardContent className="p-4">
-                    <form method="get" className="flex gap-4">
-                        <div className="flex-1 relative">
+                    <form method="get" className="flex flex-wrap gap-3 items-center">
+                        <div className="flex-1 min-w-[200px] relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <input
                                 type="text"
                                 name="search"
                                 defaultValue={search}
-                                placeholder="Search by name or email..."
-                                className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder="Search by name, email, or phone..."
+                                className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                             />
                         </div>
                         <select
                             name="role"
                             defaultValue={role}
-                            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                         >
                             <option value="ALL">All Roles</option>
                             <option value="FREE">Free</option>
                             <option value="PREMIUM">Premium</option>
+                            <option value="TEACHER">Teacher</option>
                             <option value="ADMIN">Admin</option>
+                        </select>
+                        <select
+                            name="status"
+                            defaultValue={status}
+                            className="px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+                            <option value="ALL">All Statuses</option>
+                            <option value="ACTIVE">Active Only</option>
+                            <option value="BLOCKED">Blocked Only</option>
+                        </select>
+                        <select
+                            name="verified"
+                            defaultValue={verified}
+                            className="px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+                            <option value="ALL">All Verification</option>
+                            <option value="VERIFIED">Verified Only</option>
+                            <option value="UNVERIFIED">Unverified Only</option>
                         </select>
                         <Button type="submit">Filter</Button>
                     </form>
@@ -187,8 +251,28 @@ export default async function UsersPage({
                                                             {user.name || "No name"}
                                                         </div>
                                                         <div className="text-sm text-gray-500">{user.email}</div>
+                                                        <div className="flex items-center gap-1.5 mt-1">
+                                                            {user.isActive ? (
+                                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                                                                    Active
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-100 text-red-800">
+                                                                    Blocked
+                                                                </span>
+                                                            )}
+                                                            {user.emailVerified ? (
+                                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-800">
+                                                                    Verified
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600">
+                                                                    Unverified
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         {user.phoneNumber && (
-                                                            <div className="text-xs text-indigo-600 font-mono font-medium">{user.phoneNumber}</div>
+                                                            <div className="text-xs text-indigo-600 font-mono font-medium mt-0.5">{user.phoneNumber}</div>
                                                         )}
                                                     </div>
                                                 </div>
@@ -235,6 +319,42 @@ export default async function UsersPage({
                         <div className="text-center py-12">
                             <Users className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                             <p className="text-gray-500">No users found</p>
+                        </div>
+                    )}
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between px-6 py-4 border-t bg-gray-50/50">
+                            <p className="text-sm text-gray-500">
+                                Showing <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> to{" "}
+                                <span className="font-medium">{Math.min(currentPage * pageSize, totalFiltered)}</span> of{" "}
+                                <span className="font-medium">{totalFiltered}</span> users
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <Link
+                                    href={`/admin/users?page=${currentPage - 1}&search=${encodeURIComponent(search)}&role=${role}&status=${status}&verified=${verified}`}
+                                    className={`inline-flex items-center gap-1 px-3 py-1.5 border rounded-md text-sm font-medium ${
+                                        currentPage <= 1
+                                            ? "pointer-events-none opacity-50 bg-gray-100 text-gray-400"
+                                            : "bg-white text-gray-700 hover:bg-gray-50"
+                                    }`}
+                                >
+                                    <ChevronLeft className="h-4 w-4" /> Previous
+                                </Link>
+                                <span className="text-sm font-medium text-gray-700 px-2">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                <Link
+                                    href={`/admin/users?page=${currentPage + 1}&search=${encodeURIComponent(search)}&role=${role}&status=${status}&verified=${verified}`}
+                                    className={`inline-flex items-center gap-1 px-3 py-1.5 border rounded-md text-sm font-medium ${
+                                        currentPage >= totalPages
+                                            ? "pointer-events-none opacity-50 bg-gray-100 text-gray-400"
+                                            : "bg-white text-gray-700 hover:bg-gray-50"
+                                    }`}
+                                >
+                                    Next <ChevronRight className="h-4 w-4" />
+                                </Link>
+                            </div>
                         </div>
                     )}
                 </CardContent>

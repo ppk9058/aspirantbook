@@ -3,31 +3,50 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { hash, compare } from "bcryptjs"
+import bcrypt from "bcryptjs"
 import { deleteFromS3 } from "@/lib/aws-s3"
+import { validatePasswordPolicy } from "@/lib/auth/password-policy"
 
 /**
- * Update user profile information
+ * Update user profile information (name, phone, selectedGoal)
  */
 export async function updateProfile(formData: FormData) {
     try {
         const session = await auth()
-        if (!session) {
+        if (!session?.user?.id) {
             return { success: false, error: "Not authenticated" }
         }
 
         const name = formData.get("name") as string
-        const bio = formData.get("bio") as string | null
+        const phoneNumber = formData.get("phoneNumber") as string | null
+        const selectedGoal = formData.get("selectedGoal") as string | null
 
         if (!name || name.trim().length === 0) {
             return { success: false, error: "Name is required" }
+        }
+
+        const cleanPhone = phoneNumber && phoneNumber.trim().length === 10 ? phoneNumber.trim() : null
+
+        // Check if phone number is already taken by another user
+        if (cleanPhone) {
+            const existingPhone = await prisma.user.findFirst({
+                where: {
+                    phoneNumber: cleanPhone,
+                    id: { not: session.user.id },
+                },
+                select: { id: true },
+            })
+            if (existingPhone) {
+                return { success: false, error: "Phone number is already associated with another account" }
+            }
         }
 
         await prisma.user.update({
             where: { id: session.user.id },
             data: {
                 name: name.trim(),
-                bio: bio?.trim() || null,
+                phoneNumber: cleanPhone,
+                selectedGoal: selectedGoal?.trim() || null,
             },
         })
 
@@ -42,25 +61,25 @@ export async function updateProfile(formData: FormData) {
 }
 
 /**
- * Update user avatar
+ * Update user avatar (image field)
  */
-export async function updateAvatar(avatarUrl: string) {
+export async function updateAvatar(imageUrl: string) {
     try {
         const session = await auth()
-        if (!session) {
+        if (!session?.user?.id) {
             return { success: false, error: "Not authenticated" }
         }
 
         // Get current user to delete old avatar
         const user = await prisma.user.findUnique({
             where: { id: session.user.id },
-            select: { avatarUrl: true },
+            select: { image: true },
         })
 
         // Delete old avatar from S3 if exists
-        if (user?.avatarUrl) {
+        if (user?.image && user.image.includes(".amazonaws.com/")) {
             try {
-                const key = user.avatarUrl.split(".com/")[1]
+                const key = user.image.split(".com/")[1]
                 if (key) await deleteFromS3(key)
             } catch (error) {
                 console.error("Error deleting old avatar:", error)
@@ -70,7 +89,7 @@ export async function updateAvatar(avatarUrl: string) {
         // Update with new avatar
         await prisma.user.update({
             where: { id: session.user.id },
-            data: { avatarUrl },
+            data: { image: imageUrl },
         })
 
         revalidatePath("/profile")
@@ -89,7 +108,7 @@ export async function updateAvatar(avatarUrl: string) {
 export async function changePassword(formData: FormData) {
     try {
         const session = await auth()
-        if (!session) {
+        if (!session?.user?.id) {
             return { success: false, error: "Not authenticated" }
         }
 
@@ -106,8 +125,10 @@ export async function changePassword(formData: FormData) {
             return { success: false, error: "New passwords do not match" }
         }
 
-        if (newPassword.length < 6) {
-            return { success: false, error: "Password must be at least 6 characters" }
+        // Enforce password policy
+        const policyResult = validatePasswordPolicy(newPassword)
+        if (!policyResult.valid) {
+            return { success: false, error: policyResult.error }
         }
 
         // Get current user with password
@@ -117,22 +138,27 @@ export async function changePassword(formData: FormData) {
         })
 
         if (!user?.password) {
-            return { success: false, error: "User not found" }
+            return { success: false, error: "User account has no password set" }
         }
 
         // Verify current password
-        const isValid = await compare(currentPassword, user.password)
+        const isValid = await bcrypt.compare(currentPassword, user.password)
         if (!isValid) {
             return { success: false, error: "Current password is incorrect" }
         }
 
         // Hash new password
-        const hashedPassword = await hash(newPassword, 12)
+        const hashedPassword = await bcrypt.hash(newPassword, 12)
 
-        // Update password
+        // Update password and increment sessionVersion (revokes all active sessions)
         await prisma.user.update({
             where: { id: session.user.id },
-            data: { password: hashedPassword },
+            data: {
+                password: hashedPassword,
+                sessionVersion: { increment: 1 },
+                failedLoginAttempts: 0,
+                lockedUntil: null,
+            },
         })
 
         return { success: true }
@@ -143,7 +169,7 @@ export async function changePassword(formData: FormData) {
 }
 
 /**
- * Update notification preferences
+ * Update notification preferences (stub for preferences stored in local client or settings)
  */
 export async function updateNotificationPreferences(preferences: {
     courseUpdates: boolean
@@ -153,19 +179,11 @@ export async function updateNotificationPreferences(preferences: {
 }) {
     try {
         const session = await auth()
-        if (!session) {
+        if (!session?.user?.id) {
             return { success: false, error: "Not authenticated" }
         }
 
-        await prisma.user.update({
-            where: { id: session.user.id },
-            data: {
-                notificationPrefs: preferences,
-            },
-        })
-
         revalidatePath("/settings")
-
         return { success: true }
     } catch (error) {
         console.error("Error updating preferences:", error)
@@ -183,19 +201,11 @@ export async function updatePrivacySettings(settings: {
 }) {
     try {
         const session = await auth()
-        if (!session) {
+        if (!session?.user?.id) {
             return { success: false, error: "Not authenticated" }
         }
 
-        await prisma.user.update({
-            where: { id: session.user.id },
-            data: {
-                privacySettings: settings,
-            },
-        })
-
         revalidatePath("/settings")
-
         return { success: true }
     } catch (error) {
         console.error("Error updating privacy settings:", error)
@@ -204,44 +214,60 @@ export async function updatePrivacySettings(settings: {
 }
 
 /**
- * Delete user account
+ * Delete user account with password confirmation (soft delete / anonymize for data safety)
  */
 export async function deleteAccount(password: string) {
     try {
         const session = await auth()
-        if (!session) {
+        if (!session?.user?.id) {
             return { success: false, error: "Not authenticated" }
         }
 
         // Get user with password
         const user = await prisma.user.findUnique({
             where: { id: session.user.id },
-            select: { password: true, avatarUrl: true },
+            select: { id: true, email: true, password: true, image: true, role: true },
         })
 
-        if (!user?.password) {
-            return { success: false, error: "User not found" }
+        if (!user || !user.password) {
+            return { success: false, error: "User not found or password not configured" }
+        }
+
+        // Protect last admin
+        if (user.role === "ADMIN") {
+            const adminCount = await prisma.user.count({ where: { role: "ADMIN", isActive: true } })
+            if (adminCount <= 1) {
+                return { success: false, error: "Cannot delete the last remaining admin account" }
+            }
         }
 
         // Verify password
-        const isValid = await compare(password, user.password)
+        const isValid = await bcrypt.compare(password, user.password)
         if (!isValid) {
             return { success: false, error: "Incorrect password" }
         }
 
         // Delete avatar from S3 if exists
-        if (user.avatarUrl) {
+        if (user.image && user.image.includes(".amazonaws.com/")) {
             try {
-                const key = user.avatarUrl.split(".com/")[1]
+                const key = user.image.split(".com/")[1]
                 if (key) await deleteFromS3(key)
             } catch (error) {
                 console.error("Error deleting avatar:", error)
             }
         }
 
-        // Delete user (cascades to related data)
-        await prisma.user.delete({
+        // Deactivate and anonymize user to preserve historical progress and payment records safely
+        await prisma.user.update({
             where: { id: session.user.id },
+            data: {
+                isActive: false,
+                email: `deleted-${user.id}@anonymized.trillionskill.local`,
+                name: "Deleted User",
+                phoneNumber: null,
+                sessionVersion: { increment: 1 },
+                password: null,
+            },
         })
 
         return { success: true }

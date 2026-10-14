@@ -1,6 +1,6 @@
 "use server"
 
-import { signIn } from "@/auth"
+import { signIn, auth } from "@/auth"
 import { AuthError } from "next-auth"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"

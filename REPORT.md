@@ -281,6 +281,64 @@ const isDevBypassEnabled =
   2. `Incrementing sessionVersion invalidates existing JWT session on next request` (Passed desktop & mobile)
 - Total: 4 passed in 24.6s.
 
+---
+
+## Step 6: User Management (Admin) and Profile (User)
+
+### What was broken
+1. User management page had no way to filter by account status (`ACTIVE` / `BLOCKED`) or email verification status (`VERIFIED` / `UNVERIFIED`).
+2. There was no user provisioning / creation modal in the admin UI.
+3. No CSV export endpoint existed for users.
+4. Admin actions (role changes, enrollments, user deletion) lacked audit logging to record who performed what action, when, against whom, and from what IP.
+5. Inactive or blocked accounts were not blocked at login, and deactivating a user did not immediately invalidate their existing active sessions.
+6. There was no last-admin protection on server actions; a rogue action or misconfiguration could demote or delete the only administrator account, locking the platform out of administration.
+7. Profile settings in `app/(dashboard)/settings/page.tsx` was a static mock with non-functioning inputs for profile details and password changes.
+8. `lib/actions/user/profile.ts` contained 10 baseline TypeScript errors attempting to write to nonexistent fields (`bio`, `avatarUrl`, `notificationPrefs`, `privacySettings`).
+
+### What changed
+1. **Admin User Management (`app/admin/users/page.tsx`, `components/admin/CreateUserModal.tsx`):**
+   - Added filters for Search (name, email, phone), Role (`FREE`, `PREMIUM`, `TEACHER`, `ADMIN`), Status (`ACTIVE`, `BLOCKED`), and Verification (`VERIFIED`, `UNVERIFIED`).
+   - Added server-side pagination with controls (25 users per page).
+   - Created `CreateUserModal` allowing administrators to provision new accounts with role, credentials, and phone numbers.
+   - Added active/blocked and verified/unverified badges.
+2. **Audit Logging & Server-Side Security Enforcement (`lib/actions/admin/users.ts`):**
+   - Added `writeAuditLog(adminId, action, targetUserId, metadata)` helper recording audit trails in the `AuditLog` table with IP extraction via `getClientIp()`.
+   - Added `toggleUserActiveStatus(userId, isActive)` with immediate `sessionVersion: { increment: 1 }` to revoke active sessions upon account block.
+   - Added `adminTriggerPasswordReset(userId)` and `adminResendVerification(userId)` dispatching security tokens and logging to the dev outbox in test environments.
+   - Added `anonymizeUser(userId)` for GDPR/privacy compliance (soft-delete).
+   - Enforced **Last-Admin Protection**: Demoting, deactivating, or deleting the last remaining active administrator account throws an explicit authorization error.
+3. **CSV User Export (`app/api/admin/users/export/route.ts`):**
+   - Streaming CSV endpoint protected by NextAuth session and admin role checks.
+   - Returns sanitized and quoted user fields (`ID,Name,Email,Phone,Role,Status,Verified,JoinedAt`).
+   - Emits `USER_EXPORT_CSV` audit log with total count.
+4. **User Profile & Security Self-Service (`app/(dashboard)/settings/page.tsx`, `SettingsClient.tsx`, `lib/actions/user/profile.ts`):**
+   - Refactored `settings/page.tsx` into a Server Component passing clean database data to `SettingsClient`.
+   - Profile tab: Update Full Name, 10-digit Phone Number (with uniqueness validation against collision with other users), and Target Goal dropdown.
+   - Security tab: Change password with current password verification and password policy enforcement (min 8 chars, common-passwords check). Invalidation of other active sessions on password change.
+   - Active Sessions section: Display current session status, token version, and one-click "Log Out From All Devices".
+   - Danger Zone: "Delete My Account" with password re-verification and last-admin protection, soft-deleting and anonymizing user data while preserving historical transaction records safely.
+
+### Files Touched
+- `lib/actions/admin/users.ts`
+- `lib/actions/user/profile.ts`
+- `app/admin/users/page.tsx`
+- `app/admin/users/[id]/UserDetailClient.tsx`
+- `app/api/admin/users/export/route.ts` (new)
+- `components/admin/CreateUserModal.tsx` (new)
+- `app/(dashboard)/settings/page.tsx`
+- `app/(dashboard)/settings/SettingsClient.tsx` (new)
+- `tests/e2e/user-management.spec.ts` (new)
+
+### Tests Added & Proof
+- `tests/e2e/user-management.spec.ts`:
+  1. `Role matrix on /admin/users: guest, student, teacher, and admin` (Passed desktop & mobile)
+  2. `Role matrix on /api/admin/users/export: 401, 403, and 200 CSV export` (Passed desktop & mobile)
+  3. `Deactivated/blocked user cannot log in` (Passed desktop & mobile)
+  4. `Admin user detail view & actions: reset password & resend verification` (Passed desktop & mobile)
+  5. `User profile self-service: update details on /settings` (Passed desktop & mobile)
+- Total: 10 passed in 35.4s across Chromium and Mobile Chrome viewports.
+
+
 
 
 

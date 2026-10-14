@@ -9,7 +9,11 @@ import {
     enrollUserInCourse,
     unenrollUserFromCourse,
     updateUserProfile,
-    deleteUser
+    deleteUser,
+    toggleUserActiveStatus,
+    adminTriggerPasswordReset,
+    adminResendVerification,
+    anonymizeUser
 } from "@/lib/actions/admin/users"
 import {
     User,
@@ -25,7 +29,12 @@ import {
     ShieldAlert,
     Phone,
     CreditCard,
-    FileText
+    FileText,
+    KeyRound,
+    Send,
+    Ban,
+    CheckCircle,
+    UserX
 } from "lucide-react"
 import Link from "next/link"
 import UserRoleBadge from "@/components/admin/UserRoleBadge"
@@ -88,6 +97,63 @@ export default function UserDetailClient({ user, allCourses }: any) {
                     router.push("/admin/users")
                 } catch (err: any) {
                     alert(err.message || "Failed to delete user")
+                }
+            })
+        }
+    }
+
+    const handleToggleActive = () => {
+        const action = user.isActive ? "deactivate / block" : "reactivate"
+        if (confirm(`Are you sure you want to ${action} this user account?`)) {
+            startTransition(async () => {
+                try {
+                    const res = await toggleUserActiveStatus(user.id, !user.isActive)
+                    alert(res.message)
+                    router.refresh()
+                } catch (err: any) {
+                    alert(err.message || "Failed to update user status")
+                }
+            })
+        }
+    }
+
+    const handleTriggerReset = () => {
+        if (confirm(`Send password reset email to ${user.email}?`)) {
+            startTransition(async () => {
+                try {
+                    const res = await adminTriggerPasswordReset(user.id)
+                    alert(res.message)
+                    router.refresh()
+                } catch (err: any) {
+                    alert(err.message || "Failed to send reset email")
+                }
+            })
+        }
+    }
+
+    const handleResendVerification = () => {
+        if (confirm(`Resend verification email to ${user.email}?`)) {
+            startTransition(async () => {
+                try {
+                    const res = await adminResendVerification(user.id)
+                    alert(res.message)
+                    router.refresh()
+                } catch (err: any) {
+                    alert(err.message || "Failed to resend verification")
+                }
+            })
+        }
+    }
+
+    const handleAnonymize = () => {
+        if (confirm(`Anonymize user "${user.name || user.email}"?\n\nThis will scrub personal identifying data (name, email, phone) per privacy standards while preserving anonymized records for reporting.`)) {
+            startTransition(async () => {
+                try {
+                    const res = await anonymizeUser(user.id)
+                    alert(res.message)
+                    router.refresh()
+                } catch (err: any) {
+                    alert(err.message || "Failed to anonymize user")
                 }
             })
         }
@@ -447,6 +513,77 @@ export default function UserDetailClient({ user, allCourses }: any) {
                         </CardContent>
                     </Card>
 
+                    {/* Account Security & Actions */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Account Status & Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            <div className="flex items-center justify-between pb-2 border-b">
+                                <span className="text-sm text-gray-600">Account Status</span>
+                                {user.isActive ? (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                        <CheckCircle className="h-3 w-3" /> Active
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                        <Ban className="h-3 w-3" /> Blocked
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="flex items-center justify-between pb-2 border-b">
+                                <span className="text-sm text-gray-600">Email Verification</span>
+                                {user.emailVerified ? (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                        Verified
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                        Unverified
+                                    </span>
+                                )}
+                            </div>
+
+                            <Button
+                                variant={user.isActive ? "outline" : "default"}
+                                className={`w-full justify-start text-sm ${user.isActive ? "text-red-700 hover:bg-red-50 hover:text-red-800 border-red-200" : "bg-emerald-600 hover:bg-emerald-700 text-white"}`}
+                                onClick={handleToggleActive}
+                                disabled={isPending}
+                            >
+                                {user.isActive ? (
+                                    <>
+                                        <Ban className="h-4 w-4 mr-2" /> Deactivate / Block Account
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle className="h-4 w-4 mr-2" /> Reactivate Account
+                                    </>
+                                )}
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                className="w-full justify-start text-sm"
+                                onClick={handleTriggerReset}
+                                disabled={isPending}
+                            >
+                                <KeyRound className="h-4 w-4 mr-2 text-indigo-600" />
+                                Trigger Password Reset Link
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                className="w-full justify-start text-sm"
+                                onClick={handleResendVerification}
+                                disabled={isPending}
+                            >
+                                <Send className="h-4 w-4 mr-2 text-blue-600" />
+                                Resend Verification Email
+                            </Button>
+                        </CardContent>
+                    </Card>
+
                     {/* Subscription Management */}
                     <SubscriptionManagement userId={user.id} subscriptions={user.subscriptions || []} />
 
@@ -469,18 +606,28 @@ export default function UserDetailClient({ user, allCourses }: any) {
                         </Card>
                     )}
 
-                    {/* Danger Zone: Ban & Delete User */}
+                    {/* Danger Zone: Anonymize, Ban & Delete User */}
                     <Card className="border-2 border-red-200 bg-red-50/50">
                         <CardHeader className="pb-3">
                             <CardTitle className="text-red-700 flex items-center gap-2 text-sm font-bold">
                                 <ShieldAlert className="h-4 w-4 text-red-600" />
-                                Danger Zone &bull; Ban & Delete
+                                Danger Zone &bull; Privacy & Removal
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3 pt-0">
                             <p className="text-xs text-red-600 leading-relaxed">
-                                Permanently ban this user, remove their mobile phone login, erase their session tokens, and revoke all active course enrollments.
+                                Scrub PII for GDPR compliance or permanently erase user credentials, sessions, and records.
                             </p>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full border-amber-300 text-amber-900 bg-amber-50 hover:bg-amber-100 font-semibold flex items-center justify-center gap-2"
+                                onClick={handleAnonymize}
+                                disabled={isPending}
+                            >
+                                <UserX className="h-4 w-4 text-amber-700" />
+                                Anonymize User (Soft Delete)
+                            </Button>
                             <Button
                                 variant="destructive"
                                 size="sm"

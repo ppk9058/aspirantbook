@@ -86,7 +86,7 @@ test.describe("Step 3: Registration and Email Verification Hardening", () => {
 
         // Check email outbox for verification email
         const emails = getOutboxEmails()
-        const sent = emails.find((e) => e.to.toLowerCase() === uniqueEmail.toLowerCase())
+        const sent: any = emails.find((e: any) => e.to.toLowerCase() === uniqueEmail.toLowerCase())
         expect(sent).toBeDefined()
         expect(sent?.subject).toContain("Verify your email address")
         expect(sent?.html || sent?.text || sent?.link).toContain("/verify-email?token=")
