@@ -1,9 +1,10 @@
 "use client"
 
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import Image from "next/image"
 import { X, Loader2, CheckCircle2, ArrowRight, ShieldCheck } from "lucide-react"
 import { useMobileAuth, triggerMobileAuth, MobileAuthCourseInfo, MobileAuthOptions } from "./MobileAuthContext"
+import { LoginForm } from "@/components/auth/LoginForm"
 
 export { triggerMobileAuth as openMobileAuth }
 export type { MobileAuthCourseInfo }
@@ -19,6 +20,7 @@ export default function MobileAuthModal() {
         errorMessage,
         successMessage,
         activeCourse,
+        callbackUrl,
         closeMobileAuth,
         setPhoneNumber,
         setStep,
@@ -29,6 +31,8 @@ export default function MobileAuthModal() {
         handleOtpKeyDown,
         handleOtpPaste,
     } = useMobileAuth()
+
+    const [authMode, setAuthMode] = useState<"otp" | "credentials">("otp")
 
     const inputRefs = useRef<(HTMLInputElement | null)[]>([])
     const phoneInputRef = useRef<HTMLInputElement | null>(null)
@@ -115,24 +119,65 @@ export default function MobileAuthModal() {
                 )}
 
                 {/* Form Body */}
-                <div className="p-6 pt-4 space-y-5">
-                    {/* Error and Success Notices */}
-                    {errorMessage && (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-semibold text-center animate-in fade-in">
-                            {errorMessage}
-                        </div>
-                    )}
+                <div className="p-6 pt-4 space-y-4">
+                    {/* Mode Switcher Tabs */}
+                    <div className="flex border-b border-gray-100">
+                        <button
+                            type="button"
+                            onClick={() => setAuthMode("otp")}
+                            className={`flex-1 pb-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer ${
+                                authMode === "otp"
+                                    ? "border-[#F26522] text-[#F26522]"
+                                    : "border-transparent text-gray-400 hover:text-gray-600"
+                            }`}
+                        >
+                            Mobile OTP
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setAuthMode("credentials")}
+                            className={`flex-1 pb-2.5 text-xs font-bold transition-all border-b-2 cursor-pointer ${
+                                authMode === "credentials"
+                                    ? "border-[#1448d8] text-[#1448d8]"
+                                    : "border-transparent text-gray-400 hover:text-gray-600"
+                            }`}
+                        >
+                            Email &amp; Password
+                        </button>
+                    </div>
 
-                    {successMessage && (
-                        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 font-bold text-center flex items-center justify-center gap-2 animate-in fade-in">
-                            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-                            <span>{successMessage}</span>
+                    {authMode === "credentials" ? (
+                        <div className="pt-2">
+                            <LoginForm
+                                isModal={true}
+                                onSuccess={() => {
+                                    closeMobileAuth()
+                                    if (callbackUrl) {
+                                        window.location.href = callbackUrl
+                                    }
+                                }}
+                                initialCallbackUrl={callbackUrl || undefined}
+                            />
                         </div>
-                    )}
+                    ) : (
+                        <>
+                            {/* Error and Success Notices */}
+                            {errorMessage && (
+                                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-semibold text-center animate-in fade-in">
+                                    {errorMessage}
+                                </div>
+                            )}
 
-                    {step === "phone" ? (
-                        /* ─── STEP 1: ENTER MOBILE NUMBER ───────────────────────── */
-                        <div className="space-y-4">
+                            {successMessage && (
+                                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 font-bold text-center flex items-center justify-center gap-2 animate-in fade-in">
+                                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                                    <span>{successMessage}</span>
+                                </div>
+                            )}
+
+                            {step === "phone" ? (
+                                /* ─── STEP 1: ENTER MOBILE NUMBER ───────────────────────── */
+                                <div className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 mb-2">
                                     Mobile Number
@@ -263,6 +308,8 @@ export default function MobileAuthModal() {
                                 <span>Fast login: Any 6 digits are accepted for instant student access.</span>
                             </div>
                         </div>
+                    )}
+                    </>
                     )}
 
                     {/* Bottom Terms */}

@@ -2,6 +2,8 @@ import { LoginForm } from "@/components/auth/LoginForm"
 import Link from "next/link"
 import Image from "next/image"
 
+import { Suspense } from "react"
+
 export default function LoginPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-3 sm:px-4 py-6 sm:py-8 box-border w-full overflow-x-hidden">
@@ -29,7 +31,9 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                <LoginForm />
+                <Suspense fallback={<div className="py-8 text-center text-xs text-gray-400">Loading form...</div>}>
+                    <LoginForm />
+                </Suspense>
 
                 <div className="mt-6 text-center text-sm text-gray-600">
                     Don't have an account?{" "}

@@ -33,6 +33,7 @@ export const authConfig = {
                 token.id = user.id as string
                 token.role = user.role
                 token.subscriptionStatus = user.subscriptionStatus
+                token.sessionVersion = (user as any).sessionVersion
             }
 
             // Update token if session is updated (e.g. after payment)
@@ -43,10 +44,14 @@ export const authConfig = {
             return token
         },
         session({ session, token }) {
+            if (!token || !token.id) {
+                return null as any
+            }
             if (token && session.user) {
                 session.user.id = token.id as string
                 session.user.role = token.role as "FREE" | "PREMIUM" | "TEACHER" | "ADMIN"
                 session.user.subscriptionStatus = token.subscriptionStatus as string | undefined
+                session.user.sessionVersion = token.sessionVersion as number | undefined
             }
             return session
         },

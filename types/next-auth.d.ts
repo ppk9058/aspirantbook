@@ -6,12 +6,14 @@ declare module "next-auth" {
             id: string
             role: "FREE" | "PREMIUM" | "TEACHER" | "ADMIN"
             subscriptionStatus?: string
+            sessionVersion?: number
         } & DefaultSession["user"]
     }
 
     interface User {
         role: "FREE" | "PREMIUM" | "TEACHER" | "ADMIN"
         subscriptionStatus?: string
+        sessionVersion?: number
     }
 }
 
@@ -20,5 +22,7 @@ declare module "next-auth/jwt" {
         id: string
         role: "FREE" | "PREMIUM" | "TEACHER" | "ADMIN"
         subscriptionStatus?: string
+        sessionVersion?: number
+        lastRoleSync?: number
     }
 }

@@ -22,6 +22,11 @@ model User {
   lastActive         DateTime?
   selectedGoal       String?
   selectedSubGoal    String?
+  emailVerified      DateTime?
+  isActive           Boolean             @default(true)
+  sessionVersion     Int                 @default(1)
+  failedLoginAttempts Int                @default(0)
+  lockedUntil        DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   accounts           Account[]
@@ -1287,3 +1292,41 @@ model CurrentAffairsPdf {
   @@index([createdById])
   @@index([status, year, month])
 }
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  tokenHash String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  tokenHash String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  action    String
+  targetId  String?
+  metadata  Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([targetId])
+  @@index([createdAt])
+}
+
