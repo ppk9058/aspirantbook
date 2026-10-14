@@ -430,6 +430,60 @@ const isDevBypassEnabled =
 
 ---
 
+## Step 8: Search Engine Optimization (SEO) & Structured Data
+
+### What was broken
+1. **Robots.txt & Private Crawling**: `app/robots.ts` only disallowed `/api/`, `/admin/`, and `/teacher/`. Critical private pages (`/dashboard`, `/checkout`, `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`, `/settings`) were not disallowed, risking unwanted crawler indexing and duplicate search engine snippets.
+2. **Sitemap Discrepancies**: `app/sitemap.ts` contained private `/dashboard` with priority 0.9, while missing authentic digital books from `getAllBooks()` and test series models.
+3. **Missing Canonical URLs**: Dynamic product pages (`/books/[slug]`, `/courses/[slug]`) and listing pages (`/courses`) lacked explicit canonical tags, leading to potential duplicate content penalties when users navigate via ID aliases or search parameters.
+4. **Structured Data Deficiencies**: The site lacked JSON-LD schemas for `Organization` and `WebSite` (with search action) on the homepage, `Product` with `Offer` and `AggregateRating` on eBook pages, and `Course` on educational course pages.
+5. **Root Metadata**: `app/layout.tsx` lacked `metadataBase`, title templating (`%s | aspirantbook`), and complete OpenGraph / Twitter cards.
+
+### What changed
+1. **Root Metadata API (`app/layout.tsx`)**:
+   - Configured `metadataBase: new URL(siteUrl)` ensuring absolute URL resolution for canonicals and social sharing images.
+   - Configured `title.default` and `title.template` (`"%s | aspirantbook"`).
+   - Added complete OpenGraph and Twitter cards with high-resolution sharing assets.
+2. **Robots.txt Directive Hardening (`app/robots.ts`)**:
+   - Enforced strict crawl rules: allowing public paths while explicitly disallowing private application and authentication paths (`/api/`, `/admin/`, `/teacher/`, `/dashboard/`, `/checkout/`, `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`, `/settings/`).
+   - Connected dynamic canonical sitemap URL: `${siteUrl}/sitemap.xml`.
+3. **Comprehensive Dynamic Sitemap (`app/sitemap.ts`)**:
+   - Removed private `/dashboard`.
+   - Included core static hubs: `/`, `/courses`, `/books`, `/test-series`, `/tutorials`, `/current-affairs-quizzes`, `/practice`.
+   - Dynamically mapped published courses (`/courses/${slug}`), eBooks (`/books/${slug}`), test series (`/test-series/${slug}`), and interactive tutorials.
+4. **JSON-LD Structured Data**:
+   - `app/page.tsx`: Embedded `@graph` containing `Organization` (name, URL, logo) and `WebSite` with `SearchAction` deep-linking to course searches.
+   - `app/(dashboard)/books/[slug]/page.tsx`: Embedded `Product` schema with `Offer` (price, `INR`, `InStock`) and `AggregateRating` (rating value, review count).
+   - `app/(dashboard)/courses/[slug]/page.tsx`: Embedded `Course` schema with course name, description, and provider organization.
+5. **Canonical URL Protection**:
+   - Added `alternates: { canonical: ... }` across `/books/[slug]`, `/courses/[slug]`, and `/courses`.
+   - Verified that book aliases automatically resolve to the canonical book slug.
+6. **Custom 404 Error Experience (`app/not-found.tsx`)**:
+   - Verified responsive 404 page featuring clear user guidance, single H1 heading, search link, and 44px touch targets.
+
+### Files Touched
+- `app/layout.tsx`
+- `app/robots.ts`
+- `app/sitemap.ts`
+- `app/page.tsx`
+- `app/(dashboard)/books/[slug]/page.tsx`
+- `app/(dashboard)/courses/[slug]/page.tsx`
+- `app/(dashboard)/courses/page.tsx`
+- `tests/e2e/seo.spec.ts` (new)
+
+### Tests Added & Proof
+- `tests/e2e/seo.spec.ts`:
+  1. `robots.txt is served with correct crawl directives` (Passed desktop & mobile)
+  2. `sitemap.xml is generated with public routes and excludes private pages` (Passed desktop & mobile)
+  3. `Home page contains valid metadata and Organization/WebSite JSON-LD` (Passed desktop & mobile)
+  4. `Book detail page contains canonical link and Product JSON-LD with offer` (Passed desktop & mobile)
+  5. `Courses listing page contains canonical URL and valid metadata` (Passed desktop & mobile)
+  6. `Custom 404 page renders for nonexistent routes with helpful navigation` (Passed desktop & mobile)
+- Total: 12 passed in 27.2s across Chromium (desktop) and Mobile Chrome viewports.
+
+---
+
+
 
 
 

@@ -13,8 +13,42 @@ export default async function LandingHomePage() {
     const session = await auth()
     const logoHref = getDashboardHref(session?.user?.role, !!session?.user)
 
+    const homeJsonLd = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Organization",
+                "@id": "https://aspirantbook.com/#organization",
+                "name": "aspirantbook",
+                "url": "https://aspirantbook.com",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://aspirantbook.com/aspirant-logo.jpg"
+                }
+            },
+            {
+                "@type": "WebSite",
+                "@id": "https://aspirantbook.com/#website",
+                "url": "https://aspirantbook.com",
+                "name": "aspirantbook",
+                "publisher": {
+                    "@id": "https://aspirantbook.com/#organization"
+                },
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://aspirantbook.com/courses?search={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                }
+            }
+        ]
+    }
+
     return (
         <div className="min-h-screen bg-white text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
+            />
             {/* Top Navigation Bar - Exact aspirantbook style */}
             <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">

@@ -27,6 +27,9 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
   return {
     title,
     description,
+    alternates: {
+      canonical: `/books/${book.slug || slug}`,
+    },
     openGraph: {
       title,
       description,
@@ -46,5 +49,40 @@ export default async function BookDetailsPage({ params }: BookPageProps) {
   const { slug } = await params
   const book = (await getBookBySlug(slug)) || (await getBookById(slug))
 
-  return <BookDetailsClient initialBook={book} slug={slug} />
+  const jsonLd = book
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": book.title,
+        "description": book.shortDescription || book.description?.slice(0, 200),
+        "image": book.coverImage ? [book.coverImage] : undefined,
+        "offers": {
+          "@type": "Offer",
+          "price": book.price,
+          "priceCurrency": "INR",
+          "availability": "https://schema.org/InStock",
+        },
+        ...(book.rating && book.ratingCount
+          ? {
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": book.rating,
+                "reviewCount": book.ratingCount,
+              },
+            }
+          : {}),
+      }
+    : null
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <BookDetailsClient initialBook={book} slug={slug} />
+    </>
+  )
 }

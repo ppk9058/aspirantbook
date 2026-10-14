@@ -1,11 +1,12 @@
 import { MetadataRoute } from "next"
 import { prisma } from "@/lib/prisma"
+import { getAllBooks } from "@/lib/books/bookService"
 
 export const dynamic = "force-dynamic"
-export const revalidate = 0
+export const revalidate = 3600 // 1 hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
 
     const staticRoutes: MetadataRoute.Sitemap = [
         {
@@ -15,19 +16,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 1.0,
         },
         {
-            url: `${baseUrl}/dashboard`,
-            lastModified: new Date(),
-            changeFrequency: "daily",
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/tutorials`,
-            lastModified: new Date(),
-            changeFrequency: "daily",
-            priority: 0.9,
-        },
-        {
             url: `${baseUrl}/courses`,
+            lastModified: new Date(),
+            changeFrequency: "daily",
+            priority: 0.9,
+        },
+        {
+            url: `${baseUrl}/books`,
             lastModified: new Date(),
             changeFrequency: "daily",
             priority: 0.9,
@@ -39,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.9,
         },
         {
-            url: `${baseUrl}/books`,
+            url: `${baseUrl}/tutorials`,
             lastModified: new Date(),
             changeFrequency: "daily",
             priority: 0.8,
@@ -59,20 +54,45 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]
 
     try {
-        const publishedCourses = await prisma.course.findMany({
-            where: { status: "PUBLISHED" },
-            select: { slug: true, updatedAt: true },
-        })
+        const [publishedCourses, allBooks, publishedSeries] = await Promise.all([
+            prisma.course.findMany({
+                where: { status: "PUBLISHED" },
+                select: { slug: true, updatedAt: true },
+            }).catch(() => []),
+            getAllBooks().catch(() => []),
+            prisma.examSeries.findMany({
+                select: { slug: true },
+            }).catch(() => []),
+        ])
 
-        const courseUrls: MetadataRoute.Sitemap = publishedCourses.map((c) => ({
-            url: `${baseUrl}/courses/${c.slug}`,
-            lastModified: c.updatedAt || new Date(),
-            changeFrequency: "weekly",
-            priority: 0.8,
-        }))
+        const courseUrls: MetadataRoute.Sitemap = publishedCourses
+            .filter((c) => !!c.slug)
+            .map((c) => ({
+                url: `${baseUrl}/courses/${c.slug}`,
+                lastModified: c.updatedAt || new Date(),
+                changeFrequency: "weekly",
+                priority: 0.8,
+            }))
 
-        // Include published tutorials in sitemap
-        const publishedTutorials = publishedCourses
+        const bookUrls: MetadataRoute.Sitemap = allBooks
+            .filter((b) => !!b.slug || !!b.id)
+            .map((b) => ({
+                url: `${baseUrl}/books/${b.slug || b.id}`,
+                lastModified: new Date(),
+                changeFrequency: "weekly",
+                priority: 0.8,
+            }))
+
+        const seriesUrls: MetadataRoute.Sitemap = publishedSeries
+            .filter((s) => !!s.slug)
+            .map((s) => ({
+                url: `${baseUrl}/test-series/${s.slug}`,
+                lastModified: new Date(),
+                changeFrequency: "weekly",
+                priority: 0.8,
+            }))
+
+        const tutorialUrls: MetadataRoute.Sitemap = publishedCourses
             .filter((c) => {
                 const lowerSlug = (c.slug || "").toLowerCase()
                 return !lowerSlug.includes("video") && c.slug !== "72nd-bpsc-prelims-current-affairs"
@@ -81,10 +101,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 url: `${baseUrl}/tutorials/${c.slug}`,
                 lastModified: c.updatedAt || new Date(),
                 changeFrequency: "weekly" as const,
-                priority: 0.8,
+                priority: 0.7,
             }))
 
-        return [...staticRoutes, ...courseUrls, ...publishedTutorials]
+        return [...staticRoutes, ...courseUrls, ...bookUrls, ...seriesUrls, ...tutorialUrls]
     } catch {
         return staticRoutes
     }

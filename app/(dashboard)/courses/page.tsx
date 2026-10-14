@@ -1,8 +1,22 @@
 export const dynamic = "force-dynamic"
 
+import { Metadata } from "next"
 import { unstable_cache } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
+
+export const metadata: Metadata = {
+    title: "All Video Courses & Batches | aspirantbook",
+    description: "Explore all comprehensive video courses, academic foundations, and competitive batches on aspirantbook.",
+    alternates: {
+        canonical: "/courses",
+    },
+    openGraph: {
+        title: "All Video Courses & Batches | aspirantbook",
+        description: "Explore all comprehensive video courses, academic foundations, and competitive batches on aspirantbook.",
+        url: "/courses",
+    },
+}
 import CourseClient from "@/components/courses/CourseClient"
 import { classifyCourse } from "@/lib/course-classifier"
 import { cleanDescriptionSnippet } from "@/lib/utils"

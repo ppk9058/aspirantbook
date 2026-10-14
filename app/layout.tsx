@@ -4,11 +4,39 @@ import "./globals.css";
 import { Providers } from "./providers"
 import { auth } from "@/auth"
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+
 export const metadata: Metadata = {
-  title: "aspirantbook - Learn Data Science, AI & Programming",
-  description: "Master data science, AI, and programming with interactive courses, coding exercises, and real-world projects.",
-  keywords: ["data science", "programming", "AI", "machine learning", "online learning", "coding"],
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "aspirantbook - Interactive Learning Platform & Test Series",
+    template: "%s | aspirantbook",
+  },
+  description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+  keywords: ["aspirantbook", "competitive exams", "test series", "eBooks", "interactive courses", "BPSC", "UPSC"],
   manifest: '/manifest.json',
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "/",
+    siteName: "aspirantbook",
+    title: "aspirantbook - Interactive Learning Platform & Test Series",
+    description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    images: [
+      {
+        url: "/aspirant-logo.jpg",
+        width: 1200,
+        height: 630,
+        alt: "aspirantbook",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "aspirantbook - Interactive Learning Platform & Test Series",
+    description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    images: ["/aspirant-logo.jpg"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
