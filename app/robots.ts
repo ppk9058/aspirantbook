@@ -23,6 +23,7 @@ export default function robots(): MetadataRoute.Robots {
                 "/test-series/*/declaration",
                 "/test-series/*/attempt",
                 "/test-series/*/result",
+                "/test-series/*/solutions",
             ],
         },
         sitemap: `${siteUrl}/sitemap.xml`,

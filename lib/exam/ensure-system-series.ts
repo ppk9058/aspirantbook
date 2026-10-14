@@ -32,3 +32,31 @@ export async function ensureCurrentAffairsSystemSeries() {
 
     return series
 }
+
+export async function ensurePyqSystemSeries() {
+    let series = await prisma.examSeries.findFirst({
+        where: { slug: "pyq-system-series" },
+    })
+
+    if (!series) {
+        const adminUser = await prisma.user.findFirst({
+            where: { role: "ADMIN" },
+            select: { id: true },
+        })
+        const createdById = adminUser?.id || "system-admin"
+
+        series = await prisma.examSeries.create({
+            data: {
+                title: "Previous Year Questions",
+                slug: "pyq-system-series",
+                examName: "Previous Year Questions",
+                category: "PYQ",
+                isPublished: false,
+                isFree: true,
+                createdById,
+            },
+        })
+    }
+
+    return series
+}

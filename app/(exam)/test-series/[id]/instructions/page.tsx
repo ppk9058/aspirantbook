@@ -58,6 +58,12 @@ export default async function InstructionsPage({ params, searchParams }: Instruc
             notFound()
         }
     } else {
+        if (paramId === "current-affairs-system-series") {
+            redirect("/current-affairs-quizzes")
+        }
+        if (paramId === "pyq-system-series") {
+            redirect("/pyqs")
+        }
         const seriesRow = await prisma.examSeries.findFirst({
             where: {
                 OR: [

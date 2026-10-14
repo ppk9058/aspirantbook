@@ -82,6 +82,12 @@ export default async function AttemptPage({ params, searchParams }: AttemptPageP
             notFound()
         }
     } else {
+        if (paramId === "current-affairs-system-series") {
+            redirect("/current-affairs-quizzes")
+        }
+        if (paramId === "pyq-system-series") {
+            redirect("/pyqs")
+        }
         // If testId is not an exam test, check if paramId was a series
         const seriesRow = await prisma.examSeries.findFirst({
             where: {

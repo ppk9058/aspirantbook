@@ -51,6 +51,14 @@ function LeaderboardContent() {
     const [totalCandidates, setTotalCandidates] = useState(0)
 
     useEffect(() => {
+        if (testId === "current-affairs-system-series") {
+            router.replace("/current-affairs-quizzes")
+        } else if (testId === "pyq-system-series") {
+            router.replace("/pyqs")
+        }
+    }, [testId, router])
+
+    useEffect(() => {
         if (status === "unauthenticated") {
             const currentUrl = typeof window !== "undefined" ? window.location.href : ""
             openMobileAuth({ actionType: "login", callbackUrl: currentUrl })
