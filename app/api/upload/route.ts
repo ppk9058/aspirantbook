@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Attempt database tracking if available
-        let uploadId = `upload-${timestamp}`
+        let uploadId = `upload-${Date.now()}`
         try {
             if (userContext.userId && !userContext.userId.startsWith('demo-')) {
                 const upload = await prisma.contentUpload.create({

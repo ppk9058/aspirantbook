@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
     const course = await prisma.course.findFirst({
         where: { OR: [{ slug }, { id: slug }] },
-        select: { id: true, title: true, description: true, status: true, isPublished: true }
+        select: { id: true, slug: true, title: true, description: true, status: true, isPublished: true }
     })
 
     if (!course) {
