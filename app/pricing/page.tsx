@@ -8,7 +8,7 @@ import PricingPlanButton from "@/components/pricing/PricingPlanButton"
 export default async function PricingPage() {
     const session = await auth()
     const user = session?.user
-    const isPremiumActive = user?.subscriptionStatus === "ACTIVE"
+    const isPremiumActive = user?.subscriptionStatus === "ACTIVE" || user?.role === "PREMIUM"
 
     const plans = [
         {

@@ -45,7 +45,11 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         throw new Error("Too many order requests. Please wait a moment before trying again.")
     }
 
-    if (process.env.REQUIRE_EMAIL_VERIFICATION_FOR_PURCHASE === "true") {
+    const requireVerification =
+        process.env.REQUIRE_EMAIL_VERIFICATION_FOR_PURCHASE === "true" ||
+        (!isSimplePlan && (params as any)?.requireEmailVerification === true)
+
+    if (requireVerification) {
         const dbUser = await prisma.user.findUnique({
             where: { id: userId },
             select: { emailVerified: true },

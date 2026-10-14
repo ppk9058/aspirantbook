@@ -46,7 +46,7 @@ const nextAuthResult = NextAuth({
                 token.id = user.id as string
                 token.role = (user as any).role
                 token.phoneNumber = (user as any).phoneNumber
-                token.subscriptionStatus = (user as any).subscriptionStatus
+                token.subscriptionStatus = (user as any).role === "PREMIUM" ? "ACTIVE" : ((user as any).subscriptionStatus || "INACTIVE")
                 token.sessionVersion = (user as any).sessionVersion ?? 1
                 token.emailVerified = (user as any).emailVerified ?? null
                 token.lastRoleSync = now

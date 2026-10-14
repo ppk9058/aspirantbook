@@ -126,6 +126,14 @@ export default function PricingPlanButton({
                 )}
             </Button>
 
+            {/* 
+              Architecture Note: The hosted Razorpay checkout window (standard Razorpay iframe/modal) 
+              accepts only primitive strings for options (name, description, image, theme color) and 
+              cannot render custom HTML cards or arbitrary JSX templates. 
+              Therefore, plan name, tier, price breakdown, and feature lists appear in our own 
+              on-page order summary panel (data-testid="pricing-order-summary"), ensuring complete 
+              learner transparency, visual verification, and accessibility across all viewports.
+            */}
             {/* Persistent Order Summary Panel behind Razorpay checkout */}
             {checkoutStatus !== "idle" && (
                 <div

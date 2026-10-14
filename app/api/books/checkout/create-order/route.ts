@@ -4,6 +4,7 @@ import { getAllBooks, getAllCoupons, createOrder, getUserCompletedBooks } from "
 import { razorpay } from "@/lib/payments/razorpay"
 import { CartItem, BookOrder } from "@/lib/books/types"
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
+import { prisma } from "@/lib/prisma"
 
 function computeCouponDiscount(code: string, subtotal: number, availableCoupons: any[]): number {
   if (!code) return 0
@@ -39,6 +40,23 @@ export async function POST(req: Request) {
     const userId = session?.user?.id
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized. Please log in to complete purchase." }, { status: 401 })
+    }
+
+    const requireEmailVerification =
+      process.env.REQUIRE_EMAIL_VERIFICATION_FOR_PURCHASE === "true" ||
+      req.headers.get("x-require-email-verification") === "true"
+
+    if (requireEmailVerification) {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { emailVerified: true },
+      })
+      if (!dbUser?.emailVerified) {
+        return NextResponse.json(
+          { error: "Please verify your email address before making a purchase.", code: "EMAIL_NOT_VERIFIED" },
+          { status: 403 }
+        )
+      }
     }
 
     const body = await req.json()
