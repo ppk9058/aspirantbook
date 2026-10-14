@@ -99,10 +99,11 @@ export default async function globalSetup() {
       }
     }
 
-    // 2d. Ensure CA system series and UPSC Economy CA test exist
-    const existingSeries = await setupPrisma.examSeries.findFirst({
-      where: { slug: "current-affairs-system-series" },
-    })
+    // 2d. Ensure CA system series and UPSC Economy CA test exist (skip when testing empty catalogue)
+    if (process.env.CATALOGUE_CASE !== "empty") {
+      const existingSeries = await setupPrisma.examSeries.findFirst({
+        where: { slug: "current-affairs-system-series" },
+      })
     const instructor = await setupPrisma.user.findFirst({
       where: { role: "TEACHER" },
     })
@@ -174,6 +175,7 @@ export default async function globalSetup() {
           negativeMarks: 0.33,
         },
       })
+    }
     }
   } finally {
     await setupPrisma.$disconnect()
