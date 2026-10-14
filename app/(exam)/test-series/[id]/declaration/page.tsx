@@ -277,9 +277,17 @@ function DeclarationContent() {
                             I have read all the instructions carefully and I understand them. I agree not to cheat or use unfair means in this examination. I understand that using unfair means of any sort for my benefit or for the benefit of someone else will result in my disqualification from the examination. I am ready to abide by the rules and regulations of the examination administration.
                         </p>
                         <label
+                            data-testid="declaration-checkbox"
                             onClick={() => setAgreed(!agreed)}
                             className="flex items-start gap-3 cursor-pointer p-2 -m-2 rounded-lg hover:bg-gray-100/50 transition-colors min-h-[44px]"
                         >
+                            <input
+                                type="checkbox"
+                                checked={agreed}
+                                onChange={(e) => setAgreed(e.target.checked)}
+                                className="sr-only"
+                                aria-label="I have read and understood the instructions"
+                            />
                             <div
                                 className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-all ${
                                     agreed ? "border-sky-500 bg-sky-500" : "border-gray-400 hover:border-sky-400"

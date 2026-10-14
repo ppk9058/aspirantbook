@@ -159,10 +159,9 @@ test.describe("Guest start free sample, mobile OTP login and student attempt flo
       await expect(page).toHaveURL(/declaration/, { timeout: 15000 });
 
       // Agree to declaration checkbox
-      const checkbox = page.locator("input[type='checkbox']").or(page.locator("label:has-text('I have read')"));
-      if (await checkbox.first().isVisible()) {
-        await checkbox.first().click();
-      }
+      const checkbox = page.locator("label:has-text('I have read')").or(page.locator("[data-testid='declaration-checkbox']")).first();
+      await expect(checkbox).toBeVisible({ timeout: 10000 });
+      await checkbox.click();
 
       // Click "I am ready to begin"
       const beginBtn = page.getByRole("button", { name: /I am ready to begin|Start Test|Begin/i });
