@@ -96,7 +96,15 @@ export function applyQuizGoalFilter<T extends { id: string; title: string; categ
     if (!goalIds || goalIds.length === 0) return quizzes
 
     return quizzes.filter((q) => {
-        if (q.testType === "CURRENT_AFFAIRS" || q.category?.toLowerCase().includes("current affairs")) {
+        if (
+            (q.testType === "CURRENT_AFFAIRS" || q.category?.toLowerCase().includes("current affairs")) &&
+            !q.title.toLowerCase().includes("upsc") &&
+            !q.title.toLowerCase().includes("ssc") &&
+            !q.title.toLowerCase().includes("bpsc") &&
+            !(q.category || "").toLowerCase().includes("upsc") &&
+            !(q.category || "").toLowerCase().includes("ssc") &&
+            !(q.category || "").toLowerCase().includes("bpsc")
+        ) {
             return true
         }
 
@@ -128,22 +136,31 @@ export function applyQuizGoalFilter<T extends { id: string; title: string; categ
 /**
  * Applies strict multi-goal filtering to PYQ items (OR logic).
  */
-export function applyPyqGoalFilter<T extends { id: string; title: string; category?: string; categoryLabel?: string; subjects?: string[] }>(
+export function applyPyqGoalFilter<T extends { id?: string; title?: string; category?: any; categoryLabel?: string; subjects?: string[]; subject?: string | null; subExam?: any }>(
     pyqs: T[],
     goalIds: string[]
 ): T[] {
     if (!goalIds || goalIds.length === 0) return pyqs
 
     return pyqs.filter((p) => {
-        const pCat = (p.category || "").toLowerCase()
-        const text = `${p.title} ${p.categoryLabel || ""} ${p.subjects?.join(" ") || ""}`.toLowerCase()
+        const catSlug = typeof p.category === "object" && p.category !== null ? (p.category.slug || p.category.name || "") : (typeof p.category === "string" ? p.category : "")
+        const catName = typeof p.category === "object" && p.category !== null ? (p.category.name || "") : (p.categoryLabel || "")
+        const subExamName = typeof p.subExam === "object" && p.subExam !== null ? (p.subExam.name || p.subExam.slug || "") : ""
+        const pCat = catSlug.toLowerCase()
+        const text = `${p.title || ""} ${catName} ${catSlug} ${subExamName} ${p.subject || ""} ${p.subjects?.join(" ") || ""}`.toLowerCase()
 
         return goalIds.some((gid) => {
             const normalized = gid.toLowerCase()
             if (pCat === normalized) return true
-            if (normalized === "upsc" && (pCat === "upsc" || text.includes("upsc"))) return true
-            if (normalized === "bpsc" && (pCat === "bpsc" || text.includes("bpsc") || text.includes("bihar"))) return true
-            if (normalized === "ssc" && (pCat === "ssc" || text.includes("ssc"))) return true
+            if (normalized === "upsc") {
+                return (pCat === "upsc" || text.includes("upsc")) && !text.includes("bpsc") && !text.includes("bihar")
+            }
+            if (normalized === "bpsc") {
+                return pCat === "bpsc" || text.includes("bpsc") || text.includes("bihar")
+            }
+            if (normalized === "ssc") {
+                return pCat === "ssc" || text.includes("ssc") || text.includes("cgl")
+            }
             if (normalized.startsWith("class-")) {
                 const num = normalized.replace("class-", "")
                 return pCat.includes(num) || text.includes(`class ${num}`) || text.includes(`${num}th`)

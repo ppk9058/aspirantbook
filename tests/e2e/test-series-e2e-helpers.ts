@@ -74,22 +74,26 @@ export async function loginAs(page: Page, email: string, password = PASSWORD) {
   }
 
   const sessionCookies = loginRes.headers.getSetCookie();
-  const tokenCookie = sessionCookies.find((c) => c.startsWith("authjs.session-token="));
+  const tokenCookie = sessionCookies.find(
+    (c) => c.startsWith("authjs.session-token=") || c.startsWith("__Secure-authjs.session-token=")
+  );
   if (!tokenCookie) {
     throw new Error(`Failed to obtain authjs.session-token for ${email} (status ${loginRes.status})`);
   }
 
-  const tokenVal = tokenCookie.split(";")[0].split("=")[1];
+  const [cookieKeyVal] = tokenCookie.split(";");
+  const [cookieName, tokenVal] = cookieKeyVal.split("=");
   const urlObj = new URL(BASE);
   const cookieDomain = urlObj.hostname;
 
   await page.context().addCookies([
     {
-      name: "authjs.session-token",
+      name: cookieName,
       value: tokenVal,
       domain: cookieDomain,
       path: "/",
       httpOnly: true,
+      secure: cookieName.startsWith("__Secure-"),
       sameSite: "Lax",
     },
   ]);

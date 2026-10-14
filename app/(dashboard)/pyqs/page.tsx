@@ -2,6 +2,10 @@ import { prisma } from "@/lib/prisma"
 import { ensureDefaultPyqData, getAllPapers } from "@/lib/pyqs-service"
 import { PyqStudentListingClient } from "@/components/pyqs/PyqStudentListingClient"
 import { BookOpen, Sparkles, ShieldCheck } from "lucide-react"
+import { auth } from "@/auth"
+import { cookies } from "next/headers"
+import { getStudentGoals } from "@/lib/goals/student-goals"
+import { applyPyqGoalFilter } from "@/lib/goals/goal-filters"
 
 export const dynamic = "force-dynamic"
 
@@ -12,6 +16,11 @@ export const metadata = {
 
 export default async function PreviousYearQuestionsPage() {
   await ensureDefaultPyqData()
+
+  const session = await auth()
+  const cookieStore = await cookies()
+  const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null
+  const { goalIds } = await getStudentGoals(session?.user?.id, cookieGoal)
 
   const [categories, papers] = await Promise.all([
     prisma.pyqCategory.findMany({
@@ -27,6 +36,20 @@ export default async function PreviousYearQuestionsPage() {
     }),
     getAllPapers({ includeAllStatuses: false }), // PUBLISHED only
   ])
+
+  const filteredPapers = goalIds.length > 0 ? applyPyqGoalFilter(papers, goalIds) : papers
+  const filteredCategories = goalIds.length > 0
+    ? categories.filter((cat) => {
+        const text = `${cat.name} ${cat.slug}`.toLowerCase()
+        return goalIds.some((gid) => {
+          const norm = gid.toLowerCase()
+          if (norm === "upsc") return text.includes("upsc") && !text.includes("bpsc") && !text.includes("bihar")
+          if (norm === "bpsc") return text.includes("bpsc") || text.includes("bihar")
+          if (norm === "ssc") return text.includes("ssc") || text.includes("cgl")
+          return text.includes(norm)
+        })
+      })
+    : categories
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -52,8 +75,8 @@ export default async function PreviousYearQuestionsPage() {
 
       {/* Main Student Listing Client */}
       <PyqStudentListingClient
-        initialPapers={papers as any}
-        categories={categories as any}
+        initialPapers={filteredPapers as any}
+        categories={filteredCategories as any}
       />
     </div>
   )

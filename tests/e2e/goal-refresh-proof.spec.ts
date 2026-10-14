@@ -38,11 +38,18 @@ const SEED_IDS = {
   sscSeriesId: "",
   upscQuizId: "",
   sscQuizId: "",
+  upscPyqCatId: "",
+  sscPyqCatId: "",
+  upscPyqPaperId: "",
+  sscPyqPaperId: "",
 };
 
 test.describe.serial("Goal Refresh Proof Suite (No Manual Reload)", () => {
   test.beforeAll(async () => {
     // Clean any prior canaries
+    await prisma.pyqPaper.deleteMany({
+      where: { OR: [{ title: { contains: "CANARY" } }, { title: { contains: "CNRY_" } }] },
+    });
     await prisma.examTest.deleteMany({
       where: { OR: [{ title: { contains: "CANARY" } }, { title: { contains: "CNRY_" } }] },
     });
@@ -249,10 +256,58 @@ test.describe.serial("Goal Refresh Proof Suite (No Manual Reload)", () => {
       },
     });
     SEED_IDS.sscQuizId = sscQuiz.id;
+
+    // 5. PYQ Papers
+    let upscPyqCat = await prisma.pyqCategory.findFirst({ where: { slug: "upsc" } });
+    if (!upscPyqCat) {
+      upscPyqCat = await prisma.pyqCategory.create({
+        data: { name: "UPSC CSE", slug: "upsc", isPublished: true },
+      });
+      SEED_IDS.upscPyqCatId = upscPyqCat.id;
+    }
+    let sscPyqCat = await prisma.pyqCategory.findFirst({ where: { slug: "ssc" } });
+    if (!sscPyqCat) {
+      sscPyqCat = await prisma.pyqCategory.create({
+        data: { name: "SSC CGL", slug: "ssc", isPublished: true },
+      });
+      SEED_IDS.sscPyqCatId = sscPyqCat.id;
+    }
+
+    const upscPyq = await prisma.pyqPaper.create({
+      data: {
+        title: MARKERS.UPSC_SERIES,
+        slug: `canary-proof-upsc-pyq-${ts}`,
+        categoryId: upscPyqCat.id,
+        year: 2024,
+        paperPdfUrl: "https://example.com/canary-upsc-paper.pdf",
+        status: "PUBLISHED",
+      },
+    });
+    SEED_IDS.upscPyqPaperId = upscPyq.id;
+
+    const sscPyq = await prisma.pyqPaper.create({
+      data: {
+        title: MARKERS.SSC_SERIES,
+        slug: `canary-proof-ssc-pyq-${ts}`,
+        categoryId: sscPyqCat.id,
+        year: 2024,
+        paperPdfUrl: "https://example.com/canary-ssc-paper.pdf",
+        status: "PUBLISHED",
+      },
+    });
+    SEED_IDS.sscPyqPaperId = sscPyq.id;
   });
 
   test.afterAll(async () => {
-    // Delete tests, series, courses, user
+    // Delete pyqs, tests, series, courses, user
+    await prisma.pyqPaper.deleteMany({
+      where: { id: { in: [SEED_IDS.upscPyqPaperId, SEED_IDS.sscPyqPaperId].filter(Boolean) } },
+    });
+    if (SEED_IDS.upscPyqCatId || SEED_IDS.sscPyqCatId) {
+      await prisma.pyqCategory.deleteMany({
+        where: { id: { in: [SEED_IDS.upscPyqCatId, SEED_IDS.sscPyqCatId].filter(Boolean) } },
+      });
+    }
     await prisma.examTest.deleteMany({
       where: { id: { in: [SEED_IDS.upscQuizId, SEED_IDS.sscQuizId] } },
     });
@@ -589,6 +644,14 @@ test.describe.serial("Goal Refresh Proof Suite (No Manual Reload)", () => {
     if (SEED_IDS.studentId) {
       await prisma.user.delete({ where: { id: SEED_IDS.studentId } }).catch(() => {});
     }
+    await prisma.pyqPaper.deleteMany({
+      where: { id: { in: [SEED_IDS.upscPyqPaperId, SEED_IDS.sscPyqPaperId].filter(Boolean) } },
+    });
+    if (SEED_IDS.upscPyqCatId || SEED_IDS.sscPyqCatId) {
+      await prisma.pyqCategory.deleteMany({
+        where: { id: { in: [SEED_IDS.upscPyqCatId, SEED_IDS.sscPyqCatId].filter(Boolean) } },
+      });
+    }
 
     const residualCourses = await prisma.course.count({
       where: { OR: [{ title: { contains: "CANARY" } }, { title: { contains: "CNRY_" } }] },
@@ -599,14 +662,18 @@ test.describe.serial("Goal Refresh Proof Suite (No Manual Reload)", () => {
     const residualTests = await prisma.examTest.count({
       where: { OR: [{ title: { contains: "CANARY" } }, { title: { contains: "CNRY_" } }] },
     });
+    const residualPyq = await prisma.pyqPaper.count({
+      where: { OR: [{ title: { contains: "CANARY" } }, { title: { contains: "CNRY_" } }] },
+    });
 
     console.log("================ CLEANUP VERIFICATION QUERY ================");
     console.log(`Residual Canary Courses: ${residualCourses}`);
     console.log(`Residual Canary Series:  ${residualSeries}`);
     console.log(`Residual Canary Tests:   ${residualTests}`);
-    console.log(`Total Residual:          ${residualCourses + residualSeries + residualTests}`);
+    console.log(`Residual Canary PYQ:     ${residualPyq}`);
+    console.log(`Total Residual:          ${residualCourses + residualSeries + residualTests + residualPyq}`);
     console.log("============================================================\n");
 
-    expect(residualCourses + residualSeries + residualTests).toBe(0);
+    expect(residualCourses + residualSeries + residualTests + residualPyq).toBe(0);
   });
 });

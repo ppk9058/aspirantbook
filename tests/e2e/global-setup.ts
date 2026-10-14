@@ -42,6 +42,52 @@ export default async function globalSetup() {
     throw new Error(`\n[FAST PREFLIGHT FAILURE] Database schema drift detected:\n${schemaCheck.message}\n`)
   }
 
+  // 2c. Ensure canonical tutorial fixture exists for tutorial layout & drawer specs
+  const setupPrisma = new PrismaClient({ datasourceUrl: testDbUrl })
+  try {
+    const existing = await setupPrisma.course.findFirst({ where: { slug: "agentic-engineering-zero-to-hero" } })
+    if (!existing) {
+      await setupPrisma.course.create({
+        data: {
+          title: "Agentic Engineering: Zero to Hero",
+          slug: "agentic-engineering-zero-to-hero",
+          description: "The complete 35-chapter masterclass on production agentic AI, tool calling, multi-agent swarms, verification, and automated evaluation.",
+          technology: "Skill & Tech",
+          difficulty: "ADVANCED",
+          status: "PUBLISHED",
+          isPublished: true,
+          metadataJson: JSON.stringify({ format: "tutorial", meta: { format: "tutorial" } }),
+          chapters: {
+            create: [
+              {
+                title: "CHAPTER 1 — What Is an AI",
+                order: 1,
+                lessons: {
+                  create: [
+                    {
+                      title: "CHAPTER 1 — What Is an AI",
+                      order: 1,
+                      type: "READING",
+                      content: "Deterministic code meets autonomous loops in modern software development.",
+                    },
+                    ...Array.from({ length: 34 }, (_, idx) => ({
+                      title: `Chapter ${idx + 2} — Agentic Engineering Architecture ${idx + 2}`,
+                      order: idx + 2,
+                      type: "READING" as const,
+                      content: `Detailed reading guide and production notes for topic ${idx + 2}.`,
+                    })),
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      })
+    }
+  } finally {
+    await setupPrisma.$disconnect()
+  }
+
   // 3. If server is already running on 3045, verify it is connected to trillionskill_test
   try {
     const controller = new AbortController()

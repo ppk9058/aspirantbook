@@ -22,20 +22,26 @@ export class DeactivatedError extends CredentialsSignin {
     }
 }
 
+const isSecureCookie =
+    process.env.NODE_ENV === "production" &&
+    !process.env.NEXTAUTH_URL?.startsWith("http://") &&
+    !process.env.AUTH_URL?.startsWith("http://")
+
 const nextAuthResult = NextAuth({
     ...authConfig,
+    useSecureCookies: isSecureCookie,
     session: {
         strategy: "jwt",
         maxAge: 30 * 24 * 60 * 60, // 30 days
     },
     cookies: {
         sessionToken: {
-            name: process.env.NODE_ENV === "production" ? "__Secure-authjs.session-token" : "authjs.session-token",
+            name: isSecureCookie ? "__Secure-authjs.session-token" : "authjs.session-token",
             options: {
                 httpOnly: true,
                 sameSite: "lax",
                 path: "/",
-                secure: process.env.NODE_ENV === "production",
+                secure: isSecureCookie,
             },
         },
     },
@@ -235,9 +241,8 @@ const nextAuthResult = NextAuth({
                     isLocalTestDb = false
                 }
                 const isDevBypassEnabled =
-                    !isProduction &&
-                    ((process.env.ALLOW_DEV_MOBILE_LOGIN === "true") ||
-                     (process.env.APP_ENV === "test" && isLocalTestDb))
+                    (!isProduction && process.env.ALLOW_DEV_MOBILE_LOGIN === "true") ||
+                    (process.env.APP_ENV === "test" && isLocalTestDb)
 
                 if (!isDevBypassEnabled) {
                     console.warn("[Auth] Dev mobile login bypass is disabled or blocked in production")

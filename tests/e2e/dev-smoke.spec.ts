@@ -157,10 +157,10 @@ test.describe("Dev Smoke Suite: Critical Flows and DB Sync Safety", () => {
       }
     })
 
-    await page.goto(`${BASE_URL}/pricing`, { waitUntil: "networkidle" })
+    await page.goto(`${BASE_URL}/pricing`, { waitUntil: "domcontentloaded" })
 
     // Find and click Get Pass Now button
-    const getPassBtn = page.locator('button:has-text("Get Pass Now"), button:has-text("Get Pass")').first()
+    const getPassBtn = page.locator('[data-testid="pricing-get-pass-btn"][data-hydrated="true"]').first()
     await expect(getPassBtn).toBeVisible({ timeout: 15000 })
     await getPassBtn.click()
 

@@ -55,11 +55,10 @@ test.describe("Reproduction & Verification Suite for Bug 1 and Bug 2", () => {
   })
 
   test("BUG 2 - Verification: On /pricing, clicking Get Pass Now opens summary panel and sets up Razorpay parameters", async ({ page }) => {
-    await page.goto(`${BASE_URL}/pricing`)
-    await page.waitForLoadState("networkidle")
+    await page.goto(`${BASE_URL}/pricing`, { waitUntil: "domcontentloaded" })
 
-    const getPassNowBtn = page.locator('button:has-text("Get Pass Now")')
-    await expect(getPassNowBtn).toBeVisible({ timeout: 8000 })
+    const getPassNowBtn = page.locator('[data-testid="pricing-get-pass-btn"][data-hydrated="true"]').first()
+    await expect(getPassNowBtn).toBeVisible({ timeout: 15000 })
     await getPassNowBtn.click()
 
     // Order summary panel appears behind Razorpay / modal

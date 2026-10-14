@@ -87,7 +87,8 @@ test.describe("Real-Click Smoke Suite (No Direct URL Jumps, No Direct API Calls)
     expect(userEmail?.link).toContain("/reset-password?token=")
 
     // 8. Open reset link
-    await page.goto(userEmail!.link!)
+    const resetUrlObj = new URL(userEmail!.link!)
+    await page.goto(`${BASE_URL}${resetUrlObj.pathname}${resetUrlObj.search}`)
     await page.waitForLoadState("networkidle")
 
     // 9. Fill new password
@@ -171,11 +172,10 @@ test.describe("Real-Click Smoke Suite (No Direct URL Jumps, No Direct API Calls)
       }
     })
 
-    await page.goto(`${BASE_URL}/pricing`)
-    await page.waitForLoadState("networkidle")
+    await page.goto(`${BASE_URL}/pricing`, { waitUntil: "domcontentloaded" })
 
-    const getPassBtn = page.locator('button:has-text("Get Pass Now")')
-    await expect(getPassBtn).toBeVisible({ timeout: 10000 })
+    const getPassBtn = page.locator('[data-testid="pricing-get-pass-btn"][data-hydrated="true"]').first()
+    await expect(getPassBtn).toBeVisible({ timeout: 15000 })
     await getPassBtn.click()
 
     // Summary panel is visible

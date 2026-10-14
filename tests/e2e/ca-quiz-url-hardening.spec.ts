@@ -18,6 +18,10 @@ test.describe("Current Affairs Quiz URL Hardening & Fix Verification", () => {
   test.beforeAll(async () => {
     const nonce = newNonce()
     studentUser = await createActor(nonce, "FREE", "ca-verify-student")
+    await prisma.user.update({
+      where: { id: studentUser.id },
+      data: { selectedGoal: "upsc" },
+    })
 
     // Find the seeded test quiz
     testQuiz = await prisma.examTest.findFirst({

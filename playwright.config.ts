@@ -6,6 +6,8 @@ if (!process.env.DEV_SMOKE && (!process.env.DATABASE_URL || !process.env.DATABAS
   process.env.DATABASE_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
   process.env.DIRECT_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
 }
+process.env.APP_ENV = process.env.APP_ENV || "test";
+
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -14,7 +16,7 @@ export default defineConfig({
   webServer: {
     command:
       "PORT=3045 NEXT_DIST_DIR=.next-test DATABASE_URL=postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test DIRECT_URL=postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test NEXTAUTH_URL=http://127.0.0.1:3045 AUTH_URL=http://127.0.0.1:3045 NEXT_PUBLIC_APP_URL=http://127.0.0.1:3045 APP_ENV=test ALLOW_DEV_MOBILE_LOGIN=false npx next dev --hostname 127.0.0.1 --port 3045",
-    url: "http://127.0.0.1:3045/api/test/health",
+    url: "http://127.0.0.1:3045/api/health",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

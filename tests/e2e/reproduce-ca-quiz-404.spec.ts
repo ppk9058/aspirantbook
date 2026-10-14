@@ -17,6 +17,10 @@ test.describe("Reproduction Suite: CA Quiz 404 on instructions page", () => {
   test.beforeAll(async () => {
     const nonce = newNonce()
     studentUser = await createActor(nonce, "FREE", "ca-student-repro")
+    await prisma.user.update({
+      where: { id: studentUser.id },
+      data: { selectedGoal: "upsc" },
+    })
   })
 
   test.afterAll(async () => {
@@ -63,7 +67,7 @@ test.describe("Reproduction Suite: CA Quiz 404 on instructions page", () => {
     await expect(notFoundHeading).not.toBeVisible()
 
     // It should show instructions content or instructions client
-    const instructionsHeading = page.locator('text="Test Instructions"').or(page.locator('text="General Instructions"')).or(page.locator('text="Read Instructions Carefully"'))
+    const instructionsHeading = page.locator('text="General Test Instructions"').or(page.getByRole("heading", { name: /instructions/i }))
     await expect(instructionsHeading.first()).toBeVisible({ timeout: 10000 })
   })
 })

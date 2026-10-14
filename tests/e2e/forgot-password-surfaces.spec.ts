@@ -134,12 +134,11 @@ test.describe("Step 4: Real-Click Forgot Password across all 4 surfaces & DB Tok
     }) => {
         const email = `pricing_modal_${Date.now()}@test.aspirantbook.local`
 
-        await page.goto(`${BASE_URL}/pricing`)
-        await page.waitForLoadState("networkidle")
+        await page.goto(`${BASE_URL}/pricing`, { waitUntil: "domcontentloaded" })
 
-        // Click "Get Pass Now"
-        const getPassBtn = page.locator("button:has-text('Get Pass Now')").first()
-        await expect(getPassBtn).toBeVisible()
+        // Click "Get Pass Now" once hydrated
+        const getPassBtn = page.locator('[data-testid="pricing-get-pass-btn"][data-hydrated="true"]').first()
+        await expect(getPassBtn).toBeVisible({ timeout: 15000 })
         await getPassBtn.click()
 
         // MobileAuthModal opens

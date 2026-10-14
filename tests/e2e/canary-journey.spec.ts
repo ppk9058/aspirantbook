@@ -277,6 +277,21 @@ test.beforeAll(async () => {
       isPublished: true,
       isPremium: false,
       technology: "SSC",
+      chapters: {
+        create: {
+          title: "Ch 1",
+          order: 1,
+          lessons: {
+            create: {
+              title: "Free Lesson",
+              type: "TUTORIAL",
+              order: 1,
+              content: "Free tutorial content accessible to all",
+              isTrial: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -293,6 +308,20 @@ test.beforeAll(async () => {
       isPremium: true,
       price: 999,
       technology: "SSC",
+      chapters: {
+        create: {
+          title: "Ch 1",
+          order: 1,
+          lessons: {
+            create: {
+              title: "Paid Lesson",
+              type: "TUTORIAL",
+              order: 1,
+              content: "Secret paid SSC lesson",
+            },
+          },
+        },
+      },
     },
   });
 
@@ -645,16 +674,21 @@ async function loginViaCredentials(page: Page, email: string, pw: string) {
   });
 
   const sessionCookies = loginRes.headers.getSetCookie();
-  const tokenCookie = sessionCookies.find((c) => c.startsWith("authjs.session-token="));
+  const tokenCookie = sessionCookies.find(
+    (c) => c.startsWith("authjs.session-token=") || c.startsWith("__Secure-authjs.session-token=")
+  );
   if (tokenCookie) {
-    const tokenVal = tokenCookie.split(";")[0].split("=")[1];
+    const [cookieKeyVal] = tokenCookie.split(";");
+    const [cookieName, tokenVal] = cookieKeyVal.split("=");
+    const cookieDomain = new URL(BASE).hostname;
     const cookiesToAdd: any[] = [
       {
-        name: "authjs.session-token",
+        name: cookieName,
         value: tokenVal,
-        domain: "localhost",
+        domain: cookieDomain,
         path: "/",
         httpOnly: true,
+        secure: cookieName.startsWith("__Secure-"),
         sameSite: "Lax",
       },
     ];
@@ -663,7 +697,7 @@ async function loginViaCredentials(page: Page, email: string, pw: string) {
       cookiesToAdd.push({
         name: "trillion_selected_goal",
         value: userGoal,
-        domain: "localhost",
+        domain: cookieDomain,
         path: "/",
       });
     }
@@ -672,7 +706,7 @@ async function loginViaCredentials(page: Page, email: string, pw: string) {
 }
 
 async function logoutViaApi(page: Page) {
-  await page.request.post(`${BASE}/api/auth/logout`).catch(() => {});
+  await page.goto("about:blank");
   await page.context().clearCookies();
 }
 

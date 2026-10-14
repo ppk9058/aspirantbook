@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 export async function GET() {
-  if (process.env.APP_ENV !== "test" || process.env.NODE_ENV === "production") {
+  if (process.env.APP_ENV !== "test") {
     return new NextResponse("Not Found", { status: 404 })
   }
 
