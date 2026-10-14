@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import TestSeriesDetailClient from "./TestSeriesDetailClient"
@@ -14,6 +14,14 @@ export default async function TestSeriesDetailPage({ params, searchParams }: Tes
     const { id: seriesId } = await params
     const sParams = await searchParams
     const testId = typeof sParams?.testId === "string" ? sParams.testId : undefined
+
+    // 0. Hidden system series intercept: redirect to dedicated public hubs (308)
+    if (seriesId === "current-affairs-system-series") {
+        permanentRedirect("/current-affairs-quizzes")
+    }
+    if (seriesId === "pyq-system-series") {
+        permanentRedirect("/pyqs")
+    }
 
     const session = await auth()
     const isAdmin = session?.user?.role === "ADMIN"
@@ -34,6 +42,13 @@ export default async function TestSeriesDetailPage({ params, searchParams }: Tes
             createdById: true,
         },
     })
+
+    if (dbSeries?.slug === "current-affairs-system-series") {
+        permanentRedirect("/current-affairs-quizzes")
+    }
+    if (dbSeries?.slug === "pyq-system-series") {
+        permanentRedirect("/pyqs")
+    }
 
     if (!dbSeries) {
         notFound()

@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
 import { getAttemptRanking } from "@/lib/exam-ranking";
+import { getQuizSlug } from "@/lib/current-affairs/slugs";
 
 export async function GET(
   _req: NextRequest,
@@ -46,10 +47,18 @@ export async function GET(
             id: true,
             title: true,
             titleHi: true,
+            testType: true,
             seriesId: true,
             durationMinutes: true,
             totalMarks: true,
             totalQuestions: true,
+            series: {
+              select: {
+                id: true,
+                slug: true,
+                title: true,
+              },
+            },
           },
         },
       },
@@ -233,12 +242,18 @@ export async function GET(
 
     // Calculate authoritative ranking using shared helper
     const ranking = await getAttemptRanking(attempt.id);
+    const quizSlug = attempt.test?.testType === "CURRENT_AFFAIRS" && attempt.test
+      ? getQuizSlug(attempt.test)
+      : undefined;
 
     return NextResponse.json(
       {
         data: {
           attemptId: attempt.id,
           testId: attempt.testId,
+          testType: attempt.test?.testType,
+          quizSlug,
+          seriesSlug: attempt.test?.series?.slug,
           language: attempt.language,
           status: attempt.status,
           score: attempt.score,

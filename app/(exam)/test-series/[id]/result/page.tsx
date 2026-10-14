@@ -387,6 +387,38 @@ function ResultContent() {
   const [error, setError] = useState<string | null>(null)
   const [serverResult, setServerResult] = useState<any>(null)
 
+  const isCurrentAffairs =
+    serverResult?.testType === "CURRENT_AFFAIRS" ||
+    serverResult?.test?.testType === "CURRENT_AFFAIRS" ||
+    serverResult?.seriesSlug === "current-affairs-system-series" ||
+    serverResult?.test?.series?.slug === "current-affairs-system-series" ||
+    seriesId === "current-affairs-system-series"
+
+  const isPyq =
+    serverResult?.testType === "PREVIOUS_YEAR" ||
+    serverResult?.test?.testType === "PREVIOUS_YEAR" ||
+    serverResult?.seriesSlug === "pyq-system-series" ||
+    serverResult?.test?.series?.slug === "pyq-system-series" ||
+    seriesId === "pyq-system-series"
+
+  const defaultBackUrl = isCurrentAffairs
+    ? "/current-affairs-quizzes"
+    : isPyq
+    ? "/pyqs"
+    : `/test-series/${seriesId}`
+
+  const backTitle = isCurrentAffairs
+    ? "Back to Current Affairs Quizzes"
+    : isPyq
+    ? "Back to Previous Papers"
+    : "Back to Test Series"
+
+  const backLabel = isCurrentAffairs
+    ? "Back to Quizzes"
+    : isPyq
+    ? "Back to Papers"
+    : "Back to Tests"
+
   const [retryTrigger, setRetryTrigger] = useState(0)
 
   useEffect(() => {
@@ -542,7 +574,7 @@ function ResultContent() {
             <button
               onClick={() => {
                 const rawReturnPath = searchParams.get("returnPath")
-                const safeReturnPath = sanitizeReturnPath(rawReturnPath, `/test-series/${seriesId}`)
+                const safeReturnPath = sanitizeReturnPath(rawReturnPath, defaultBackUrl)
                 router.push(safeReturnPath)
               }}
               style={{
@@ -557,7 +589,7 @@ function ResultContent() {
                 cursor: "pointer",
               }}
             >
-              {searchParams.get("returnPath")?.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"}
+              {backTitle}
             </button>
           </div>
         </div>
@@ -683,12 +715,12 @@ function ResultContent() {
           <button
             onClick={() => {
               const rawReturnPath = searchParams.get("returnPath")
-              const safeReturnPath = sanitizeReturnPath(rawReturnPath, `/test-series/${seriesId}`)
+              const safeReturnPath = sanitizeReturnPath(rawReturnPath, defaultBackUrl)
               router.push(safeReturnPath)
             }}
             className="min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-600 transition-colors flex items-center justify-center shrink-0 cursor-pointer"
-            title={searchParams.get("returnPath")?.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"}
-            aria-label={searchParams.get("returnPath")?.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"}
+            title={backTitle}
+            aria-label={backTitle}
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
@@ -1562,7 +1594,14 @@ function ResultContent() {
         }}
       >
         <button
-          onClick={() => router.push(`/test-series/${serverResult.test?.seriesId || seriesId}/declaration?testId=${encodeURIComponent(serverResult.testId)}&retake=true`)}
+          onClick={() => {
+            if (isCurrentAffairs) {
+              const quizSlug = serverResult?.quizSlug || serverResult?.test?.slug || serverResult?.testId
+              router.push(`/current-affairs-quizzes/${encodeURIComponent(quizSlug)}/instructions`)
+            } else {
+              router.push(`/test-series/${serverResult?.test?.seriesId || seriesId}/declaration?testId=${encodeURIComponent(serverResult?.testId || "")}&retake=true`)
+            }
+          }}
           style={{
             display: "flex",
             alignItems: "center",
@@ -1585,7 +1624,7 @@ function ResultContent() {
         </button>
 
         <button
-          onClick={() => router.push(`/test-series/${serverResult.test?.seriesId || seriesId}/solutions?testId=${encodeURIComponent(serverResult.testId)}&attemptId=${encodeURIComponent(attemptId || "")}`)}
+          onClick={() => router.push(`/test-series/${serverResult.test?.seriesId || seriesId}/solutions?testId=${encodeURIComponent(serverResult.testId)}&attemptId=${encodeURIComponent(attemptId || "")}&returnPath=${encodeURIComponent(defaultBackUrl)}`)}
           style={{
             display: "flex",
             alignItems: "center",
@@ -1608,7 +1647,7 @@ function ResultContent() {
         </button>
 
         <button
-          onClick={() => router.push(`/test-series/${seriesId}/leaderboard`)}
+          onClick={() => router.push(`/test-series/${serverResult.testId || seriesId}/leaderboard`)}
           style={{
             display: "flex",
             alignItems: "center",
@@ -1631,7 +1670,11 @@ function ResultContent() {
         </button>
 
         <button
-          onClick={() => router.push(`/test-series/${seriesId}`)}
+          onClick={() => {
+            const rawReturnPath = searchParams.get("returnPath")
+            const safeReturnPath = sanitizeReturnPath(rawReturnPath, defaultBackUrl)
+            router.push(safeReturnPath)
+          }}
           style={{
             display: "flex",
             alignItems: "center",
@@ -1649,7 +1692,7 @@ function ResultContent() {
           }}
         >
           <ArrowLeft style={{ width: 15, height: 15 }} />
-          Back to Tests
+          {backLabel}
         </button>
 
         <button

@@ -865,3 +865,164 @@ Running 14 tests using 1 worker
 ### FINAL VERDICT
 `READY TO MERGE (staging only)`
 
+---
+
+# Bug Fix Report: Current Affairs Quiz Result Back Button 404 & History Hardening
+
+**Date:** 2026-10-14  
+**Branch:** `overnight-razorpay-dropdown-color`  
+**Status:** RESOLVED & VERIFIED  
+
+---
+
+## 1. Problem Description & User Report
+- **User Issue:** After completing a Current Affairs quiz (such as "UPSC Economy CA" or "UPSC CA Oct"), pressing the **Back** button on the result page navigated the student to `/test-series/current-affairs-system-series`, which displayed the custom 404 error page ("Looking for something? We couldn't find the page you're looking for").
+- **Secondary Symptom:** If the user pressed the browser's Back button (`history.back()`) after submitting the quiz, the browser returned to the expired `/attempt` URL, causing loop attempts, 404s, or attempt loading timeouts.
+
+---
+
+## 2. Root Cause Analysis
+1. **Unpublished System Series Route Throwing 404:**
+   - In `app/(dashboard)/test-series/[id]/page.tsx`, unpublished series were rejected with `notFound()`.
+   - The hidden system series `current-affairs-system-series` and `pyq-system-series` have `isPublished: false` by design so they never clutter the public catalogue or sitemaps.
+   - Any navigation or link targeting `/test-series/current-affairs-system-series` or `/test-series/pyq-system-series` therefore threw `notFound()`.
+2. **Missing Test Metadata in Result & Questions APIs:**
+   - `app/api/exam/attempt/[attemptId]/result/route.ts` previously returned attempt statistics but omitted `testType`, `quizSlug`, and `seriesSlug`.
+   - `app/api/exam/[testId]/questions/route.ts` (with `metadataOnly=1`) omitted `testType` and `seriesSlug`.
+   - Because the client-side result and declaration pages had no authoritative test type from the server, they could not reliably detect that the exam was a Current Affairs speed test or Previous Year paper, falling back to `/test-series/${seriesId}`.
+3. **Hardcoded Fallbacks on Exam Result and Solutions Pages:**
+   - `app/(exam)/test-series/[id]/result/page.tsx`: The top-left header Back button, error recovery button, and bottom "Back to Tests" button defaulted to `/test-series/${seriesId}`.
+   - `app/(exam)/test-series/[id]/solutions/page.tsx`: The header Back button defaulted to `/test-series/${seriesId}`.
+   - `app/(exam)/test-series/[id]/declaration/page.tsx`: Fallback return paths defaulted to `/test-series/${seriesId}`.
+4. **Browser History Duplication & Post-Submit Navigation:**
+   - `AttemptClient.tsx` used `window.history.pushState` on mount to trap accidental back navigation during the active exam.
+   - When the exam was submitted, calling `router.replace` only replaced the top-most pushed entry. When the user pressed browser Back, the browser re-entered the previous `/attempt` history entry.
+   - On the server, `app/(exam)/test-series/[id]/attempt/page.tsx` did not check if the requested `attemptId` was already `SUBMITTED`, allowing the expired attempt arena to mount and hang or bounce.
+
+---
+
+## 3. Architecture & Code Changes
+
+### A. HTTP 308 Permanent Redirects for Hidden System Series (`app/(dashboard)/test-series/[id]/page.tsx`)
+Added immediate redirects at the top of the route handler before any database queries:
+- `/test-series/current-affairs-system-series` -> HTTP 308 Permanent Redirect to `/current-affairs-quizzes`.
+- `/test-series/pyq-system-series` -> HTTP 308 Permanent Redirect to `/pyqs`.
+- Guaranteed that any bookmarked links, search links, or manual URL visits never return a 404.
+
+### B. Enriched Result & Questions APIs
+- **`app/api/exam/attempt/[attemptId]/result/route.ts`**:
+  - Included `testType: attempt.test?.testType`.
+  - Included `quizSlug: getQuizSlug(attempt.test)`.
+  - Included `seriesSlug: attempt.test?.series?.slug`.
+- **`app/api/exam/[testId]/questions/route.ts`**:
+  - Included `testType: test.testType` and `seriesSlug: test.series?.slug` in the metadata response.
+
+### C. Server-Derived Navigation on Result & Solution Pages
+- **`app/(exam)/test-series/[id]/result/page.tsx`**:
+  - Server-derived `isCurrentAffairs` flag checking `serverResult.testType === "CURRENT_AFFAIRS"` or `seriesSlug === "current-affairs-system-series"`.
+  - Server-derived `isPyq` flag checking `serverResult.testType === "PREVIOUS_YEAR"` or `seriesSlug === "pyq-system-series"`.
+  - Set `defaultBackUrl = isCurrentAffairs ? "/current-affairs-quizzes" : isPyq ? "/pyqs" : "/test-series/" + seriesId`.
+  - Header Back button: aria-label/title `"Back to Current Affairs Quizzes"` (or `"Back to Previous Papers"`).
+  - Bottom navigation button: dynamically labeled `"Back to Quizzes"` (or `"Back to Papers"`).
+  - Retake button: routes to the clean canonical URL `/current-affairs-quizzes/${quizSlug}/instructions`.
+  - Full Solutions button: passes sanitized `returnPath=${defaultBackUrl}` so the solutions page preserves the return route.
+- **`app/(exam)/test-series/[id]/solutions/page.tsx`**:
+  - Set `defaultBackUrl` to `/current-affairs-quizzes` (or `/pyqs`).
+  - Header Back button safely navigates to `safeReturnPath` or `/current-affairs-quizzes`.
+
+### D. Declaration & Attempt Page Hardening
+- **`app/(exam)/test-series/[id]/declaration/page.tsx`**:
+  - Safe default return path derived from `isCurrentAffairs` (`/current-affairs-quizzes`) and `isPyq` (`/pyqs`).
+  - Switched attempt initiation from `router.push` to `router.replace` so declaration agreement is not retained in the history stack behind the exam.
+- **`app/(exam)/test-series/[id]/attempt/page.tsx`**:
+  - Added server-side guard: If `attemptId` is provided and the attempt status is already `SUBMITTED`, immediately issues a server-side `redirect(safeDest)` to `/current-affairs-quizzes` (or `/pyqs`), preventing browser Back from ever re-entering an expired attempt or triggering 404.
+- **`app/(exam)/test-series/[id]/attempt/AttemptClient.tsx`**:
+  - Increased client-side fetch timeout from 15s to 30s (`fetchWithTimeout`) to prevent aborts during cold route compilations.
+  - If attempt status is `SUBMITTED`, safely calls `router.replace(safeReturn)`.
+  - On error screen, Back button defaults to `/current-affairs-quizzes` (or `/pyqs`) with explicit labeling.
+
+---
+
+## 4. Verification & Automated Test Suite
+
+Created a dedicated, real-click end-to-end test suite (`tests/e2e/ca-result-back-navigation.spec.ts`) testing both Desktop (1440x900) and Mobile (375x812) viewports:
+1. **Direct visit redirect (Guest & Student):** Visiting `/test-series/current-affairs-system-series` directly issues a 308 redirect and lands cleanly on `/current-affairs-quizzes`.
+2. **PYQ direct visit redirect:** Visiting `/test-series/pyq-system-series` directly issues a 308 redirect and lands cleanly on `/pyqs`.
+3. **Student Result Page Back Navigation:**
+   - Header Back button navigates to `/current-affairs-quizzes` (no 404).
+   - Bottom "Back to Quizzes" button navigates to `/current-affairs-quizzes` (no 404).
+   - Solutions page Back button navigates to `/current-affairs-quizzes` (no 404).
+4. **Browser Back Button Post-Submission:** Hitting browser Back (`page.goBack()`) from the result page safely navigates back to `/current-affairs-quizzes` or the clean instructions page without 404 or expired attempt screens.
+
+### Raw Test Outputs
+
+#### Desktop Suite (`--project=desktop`):
+```text
+Running 4 tests using 1 worker
+
+     1 …urrent-affairs-system-series redirects (308) to /current-affairs-quizzes
+  ✓  1 …affairs-system-series redirects (308) to /current-affairs-quizzes (1.8s)
+     2 … Direct visit to /test-series/pyq-system-series redirects (308) to /pyqs
+  ✓  2 … visit to /test-series/pyq-system-series redirects (308) to /pyqs (1.6s)
+     3 …ions Back button, and Bottom Back all return to /current-affairs-quizzes
+  ✓  3 …ck button, and Bottom Back all return to /current-affairs-quizzes (7.1s)
+     4 …Browser Back button after submit does not land on expired attempt or 404
+  ✓  4 … Back button after submit does not land on expired attempt or 404 (4.2s)
+
+4 passed (17.0s)
+```
+
+#### Mobile Suite (`--project=mobile`, 375px viewport):
+```text
+Running 4 tests using 1 worker
+
+     1 …urrent-affairs-system-series redirects (308) to /current-affairs-quizzes
+  ✓  1 …affairs-system-series redirects (308) to /current-affairs-quizzes (1.7s)
+     2 … Direct visit to /test-series/pyq-system-series redirects (308) to /pyqs
+  ✓  2 … visit to /test-series/pyq-system-series redirects (308) to /pyqs (1.2s)
+     3 …ions Back button, and Bottom Back all return to /current-affairs-quizzes
+  ✓  3 …ck button, and Bottom Back all return to /current-affairs-quizzes (7.2s)
+     4 …Browser Back button after submit does not land on expired attempt or 404
+  ✓  4 … Back button after submit does not land on expired attempt or 404 (4.0s)
+
+4 passed (16.2s)
+```
+
+#### Existing CA & URL Hardening Regressions (`ca-quiz.spec.ts`, `ca-quiz-url-hardening.spec.ts`):
+```text
+Running 20 tests using 1 worker
+  ✓   1 [desktop] › CA-01: Authenticated student clicks quiz card, lands on clean /instructions page (not 404) (3.6s)
+  ✓   2 [desktop] › CA-02: Public slug page renders valid title, guidelines, and JSON-LD schema (1.5s)
+  ✓   3 [desktop] › CA-03: Old test-series URL redirects (307/308) to new clean instructions URL (3.2s)
+  ✓   4 [desktop] › CA-04: Non-existent quiz slug or ID returns custom 404 (813ms)
+  ✓   5 [desktop] › CA-05: Guest clicking Start Now on /current-affairs-quizzes gets login popup modal (2.9s)
+  ✓   6 [desktop] › CA-06: Hidden system series is NOT listed in /test-series catalogue or sitemap.xml (2.8s)
+  ✓   7 [desktop] › CA-07: Quiz can be started, questions answered, and submitted to view score (4.9s)
+  ✓   8 [desktop] › D-01: Teacher creates Current Affairs quiz with month=1, year=2026, 5 questions, mapped to hidden system series (2.1s)
+  ✓   9 [desktop] › D-02: Quiz is hidden on /test-series, but visible on /current-affairs-quizzes (5.3s)
+  ✓  10 [desktop] › D-03: Student starts attempt (unpublished series bypass), submits answers, calculates score & updates TestActionButton (2.1s)
+  ✓  11 [mobile]  › CA-01: Authenticated student clicks quiz card, lands on clean /instructions page (not 404) (2.9s)
+  ✓  12 [mobile]  › CA-02: Public slug page renders valid title, guidelines, and JSON-LD schema (1.5s)
+  ✓  13 [mobile]  › CA-03: Old test-series URL redirects (307/308) to new clean instructions URL (1.1s)
+  ✓  14 [mobile]  › CA-04: Non-existent quiz slug or ID returns custom 404 (1.0s)
+  ✓  15 [mobile]  › CA-05: Guest clicking Start Now on /current-affairs-quizzes gets login popup modal (2.8s)
+  ✓  16 [mobile]  › CA-06: Hidden system series is NOT listed in /test-series catalogue or sitemap.xml (102ms)
+  ✓  17 [mobile]  › CA-07: Quiz can be started, questions answered, and submitted to view score (4.1s)
+  ✓  18 [mobile]  › D-01: Teacher creates Current Affairs quiz with month=1, year=2026, 5 questions, mapped to hidden system series (661ms)
+  ✓  19 [mobile]  › D-02: Quiz is hidden on /test-series, but visible on /current-affairs-quizzes (1.4s)
+  ✓  20 [mobile]  › D-03: Student starts attempt (unpublished series bypass), submits answers, calculates score & updates TestActionButton (2.2s)
+20 passed (52.0s)
+```
+
+---
+
+## 5. Quality & Static Analysis Checks
+- **TypeScript (`npx tsc --noEmit`):**
+  - Baseline count: 64 errors (legacy scripts/unrelated components).
+  - Current count: **64 errors**.
+  - **New errors introduced: 0**.
+  - Zero errors across `app/(exam)`, `app/(dashboard)`, and `app/api/exam`.
+- **Lint (`npm run lint`):** **0 errors** (process exited with code 0).
+- **Graphify (`graphify update .`):** Knowledge graph updated with 2914 nodes, 8343 edges across 143 communities.
+
+

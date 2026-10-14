@@ -68,10 +68,14 @@ interface AttemptMeta {
     testTitle?: string
     testId?: string
     seriesId?: string
+    testType?: string
+    seriesSlug?: string
+    quizSlug?: string
 }
 
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { sanitizeReturnPath } from "@/lib/utils/return-path"
 
 function SolutionsContent() {
     const params = useParams()
@@ -112,6 +116,36 @@ function SolutionsContent() {
         skipped: 0,
         elapsed: 0,
     })
+
+    const rawReturnPath = searchParams.get("returnPath")
+    const isCurrentAffairs =
+        attemptMeta.testType === "CURRENT_AFFAIRS" ||
+        attemptMeta.seriesSlug === "current-affairs-system-series" ||
+        seriesId === "current-affairs-system-series"
+
+    const isPyq =
+        attemptMeta.testType === "PREVIOUS_YEAR" ||
+        attemptMeta.seriesSlug === "pyq-system-series" ||
+        seriesId === "pyq-system-series"
+
+    const defaultBackUrl = isCurrentAffairs
+        ? "/current-affairs-quizzes"
+        : isPyq
+        ? "/pyqs"
+        : `/test-series/${seriesId}`
+
+    const safeReturnPath = sanitizeReturnPath(rawReturnPath, defaultBackUrl)
+    const backTitle = isCurrentAffairs
+        ? "Back to Current Affairs Quizzes"
+        : isPyq
+        ? "Back to Previous Papers"
+        : "Back to Test Series"
+
+    const backLabel = isCurrentAffairs
+        ? "Back to Quizzes"
+        : isPyq
+        ? "Back to Previous Papers"
+        : "Back to Test Series"
 
     useEffect(() => {
         let isMounted = true
@@ -180,6 +214,9 @@ function SolutionsContent() {
                         testTitle: data.test?.title,
                         testId: data.test?.id || data.testId,
                         seriesId: data.test?.seriesId || seriesId,
+                        testType: data.testType || data.test?.testType,
+                        seriesSlug: data.seriesSlug || data.test?.series?.slug,
+                        quizSlug: data.quizSlug,
                     })
                     setIsLoading(false)
                 } catch (err: any) {
@@ -339,10 +376,10 @@ function SolutionsContent() {
                         {error || "No submitted attempt found for this test. Solutions and answer keys are only accessible after an attempt has been completed and submitted."}
                     </p>
                     <button
-                        onClick={() => router.push(`/test-series/${seriesId}`)}
+                        onClick={() => router.push(safeReturnPath)}
                         className="min-h-[44px] px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm transition-colors cursor-pointer"
                     >
-                        Back to Test Series
+                        {backLabel}
                     </button>
                 </div>
             </div>
@@ -356,15 +393,17 @@ function SolutionsContent() {
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     <button
                         onClick={() => {
-                            if (typeof window !== "undefined" && window.history.length > 1) {
+                            if (rawReturnPath) {
+                                router.push(safeReturnPath)
+                            } else if (typeof window !== "undefined" && window.history.length > 1) {
                                 router.back()
                             } else {
-                                router.push(`/test-series/${seriesId}`)
+                                router.push(defaultBackUrl)
                             }
                         }}
                         className="min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-600 transition-colors flex items-center justify-center shrink-0 cursor-pointer"
-                        title="Back to Test Series"
-                        aria-label="Back"
+                        title={backTitle}
+                        aria-label={backTitle}
                     >
                         <ArrowLeft className="h-4 w-4" />
                     </button>
@@ -398,7 +437,7 @@ function SolutionsContent() {
 
                     {attemptMeta.hasAttempted && attemptId && (
                         <Link
-                            href={`/test-series/${attemptMeta.seriesId || seriesId}/result?attemptId=${encodeURIComponent(attemptId)}`}
+                            href={`/test-series/${attemptMeta.seriesId || seriesId}/result?attemptId=${encodeURIComponent(attemptId)}${rawReturnPath ? `&returnPath=${encodeURIComponent(rawReturnPath)}` : ""}`}
                             className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold hover:bg-purple-100 transition-colors min-h-[40px]"
                         >
                             <BarChart3 className="h-3.5 w-3.5" />
@@ -408,7 +447,9 @@ function SolutionsContent() {
 
                     {attemptMeta.testId && (
                         <Link
-                            href={`/test-series/${attemptMeta.seriesId || seriesId}/declaration?testId=${encodeURIComponent(attemptMeta.testId)}`}
+                            href={isCurrentAffairs
+                                ? `/current-affairs-quizzes/${encodeURIComponent(attemptMeta.quizSlug || attemptMeta.testId)}/instructions`
+                                : `/test-series/${attemptMeta.seriesId || seriesId}/declaration?testId=${encodeURIComponent(attemptMeta.testId)}`}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition-colors min-h-[36px] sm:min-h-[40px]"
                         >
                             <RotateCcw className="h-3.5 w-3.5" />
@@ -506,7 +547,7 @@ function SolutionsContent() {
                             <Clock className="h-3 w-3" /> Time: {Math.floor(attemptMeta.elapsed / 60)}m {attemptMeta.elapsed % 60}s
                         </span>
                         <Link
-                            href={`/test-series/${seriesId}/result?attemptId=${encodeURIComponent(attemptId || "")}`}
+                            href={`/test-series/${seriesId}/result?attemptId=${encodeURIComponent(attemptId || "")}${rawReturnPath ? `&returnPath=${encodeURIComponent(rawReturnPath)}` : ""}`}
                             className="text-[11px] font-bold text-sky-300 hover:text-sky-200 underline underline-offset-2 flex items-center gap-1"
                         >
                             View Leaderboard &amp; Report →

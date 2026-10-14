@@ -1,6 +1,7 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { sanitizeReturnPath } from "@/lib/utils/return-path"
 import AttemptClient from "./AttemptClient"
 
 interface AttemptPageProps {
@@ -14,11 +15,40 @@ export default async function AttemptPage({ params, searchParams }: AttemptPageP
     const { id: paramId } = await params
     const sParams = await searchParams
     const queryTestId = typeof sParams?.testId === "string" ? sParams.testId : undefined
+    const queryAttemptId = typeof sParams?.attemptId === "string" ? sParams.attemptId : undefined
     const testId = queryTestId || paramId
 
     const session = await auth()
     const isAdmin = session?.user?.role === "ADMIN"
     const currentUserId = session?.user?.id
+
+    // If attempt is already SUBMITTED, redirect to returnPath / quizzes so browser Back never shows expired attempt or 404
+    if (queryAttemptId && currentUserId) {
+        const attempt = await prisma.examAttempt.findFirst({
+            where: { id: queryAttemptId, userId: currentUserId },
+            select: {
+                status: true,
+                test: {
+                    select: {
+                        testType: true,
+                        series: { select: { slug: true } },
+                    },
+                },
+            },
+        })
+        if (attempt?.status === "SUBMITTED") {
+            const isCa = paramId === "current-affairs-system-series" ||
+                attempt.test?.testType === "CURRENT_AFFAIRS" ||
+                attempt.test?.series?.slug === "current-affairs-system-series"
+            const isPyq = paramId === "pyq-system-series" ||
+                attempt.test?.testType === "PREVIOUS_YEAR" ||
+                attempt.test?.series?.slug === "pyq-system-series"
+            const rawReturn = typeof sParams?.returnPath === "string" ? sParams.returnPath : undefined
+            const fallback = isCa ? "/current-affairs-quizzes" : isPyq ? "/pyqs" : `/test-series/${paramId}`
+            const safeDest = sanitizeReturnPath(rawReturn, fallback)
+            redirect(safeDest)
+        }
+    }
 
     // 1. Check if testId corresponds to a test in DB
     const testRow = await prisma.examTest.findFirst({

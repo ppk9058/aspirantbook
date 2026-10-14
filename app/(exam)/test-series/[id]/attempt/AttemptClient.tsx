@@ -281,7 +281,7 @@ function AutoSubmitModal({ onViewResults }: { onViewResults: () => void }) {
 }
 
 // Helper for fetching with a client-side timeout
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 15000): Promise<Response> {
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 30000): Promise<Response> {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), timeoutMs)
     try {
@@ -474,7 +474,10 @@ function Arena() {
                     submissionPendingRef.current = false
                     await clearExamState(attemptKey).catch(() => {})
                     await safeExitFullscreen()
-                    router.push(`/test-series/${seriesId}/result?attemptId=${encodeURIComponent(attId)}`)
+                    const returnParam = searchParams.get("returnPath")
+                    const q = new URLSearchParams({ attemptId: attId })
+                    if (returnParam) q.set("returnPath", returnParam)
+                    router.replace(`/test-series/${seriesId}/result?${q.toString()}`)
                     return
                 }
                 throw new Error(errData.error || `Submission failed with status ${res.status}`)
@@ -484,7 +487,10 @@ function Arena() {
             submissionPendingRef.current = false
             await clearExamState(attemptKey).catch(() => {})
             await safeExitFullscreen()
-            router.push(`/test-series/${seriesId}/result?attemptId=${encodeURIComponent(attId)}`)
+            const returnParam = searchParams.get("returnPath")
+            const q = new URLSearchParams({ attemptId: attId })
+            if (returnParam) q.set("returnPath", returnParam)
+            router.replace(`/test-series/${seriesId}/result?${q.toString()}`)
         } catch (err: any) {
             console.error("Submission failed:", err)
             setSubmitting(false)
@@ -825,7 +831,12 @@ function Arena() {
                 }
 
                 if (attemptData.status === "SUBMITTED") {
-                    router.push(`/test-series/${seriesId}/result?attemptId=${encodeURIComponent(attemptData.attemptId)}`)
+                    const returnParam = searchParams.get("returnPath")
+                    const isCa = seriesId === "current-affairs-system-series" || attemptData.test?.testType === "CURRENT_AFFAIRS"
+                    const isPyq = seriesId === "pyq-system-series" || attemptData.test?.testType === "PREVIOUS_YEAR"
+                    const safeFallback = isCa ? "/current-affairs-quizzes" : isPyq ? "/pyqs" : `/test-series/${seriesId}`
+                    const safeReturn = sanitizeReturnPath(returnParam, safeFallback)
+                    router.replace(safeReturn)
                     return
                 }
 
@@ -1267,8 +1278,11 @@ function Arena() {
                         </button>
                         <button
                             onClick={() => {
+                                const isCa = seriesId === "current-affairs-system-series"
+                                const isPyq = seriesId === "pyq-system-series"
+                                const defaultFallback = isCa ? "/current-affairs-quizzes" : isPyq ? "/pyqs" : `/test-series/${seriesId}`
                                 const rawReturnPath = searchParams.get("returnPath")
-                                const safeReturnPath = sanitizeReturnPath(rawReturnPath, `/test-series/${seriesId}`)
+                                const safeReturnPath = sanitizeReturnPath(rawReturnPath, defaultFallback)
                                 router.push(safeReturnPath)
                             }}
                             style={{
@@ -1283,7 +1297,11 @@ function Arena() {
                                 cursor: "pointer",
                             }}
                         >
-                            {searchParams.get("returnPath")?.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"}
+                            {seriesId === "current-affairs-system-series" || searchParams.get("returnPath")?.includes("/current-affairs-quizzes")
+                                ? "Back to Current Affairs Quizzes"
+                                : seriesId === "pyq-system-series" || searchParams.get("returnPath")?.includes("/pyqs")
+                                ? "Back to Previous Papers"
+                                : "Back to Test Series"}
                         </button>
                     </div>
                 </div>

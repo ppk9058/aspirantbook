@@ -23,6 +23,8 @@ interface TestMeta {
     durationMinutes: number
     totalQuestions: number
     totalMarks: number
+    testType?: string
+    seriesSlug?: string
 }
 
 function DeclarationContent() {
@@ -92,11 +94,30 @@ function DeclarationContent() {
         )
     }
 
+    const isCurrentAffairs =
+        seriesId === "current-affairs-system-series" ||
+        test?.testType === "CURRENT_AFFAIRS" ||
+        test?.seriesSlug === "current-affairs-system-series"
+    const isPyq =
+        seriesId === "pyq-system-series" ||
+        test?.testType === "PREVIOUS_YEAR" ||
+        test?.seriesSlug === "pyq-system-series"
+
+    const defaultReturnPath = isCurrentAffairs
+        ? "/current-affairs-quizzes"
+        : isPyq
+        ? "/pyqs"
+        : `/test-series/${seriesId}`
+
     const rawReturnPath = searchParams.get("returnPath")
-    const safeReturnPath = sanitizeReturnPath(rawReturnPath, `/test-series/${seriesId}`)
+    const safeReturnPath = sanitizeReturnPath(rawReturnPath, defaultReturnPath)
 
     if (error || !test) {
-        const backLabel = safeReturnPath.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"
+        const backLabel = isCurrentAffairs || safeReturnPath.includes("/current-affairs-quizzes")
+            ? "Back to Current Affairs"
+            : isPyq || safeReturnPath.includes("/pyqs")
+            ? "Back to Previous Papers"
+            : "Back to Test Series"
         return (
             <div className="h-[100dvh] w-full max-w-full flex flex-col items-center justify-center bg-white p-6">
                 <div className="max-w-md w-full text-center space-y-4">
@@ -123,10 +144,15 @@ function DeclarationContent() {
     const candidateName = session?.user?.name || "Student"
     const instQuery = new URLSearchParams()
     instQuery.set("testId", test.id)
-    if (safeReturnPath !== `/test-series/${seriesId}`) {
+    if (safeReturnPath && safeReturnPath !== `/test-series/${seriesId}`) {
         instQuery.set("returnPath", safeReturnPath)
     }
-    const instructionsHref = `/test-series/${seriesId}/instructions?${instQuery.toString()}`
+    const caQuizSlug = test?.title
+        ? test.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || test.id
+        : test?.id
+    const instructionsHref = isCurrentAffairs && caQuizSlug
+        ? `/current-affairs-quizzes/${encodeURIComponent(caQuizSlug)}/instructions`
+        : `/test-series/${seriesId}/instructions?${instQuery.toString()}`
 
     const handleStartAttempt = async () => {
         if (!agreed || starting || !test) return
@@ -159,7 +185,7 @@ function DeclarationContent() {
             if (safeReturnPath !== `/test-series/${seriesId}`) {
                 attemptQuery.set("returnPath", safeReturnPath)
             }
-            router.push(`/test-series/${seriesId}/attempt?${attemptQuery.toString()}`)
+            router.replace(`/test-series/${seriesId}/attempt?${attemptQuery.toString()}`)
         } catch (err: any) {
             setStartError(err.message || "Failed to start test.")
             setStarting(false)

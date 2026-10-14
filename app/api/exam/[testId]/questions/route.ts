@@ -136,6 +136,8 @@ export async function GET(
           totalMarks: test.totalMarks,
           positiveMarks: test.positiveMarks,
           negativeMarks: test.negativeMarks,
+          testType: test.testType,
+          seriesSlug: test.series?.slug,
           sections: test.sections.map((section: any) => ({
             id: section.id,
             title: section.title,
