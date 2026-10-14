@@ -97,6 +97,18 @@ async function run() {
       isPro: true,
       isPublished: true,
       createdById: instructor.id
+    },
+    {
+      id: "cmv5cyek3000oxpzvug9zvj4q",
+      title: "Current Affairs Quizzes",
+      slug: "current-affairs-system-series",
+      examName: "Current Affairs",
+      category: "Current Affairs",
+      description: "System series for Current Affairs Quizzes",
+      isFree: true,
+      isPro: false,
+      isPublished: false,
+      createdById: instructor.id
     }
   ];
 
@@ -114,6 +126,99 @@ async function run() {
     console.log(`Seeded ExamSeries: ${series.slug} (${series.id}) - Free: ${series.isFree}, Pro: ${series.isPro}`);
   }
 
+  const caSeries = await prisma.examSeries.findFirst({
+    where: { slug: "current-affairs-system-series" },
+  });
+
+  // Seed UPSC Economy CA test quiz
+  const caQuiz = await prisma.examTest.upsert({
+    where: { id: "cmv5d7r52003oxpzv4x54dnie" },
+    update: {
+      title: "UPSC Economy CA",
+      seriesId: caSeries!.id,
+      testType: "CURRENT_AFFAIRS",
+      accessMode: "FREE",
+      durationMinutes: 10,
+      totalQuestions: 10,
+      totalMarks: 10,
+      positiveMarks: 1,
+      negativeMarks: 0.33,
+      month: 10,
+      year: 2026,
+      isPublished: true,
+      createdById: instructor.id
+    },
+    create: {
+      id: "cmv5d7r52003oxpzv4x54dnie",
+      title: "UPSC Economy CA",
+      seriesId: caSeries!.id,
+      testType: "CURRENT_AFFAIRS",
+      accessMode: "FREE",
+      durationMinutes: 10,
+      totalQuestions: 10,
+      totalMarks: 10,
+      positiveMarks: 1,
+      negativeMarks: 0.33,
+      month: 10,
+      year: 2026,
+      isPublished: true,
+      createdById: instructor.id
+    }
+  });
+
+  const caSection = await prisma.examSection.upsert({
+    where: { id: "cmv5d7r6u003qxpzvly7ymvo1" },
+    update: {
+      title: "General Studies",
+      testId: caQuiz.id,
+      order: 1,
+      positiveMarks: 1,
+      negativeMarks: 0.33,
+    },
+    create: {
+      id: "cmv5d7r6u003qxpzvly7ymvo1",
+      title: "General Studies",
+      testId: caQuiz.id,
+      order: 1,
+      positiveMarks: 1,
+      negativeMarks: 0.33,
+    }
+  });
+
+  await prisma.examQuestion.upsert({
+    where: { id: "cmv5d7r8m003rxpzvncey2hdq" },
+    update: {
+      sectionId: caSection.id,
+      questionType: "MCQ",
+      questionEn: "With reference to the Monetary Policy Committee (MPC) decisions of the Reserve Bank of India in October 2026, consider the following statements: 1. The MPC raised the policy repo rate by 25 basis points to 5.50%. 2. The monetary policy stance was changed from 'neutral' to 'calibrated tightening'. Which of the statements given above is/are correct?",
+      optionAEn: "1 only",
+      optionBEn: "2 only",
+      optionCEn: "Both 1 and 2",
+      optionDEn: "Neither 1 nor 2",
+      correctOption: "C",
+      explanationEn: "In its October 2026 meeting, the RBI's MPC unanimously voted to increase the policy repo rate by 25 bps to 5.50% to counter persistent inflationary pressures.",
+      order: 1,
+      positiveMarks: 1,
+      negativeMarks: 0.33,
+    },
+    create: {
+      id: "cmv5d7r8m003rxpzvncey2hdq",
+      sectionId: caSection.id,
+      questionType: "MCQ",
+      questionEn: "With reference to the Monetary Policy Committee (MPC) decisions of the Reserve Bank of India in October 2026, consider the following statements: 1. The MPC raised the policy repo rate by 25 basis points to 5.50%. 2. The monetary policy stance was changed from 'neutral' to 'calibrated tightening'. Which of the statements given above is/are correct?",
+      optionAEn: "1 only",
+      optionBEn: "2 only",
+      optionCEn: "Both 1 and 2",
+      optionDEn: "Neither 1 nor 2",
+      correctOption: "C",
+      explanationEn: "In its October 2026 meeting, the RBI's MPC unanimously voted to increase the policy repo rate by 25 bps to 5.50% to counter persistent inflationary pressures.",
+      order: 1,
+      positiveMarks: 1,
+      negativeMarks: 0.33,
+    }
+  });
+
+  console.log("Seeded CA System Series and UPSC Economy CA quiz.");
   console.log("Seeding complete on Docker test DB.");
 }
 

@@ -83,6 +83,97 @@ export default async function globalSetup() {
           },
         },
       })
+    } else {
+      // Ensure no duplicate lessons
+      const dupLessons = await setupPrisma.lesson.findMany({
+        where: {
+          chapter: { courseId: existing.id },
+          title: "CHAPTER 1 — What Is an AI",
+        },
+        orderBy: { createdAt: "asc" },
+      })
+      if (dupLessons.length > 1) {
+        for (let i = 1; i < dupLessons.length; i++) {
+          await setupPrisma.lesson.delete({ where: { id: dupLessons[i].id } }).catch(() => {})
+        }
+      }
+    }
+
+    // 2d. Ensure CA system series and UPSC Economy CA test exist
+    const existingSeries = await setupPrisma.examSeries.findFirst({
+      where: { slug: "current-affairs-system-series" },
+    })
+    const instructor = await setupPrisma.user.findFirst({
+      where: { role: "TEACHER" },
+    })
+    const createdById = instructor?.id || "u_instructor_seed"
+
+    const caSeries = existingSeries || (await setupPrisma.examSeries.create({
+      data: {
+        id: "cmv5cyek3000oxpzvug9zvj4q",
+        title: "Current Affairs Quizzes",
+        slug: "current-affairs-system-series",
+        examName: "Current Affairs",
+        category: "Current Affairs",
+        description: "System series for Current Affairs Quizzes",
+        isFree: true,
+        isPro: false,
+        isPublished: false,
+        createdById,
+      },
+    }))
+
+    const existingTest = await setupPrisma.examTest.findFirst({
+      where: { title: "UPSC Economy CA" },
+    })
+    if (!existingTest) {
+      const caQuiz = await setupPrisma.examTest.create({
+        data: {
+          id: "cmv5d7r52003oxpzv4x54dnie",
+          title: "UPSC Economy CA",
+          seriesId: caSeries.id,
+          testType: "CURRENT_AFFAIRS",
+          accessMode: "FREE",
+          durationMinutes: 10,
+          totalQuestions: 10,
+          totalMarks: 10,
+          positiveMarks: 1,
+          negativeMarks: 0.33,
+          month: 10,
+          year: 2026,
+          isPublished: true,
+          createdById,
+        },
+      })
+
+      const caSection = await setupPrisma.examSection.create({
+        data: {
+          id: "cmv5d7r6u003qxpzvly7ymvo1",
+          title: "General Studies",
+          testId: caQuiz.id,
+          order: 1,
+          positiveMarks: 1,
+          negativeMarks: 0.33,
+        },
+      })
+
+      await setupPrisma.examQuestion.create({
+        data: {
+          id: "cmv5d7r8m003rxpzvncey2hdq",
+          sectionId: caSection.id,
+          questionType: "MCQ",
+          questionEn: "With reference to the Monetary Policy Committee (MPC) decisions of the Reserve Bank of India in October 2026, consider the following statements: 1. The MPC raised the policy repo rate by 25 basis points to 5.50%. 2. The monetary policy stance was changed from 'neutral' to 'calibrated tightening'. Which of the statements given above is/are correct?",
+          optionAEn: "1 only",
+          optionBEn: "2 only",
+          optionCEn: "Both 1 and 2",
+          optionDEn: "Neither 1 nor 2",
+          correctOption: "C",
+          explanationEn: "In its October 2026 meeting, the RBI's MPC unanimously voted to increase the policy repo rate by 25 bps to 5.50% to counter persistent inflationary pressures.",
+          order: 1,
+          positiveMarks: 1,
+          negativeMarks: 0.33,
+        },
+      })
     }
   } finally {
     await setupPrisma.$disconnect()

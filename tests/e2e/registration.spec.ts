@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test"
 import fs from "fs"
 import path from "path"
+import crypto from "crypto"
+import { prisma } from "./test-series-e2e-helpers"
 
 const BASE_URL = process.env.BASE_URL || "http://127.0.0.1:3045"
 const OUTBOX_PATH = path.join(process.cwd(), "logs", "dev-email-outbox.jsonl")
@@ -96,6 +98,16 @@ test.describe("Step 3: Registration and Email Verification Hardening", () => {
         const token = sent?.token || (sent?.html || sent?.text || "").match(/\/verify-email\?token=([a-f0-9]+)/)?.[1]
         expect(token).toBeTruthy()
 
+        // Database assertion: verification token stored ONLY as SHA-256 hash
+        const expectedHash = crypto.createHash("sha256").update(token!).digest("hex")
+        const dbToken = await prisma.emailVerificationToken.findUnique({
+            where: { tokenHash: expectedHash },
+        })
+        expect(dbToken).toBeDefined()
+        expect(dbToken?.tokenHash).toBe(expectedHash)
+        expect(dbToken?.tokenHash).not.toBe(token) // RAW TOKEN IS NEVER STORED IN DB
+        expect(dbToken?.used).toBe(false)
+
         // Visit verification URL
         await page.goto(`${BASE_URL}/verify-email?token=${token}`, { waitUntil: "domcontentloaded" })
         await page.waitForLoadState("networkidle")
@@ -103,6 +115,12 @@ test.describe("Step 3: Registration and Email Verification Hardening", () => {
         // Check email verified screen
         await expect(page.locator("text=/Email Verified!/i")).toBeVisible({ timeout: 10000 })
         await expect(page.locator(`text=${uniqueEmail}`)).toBeVisible()
+
+        // Token is now marked used in DB
+        const usedDbToken = await prisma.emailVerificationToken.findUnique({
+            where: { tokenHash: expectedHash },
+        })
+        expect(usedDbToken?.used).toBe(true)
 
         // Attempting to reuse the same token should fail
         await page.goto(`${BASE_URL}/verify-email?token=${token}`, { waitUntil: "domcontentloaded" })

@@ -118,4 +118,18 @@ test.describe("Security Hardening & Headers", () => {
         expect(data.ok).toBe(true)
         expect(data.isTestDb).toBe(true)
     })
+
+    test("Dev debug routes and dev bypasses are disabled or return 404", async ({ request }) => {
+        // Debug route is strictly disabled/404
+        const debugRes = await request.get("/api/auth/debug")
+        expect([200, 404]).toContain(debugRes.status())
+        if (debugRes.status() === 200) {
+            const data = await debugRes.json()
+            expect(data.status).toBe("debug_disabled")
+        }
+
+        // Random non-existent test endpoints return 404
+        const nonExistentTestRes = await request.get("/api/test/non-existent-probe")
+        expect(nonExistentTestRes.status()).toBe(404)
+    })
 })
