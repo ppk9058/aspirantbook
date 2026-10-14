@@ -4,6 +4,7 @@ import { auth } from "@/auth"
 import Razorpay from "razorpay"
 import { prisma } from "@/lib/prisma"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
@@ -37,6 +38,11 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
 
     if (!userId) {
         throw new Error("User must be logged in to create a payment order.")
+    }
+
+    const rl = await checkRateLimit(`payment_create_order:${userId}`, 15, 60)
+    if (!rl.allowed) {
+        throw new Error("Too many order requests. Please wait a moment before trying again.")
     }
 
     if (process.env.REQUIRE_EMAIL_VERIFICATION_FOR_PURCHASE === "true") {

@@ -338,6 +338,99 @@ const isDevBypassEnabled =
   5. `User profile self-service: update details on /settings` (Passed desktop & mobile)
 - Total: 10 passed in 35.4s across Chromium and Mobile Chrome viewports.
 
+---
+
+## Step 7: Security Hardening (Whole Application)
+
+### What was broken & risks identified
+1. **Missing Security Headers**: The application lacked standard HTTP security headers: Content-Security-Policy (CSP), Strict-Transport-Security (HSTS), X-Content-Type-Options, X-Frame-Options, and Referrer-Policy.
+2. **File Upload Vulnerabilities**: `/api/upload` accepted raw client-supplied file extensions and mime-types without binary magic-byte verification, risking unauthenticated webshell / malware uploads.
+3. **Sensitive Endpoint Rate Limiting**: Payment order creation (`createRazorpayOrder`, `/api/books/checkout/create-order`), mobile login (`/api/auth/mobile-login`), presigned S3 URLs (`/api/upload/presigned-url`), and file uploads lacked atomic DB-backed rate limiting.
+4. **Dev / Test Route Exposure**: `/api/test/health` only checked `NODE_ENV === "production"`, leaving it exposed in staging environments where `NODE_ENV` is not set to production.
+5. **CSRF & Origin Verification**: Custom state-changing API endpoints lacked consistent Origin / Host verification for browser requests.
+6. **Input Sanitization**: Rich HTML inputs lacked dedicated sanitization utilities to neutralize XSS attacks.
+
+### What changed
+1. **Security Headers (`next.config.js`)**:
+   - `Content-Security-Policy`: Standard policy allowing Razorpay (`https://api.razorpay.com`, `https://checkout.razorpay.com`), YouTube (`https://www.youtube.com`), Google Fonts, S3 assets, while framing only self and Razorpay.
+   - `Strict-Transport-Security`: `max-age=63072000; includeSubDomains; preload`.
+   - `X-Content-Type-Options: nosniff`.
+   - `X-Frame-Options: SAMEORIGIN`.
+   - `Referrer-Policy: strict-origin-when-cross-origin`.
+   - `Permissions-Policy: camera=(), microphone=(), geolocation=()`.
+2. **Upload Security Hardening (`lib/security/upload-validator.ts`, `app/api/upload/route.ts`, `app/api/upload/presigned-url/route.ts`)**:
+   - Built `validateUpload()` with binary magic-byte verification for JPEG (`FF D8 FF`), PNG (`89 50 4E 47 0D 0A 1A 0A`), GIF (`GIF87a`/`GIF89a`), WebP (`RIFF...WEBP`), PDF (`%PDF-`), and MP4 (`ftyp`).
+   - Blocklist prohibiting dangerous executable and script extensions (`.exe`, `.php`, `.phtml`, `.sh`, `.bash`, `.js`, `.py`, `.svg`, `.cgi`, `.html`).
+   - Enforced UUID-randomized filenames and strict path traversal protection using `path.basename()`.
+   - Added Postgres-backed rate limiting (10 uploads/min on `/api/upload`, 20/min on `/api/upload/presigned-url`).
+3. **Rate Limiting on Sensitive Operations**:
+   - Added IP/user rate limiting to `lib/actions/payment/razorpay.ts` (15 orders/min per user).
+   - Added rate limiting to `app/api/books/checkout/create-order/route.ts` (15 orders/min per IP).
+   - Added rate limiting to `app/api/auth/mobile-login/route.ts` (10 requests/min per IP).
+4. **Environment Isolation for Test/Dev Routes (`app/api/test/health/route.ts`)**:
+   - Guarded `/api/test/health`: strictly returns 404 unless `APP_ENV === "test"` AND `NODE_ENV !== "production"`.
+5. **CSRF & Sanitization Utilities**:
+   - `lib/security/csrf.ts`: `verifyRequestOrigin()` verifying `Origin` or `Referer` matches host headers.
+   - `lib/security/sanitizer.ts`: `sanitizeHtml()` eliminating script tags, inline event handlers (`onerror`, `onload`), and `javascript:` URIs; `escapeHtml()` for output escaping.
+
+### API Authorization & IDOR Sweep
+
+| Route | Method | Auth Required | Roles | Ownership / IDOR Check | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `/api/auth/mobile-login` | POST | No | Any | N/A | Rate limited (10/min), test-only guard |
+| `/api/auth/logout` | POST | No | Any | N/A | Clears session cookie, safe callbackUrl |
+| `/api/test/health` | GET | No | Any | N/A | Returns 404 unless `APP_ENV=test` |
+| `/api/admin/users/export` | GET | Yes | `ADMIN` | N/A (Admin level) | Verified role `ADMIN` required |
+| `/api/admin/books/*` | ALL | Yes | `ADMIN` | N/A (Admin level) | Strictly checks `role === "ADMIN"` |
+| `/api/admin/courses/*` | ALL | Yes | `ADMIN`, `TEACHER` | Teachers limited to their courses | Verified role checks |
+| `/api/admin/current-affairs/*`| ALL | Yes | `ADMIN`, `TEACHER` | Teachers view/edit only own items | Enforced via `createdById` check |
+| `/api/admin/batches/*` | ALL | Yes | `ADMIN`, `TEACHER` | Role gated | Enforced via NextAuth session |
+| `/api/admin/pyqs/*` | ALL | Yes | `ADMIN`, `TEACHER` | Teachers filter by `creatorId` | Enforced |
+| `/api/teacher/classes/*` | ALL | Yes | `TEACHER`, `ADMIN` | Teachers filter by `teacherId` | Ownership check on DB queries |
+| `/api/teacher/courses` | GET | Yes | `TEACHER`, `ADMIN` | Teachers see assigned courses | Role checked |
+| `/api/books/[id]/download` | GET | Yes | Any Purchaser, `ADMIN` | Yes: checks `o.userId === user.userId` | 403 if not purchased |
+| `/api/books/orders` | POST | Yes | Authenticated | Overrides `userId = session.user.id` | Cannot spoof order owner |
+| `/api/books/checkout/create-order` | POST | Yes | Authenticated | Overrides `userId = session.user.id` | Rate-limited, server-verified price |
+| `/api/exam/attempt/[attemptId]` | GET | Yes | Authenticated | Yes: `attempt.userId === session.user.id` | 403 Forbidden on IDOR attempt |
+| `/api/exam/attempt/[attemptId]/result` | GET | Yes | Authenticated | Yes: `attempt.userId === session.user.id` | 403 Forbidden on IDOR attempt |
+| `/api/exam/attempt/[attemptId]/sync` | POST | Yes | Authenticated | Yes: `attempt.userId === session.user.id` | 403 Forbidden on IDOR attempt |
+| `/api/exam/attempt/[attemptId]/submit` | POST | Yes | Authenticated | Yes: `attempt.userId === session.user.id` | 403 Forbidden on IDOR attempt |
+| `/api/upload` | POST | Yes | Authenticated | N/A | Magic-bytes + rate limited |
+| `/api/upload/presigned-url` | POST | Yes | Authenticated | N/A | Type check, size limit, rate limited |
+
+### Dependency Audit (`npm audit`)
+- 64 vulnerabilities reported across dev and transitive dependencies (primarily `@humanwhocodes/config-array`, `minimatch`, `cross-spawn`, `micromatch`, and `next@15.1.0` SSR denial of service / cache-control).
+- Major upgrade of `next` from 15.1.0 to 15.5+ is breaking and blocked by user safety guidelines without dedicated major migration testing. Safe patches documented for future upgrade cycles.
+
+### Files Touched
+- `next.config.js`
+- `app/api/upload/route.ts`
+- `app/api/upload/presigned-url/route.ts`
+- `app/api/books/checkout/create-order/route.ts`
+- `app/api/auth/mobile-login/route.ts`
+- `app/api/test/health/route.ts`
+- `lib/actions/payment/razorpay.ts`
+- `lib/security/csrf.ts` (new)
+- `lib/security/sanitizer.ts` (new)
+- `lib/security/upload-validator.ts` (new)
+- `tests/e2e/security.spec.ts` (new)
+
+### Tests Added & Proof
+- `tests/e2e/security.spec.ts`:
+  1. `HTTP response contains required security headers` (Passed desktop & mobile)
+  2. `Open-redirect attack vectors are strictly sanitized by return path sanitizer` (Passed desktop & mobile)
+  3. `Login page preserves internal navigation without external redirect` (Passed desktop & mobile)
+  4. `IDOR attack: unauthenticated / unauthorized access to protected eBook downloads is rejected` (Passed desktop & mobile)
+  5. `IDOR attack: unauthenticated access to exam attempt details is rejected` (Passed desktop & mobile)
+  6. `Unauthenticated access to protected admin and teacher endpoints is rejected` (Passed desktop & mobile)
+  7. `XSS sanitizer strips malicious tags and scripts while preserving safe text` (Passed desktop & mobile)
+  8. `Upload security validator rejects malicious extensions and spoofed MIME types` (Passed desktop & mobile)
+  9. `Test health endpoint is active only in test environment` (Passed desktop & mobile)
+- Total: 18 passed in 5.7s across Chromium (desktop) and Mobile Chrome viewports.
+
+---
+
+
 
 
 

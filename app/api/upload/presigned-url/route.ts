@@ -10,9 +10,15 @@ import {
     MAX_IMAGE_SIZE,
     MAX_VIDEO_SIZE,
 } from "@/lib/aws-s3"
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
     try {
+        const clientIp = getClientIp(req)
+        const rl = await checkRateLimit(`upload_presigned:${clientIp}`, 20, 60)
+        if (!rl.allowed) {
+            return NextResponse.json({ error: "Too many upload requests. Please slow down." }, { status: 429 })
+        }
         const session = await auth()
 
         // Only authenticated users can upload

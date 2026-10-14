@@ -32,10 +32,23 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'No file provided' }, { status: 400 })
         }
 
-        // Generate clean file name and path
-        const timestamp = Date.now()
-        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-        const fileKey = `${fileType || 'uploads'}/${timestamp}-${safeName}`
+        // Rate limit uploads per user/IP
+        const { checkRateLimit } = await import('@/lib/rate-limit')
+        const rateCheck = await checkRateLimit(`upload:${userContext.userId || 'anon'}`, 30, 60)
+        if (!rateCheck.allowed) {
+            return NextResponse.json({ error: 'Too many upload requests. Please wait a moment.' }, { status: 429 })
+        }
+
+        // Validate upload magic bytes, file size, and extension
+        const { validateUpload } = await import('@/lib/security/upload-validator')
+        const buffer = Buffer.from(await file.arrayBuffer())
+        const validation = validateUpload(file, buffer, (fileType as any) || 'image')
+        if (!validation.valid) {
+            return NextResponse.json({ error: validation.error || 'Invalid file format or content' }, { status: 400 })
+        }
+
+        const safeFilename = validation.safeFilename || `${Date.now()}-upload`
+        const fileKey = `${fileType || 'uploads'}/${safeFilename}`
 
         let fileUrl = ''
         let isLocalFallback = false
@@ -57,10 +70,9 @@ export async function POST(request: NextRequest) {
         if (isLocalFallback) {
             const uploadsDir = path.join(process.cwd(), 'public', 'uploads', fileType || 'general')
             await fs.mkdir(uploadsDir, { recursive: true })
-            const localFilePath = path.join(uploadsDir, `${timestamp}-${safeName}`)
-            const buffer = Buffer.from(await file.arrayBuffer())
+            const localFilePath = path.join(uploadsDir, safeFilename)
             await fs.writeFile(localFilePath, buffer)
-            fileUrl = `/uploads/${fileType || 'general'}/${timestamp}-${safeName}`
+            fileUrl = `/uploads/${fileType || 'general'}/${safeFilename}`
         }
 
         // Attempt database tracking if available

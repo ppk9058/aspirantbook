@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
 import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 
 const COURSE_ALIASES: Record<string, string> = {
     "half-yearly-678": "half-yearly-6",
@@ -26,6 +27,16 @@ const COURSE_ALIASES: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
     try {
+        const clientIp = getClientIp(req)
+        const rateLimitKey = `mobile_login:${clientIp}`
+        const rl = await checkRateLimit(rateLimitKey, 10, 60)
+        if (!rl.allowed) {
+            return NextResponse.json(
+                { error: "Too many login requests. Please try again later." },
+                { status: 429 }
+            )
+        }
+
         const { phoneNumber, courseId, otp } = await req.json()
 
         const isProduction = process.env.NODE_ENV === "production"

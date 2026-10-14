@@ -3,6 +3,7 @@ import { auth } from "@/auth"
 import { getAllBooks, getAllCoupons, createOrder, getUserCompletedBooks } from "@/lib/books/bookService"
 import { razorpay } from "@/lib/payments/razorpay"
 import { CartItem, BookOrder } from "@/lib/books/types"
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 
 function computeCouponDiscount(code: string, subtotal: number, availableCoupons: any[]): number {
   if (!code) return 0
@@ -28,6 +29,12 @@ function computeCouponDiscount(code: string, subtotal: number, availableCoupons:
 
 export async function POST(req: Request) {
   try {
+    const clientIp = getClientIp(req)
+    const rl = await checkRateLimit(`book_checkout_order:${clientIp}`, 15, 60)
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Too many checkout requests. Please try again in a moment." }, { status: 429 })
+    }
+
     const session = await auth()
     const userId = session?.user?.id
     if (!userId) {
