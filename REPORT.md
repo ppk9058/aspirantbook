@@ -138,3 +138,62 @@ const isDevBypassEnabled =
   4. `Rate-limiting & Lockout: 5 failed attempts locks account for 15 minutes with clear error` (Passed desktop & mobile)
 - Dedicated baseline `tests/e2e/ui-login.spec.ts`: Passed (2 passed, 23.4s).
 
+---
+
+## Step 3: Registration and Email Verification
+
+### What was broken
+1. Passwords accepted in registration had no policy validation beyond length >= 6. Weak/common passwords like `password123` were accepted.
+2. Email verification was entirely non-existent: no verification tokens, no outbox mechanism for dev/test, and no email verification page.
+3. Phone number and target exam/goal inputs were missing from registration form.
+4. Duplicate phone numbers and duplicate accounts were not handled with clear messages.
+5. Unverified users had no visual indicator or banner informing them about their unverified status.
+6. Server-side purchase flow lacked verification guardrails.
+
+### What changed
+1. **Password Policy (`lib/auth/password-policy.ts`):**
+   - Minimum 8 characters required.
+   - Enforced common-passwords blocklist checking (rejects `password123`, `admin123`, `qwerty123`, etc.).
+   - Secure Bcrypt cost 12 hashing.
+2. **Cryptographic Tokens & Email Outbox (`lib/auth/tokens.ts`, `lib/email.ts`):**
+   - Cryptographically random 32-byte tokens generated via `crypto.randomBytes(32).toString("hex")`.
+   - Stored in test DB as SHA-256 hash (`EmailVerificationToken`) with 24-hour expiry and single-use flag. Prior active tokens are invalidated.
+   - Provider interface in `lib/email.ts`: in dev & test environments, emails are appended to `logs/dev-email-outbox.jsonl` (gitignored), enabling deterministic test reading.
+3. **Registration Form & Action (`components/auth/RegisterForm.tsx`, `lib/actions/auth.ts`):**
+   - Added fields for full name, normalized email (trim, lowercase), password (min 8 chars with visual strength indicator), optional 10-digit phone, and target goal selection (`UPSC`, `SSC`, `CODING_TECH`, etc.).
+   - Client and server validation with Zod.
+   - Protected with IP rate limiting (Postgres-backed `RateLimit` table).
+   - Prevents duplicate accounts (case-insensitive email and unique phone).
+4. **Email Verification Page (`app/(auth)/verify-email/page.tsx`):**
+   - Validates `token` query parameter, activates user account by marking `emailVerified: new Date()`, and consumes token.
+   - Handles invalid, expired, and reused tokens with friendly error states.
+   - Includes `<ResendVerificationForm />` with rate limiting (max 3 per hour per email/IP) and safe generic responses against email enumeration.
+5. **Dashboard Unverified Email Banner (`components/auth/UnverifiedEmailBanner.tsx`):**
+   - Embedded directly in `DashboardShell.tsx`.
+   - Displays clear reminder if authenticated user has `!emailVerified`, with one-click "Resend verification link" button and dismiss button.
+6. **Purchase Guard (`lib/actions/payment/razorpay.ts`):**
+   - Added `REQUIRE_EMAIL_VERIFICATION_FOR_PURCHASE` config check (defaulting to `false` for backwards compatibility). When enabled, blocks unverified users from order creation.
+
+### Files Touched
+- `lib/auth/password-policy.ts` (new)
+- `lib/auth/tokens.ts` (new)
+- `lib/email.ts` (new)
+- `lib/actions/auth.ts`
+- `components/auth/RegisterForm.tsx`
+- `components/auth/ResendVerificationForm.tsx` (new)
+- `components/auth/UnverifiedEmailBanner.tsx` (new)
+- `components/layout/DashboardShell.tsx`
+- `app/(auth)/verify-email/page.tsx` (new)
+- `lib/actions/payment/razorpay.ts`
+- `tests/e2e/registration.spec.ts` (new)
+
+### Tests Added & Proof
+- `tests/e2e/registration.spec.ts`:
+  1. `Rejects short password (< 8 chars) with clear policy error` (Passed desktop & mobile)
+  2. `Rejects common easily guessed password with clear error` (Passed desktop & mobile)
+  3. `Successfully registers new user, writes verification email to dev outbox, and redirects` (Passed desktop & mobile)
+  4. `Duplicate registration with same email is rejected with clear message` (Passed desktop & mobile)
+  5. `Unverified user sees verification banner in dashboard with resend functionality` (Passed desktop & mobile)
+- Total: 10 passed in 35.6s.
+
+

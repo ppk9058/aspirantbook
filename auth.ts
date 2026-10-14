@@ -37,6 +37,7 @@ const nextAuthResult = NextAuth({
                 token.phoneNumber = (user as any).phoneNumber
                 token.subscriptionStatus = (user as any).subscriptionStatus
                 token.sessionVersion = (user as any).sessionVersion ?? 1
+                token.emailVerified = (user as any).emailVerified ?? null
                 token.lastRoleSync = now
             }
             // Sync role, isActive status, and sessionVersion from database periodically (every 60s) or on update trigger
@@ -55,6 +56,7 @@ const nextAuthResult = NextAuth({
                             phoneNumber: true,
                             isActive: true,
                             sessionVersion: true,
+                            emailVerified: true,
                             subscriptions: {
                                 where: {
                                     status: "ACTIVE",
@@ -79,6 +81,7 @@ const nextAuthResult = NextAuth({
                     }
                     token.subscriptionStatus = dbUser.subscriptions.length > 0 ? "ACTIVE" : "INACTIVE"
                     token.sessionVersion = dbUser.sessionVersion
+                    token.emailVerified = dbUser.emailVerified ? dbUser.emailVerified.toISOString() : null
                     token.lastRoleSync = now
                 } catch (err) {
                     console.error("JWT role refresh error:", err)
@@ -99,6 +102,7 @@ const nextAuthResult = NextAuth({
                 ;(session.user as any).phoneNumber = token.phoneNumber
                 session.user.subscriptionStatus = token.subscriptionStatus as string | undefined
                 session.user.sessionVersion = token.sessionVersion as number | undefined
+                ;(session.user as any).emailVerified = token.emailVerified
             }
             return session
         },
@@ -150,6 +154,7 @@ const nextAuthResult = NextAuth({
                             password: true,
                             isActive: true,
                             sessionVersion: true,
+                            emailVerified: true,
                         },
                     })
 
@@ -186,6 +191,7 @@ const nextAuthResult = NextAuth({
                         role: user.role,
                         image: user.image,
                         sessionVersion: user.sessionVersion,
+                        emailVerified: user.emailVerified ? user.emailVerified.toISOString() : null,
                     }
                 } catch (error) {
                     if (

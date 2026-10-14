@@ -39,6 +39,16 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         throw new Error("User must be logged in to create a payment order.")
     }
 
+    if (process.env.REQUIRE_EMAIL_VERIFICATION_FOR_PURCHASE === "true") {
+        const dbUser = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { emailVerified: true },
+        })
+        if (!dbUser?.emailVerified) {
+            throw new Error("Please verify your email address before making a purchase.")
+        }
+    }
+
     let amountInPaise: number
     let resolvedCourse: { id: string; price: number | null; isPremium: boolean } | null = null
     let couponValidation: {

@@ -11,6 +11,7 @@ function SubmitButton() {
     const { pending } = useFormStatus()
     return (
         <Button
+            type="submit"
             className="w-full bg-[#1DB954] hover:bg-[#16a34a] text-white font-bold py-2.5 rounded-xl shadow-xs transition-all"
             aria-disabled={pending}
             disabled={pending}
@@ -31,23 +32,26 @@ export function RegisterForm() {
     const [state, dispatch, isPending] = useActionState(register, null)
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
+    const [phoneNumber, setPhoneNumber] = useState("")
+    const [selectedGoal, setSelectedGoal] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
 
     useEffect(() => {
         if (state?.success) {
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 window.location.href = "/login"
-            }, 1500)
+            }, 3000)
+            return () => clearTimeout(timer)
         }
     }, [state?.success])
 
     const getStrength = (pass: string) => {
         if (!pass) return 0
         let s = 0
-        if (pass.length >= 6) s += 33
-        if (/[A-Z]/.test(pass) || /[0-9]/.test(pass)) s += 33
-        if (/[^A-Za-z0-9]/.test(pass) && pass.length >= 8) s += 34
+        if (pass.length >= 8) s += 34
+        if (/[A-Z]/.test(pass) && /[0-9]/.test(pass)) s += 33
+        if (/[^A-Za-z0-9]/.test(pass)) s += 33
         return s
     }
 
@@ -89,10 +93,10 @@ export function RegisterForm() {
                 </span>
             </div>
 
-            <form action={dispatch} className="space-y-4">
+            <form action={dispatch} className="space-y-3.5">
                 <div>
                     <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="name">
-                        Full Name
+                        Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
                         className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1DB954] dark:text-white"
@@ -108,7 +112,7 @@ export function RegisterForm() {
 
                 <div>
                     <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="email">
-                        Email Address
+                        Email Address <span className="text-red-500">*</span>
                     </label>
                     <input
                         className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1DB954] dark:text-white"
@@ -122,9 +126,48 @@ export function RegisterForm() {
                     />
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="phoneNumber">
+                            Phone Number <span className="text-gray-400 font-normal">(Optional)</span>
+                        </label>
+                        <input
+                            className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1DB954] dark:text-white"
+                            id="phoneNumber"
+                            type="tel"
+                            name="phoneNumber"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            placeholder="9876543210"
+                            maxLength={10}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="selectedGoal">
+                            Target Goal / Exam <span className="text-gray-400 font-normal">(Optional)</span>
+                        </label>
+                        <select
+                            className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1DB954] dark:text-white"
+                            id="selectedGoal"
+                            name="selectedGoal"
+                            value={selectedGoal}
+                            onChange={(e) => setSelectedGoal(e.target.value)}
+                        >
+                            <option value="">Select your goal...</option>
+                            <option value="UPSC">UPSC Civil Services</option>
+                            <option value="SSC">SSC / Banking Exams</option>
+                            <option value="STATE_PSC">State PSC Exams</option>
+                            <option value="CODING_TECH">Coding & Technology</option>
+                            <option value="DATA_AI">Data Science & AI</option>
+                            <option value="GENERAL_SKILLS">Professional Skills</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div>
                     <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="password">
-                        Password
+                        Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                         <input
@@ -134,18 +177,22 @@ export function RegisterForm() {
                             name="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Min. 6 characters"
+                            placeholder="Min. 8 characters"
                             required
-                            minLength={6}
+                            minLength={8}
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
                         >
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                     </div>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                        Must be at least 8 characters. Avoid common or easily guessed passwords.
+                    </p>
 
                     {/* Password Strength meter */}
                     {password && (
@@ -170,15 +217,20 @@ export function RegisterForm() {
                 </div>
 
                 {state?.error && (
-                    <div className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-xl text-xs font-medium">
+                    <div className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 rounded-xl text-xs font-medium" role="alert">
                         {state.error}
                     </div>
                 )}
 
                 {state?.success && (
-                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-medium flex items-center gap-2">
+                    <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-medium flex items-center gap-2" role="status">
                         <ShieldCheck className="h-4 w-4 flex-shrink-0" />
-                        <span>{state.success} Redirecting to login...</span>
+                        <div>
+                            <p className="font-semibold">{state.success}</p>
+                            <p className="text-[11px] text-emerald-700 dark:text-emerald-300 mt-0.5">
+                                Redirecting to login... Or <a href="/login" className="underline font-bold">click here to sign in</a>.
+                            </p>
+                        </div>
                     </div>
                 )}
             </form>

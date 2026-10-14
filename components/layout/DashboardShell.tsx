@@ -11,6 +11,7 @@ import MobileAppHeader from "@/components/layout/MobileAppHeader"
 import MobileNativeBottomBar from "@/components/layout/MobileNativeBottomBar"
 import Breadcrumbs from "@/components/layout/Breadcrumbs"
 import { IS_MOBILE_NATIVE_SHELL_ENABLED } from "@/lib/config/mobile-shell"
+import { UnverifiedEmailBanner } from "@/components/auth/UnverifiedEmailBanner"
 
 const Chatbot = dynamic(
     () => import("@/components/layout/Chatbot").then((m) => m.Chatbot),
@@ -144,6 +145,7 @@ export default function DashboardShell({
                             : "max-w-7xl mx-auto space-y-6"
                     }
                 >
+                    <UnverifiedEmailBanner />
                     {!isBooksPage && (
                         isTutorialPage ? (
                             <div className="px-4 sm:px-6 lg:px-8 pt-2">
