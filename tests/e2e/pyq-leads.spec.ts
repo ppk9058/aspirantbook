@@ -121,9 +121,10 @@ test.describe("PYQ Leads & Admin Polish E2E (Gate 5)", () => {
     await expect(page.getByText(`Paper Two 2024 ${nonce}`)).toBeVisible()
 
     // 2. Clear session and login as Teacher 1
+    await page.goto("about:blank")
     await page.context().clearCookies()
     await loginThroughUi(page, teacher1.email)
-    await page.goto("/admin/pyqs/leads", { waitUntil: "domcontentloaded" })
+    await page.goto("/admin/pyqs/leads", { waitUntil: "networkidle" })
     await expect(page.locator("h1", { hasText: /Student PDF Download Leads/i })).toBeVisible({ timeout: 15_000 })
 
     // Teacher 1 should see Lead 1 for Paper 1

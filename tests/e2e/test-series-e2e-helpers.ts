@@ -98,8 +98,10 @@ export async function loginAs(page: Page, email: string, password = PASSWORD) {
     },
   ]);
 
-  // Verify session via page.request using the authenticated context cookies
-  const sessionRes = await page.request.get(`${BASE}/api/auth/session`);
+  // Verify session via page.request using the newly authenticated cookie
+  const sessionRes = await page.request.get(`${BASE}/api/auth/session`, {
+    headers: { "Cookie": `${cookieName}=${tokenVal}` },
+  });
   const session = sessionRes.ok() ? await sessionRes.json() : null;
 
   if (!session?.user?.email || session.user.email.toLowerCase() !== email.toLowerCase()) {
