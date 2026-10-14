@@ -196,4 +196,52 @@ const isDevBypassEnabled =
   5. `Unverified user sees verification banner in dashboard with resend functionality` (Passed desktop & mobile)
 - Total: 10 passed in 35.6s.
 
+---
+
+## Step 4: Forgot Password and Reset Password
+
+### What was broken
+1. The "Forgot password?" link on the login screen did not have an active page (`/forgot-password` returned a 404).
+2. No token generation or storage model existed for password resets.
+3. No email dispatcher or reset password confirmation page existed (`/reset-password` returned a 404).
+4. No protection existed against user enumeration via password reset requests.
+5. No invalidation of existing active sessions occurred upon password change, allowing compromised sessions to persist indefinitely.
+
+### What changed
+1. **Cryptographic Reset Tokens (`lib/auth/tokens.ts`):**
+   - Generated using `crypto.randomBytes(32).toString("hex")`.
+   - Stored in the database as SHA-256 hashes (`PasswordResetToken` table).
+   - 30-minute expiry window (`RESET_TOKEN_EXPIRY_MS = 1800000`).
+   - Single-use flag (`used: true`); requesting a new token automatically invalidates any existing unused tokens for that email.
+2. **Email Notification Service (`lib/email.ts`):**
+   - Outbox mechanism in dev and test: writes to `logs/dev-email-outbox.jsonl` (gitignored) with token and link for automated E2E verification.
+   - Provider interface configured for Resend via HTTPS fetch in production environments.
+   - Automatically sends a security notification ("Your password was changed") when reset succeeds.
+3. **Forgot Password Flow (`app/(auth)/forgot-password/page.tsx`, `components/auth/ForgotPasswordForm.tsx`):**
+   - Rate-limited per IP (5/hour) and per email (3/hour) via PostgreSQL `RateLimit` table.
+   - Strictly uniform generic response: *"If an account with that email exists, we have sent a password reset link to your inbox."* completely prevents user enumeration.
+4. **Reset Password Flow (`app/(auth)/reset-password/page.tsx`, `components/auth/ResetPasswordForm.tsx`):**
+   - Validates `token` query param before rendering form; invalid, expired, or previously used tokens display an explicit alert with a link to request a new reset.
+   - Enforces password policy: minimum 8 characters, common-passwords blocklist.
+   - On submission, hashes password with Bcrypt (cost 12), consumes token atomically, increments user's `sessionVersion` (invalidating all sessions across all devices), and clears any lockout counters.
+   - Displays success state and redirects to `/login`.
+
+### Files Touched
+- `lib/actions/auth.ts`
+- `components/auth/ForgotPasswordForm.tsx` (new)
+- `components/auth/ResetPasswordForm.tsx` (new)
+- `app/(auth)/forgot-password/page.tsx` (new)
+- `app/(auth)/reset-password/page.tsx` (new)
+- `tests/e2e/forgot-reset-password.spec.ts` (new)
+
+### Tests Added & Proof
+- `tests/e2e/forgot-reset-password.spec.ts`:
+  1. `Forgot password link navigates from login page to /forgot-password` (Passed desktop & mobile)
+  2. `Non-existent email returns identical success response (anti-enumeration)` (Passed desktop & mobile)
+  3. `Full flow: request reset, read token from dev outbox, reset password, verify login` (Passed desktop & mobile)
+  4. `Invalid reset token displays invalid link error` (Passed desktop & mobile)
+  5. `Reset password enforces password policy (rejects weak/short password)` (Passed desktop & mobile)
+- Total: 10 passed in 43.8s.
+
+
 

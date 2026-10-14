@@ -8,7 +8,14 @@ import { z } from "zod"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { validatePasswordPolicy } from "@/lib/auth/password-policy"
-import { sendVerificationEmail, verifyAndConsumeEmailVerificationToken } from "@/lib/auth/tokens"
+import {
+    sendVerificationEmail,
+    verifyAndConsumeEmailVerificationToken,
+    sendPasswordResetEmail,
+    verifyPasswordResetToken,
+    consumePasswordResetToken,
+    sendPasswordChangedEmail,
+} from "@/lib/auth/tokens"
 import { checkRateLimit } from "@/lib/rate-limit"
 
 const RegisterSchema = z.object({
@@ -221,4 +228,130 @@ export async function resendVerificationEmailAction(prevState: any, formData: Fo
         return { error: "Unable to process your request. Please try again later." }
     }
 }
+
+export async function requestPasswordResetAction(prevState: any, formData: FormData) {
+    const rawEmail = formData.get("email") as string
+    if (!rawEmail || typeof rawEmail !== "string") {
+        return { error: "Please enter your email address." }
+    }
+
+    const email = rawEmail.trim().toLowerCase()
+    const emailValidation = z.string().email().safeParse(email)
+    if (!emailValidation.success) {
+        return { error: "Please enter a valid email address." }
+    }
+
+    // Rate limiting: 3 per hour per email, 5 per hour per IP (higher in test mode)
+    let clientIp = "127.0.0.1"
+    try {
+        const { headers } = await import("next/headers")
+        const h = await headers()
+        clientIp =
+            h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            h.get("x-real-ip")?.trim() ||
+            "127.0.0.1"
+    } catch {
+        clientIp = "127.0.0.1"
+    }
+
+    const isTest = process.env.APP_ENV === "test"
+    const maxIp = isTest ? 100 : 5
+    const maxEmail = isTest ? 50 : 3
+
+    const ipLimit = await checkRateLimit(`forgot-ip:${clientIp}`, maxIp, 3600)
+    const emailLimit = await checkRateLimit(`forgot-email:${email}`, maxEmail, 3600)
+
+    if (!ipLimit.allowed || !emailLimit.allowed) {
+        return { error: "Too many password reset requests. Please try again in an hour." }
+    }
+
+    // Safe uniform response to prevent user enumeration
+    const genericSuccess = "If an account with that email exists, we have sent a password reset link to your inbox."
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { email },
+            select: { id: true, email: true, isActive: true },
+        })
+
+        if (!user || user.isActive === false) {
+            return { success: genericSuccess }
+        }
+
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+        await sendPasswordResetEmail(email, appUrl)
+
+        return { success: genericSuccess }
+    } catch (error) {
+        console.error("[ForgotPassword] Error:", error)
+        return { error: "Unable to process your request. Please try again later." }
+    }
+}
+
+export async function resetPasswordAction(prevState: any, formData: FormData) {
+    const rawData = Object.fromEntries(formData.entries())
+    const token = (rawData.token as string)?.trim()
+    const password = rawData.password as string
+    const confirmPassword = rawData.confirmPassword as string
+
+    if (!token) {
+        return { error: "Invalid or missing password reset token." }
+    }
+
+    if (!password || !confirmPassword) {
+        return { error: "Please enter and confirm your new password." }
+    }
+
+    if (password !== confirmPassword) {
+        return { error: "Passwords do not match." }
+    }
+
+    // Password policy check
+    const policyResult = validatePasswordPolicy(password)
+    if (!policyResult.valid) {
+        return { error: policyResult.error }
+    }
+
+    try {
+        // Validate reset token
+        const tokenResult = await verifyPasswordResetToken(token)
+        if (!tokenResult.valid || !tokenResult.email) {
+            if (tokenResult.reason === "expired") {
+                return { error: "This password reset link has expired. Please request a new one." }
+            }
+            if (tokenResult.reason === "used") {
+                return { error: "This password reset link has already been used. Please request a new one." }
+            }
+            return { error: "Invalid or expired password reset link." }
+        }
+
+        // Hash new password with bcrypt cost 12
+        const hashedPassword = await bcrypt.hash(password, 12)
+
+        // Update password and increment sessionVersion (invalidates all sessions everywhere)
+        await prisma.user.updateMany({
+            where: { email: tokenResult.email },
+            data: {
+                password: hashedPassword,
+                sessionVersion: { increment: 1 },
+                failedLoginAttempts: 0,
+                lockedUntil: null,
+            },
+        })
+
+        // Consume token so it cannot be used again
+        await consumePasswordResetToken(token)
+
+        // Dispatch security notification email
+        await sendPasswordChangedEmail(tokenResult.email).catch((err) => {
+            console.error("[ResetPassword] Notification error:", err)
+        })
+
+        return { success: "Your password has been reset successfully! Redirecting to login..." }
+    } catch (error) {
+        console.error("[ResetPassword] Error:", error)
+        return { error: "Unable to reset password. Please try again later." }
+    }
+}
+
 
