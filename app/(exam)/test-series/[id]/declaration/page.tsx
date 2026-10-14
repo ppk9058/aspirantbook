@@ -278,7 +278,6 @@ function DeclarationContent() {
                         </p>
                         <label
                             data-testid="declaration-checkbox"
-                            onClick={() => setAgreed(!agreed)}
                             className="flex items-start gap-3 cursor-pointer p-2 -m-2 rounded-lg hover:bg-gray-100/50 transition-colors min-h-[44px]"
                         >
                             <input
