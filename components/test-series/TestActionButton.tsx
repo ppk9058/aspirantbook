@@ -7,6 +7,7 @@ import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { Play, RotateCcw, FileText, ArrowRight } from "lucide-react"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
 import { getExamInstructionsUrl, getExamAttemptUrl, getExamResultUrl } from "@/lib/exam/urls"
+import { fetchBatchedUserStatus } from "@/lib/exam/batched-user-status"
 
 export interface TestActionButtonProps {
   testId: string
@@ -84,15 +85,10 @@ export function TestActionButton({
     let isMounted = true
     setIsLoading(true)
 
-    fetch(`/api/exam/attempt/user-status?testId=${encodeURIComponent(testId)}`)
-      .then((res) => res.json())
-      .then((json) => {
+    fetchBatchedUserStatus(testId)
+      .then((status) => {
         if (!isMounted) return
-        if (json.success && json.data && json.data[testId]) {
-          setInternalStatus(json.data[testId])
-        } else {
-          setInternalStatus({ state: "NOT_STARTED" })
-        }
+        setInternalStatus(status || { state: "NOT_STARTED" })
         setIsLoading(false)
       })
       .catch(() => {

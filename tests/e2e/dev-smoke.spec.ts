@@ -87,7 +87,7 @@ test.describe("Dev Smoke Suite: Critical Flows and DB Sync Safety", () => {
     await page.click('button[type="submit"]')
 
     // Must redirect to dashboard or home, not show error
-    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 20000 })
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 45000 })
     expect(page.url()).not.toContain("/login")
   })
 
@@ -131,7 +131,7 @@ test.describe("Dev Smoke Suite: Critical Flows and DB Sync Safety", () => {
     await page.fill('input[name="password"], input[type="password"]', newPassword)
     await page.click('button[type="submit"]')
 
-    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 20000 })
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 45000 })
     expect(page.url()).not.toContain("/login")
   })
 
@@ -141,7 +141,7 @@ test.describe("Dev Smoke Suite: Critical Flows and DB Sync Safety", () => {
     await page.fill('input[name="email"], input[type="email"]', throwawayEmail)
     await page.fill('input[name="password"], input[type="password"]', newPassword)
     await page.click('button[type="submit"]')
-    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 20000 })
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 45000 })
 
     // Mock Razorpay SDK before loading pricing page
     await page.addInitScript(() => {

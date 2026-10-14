@@ -33,6 +33,7 @@ import { useGoal } from "@/components/providers/GoalProvider"
 import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
 import { applyQuizGoalFilter } from "@/lib/goals/goal-filters"
 import { getQuizSlug } from "@/lib/current-affairs/slugs"
+import { prefetchUserStatuses } from "@/lib/exam/batched-user-status"
 import dynamic from "next/dynamic"
 
 const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
@@ -166,6 +167,9 @@ export default function CurrentAffairsQuizzesClient({
             year: t.year,
           }))
         )
+        if (session?.user?.id && json.data.length > 0) {
+          prefetchUserStatuses(json.data.map((t: any) => t.id)).catch(() => {})
+        }
       } else {
         setDbQuizzes([])
       }
