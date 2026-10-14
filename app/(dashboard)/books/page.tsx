@@ -6,6 +6,7 @@ import BookStoreHeader from "@/components/books/BookStoreHeader"
 import BookCard from "@/components/books/BookCard"
 import CartDrawer from "@/components/books/CartDrawer"
 import { BookCartProvider } from "@/lib/books/cartContext"
+import { WishlistProvider } from "@/lib/books/wishlistContext"
 import { BOOKS_DATA } from "@/lib/books/data"
 import { Book } from "@/lib/books/types"
 import { BookOpen, ExternalLink, Zap } from "lucide-react"
@@ -64,10 +65,15 @@ function bookMatchesChip(book: Book, chip: string): boolean {
 }
 
 function BooksCatalogContent() {
+  const [isHydrated, setIsHydrated] = useState(false)
   const [allBooks, setAllBooks] = useState<Book[]>(BOOKS_DATA)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedChip, setSelectedChip] = useState<string>("All")
   const [sortBy, setSortBy] = useState<string>("featured")
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
 
   useEffect(() => {
     fetch("/api/books")
@@ -123,7 +129,7 @@ function BooksCatalogContent() {
   }, [allBooks])
 
   return (
-    <div className="space-y-6 pb-32 sm:pb-24 lg:pb-16 font-sans">
+    <div data-testid="books-page-root" data-hydrated={isHydrated ? "true" : "false"} className="space-y-6 pb-32 sm:pb-24 lg:pb-16 font-sans">
       {/* Store Header with Search, Orders, Cart */}
       <BookStoreHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
@@ -284,7 +290,9 @@ function BooksCatalogContent() {
 export default function BooksPage() {
   return (
     <BookCartProvider>
-      <BooksCatalogContent />
+      <WishlistProvider>
+        <BooksCatalogContent />
+      </WishlistProvider>
     </BookCartProvider>
   )
 }

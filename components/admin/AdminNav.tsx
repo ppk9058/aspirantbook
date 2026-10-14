@@ -46,6 +46,7 @@ const adminNavigation = [
     { icon: Sparkles, name: "HomePage Card Studio", href: "/admin/homepage-cards", matchPrefix: "/admin/homepage-cards" },
     { icon: PencilRuler, name: "Test Series Studio", href: "/admin/test-series", matchPrefix: "/admin/test-series" },
     { icon: FileText, name: "PYQ Studio", href: "/admin/pyqs", matchPrefix: "/admin/pyqs" },
+    { icon: BookOpen, name: "Book Studio", href: "/admin/book-studio", matchPrefix: "/admin/book-studio" },
     { icon: Book, name: "Online Bookstore", href: "/admin/books", matchPrefix: "/admin/books", adminOnly: true },
     { icon: GraduationCap, name: "Batches & Prep", href: "/admin/batches", matchPrefix: "/admin/batches" },
     { icon: FolderKanban, name: "Career Tracks", href: "/admin/tracks", matchPrefix: "/admin/tracks" },

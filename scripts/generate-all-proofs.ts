@@ -2,6 +2,7 @@ import { chromium } from "playwright-core"
 import { prisma } from "../lib/prisma"
 import bcrypt from "bcryptjs"
 import path from "path"
+import { DEFAULT_TEST_PASSWORD } from "../tests/support/test-credentials"
 
 const ARTIFACTS_DIR = "/Users/praveenkumar/.gemini/antigravity/brain/8877425f-14b2-4ce1-b4ec-00ba0ed01c01"
 
@@ -33,7 +34,7 @@ async function main() {
   }
 
   // Setup admin user password for browser login
-  const testPassword = "AdminTestPassword123!"
+  const testPassword = DEFAULT_TEST_PASSWORD
   const hashedPassword = await bcrypt.hash(testPassword, 10)
   await prisma.user.upsert({
     where: { email: "admin@trillionskills.com" },

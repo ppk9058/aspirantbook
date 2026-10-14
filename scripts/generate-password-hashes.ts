@@ -1,10 +1,11 @@
 import bcrypt from "bcryptjs"
+import { DEFAULT_TEST_PASSWORD } from "../tests/support/test-credentials"
 
 async function generatePasswordHashes() {
-    const password = "Test@123" // Simple test password for all users
+    const password = DEFAULT_TEST_PASSWORD
 
     console.log("Generating bcrypt hashes for test users...")
-    console.log("Password for all test users: Test@123")
+    console.log(`Password for all test users: ${DEFAULT_TEST_PASSWORD}`)
     console.log("")
 
     // Generate 4 hashes (one for each user)

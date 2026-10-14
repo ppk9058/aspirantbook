@@ -1,5 +1,6069 @@
 [
   {
+    "id": "book-1791936386917",
+    "slug": "e2e-physics-notes-e2e-20261014000623249-jzg7h",
+    "title": "E2E Physics Notes E2E-20261014000623249-jzg7h",
+    "subtitle": "",
+    "author": "Prof. E2E-20261014000623249-jzg7h",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv7cnmlf0001xp6k1t4dgedq",
+      "role": "TEACHER",
+      "name": "E2E-20261014000623249-jzg7h teacher"
+    },
+    "rejectionReason": "Cover image resolution needs improvement.",
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-14T00:06:26.917Z",
+    "updatedAt": "2026-10-14T00:06:29.504Z"
+  },
+  {
+    "id": "book-1791936339932",
+    "slug": "e2e-physics-notes-e2e-20261014000532424-2yumr",
+    "title": "E2E Physics Notes E2E-20261014000532424-2yumr",
+    "subtitle": "",
+    "author": "Prof. E2E-20261014000532424-2yumr",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv7cmjee0001xp3rftu5ktly",
+      "role": "TEACHER",
+      "name": "E2E-20261014000532424-2yumr teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-14T00:05:39.932Z",
+    "updatedAt": "2026-10-14T00:05:39.932Z"
+  },
+  {
+    "id": "book-1791930675251",
+    "slug": "e2e-physics-notes-e2e-20261013223108649-jgsjl",
+    "title": "E2E Physics Notes E2E-20261013223108649-jgsjl",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013223108649-jgsjl",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv7995720001xpuhmlfk4mfz",
+      "role": "TEACHER",
+      "name": "E2E-20261013223108649-jgsjl teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T22:31:15.252Z",
+    "updatedAt": "2026-10-13T22:31:30.798Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791930583082",
+    "slug": "e2e-physics-notes-e2e-20261013222929746-pph18",
+    "title": "E2E Physics Notes E2E-20261013222929746-pph18",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013222929746-pph18",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv7970uu0001xpoimn8e3qno",
+      "role": "TEACHER",
+      "name": "E2E-20261013222929746-pph18 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T22:29:43.082Z",
+    "updatedAt": "2026-10-13T22:29:57.058Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791928465722",
+    "slug": "e2e-physics-notes-e2e-20261013215414780-liptr",
+    "title": "E2E Physics Notes E2E-20261013215414780-liptr",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013215414780-liptr",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv77xp7e0001xpfxpcfzesku",
+      "role": "TEACHER",
+      "name": "E2E-20261013215414780-liptr teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T21:54:25.723Z",
+    "updatedAt": "2026-10-13T21:54:51.503Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791928343396",
+    "slug": "e2e-physics-notes-e2e-20261013215137807-lvpz9",
+    "title": "E2E Physics Notes E2E-20261013215137807-lvpz9",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013215137807-lvpz9",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv77uc450001xpbn1h031t7o",
+      "role": "TEACHER",
+      "name": "E2E-20261013215137807-lvpz9 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T21:52:23.396Z",
+    "updatedAt": "2026-10-13T21:52:23.396Z"
+  },
+  {
+    "id": "book-1791926279410",
+    "slug": "e2e-physics-notes-e2e-20261013211754469-lwx7s",
+    "title": "E2E Physics Notes E2E-20261013211754469-lwx7s",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013211754469-lwx7s",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv76mynq0001xpggjjiatk8k",
+      "role": "TEACHER",
+      "name": "E2E-20261013211754469-lwx7s teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T21:17:59.410Z",
+    "updatedAt": "2026-10-13T21:18:04.230Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791926208951",
+    "slug": "e2e-physics-notes-e2e-20261013211642155-cm7cu",
+    "title": "E2E Physics Notes E2E-20261013211642155-cm7cu",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013211642155-cm7cu",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv76leu90001xpdnlub4lsnw",
+      "role": "TEACHER",
+      "name": "E2E-20261013211642155-cm7cu teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T21:16:48.951Z",
+    "updatedAt": "2026-10-13T21:17:02.632Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791923798010",
+    "slug": "e2e-physics-notes-e2e-20261013203542150-ov24v",
+    "title": "E2E Physics Notes E2E-20261013203542150-ov24v",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013203542150-ov24v",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv754p6t0001xpy5tqrvt0rm",
+      "role": "TEACHER",
+      "name": "E2E-20261013203542150-ov24v teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T20:36:38.011Z",
+    "updatedAt": "2026-10-13T20:37:08.439Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791919121510",
+    "slug": "e2e-physics-notes-e2e-20261013191834866-v7h9p",
+    "title": "E2E Physics Notes E2E-20261013191834866-v7h9p",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013191834866-v7h9p",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv72dib30001xpemu8q028i4",
+      "role": "TEACHER",
+      "name": "E2E-20261013191834866-v7h9p teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T19:18:41.510Z",
+    "updatedAt": "2026-10-13T19:18:48.902Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791919019047",
+    "slug": "e2e-physics-notes-e2e-20261013191653680-lixg0",
+    "title": "E2E Physics Notes E2E-20261013191653680-lixg0",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013191653680-lixg0",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv72bc6r0001xp8kiwnp67a7",
+      "role": "TEACHER",
+      "name": "E2E-20261013191653680-lixg0 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T19:16:59.047Z",
+    "updatedAt": "2026-10-13T19:17:06.733Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791918980080",
+    "slug": "e2e-physics-notes-e2e-20261013191611431-wv2uj",
+    "title": "E2E Physics Notes E2E-20261013191611431-wv2uj",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013191611431-wv2uj",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv72afoh0001xp68afr339lm",
+      "role": "TEACHER",
+      "name": "E2E-20261013191611431-wv2uj teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T19:16:20.080Z",
+    "updatedAt": "2026-10-13T19:16:30.655Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791918887360",
+    "slug": "e2e-physics-notes-e2e-20261013191337775-8x1p5",
+    "title": "E2E Physics Notes E2E-20261013191337775-8x1p5",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013191337775-8x1p5",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 250,
+    "originalPrice": 350,
+    "mrp": 350,
+    "discountPercent": 29,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "240"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 240,
+    "fileSize": "18.5 MB",
+    "fileSizeMb": 18.5,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv7275mb0001xpz2jf5rfw2f",
+      "role": "TEACHER",
+      "name": "E2E-20261013191337775-8x1p5 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T19:14:47.360Z",
+    "updatedAt": "2026-10-13T19:15:08.137Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791917261915",
+    "slug": "e2e-physics-notes-e2e-20261013184709795-q01ub",
+    "title": "E2E Physics Notes E2E-20261013184709795-q01ub",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013184709795-q01ub",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv7194c50001xpkpv0vium0i",
+      "role": "TEACHER",
+      "name": "E2E-20261013184709795-q01ub teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T18:47:41.915Z",
+    "updatedAt": "2026-10-13T18:47:41.915Z"
+  },
+  {
+    "id": "book-1791916847573",
+    "slug": "e2e-physics-notes-e2e-20261013184037504-8ue2e",
+    "title": "E2E Physics Notes E2E-20261013184037504-8ue2e",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013184037504-8ue2e",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv710p1d0001xp5ej6sp14ke",
+      "role": "TEACHER",
+      "name": "E2E-20261013184037504-8ue2e teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T18:40:47.574Z",
+    "updatedAt": "2026-10-13T18:40:47.574Z"
+  },
+  {
+    "id": "book-1791915771027",
+    "slug": "e2e-physics-notes-e2e-20261013182244595-9dbl4",
+    "title": "E2E Physics Notes E2E-20261013182244595-9dbl4",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013182244595-9dbl4",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv70dp4z0001xpl1fuu7nvoh",
+      "role": "TEACHER",
+      "name": "E2E-20261013182244595-9dbl4 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T18:22:51.027Z",
+    "updatedAt": "2026-10-13T18:23:02.439Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791915712496",
+    "slug": "e2e-physics-notes-e2e-20261013182142983-8m4zx",
+    "title": "E2E Physics Notes E2E-20261013182142983-8m4zx",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013182142983-8m4zx",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv70ceqd0001xpj9wopjupvd",
+      "role": "TEACHER",
+      "name": "E2E-20261013182142983-8m4zx teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T18:21:52.496Z",
+    "updatedAt": "2026-10-13T18:22:15.297Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791915559359",
+    "slug": "e2e-physics-notes-e2e-20261013181903172-iqe8d",
+    "title": "E2E Physics Notes E2E-20261013181903172-iqe8d",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013181903172-iqe8d",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv708yf90001xpey0hjf5rhw",
+      "role": "TEACHER",
+      "name": "E2E-20261013181903172-iqe8d teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T18:19:19.359Z",
+    "updatedAt": "2026-10-13T18:19:19.359Z"
+  },
+  {
+    "id": "book-1791915080669",
+    "slug": "e2e-physics-notes-e2e-20261013181102831-qjxd0",
+    "title": "E2E Physics Notes E2E-20261013181102831-qjxd0",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013181102831-qjxd0",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6zynrn0001xpymjek2aq27",
+      "role": "TEACHER",
+      "name": "E2E-20261013181102831-qjxd0 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T18:11:20.669Z",
+    "updatedAt": "2026-10-13T18:11:35.005Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791913249730",
+    "slug": "e2e-physics-notes-e2e-20261013174044685-9dq2h",
+    "title": "E2E Physics Notes E2E-20261013174044685-9dq2h",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013174044685-9dq2h",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6yvorb0001xpfgt94qf8pe",
+      "role": "TEACHER",
+      "name": "E2E-20261013174044685-9dq2h teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T17:40:49.730Z",
+    "updatedAt": "2026-10-13T17:40:59.340Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791913200660",
+    "slug": "e2e-physics-notes-e2e-20261013173953282-bad2o",
+    "title": "E2E Physics Notes E2E-20261013173953282-bad2o",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013173953282-bad2o",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6yul3n0001xpdag2ne9xsk",
+      "role": "TEACHER",
+      "name": "E2E-20261013173953282-bad2o teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T17:40:00.660Z",
+    "updatedAt": "2026-10-13T17:40:09.881Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791912950481",
+    "slug": "e2e-physics-notes-e2e-20261013173543677-ofnys",
+    "title": "E2E Physics Notes E2E-20261013173543677-ofnys",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013173543677-ofnys",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6yp8vd0001xp5mhp72nt8w",
+      "role": "TEACHER",
+      "name": "E2E-20261013173543677-ofnys teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T17:35:50.481Z",
+    "updatedAt": "2026-10-13T17:36:16.974Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791912860721",
+    "slug": "e2e-physics-notes-e2e-20261013173415380-sfc6w",
+    "title": "E2E Physics Notes E2E-20261013173415380-sfc6w",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013173415380-sfc6w",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6yncd40001xp2iqoobroxu",
+      "role": "TEACHER",
+      "name": "E2E-20261013173415380-sfc6w teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T17:34:20.721Z",
+    "updatedAt": "2026-10-13T17:34:28.400Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791912825763",
+    "slug": "e2e-physics-notes-e2e-20261013173339081-q1p7f",
+    "title": "E2E Physics Notes E2E-20261013173339081-q1p7f",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013173339081-q1p7f",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6ymke40001xp10mo3odjfd",
+      "role": "TEACHER",
+      "name": "E2E-20261013173339081-q1p7f teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T17:33:45.763Z",
+    "updatedAt": "2026-10-13T17:33:45.763Z"
+  },
+  {
+    "id": "book-1791912706921",
+    "slug": "e2e-physics-notes-e2e-20261013173136916-i1nxz",
+    "title": "E2E Physics Notes E2E-20261013173136916-i1nxz",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013173136916-i1nxz",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6yjy4y0001xpx1g02mwnhj",
+      "role": "TEACHER",
+      "name": "E2E-20261013173136916-i1nxz teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T17:31:46.921Z",
+    "updatedAt": "2026-10-13T17:31:46.921Z"
+  },
+  {
+    "id": "book-1791912638787",
+    "slug": "e2e-physics-notes-e2e-20261013173032774-q85xn",
+    "title": "E2E Physics Notes E2E-20261013173032774-q85xn",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013173032774-q85xn",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6yikmo0001xpunqv3978uq",
+      "role": "TEACHER",
+      "name": "E2E-20261013173032774-q85xn teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T17:30:38.787Z",
+    "updatedAt": "2026-10-13T17:30:38.787Z"
+  },
+  {
+    "id": "book-1791912548334",
+    "slug": "e2e-physics-notes-e2e-20261013172900790-l7cwa",
+    "title": "E2E Physics Notes E2E-20261013172900790-l7cwa",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013172900790-l7cwa",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6yglnc0001xps414a8rgqa",
+      "role": "TEACHER",
+      "name": "E2E-20261013172900790-l7cwa teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T17:29:08.334Z",
+    "updatedAt": "2026-10-13T17:29:08.334Z"
+  },
+  {
+    "id": "book-1791912413289",
+    "slug": "e2e-physics-notes-e2e-20261013172606122-yj498",
+    "title": "E2E Physics Notes E2E-20261013172606122-yj498",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013172606122-yj498",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6ycuw40001xpnic8fvjwkx",
+      "role": "TEACHER",
+      "name": "E2E-20261013172606122-yj498 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T17:26:53.289Z",
+    "updatedAt": "2026-10-13T17:26:53.289Z"
+  },
+  {
+    "id": "book-1791907468620",
+    "slug": "e2e-physics-notes-e2e-20261013160418304-23m1h",
+    "title": "E2E Physics Notes E2E-20261013160418304-23m1h",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013160418304-23m1h",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6vfnzj0001xpkx8t680j7t",
+      "role": "TEACHER",
+      "name": "E2E-20261013160418304-23m1h teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T16:04:28.620Z",
+    "updatedAt": "2026-10-13T16:04:28.620Z"
+  },
+  {
+    "id": "book-1791907284919",
+    "slug": "e2e-physics-notes-e2e-20261013160018749-fw92o",
+    "title": "E2E Physics Notes E2E-20261013160018749-fw92o",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013160018749-fw92o",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6vaj6m0001xpd8r0ulscop",
+      "role": "TEACHER",
+      "name": "E2E-20261013160018749-fw92o teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T16:01:24.919Z",
+    "updatedAt": "2026-10-13T16:01:24.919Z"
+  },
+  {
+    "id": "book-1791907001043",
+    "slug": "e2e-physics-notes-e2e-20261013155630746-hzz9g",
+    "title": "E2E Physics Notes E2E-20261013155630746-hzz9g",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013155630746-hzz9g",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6v5n950001xp3i4yep937p",
+      "role": "TEACHER",
+      "name": "E2E-20261013155630746-hzz9g teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T15:56:41.043Z",
+    "updatedAt": "2026-10-13T15:56:57.455Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791906757528",
+    "slug": "e2e-physics-notes-e2e-20261013155202180-ol6ox",
+    "title": "E2E Physics Notes E2E-20261013155202180-ol6ox",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013155202180-ol6ox",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6uzw0y0001xpv59v1pahzu",
+      "role": "TEACHER",
+      "name": "E2E-20261013155202180-ol6ox teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T15:52:37.528Z",
+    "updatedAt": "2026-10-13T15:52:37.528Z"
+  },
+  {
+    "id": "book-1791904242685",
+    "slug": "e2e-physics-notes-e2e-20261013151036803-rtt2m",
+    "title": "E2E Physics Notes E2E-20261013151036803-rtt2m",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013151036803-rtt2m",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6tima10001xpvxsut3l7lk",
+      "role": "TEACHER",
+      "name": "E2E-20261013151036803-rtt2m teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T15:10:42.685Z",
+    "updatedAt": "2026-10-13T15:10:48.326Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791904185796",
+    "slug": "e2e-physics-notes-e2e-20261013150933440-hjw91",
+    "title": "E2E Physics Notes E2E-20261013150933440-hjw91",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013150933440-hjw91",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6th9jm0001xpuc9ecxu6a4",
+      "role": "TEACHER",
+      "name": "E2E-20261013150933440-hjw91 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T15:09:45.796Z",
+    "updatedAt": "2026-10-13T15:09:59.621Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903984371",
+    "slug": "e2e-physics-notes-e2e-20261013150618679-l9t99",
+    "title": "E2E Physics Notes E2E-20261013150618679-l9t99",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013150618679-l9t99",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6td32f0001xpotye9b13z6",
+      "role": "TEACHER",
+      "name": "E2E-20261013150618679-l9t99 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T15:06:24.371Z",
+    "updatedAt": "2026-10-13T15:06:28.998Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903943534",
+    "slug": "e2e-physics-notes-e2e-20261013150536764-h8lwb",
+    "title": "E2E Physics Notes E2E-20261013150536764-h8lwb",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013150536764-h8lwb",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6tc6q30001xpndj05suodm",
+      "role": "TEACHER",
+      "name": "E2E-20261013150536764-h8lwb teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T15:05:43.534Z",
+    "updatedAt": "2026-10-13T15:05:49.145Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903889131",
+    "slug": "e2e-physics-notes-e2e-20261013150437812-ybqdk",
+    "title": "E2E Physics Notes E2E-20261013150437812-ybqdk",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013150437812-ybqdk",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6tax9f0001xpkx7793zey8",
+      "role": "TEACHER",
+      "name": "E2E-20261013150437812-ybqdk teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T15:04:49.131Z",
+    "updatedAt": "2026-10-13T15:04:56.475Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903806847",
+    "slug": "e2e-physics-notes-e2e-20261013150309585-1przy",
+    "title": "E2E Physics Notes E2E-20261013150309585-1przy",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013150309585-1przy",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6t91i90001xpivqvozsod1",
+      "role": "TEACHER",
+      "name": "E2E-20261013150309585-1przy teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T15:03:26.847Z",
+    "updatedAt": "2026-10-13T15:03:26.847Z"
+  },
+  {
+    "id": "book-1791903649341",
+    "slug": "e2e-physics-notes-e2e-20261013150043820-bpomn",
+    "title": "E2E Physics Notes E2E-20261013150043820-bpomn",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013150043820-bpomn",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6t5wof0001xpe6iflt19od",
+      "role": "TEACHER",
+      "name": "E2E-20261013150043820-bpomn teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T15:00:49.341Z",
+    "updatedAt": "2026-10-13T15:01:00.432Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903581534",
+    "slug": "e2e-physics-notes-e2e-20261013145935394-10iw0",
+    "title": "E2E Physics Notes E2E-20261013145935394-10iw0",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013145935394-10iw0",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6t4fw00001xpbcnw255gx7",
+      "role": "TEACHER",
+      "name": "E2E-20261013145935394-10iw0 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:59:41.535Z",
+    "updatedAt": "2026-10-13T14:59:54.343Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903436474",
+    "slug": "e2e-physics-notes-e2e-20261013145710657-r7imb",
+    "title": "E2E Physics Notes E2E-20261013145710657-r7imb",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013145710657-r7imb",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6t1c8w0001xp5fj3zo9b18",
+      "role": "TEACHER",
+      "name": "E2E-20261013145710657-r7imb teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:57:16.474Z",
+    "updatedAt": "2026-10-13T14:57:21.531Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903396815",
+    "slug": "e2e-physics-notes-e2e-20261013145629354-0eo7q",
+    "title": "E2E Physics Notes E2E-20261013145629354-0eo7q",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013145629354-0eo7q",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6t0gdd0001xp44i0vogjd5",
+      "role": "TEACHER",
+      "name": "E2E-20261013145629354-0eo7q teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:56:36.816Z",
+    "updatedAt": "2026-10-13T14:56:45.084Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903270799",
+    "slug": "e2e-physics-notes-e2e-20261013145426006-e0rrz",
+    "title": "E2E Physics Notes E2E-20261013145426006-e0rrz",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013145426006-e0rrz",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6sxt5l0001xpznvnl3e1r7",
+      "role": "TEACHER",
+      "name": "E2E-20261013145426006-e0rrz teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:54:30.799Z",
+    "updatedAt": "2026-10-13T14:54:40.423Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903204258",
+    "slug": "e2e-physics-notes-e2e-20261013145317953-en9l4",
+    "title": "E2E Physics Notes E2E-20261013145317953-en9l4",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013145317953-en9l4",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6swcnr0001xpxt7osm989p",
+      "role": "TEACHER",
+      "name": "E2E-20261013145317953-en9l4 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:53:24.258Z",
+    "updatedAt": "2026-10-13T14:53:31.207Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903181584",
+    "slug": "e2e-physics-notes-e2e-20261013145255187-4ta9u",
+    "title": "E2E Physics Notes E2E-20261013145255187-4ta9u",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013145255187-4ta9u",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6svv740001xpwp5etzie2v",
+      "role": "TEACHER",
+      "name": "E2E-20261013145255187-4ta9u teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:53:01.584Z",
+    "updatedAt": "2026-10-13T14:53:07.614Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903157502",
+    "slug": "e2e-physics-notes-e2e-20261013145230525-cqtj4",
+    "title": "E2E Physics Notes E2E-20261013145230525-cqtj4",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013145230525-cqtj4",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "rejected",
+    "createdBy": {
+      "id": "cmv6svc230001xpw2hl2n1hp5",
+      "role": "TEACHER",
+      "name": "E2E-20261013145230525-cqtj4 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:52:37.502Z",
+    "updatedAt": "2026-10-13T14:52:48.713Z",
+    "rejectionReason": "Cover image resolution needs improvement."
+  },
+  {
+    "id": "book-1791903079595",
+    "slug": "e2e-physics-notes-e2e-20261013145112284-o58v3",
+    "title": "E2E Physics Notes E2E-20261013145112284-o58v3",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013145112284-o58v3",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6stnoy0001xpticxwu4pnp",
+      "role": "TEACHER",
+      "name": "E2E-20261013145112284-o58v3 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:51:19.595Z",
+    "updatedAt": "2026-10-13T14:51:19.595Z"
+  },
+  {
+    "id": "book-1791903050935",
+    "slug": "e2e-physics-notes-e2e-20261013145044201-azhl8",
+    "title": "E2E Physics Notes E2E-20261013145044201-azhl8",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013145044201-azhl8",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6st2840001xpsjjgf5acrd",
+      "role": "TEACHER",
+      "name": "E2E-20261013145044201-azhl8 teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:50:50.935Z",
+    "updatedAt": "2026-10-13T14:50:50.935Z"
+  },
+  {
+    "id": "book-1791903018132",
+    "slug": "e2e-physics-notes-e2e-20261013145012313-s1m9f",
+    "title": "E2E Physics Notes E2E-20261013145012313-s1m9f",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013145012313-s1m9f",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6ssdon0001xpr2oerwae5m",
+      "role": "TEACHER",
+      "name": "E2E-20261013145012313-s1m9f teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:50:18.132Z",
+    "updatedAt": "2026-10-13T14:50:18.132Z"
+  },
+  {
+    "id": "book-1791902990194",
+    "slug": "e2e-physics-notes-e2e-20261013144942973-jityq",
+    "title": "E2E Physics Notes E2E-20261013144942973-jityq",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013144942973-jityq",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6srqv00001xpqf9htp89gi",
+      "role": "TEACHER",
+      "name": "E2E-20261013144942973-jityq teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:49:50.194Z",
+    "updatedAt": "2026-10-13T14:49:50.194Z"
+  },
+  {
+    "id": "book-1791902938637",
+    "slug": "e2e-physics-notes-e2e-20261013144852085-n041z",
+    "title": "E2E Physics Notes E2E-20261013144852085-n041z",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013144852085-n041z",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6sqnjw0001xposb6tym3tx",
+      "role": "TEACHER",
+      "name": "E2E-20261013144852085-n041z teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:48:58.637Z",
+    "updatedAt": "2026-10-13T14:48:58.637Z"
+  },
+  {
+    "id": "book-1791902915942",
+    "slug": "e2e-physics-notes-e2e-20261013144825770-obnqx",
+    "title": "E2E Physics Notes E2E-20261013144825770-obnqx",
+    "subtitle": "",
+    "author": "Prof. E2E-20261013144825770-obnqx",
+    "publisher": "aspirantbook Publications",
+    "category": "UPSC",
+    "subcategory": "General",
+    "subject": "General Studies",
+    "edition": "2026 Edition",
+    "price": 499,
+    "originalPrice": 799,
+    "mrp": 799,
+    "discountPercent": 38,
+    "rating": 4.8,
+    "ratingCount": 1,
+    "reviewCount": 1,
+    "salesCount": 0,
+    "coverImage": "/images/books/cbse-10-solved-papers.svg",
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "thumbnails": [
+      {
+        "id": "thumb-1",
+        "label": "Cover Image",
+        "url": "/images/books/cbse-10-solved-papers.svg",
+        "type": "cover"
+      }
+    ],
+    "description": "Complete high-yield Physics formula booklet.",
+    "shortDescription": "Comprehensive high-yield study material and solved papers.",
+    "features": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "highlights": [
+      "Instant eBook Delivery: Searchable & printable high-res PDF",
+      "Complete syllabus coverage with NCERT references",
+      "Detailed model answers with step-by-step marking breakdown"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "PDF"
+      },
+      {
+        "label": "Pages",
+        "value": "250"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "File Size",
+        "value": "350 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & State PSC aspirants, Class 10 & 12 students, and competitive learners.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "tableOfContents": [
+      {
+        "section": "PART 1: CORE CONCEPTS",
+        "topics": [
+          "Fundamental Overview",
+          "Chapter-wise Diagnostic Test",
+          "Solved Examples"
+        ]
+      },
+      {
+        "section": "PART 2: PRACTICE PAPERS",
+        "topics": [
+          "Mock Exam Set 1",
+          "Mock Exam Set 2",
+          "Detailed Explanations"
+        ]
+      }
+    ],
+    "pages": 250,
+    "fileSize": "350 MB",
+    "fileSizeMb": 350,
+    "language": "English",
+    "format": "PDF eBook",
+    "isBestseller": false,
+    "isFeatured": false,
+    "samplePdfUrl": "",
+    "fullPdfUrl": "",
+    "status": "pending",
+    "createdBy": {
+      "id": "cmv6sq3740001xpnve4i4zec6",
+      "role": "TEACHER",
+      "name": "E2E-20261013144825770-obnqx teacher"
+    },
+    "tags": [
+      "eBook",
+      "PDF",
+      "Prep"
+    ],
+    "createdAt": "2026-10-13T14:48:35.943Z",
+    "updatedAt": "2026-10-13T14:48:35.943Z"
+  },
+  {
     "id": "cbse-10-pyqs-past-10-years-2027",
     "slug": "cbse-class-10th-past-10-year-solved-paper-2026",
     "title": "PW CBSE Class 10 PYQs - Past 10 Years Solved Papers For 2027 Board Exams | Delhi & Outside Delhi with Multiple Sets of 2026 | Science, Maths, Social Science, English | NCERT References",
@@ -59,7 +6123,7 @@
     "shortDescription": "Past 10 Years CBSE Class 10 Board Solved Papers with step-by-step solutions and NCERT references.",
     "features": [
       "100% Solved Papers from 2016 to 2026 (Delhi & Outside Delhi Multiple Sets)",
-      "Covers 4 Major Core Subjects: Science, Mathematics, Social Science & English",
+      "Covers 4 Major Core Subjects: Science, Mathematics, Social Science & English,Hindi.",
       "Official CBSE Marking Scheme step-by-step point-wise solutions",
       "Detailed NCERT Page References for quick textbook verification",
       "Commonly Made Mistakes & Topper's Answer Writing Tips for each subject",
@@ -108,7 +6172,52 @@
     "language": "English",
     "format": "eBook (High-Res PDF + Interactive Reader)",
     "isBestseller": true,
-    "isFeatured": true
+    "isFeatured": true,
+    "mrp": 999,
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "highlights": [
+      "100% Solved Papers from 2016 to 2026 (Delhi & Outside Delhi Multiple Sets)",
+      "Covers 4 Major Core Subjects: Science, Mathematics, Social Science & English",
+      "Official CBSE Marking Scheme step-by-step point-wise solutions",
+      "Detailed NCERT Page References for quick textbook verification",
+      "Commonly Made Mistakes & Topper's Answer Writing Tips for each subject",
+      "Instant eBook Delivery: Searchable, highlightable, and printable high-res PDF"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (High-Res PDF + Interactive Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "648"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "PW Store / aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "34.2 MB"
+      }
+    ],
+    "whoCanBuy": "CBSE Class 10th Books aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 34.2,
+    "salesCount": 86,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.173Z"
   },
   {
     "id": "cbse-10-pyq-bundle-2026",
@@ -177,7 +6286,50 @@
     "language": "English",
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": true,
-    "isFeatured": true
+    "isFeatured": true,
+    "mrp": 1546,
+    "images": [
+      "/images/books/cbse-10-bundle.svg"
+    ],
+    "highlights": [
+      "Set of all 4 major Class 10 subjects in 1 complete digital package",
+      "Chapter-wise and topic-wise categorization of past 10 years board questions",
+      "Includes Case-based, Assertion-Reason, and competency-based questions",
+      "Step-by-step answers in accordance with CBSE official marking criteria"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "1280"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "PW Store / aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "72.1 MB"
+      }
+    ],
+    "whoCanBuy": "CBSE Class 10th Books aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 72.1,
+    "salesCount": 257,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.172Z"
   },
   {
     "id": "cbse-10-english-pyq",
@@ -248,7 +6400,49 @@
     "language": "English",
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": false,
-    "isFeatured": false
+    "isFeatured": false,
+    "mrp": 349,
+    "images": [
+      "/images/books/cbse-10-english.svg"
+    ],
+    "highlights": [
+      "Section-A Reading Skills: 50+ Discursive & Case-based factual passages",
+      "Section-B Writing & Grammar: Formal letters, analytical paragraphs & integrated grammar",
+      "Section-C Literature: First Flight & Footprints Without Feet questions with character sketches"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "312"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "PW Store / aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "18.5 MB"
+      }
+    ],
+    "whoCanBuy": "CBSE Class 10th Books aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 18.5,
+    "salesCount": 108,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.172Z"
   },
   {
     "id": "cbse-10-social-science-pyq",
@@ -306,7 +6500,49 @@
     "language": "English",
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": false,
-    "isFeatured": false
+    "isFeatured": false,
+    "mrp": 399,
+    "images": [
+      "/images/books/cbse-10-social-science.svg"
+    ],
+    "highlights": [
+      "Includes all 4 sections: India and the Contemporary World-II, Contemporary India-II, Democratic Politics-II, Understanding Economic Development",
+      "Official Map Work pointers for History and Geography",
+      "Clear point-wise answers to fetch maximum marks in 3-mark and 5-mark questions"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "360"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "PW Store / aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "22.4 MB"
+      }
+    ],
+    "whoCanBuy": "CBSE Class 10th Books aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 22.4,
+    "salesCount": 144,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.172Z"
   },
   {
     "id": "rd-sharma-class-10-maths",
@@ -379,7 +6615,49 @@
     "language": "English",
     "format": "eBook (High-Res PDF + Smart Reader)",
     "isBestseller": true,
-    "isFeatured": true
+    "isFeatured": true,
+    "mrp": 750,
+    "images": [
+      "/images/books/rd-sharma-maths.svg"
+    ],
+    "highlights": [
+      "Exhaustive coverage of every single topic with foundational to advanced problems",
+      "Hundreds of solved illustrative examples with tips for competitive exams (NTSE / Olympiads)",
+      "High Order Thinking Skills (HOTS) questions with complete workings"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (High-Res PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "940"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "Prepmarket / Dhanpat Rai Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "Latest 2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "55.8 MB"
+      }
+    ],
+    "whoCanBuy": "CBSE Class 10th Books aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 55.8,
+    "salesCount": 504,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.172Z"
   },
   {
     "id": "bpsc-72nd-prelims-current-affairs",
@@ -445,7 +6723,50 @@
     "language": "English / Hindi",
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": true,
-    "isFeatured": true
+    "isFeatured": true,
+    "mrp": 500,
+    "images": [
+      "/images/books/bpsc-current-affairs.svg"
+    ],
+    "highlights": [
+      "Covers 14 months of Current Affairs specifically curated for BPSC Prelims pattern",
+      "Detailed Bihar Budget 2025-26 and Economic Survey summary with tables and key figures",
+      "1,500+ Practice MCQs with comprehensive bilingual explanations",
+      "Quick revision charts for Bihar History, Geography, and Polity"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "420"
+      },
+      {
+        "label": "Language",
+        "value": "English / Hindi"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "28.1 MB"
+      }
+    ],
+    "whoCanBuy": "BPSC & State PCS Books aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 28.1,
+    "salesCount": 336,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.172Z"
   },
   {
     "id": "bpsc-prelims-10-years-solved",
@@ -502,7 +6823,49 @@
     "language": "English",
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": false,
-    "isFeatured": false
+    "isFeatured": false,
+    "mrp": 600,
+    "images": [
+      "/images/books/bpsc-solved-papers.svg"
+    ],
+    "highlights": [
+      "Subject-wise and topic-wise segregated past 10 exams question bank",
+      "Every question has a verified rationale with standard textbook citations",
+      "Includes trend analysis showing question distribution across History, Polity, Geo, Sci & Current Affairs"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "512"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "32.6 MB"
+      }
+    ],
+    "whoCanBuy": "BPSC & State PCS Books aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 32.6,
+    "salesCount": 372,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.172Z"
   },
   {
     "id": "indian-polity-notes-2026",
@@ -517,7 +6880,7 @@
     "edition": "2026 Edition",
     "price": 499,
     "originalPrice": 699,
-    "discountPercent": 28,
+    "discountPercent": 29,
     "rating": 4.9,
     "ratingCount": 54,
     "reviewCount": 46,
@@ -561,7 +6924,49 @@
     "language": "English",
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": true,
-    "isFeatured": true
+    "isFeatured": true,
+    "mrp": 699,
+    "images": [
+      "/images/books/indian-polity.svg"
+    ],
+    "highlights": [
+      "Mind maps and comparative tables for President vs Governor, Lok Sabha vs Rajya Sabha",
+      "Summary of all 106 Constitutional Amendments up to 2026",
+      "Previous 15 years UPSC and BPSC prelims polity MCQs included"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "480"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "29.7 MB"
+      }
+    ],
+    "whoCanBuy": "UPSC & Civil Services aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 29.7,
+    "salesCount": 648,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.172Z"
   },
   {
     "id": "cbse-9-ncert-exemplar-maths-science",
@@ -621,7 +7026,49 @@
     "language": "English",
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": false,
-    "isFeatured": false
+    "isFeatured": false,
+    "mrp": 599,
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "highlights": [
+      "Covers all Class 9 Maths and Science NCERT Exemplar chapters",
+      "Point-by-point formulas and diagrams",
+      "Instant eBook download"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "320"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "18.4 MB"
+      }
+    ],
+    "whoCanBuy": "Class 9th Books aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 18.4,
+    "salesCount": 216,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.172Z"
   },
   {
     "id": "class-8-foundation-maths-science",
@@ -681,7 +7128,49 @@
     "language": "English",
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": false,
-    "isFeatured": false
+    "isFeatured": false,
+    "mrp": 499,
+    "images": [
+      "/images/books/cbse-10-solved-papers.svg"
+    ],
+    "highlights": [
+      "Rigorous concept practice with illustrated diagrams",
+      "NMMS and Olympiad sample questions",
+      "Instant offline PDF access"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "280"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "16.1 MB"
+      }
+    ],
+    "whoCanBuy": "Class 8th Books aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 16.1,
+    "salesCount": 264,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.173Z"
   },
   {
     "id": "skills-fullstack-system-design-handbook",
@@ -740,7 +7229,49 @@
     "language": "English",
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": true,
-    "isFeatured": true
+    "isFeatured": true,
+    "mrp": 999,
+    "images": [
+      "/images/books/indian-polity.svg"
+    ],
+    "highlights": [
+      "Full-stack Next.js 15, React 19, TypeScript, PostgreSQL blueprints",
+      "System design trade-offs: Caching, sharding, message queues",
+      "Hands-on coding patterns with clean code practices"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "440"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "TrillionSkill Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "24.5 MB"
+      }
+    ],
+    "whoCanBuy": "Skills aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 24.5,
+    "salesCount": 816,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.173Z"
   },
   {
     "id": "modern-history-topper-handwritten-notes",
@@ -799,6 +7330,49 @@
     "language": "English",
     "format": "eBook (PDF + Smart Reader)",
     "isBestseller": true,
-    "isFeatured": true
+    "isFeatured": true,
+    "mrp": 499,
+    "images": [
+      "/images/books/indian-polity.svg"
+    ],
+    "highlights": [
+      "Full chronological flowcharts from the Revolt of 1857 to Independence 1947",
+      "Table of Indian National Congress sessions, presidents, and key resolutions",
+      "Socio-religious reform movements & tribal/peasant uprisings summary",
+      "Instant high-res color PDF download"
+    ],
+    "productDetails": [
+      {
+        "label": "Format",
+        "value": "eBook (PDF + Smart Reader)"
+      },
+      {
+        "label": "Pages",
+        "value": "210"
+      },
+      {
+        "label": "Language",
+        "value": "English"
+      },
+      {
+        "label": "Publisher",
+        "value": "aspirantbook Publications"
+      },
+      {
+        "label": "Edition",
+        "value": "2026 Edition"
+      },
+      {
+        "label": "File Size",
+        "value": "14.2 MB"
+      }
+    ],
+    "whoCanBuy": "Notes aspirants and students looking for comprehensive study material and solved papers.",
+    "deliveryNote": "Digital PDF only. Instant online access, no physical copy, no shipping.",
+    "status": "published",
+    "fileSizeMb": 14.2,
+    "salesCount": 1068,
+    "createdAt": "2026-09-01T00:00:00.000Z",
+    "updatedAt": "2026-10-13T13:57:53.173Z"
   }
 ]

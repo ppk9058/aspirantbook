@@ -21,6 +21,7 @@ interface CartContextType {
   applyCoupon: (code: string) => { success: boolean; message: string }
   removeCoupon: () => void
   clearCart: () => void
+  recordCompletedOrder: (order: BookOrder) => void
   placeOrder: (paymentMethod?: string) => BookOrder
   totalCount: number
   totalOriginalPrice: number
@@ -246,6 +247,10 @@ export function BookCartProvider({ children }: { children: React.ReactNode }) {
     return newOrder
   }
 
+  const recordCompletedOrder = (order: BookOrder) => {
+    setOrders((prev) => [order, ...prev.filter((o) => o.id !== order.id)])
+  }
+
   return (
     <CartContext.Provider
       value={{
@@ -265,6 +270,7 @@ export function BookCartProvider({ children }: { children: React.ReactNode }) {
         applyCoupon,
         removeCoupon,
         clearCart,
+        recordCompletedOrder,
         placeOrder,
         totalCount,
         totalOriginalPrice,

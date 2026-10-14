@@ -96,6 +96,10 @@ export function applyQuizGoalFilter<T extends { id: string; title: string; categ
     if (!goalIds || goalIds.length === 0) return quizzes
 
     return quizzes.filter((q) => {
+        if (q.testType === "CURRENT_AFFAIRS" || q.category?.toLowerCase().includes("current affairs")) {
+            return true
+        }
+
         const text = `${q.title} ${q.category || ""} ${q.tags?.join(" ") || ""}`.toLowerCase()
 
         return goalIds.some((gid) => {

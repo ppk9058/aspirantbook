@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
             id: true,
             slug: true,
             isPublished: true,
+            createdById: true,
           },
         },
         isPublished: true,
@@ -108,6 +109,8 @@ export async function POST(req: NextRequest) {
                   {
                     OR: [
                       { isPublished: true, series: { isPublished: true } },
+                      { isPublished: true, testType: "PREVIOUS_YEAR" as any },
+                      { isPublished: true, testType: "CURRENT_AFFAIRS" as any },
                       { createdById: session.user.id },
                       { series: { createdById: session.user.id } },
                     ],
@@ -189,8 +192,9 @@ export async function POST(req: NextRequest) {
     const isPrivileged = isOwner || isAdmin;
 
     if (!isPrivileged) {
-      const isPyqTest = test.testType === "PREVIOUS_YEAR";
-      if (test.series && !test.series.isPublished && !isPyqTest) {
+      const isSystemBypassTest =
+        test.testType === "PREVIOUS_YEAR" || test.testType === "CURRENT_AFFAIRS";
+      if (test.series && !test.series.isPublished && !isSystemBypassTest) {
         return NextResponse.json(
           { error: "Test series is not published yet" },
           { status: 404 }

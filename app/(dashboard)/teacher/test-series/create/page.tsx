@@ -83,18 +83,22 @@ interface FormData {
     isLive: boolean
     liveStartAt: string
     liveEndAt: string
+    month?: number
+    year?: number
     // Step 2
     sections: Section[]
     // Step 3
     questions: Question[]
 }
 
-const TEST_TYPE_MAP: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL_TEST" | "PREVIOUS_YEAR" | "LIVE_SPEED"> = {
+const TEST_TYPE_MAP: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL_TEST" | "PREVIOUS_YEAR" | "LIVE_SPEED" | "CURRENT_AFFAIRS"> = {
     "Full Mock Test": "FULL_MOCK",
     "Chapter Test": "CHAPTER_TEST",
     "Sectional Test": "SECTIONAL_TEST",
     "Previous Year Paper": "PREVIOUS_YEAR",
     "Live Speed Test": "LIVE_SPEED",
+    "Current Affairs": "CURRENT_AFFAIRS",
+    "CURRENT_AFFAIRS": "CURRENT_AFFAIRS",
     "PYQ": "PREVIOUS_YEAR",
 }
 
@@ -274,7 +278,23 @@ const TEST_TYPES = [
     "Sectional Test",
     "Previous Year Paper",
     "Live Speed Test",
+    "Current Affairs",
     "PYQ",
+]
+
+const CA_MONTHS = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
 ]
 
 const AI_DEMO_QUESTIONS = [
@@ -396,7 +416,9 @@ function CreateTestContent() {
 
     const initialTestType = queryType === "PYQ" || (queryPaperId && !queryType)
         ? "PYQ"
-        : (TEST_TYPES.includes(queryType) ? queryType : "Full Mock Test")
+        : (queryType === "CURRENT_AFFAIRS" || queryType === "Current Affairs"
+            ? "Current Affairs"
+            : (TEST_TYPES.includes(queryType) ? queryType : "Full Mock Test"))
 
     const [step, setStep] = useState(1)
     const [errors, setErrors] = useState<Record<string, string>>({})
@@ -438,8 +460,8 @@ function CreateTestContent() {
         pyqPaperId: "",
         title: "",
         titleHindi: "",
-        examCategory: "",
-        examName: "",
+        examCategory: initialTestType === "Current Affairs" ? "Current Affairs" : "",
+        examName: initialTestType === "Current Affairs" ? "Current Affairs" : "",
         testType: initialTestType,
         accessMode: "free",
         durationMinutes: 60,
@@ -448,6 +470,8 @@ function CreateTestContent() {
         isLive: false,
         liveStartAt: "",
         liveEndAt: "",
+        month: new Date().getMonth() + 1,
+        year: new Date().getFullYear(),
         sections: [defaultSection],
         questions: buildInitialQuestions([defaultSection]),
     })
@@ -1046,7 +1070,7 @@ function CreateTestContent() {
             setApiErrorDetails([])
             return
         }
-        if (!formData.seriesId && formData.testType !== "PYQ") {
+        if (!formData.seriesId && formData.testType !== "PYQ" && formData.testType !== "Current Affairs" && formData.testType !== "CURRENT_AFFAIRS") {
             setApiError("Please select a target test series package before saving draft.")
             setApiErrorDetails([])
             return
@@ -1087,6 +1111,8 @@ function CreateTestContent() {
                     liveEndAt: formData.liveEndAt || null,
                     sections: mappedSections,
                     isPublished: false,
+                    month: formData.month,
+                    year: formData.year,
                 }),
             })
 
@@ -1131,7 +1157,7 @@ function CreateTestContent() {
             setApiErrorDetails([])
             return
         }
-        if (!formData.seriesId && formData.testType !== "PYQ") {
+        if (!formData.seriesId && formData.testType !== "PYQ" && formData.testType !== "Current Affairs" && formData.testType !== "CURRENT_AFFAIRS") {
             setApiError("Please select a target test series package before publishing.")
             setApiErrorDetails([])
             return
@@ -1172,6 +1198,8 @@ function CreateTestContent() {
                     liveEndAt: formData.liveEndAt || null,
                     sections: mappedSections,
                     isPublished: true,
+                    month: formData.month,
+                    year: formData.year,
                 }),
             })
 
@@ -1464,6 +1492,51 @@ function CreateTestContent() {
                                         No PYQ papers found. Please upload a PYQ paper first in the PYQ studio.
                                     </p>
                                 )}
+                            </div>
+                        )}
+
+                        {/* Current Affairs Period Selector when testType is Current Affairs */}
+                        {(formData.testType === "Current Affairs" || formData.testType === "CURRENT_AFFAIRS") && (
+                            <div className="p-4 rounded-2xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800 space-y-3">
+                                <label className="block text-xs font-bold text-teal-900 dark:text-teal-200">
+                                    Current Affairs Period <span className="text-[#EF4444]">*</span>
+                                </label>
+                                <p className="text-[11px] text-teal-700 dark:text-teal-300">
+                                    Select the Month and Year for this Current Affairs CBT quiz. It will automatically be categorized under Current Affairs.
+                                </p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-[11px] font-semibold text-teal-800 dark:text-teal-300 mb-1">
+                                            Month
+                                        </label>
+                                        <select
+                                            value={formData.month || new Date().getMonth() + 1}
+                                            onChange={(e) => updateField("month", Number(e.target.value))}
+                                            className="w-full px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-semibold text-gray-800 dark:text-gray-200 focus:outline-hidden"
+                                            aria-label="Select CA Month"
+                                        >
+                                            {CA_MONTHS.map((m, idx) => (
+                                                <option key={m} value={idx + 1}>
+                                                    {m}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[11px] font-semibold text-teal-800 dark:text-teal-300 mb-1">
+                                            Year
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min={2000}
+                                            max={2100}
+                                            value={formData.year || new Date().getFullYear()}
+                                            onChange={(e) => updateField("year", Number(e.target.value))}
+                                            className="w-full px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-semibold text-gray-800 dark:text-gray-200 focus:outline-hidden"
+                                            aria-label="Select CA Year"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         )}
 

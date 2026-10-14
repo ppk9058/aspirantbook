@@ -321,6 +321,97 @@ The aspirantbook platform is now a **fully functional, production-ready e-learni
 - ✅ Modern, responsive UI
 - ✅ Secure, scalable architecture
 
+---
+
+## Book-Related Logic (Book Studio, Store & PDF eCommerce)
+
+aspirantbook includes a complete digital eBook store, authoring studio, and secure payment-backed PDF fulfillment engine:
+
+### 1. Roles & Book Studio
+- **Admin Studio** (`/admin/book-studio`): Full control to create, edit, approve, reject with feedback reasons, publish or delete any book. Admin-created books can be published directly. Features a "Pending Approvals Queue" chip to review teacher submissions.
+- **Teacher Studio** (`/teacher/book-studio`): Dedicated panel for faculty to create and manage their own eBooks. Submissions start with status `pending` until approved by an Admin. If rejected, the rejection reason is displayed clearly to the teacher for correction.
+- **Storefront** (`/books`): Public catalog displays only `published` books, with search, sorting, and category filters.
+
+### 2. PDF & Asset Handling
+- Shared `<PdfUploader />` component (`components/upload/PdfUploader.tsx`) and `uploadPdf()` (`lib/upload/client-pdf.ts`).
+- Server storage helper `savePdfFile()` (`lib/upload/pdf-storage.ts`) validates PDF magic bytes (`%PDF-`), 50MB file size limits, and estimates page count.
+- Sample PDFs (`public/uploads/books-sample`) are publicly readable and downloadable for preview via `EBookReaderModal`.
+- Full book PDFs (`uploads/secure-books`) are strictly private. Raw storage paths are never sent to the client.
+- The shared `<SecurePdfViewer />` streams from `/api/books/[id]/download`, verifying completed purchase (`status: "completed"`), teacher ownership, or admin privileges before streaming the file.
+
+### 3. Payment Flow & Order Security
+- **Order Statuses**: `pending_payment` -> `completed` / `failed`. Orders NEVER transition to `completed` from client input alone; direct calls to `POST /api/books/orders` with `COMPLETED` return 403 Forbidden.
+- **Server-Side Order Creation** (`POST /api/books/checkout/create-order`):
+  - Requires user session.
+  - Takes only book IDs and optional coupon code from the client; prices are re-read from the catalogue on the server.
+  - Validates coupons (`TOPPER100`, `EBOOK20`, `FIRST50`) server-side.
+  - Checks duplicate purchase: if the user already owns the book, returns `409 ALREADY_OWNED`.
+  - Creates a Razorpay order (amount in paise, receipt = order ID) and records `BookOrder` with status `pending_payment`.
+- **Server-Side Payment Verification** (`POST /api/books/checkout/verify`):
+  - Validates `razorpay_signature` via HMAC-SHA256 with `RAZORPAY_KEY_SECRET`.
+  - Idempotent: transitions order to `completed`, sets `paidAt`, records `razorpayPaymentId`, and increments `salesCount` once. Repeated verification calls do not double-count.
+- **Webhook Automation** (`POST /api/razorpay/webhook` and `/api/webhooks/razorpay`):
+  - Verifies webhook HMAC signature with `RAZORPAY_WEBHOOK_SECRET`.
+  - On `payment.captured` or `order.paid`, fulfills the book order idempotently even if the student closed their browser tab.
+  - On `payment.failed`, marks status `failed`.
+
+### 4. Checkout Flows
+- **Guest Checkout**: Guest adds eBooks to cart -> clicks "Place Order" -> triggers `MobileAuthModal` while saving pending intent (`ts_pending_book_checkout`) and keeping the cart intact -> on login completion, flow resumes automatically, launches Razorpay checkout prefilled with student info -> on payment success, verifies signature, clears cart, displays `PaymentSuccessModal` ("Read Now" / "View Orders"), and book is readable in `/books/orders`.
+- **Logged-In Student Checkout**: Adds to cart (or clicks "Buy Now") -> clicks "Place Order" -> immediately creates server order and launches Razorpay window -> handles dismissal (cart saved), failure (retry toast), or duplicate ownership alerts.
+
+### 5. Production Storage Readiness
+- Atomic writes and mutex locking via `atomicWriteJson` (`lib/books/storage.ts`) serialize writes to `data/books.json`, `data/book-orders.json`, and `data/book-wishlist.json`.
+- Filesystem writes occur in `data/*.json`, `public/uploads/books-sample/`, and `uploads/secure-books/`.
+- **Serverless Warning**: Local filesystem persistence is ephemeral on serverless platforms (e.g., Vercel lambdas). The `BookStorageDriver` interface in `lib/books/storage.ts` is architected to swap in S3 / Supabase Storage drivers (`S3StorageDriver`) for multi-instance cloud deployments.
+
+### 6. Environment Variables
+```env
+RAZORPAY_KEY_ID="rzp_test_..."
+RAZORPAY_KEY_SECRET="..."
+NEXT_PUBLIC_RAZORPAY_KEY_ID="rzp_test_..."
+RAZORPAY_WEBHOOK_SECRET="..."
+```
+
+### 7. Manual Testing Checklist
+- **Guest**: Browse `/books` -> Add to Cart -> Click "Place Order" -> verify Login Modal opens -> verify Cart remains intact after closing modal or logging in.
+- **Student**: Log in -> Click "Buy Now" on book -> Razorpay checkout dialog opens with exact book name and price -> complete payment -> verify `PaymentSuccessModal` -> click "Read Now" -> PDF streams in `<SecurePdfViewer />` -> check `/books/orders`.
+- **Teacher**: Log in -> Go to `/teacher/book-studio` -> Create book with cover, description, and PDF -> submit for approval -> verify badge displays "Pending Approval" -> if rejected by Admin, verify rejection reason is displayed.
+- **Admin**: Log in -> Go to `/admin/book-studio` -> click "Pending Queue" chip -> review pending submission -> click "Reject" to test rejection dialog with required reason -> click "Approve" to publish book -> verify published book appears on `/books`.
+
+### 8. Razorpay Go-Live Checklist (Switching from Test to Live Keys)
+Before flipping keys from Test mode (`rzp_test_*`) to Live mode (`rzp_live_*`) in production, complete every step in this checklist:
+
+1. **KYC & Account Activation**:
+   - Complete KYC verification in the [Razorpay Dashboard](https://dashboard.razorpay.com).
+   - Ensure the account status is **Activated** and international cards / UPI / NetBanking methods are enabled per business requirements.
+2. **Generate Live API Keys**:
+   - Navigate to **Settings** > **API Keys** > **Generate Live Keys**.
+   - Copy `Key Id` (`rzp_live_...`) and `Key Secret` immediately (the secret is shown only once).
+   - Set in production environment:
+     - `RAZORPAY_KEY_ID="rzp_live_..."` (server-side API operations)
+     - `RAZORPAY_KEY_SECRET="..."` (HMAC verification and order creation)
+     - `NEXT_PUBLIC_RAZORPAY_KEY_ID="rzp_live_..."` (client-side checkout modal)
+3. **Configure Live Webhooks**:
+   - Navigate to **Settings** > **Webhooks** > **Add New Webhook**.
+   - URL: `https://your-domain.com/api/razorpay/webhook` (and/or `https://your-domain.com/api/webhooks/razorpay`).
+   - Secret: Generate a strong secret and set `RAZORPAY_WEBHOOK_SECRET="..."` in the server environment.
+   - Active Events to subscribe:
+     - `payment.captured` (triggers instant fulfillment)
+     - `payment.failed` (marks failed order)
+     - `order.paid` (backup fulfillment trigger)
+4. **Zero Client Secret Exposure**:
+   - Verify `RAZORPAY_KEY_SECRET` and `RAZORPAY_WEBHOOK_SECRET` do NOT have the `NEXT_PUBLIC_` prefix and are never bundled into client JS bundles.
+5. **Real-Transaction Verification**:
+   - Run a live test transaction of ₹1.00 using a personal UPI ID or debit card.
+   - Verify the server creates the order with re-read catalogue pricing.
+   - Verify checkout modal displays the live merchant name and branding.
+   - Verify client verification succeeds and HMAC signature matches.
+   - Verify webhook delivers with a valid signature and marks the order `completed`.
+   - Verify PDF stream `/api/books/[id]/download` is instantly accessible to the purchaser.
+   - Issue a full refund for the test transaction via Razorpay Dashboard.
+
+---
+
 **Ready to launch!** 🚀
 
 ---

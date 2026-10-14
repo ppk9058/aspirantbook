@@ -11,7 +11,7 @@ function getNumber(val: any, fallback: number): number {
   return isNaN(n) ? fallback : n;
 }
 
-const VALID_TEST_TYPES: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL_TEST" | "PREVIOUS_YEAR" | "LIVE_SPEED"> = {
+const VALID_TEST_TYPES: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL_TEST" | "PREVIOUS_YEAR" | "LIVE_SPEED" | "CURRENT_AFFAIRS"> = {
   FULL_MOCK: "FULL_MOCK",
   "FULL MOCK TEST": "FULL_MOCK",
   CHAPTER: "CHAPTER_TEST",
@@ -25,6 +25,9 @@ const VALID_TEST_TYPES: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL
   PYQ: "PREVIOUS_YEAR",
   LIVE_SPEED: "LIVE_SPEED",
   "LIVE SPEED TEST": "LIVE_SPEED",
+  CURRENT_AFFAIRS: "CURRENT_AFFAIRS",
+  "CURRENT AFFAIRS": "CURRENT_AFFAIRS",
+  "CURRENT AFFAIRS QUIZ": "CURRENT_AFFAIRS",
 };
 
 const VALID_ACCESS_MODES: Record<string, "FREE" | "PRO"> = {
@@ -63,6 +66,8 @@ export async function POST(req: NextRequest) {
       sections,
       isPublished,
       pyqPaperId,
+      month,
+      year,
     } = body;
 
     if (!title || typeof title !== "string" || !title.trim()) {
@@ -77,7 +82,7 @@ export async function POST(req: NextRequest) {
         {
           error: "Invalid test type",
           details: [
-            `Invalid testType "${testType}". Allowed values: FULL_MOCK, CHAPTER_TEST, SECTIONAL_TEST, PREVIOUS_YEAR, PYQ, LIVE_SPEED (or UI labels: Full Mock Test, Chapter Test, Sectional Test, Previous Year Paper, PYQ, Live Speed Test).`,
+            `Invalid testType "${testType}". Allowed values: FULL_MOCK, CHAPTER_TEST, SECTIONAL_TEST, PREVIOUS_YEAR, PYQ, LIVE_SPEED, CURRENT_AFFAIRS.`,
           ],
         },
         { status: 400 }
@@ -86,7 +91,25 @@ export async function POST(req: NextRequest) {
 
     let targetSeriesId: string;
 
-    if (mappedTestType === "PREVIOUS_YEAR" || pyqPaperId) {
+    if (mappedTestType === "CURRENT_AFFAIRS") {
+      let caSeries = await prisma.examSeries.findFirst({
+        where: { slug: "current-affairs-system-series" },
+      });
+      if (!caSeries) {
+        caSeries = await prisma.examSeries.create({
+          data: {
+            title: "Current Affairs Quizzes",
+            slug: "current-affairs-system-series",
+            examName: "Current Affairs",
+            category: "Current Affairs",
+            isPublished: false,
+            isFree: true,
+            createdById: session.user.id,
+          },
+        });
+      }
+      targetSeriesId = caSeries.id;
+    } else if (mappedTestType === "PREVIOUS_YEAR" || pyqPaperId) {
       // Find or create hidden system ExamSeries for PYQ papers
       let pyqSeries = await prisma.examSeries.findFirst({
         where: { slug: "pyq-system-series" },
@@ -317,6 +340,8 @@ export async function POST(req: NextRequest) {
             liveStartAt: liveStartAt ? new Date(liveStartAt) : null,
             liveEndAt: liveEndAt ? new Date(liveEndAt) : null,
             isPublished: isPublishMode,
+            month: month !== undefined && month !== null && month !== "" ? Number(month) : null,
+            year: year !== undefined && year !== null && year !== "" ? Number(year) : null,
             createdById: session.user.id,
           },
         });

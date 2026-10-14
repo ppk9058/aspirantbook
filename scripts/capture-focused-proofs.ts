@@ -1,6 +1,7 @@
 import { chromium } from "playwright-core"
 import { prisma } from "../lib/prisma"
 import path from "path"
+import { DEFAULT_TEST_PASSWORD } from "../tests/support/test-credentials"
 
 const ARTIFACTS_DIR = "/Users/praveenkumar/.gemini/antigravity/brain/8877425f-14b2-4ce1-b4ec-00ba0ed01c01"
 
@@ -27,6 +28,7 @@ async function main() {
   })
   await page.waitForTimeout(1500)
   const homeBadgeShot = path.join(ARTIFACTS_DIR, "proof_1_home_badge_focused.png")
+
   await page.screenshot({ path: homeBadgeShot })
   console.log(`Saved: ${homeBadgeShot}`)
 
@@ -34,7 +36,7 @@ async function main() {
   console.log("Logging into Admin to capture Live Demo card...")
   await page.goto("http://localhost:3000/login", { waitUntil: "networkidle" })
   await page.fill('#email', "admin@trillionskills.com")
-  await page.fill('#password', "AdminTestPassword123!")
+  await page.fill('#password', DEFAULT_TEST_PASSWORD)
   await Promise.all([
     page.waitForNavigation({ timeout: 15000 }).catch(() => {}),
     page.locator('button:has-text("Sign In")').click(),

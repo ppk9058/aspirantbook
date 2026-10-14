@@ -1,10 +1,18 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3045";
+const BASE_URL = process.env.BASE_URL || "http://127.0.0.1:3045";
 
 export default defineConfig({
   testDir: "./tests/e2e",
   outputDir: "./logs/verify-studio/e2e/playwright-results",
+  globalSetup: "./tests/e2e/global-setup.ts",
+  webServer: {
+    command:
+      "PORT=3045 NEXT_DIST_DIR=.next-test DATABASE_URL=postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test DIRECT_URL=postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test NEXTAUTH_URL=http://127.0.0.1:3045 AUTH_URL=http://127.0.0.1:3045 NEXT_PUBLIC_APP_URL=http://127.0.0.1:3045 APP_ENV=test ALLOW_DEV_MOBILE_LOGIN=false npx next dev --hostname 127.0.0.1 --port 3045",
+    url: "http://127.0.0.1:3045/api/test/health",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,

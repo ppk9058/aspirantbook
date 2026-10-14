@@ -64,6 +64,7 @@ export async function GET(req: NextRequest) {
           { series: { slug: { contains: category, mode: "insensitive" } } },
           { series: { title: { contains: category, mode: "insensitive" } } },
           { title: { contains: category, mode: "insensitive" } },
+          { testType: "CURRENT_AFFAIRS" },
         ],
       });
     }
@@ -76,6 +77,8 @@ export async function GET(req: NextRequest) {
         title: true,
         titleHi: true,
         testType: true,
+        month: true,
+        year: true,
         totalQuestions: true,
         totalMarks: true,
         durationMinutes: true,
@@ -167,6 +170,8 @@ export async function GET(req: NextRequest) {
         title: t.title,
         titleHi: t.titleHi,
         testType: t.testType,
+        month: t.month,
+        year: t.year,
         questions: t.totalQuestions,
         marks: t.totalMarks,
         durationMinutes: t.durationMinutes,

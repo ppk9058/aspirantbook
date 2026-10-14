@@ -66,8 +66,17 @@ export async function POST(request: NextRequest) {
                 },
             })
 
-            // If the order record doesn't exist, return 200 and log without enrolling.
+            // If the order record doesn't exist, check if it's a BookOrder
             if (!orderRecord) {
+                const { getOrderByRazorpayId, markBookOrderCompleted } = await import("@/lib/books/bookService")
+                const bookOrder = await getOrderByRazorpayId(orderId)
+                if (bookOrder) {
+                    await markBookOrderCompleted({
+                        orderId: bookOrder.id,
+                        razorpayPaymentId: payment?.id || "webhook_captured",
+                    })
+                    return NextResponse.json({ received: true, processed: "book_order" })
+                }
                 console.warn(`Unknown order record for order_id "${orderId}"; skipping enrollment`)
                 return NextResponse.json({ received: true, warning: "Unknown order record; enrollment skipped" })
             }

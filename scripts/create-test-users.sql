@@ -1,6 +1,6 @@
--- Create 4 test users for aspirantbook platform
--- Run this in Supabase SQL Editor
--- Password for all users: Test@123
+-- Canonical seed runner: npx tsx scripts/seed-rbac-users.ts
+-- Reads password from DEFAULT_TEST_PASSWORD in tests/support/test-credentials.ts
+-- (Default: Test@123 or process.env.TEST_USER_PASSWORD)
 
 -- 1. Free User 1
 INSERT INTO "User" (id, name, email, password, image, role, xp, level, streak, "createdAt", "updatedAt")

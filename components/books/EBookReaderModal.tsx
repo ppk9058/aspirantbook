@@ -79,6 +79,10 @@ export default function EBookReaderModal({
   }
 
   const handleDownload = () => {
+    if (book.samplePdfUrl) {
+      window.open(book.samplePdfUrl, "_blank")
+      return
+    }
     setIsDownloading(true)
     setTimeout(() => {
       setIsDownloading(false)
