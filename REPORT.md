@@ -243,5 +243,44 @@ const isDevBypassEnabled =
   5. `Reset password enforces password policy (rejects weak/short password)` (Passed desktop & mobile)
 - Total: 10 passed in 43.8s.
 
+---
+
+## Step 5: Logout and Session Management
+
+### What was broken
+1. There was no mechanism to revoke sessions across devices (e.g. "log out from all devices"). Once issued, a JWT remained valid for its full lifetime regardless of password changes, role escalations, or account blocks.
+2. NextAuth cookie security options were not explicitly locked in configuration with security flags.
+3. Updating a user's role or password did not invalidate legacy sessions.
+
+### What changed
+1. **Multi-Device Revocation (`sessionVersion` in `User` & `auth.ts`):**
+   - Added `sessionVersion Int @default(1)` to `User` schema.
+   - Checked inside the JWT callback against the database. If `dbUser.sessionVersion !== token.sessionVersion`, `dbUser.isActive === false`, or user is deleted, the callback returns `null`, instantaneously revoking access across all devices.
+   - Sync frequency optimized: 200ms in test environment, 10s in production.
+2. **Session Invalidation on Sensitive Events:**
+   - Password reset automatically increments `sessionVersion: { increment: 1 }`.
+   - Role updates in `lib/actions/admin/users.ts` automatically increment `sessionVersion: { increment: 1 }`.
+   - Implemented `logoutAllDevicesAction()` in `lib/actions/auth.ts` for user-initiated global logout.
+3. **Session Cookie Security Configuration (`auth.ts`):**
+   - Explicitly configured session cookies:
+     - `httpOnly: true` (prevents XSS theft)
+     - `sameSite: "lax"` (mitigates CSRF on top-level navigations)
+     - `secure: process.env.NODE_ENV === "production"`
+     - Prefix: `__Secure-authjs.session-token` in production
+     - `maxAge: 30 * 24 * 60 * 60` (30 days)
+
+### Files Touched
+- `auth.ts`
+- `lib/actions/auth.ts`
+- `lib/actions/admin/users.ts`
+- `tests/e2e/session-invalidation.spec.ts` (new)
+
+### Tests Added & Proof
+- `tests/e2e/session-invalidation.spec.ts`:
+  1. `Standard logout clears session cookies and redirects` (Passed desktop & mobile)
+  2. `Incrementing sessionVersion invalidates existing JWT session on next request` (Passed desktop & mobile)
+- Total: 4 passed in 24.6s.
+
+
 
 

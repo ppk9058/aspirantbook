@@ -152,7 +152,10 @@ export async function updateUserRole(userId: string, newRole: "ADMIN" | "TEACHER
 
     await prisma.user.update({
         where: { id: userId },
-        data: { role: newRole },
+        data: {
+            role: newRole,
+            sessionVersion: { increment: 1 },
+        },
     })
 
     revalidatePath("/admin/users")
@@ -182,17 +185,20 @@ export async function manuallyActivateSubscription(
             userId,
             plan,
             status: "ACTIVE",
-            provider: "MANUAL",
+            provider: "RAZORPAY",
             providerId: `manual-${Date.now()}`,
             startDate,
             endDate,
         },
     })
 
-    // Update user role to PREMIUM
+    // Update user role to PREMIUM and increment sessionVersion
     await prisma.user.update({
         where: { id: userId },
-        data: { role: "PREMIUM" },
+        data: {
+            role: "PREMIUM",
+            sessionVersion: { increment: 1 },
+        },
     })
 
     revalidatePath("/admin/users")

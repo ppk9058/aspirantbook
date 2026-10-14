@@ -354,4 +354,29 @@ export async function resetPasswordAction(prevState: any, formData: FormData) {
     }
 }
 
+export async function logoutAllDevicesAction() {
+    let session: any = null
+    try {
+        session = await auth()
+    } catch {
+        return { error: "Unauthorized" }
+    }
+
+    if (!session?.user?.id) {
+        return { error: "Unauthorized" }
+    }
+
+    try {
+        await prisma.user.update({
+            where: { id: session.user.id },
+            data: { sessionVersion: { increment: 1 } },
+        })
+        return { success: true }
+    } catch (err) {
+        console.error("[LogoutAllDevices] Error:", err)
+        return { error: "Failed to log out from all devices." }
+    }
+}
+
+
 

@@ -28,6 +28,17 @@ const nextAuthResult = NextAuth({
         strategy: "jwt",
         maxAge: 30 * 24 * 60 * 60, // 30 days
     },
+    cookies: {
+        sessionToken: {
+            name: process.env.NODE_ENV === "production" ? "__Secure-authjs.session-token" : "authjs.session-token",
+            options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: process.env.NODE_ENV === "production",
+            },
+        },
+    },
     callbacks: {
         async jwt({ token, user, trigger, session }) {
             const now = Date.now()
@@ -40,12 +51,13 @@ const nextAuthResult = NextAuth({
                 token.emailVerified = (user as any).emailVerified ?? null
                 token.lastRoleSync = now
             }
-            // Sync role, isActive status, and sessionVersion from database periodically (every 60s) or on update trigger
+            // Sync role, isActive status, and sessionVersion from database periodically (10s in prod, 200ms in test) or on update trigger
+            const syncInterval = process.env.APP_ENV === "test" ? 200 : 10_000
             const shouldSyncRole =
                 trigger === "update" ||
                 !token.role ||
                 !token.sessionVersion ||
-                (typeof token.lastRoleSync === "number" && now - (token.lastRoleSync as number) > 60_000)
+                (typeof token.lastRoleSync === "number" && now - (token.lastRoleSync as number) >= syncInterval)
 
             if (token?.id && shouldSyncRole) {
                 try {
