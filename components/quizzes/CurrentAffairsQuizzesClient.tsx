@@ -33,7 +33,7 @@ import { useGoal } from "@/components/providers/GoalProvider"
 import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
 import { applyQuizGoalFilter } from "@/lib/goals/goal-filters"
 import { getQuizSlug } from "@/lib/current-affairs/slugs"
-import { prefetchUserStatuses } from "@/lib/exam/batched-user-status"
+import { useBatchUserStatus } from "@/lib/exam/batched-user-status"
 import dynamic from "next/dynamic"
 
 const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
@@ -134,56 +134,76 @@ export default function CurrentAffairsQuizzesClient({
   const [quizYear, setQuizYear] = useState<string>("ALL")
   const [quizMonth, setQuizMonth] = useState<string>("ALL")
 
+  // Single batched user status hook for all quiz cards (strictly per-user, zero cross-user cache)
+  const quizIds = useMemo(() => dbQuizzes.map((t) => t.id), [dbQuizzes])
+  const { statuses: userStatuses } = useBatchUserStatus(quizIds)
+
   // Loading & error states
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
+  // Deduplication refs for goals & list calls
+  const prevGoalKeyRef = React.useRef<string | null>(null)
+  const inFlightFetchRef = React.useRef<Promise<any> | null>(null)
+
   // Fetch quizzes with visible loading & error retry
   const fetchQuizzes = async () => {
+    if (inFlightFetchRef.current) return inFlightFetchRef.current
+
     setIsLoading(true)
     setErrorMessage(null)
-    try {
-      const res = await fetch("/api/exam/test/list?category=Current%20Affairs")
-      if (!res.ok) {
-        throw new Error(`Server returned status ${res.status}`)
-      }
-      const json = await res.json()
-      if (json.data && Array.isArray(json.data)) {
-        setDbQuizzes(
-          json.data.map((t: any) => ({
-            id: t.id,
-            seriesId: t.seriesSlug || t.seriesId,
-            title: t.title,
-            titleHi: t.titleHi,
-            category: t.category,
-            testType: t.testType,
-            questions: t.questions,
-            marks: t.marks,
-            durationMinutes: t.durationMinutes,
-            languages: t.languages,
-            isFree: t.isFree,
-            attempts: t.attempts,
-            month: t.month,
-            year: t.year,
-          }))
-        )
-        if (session?.user?.id && json.data.length > 0) {
-          prefetchUserStatuses(json.data.map((t: any) => t.id)).catch(() => {})
+    const fetchPromise = (async () => {
+      try {
+        const res = await fetch("/api/exam/test/list?category=Current%20Affairs")
+        if (!res.ok) {
+          throw new Error(`Server returned status ${res.status}`)
         }
-      } else {
-        setDbQuizzes([])
+        const json = await res.json()
+        if (json.data && Array.isArray(json.data)) {
+          setDbQuizzes(
+            json.data.map((t: any) => ({
+              id: t.id,
+              seriesId: t.seriesSlug || t.seriesId,
+              title: t.title,
+              titleHi: t.titleHi,
+              category: t.category,
+              testType: t.testType,
+              questions: t.questions,
+              marks: t.marks,
+              durationMinutes: t.durationMinutes,
+              languages: t.languages,
+              isFree: t.isFree,
+              attempts: t.attempts,
+              month: t.month,
+              year: t.year,
+            }))
+          )
+        } else {
+          setDbQuizzes([])
+        }
+      } catch (err: any) {
+        console.error("Error fetching Current Affairs quizzes:", err)
+        setErrorMessage("Unable to load Current Affairs quizzes at this moment.")
+      } finally {
+        setIsLoading(false)
+        inFlightFetchRef.current = null
       }
-    } catch (err: any) {
-      console.error("Error fetching Current Affairs quizzes:", err)
-      setErrorMessage("Unable to load Current Affairs quizzes at this moment.")
-    } finally {
-      setIsLoading(false)
-    }
+    })()
+
+    inFlightFetchRef.current = fetchPromise
+    return fetchPromise
   }
 
+  const currentGoalKey = selectedGoalIds.slice().sort().join(",")
+
   useEffect(() => {
+    if (prevGoalKeyRef.current === currentGoalKey && dbQuizzes.length > 0) {
+      return
+    }
+    prevGoalKeyRef.current = currentGoalKey
     fetchQuizzes()
-  }, [selectedGoalIds])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentGoalKey])
 
   // PDF download handling with guest OTP intercept
   const handlePdfDownload = (doc: CurrentAffairsPdfDoc, lang: "en" | "hi") => {
@@ -790,6 +810,7 @@ export default function CurrentAffairsQuizzesClient({
                       testId={quiz.id}
                       seriesId={targetSeriesId}
                       testTitle={quiz.title}
+                      status={userStatuses[quiz.id]}
                       customStartUrl={`/current-affairs-quizzes/${quizSlug}/instructions`}
                       returnPath={`/current-affairs-quizzes/${quizSlug}`}
                       isGuest={isGuest}
