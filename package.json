@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "npm run db:check",
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' next dev",
+    "db:check": "tsx scripts/db-check.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -15,6 +17,7 @@
     "test:e2e:studio": "BASE_URL=http://127.0.0.1:3045 npx playwright test tests/e2e/teacher-authoring-to-student.spec.ts",
     "test:e2e:canary": "APP_ENV=test BASE_URL=http://127.0.0.1:3045 npx playwright test --project=canary",
     "test:e2e:real-catalogue": "npx tsx scripts/reset-test-catalogue.ts && CATALOGUE_CASE=empty BASE_URL=http://127.0.0.1:3045 npx playwright test --project=real-catalogue-desktop --project=real-catalogue-mobile",
+    "test:e2e:dev-smoke": "DEV_SMOKE=1 BASE_URL=http://127.0.0.1:3045 npx playwright test tests/e2e/dev-smoke.spec.ts",
     "perf:check": "tsx scripts/perf-check.ts"
   },
   "dependencies": {

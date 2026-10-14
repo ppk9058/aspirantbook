@@ -93,18 +93,72 @@ npm install
 cp .env.example .env.local
 # Edit .env.local with your credentials
 
-# Database setup
-npx prisma db push
+# Database setup (Additive migrations only - never db push)
+npx prisma migrate deploy
 npx prisma generate
+npm run db:check
 
 # Create admin user
 npx ts-node scripts/create-admin.ts
 
-# Start development server
+# Start development server (runs predev drift check automatically)
 npm run dev
 ```
 
 Access at: **http://localhost:3000**
+
+---
+
+## Database Migrations & Drift Verification Guide
+
+To protect live data and ensure test DB and Dev DB schemas remain identical without drift:
+
+### 1. Schema Drift Check (`npm run db:check`)
+Compares the active database against `prisma/schema.prisma` using `prisma migrate diff` with masked host logging. Returns exit code 0 if in sync, or non-zero with missing tables/columns if drift is detected.
+```bash
+npm run db:check
+```
+*Note: `npm run dev` automatically runs `npm run db:check` before starting Next.js via the `predev` lifecycle hook.*
+
+### 2. Dev DB (Supabase Cloud) Migration Procedure
+Dev DB holds manual course, test, and book records. **NEVER** run `prisma migrate reset`, `migrate dev`, or `db push`.
+Only apply additive migrations:
+```bash
+# Verify current migration status
+npx prisma migrate status
+
+# Apply pending additive migrations to Dev DB
+npx prisma migrate deploy
+
+# Verify no drift remains
+npm run db:check
+```
+
+### 3. Test DB (Docker Local) Setup and Migration Procedure
+The test database runs locally via Docker on port `54329`:
+```bash
+# Start Docker test DB
+npm run test:db:up
+
+# Apply migrations to Docker test DB
+DATABASE_URL="postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test" npx prisma migrate deploy
+
+# Seed test fixtures
+npm run seed:test
+
+# Verify schema sync
+npm run db:check
+```
+
+### 4. Running Dev Smoke & E2E Verification
+To verify login, forgot password dev outbox, Razorpay options, and Current Affairs instructions:
+```bash
+# Run dev-smoke against local test environment (3045)
+BASE_URL=http://127.0.0.1:3045 npx playwright test tests/e2e/dev-smoke.spec.ts
+
+# Run dev-smoke with direct cloud connection validation (non-destructive)
+DEV_SMOKE=1 npm run test:e2e:dev-smoke
+```
 
 ---
 

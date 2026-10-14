@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import dotenv from "dotenv"
 
-dotenv.config({ path: ".env.test" })
+dotenv.config({ path: ".env.test", override: true })
 
 export default async function globalSetup() {
   const testDbUrl = process.env.TEST_DATABASE_URL || "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test"
@@ -22,7 +22,7 @@ export default async function globalSetup() {
     )
   }
 
-  // 2. Validate DB migration
+  // 2. Validate DB migration and schema sync
   try {
     await prisma.user.count()
   } catch (err: any) {
@@ -33,6 +33,13 @@ export default async function globalSetup() {
     )
   } finally {
     await prisma.$disconnect()
+  }
+
+  // 2b. Run schema drift check
+  const { checkDatabaseSchema } = await import("../../scripts/db-check")
+  const schemaCheck = checkDatabaseSchema(testDbUrl)
+  if (!schemaCheck.ok) {
+    throw new Error(`\n[FAST PREFLIGHT FAILURE] Database schema drift detected:\n${schemaCheck.message}\n`)
   }
 
   // 3. If server is already running on 3045, verify it is connected to trillionskill_test
