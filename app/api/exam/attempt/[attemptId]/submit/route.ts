@@ -103,10 +103,11 @@ export async function POST(
     const graceDeadlineMs = deadlineMs + 30 * 1000;
     const now = new Date();
 
-    // Upsert all final answers
+    // Upsert all final answers (sort deterministically to prevent deadlock under concurrency)
     if (answers.length > 0) {
+      const sortedAnswers = [...answers].sort((a, b) => a.questionId.localeCompare(b.questionId));
       await prisma.$transaction(
-        answers.map((ans) =>
+        sortedAnswers.map((ans) =>
           prisma.examAttemptAnswer.upsert({
             where: {
               attemptId_questionId: {
@@ -151,6 +152,47 @@ export async function POST(
     return NextResponse.json({ data: graded }, { status: 200 });
   } catch (error) {
     console.error("[POST /api/exam/attempt/:attemptId/submit]", error);
+
+    // If already submitted by a winning concurrent request, return existing result idempotently
+    try {
+      const { attemptId } = await params;
+      const submittedAttempt = await prisma.examAttempt.findUnique({
+        where: { id: attemptId },
+        select: {
+          id: true,
+          status: true,
+          score: true,
+          totalMarks: true,
+          correctCount: true,
+          wrongCount: true,
+          skippedCount: true,
+          timeTakenSecs: true,
+          submittedAt: true,
+        },
+      });
+
+      if (submittedAttempt?.status === "SUBMITTED" && submittedAttempt.submittedAt !== null) {
+        const ranking = await getAttemptRanking(submittedAttempt.id);
+        return NextResponse.json(
+          {
+            data: {
+              attemptId: submittedAttempt.id,
+              score: submittedAttempt.score,
+              totalMarks: submittedAttempt.totalMarks,
+              correctCount: submittedAttempt.correctCount,
+              wrongCount: submittedAttempt.wrongCount,
+              skippedCount: submittedAttempt.skippedCount,
+              timeTakenSecs: submittedAttempt.timeTakenSecs,
+              percentile: ranking.percentile,
+              allIndiaRank: ranking.rank,
+              totalCandidates: ranking.totalCandidates,
+            },
+          },
+          { status: 200 }
+        );
+      }
+    } catch {}
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

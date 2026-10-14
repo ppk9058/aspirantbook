@@ -188,53 +188,67 @@ export async function gradeExamAttempt(
   const elapsedSecs = Math.floor((now.getTime() - attempt.startedAt.getTime()) / 1000);
   const serverTimeTakenSecs = Math.max(1, Math.min(testDurationSecs, elapsedSecs));
 
-  // Atomic Compare-And-Set & Update: Set status, submittedAt, and scores TOGETHER in one transaction.
-  // Recovers cleanly if previous worker crashed with status SUBMITTED and submittedAt null.
-  const didUpdate = await prisma.$transaction(
-    async (tx) => {
-      for (const ga of gradedAnswers) {
-        await tx.examAttemptAnswer.update({
+  // Deterministically sort graded answers by questionId to guarantee identical lock ordering
+  gradedAnswers.sort((a, b) => a.questionId.localeCompare(b.questionId));
+
+  // Atomic Compare-And-Set & Update: Check and update status FIRST.
+  // If this worker wins CAS, update answers within the same transaction.
+  // If another worker won, cas.count is 0 -> return false immediately without locking answer rows.
+  let didUpdate = false;
+  try {
+    didUpdate = await prisma.$transaction(
+      async (tx) => {
+        const cas = await tx.examAttempt.updateMany({
           where: {
-            attemptId_questionId: {
-              attemptId,
-              questionId: ga.questionId,
-            },
+            id: attemptId,
+            OR: [
+              { status: "IN_PROGRESS" },
+              { status: "SUBMITTED", submittedAt: null },
+            ],
           },
           data: {
-            isCorrect: ga.isCorrect,
-            marksAwarded: ga.marksAwarded,
+            status: "SUBMITTED",
+            submittedAt: now,
+            score: totalScore,
+            totalMarks: attempt.test?.totalMarks ?? 0,
+            correctCount,
+            wrongCount,
+            skippedCount,
+            markedCount,
+            timeTakenSecs: serverTimeTakenSecs,
           },
         });
+
+        if (cas.count === 0) {
+          return false;
+        }
+
+        for (const ga of gradedAnswers) {
+          await tx.examAttemptAnswer.update({
+            where: {
+              attemptId_questionId: {
+                attemptId,
+                questionId: ga.questionId,
+              },
+            },
+            data: {
+              isCorrect: ga.isCorrect,
+              marksAwarded: ga.marksAwarded,
+            },
+          });
+        }
+
+        return true;
+      },
+      {
+        maxWait: 10000,
+        timeout: 15000,
       }
-
-      const cas = await tx.examAttempt.updateMany({
-        where: {
-          id: attemptId,
-          OR: [
-            { status: "IN_PROGRESS" },
-            { status: "SUBMITTED", submittedAt: null },
-          ],
-        },
-        data: {
-          status: "SUBMITTED",
-          submittedAt: now,
-          score: totalScore,
-          totalMarks: attempt.test?.totalMarks ?? 0,
-          correctCount,
-          wrongCount,
-          skippedCount,
-          markedCount,
-          timeTakenSecs: serverTimeTakenSecs,
-        },
-      });
-
-      return cas.count > 0;
-    },
-    {
-      maxWait: 10000,
-      timeout: 15000,
-    }
-  );
+    );
+  } catch (err) {
+    // If concurrent transaction conflict occurred, fall back to stored result
+    return getStoredResult(attemptId);
+  }
 
   if (!didUpdate) {
     // Another concurrent worker committed first
