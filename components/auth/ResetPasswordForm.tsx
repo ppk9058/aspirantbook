@@ -5,7 +5,7 @@ import { resetPasswordAction } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Loader2, Eye, EyeOff, CheckCircle2, ShieldCheck } from "lucide-react"
 
-export function ResetPasswordForm({ token }: { token: string }) {
+export function ResetPasswordForm({ token, callbackUrl }: { token: string; callbackUrl?: string }) {
     const [state, dispatch, isPending] = useActionState(resetPasswordAction, null)
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -15,11 +15,12 @@ export function ResetPasswordForm({ token }: { token: string }) {
     useEffect(() => {
         if (state?.success) {
             const timer = setTimeout(() => {
-                window.location.href = "/login"
+                const target = callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login"
+                window.location.href = target
             }, 2500)
             return () => clearTimeout(timer)
         }
-    }, [state?.success])
+    }, [state?.success, callbackUrl])
 
     const getStrength = (pass: string) => {
         if (!pass) return 0

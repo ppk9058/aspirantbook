@@ -3,12 +3,15 @@ import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm"
 import Link from "next/link"
 import { Lock, XCircle, ArrowLeft } from "lucide-react"
 
+import { sanitizeReturnPath } from "@/lib/utils/return-path"
+
 interface ResetPasswordPageProps {
-    searchParams: Promise<{ token?: string }>
+    searchParams: Promise<{ token?: string; callbackUrl?: string }>
 }
 
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
-    const { token } = await searchParams
+    const { token, callbackUrl } = await searchParams
+    const safeCallback = callbackUrl ? sanitizeReturnPath(callbackUrl, "") : ""
 
     let tokenValidation: { valid: boolean; email?: string; reason?: string } | null = null
 
@@ -36,7 +39,7 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
                             </p>
                         </div>
 
-                        <ResetPasswordForm token={token} />
+                        <ResetPasswordForm token={token} callbackUrl={safeCallback} />
                     </div>
                 ) : (
                     <div className="text-center space-y-4">
@@ -63,7 +66,10 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
                 )}
 
                 <div className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-                    <Link href="/login" className="inline-flex items-center gap-1.5 text-[#1448d8] dark:text-blue-400 font-semibold hover:underline">
+                    <Link
+                        href={safeCallback ? `/login?callbackUrl=${encodeURIComponent(safeCallback)}` : "/login"}
+                        className="inline-flex items-center gap-1.5 text-[#1448d8] dark:text-blue-400 font-semibold hover:underline"
+                    >
                         <ArrowLeft className="w-3.5 h-3.5" /> Back to Sign In
                     </Link>
                 </div>

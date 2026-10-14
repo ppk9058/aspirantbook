@@ -24,7 +24,7 @@ export function LoginForm({ onSuccess, isModal = false, initialCallbackUrl }: Lo
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const [rememberMe, setRememberMe] = useState(true)
-    const { openMobileAuth } = useMobileAuth()
+    const { openMobileAuth, closeMobileAuth } = useMobileAuth()
 
     const rawCallback = initialCallbackUrl || (searchParams ? searchParams.get("callbackUrl") : null)
     const safeCallback = rawCallback ? sanitizeReturnPath(rawCallback, "") : ""
@@ -158,7 +158,7 @@ export function LoginForm({ onSuccess, isModal = false, initialCallbackUrl }: Lo
                 </>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form method="POST" onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="email">
                         Email Address
@@ -216,8 +216,19 @@ export function LoginForm({ onSuccess, isModal = false, initialCallbackUrl }: Lo
                         <span className="text-gray-600 dark:text-gray-400">Remember me</span>
                     </label>
                     <Link
-                        href="/forgot-password"
+                        href={(() => {
+                            const params = new URLSearchParams()
+                            if (email.trim()) params.set("email", email.trim().toLowerCase())
+                            if (safeCallback) params.set("callbackUrl", safeCallback)
+                            const qs = params.toString()
+                            return `/forgot-password${qs ? `?${qs}` : ""}`
+                        })()}
                         data-testid="forgot-password-link"
+                        onClick={() => {
+                            if (isModal) {
+                                closeMobileAuth()
+                            }
+                        }}
                         className="text-[#1448d8] font-medium hover:underline"
                     >
                         Forgot password?

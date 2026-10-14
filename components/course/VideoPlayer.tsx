@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import { Play, RotateCcw, Volume2, Maximize, FileText, Smartphone } from "lucide-react"
 
 interface VideoPlayerProps {
@@ -74,7 +75,7 @@ export function VideoPlayer({ title, onComplete }: VideoPlayerProps) {
                     <div className="flex items-center gap-2 text-blue-600 text-sm font-medium">
                         <Smartphone className="h-4 w-4" />
                         <span>This course is also available on the mobile app.</span>
-                        <a href="#" className="hover:underline">Continue learning on mobile.</a>
+                        <Link href="/courses" className="hover:underline">Continue learning on mobile.</Link>
                     </div>
 
                     <Button

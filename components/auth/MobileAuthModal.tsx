@@ -21,6 +21,7 @@ export default function MobileAuthModal() {
         successMessage,
         activeCourse,
         callbackUrl,
+        onSuccessCallback,
         closeMobileAuth,
         setPhoneNumber,
         setStep,
@@ -150,9 +151,13 @@ export default function MobileAuthModal() {
                         <div className="pt-2">
                             <LoginForm
                                 isModal={true}
-                                onSuccess={() => {
+                                onSuccess={async () => {
                                     closeMobileAuth()
-                                    if (callbackUrl) {
+                                    if (onSuccessCallback) {
+                                        const { getSession } = await import("next-auth/react")
+                                        const freshSession = await getSession()
+                                        onSuccessCallback(freshSession?.user)
+                                    } else if (callbackUrl) {
                                         window.location.href = callbackUrl
                                     }
                                 }}

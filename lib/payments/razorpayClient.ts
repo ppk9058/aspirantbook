@@ -21,11 +21,19 @@ export function loadRazorpayScript(): Promise<boolean> {
             return
         }
 
+        const timer = setTimeout(() => resolve(false), 8000)
+
         const script = document.createElement("script")
         script.src = "https://checkout.razorpay.com/v1/checkout.js"
         script.async = true
-        script.onload = () => resolve(true)
-        script.onerror = () => resolve(false)
+        script.onload = () => {
+            clearTimeout(timer)
+            resolve(true)
+        }
+        script.onerror = () => {
+            clearTimeout(timer)
+            resolve(false)
+        }
         document.head.appendChild(script)
     })
 }

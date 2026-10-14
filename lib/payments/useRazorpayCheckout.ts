@@ -45,13 +45,15 @@ export function useRazorpayCheckout() {
         throw new Error("Razorpay SDK could not be loaded. Please check your internet connection.")
       }
 
+      const logoUrl = typeof window !== "undefined" ? `${window.location.origin}/aspirant-logo.jpg` : "/aspirant-logo.jpg"
+
       const rzpOptions = {
         key: options.key,
         amount: options.amount,
         currency: options.currency || "INR",
-        name: options.name || "TrillionSkill",
+        name: options.name || "aspirantbook",
         description: options.description?.slice(0, 250) || "Secure Purchase",
-        image: options.image,
+        image: options.image || logoUrl,
         order_id: options.order_id,
         prefill: {
           name: options.prefill?.name || "",
@@ -84,6 +86,10 @@ export function useRazorpayCheckout() {
             }
           },
         },
+      }
+
+      if (typeof window !== "undefined") {
+        ;(window as any).__lastRazorpayOpts = rzpOptions
       }
 
       const rzp = new (window as any).Razorpay(rzpOptions)

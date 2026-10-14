@@ -8,11 +8,7 @@ import PricingPlanButton from "@/components/pricing/PricingPlanButton"
 export default async function PricingPage() {
     const session = await auth()
     const user = session?.user
-
-    // If user is already premium, redirect to subscription page
-    if (user?.subscriptionStatus === "ACTIVE") {
-        redirect("/subscription")
-    }
+    const isPremiumActive = user?.subscriptionStatus === "ACTIVE"
 
     const plans = [
         {
@@ -32,7 +28,7 @@ export default async function PricingPage() {
                 "No certificates",
                 "No priority support",
             ],
-            buttonText: user ? "Current Plan" : "Sign Up Free",
+            buttonText: user && !isPremiumActive ? "Current Plan" : "Sign Up Free",
             buttonLink: user ? "/dashboard" : "/register",
             variant: "outline" as const,
         },
@@ -53,7 +49,7 @@ export default async function PricingPage() {
                 "Early access to new content",
             ],
             limitations: [],
-            buttonText: "Get Pass",
+            buttonText: isPremiumActive ? "Already active" : "Get Pass Now",
             buttonLink: "/checkout?plan=monthly",
             variant: "default" as const,
         },
@@ -144,7 +140,7 @@ export default async function PricingPage() {
                                         planPrice={plan.price}
                                         buttonText={plan.buttonText}
                                         buttonLink={plan.buttonLink}
-                                        isCurrentUserPlan={plan.name === "FREE" && !!user}
+                                        isCurrentUserPlan={plan.name === "FREE" ? !!user && !isPremiumActive : isPremiumActive}
                                     />
                                 </div>
                             </CardContent>

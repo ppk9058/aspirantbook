@@ -35,6 +35,7 @@ interface MobileAuthContextType {
     activeCourse: MobileAuthCourseInfo | null
     actionType: "enroll" | "buy" | "details" | "login"
     callbackUrl: string | null
+    onSuccessCallback: ((user: any) => void) | null
     openMobileAuth: (options?: MobileAuthOptions) => void
     closeMobileAuth: () => void
     setPhoneNumber: (phone: string) => void
@@ -339,6 +340,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
                 activeCourse,
                 actionType,
                 callbackUrl,
+                onSuccessCallback,
                 openMobileAuth,
                 closeMobileAuth,
                 setPhoneNumber,
@@ -372,6 +374,7 @@ export function useMobileAuth() {
             activeCourse: null,
             actionType: "login" as const,
             callbackUrl: null,
+            onSuccessCallback: null,
             openMobileAuth: triggerMobileAuth,
             closeMobileAuth: () => {},
             setPhoneNumber: () => {},

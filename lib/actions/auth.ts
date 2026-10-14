@@ -17,6 +17,7 @@ import {
     sendPasswordChangedEmail,
 } from "@/lib/auth/tokens"
 import { checkRateLimit } from "@/lib/rate-limit"
+import { sanitizeReturnPath } from "@/lib/utils/return-path"
 
 const RegisterSchema = z.object({
     name: z.string().trim().min(2, "Name must be at least 2 characters"),
@@ -282,8 +283,10 @@ export async function requestPasswordResetAction(prevState: any, formData: FormD
             return { success: genericSuccess }
         }
 
+        const rawCallback = (formData.get("callbackUrl") as string) || ""
+        const safeCallback = rawCallback ? sanitizeReturnPath(rawCallback, "") : ""
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
-        await sendPasswordResetEmail(email, appUrl)
+        await sendPasswordResetEmail(email, appUrl, safeCallback || undefined)
 
         return { success: genericSuccess }
     } catch (error) {

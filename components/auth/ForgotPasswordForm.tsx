@@ -1,16 +1,23 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import { requestPasswordResetAction } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Loader2, Mail, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 
-export function ForgotPasswordForm() {
+interface ForgotPasswordFormProps {
+    initialEmail?: string
+    callbackUrl?: string
+}
+
+export function ForgotPasswordForm({ initialEmail = "", callbackUrl = "" }: ForgotPasswordFormProps) {
     const [state, dispatch, isPending] = useActionState(requestPasswordResetAction, null)
+    const [email, setEmail] = useState(initialEmail)
 
     return (
         <form action={dispatch} className="space-y-4">
+            {callbackUrl && <input type="hidden" name="callbackUrl" value={callbackUrl} />}
             <div>
                 <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="email">
                     Email Address
@@ -21,6 +28,8 @@ export function ForgotPasswordForm() {
                         id="email"
                         type="email"
                         name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
                         required
                         disabled={isPending}

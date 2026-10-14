@@ -170,9 +170,10 @@ export async function sendVerificationEmail(email: string, baseUrl: string): Pro
     return res.success
 }
 
-export async function sendPasswordResetEmail(email: string, baseUrl: string): Promise<boolean> {
+export async function sendPasswordResetEmail(email: string, baseUrl: string, callbackUrl?: string): Promise<boolean> {
     const token = await createPasswordResetToken(email)
-    const resetUrl = `${baseUrl}/reset-password?token=${token}`
+    const cbParam = callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : ""
+    const resetUrl = `${baseUrl}/reset-password?token=${token}${cbParam}`
 
     const res = await sendEmail({
         to: email,
