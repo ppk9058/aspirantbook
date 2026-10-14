@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation"
 import { useBookCart } from "@/lib/books/cartContext"
 import { useSession } from "next-auth/react"
 import { useBookCheckout } from "@/lib/books/useBookCheckout"
-import PaymentSuccessModal from "./PaymentSuccessModal"
-import SecurePdfViewer from "./SecurePdfViewer"
+import dynamic from "next/dynamic"
+
+const PaymentSuccessModal = dynamic(() => import("./PaymentSuccessModal"), { ssr: false })
+const SecurePdfViewer = dynamic(() => import("./SecurePdfViewer"), { ssr: false })
 import {
   X,
   Plus,

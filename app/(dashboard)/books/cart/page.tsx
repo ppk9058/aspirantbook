@@ -21,8 +21,10 @@ import {
   Lock,
 } from "lucide-react"
 import { useBookCheckout } from "@/lib/books/useBookCheckout"
-import PaymentSuccessModal from "@/components/books/PaymentSuccessModal"
-import SecurePdfViewer from "@/components/pdf/SecurePdfViewer"
+import dynamic from "next/dynamic"
+
+const PaymentSuccessModal = dynamic(() => import("@/components/books/PaymentSuccessModal"), { ssr: false })
+const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
 
 function CartPageContent() {
   const router = useRouter()

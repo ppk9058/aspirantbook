@@ -4,7 +4,9 @@ import React, { useState } from "react"
 import Link from "next/link"
 import BookStoreHeader from "@/components/books/BookStoreHeader"
 import CartDrawer from "@/components/books/CartDrawer"
-import SecurePdfViewer from "@/components/pdf/SecurePdfViewer"
+import dynamic from "next/dynamic"
+
+const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
 import { BookCartProvider, useBookCart } from "@/lib/books/cartContext"
 import { BOOKS_DATA } from "@/lib/books/data"
 import { Book } from "@/lib/books/types"

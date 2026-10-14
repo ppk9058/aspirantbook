@@ -42,6 +42,7 @@ model User {
   demoStageSessions  DemoStageSession[]
   couponRedemptions  CouponRedemption[]
   createdDemoSlots   DemoSlot[]          @relation("UserCreatedDemoSlots")
+  currentAffairsPdfs CurrentAffairsPdf[] @relation("UserCurrentAffairsPdfs")
 
   @@index([email])
   @@index([role])
@@ -623,6 +624,7 @@ model Subscription {
   @@index([userId])
   @@index([status])
   @@index([userId, status])
+  @@index([userId, status, endDate])
 }
 
 model Payment {
@@ -652,6 +654,7 @@ model Payment {
   @@index([subscriptionId])
   @@index([status])
   @@index([couponId])
+  @@index([userId, status, createdAt])
 }
 
 model Coupon {
@@ -863,6 +866,7 @@ model ExamSeriesEnrollment {
   @@index([userId])
   @@index([seriesId])
   @@index([status])
+  @@index([userId, status, expiresAt])
 }
 
 enum ExamSeriesEnrollType {
@@ -894,6 +898,8 @@ model ExamTest {
   liveStartAt     DateTime?
   liveEndAt       DateTime?
   order           Int           @default(0)
+  month           Int?
+  year            Int?
   isPublished     Boolean       @default(false)
   createdById     String
   createdAt       DateTime      @default(now())
@@ -906,6 +912,7 @@ model ExamTest {
   @@index([testType])
   @@index([isPublished])
   @@index([seriesId, isPublished])
+  @@index([year, month])
 }
 
 model ExamSection {
@@ -1019,6 +1026,7 @@ enum ExamTestType {
   SECTIONAL_TEST
   PREVIOUS_YEAR
   LIVE_SPEED
+  CURRENT_AFFAIRS
 }
 
 enum ExamAccess {
@@ -1254,4 +1262,28 @@ model RateLimit {
 
   @@unique([key, windowStart])
   @@index([windowStart])
+}
+
+model CurrentAffairsPdf {
+  id            String    @id @default(cuid())
+  title         String
+  titleHi       String?
+  month         Int       // 1-12
+  year          Int       // e.g. 2026
+  pdfUrlEn      String?
+  pdfUrlHi      String?
+  fileSizeKbEn  Int?
+  fileSizeKbHi  Int?
+  status        String    @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
+  downloadCount Int       @default(0)
+  createdById   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  createdBy     User?     @relation("UserCurrentAffairsPdfs", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([year, month])
+  @@index([status])
+  @@index([createdById])
+  @@index([status, year, month])
 }

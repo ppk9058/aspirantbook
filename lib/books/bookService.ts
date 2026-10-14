@@ -1,7 +1,8 @@
 import fs from "fs/promises"
 import path from "path"
-import { Book, Coupon, BookOrder } from "./types"
+import { Book, Coupon, BookOrder, BookOrderStatus } from "./types"
 import { BOOKS_DATA, AVAILABLE_COUPONS } from "./data"
+import { atomicWriteJson, safeReadJson } from "./storage"
 
 const DATA_DIR = path.join(process.cwd(), "data")
 const BOOKS_FILE = path.join(DATA_DIR, "books.json")
@@ -119,6 +120,14 @@ const INITIAL_ORDERS: BookOrder[] = [
 
 // Cache management
 let cachedBooks: Book[] | null = null
+let lastBooksCacheTime = 0
+const BOOKS_CACHE_TTL_MS = 10_000 // 10 seconds TTL
+
+export function invalidateBooksCache() {
+  cachedBooks = null
+  lastBooksCacheTime = 0
+}
+
 let cachedOrders: BookOrder[] | null = null
 let cachedCoupons: Coupon[] | null = null
 
@@ -146,16 +155,111 @@ async function ensureDataFiles() {
 
 // ----------------- BOOKS -----------------
 
+export function normalizeBook(raw: any): Book {
+  const price = Number(raw.price) || 0
+  const originalPrice = Number(raw.originalPrice ?? raw.mrp) || price
+  const mrp = Number(raw.mrp ?? raw.originalPrice) || originalPrice
+  const discountPercent =
+    originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0
+
+  // Images list (ensure first image is coverImage)
+  let images: string[] = Array.isArray(raw.images) && raw.images.length > 0 ? [...raw.images] : []
+  if (images.length === 0 && raw.coverImage) {
+    images = [raw.coverImage]
+  } else if (images.length === 0 && Array.isArray(raw.thumbnails) && raw.thumbnails.length > 0) {
+    images = raw.thumbnails.map((t: any) => t.url).filter(Boolean)
+  }
+  if (images.length === 0) {
+    images = ["/images/books/cbse-10-solved-papers.svg"]
+  }
+
+  const coverImage = raw.coverImage || images[0] || "/images/books/cbse-10-solved-papers.svg"
+
+  // Thumbnails array
+  let thumbnails = Array.isArray(raw.thumbnails) && raw.thumbnails.length > 0
+    ? raw.thumbnails
+    : images.map((imgUrl, i) => ({
+        id: `thumb-${i + 1}`,
+        label: i === 0 ? "Cover Image" : `Preview Page ${i + 1}`,
+        url: imgUrl,
+        type: (i === 0 ? "cover" : "sample") as "cover" | "sample",
+      }))
+
+  const features = Array.isArray(raw.features) && raw.features.length > 0
+    ? raw.features
+    : Array.isArray(raw.highlights) && raw.highlights.length > 0
+    ? raw.highlights
+    : [
+        "Instant eBook Delivery: Searchable and printable high-res PDF",
+        "Strictly follows latest examination curriculum",
+        "Step-by-step solved examples and marking scheme insights",
+      ]
+
+  const highlights = Array.isArray(raw.highlights) && raw.highlights.length > 0
+    ? raw.highlights
+    : features
+
+  const productDetails = Array.isArray(raw.productDetails) && raw.productDetails.length > 0
+    ? raw.productDetails
+    : [
+        { label: "Format", value: raw.format || "PDF eBook" },
+        { label: "Pages", value: String(raw.pages || 240) },
+        { label: "Language", value: raw.language || "English" },
+        { label: "Publisher", value: raw.publisher || "aspirantbook Publications" },
+        { label: "Edition", value: raw.edition || "2026 Edition" },
+        { label: "File Size", value: raw.fileSize || `${raw.fileSizeMb || 18} MB` },
+      ]
+
+  const status = raw.status || "published" // legacy books are published by default
+  const whoCanBuy = raw.whoCanBuy || `${raw.category || "Exam"} aspirants and students looking for comprehensive study material and solved papers.`
+  const deliveryNote = raw.deliveryNote || "Digital PDF only. Instant online access, no physical copy, no shipping."
+
+  return {
+    ...raw,
+    price,
+    originalPrice,
+    mrp,
+    discountPercent,
+    coverImage,
+    images,
+    thumbnails,
+    features,
+    highlights,
+    productDetails,
+    whoCanBuy,
+    deliveryNote,
+    status,
+    pages: Number(raw.pages) || 240,
+    language: raw.language || "English",
+    edition: raw.edition || "2026 Edition",
+    fileSize: raw.fileSize || `${raw.fileSizeMb || 18.5} MB`,
+    fileSizeMb: raw.fileSizeMb || (raw.fileSize ? parseFloat(raw.fileSize) || 18.5 : 18.5),
+    format: raw.format || "PDF eBook",
+    salesCount: raw.salesCount ?? (raw.ratingCount ? raw.ratingCount * 12 : 0),
+    rating: raw.rating ?? 4.8,
+    ratingCount: raw.ratingCount ?? 1,
+    reviewCount: raw.reviewCount ?? 1,
+    createdAt: raw.createdAt || "2026-09-01T00:00:00.000Z",
+    updatedAt: raw.updatedAt || new Date().toISOString(),
+  }
+}
+
 export async function getAllBooks(): Promise<Book[]> {
+  if (cachedBooks && Date.now() - lastBooksCacheTime < BOOKS_CACHE_TTL_MS) {
+    return cachedBooks
+  }
+
   try {
     await ensureDataFiles()
     const content = await fs.readFile(BOOKS_FILE, "utf-8")
-    const books = JSON.parse(content) as Book[]
-    cachedBooks = books
-    return books
+    const books = JSON.parse(content) as any[]
+    const normalized = books.map(normalizeBook)
+    cachedBooks = normalized
+    lastBooksCacheTime = Date.now()
+    return normalized
   } catch (err) {
     console.error("Error reading books.json:", err)
-    return cachedBooks || BOOKS_DATA
+    return (cachedBooks || BOOKS_DATA).map(normalizeBook)
   }
 }
 
@@ -182,43 +286,84 @@ export async function createBook(bookData: Partial<Book>): Promise<Book> {
       .replace(/(^-|-$)/g, "")
 
   const price = Number(bookData.price) || 0
-  const originalPrice = Number(bookData.originalPrice) || price
+  const originalPrice = Number(bookData.originalPrice ?? bookData.mrp) || price
+  const mrp = Number(bookData.mrp ?? bookData.originalPrice) || originalPrice
   const discountPercent =
     originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0
 
-  const newBook: Book = {
+  const images = bookData.images && bookData.images.length > 0
+    ? bookData.images
+    : bookData.coverImage
+    ? [bookData.coverImage]
+    : ["/images/books/cbse-10-solved-papers.svg"]
+
+  const coverImage = images[0]
+
+  const thumbnails = bookData.thumbnails && bookData.thumbnails.length > 0
+    ? bookData.thumbnails
+    : images.map((url, idx) => ({
+        id: `thumb-${Date.now()}-${idx + 1}`,
+        label: idx === 0 ? "Cover Image" : `Sample Page ${idx + 1}`,
+        url,
+        type: (idx === 0 ? "cover" : "sample") as "cover" | "sample",
+      }))
+
+  const features = bookData.features && bookData.features.length > 0
+    ? bookData.features
+    : bookData.highlights && bookData.highlights.length > 0
+    ? bookData.highlights
+    : [
+        "Instant eBook Delivery: Searchable and printable high-res PDF",
+        "Strictly follows latest examination curriculum",
+        "Step-by-step solved examples and marking scheme insights",
+      ]
+
+  const highlights = bookData.highlights && bookData.highlights.length > 0
+    ? bookData.highlights
+    : features
+
+  const productDetails = bookData.productDetails && bookData.productDetails.length > 0
+    ? bookData.productDetails
+    : [
+        { label: "Format", value: bookData.format || "PDF eBook" },
+        { label: "Pages", value: String(bookData.pages || 240) },
+        { label: "Language", value: bookData.language || "English" },
+        { label: "Publisher", value: bookData.publisher || "aspirantbook Publications" },
+        { label: "Edition", value: bookData.edition || "2026 Edition" },
+        { label: "File Size", value: bookData.fileSize || `${bookData.fileSizeMb || 18.5} MB` },
+      ]
+
+  const nowIso = new Date().toISOString()
+
+  const rawBook: Book = {
     id,
     slug,
     title: bookData.title || "Untitled eBook",
     subtitle: bookData.subtitle || "",
     author: bookData.author || "aspirantbook Academic Team",
     publisher: bookData.publisher || "aspirantbook Publications",
-    category: bookData.category || "CBSE Class 10th Books",
+    category: bookData.category || "UPSC",
     subcategory: bookData.subcategory || "General",
     subject: bookData.subject || "General Studies",
     edition: bookData.edition || "2026 Edition",
     price,
     originalPrice,
+    mrp,
     discountPercent,
     rating: bookData.rating || 4.8,
     ratingCount: bookData.ratingCount || 1,
     reviewCount: bookData.reviewCount || 1,
-    coverImage: bookData.coverImage || "/images/books/cbse-10-solved-papers.svg",
-    thumbnails: bookData.thumbnails || [
-      {
-        id: `thumb-${Date.now()}-1`,
-        label: "Front Cover",
-        url: bookData.coverImage || "/images/books/cbse-10-solved-papers.svg",
-        type: "cover",
-      },
-    ],
+    salesCount: bookData.salesCount || 0,
+    coverImage,
+    images,
+    thumbnails,
     description: bookData.description || "Comprehensive high-quality eBook designed for exam preparation.",
     shortDescription: bookData.shortDescription || "",
-    features: bookData.features && bookData.features.length > 0 ? bookData.features : [
-      "Instant eBook Delivery: Searchable and printable high-res PDF",
-      "Strictly follows latest examination curriculum",
-      "Step-by-step solved examples and marking scheme insights",
-    ],
+    features,
+    highlights,
+    productDetails,
+    whoCanBuy: bookData.whoCanBuy || "All aspirants and students preparing for exams.",
+    deliveryNote: bookData.deliveryNote || "Digital PDF only. Instant online access, no physical copy, no shipping.",
     tableOfContents: bookData.tableOfContents || [
       {
         section: "PART 1: CORE CONCEPTS",
@@ -230,18 +375,27 @@ export async function createBook(bookData: Partial<Book>): Promise<Book> {
       },
     ],
     pages: Number(bookData.pages) || 240,
-    fileSize: bookData.fileSize || "18.5 MB",
+    fileSize: bookData.fileSize || `${bookData.fileSizeMb || 18.5} MB`,
+    fileSizeMb: bookData.fileSizeMb || 18.5,
     language: bookData.language || "English",
-    format: bookData.format || "eBook (High-Res PDF + Interactive Reader)",
+    format: bookData.format || "PDF eBook",
     isBestseller: Boolean(bookData.isBestseller),
     isFeatured: Boolean(bookData.isFeatured),
     samplePdfUrl: bookData.samplePdfUrl || "",
     fullPdfUrl: bookData.fullPdfUrl || "",
+    status: bookData.status || "draft",
+    createdBy: bookData.createdBy,
+    rejectionReason: bookData.rejectionReason,
+    tags: bookData.tags || [],
+    createdAt: bookData.createdAt || nowIso,
+    updatedAt: nowIso,
   }
 
+  const newBook = normalizeBook(rawBook)
   const updated = [newBook, ...books]
-  await fs.writeFile(BOOKS_FILE, JSON.stringify(updated, null, 2), "utf-8")
+  await atomicWriteJson(BOOKS_FILE, updated)
   cachedBooks = updated
+  lastBooksCacheTime = Date.now()
   return newBook
 }
 
@@ -253,21 +407,30 @@ export async function updateBook(id: string, updates: Partial<Book>): Promise<Bo
 
   const existing = books[idx]
   const price = updates.price !== undefined ? Number(updates.price) : existing.price
-  const originalPrice = updates.originalPrice !== undefined ? Number(updates.originalPrice) : existing.originalPrice
+  const originalPrice = updates.originalPrice !== undefined
+    ? Number(updates.originalPrice)
+    : updates.mrp !== undefined
+    ? Number(updates.mrp)
+    : existing.originalPrice
+  const mrp = updates.mrp !== undefined ? Number(updates.mrp) : originalPrice
   const discountPercent =
     originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0
 
-  const updatedBook: Book = {
+  const merged = {
     ...existing,
     ...updates,
     price,
     originalPrice,
+    mrp,
     discountPercent,
+    updatedAt: new Date().toISOString(),
   }
 
+  const updatedBook = normalizeBook(merged)
   books[idx] = updatedBook
-  await fs.writeFile(BOOKS_FILE, JSON.stringify(books, null, 2), "utf-8")
+  await atomicWriteJson(BOOKS_FILE, books)
   cachedBooks = books
+  lastBooksCacheTime = Date.now()
   return updatedBook
 }
 
@@ -277,8 +440,9 @@ export async function deleteBook(id: string): Promise<boolean> {
   const filtered = books.filter((b) => b.id !== id)
   if (filtered.length === books.length) return false
 
-  await fs.writeFile(BOOKS_FILE, JSON.stringify(filtered, null, 2), "utf-8")
+  await atomicWriteJson(BOOKS_FILE, filtered)
   cachedBooks = filtered
+  lastBooksCacheTime = Date.now()
   return true
 }
 
@@ -287,8 +451,7 @@ export async function deleteBook(id: string): Promise<boolean> {
 export async function getAllOrders(): Promise<BookOrder[]> {
   try {
     await ensureDataFiles()
-    const content = await fs.readFile(ORDERS_FILE, "utf-8")
-    const orders = JSON.parse(content) as BookOrder[]
+    const orders = await safeReadJson<BookOrder[]>(ORDERS_FILE, INITIAL_ORDERS)
     cachedOrders = orders
     return orders
   } catch (err) {
@@ -297,18 +460,137 @@ export async function getAllOrders(): Promise<BookOrder[]> {
   }
 }
 
+export async function getOrderByOrderId(orderId: string): Promise<BookOrder | null> {
+  const orders = await getAllOrders()
+  return orders.find((o) => o.id === orderId || o.orderNumber === orderId) || null
+}
+
+export async function getOrderByRazorpayId(rzpOrderId: string): Promise<BookOrder | null> {
+  const orders = await getAllOrders()
+  return orders.find((o) => o.razorpayOrderId === rzpOrderId) || null
+}
+
+export async function getUserCompletedBooks(userId: string): Promise<string[]> {
+  if (!userId) return []
+  const orders = await getAllOrders()
+  const userCompleted = orders.filter(
+    (o) =>
+      o.userId === userId &&
+      (o.status === "completed" || o.status === "COMPLETED")
+  )
+  const bookIds = new Set<string>()
+  for (const ord of userCompleted) {
+    for (const item of ord.items || []) {
+      const bId = item.bookId || item.book?.id
+      if (bId) bookIds.add(bId)
+    }
+  }
+  return Array.from(bookIds)
+}
+
+export async function hasUserPurchasedBook(userId: string, bookId: string): Promise<boolean> {
+  if (!userId || !bookId) return false
+  const ownedBooks = await getUserCompletedBooks(userId)
+  return ownedBooks.includes(bookId)
+}
+
+export async function incrementBookSales(bookId: string, quantity = 1): Promise<void> {
+  try {
+    const books = await getAllBooks()
+    const bookIndex = books.findIndex((b) => b.id === bookId || b.slug === bookId)
+    if (bookIndex >= 0) {
+      books[bookIndex].salesCount = (books[bookIndex].salesCount || 0) + Math.max(1, quantity)
+      await atomicWriteJson(BOOKS_FILE, books)
+      cachedBooks = books
+      lastBooksCacheTime = Date.now()
+    }
+  } catch (err) {
+    console.error(`Failed to increment sales count for book ${bookId}:`, err)
+  }
+}
+
 export async function createOrder(orderData: BookOrder): Promise<BookOrder> {
   await ensureDataFiles()
   const orders = await getAllOrders()
-  const updated = [orderData, ...orders]
-  await fs.writeFile(ORDERS_FILE, JSON.stringify(updated, null, 2), "utf-8")
+  // Ensure orders never start as completed from untrusted client input
+  const safeOrder: BookOrder = {
+    ...orderData,
+    status: orderData.status === "completed" || orderData.status === "COMPLETED"
+      ? "pending_payment"
+      : (orderData.status || "pending_payment"),
+  }
+  const updated = [safeOrder, ...orders]
+  await atomicWriteJson(ORDERS_FILE, updated)
   cachedOrders = updated
-  return orderData
+  return safeOrder
+}
+
+export async function markBookOrderCompleted({
+  orderId,
+  razorpayPaymentId,
+  razorpaySignature,
+}: {
+  orderId: string
+  razorpayPaymentId: string
+  razorpaySignature?: string
+}): Promise<{ success: boolean; alreadyCompleted?: boolean; order?: BookOrder }> {
+  await ensureDataFiles()
+  const orders = await getAllOrders()
+  const idx = orders.findIndex(
+    (o) => o.id === orderId || o.orderNumber === orderId || o.razorpayOrderId === orderId
+  )
+  if (idx === -1) {
+    return { success: false }
+  }
+
+  const currentOrder = orders[idx]
+  // Idempotency check: a repeated verify or webhook call must not double-count sales
+  if (currentOrder.status === "completed" || currentOrder.status === "COMPLETED") {
+    return { success: true, alreadyCompleted: true, order: currentOrder }
+  }
+
+  // Mark completed
+  currentOrder.status = "completed"
+  currentOrder.paidAt = new Date().toISOString()
+  currentOrder.razorpayPaymentId = razorpayPaymentId
+  if (razorpaySignature) {
+    currentOrder.razorpaySignature = razorpaySignature
+  }
+
+  // Atomically persist orders
+  await atomicWriteJson(ORDERS_FILE, orders)
+  cachedOrders = orders
+
+  // Increment salesCount once for each book in the order
+  for (const item of currentOrder.items || []) {
+    const bId = item.bookId || item.book?.id
+    if (bId) {
+      await incrementBookSales(bId, item.quantity || 1)
+    }
+  }
+
+  return { success: true, alreadyCompleted: false, order: currentOrder }
+}
+
+export async function markBookOrderFailed(orderId: string): Promise<boolean> {
+  await ensureDataFiles()
+  const orders = await getAllOrders()
+  const idx = orders.findIndex(
+    (o) => o.id === orderId || o.orderNumber === orderId || o.razorpayOrderId === orderId
+  )
+  if (idx === -1) return false
+  if (orders[idx].status === "completed" || orders[idx].status === "COMPLETED") {
+    return false // do not override completed order
+  }
+  orders[idx].status = "failed"
+  await atomicWriteJson(ORDERS_FILE, orders)
+  cachedOrders = orders
+  return true
 }
 
 export async function updateOrderStatus(
   orderId: string,
-  status: "COMPLETED" | "PROCESSING"
+  status: BookOrderStatus
 ): Promise<BookOrder | null> {
   await ensureDataFiles()
   const orders = await getAllOrders()
@@ -316,7 +598,7 @@ export async function updateOrderStatus(
   if (idx === -1) return null
 
   orders[idx].status = status
-  await fs.writeFile(ORDERS_FILE, JSON.stringify(orders, null, 2), "utf-8")
+  await atomicWriteJson(ORDERS_FILE, orders)
   cachedOrders = orders
   return orders[idx]
 }
@@ -354,7 +636,7 @@ export async function createCoupon(coupon: Coupon): Promise<Coupon> {
     updated = [normalized, ...coupons]
   }
 
-  await fs.writeFile(COUPONS_FILE, JSON.stringify(updated, null, 2), "utf-8")
+  await atomicWriteJson(COUPONS_FILE, updated)
   cachedCoupons = updated
   return normalized
 }
@@ -365,7 +647,7 @@ export async function deleteCoupon(code: string): Promise<boolean> {
   const filtered = coupons.filter((c) => c.code.toUpperCase() !== code.toUpperCase())
   if (filtered.length === coupons.length) return false
 
-  await fs.writeFile(COUPONS_FILE, JSON.stringify(filtered, null, 2), "utf-8")
+  await atomicWriteJson(COUPONS_FILE, filtered)
   cachedCoupons = filtered
   return true
 }

@@ -61,6 +61,8 @@ const nextConfig = {
             '@radix-ui/react-switch',
             '@radix-ui/react-tabs',
             '@radix-ui/react-toast',
+            'sonner',
+            '@tanstack/react-query',
         ],
     },
     async headers() {
