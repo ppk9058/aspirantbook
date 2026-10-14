@@ -2,6 +2,11 @@ import { defineConfig, devices } from "@playwright/test";
 
 const BASE_URL = process.env.BASE_URL || "http://127.0.0.1:3045";
 
+if (!process.env.DEV_SMOKE && (!process.env.DATABASE_URL || !process.env.DATABASE_URL.includes("trillionskill_test"))) {
+  process.env.DATABASE_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
+  process.env.DIRECT_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
+}
+
 export default defineConfig({
   testDir: "./tests/e2e",
   outputDir: "./logs/verify-studio/e2e/playwright-results",

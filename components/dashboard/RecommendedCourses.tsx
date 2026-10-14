@@ -117,10 +117,10 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
                                     </span>
                                 </div>
 
-                                <button className="w-full py-2.5 px-4 rounded-xl bg-teal-50 hover:bg-[#1448d8] dark:bg-teal-950/40 dark:hover:bg-[#1448d8] text-teal-800 hover:text-white dark:text-teal-300 dark:hover:text-white border border-teal-200/80 dark:border-teal-800/60 font-black text-xs flex items-center justify-center gap-2 transition-all group-hover:bg-[#1448d8] group-hover:text-white group-hover:border-transparent shadow-2xs">
+                                <div className="w-full py-2.5 px-4 rounded-xl bg-blue-50/70 hover:bg-[#1448d8] dark:bg-blue-950/40 dark:hover:bg-[#1448d8] text-[#1448d8] hover:text-white dark:text-blue-300 dark:hover:text-white border border-blue-200/80 dark:border-blue-800/60 font-black text-xs flex items-center justify-center gap-2 transition-all group-hover:bg-[#1448d8] group-hover:text-white group-hover:border-transparent shadow-2xs">
                                     <PlayCircle className="h-4 w-4" />
                                     <span>Explore Course</span>
-                                </button>
+                                </div>
                             </div>
                         </div>
                     </Link>

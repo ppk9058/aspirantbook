@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from "react"
 import Image from "next/image"
 import { X, Loader2, CheckCircle2, ArrowRight, ShieldCheck } from "lucide-react"
+import Link from "next/link"
 import { useMobileAuth, triggerMobileAuth, MobileAuthCourseInfo, MobileAuthOptions } from "./MobileAuthContext"
 import { LoginForm } from "@/components/auth/LoginForm"
 
@@ -232,6 +233,29 @@ export default function MobileAuthModal() {
                                 <span>Get OTP</span>
                                 <ArrowRight className="h-4 w-4" />
                             </button>
+
+                            <div className="flex items-center justify-between text-xs pt-1 px-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setAuthMode("credentials")}
+                                    className="text-gray-500 hover:text-[#1448d8] font-medium cursor-pointer"
+                                >
+                                    Log in with Password
+                                </button>
+                                <Link
+                                    href={(() => {
+                                        const params = new URLSearchParams()
+                                        if (callbackUrl) params.set("callbackUrl", callbackUrl)
+                                        const qs = params.toString()
+                                        return `/forgot-password${qs ? `?${qs}` : ""}`
+                                    })()}
+                                    data-testid="modal-forgot-password-link"
+                                    onClick={() => closeMobileAuth()}
+                                    className="text-[#1448d8] font-medium hover:underline"
+                                >
+                                    Forgot password?
+                                </Link>
+                            </div>
                         </div>
                     ) : (
                         /* ─── STEP 2: 6-DIGIT OTP FIELD ──────────────────────────── */

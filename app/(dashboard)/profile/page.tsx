@@ -210,16 +210,18 @@ export default async function ProfilePage() {
                     </div>
 
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 self-center sm:self-start">
-                        <Link href="/purchases">
-                            <button className="px-4 py-2.5 min-h-[44px] bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5">
-                                <ShoppingBag className="h-3.5 w-3.5" />
-                                <span>My Purchases</span>
-                            </button>
+                        <Link
+                            href="/purchases"
+                            className="px-4 py-2.5 min-h-[44px] bg-[#1448d8] hover:bg-[#0f37a8] text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+                        >
+                            <ShoppingBag className="h-3.5 w-3.5" />
+                            <span>My Purchases</span>
                         </Link>
-                        <Link href="/settings">
-                            <button className="px-4 py-2.5 min-h-[44px] bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold border border-white/10 transition-colors">
-                                Edit Profile
-                            </button>
+                        <Link
+                            href="/settings"
+                            className="px-4 py-2.5 min-h-[44px] bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold border border-white/10 transition-colors flex items-center"
+                        >
+                            Edit Profile
                         </Link>
                     </div>
                 </div>

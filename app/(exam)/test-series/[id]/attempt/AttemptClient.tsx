@@ -1443,7 +1443,7 @@ function Arena() {
                     SECTIONS
                 </span>
                 <div className="flex items-center gap-2">
-                    <button className="px-4 py-1 rounded text-xs font-bold bg-teal-700 text-white whitespace-nowrap shadow-sm">
+                    <button type="button" className="px-4 py-1 rounded text-xs font-bold bg-[#1448d8] text-white whitespace-nowrap shadow-sm">
                         Test
                     </button>
                 </div>

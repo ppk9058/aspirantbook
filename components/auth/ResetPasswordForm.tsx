@@ -137,7 +137,14 @@ export function ResetPasswordForm({ token, callbackUrl }: { token: string; callb
                     <div>
                         <p className="font-semibold">{state.success}</p>
                         <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5">
-                            Redirecting you to login...
+                            Redirecting you to login...{" "}
+                            <a
+                                href={callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login"}
+                                data-testid="login-redirect-link"
+                                className="underline font-bold hover:text-emerald-800 dark:hover:text-emerald-200"
+                            >
+                                Go to login now
+                            </a>
                         </p>
                     </div>
                 </div>
