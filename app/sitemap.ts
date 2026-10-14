@@ -54,14 +54,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]
 
     try {
-        const [publishedCourses, allBooks, publishedSeries] = await Promise.all([
+        const [publishedCourses, allBooks, publishedSeries, publishedQuizzes] = await Promise.all([
             prisma.course.findMany({
                 where: { status: "PUBLISHED" },
                 select: { slug: true, updatedAt: true },
             }).catch(() => []),
             getAllBooks().catch(() => []),
             prisma.examSeries.findMany({
+                where: {
+                    isPublished: true,
+                    slug: { notIn: ["current-affairs-system-series", "pyq-system-series"] },
+                },
                 select: { slug: true },
+            }).catch(() => []),
+            prisma.examTest.findMany({
+                where: {
+                    testType: "CURRENT_AFFAIRS",
+                    isPublished: true,
+                },
+                select: { id: true, title: true, updatedAt: true },
             }).catch(() => []),
         ])
 
@@ -92,6 +103,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 priority: 0.8,
             }))
 
+        const { getQuizSlug } = await import("@/lib/current-affairs/slugs")
+        const quizUrls: MetadataRoute.Sitemap = publishedQuizzes
+            .map((q) => ({
+                url: `${baseUrl}/current-affairs-quizzes/${getQuizSlug(q)}`,
+                lastModified: q.updatedAt || new Date(),
+                changeFrequency: "daily",
+                priority: 0.8,
+            }))
+
         const tutorialUrls: MetadataRoute.Sitemap = publishedCourses
             .filter((c) => {
                 const lowerSlug = (c.slug || "").toLowerCase()
@@ -104,7 +124,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 priority: 0.7,
             }))
 
-        return [...staticRoutes, ...courseUrls, ...bookUrls, ...seriesUrls, ...tutorialUrls]
+        return [...staticRoutes, ...courseUrls, ...bookUrls, ...seriesUrls, ...quizUrls, ...tutorialUrls]
     } catch {
         return staticRoutes
     }

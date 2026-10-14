@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import InstructionsClient from "./InstructionsClient"
@@ -25,6 +25,7 @@ export default async function InstructionsPage({ params, searchParams }: Instruc
         where: { id: testId },
         select: {
             id: true,
+            title: true,
             isPublished: true,
             testType: true,
             createdById: true,
@@ -40,10 +41,17 @@ export default async function InstructionsPage({ params, searchParams }: Instruc
     })
 
     if (testRow) {
+        // Redirect Current Affairs quizzes to new clean URL
+        if (testRow.testType === "CURRENT_AFFAIRS" || testRow.series?.slug === "current-affairs-system-series" || paramId === "current-affairs-system-series") {
+            const { getQuizSlug } = await import("@/lib/current-affairs/slugs")
+            const quizSlug = getQuizSlug(testRow)
+            redirect(`/current-affairs-quizzes/${encodeURIComponent(quizSlug)}/instructions`)
+        }
+
         const isTestOwner = currentUserId && testRow.createdById === currentUserId
         const isSeriesOwner = currentUserId && testRow.series?.createdById === currentUserId
-        const isPyqTest = testRow.testType === "PREVIOUS_YEAR"
-        if (testRow.series && !testRow.series.isPublished && !isAdmin && !isSeriesOwner && !isPyqTest) {
+        const isSystemSeries = testRow.testType === "PREVIOUS_YEAR" || (testRow.testType as string) === "CURRENT_AFFAIRS" || testRow.series?.slug === "current-affairs-system-series" || testRow.series?.slug === "pyq-system-series"
+        if (testRow.series && !testRow.series.isPublished && !isAdmin && !isSeriesOwner && !isSystemSeries) {
             notFound()
         }
         if (!testRow.isPublished && !isAdmin && !isTestOwner) {

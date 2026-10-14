@@ -30,6 +30,8 @@ export interface TestActionButtonProps {
   isLocked?: boolean
   onUnlockClick?: () => void
   isFreeSample?: boolean
+  customStartUrl?: string
+  isGuest?: boolean
 }
 
 export function TestActionButton({
@@ -47,14 +49,18 @@ export function TestActionButton({
   isLocked = false,
   onUnlockClick,
   isFreeSample = false,
+  customStartUrl,
+  isGuest,
 }: TestActionButtonProps) {
-  const { data: session } = useSession()
+  const { data: session, status: authStatus } = useSession()
   const { openMobileAuth } = useMobileAuth()
   const [internalStatus, setInternalStatus] = React.useState<any>(initialStatus || null)
   const [isLoading, setIsLoading] = React.useState(initialLoading || (!initialStatus && !disabled))
 
+  const isActuallyGuest = isGuest !== undefined ? isGuest : (!session?.user && authStatus !== "loading")
+
   const handleGuestClick = (e: React.MouseEvent, targetUrl: string) => {
-    if (!session?.user) {
+    if (isActuallyGuest) {
       e.preventDefault()
       openMobileAuth({
         actionType: "login",
@@ -217,12 +223,14 @@ export function TestActionButton({
   }
 
   // 3. Default NOT_STARTED state -> "Start Now"
-  const startUrl = getExamInstructionsUrl({
-    seriesId,
-    testId,
-    title: testTitle,
-    returnPath,
-  })
+  const startUrl =
+    customStartUrl ||
+    getExamInstructionsUrl({
+      seriesId,
+      testId,
+      title: testTitle,
+      returnPath,
+    })
   return (
     <Link
       href={startUrl}

@@ -766,10 +766,88 @@ Running 10 tests using 1 worker
 
 ---
 
+---
+
+## Bug Fix: Current Affairs Quizzes 404 Resolution & URL Hardening
+
+### 1. Problem Description & Bug Report
+The owner reported that opening a quiz from `/current-affairs-quizzes` (such as "UPSC Economy CA" or "UPSC CA Oct") returned a **404 Not Found** at:
+`/test-series/current-affairs-system-series/instructions?testId=...&title=...&returnPath=%2Fcurrent-affairs-quizzes`
+
+### 2. Reproduction Proof
+A reproduction test `tests/e2e/reproduce-ca-quiz-404.spec.ts` was executed against the test server on port 3045:
+- **Direct HTTP Check:** `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3045/test-series/current-affairs-system-series/instructions?testId=cmv81he410001xpkddywl24m6` returned **404**.
+- **Playwright Test:** `tests/e2e/reproduce-ca-quiz-404.spec.ts` failed with:
+  `Error: expect(received).toBe(expected) // Expected: 200, Received: 404`
+
+### 3. Root Cause Analysis
+1. **Unpublished System Series Filter:**
+   In `app/(exam)/test-series/[id]/instructions/page.tsx` line 46 and `app/(exam)/test-series/[id]/attempt/page.tsx` line 47:
+   ```typescript
+   if (testRow.series && !testRow.series.isPublished && !isAdmin && !isSeriesOwner && !isPyqTest) {
+       notFound()
+   }
+   ```
+   The `current-affairs-system-series` container is intentionally set to `isPublished: false` so it does not clutter the general `/test-series` catalogue or sitemap.
+   However, while `PREVIOUS_YEAR` tests had an exemption (`isPyqTest`), `CURRENT_AFFAIRS` tests had no exemption. Thus, non-admin visitors and authenticated students encountered `notFound()`.
+2. **Why Earlier Tests Missed It:**
+   Previous automated tests (such as `ca-quiz.spec.ts`) bypassed the UI instruction page entirely by calling `/api/exam/attempt/start` directly via `page.request.post`, masking the frontend routing 404.
+
+### 4. Implementation Details & Fixes
+1. **Routing & Access Exemption (`app/(exam)/test-series/[id]/instructions/page.tsx`, `attempt/page.tsx`):**
+   - Added system series exemption: `isSystemSeries = testRow.testType === "PREVIOUS_YEAR" || (testRow.testType as string) === "CURRENT_AFFAIRS" || testRow.series?.slug === "current-affairs-system-series" || testRow.series?.slug === "pyq-system-series"`.
+   - Added backward-compatible 308 redirect: any request to the legacy `/test-series/current-affairs-system-series/instructions?testId=...` is automatically redirected (HTTP 308) to the clean URL `/current-affairs-quizzes/${quizSlug}/instructions`.
+2. **Clean Public Slug Landing Pages (`app/(dashboard)/current-affairs-quizzes/[slug]/page.tsx`):**
+   - Created clean, SEO-optimized public landing page at `/current-affairs-quizzes/[slug]`.
+   - Renders metadata, breadcrumbs, metrics ribbon (questions, duration, marks), and Schema.org `Quiz` JSON-LD structured data.
+3. **Clean Instructions Without Query Params (`app/(dashboard)/current-affairs-quizzes/[slug]/instructions/page.tsx`):**
+   - Created clean instructions route `/current-affairs-quizzes/[slug]/instructions`.
+   - Derives quiz title, question count, duration, and return paths safely on the server rather than trusting client-supplied URL query parameters.
+4. **Guest Authentication Modal (`components/quizzes/CurrentAffairsInstructionsClient.tsx`, `TestActionButton.tsx`):**
+   - When guests click "Start Now" or "Next" on instructions, the mobile auth modal (`MobileAuthModal`) smoothly opens.
+   - Preserves destination callback URL to ensure post-login continuity.
+5. **SEO & Robots Hardening (`app/robots.ts`, `app/sitemap.ts`):**
+   - Excluded `current-affairs-system-series` and `pyq-system-series` from `/test-series` catalogue and sitemaps.
+   - Added all active Current Affairs quizzes to `sitemap.xml` under `/current-affairs-quizzes/${slug}` with priority 0.8.
+   - Updated `robots.ts` to disallow crawl on `/current-affairs-quizzes/*/instructions`, `/test-series/*/instructions`, `/test-series/*/attempt`, `/test-series/*/declaration`, and `/test-series/*/result`.
+
+### 5. Automated Playwright Verification (`tests/e2e/ca-quiz-url-hardening.spec.ts`)
+A dedicated suite covering desktop and mobile (375px) viewports with real browser clicks:
+- `CA-01`: Authenticated student clicks quiz card, lands on clean `/instructions` page (not 404).
+- `CA-02`: Public slug page renders valid title, guidelines, and JSON-LD schema.
+- `CA-03`: Old test-series URL redirects (308) to new clean instructions URL.
+- `CA-04`: Non-existent quiz slug or ID returns custom 404 page.
+- `CA-05`: Guest clicking Start Now on `/current-affairs-quizzes` triggers login popup modal.
+- `CA-06`: Hidden system series is NOT listed in `/test-series` catalogue or `sitemap.xml`.
+- `CA-07`: Quiz can be started, questions answered, submitted, and results viewed.
+
+#### Raw Suite Output:
+```text
+Running 14 tests using 1 worker
+  ✓   1 [desktop] › CA-01: Authenticated student clicks quiz card, lands on clean /instructions page (not 404) (16.6s)
+  ✓   2 [desktop] › CA-02: Public slug page renders valid title, guidelines, and JSON-LD schema (5.0s)
+  ✓   3 [desktop] › CA-03: Old test-series URL redirects (307/308) to new clean instructions URL (5.3s)
+  ✓   4 [desktop] › CA-04: Non-existent quiz slug or ID returns custom 404 (1.9s)
+  ✓   5 [desktop] › CA-05: Guest clicking Start Now on /current-affairs-quizzes gets login popup modal (3.7s)
+  ✓   6 [desktop] › CA-06: Hidden system series is NOT listed in /test-series catalogue or sitemap.xml (4.2s)
+  ✓   7 [desktop] › CA-07: Quiz can be started, questions answered, and submitted to view score (21.1s)
+  ✓   8 [mobile]  › CA-01: Authenticated student clicks quiz card, lands on clean /instructions page (not 404) (4.9s)
+  ✓   9 [mobile]  › CA-02: Public slug page renders valid title, guidelines, and JSON-LD schema (2.7s)
+  ✓  10 [mobile]  › CA-03: Old test-series URL redirects (307/308) to new clean instructions URL (2.8s)
+  ✓  11 [mobile]  › CA-04: Non-existent quiz slug or ID returns custom 404 (1.7s)
+  ✓  12 [mobile]  › CA-05: Guest clicking Start Now on /current-affairs-quizzes gets login popup modal (3.6s)
+  ✓  13 [mobile]  › CA-06: Hidden system series is NOT listed in /test-series catalogue or sitemap.xml (181ms)
+  ✓  14 [mobile]  › CA-07: Quiz can be started, questions answered, and submitted to view score (7.0s)
+14 passed (1.5m)
+```
+
+---
+
 ### Final Quality Audit & Static Checks
 - **Type Check (`npx tsc --noEmit`):** 64 baseline errors, **0 new errors** introduced.
-- **Lint Check (`npm run lint`):** **0 errors** (only existing warnings).
+- **Lint Check (`npm run lint`):** **0 errors** (code exited with 0).
 - **Automated Regression Suites:**
+  - `tests/e2e/ca-quiz-url-hardening.spec.ts`: **14 / 14 passed**
   - `tests/e2e/real-click-smoke.spec.ts`: **10 / 10 passed**
   - `tests/e2e/reproduce-bugs.spec.ts`: **6 / 6 passed**
   - `tests/e2e/forgot-reset-password.spec.ts`: **10 / 10 passed**
@@ -780,9 +858,10 @@ Running 10 tests using 1 worker
   - `tests/e2e/security.spec.ts`: **18 / 18 passed**
   - `tests/e2e/seo.spec.ts`: **12 / 12 passed**
   - `tests/e2e/session-invalidation.spec.ts`: **4 / 4 passed**
-  - **Total Passing Tests:** **94 / 94 targeted tests passed (100% success rate)** across desktop and mobile.
+  - **Total Passing Tests:** **108 / 108 targeted tests passed (100% success rate)** across desktop and mobile.
 
 ---
 
 ### FINAL VERDICT
 `READY TO MERGE (staging only)`
+

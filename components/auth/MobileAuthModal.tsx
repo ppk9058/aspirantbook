@@ -59,6 +59,7 @@ export default function MobileAuthModal() {
             onClick={closeMobileAuth}
         >
             <div
+                data-testid="mobile-auth-modal"
                 className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-gray-100 overflow-hidden relative"
                 onClick={(e) => e.stopPropagation()}
             >

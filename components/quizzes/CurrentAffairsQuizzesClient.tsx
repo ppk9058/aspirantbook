@@ -32,6 +32,7 @@ import { TestActionButton } from "@/components/test-series/TestActionButton"
 import { useGoal } from "@/components/providers/GoalProvider"
 import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
 import { applyQuizGoalFilter } from "@/lib/goals/goal-filters"
+import { getQuizSlug } from "@/lib/current-affairs/slugs"
 import dynamic from "next/dynamic"
 
 const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
@@ -697,6 +698,7 @@ export default function CurrentAffairsQuizzesClient({
             {filteredQuizzes.map((quiz) => {
               const targetSeriesId = quiz.seriesId
               if (!targetSeriesId) return null
+              const quizSlug = getQuizSlug(quiz)
 
               return (
                 <div
@@ -730,11 +732,13 @@ export default function CurrentAffairsQuizzesClient({
                       </span>
                     </div>
 
-                    {/* Quiz Title */}
+                    {/* Quiz Title with Link to Public Slug Page */}
                     <div>
-                      <h3 className="font-extrabold text-base text-foreground group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors line-clamp-2 leading-snug">
-                        {quiz.title}
-                      </h3>
+                      <Link href={`/current-affairs-quizzes/${quizSlug}`} className="group/link">
+                        <h3 className="font-extrabold text-base text-foreground group-hover/link:text-teal-600 dark:group-hover/link:text-teal-400 transition-colors line-clamp-2 leading-snug">
+                          {quiz.title}
+                        </h3>
+                      </Link>
                       {quiz.titleHi && (
                         <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
                           {quiz.titleHi}
@@ -782,7 +786,9 @@ export default function CurrentAffairsQuizzesClient({
                       testId={quiz.id}
                       seriesId={targetSeriesId}
                       testTitle={quiz.title}
-                      returnPath="/current-affairs-quizzes"
+                      customStartUrl={`/current-affairs-quizzes/${quizSlug}/instructions`}
+                      returnPath={`/current-affairs-quizzes/${quizSlug}`}
+                      isGuest={isGuest}
                       size="sm"
                     />
                   </div>
