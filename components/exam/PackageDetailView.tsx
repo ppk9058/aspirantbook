@@ -280,7 +280,7 @@ export default function PackageDetailView({ packageId, basePath, role }: Package
     const allTestsSelected = pkg.tests.length > 0 && selectedTestIds.size === pkg.tests.length
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#060f1c] p-4 sm:p-6 lg:p-10 space-y-6">
+        <div data-testid="package-detail" className="min-h-screen bg-gray-50 dark:bg-[#060f1c] p-4 sm:p-6 lg:p-10 space-y-6">
             {/* Breadcrumb Navigation */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <Breadcrumbs />

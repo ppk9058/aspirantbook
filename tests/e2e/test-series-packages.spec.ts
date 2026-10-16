@@ -600,7 +600,7 @@ test.describe("Test Series Packages Studio, Ownership & Authoritative Metrics", 
     await expect(page.locator("[data-testid='package-detail']")).toBeVisible()
 
     if (testInfo.project.name !== "mobile") {
-      const detailBreadcrumbs = page.locator("[data-testid='breadcrumbs']")
+      const detailBreadcrumbs = page.locator("[data-testid='breadcrumbs']").first()
       await expect(detailBreadcrumbs).toBeVisible()
       await expect(detailBreadcrumbs).toContainText("Dashboard")
       await expect(detailBreadcrumbs.locator("a[href='/dashboard']")).toBeVisible()
