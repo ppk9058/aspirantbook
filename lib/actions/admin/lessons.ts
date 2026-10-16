@@ -120,6 +120,8 @@ export async function updateLesson(
         slides?: string | null
         duration?: number | null
         xpReward?: number
+        gateMode?: string
+        previewPercentage?: number | null
     }
 ) {
     const session = await auth()
@@ -132,17 +134,35 @@ export async function updateLesson(
     const blockCount = contentBlocks ? contentBlocks.length : undefined
     const contentHash = contentBlocks ? computeContentHash(contentBlocks) : undefined
 
+    const updatePayload: Record<string, any> = {}
+    if (data.title !== undefined) updatePayload.title = data.title
+    if (data.type !== undefined) updatePayload.type = data.type
+    if (data.videoUrl !== undefined) updatePayload.videoUrl = data.videoUrl
+    if (data.content !== undefined) {
+        updatePayload.content = data.content
+        updatePayload.blockCount = blockCount
+        updatePayload.contentHash = contentHash
+    }
+    if (data.slides !== undefined) updatePayload.slides = data.slides
+    if (data.duration !== undefined) updatePayload.duration = data.duration
+    if (data.xpReward !== undefined) updatePayload.xpReward = data.xpReward
+
+    if (data.gateMode !== undefined) {
+        const raw = String(data.gateMode).toLowerCase()
+        if (["inherit", "free", "preview", "locked"].includes(raw)) {
+            updatePayload.gateMode = raw
+        }
+    }
+    if (data.previewPercentage !== undefined) {
+        updatePayload.previewPercentage =
+            data.previewPercentage === null
+                ? null
+                : Math.max(0, Math.min(100, Math.round(data.previewPercentage)))
+    }
+
     const lesson = await prisma.lesson.update({
         where: { id: lessonId },
-        data: {
-            ...(data.title !== undefined ? { title: data.title } : {}),
-            ...(data.type !== undefined ? { type: data.type } : {}),
-            ...(data.videoUrl !== undefined ? { videoUrl: data.videoUrl } : {}),
-            ...(data.content !== undefined ? { content: data.content, blockCount, contentHash } : {}),
-            ...(data.slides !== undefined ? { slides: data.slides } : {}),
-            ...(data.duration !== undefined ? { duration: data.duration } : {}),
-            ...(data.xpReward !== undefined ? { xpReward: data.xpReward } : {}),
-        },
+        data: updatePayload,
         include: {
             chapter: {
                 select: { courseId: true },
@@ -156,10 +176,50 @@ export async function updateLesson(
         entityId: lesson.id,
         entityType: "LESSON",
         action: "UPDATE",
-        details: data,
+        details: updatePayload,
     })
 
     return lesson
+}
+
+export async function updateLessonsGateMode(
+    courseId: string,
+    lessonIds: string[],
+    gateMode: "inherit" | "free" | "preview" | "locked",
+    previewPercentage?: number | null
+) {
+    const session = await auth()
+
+    if (!session || !canEditContent(session.user)) {
+        throw new Error("Unauthorized: Insufficient permissions to update lessons")
+    }
+
+    const cleanPercentage =
+        previewPercentage === null || previewPercentage === undefined
+            ? null
+            : Math.max(0, Math.min(100, Math.round(previewPercentage)))
+
+    await prisma.lesson.updateMany({
+        where: {
+            id: { in: lessonIds },
+            chapter: { courseId },
+        },
+        data: {
+            gateMode,
+            previewPercentage: cleanPercentage,
+        },
+    })
+
+    await revalidateLessonPages(courseId)
+
+    await logContentAudit({
+        entityId: courseId,
+        entityType: "COURSE",
+        action: "UPDATE",
+        details: { bulkGateMode: gateMode, lessonIds, previewPercentage: cleanPercentage },
+    })
+
+    return { success: true }
 }
 
 export async function deleteLesson(lessonId: string) {

@@ -95,7 +95,10 @@ export function LessonEditor({ chapterId, lesson, onClose, onSaved }: LessonEdit
 
         if (blocksError) {
             return (
-                <div className="p-8 bg-[#FDFBF7] rounded-2xl border-2 border-[#10162F] shadow-[6px_6px_0px_#10162F] space-y-4">
+                <div
+                    className="p-8 bg-[#FDFBF7] rounded-2xl border-2 border-[#10162F] shadow-[6px_6px_0px_#10162F] space-y-4"
+                    data-testid="lesson-blocks-error-container"
+                >
                     <div className="flex items-start gap-3">
                         <AlertCircle className="h-6 w-6 text-rose-600 flex-shrink-0 mt-0.5" />
                         <div>
@@ -107,6 +110,7 @@ export function LessonEditor({ chapterId, lesson, onClose, onSaved }: LessonEdit
                         <Button
                             type="button"
                             size="sm"
+                            data-testid="retry-loading-blocks-btn"
                             onClick={() => fetchBlocks(lesson.id)}
                             className="bg-[#3A10E5] hover:bg-[#2c0cb3] text-white text-xs font-bold gap-1.5"
                         >

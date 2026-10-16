@@ -18,6 +18,7 @@ import { UniversalEditor } from "@/components/editor/UniversalEditor"
 import { TutorialImportModal } from "@/components/editor/TutorialImportModal"
 import { updateCourseDraft } from "@/lib/actions/admin/courses"
 import { updateChapter, updateChaptersGateMode } from "@/lib/actions/admin/chapters"
+import { updateLesson } from "@/lib/actions/admin/lessons"
 import { GateControlPanel } from "@/components/admin/authwall/GateControlPanel"
 import { publishCourse, unpublishCourse } from "@/lib/actions/admin/publishing"
 import { Edit2, Check, Loader2, ArrowLeft, ExternalLink, CheckCircle2, XCircle, Video, Sparkles } from "lucide-react"
@@ -195,6 +196,36 @@ export default function CourseEditClient({
             router.refresh()
         } catch (e: any) {
             toast.error(e.message || "Failed updating chapter gate mode")
+        }
+    }
+
+    const handleUpdateLessonGate = async (
+        chapterId: string,
+        lessonId: string,
+        gate: any
+    ) => {
+        try {
+            await updateLesson(lessonId, {
+                gateMode: gate.gateMode,
+                previewPercentage: gate.previewPercentage,
+            })
+            setChapters((prev: any[]) =>
+                prev.map((c) => {
+                    if (c.id !== chapterId) return c
+                    return {
+                        ...c,
+                        lessons: c.lessons.map((l: any) =>
+                            l.id === lessonId
+                                ? { ...l, gateMode: gate.gateMode, previewPercentage: gate.previewPercentage }
+                                : l
+                        ),
+                    }
+                })
+            )
+            toast.success("Lesson gate updated")
+            router.refresh()
+        } catch (e: any) {
+            toast.error(e.message || "Failed updating lesson gate mode")
         }
     }
 
@@ -399,10 +430,16 @@ export default function CourseEditClient({
                 onChange={handleGateChange}
                 onSave={handleSaveGateSettings}
                 isSaving={isSavingGate}
-                items={chapters.map((c: any) => ({
-                    gateMode: c.gateMode || "inherit",
-                    previewPercentage: c.previewPercentage,
-                }))}
+                items={[
+                    ...chapters.map((c: any) => ({
+                        gateMode: c.gateMode || "inherit",
+                        previewPercentage: c.previewPercentage,
+                    })),
+                    ...chapters.flatMap((c: any) => (c.lessons || []).map((l: any) => ({
+                        gateMode: l.gateMode || "inherit",
+                        previewPercentage: l.previewPercentage,
+                    }))),
+                ]}
                 moduleName="Tutorial Studio"
             />
 
@@ -419,6 +456,7 @@ export default function CourseEditClient({
                                 onAddChapter={handleAddChapter}
                                 onAddLesson={handleAddLesson}
                                 onUpdateChapterGate={handleUpdateChapterGate}
+                                onUpdateLessonGate={handleUpdateLessonGate}
                                 onBulkUpdateChapters={handleBulkUpdateChapters}
                                 isCourseGated={isGated}
                                 coursePreviewPercentage={previewPercentage}

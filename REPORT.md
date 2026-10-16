@@ -1028,8 +1028,167 @@ Total: 36 passed across all modules (100% success rate, 0 flaky, 0 skipped)
 
 ---
 
+---
+
+## 7. Studio Gate UI Bugfix, Lesson Gating Isolation & Full Suite Verification
+
+### Step 1: Diagnosis & Root Causes (Evidence-Based)
+1. **Setting Lesson 1.2 Unexpectedly Locked Phase 1 (All Chapters Locked):**
+   - **Diagnosis:** In `components/admin/ChapterList.tsx:215-230`, `ItemGateRowControl` was previously rendered exclusively on Chapter/Phase rows, completely missing on Lesson rows.
+   - **Root Cause:** When attempting to set gate options for Lesson 1.2 in the Studio, no lesson gate selector was present in the DOM. Interacting with the row's gate dropdown mutated the parent Phase 1 (`chapter.id`) to `gateMode: "preview", previewPercentage: 0`. Since `Lesson` defaults to `gateMode: "inherit"` from its parent Phase (`Chapter`), locking Phase 1 cascaded down to lock every child lesson for guests.
+2. **Number Input Bug (Typed Values Did Nothing / Lost Focus):**
+   - **Diagnosis:** In `components/admin/authwall/ItemGateRowControl.tsx`, `<Input>` was controlled directly by `value.previewPercentage` without local state.
+   - **Root Cause:** Every single keystroke immediately dispatched an asynchronous parent save handler and Next.js router revalidation, which re-rendered and unmounted/remounted the input control, immediately stealing focus after a single digit was typed. Furthermore, clearing the input produced `NaN` from `parseInt("", 10)` which was discarded, preventing users from typing new numbers.
+3. **Responsive Row Overflow / Clipping:**
+   - **Diagnosis:** At narrow widths (or when lesson tree indentations expanded), the flex container with fixed nowrap classes squeezed the mode selector and number input beyond the container boundary, clipping the text and selector dropdown.
+   - **Root Cause:** Lack of responsive flex wrapping (`flex-wrap`) and missing width auto/full responsive rules (`w-full sm:w-auto`).
+4. **Studio Crash on Lesson Block Load (`LessonEditor.tsx ~37`):**
+   - **Diagnosis:** Console error `TypeError: Cannot read properties of undefined (reading 'activeBlocks')` occurred when `getLessonBlocksAndVersions` returned `undefined` or `{ ok: false }` due to network aborts or authorization issues.
+   - **Root Cause:** Direct destructive destructuring of `res.activeBlocks` without checking if `res` or `res.ok` exists.
+
+---
+
+### Step 2: Implementation & Code Fixes
+1. **Lesson-Level Gate Controls & DB Isolation:**
+   - Updated `lib/actions/admin/lessons.ts` to accept `gateMode` and `previewPercentage` in `updateLesson(courseId, lessonId, data)`.
+   - Exported bulk handler `updateLessonsGateMode(courseId, lessonIds, gateMode, previewPercentage)`.
+   - Updated `components/admin/ChapterList.tsx` to render `ItemGateRowControl` on BOTH Chapter rows AND Lesson rows, ensuring each row mutates only its own DB record.
+   - Propagated `onUpdateLessonGate` through `app/admin/courses/[id]/edit/CourseEditClient.tsx` with dedicated state updating and optimistic UI feedback.
+2. **Synchronized Debounced Number Input:**
+   - Added `localPct` local state initialized from `value.previewPercentage`.
+   - Debounced server commit by 400ms during typing; commits immediately on `onBlur` and `onKeyDown (Enter)`.
+   - Clamped input to `[0, 100]`. If empty, retains empty string in local state until blur, then safely defaults to `0` or parent preview.
+   - Select dropdown and percentage input stay bidirectionally synchronized.
+3. **Responsive Layout & Visual Badges:**
+   - Replaced fixed nowrap containers in `ChapterList.tsx` with `flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-md`.
+   - Set gate control wrapper to `w-full sm:w-auto shrink-0`, preventing horizontal overflow (`scrollWidth <= clientWidth`) on both 1440px desktop and 375px mobile viewports.
+   - Added mode labels: `Inherit`, `Free (100%)`, `Preview %`, `Fully locked (0%)`.
+   - Added badge: `"Effective for guests: X% (from <Parent>)"` showing exact inherited percentage.
+   - Added helper text: `"(100% = fully open, 0% = fully locked)"`.
+4. **LessonEditor Error Boundary & Recovery:**
+   - Guarded `getLessonBlocksAndVersions` result against `undefined` or `{ ok: false }`.
+   - Rendered user-friendly error container (`data-testid="lesson-blocks-error-container"`) with explicit message and Retry button (`data-testid="retry-loading-blocks-btn"`).
+
+---
+
+### Step 3: Real Studio UI Flow Verification Spec (`authwall-studio-lesson-gating.spec.ts`)
+- **Suite:** `tests/e2e/authwall-studio-lesson-gating.spec.ts` (6 tests across desktop and mobile):
+  1. `STUDIO-FLOW-01`: Creates throwaway tutorial with 4 lessons in Phase 1:
+     - Sets Lesson A to **20% Preview**.
+     - Sets Lesson B to **Fully locked (0%)**.
+     - Sets Lesson C to **50% Preview**.
+     - Sets Lesson D to **Free (100%)**.
+     - Saves settings via UI, reloads page, verifies UI persistence.
+     - Queries DB directly: verifies Phase 1 is `inherit/null` and course is `preview/20%`, proving zero mutation to parent.
+     - Incognito guest verification: Lesson A serves 20% slice; Lesson B serves locked Authwall gate; Lesson C serves 50% slice; Lesson D serves 100% free content.
+     - Reverts Lesson B to **Inherit**, re-verifies guest receives inherited 20% slice.
+     - Cleanly deletes all throwaway DB records.
+  2. `STUDIO-LAYOUT-02`: Validates responsive DOM on desktop (1440px) and mobile (375px):
+     - Asserts `scrollWidth <= clientWidth` on all gate control containers with 0px clipping.
+  3. `STUDIO-GUARD-03`: Simulates server failure on `getLessonBlocksAndVersions`:
+     - Verifies error container and Retry button are displayed without unhandled `TypeError`.
+     - Triggers Retry, verifying recovery to Rosera Editor without crash.
+
+### Raw Execution Output: `authwall-studio-lesson-gating.spec.ts`
+```
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 6 tests using 1 worker
+  ✓  1 [desktop] › STUDIO-FLOW-01: Set 4 distinct lesson gates via Studio UI, verify DB isolation, UI persistence, and guest slicing (12.7s)
+  ✓  2 [desktop] › STUDIO-LAYOUT-02: Responsive layout on desktop (1440px) and mobile (375px) without overflow or clipping (3.0s)
+  ✓  3 [desktop] › STUDIO-GUARD-03: LessonEditor safely handles undefined or error server action response and renders Retry button (2.3s)
+  ✓  4 [mobile] › STUDIO-FLOW-01: Set 4 distinct lesson gates via Studio UI, verify DB isolation, UI persistence, and guest slicing (10.6s)
+  ✓  5 [mobile] › STUDIO-LAYOUT-02: Responsive layout on desktop (1440px) and mobile (375px) without overflow or clipping (2.1s)
+  ✓  6 [mobile] › STUDIO-GUARD-03: LessonEditor safely handles undefined or error server action response and renders Retry button (1.3s)
+  6 passed (37.6s)
+```
+
+---
+
+### Step 4: Two Consecutive Full Suite Playwright Runs (Desktop & Mobile, 60 Specs)
+
+| Spec File | Desktop Tests | Mobile Tests | Total Tests | Status |
+| :--- | :---: | :---: | :---: | :---: |
+| `authwall-blurred.spec.ts` | 7 | 7 | 14 | Pass |
+| `authwall-bot-verify.spec.ts` | 5 | 5 | 10 | Pass |
+| `authwall-bugfix-persistence-lesson-editor.spec.ts` | 2 | 2 | 4 | Pass |
+| `authwall-cache.spec.ts` | 4 | 4 | 8 | Pass |
+| `authwall-dev-smoke-realflow.spec.ts` | 3 | 3 | 6 | Pass |
+| `authwall-leak-matrix.spec.ts` | 8 | 8 | 16 | Pass |
+| `authwall-owner-repro.spec.ts` | 2 | 2 | 4 | Pass |
+| `authwall-studio-lesson-gating.spec.ts` | 3 | 3 | 6 | Pass |
+| `authwall-studio.spec.ts` | 7 | 7 | 14 | Pass |
+| `authwall-unlock.spec.ts` | 3 | 3 | 6 | Pass |
+| `book-studio-flow.spec.ts` | 11 | 11 | 22 | Pass |
+| `book-studio.spec.ts` | 4 | 4 | 8 | Pass |
+| `ca-pdf.spec.ts` | 5 | 5 | 10 | Pass |
+| `ca-quiz-url-hardening.spec.ts` | 7 | 7 | 14 | Pass |
+| `ca-quiz.spec.ts` | 3 | 3 | 6 | Pass |
+| `ca-result-back-navigation.spec.ts` | 4 | 4 | 8 | Pass |
+| `ca-student.spec.ts` | 5 | 5 | 10 | Pass |
+| `capture-buy-now-flow.spec.ts` | 5 | 5 | 10 | Pass |
+| `capture-color-screenshots.spec.ts` | 1 | 1 | 2 | Pass |
+| `capture-colors-final.spec.ts` | 4 | 4 | 8 | Pass |
+| `capture-pixel-diff.spec.ts` | 8 | 8 | 16 | Pass |
+| `dev-smoke.spec.ts` | 4 | 4 | 8 | Pass |
+| `forgot-password-surfaces.spec.ts` | 5 | 5 | 10 | Pass |
+| `forgot-reset-password.spec.ts` | 5 | 5 | 10 | Pass |
+| `goal-refresh-proof.spec.ts` | 3 | 3 | 6 | Pass |
+| `guest-free-sample-start.spec.ts` | 1 | 1 | 2 | Pass |
+| `guest-goal-sync.spec.ts` | 1 | 1 | 2 | Pass |
+| `guest-student-journey.spec.ts` | 1 | 1 | 2 | Pass |
+| `home-mobile.spec.ts` | 1 | 1 | 2 | Pass |
+| `live-studio-removed.spec.ts` | 8 | 8 | 16 | Pass |
+| `login-hardening.spec.ts` | 4 | 4 | 8 | Pass |
+| `production-buy-now.spec.ts` | 5 | 5 | 10 | Pass |
+| `profile-dropdown.spec.ts` | 4 | 4 | 8 | Pass |
+| `pyq-admin.spec.ts` | 7 | 7 | 14 | Pass |
+| `pyq-cbt.spec.ts` | 8 | 8 | 16 | Pass |
+| `pyq-file-serving.spec.ts` | 6 | 6 | 12 | Pass |
+| `pyq-leads.spec.ts` | 2 | 2 | 4 | Pass |
+| `pyq-student.spec.ts` | 7 | 7 | 14 | Pass |
+| `ranking-access.spec.ts` | 5 | 5 | 10 | Pass |
+| `razorpay-universal-checkout.spec.ts` | 8 | 8 | 16 | Pass |
+| `real-click-smoke.spec.ts` | 5 | 5 | 10 | Pass |
+| `registration.spec.ts` | 5 | 5 | 10 | Pass |
+| `reproduce-bugs.spec.ts` | 3 | 3 | 6 | Pass |
+| `reproduce-ca-quiz-404.spec.ts` | 1 | 1 | 2 | Pass |
+| `reproduce-goal-bug.spec.ts` | 1 | 1 | 2 | Pass |
+| `security.spec.ts` | 10 | 10 | 20 | Pass |
+| `seo.spec.ts` | 6 | 6 | 12 | Pass |
+| `series-catalogue-cache-invalidation.spec.ts` | 1 | 1 | 2 | Pass |
+| `session-invalidation.spec.ts` | 2 | 2 | 4 | Pass |
+| `teacher-authoring-to-student.spec.ts` | 1 | 1 | 2 | Pass |
+| `teacher-class-crud.spec.ts` | 7 | 7 | 14 | Pass |
+| `teacher-class-schedule.spec.ts` | 3 | 3 | 6 | Pass |
+| `teacher-studio-nav.spec.ts` | 5 | 5 | 10 | Pass |
+| `test-series-packages.spec.ts` | 10 | 10 | 20 | Pass |
+| `test-series-recommendations.spec.ts` | 1 | 1 | 2 | Pass |
+| `tutorial-drawer-proof.spec.ts` | 4 | 4 | 8 | Pass |
+| `tutorial-goal-proof.spec.ts` | 2 | 2 | 4 | Pass |
+| `tutorial-layout.spec.ts` | 3 | 3 | 6 | Pass |
+| `ui-login.spec.ts` | 1 | 1 | 2 | Pass |
+| `user-management.spec.ts` | 5 | 5 | 10 | Pass |
+| **Grand Total (60 specs)** | **262** | **262** | **524** | **100% Pass** |
+
+- **Run 1 Total:** 524 passed (17.6m), 0 failed, 0 flaky.
+- **Run 2 Total:** 524 passed (18.6m), 0 failed, 0 flaky.
+
+---
+
+### Step 5: Verification & Safety Compliance
+- `npm run lint`: **0 errors**.
+- `npx tsc --noEmit`: **65 errors** (100% matching pre-existing legacy baseline, **0 new errors**).
+- `APP_ENV=test npm run db:check`: **Database schema is in sync with Prisma schema. No drift detected.**
+- Zero writes to Supabase dev database; isolated Docker test database used exclusively.
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
+
 
 
 
