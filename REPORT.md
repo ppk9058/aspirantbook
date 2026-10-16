@@ -434,7 +434,58 @@ Running 8 tests using 1 worker
 
 ---
 
+## Step 4: Studio Tests Inside Existing Studios (Desktop & Mobile)
+- **Test Suite:** `tests/e2e/authwall-studio.spec.ts` (14 tests across desktop and mobile projects).
+- **Studio Functionality Verified:**
+  1. **Row Selectors & Visual Indicators:**
+     - Individual row checkboxes (`select-test-${id}`) and Select All checkbox (`select-all-gate-items`).
+     - Real-time selection counters and action trigger buttons inside `BulkGateActionBar`.
+  2. **Bulk Actions:**
+     - "Set Free": updates selected items to `gateMode: "free"`, persisted in database.
+     - "Set Locked": updates selected items to `gateMode: "locked"` (0% preview), persisted in database.
+     - "Set Preview %": updates selected items to custom preview percentage (e.g. 25%), persisted in database.
+     - "Reset Inherit": resets selected items to `gateMode: "inherit"` with `previewPercentage: null`.
+  3. **Quick Action "Make first N items free":**
+     - Automatically selects and sets the first N items in the package to `gateMode: "free"`, leaving remaining items unchanged as `inherit`.
+  4. **Teacher Authorization Boundary (Ownership Protection):**
+     - Teacher B navigating to Teacher A's package detail view (`/teacher/test-series/package/[id]`) is blocked with the 403 Forbidden Access Denied screen (`[data-testid='package-forbidden']`).
+     - Teacher B issuing a `PATCH /api/exam/series/packages/[id]` to change Teacher A's gate receives `403 Forbidden` (`{ error: "Forbidden: You do not have permission to edit this package" }`).
+     - Database remains completely untouched.
+     - Admin can access and update any package successfully.
+  5. **JSON/HTML Import Preserves Gate Settings:**
+     - Course and chapter with established gate settings (`isGated: true`, `previewPercentage: 42`, `seoMode: "bot-full"`, custom title/subtitle, chapter `gateMode: "free"`).
+     - Running package import (`POST /api/admin/tutorials/import`) updates lessons/content without altering or overwriting any gate settings.
+  6. **Guest View Synchronization:**
+     - Changing chapter gate setting in the database from `locked` to `free` immediately updates the public tutorial page on reload without restarting the server.
+
+### Raw Execution Output
+```
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 14 tests using 1 worker
+  ✓   1 [desktop] › STUDIO-01: Teacher A accesses Test Series Studio and sees GateControlPanel and BulkGateActionBar (1.3s)
+  ✓   2 [desktop] › STUDIO-02: Row selection and bulk actions (Set Free, Set Locked, Set Preview %, Reset Inherit) (3.9s)
+  ✓   3 [desktop] › STUDIO-03: 'Make first N items free' quick action updates database correctly (1.9s)
+  ✓   4 [desktop] › STUDIO-04: Teacher B cannot view or modify Teacher A's gate settings (403 Forbidden) (808ms)
+  ✓   5 [desktop] › STUDIO-05: Admin CAN view and update package gate settings (972ms)
+  ✓   6 [desktop] › STUDIO-06: JSON/HTML tutorial import preserves course and chapter gate settings (367ms)
+  ✓   7 [desktop] › STUDIO-07: Guest view updates immediately after saving gate controls (1.1s)
+  ✓   8 [mobile] › STUDIO-01: Teacher A accesses Test Series Studio and sees GateControlPanel and BulkGateActionBar (901ms)
+  ✓   9 [mobile] › STUDIO-02: Row selection and bulk actions (Set Free, Set Locked, Set Preview %, Reset Inherit) (3.8s)
+  ✓  10 [mobile] › STUDIO-03: 'Make first N items free' quick action updates database correctly (1.6s)
+  ✓  11 [mobile] › STUDIO-04: Teacher B cannot view or modify Teacher A's gate settings (403 Forbidden) (495ms)
+  ✓  12 [mobile] › STUDIO-05: Admin CAN view and update package gate settings (583ms)
+  ✓  13 [mobile] › STUDIO-06: JSON/HTML tutorial import preserves course and chapter gate settings (298ms)
+  ✓  14 [mobile] › STUDIO-07: Guest view updates immediately after saving gate controls (970ms)
+  14 passed (25.2s)
+```
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
+
 
 
