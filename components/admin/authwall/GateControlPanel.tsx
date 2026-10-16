@@ -171,8 +171,9 @@ export function GateControlPanel({
             {/* Preview Percentage Slider + Number Input */}
             <div className="space-y-2 p-3.5 rounded-xl bg-white/70 dark:bg-gray-800/70 border border-indigo-100 dark:border-indigo-900/40">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-gray-800 dark:text-gray-200">
-                  Default Preview Percentage
+                <span className="font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                  <span>Default Preview Percentage</span>
+                  <span className="text-[11px] text-muted-foreground font-normal">(100% = fully open, 0% = fully locked)</span>
                 </span>
                 <span className="text-indigo-600 dark:text-indigo-400 font-extrabold text-sm">
                   {gate.previewPercentage}%
@@ -209,7 +210,7 @@ export function GateControlPanel({
                 </div>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Guests see the first {gate.previewPercentage}% blocks. Items set to "Inherit" will follow this percentage. 0% locks all body content.
+                Guests see the first {gate.previewPercentage}% blocks. Items set to "Inherit" will follow this percentage. 100% = fully open, 0% = fully locked.
               </p>
             </div>
 

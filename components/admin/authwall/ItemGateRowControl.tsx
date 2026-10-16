@@ -75,42 +75,64 @@ export function ItemGateRowControl({
     })
   }
 
+  // Compute effective guest percentage and inheritance
+  const effectivePct = !isCourseGated
+    ? 100
+    : currentMode === "free"
+    ? 100
+    : currentMode === "locked"
+    ? 0
+    : currentMode === "preview"
+    ? (value.previewPercentage ?? coursePreviewPercentage)
+    : coursePreviewPercentage
+  const isInherited = isCourseGated && (currentMode === "inherit" || !currentMode)
+
   // Visual status badge
   const renderBadge = () => {
     if (!isCourseGated) {
       return (
-        <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-gray-500 border-gray-200">
-          Ungated
-        </Badge>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-gray-500 border-gray-200">
+            Ungated
+          </Badge>
+          <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-dashed text-gray-600 dark:text-gray-400">
+            Effective for guests: 100%
+          </Badge>
+        </div>
       )
     }
 
-    switch (currentMode) {
-      case "free":
-        return (
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {currentMode === "free" && (
           <Badge className="text-[10px] py-0 px-1.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-300">
             Free (100%)
           </Badge>
-        )
-      case "locked":
-        return (
+        )}
+        {currentMode === "locked" && (
           <Badge className="text-[10px] py-0 px-1.5 bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300 border-rose-300">
             Locked (0%)
           </Badge>
-        )
-      case "preview":
-        return (
+        )}
+        {currentMode === "preview" && (
           <Badge className="text-[10px] py-0 px-1.5 bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300 border-indigo-300">
             Preview {value.previewPercentage ?? coursePreviewPercentage}%
           </Badge>
-        )
-      default:
-        return (
+        )}
+        {currentMode !== "free" && currentMode !== "locked" && currentMode !== "preview" && (
           <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-blue-700 bg-blue-50/50 dark:text-blue-300 border-blue-200">
             Inherit ({coursePreviewPercentage}%)
           </Badge>
-        )
-    }
+        )}
+        <Badge
+          variant="outline"
+          className="text-[10px] py-0 px-1.5 font-medium border-dashed border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300"
+          data-testid="item-effective-guest-badge"
+        >
+          Effective for guests: {effectivePct}%{isInherited ? " (inherited)" : ""}
+        </Badge>
+      </div>
+    )
   }
 
   return (
@@ -122,21 +144,21 @@ export function ItemGateRowControl({
         onValueChange={handleModeChange}
         disabled={disabled}
       >
-        <SelectTrigger className="h-7 w-28 text-xs font-medium" data-testid="item-gate-mode-select">
+        <SelectTrigger className="h-7 w-32 text-xs font-medium" data-testid="item-gate-mode-select">
           <SelectValue placeholder="Mode" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="inherit" className="text-xs">
-            Inherit ({coursePreviewPercentage}%)
+            Inherit
           </SelectItem>
           <SelectItem value="free" className="text-xs">
-            100% Free
+            Free (100%)
           </SelectItem>
           <SelectItem value="preview" className="text-xs">
             Preview %
           </SelectItem>
           <SelectItem value="locked" className="text-xs">
-            Locked (0%)
+            Fully locked (0%)
           </SelectItem>
         </SelectContent>
       </Select>
