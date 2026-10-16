@@ -20,6 +20,7 @@ import { updateCourseDraft } from "@/lib/actions/admin/courses"
 import { updateChapter, updateChaptersGateMode } from "@/lib/actions/admin/chapters"
 import { updateLesson } from "@/lib/actions/admin/lessons"
 import { GateControlPanel } from "@/components/admin/authwall/GateControlPanel"
+import { SelectedGateToolbar, type SelectedItemGateInfo, type GateMode } from "@/components/admin/authwall/SelectedGateToolbar"
 import { publishCourse, unpublishCourse } from "@/lib/actions/admin/publishing"
 import { Edit2, Check, Loader2, ArrowLeft, ExternalLink, CheckCircle2, XCircle, Video, Sparkles } from "lucide-react"
 
@@ -298,6 +299,48 @@ export default function CourseEditClient({
         ? chapters.flatMap(c => c.lessons).find(l => l.id === selectedId)
         : null
 
+    const selectedItemInfo: SelectedItemGateInfo | null = (() => {
+        if (!selectedId) return null
+        if (selectedType === "chapter" && selectedChapter) {
+            return {
+                id: selectedChapter.id,
+                title: selectedChapter.title,
+                type: "chapter",
+                gateMode: selectedChapter.gateMode,
+                previewPercentage: selectedChapter.previewPercentage,
+                parentTitle: course.title,
+                parentGateMode: "inherit",
+                parentPreviewPercentage: previewPercentage,
+            }
+        }
+        if (selectedType === "lesson" && selectedLesson) {
+            const parentChapter = chapters.find(c => c.id === selectedLesson.chapterId)
+            return {
+                id: selectedLesson.id,
+                title: selectedLesson.title,
+                type: "lesson",
+                gateMode: selectedLesson.gateMode,
+                previewPercentage: selectedLesson.previewPercentage,
+                parentTitle: parentChapter?.title || "Phase",
+                parentGateMode: parentChapter?.gateMode || "inherit",
+                parentPreviewPercentage: parentChapter?.previewPercentage ?? previewPercentage,
+            }
+        }
+        return null
+    })()
+
+    const handleSaveSelectedItemGate = async (gate: { gateMode: GateMode; previewPercentage: number | null }) => {
+        if (!selectedItemInfo) return
+        if (selectedItemInfo.type === "chapter") {
+            await handleUpdateChapterGate(selectedItemInfo.id, gate)
+        } else if (selectedItemInfo.type === "lesson") {
+            const parentChapter = chapters.find(c => c.lessons.some((l: any) => l.id === selectedItemInfo.id))
+            if (parentChapter) {
+                await handleUpdateLessonGate(parentChapter.id, selectedItemInfo.id, gate)
+            }
+        }
+    }
+
     // Calculate stats
     const totalLessons = chapters.reduce((sum, ch) => sum + ch.lessons.length, 0)
     const totalExercises = chapters.reduce((sum, ch) =>
@@ -467,6 +510,16 @@ export default function CourseEditClient({
 
                 {/* Main Content Area */}
                 <div className="lg:col-span-2 space-y-6">
+                    {/* Selected Item Gate Toolbar */}
+                    {selectedItemInfo && (
+                        <SelectedGateToolbar
+                            selectedItem={selectedItemInfo}
+                            coursePreviewPercentage={previewPercentage}
+                            isCourseGated={isGated}
+                            onSave={handleSaveSelectedItemGate}
+                        />
+                    )}
+
                     {/* Editor Panel */}
                     {editorMode === "new-chapter" && (
                         <ChapterEditor

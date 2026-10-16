@@ -145,44 +145,53 @@ test.describe("Studio Lesson Gating & Isolation (Desktop + Mobile)", () => {
     await expect(gateToggle).toBeVisible()
     await expect(gateToggle).toHaveAttribute("aria-checked", "true")
 
+    const toolbar = page.locator('[data-testid="selected-gate-toolbar"]')
+
     // Lesson A: Set to Preview 20%
     const lessonARow = page.locator(`[data-testid="lesson-row-${lessonA.id}"]`)
     await expect(lessonARow).toBeVisible()
-    const selectA = lessonARow.locator('[data-testid="item-gate-mode-select"]')
+    await lessonARow.click()
+    await expect(toolbar).toBeVisible()
+    const selectA = toolbar.locator('[data-testid="item-gate-mode-select"]')
     await selectA.click()
     await page.getByRole("option", { name: "Preview %" }).click()
-    const inputA = lessonARow.locator('[data-testid="item-gate-preview-input"]')
+    const inputA = toolbar.locator('[data-testid="item-gate-preview-input"]')
     await expect(inputA).toBeVisible()
     await inputA.fill("20")
-    await inputA.blur()
+    await toolbar.locator('[data-testid="save-item-gate-btn"]').click()
     await expect(page.locator("text=Lesson gate updated").first()).toBeVisible({ timeout: 10000 })
 
     // Lesson B: Set to Fully locked (0%)
     const lessonBRow = page.locator(`[data-testid="lesson-row-${lessonB.id}"]`)
     await expect(lessonBRow).toBeVisible()
-    const selectB = lessonBRow.locator('[data-testid="item-gate-mode-select"]')
+    await lessonBRow.click()
+    const selectB = toolbar.locator('[data-testid="item-gate-mode-select"]')
     await selectB.click()
     await page.getByRole("option", { name: "Fully locked (0%)" }).click()
+    await toolbar.locator('[data-testid="save-item-gate-btn"]').click()
     await expect(page.locator("text=Lesson gate updated").first()).toBeVisible({ timeout: 10000 })
 
     // Lesson C: Set to Preview 50%
     const lessonCRow = page.locator(`[data-testid="lesson-row-${lessonC.id}"]`)
     await expect(lessonCRow).toBeVisible()
-    const selectC = lessonCRow.locator('[data-testid="item-gate-mode-select"]')
+    await lessonCRow.click()
+    const selectC = toolbar.locator('[data-testid="item-gate-mode-select"]')
     await selectC.click()
     await page.getByRole("option", { name: "Preview %" }).click()
-    const inputC = lessonCRow.locator('[data-testid="item-gate-preview-input"]')
+    const inputC = toolbar.locator('[data-testid="item-gate-preview-input"]')
     await expect(inputC).toBeVisible()
     await inputC.fill("50")
-    await inputC.blur()
+    await toolbar.locator('[data-testid="save-item-gate-btn"]').click()
     await expect(page.locator("text=Lesson gate updated").first()).toBeVisible({ timeout: 10000 })
 
     // Lesson D: Set to Free (100%)
     const lessonDRow = page.locator(`[data-testid="lesson-row-${lessonD.id}"]`)
     await expect(lessonDRow).toBeVisible()
-    const selectD = lessonDRow.locator('[data-testid="item-gate-mode-select"]')
+    await lessonDRow.click()
+    const selectD = toolbar.locator('[data-testid="item-gate-mode-select"]')
     await selectD.click()
     await page.getByRole("option", { name: "Free (100%)" }).click()
+    await toolbar.locator('[data-testid="save-item-gate-btn"]').click()
     await expect(page.locator("text=Lesson gate updated").first()).toBeVisible({ timeout: 10000 })
 
     // Explicitly Save Gate Settings
@@ -194,30 +203,34 @@ test.describe("Studio Lesson Gating & Isolation (Desktop + Mobile)", () => {
     await page.reload()
     await page.waitForLoadState("networkidle")
 
-    // Verify Lesson A row UI state
+    // Verify Lesson A row UI state (chip in row + badge in toolbar)
     const reloadedARow = page.locator(`[data-testid="lesson-row-${lessonA.id}"]`)
-    await expect(reloadedARow.locator('[data-testid="item-gate-mode-badge"]')).toContainText("Preview 20%")
-    await expect(reloadedARow.locator('[data-testid="item-effective-guest-badge"]')).toContainText("Effective for guests: 20%")
+    await expect(reloadedARow).toContainText("20%")
+    await reloadedARow.click()
+    await expect(toolbar.locator('[data-testid="item-gate-mode-badge"]')).toContainText("Effective for guests: 20%")
 
     // Verify Lesson B row UI state
     const reloadedBRow = page.locator(`[data-testid="lesson-row-${lessonB.id}"]`)
-    await expect(reloadedBRow.locator('[data-testid="item-gate-mode-badge"]')).toContainText("Locked (0%)")
-    await expect(reloadedBRow.locator('[data-testid="item-effective-guest-badge"]')).toContainText("Effective for guests: 0%")
+    await expect(reloadedBRow).toContainText("Locked")
+    await reloadedBRow.click()
+    await expect(toolbar.locator('[data-testid="item-gate-mode-badge"]')).toContainText("Effective for guests: 0%")
 
     // Verify Lesson C row UI state
     const reloadedCRow = page.locator(`[data-testid="lesson-row-${lessonC.id}"]`)
-    await expect(reloadedCRow.locator('[data-testid="item-gate-mode-badge"]')).toContainText("Preview 50%")
-    await expect(reloadedCRow.locator('[data-testid="item-effective-guest-badge"]')).toContainText("Effective for guests: 50%")
+    await expect(reloadedCRow).toContainText("50%")
+    await reloadedCRow.click()
+    await expect(toolbar.locator('[data-testid="item-gate-mode-badge"]')).toContainText("Effective for guests: 50%")
 
     // Verify Lesson D row UI state
     const reloadedDRow = page.locator(`[data-testid="lesson-row-${lessonD.id}"]`)
-    await expect(reloadedDRow.locator('[data-testid="item-gate-mode-badge"]')).toContainText("Free (100%)")
-    await expect(reloadedDRow.locator('[data-testid="item-effective-guest-badge"]')).toContainText("Effective for guests: 100%")
+    await expect(reloadedDRow).toContainText("Free")
+    await reloadedDRow.click()
+    await expect(toolbar.locator('[data-testid="item-gate-mode-badge"]')).toContainText("Effective for guests: 100%")
 
     // Verify Phase 1 row UI state remains Inherit (100%) from Course
     const phase1Row = page.locator(`[data-testid="chapter-row-${phase1.id}"]`)
-    await expect(phase1Row.locator('[data-testid="item-gate-mode-badge"]').first()).toContainText("Inherit (100%)")
-    await expect(phase1Row.locator('[data-testid="item-effective-guest-badge"]').first()).toContainText("from Course")
+    await phase1Row.locator("div.cursor-pointer").first().click()
+    await expect(toolbar.locator('[data-testid="item-gate-mode-badge"]')).toContainText("Effective for guests: 100%")
 
     // 3. Assert Database Isolation (Phase and Course UNTOUCHED, lessons individually updated)
     const dbPhase = await prisma.chapter.findUnique({ where: { id: phase1.id } })
@@ -301,14 +314,15 @@ test.describe("Studio Lesson Gating & Isolation (Desktop + Mobile)", () => {
     await page.waitForLoadState("networkidle")
 
     const resetBRow = page.locator(`[data-testid="lesson-row-${lessonB.id}"]`)
-    const resetBSelect = resetBRow.locator('[data-testid="item-gate-mode-select"]')
+    await resetBRow.click()
+    const resetBSelect = page.locator('[data-testid="selected-gate-toolbar"] [data-testid="item-gate-mode-select"]')
     await resetBSelect.click()
     await page.getByRole("option", { name: "Inherit" }).click()
+    await page.locator('[data-testid="selected-gate-toolbar"] [data-testid="save-item-gate-btn"]').click()
     await expect(page.locator("text=Lesson gate updated").first()).toBeVisible({ timeout: 10000 })
 
     // Verify UI shows Inherit badge
-    await expect(resetBRow.locator('[data-testid="item-gate-mode-badge"]')).toContainText("Inherit (100%)")
-    await expect(resetBRow.locator('[data-testid="item-effective-guest-badge"]')).toContainText("from Course")
+    await expect(page.locator('[data-testid="selected-gate-toolbar"] [data-testid="item-gate-mode-badge"]')).toContainText("Effective for guests: 100%")
 
     // DB verify: Lesson B is inherit, others untouched
     const updatedLessonB = await prisma.lesson.findUnique({ where: { id: lessonB.id } })
@@ -353,8 +367,11 @@ test.describe("Studio Lesson Gating & Isolation (Desktop + Mobile)", () => {
     })
     expect(hasHorizontalOverflowDesktop).toBe(false)
 
-    // Badges and inputs must be visible and properly sized
-    const firstLessonBadge = page.locator('[data-testid="item-effective-guest-badge"]').first()
+    // Select first lesson to open gate toolbar
+    await page.locator(`[data-testid="lesson-row-${lessonA.id}"]`).click()
+    const desktopToolbar = page.locator('[data-testid="selected-gate-toolbar"]')
+    await expect(desktopToolbar).toBeVisible()
+    const firstLessonBadge = desktopToolbar.locator('[data-testid="item-gate-mode-badge"]')
     await expect(firstLessonBadge).toBeVisible()
 
     // Test on Mobile (375px)
@@ -362,12 +379,17 @@ test.describe("Studio Lesson Gating & Isolation (Desktop + Mobile)", () => {
     await page.reload()
     await page.waitForLoadState("networkidle")
 
+    // Select first lesson on mobile
+    await page.locator(`[data-testid="lesson-row-${lessonA.id}"]`).click()
+    const mobileToolbar = page.locator('[data-testid="selected-gate-toolbar"]')
+    await expect(mobileToolbar).toBeVisible()
+
     const hasHorizontalOverflowMobile = await page.evaluate(() => {
       return document.documentElement.scrollWidth > document.documentElement.clientWidth
     })
     expect(hasHorizontalOverflowMobile).toBe(false)
 
-    const mobileSelector = page.locator('[data-testid="item-gate-mode-select"]').first()
+    const mobileSelector = mobileToolbar.locator('[data-testid="item-gate-mode-select"]')
     await expect(mobileSelector).toBeVisible()
   })
 

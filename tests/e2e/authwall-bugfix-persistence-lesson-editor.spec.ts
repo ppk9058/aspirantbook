@@ -211,10 +211,15 @@ test.describe("Authwall Bugfix: Studio Persistence, Revalidation & LessonEditor 
     await expect(page.locator("text=Gate settings saved successfully")).toBeVisible({ timeout: 10000 })
 
     // 7. Change Chapter 1 to "Locked (0%)"
-    const chapter1Select = page.locator(`[data-testid="select-chapter-${chapter1.id}"]`).locator("..").locator("..").locator('[data-testid="item-gate-mode-select"]')
+    const chapter1Row = page.locator(`[data-testid="chapter-row-${chapter1.id}"]`)
+    await chapter1Row.locator("div.cursor-pointer").first().click()
+    const toolbar = page.locator('[data-testid="selected-gate-toolbar"]')
+    await expect(toolbar).toBeVisible()
+    const chapter1Select = toolbar.locator('[data-testid="item-gate-mode-select"]')
     await chapter1Select.click()
-    const lockedOption = page.getByRole("option", { name: /Locked/i })
+    const lockedOption = page.getByRole("option", { name: /Fully locked/i })
     await lockedOption.click()
+    await toolbar.locator('[data-testid="save-item-gate-btn"]').click()
 
     // Wait for chapter gate update toast
     await expect(page.locator("text=Chapter gate updated")).toBeVisible({ timeout: 10000 })
@@ -237,8 +242,8 @@ test.describe("Authwall Bugfix: Studio Persistence, Revalidation & LessonEditor 
     await expect(page.locator("#gate-subtitle-input")).toHaveValue("Persisted Master Authwall Subtitle")
 
     // Assert: Chapter 1 shows Locked badge
-    const ch1Row = page.locator(`[data-testid="select-chapter-${chapter1.id}"]`).locator("..").locator("..")
-    await expect(ch1Row.locator("text=Locked (0%)").first()).toBeVisible()
+    const ch1Row = page.locator(`[data-testid="chapter-row-${chapter1.id}"]`)
+    await expect(ch1Row.locator("text=Locked").first()).toBeVisible()
 
     // 9. Assert ZERO console errors in the Studio (Bug B)
     const activeBlocksErrors = consoleErrors.filter((e) => e.includes("Cannot read properties of undefined") || e.includes("activeBlocks"))

@@ -6,7 +6,7 @@ import { ChevronDown, ChevronRight, Plus, Video, BookOpen, Code, FileText } from
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import { ItemGateRowControl, ItemGateValue } from "./authwall/ItemGateRowControl"
+import type { ItemGateValue } from "./authwall/ItemGateRowControl"
 import { BulkGateActionBar } from "./authwall/BulkGateActionBar"
 
 type ChapterWithLessons = Chapter & {
@@ -173,13 +173,13 @@ export function ChapterList({
                     const isRowChecked = selectedChapterIds.has(chapter.id)
 
                     return (
-                        <div key={chapter.id} className="space-y-1.5" data-testid={`chapter-row-${chapter.id}`}>
+                        <div key={chapter.id} className="space-y-1" data-testid={`chapter-row-${chapter.id}`}>
                             {/* Chapter Row Container */}
                             <div
                                 className={cn(
-                                    "flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-md transition-colors border",
+                                    "flex items-center justify-between gap-2 px-3 py-2 rounded-md transition-colors border",
                                     isSelected
-                                        ? "bg-purple-50/70 border-purple-200 text-purple-900"
+                                        ? "bg-purple-50/70 border-purple-200 text-purple-900 font-medium"
                                         : "hover:bg-gray-50/80 bg-white dark:bg-gray-900/50 border-gray-100 dark:border-gray-800 text-gray-700"
                                 )}
                             >
@@ -192,7 +192,10 @@ export function ChapterList({
                                         data-testid={`select-chapter-${chapter.id}`}
                                     />
                                     <button
-                                        onClick={() => toggleChapter(chapter.id)}
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            toggleChapter(chapter.id)
+                                        }}
                                         className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-800 rounded shrink-0"
                                         type="button"
                                     >
@@ -214,6 +217,26 @@ export function ChapterList({
                                             ({chapter.lessons.length})
                                         </span>
                                     </div>
+                                </div>
+
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                    {/* Optional tiny read-only chip if gated: [Locked], [20%], [Free]; nothing if inherit */}
+                                    {chapter.gateMode === "locked" && (
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 font-bold border border-red-200 dark:border-red-900">
+                                            Locked
+                                        </span>
+                                    )}
+                                    {chapter.gateMode === "free" && (
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-900">
+                                            Free
+                                        </span>
+                                    )}
+                                    {chapter.gateMode === "preview" && (
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 font-bold border border-amber-200 dark:border-amber-900">
+                                            {chapter.previewPercentage ?? 20}%
+                                        </span>
+                                    )}
+
                                     <Button
                                         onClick={(e) => {
                                             e.stopPropagation()
@@ -221,39 +244,17 @@ export function ChapterList({
                                         }}
                                         size="sm"
                                         variant="ghost"
-                                        className="h-6 px-1.5 text-xs shrink-0 text-purple-600 hover:text-purple-700"
-                                        title="Add lesson to this phase"
+                                        className="h-7 w-7 p-0 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                                        title="Add lesson"
                                     >
-                                        <Plus className="h-3.5 w-3.5 mr-0.5" />
-                                        <span className="text-[11px] hidden sm:inline">Lesson</span>
+                                        <Plus className="h-4 w-4" />
                                     </Button>
-                                </div>
-
-                                {/* Compact Per-Row Gate Selector for Chapter */}
-                                <div className="w-full sm:w-auto shrink-0 pl-6 sm:pl-0 pt-1 sm:pt-0" onClick={(e) => e.stopPropagation()}>
-                                    <ItemGateRowControl
-                                        value={{
-                                            gateMode: chapter.gateMode || "inherit",
-                                            previewPercentage: chapter.previewPercentage,
-                                        }}
-                                        onChange={(updated) => {
-                                            if (onUpdateChapterGate) {
-                                                onUpdateChapterGate(chapter.id, updated)
-                                            }
-                                        }}
-                                        coursePreviewPercentage={coursePreviewPercentage}
-                                        isCourseGated={isCourseGated}
-                                        disabled={disabled}
-                                        parentGateMode="inherit"
-                                        parentPreviewPercentage={coursePreviewPercentage}
-                                        parentName="Course"
-                                    />
                                 </div>
                             </div>
 
                             {/* Lessons */}
                             {isExpanded && chapter.lessons.length > 0 && (
-                                <div className="ml-5 space-y-1.5 pl-2 border-l-2 border-indigo-100 dark:border-indigo-950">
+                                <div className="ml-5 space-y-1 pl-2 border-l-2 border-indigo-100 dark:border-indigo-950">
                                     {chapter.lessons.map((lesson, lessonIndex) => {
                                         const LessonIcon = getLessonIcon(lesson.type)
                                         const isLessonSelected =
@@ -263,48 +264,39 @@ export function ChapterList({
                                             <div
                                                 key={lesson.id}
                                                 data-testid={`lesson-row-${lesson.id}`}
+                                                onClick={() => onSelect(lesson.id, "lesson")}
                                                 className={cn(
-                                                    "p-2 rounded-md transition-colors space-y-1.5 border",
+                                                    "flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-colors border",
                                                     isLessonSelected
-                                                        ? "bg-purple-50 text-purple-900 border-purple-200"
+                                                        ? "bg-purple-50 text-purple-900 border-purple-200 font-medium"
                                                         : "hover:bg-gray-50 bg-gray-50/50 dark:bg-gray-900/40 text-gray-700 border-gray-100 dark:border-gray-800"
                                                 )}
                                             >
-                                                <div
-                                                    onClick={() => onSelect(lesson.id, "lesson")}
-                                                    className="flex items-center gap-2 cursor-pointer min-w-0"
-                                                >
-                                                    <LessonIcon className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
-                                                    <span className="text-[11px] font-semibold text-gray-500 shrink-0">
-                                                        {chapterIndex + 1}.{lessonIndex + 1}
-                                                    </span>
-                                                    <span className="flex-1 text-xs font-medium truncate">{lesson.title}</span>
-                                                    <span className="text-[10px] text-gray-400 capitalize shrink-0">
-                                                        {lesson.type.toLowerCase()}
-                                                    </span>
-                                                </div>
+                                                <LessonIcon className="h-3.5 w-3.5 text-indigo-500 shrink-0" />
+                                                <span className="text-xs font-semibold text-gray-500 shrink-0">
+                                                    {chapterIndex + 1}.{lessonIndex + 1}
+                                                </span>
+                                                <span className="flex-1 text-xs font-medium truncate">{lesson.title}</span>
+                                                <span className="text-[10px] text-gray-400 capitalize shrink-0">
+                                                    {lesson.type.toLowerCase()}
+                                                </span>
 
-                                                {/* Per-Lesson Gate Row Control */}
-                                                <div className="pl-5 pt-1" onClick={(e) => e.stopPropagation()}>
-                                                    <ItemGateRowControl
-                                                        value={{
-                                                            gateMode: lesson.gateMode || "inherit",
-                                                            previewPercentage: lesson.previewPercentage,
-                                                        }}
-                                                        onChange={(updated) => {
-                                                            if (onUpdateLessonGate) {
-                                                                onUpdateLessonGate(chapter.id, lesson.id, updated)
-                                                            }
-                                                        }}
-                                                        coursePreviewPercentage={coursePreviewPercentage}
-                                                        isCourseGated={isCourseGated}
-                                                        disabled={disabled}
-                                                        compact
-                                                        parentGateMode={chapter.gateMode || "inherit"}
-                                                        parentPreviewPercentage={chapter.previewPercentage}
-                                                        parentName={chapter.title}
-                                                    />
-                                                </div>
+                                                {/* Optional tiny read-only chip if gated: [Locked], [20%], [Free]; nothing if inherit */}
+                                                {lesson.gateMode === "locked" && (
+                                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 font-bold border border-red-200 dark:border-red-900 shrink-0">
+                                                        Locked
+                                                    </span>
+                                                )}
+                                                {lesson.gateMode === "free" && (
+                                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-900 shrink-0">
+                                                        Free
+                                                    </span>
+                                                )}
+                                                {lesson.gateMode === "preview" && (
+                                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 font-bold border border-amber-200 dark:border-amber-900 shrink-0">
+                                                        {lesson.previewPercentage ?? 20}%
+                                                    </span>
+                                                )}
                                             </div>
                                         )
                                     })}

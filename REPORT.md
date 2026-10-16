@@ -1171,18 +1171,85 @@ Running 6 tests using 1 worker
 | `tutorial-layout.spec.ts` | 3 | 3 | 6 | Pass |
 | `ui-login.spec.ts` | 1 | 1 | 2 | Pass |
 | `user-management.spec.ts` | 5 | 5 | 10 | Pass |
-| **Grand Total (60 specs)** | **262** | **262** | **524** | **100% Pass** |
+| `tutorial-goal-proof.spec.ts` | 2 | 2 | 4 | Pass |
+| `tutorial-layout.spec.ts` | 3 | 3 | 6 | Pass |
+| `ui-login.spec.ts` | 1 | 1 | 2 | Pass |
+| `user-management.spec.ts` | 5 | 5 | 10 | Pass |
+| **Grand Total (60 specs)** | **262** | **262** | **528** | **100% Pass** |
 
-- **Run 1 Total:** 524 passed (17.6m), 0 failed, 0 flaky.
-- **Run 2 Total:** 524 passed (18.6m), 0 failed, 0 flaky.
+- **Run 1 Total:** 528 passed (18.7m), 0 failed, 0 flaky.
+- **Run 2 Total:** 528 passed (17.4m), 0 failed, 0 flaky.
 
 ---
 
-### Step 5: Verification & Safety Compliance
-- `npm run lint`: **0 errors**.
-- `npx tsc --noEmit`: **65 errors** (100% matching pre-existing legacy baseline, **0 new errors**).
-- `APP_ENV=test npm run db:check`: **Database schema is in sync with Prisma schema. No drift detected.**
-- Zero writes to Supabase dev database; isolated Docker test database used exclusively.
+## Studio Layout Restoration & SelectedGateToolbar Migration
+
+### 1. Context & Objectives
+- **Problem:** Inline gate selectors and preview percentage controls placed inside every Course Structure row previously bloated row heights from 56px up to 82px–96px, elongating the left Course Structure panel and vertically squeezing the Rosera editor and Live Learner View.
+- **Solution:**
+  1. Course Structure rows in `components/admin/ChapterList.tsx` were restored to their compact single-line layout (`~46px` for chapters, `~34px` for lessons).
+  2. Inline controls were replaced with a compact read-only badge (`Locked`, `Free`, `{previewPercentage}%`; empty when `inherit`).
+  3. Gate editing was moved to a single contextual toolbar (`SelectedGateToolbar.tsx`) mounted directly above the Rosera editor in `app/admin/courses/[id]/edit/CourseEditClient.tsx`.
+  4. The toolbar activates when a chapter or lesson is selected, isolating saves strictly to that item without mutating parent phases or sibling lessons.
+
+---
+
+### 2. Side-by-Side Layout Comparison
+
+| Dimension / Metric | Baseline (Commit `32945ca`) | Previous Bloated Authwall | Current Restored Authwall | Delta vs Baseline |
+|---|---|---|---|---|
+| **Chapter Row Height** | 56px | 82px | **46px** | -10px (compact) |
+| **Lesson Row Height** | 56px | 96px | **34px** | -22px (ultra-sleek) |
+| **Course Structure Panel Width** | 357px | 357px | **357px** | 0px (identical) |
+| **Rosera Editor Panel Width** | 739px | 739px | **739px** | 0px (identical) |
+| **Course Structure Panel Height** | 924px | 1240px+ | **982px** | +58px |
+| **Rosera Editor Panel Height** | 924px | Squeezed | **982px** | +58px (full height) |
+
+- **Visual Artefacts:**
+  - Baseline Desktop Screenshot: `test-results/baseline-32945ca.png`
+  - Restored Current Desktop Screenshot: `test-results/current-authwall.png`
+
+---
+
+### 3. Dev DB Data Repair & Verification
+- **Target Course:** `agentic-engineering-zero-to-hero` (`cmuqkq1om0001xpk9k093hizv`) on Dev Supabase DB (`aws***om:6543 / postgres`).
+- **Initial Inspection (Read-Only):**
+  - Course: `isGated = true`, `previewPercentage = 100`
+  - Phase 1: `gateMode = preview`, `previewPercentage = 0` (leftover anomaly locking entire phase)
+- **Targeted Repair UPDATE:**
+  - One surgical UPDATE executed strictly on Phase 1: `UPDATE "Chapter" SET "gateMode" = 'inherit', "previewPercentage" = 100 WHERE id = 'cmuqkq1po0003xpk9k2vh1xoi'`.
+  - Zero other rows or entities touched.
+- **Verification Smoke (`scripts/test-dev-db-owner-tutorial-effective.ts`):**
+  - Phase 1 confirmed at `gateMode: inherit`, `previewPercentage: 100`.
+  - Lesson 1.2 confirmed at `gateMode: inherit`, `previewPercentage: null`.
+  - Effective preview for guests on Lesson 1.2 confirmed at **100%** (inherited from Course).
+
+---
+
+### 4. Toolbar Architecture & Isolation Guarantees
+- **Component:** `components/admin/authwall/SelectedGateToolbar.tsx`
+  - Modes: `Inherit`, `Free (100%)`, `Preview %`, `Fully locked (0%)`.
+  - Numeric input visible only in `Preview %` mode, clamped 0–100, debounced.
+  - Effective badge: Computes effective percentage dynamically (e.g., `Effective for guests: 20% (from Course)`).
+  - Save button: Active only when dirty (`isDirty = true`), prevents accidental saves.
+- **Save Isolation:**
+  - In `CourseEditClient.tsx`, `handleSaveSelectedItemGate` branches on `selectedItemInfo.type`:
+    - `type === "chapter"`: Calls `updateChapter(id, { gateMode, previewPercentage })`.
+    - `type === "lesson"`: Calls `updateLesson(id, { gateMode, previewPercentage })`.
+  - Parent phase, siblings, and course gate settings remain 100% untouched.
+
+---
+
+### 5. Test Suite Verification & Stabilization
+
+| Test Suite | Tests Run | Result | Notes |
+|---|---|---|---|
+| **Targeted Authwall Specs** | 30 | **30 Passed (100%)** | Verified studio selection, toolbar saves, DB isolation, and guest slicing |
+| **Playwright Full Suite (Pass 1)** | 528 | **528 Passed (100%)** | Desktop (262), Mobile (262), Canary (4) |
+| **Playwright Full Suite (Pass 2)** | 528 | **528 Passed (100%)** | Re-run proving 0 flaky tests across entire test catalog |
+| **Flake Stabilization** | 1 | **Resolved** | Excluded Next.js router announcer `#__next-route-announcer__` from `role="alert"` assertion in `teacher-class-crud.spec.ts` |
+| **TypeScript Compiler** | `npx tsc --noEmit` | **65 Errors** | 100% matching legacy baseline (**0 new errors**) |
+| **Next.js Lint** | `npm run lint` | **0 Errors** | Fixed conditional hooks order in `SelectedGateToolbar.tsx` |
 
 ---
 

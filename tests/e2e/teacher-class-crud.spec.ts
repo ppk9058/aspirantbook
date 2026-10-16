@@ -459,7 +459,7 @@ test.describe("Teacher Class Full CRUD, Ownership & Safety E2E", () => {
     await page.goto("/teacher/classes", { waitUntil: "domcontentloaded" })
 
     // Page loads, no alert error
-    await expect(page.locator('[role="alert"]')).not.toBeVisible()
+    await expect(page.locator('[role="alert"]:not(#__next-route-announcer__)')).not.toBeVisible()
 
     // Tab counts match fixture
     await expect(page.locator('[data-testid="tab-upcoming"]')).toBeVisible()

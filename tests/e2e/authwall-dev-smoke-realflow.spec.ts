@@ -255,15 +255,16 @@ test.describe("Authwall Proof Run: Real-Flow Dev Smoke, Studio Persistence & Sli
     }
 
     // 2. Set chapter to "Fully locked (0%)"
-    const chapterSelect = page.locator(`[data-testid="select-chapter-${chapter.id}"]`).locator("..").locator("..").locator('[data-testid="item-gate-mode-select"]')
+    const chapterRow = page.locator(`[data-testid="chapter-row-${chapter.id}"]`)
+    await chapterRow.locator("div.cursor-pointer").first().click()
+    const toolbar = page.locator('[data-testid="selected-gate-toolbar"]')
+    await expect(toolbar).toBeVisible()
+    const chapterSelect = toolbar.locator('[data-testid="item-gate-mode-select"]')
     await chapterSelect.click()
     const lockedOpt = page.getByRole("option", { name: /Fully locked/i })
     await lockedOpt.click()
-
-    // Click Save Gate Settings
-    const saveBtn = page.locator('[data-testid="save-gate-settings-button"]')
-    await saveBtn.click()
-    await expect(page.locator("text=Gate settings saved successfully")).toBeVisible({ timeout: 10000 })
+    await toolbar.locator('[data-testid="save-item-gate-btn"]').click()
+    await expect(page.locator("text=Chapter gate updated")).toBeVisible({ timeout: 10000 })
 
     // Verify DB
     const dbChLocked = await prisma.chapter.findUnique({ where: { id: chapter.id } })
@@ -294,20 +295,20 @@ test.describe("Authwall Proof Run: Real-Flow Dev Smoke, Studio Persistence & Sli
     await page.goto(`/admin/tutorials/${course.id}/edit`)
     await page.waitForLoadState("networkidle")
 
-    const chapterSelect2 = page.locator(`[data-testid="select-chapter-${chapter.id}"]`).locator("..").locator("..").locator('[data-testid="item-gate-mode-select"]')
+    const chapterRow2 = page.locator(`[data-testid="chapter-row-${chapter.id}"]`)
+    await chapterRow2.locator("div.cursor-pointer").first().click()
+    const toolbar2 = page.locator('[data-testid="selected-gate-toolbar"]')
+    await expect(toolbar2).toBeVisible()
+    const chapterSelect2 = toolbar2.locator('[data-testid="item-gate-mode-select"]')
     await chapterSelect2.click()
     const previewOpt = page.getByRole("option", { name: /Preview %/i })
     await previewOpt.click()
 
-    const previewInput = page.locator(`[data-testid="select-chapter-${chapter.id}"]`).locator("..").locator("..").locator('[data-testid="item-gate-preview-input"]')
+    const previewInput = toolbar2.locator('[data-testid="item-gate-preview-input"]')
     await previewInput.waitFor({ state: "visible" })
     await previewInput.fill("20")
-    await previewInput.blur()
-
-    // Save Gate Settings
-    const saveBtn2 = page.locator('[data-testid="save-gate-settings-button"]')
-    await saveBtn2.click()
-    await expect(page.locator("text=Gate settings saved successfully")).toBeVisible({ timeout: 10000 })
+    await toolbar2.locator('[data-testid="save-item-gate-btn"]').click()
+    await expect(page.locator("text=Chapter gate updated")).toBeVisible({ timeout: 10000 })
 
     // Verify DB
     const dbChPreview = await prisma.chapter.findUnique({ where: { id: chapter.id } })
