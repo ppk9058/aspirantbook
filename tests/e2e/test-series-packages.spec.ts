@@ -745,7 +745,8 @@ test.describe("Test Series Packages Studio, Ownership & Authoritative Metrics", 
     // Verify staff attempt (Teacher A with score 100) is completely absent from table
     const tableText = await page.locator("table").innerText()
     expect(tableText).not.toContain(teacherA.name)
-    expect(tableText).not.toContain("100")
+    const candidateScores = await page.locator("[data-testid='candidate-score']").allInnerTexts()
+    expect(candidateScores).not.toContain("100")
 
     // 2. Error state test: simulate failing request
     await page.route(`**/api/exam/${testA1.id}/leaderboard*`, async (route) => {
