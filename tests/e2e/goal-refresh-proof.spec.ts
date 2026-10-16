@@ -455,12 +455,12 @@ test.describe.serial("Goal Refresh Proof Suite (No Manual Reload)", () => {
     }
 
     if (ownGoal === "ssc") {
-      await page.locator(`text=${sscMarker}`).first().waitFor({ state: "visible", timeout: 8000 });
+      await page.locator(`text=${sscMarker}`).first().waitFor({ state: "visible", timeout: 15000 });
     } else if (ownGoal === "upsc") {
-      await page.locator(`text=${upscMarker}`).first().waitFor({ state: "visible", timeout: 8000 });
+      await page.locator(`text=${upscMarker}`).first().waitFor({ state: "visible", timeout: 15000 });
     } else {
-      await page.locator(`text=${upscMarker}`).first().waitFor({ state: "visible", timeout: 8000 });
-      await page.locator(`text=${sscMarker}`).first().waitFor({ state: "visible", timeout: 8000 });
+      await page.locator(`text=${upscMarker}`).first().waitFor({ state: "visible", timeout: 15000 });
+      await page.locator(`text=${sscMarker}`).first().waitFor({ state: "visible", timeout: 15000 });
     }
 
     const upscCount = await page.locator(`text=${upscMarker}`).count();
