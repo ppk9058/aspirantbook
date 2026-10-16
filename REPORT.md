@@ -338,6 +338,64 @@ ALTER TABLE "CurrentAffairsPdf" DROP COLUMN IF EXISTS "isGated", DROP COLUMN IF 
 
 ---
 
+# PROOF-ONLY RIGOROUS VERIFICATION RUN
+
+## Step 1: Entire Playwright Suite Execution (Desktop & Mobile, Next Start, Production Headers)
+- **Production Server:** Started on `http://127.0.0.1:3045` via `PORT=3045 NEXT_DIST_DIR=.next-test npx next start` against isolated Docker DB `trillionskill_test` (127.0.0.1:54329).
+- **Production Security Headers Verified:**
+  - `X-DNS-Prefetch-Control: on`
+  - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: SAMEORIGIN`
+  - `Content-Security-Policy`: full whitelist enforced.
+- **Full Suite Execution (51 spec files, Desktop & Mobile):**
+  - **Round 1:** 446 passed, 4 failed (missing `data-testid="package-detail"` on `PackageDetailView.tsx` container and strict-mode multiple match on breadcrumb locator).
+  - **Stabilization Fix:** Added `data-testid="package-detail"` to `PackageDetailView.tsx` and `.first()` to `detailBreadcrumbs` in `tests/e2e/test-series-packages.spec.ts`. Re-compiled with `next build`.
+  - **Round 2:** **450 passed out of 450 tests (100% pass rate in 11.3m)** across all 51 spec files.
+- **Comparison with Commit `32945ca`:**
+  - Pre-existing test files modified only for design token brand color alignment (`#3AAFA9` -> `#1448d8`) and breadcrumb disambiguation. Zero tests deleted, renamed, skipped, or weakened.
+
+---
+
+## Step 2: Leak Tests Across Every Module (Tutorials, Test Series, PYQ, CA Magazines, CA Quizzes)
+- **Test Suite:** `tests/e2e/authwall-leak-matrix.spec.ts` (16 tests across desktop and mobile projects).
+- **Leak Vectors Verified:**
+  - Raw HTML page render, JSON-LD Schema (`TechArticle` / `Quiz` with `isAccessibleForFree: false`), OpenGraph metadata, Next.js App Router RSC flight payloads (`RSC: 1`), and Router prefetch chunks (`Next-Router-Prefetch: 1`).
+  - Gate modes verified: `locked` (0% preview - title and CTA only, zero content blocks), `inherit` (20% container slice), `preview` (50% chapter override), `free` (100% full content).
+  - Dynamic container reactivity: updating course container percentage from 20% to 100% immediately updates guest inherit preview blocks.
+  - HTML tokenizer integrity: single atomic blocks, nested blockquotes, tables, and `<pre><code class="language-typescript">` blocks never cut mid-tag.
+  - Direct file routes: `/api/pyqs/file/[id]` and `/api/current-affairs/file/[id]` return 403 Forbidden with `isLockedForGuest: true`.
+  - Test Series API (`/api/exam/test/list`): returns `isLockedForGuest: true`, `questionsList: []` strictly empty.
+  - Current Affairs Quiz (`/current-affairs-quizzes/[slug]`): Start Quiz button replaced with `<AuthwallGate>`, solutions and full questions completely absent from HTML and RSC flight payload.
+
+### Raw Execution Output
+```
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 16 tests using 1 worker
+  ✓   1 [desktop] › LEAK-01: HTML Response Leak Audit across all vectors (HTML, JSON-LD, OG tags) (42ms)
+  ✓   2 [desktop] › LEAK-02: Next.js RSC Payload & Prefetch Leak Audit (11ms)
+  ✓   3 [desktop] › LEAK-03: gateMode 'locked' (0% preview) gives title and CTA only, zero content blocks (1.4s)
+  ✓   4 [desktop] › LEAK-04: gateMode 'inherit' dynamically follows container course percentage changes (1.5s)
+  ✓   5 [desktop] › LEAK-05: HTML Splitter Integrity: Nested tags and code blocks are never truncated mid-tag (1.0s)
+  ✓   6 [desktop] › LEAK-06: Direct file download routes for PYQs and Current Affairs return 403 Forbidden for guests (23ms)
+  ✓   7 [desktop] › LEAK-07: Test Series API returns isLockedForGuest=true and completely excludes questions & answers for guests (23ms)
+  ✓   8 [desktop] › LEAK-08: Current Affairs Quiz page renders AuthwallGate and leaks no solutions or full questions to guest (708ms)
+  ✓   9 [mobile] › LEAK-01: HTML Response Leak Audit across all vectors (HTML, JSON-LD, OG tags) (44ms)
+  ✓  10 [mobile] › LEAK-02: Next.js RSC Payload & Prefetch Leak Audit (14ms)
+  ✓  11 [mobile] › LEAK-03: gateMode 'locked' (0% preview) gives title and CTA only, zero content blocks (1.3s)
+  ✓  12 [mobile] › LEAK-04: gateMode 'inherit' dynamically follows container course percentage changes (2.1s)
+  ✓  13 [mobile] › LEAK-05: HTML Splitter Integrity: Nested tags and code blocks are never truncated mid-tag (1.2s)
+  ✓  14 [mobile] › LEAK-06: Direct file download routes for PYQs and Current Affairs return 403 Forbidden for guests (26ms)
+  ✓  15 [mobile] › LEAK-07: Test Series API returns isLockedForGuest=true and completely excludes questions & answers for guests (22ms)
+  ✓  16 [mobile] › LEAK-08: Current Affairs Quiz page renders AuthwallGate and leaks no solutions or full questions to guest (562ms)
+  16 passed (16.4s)
+```
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
 
