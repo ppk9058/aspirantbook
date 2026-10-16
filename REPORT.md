@@ -396,6 +396,44 @@ Running 16 tests using 1 worker
 
 ---
 
+## Step 3: Cache Tests (Isolation, Entitlement Boundaries & Bot/Human Variant Separation)
+- **Test Suite:** `tests/e2e/authwall-cache.spec.ts` (8 tests across desktop and mobile projects).
+- **Cache Scenarios Tested:**
+  1. **Guest -> User -> Guest on same URL with warm caches:**
+     - Anonymous guest requests `/tutorials/[slug]`, receives sliced preview blocks (`Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate`).
+     - Authenticated user requests the exact same URL, warming the server process and receiving 100% full content.
+     - Subsequent anonymous guest immediately requests the exact same URL: receives strictly the preview slice without any leaked full blocks.
+  2. **Two users with different entitlements:**
+     - User A (Admin): privileged entitlement across all gated content, receives 100% full content.
+     - User B (Anonymous Guest): unprivileged, receives restricted preview slice with `<AuthwallGate>`.
+  3. **Logout then browser Back:**
+     - User accesses full tutorial content while logged in.
+     - User navigates to `/dashboard` and logs out (clearing auth cookies).
+     - User navigates back via browser Back: page revalidates against server without session and renders strictly the preview slice with zero secret content.
+  4. **Verified-bot variant never reaches human users:**
+     - Verified crawler (`Mozilla/5.0 (compatible; Googlebot/2.1) VerifiedCrawlerMock` with DNS/IP check) under `seoMode: "bot-full"` receives 100% full content.
+     - Human guest immediately visits the exact same URL: receives strictly the guest preview slice. No bot-full cache bleed.
+
+### Raw Execution Output
+```
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 8 tests using 1 worker
+  ✓  1 [desktop] › CACHE-01: Guest -> User -> Guest on same URL with warm caches preserves strict guest isolation (2.0s)
+  ✓  2 [desktop] › CACHE-02: Two users with different entitlements receive respective content independently (1.0s)
+  ✓  3 [desktop] › CACHE-03: Logout then browser Back shows only the preview slice, never secret content (1.5s)
+  ✓  4 [desktop] › CACHE-04: Verified-bot variant response never reaches human guests or users (552ms)
+  ✓  5 [mobile] › CACHE-01: Guest -> User -> Guest on same URL with warm caches preserves strict guest isolation (1.4s)
+  ✓  6 [mobile] › CACHE-02: Two users with different entitlements receive respective content independently (869ms)
+  ✓  7 [mobile] › CACHE-03: Logout then browser Back shows only the preview slice, never secret content (1.2s)
+  ✓  8 [mobile] › CACHE-04: Verified-bot variant response never reaches human guests or users (347ms)
+  8 passed (15.1s)
+```
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
 
