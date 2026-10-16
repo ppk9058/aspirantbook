@@ -520,8 +520,39 @@ Running 10 tests using 1 worker
 
 ---
 
+## Step 6: Real-Click UI Login, In-Place Content Expansion & Scroll Restoration
+- **Test Suite:** `tests/e2e/authwall-unlock.spec.ts` (2 tests across desktop and mobile projects).
+- **End-to-End User Experience Verified:**
+  1. **Real-Click Interactive Gate Interaction:**
+     - Anonymous guest lands on a gated tutorial chapter and scrolls into reading position (`window.scrollY >= 100`).
+     - Guest clicks `"Sign In to Unlock Free Access"` on the `<AuthwallGate>` conversion card.
+     - `AuthwallGate` stores reading scroll position (`authwall_scroll_y`) and current path in `sessionStorage` and triggers seamless redirect to `/login?callbackUrl=...`.
+  2. **Authentic Form Submission:**
+     - User inputs email and password directly into the login form inputs and submits.
+     - AuthJS credentials callback authenticates the user and routes them back to the exact tutorial chapter.
+  3. **In-Place Expansion & Scroll Restoration:**
+     - The tutorial content expands in-place: previously blocked and locked content (`SECRET_CONTENT`) is rendered into the DOM without page reload or layout flickering.
+     - `<AuthwallGate>` is removed from the DOM.
+     - `AuthwallUnlockToast` (`role="status"`) notifies the user: *"Welcome back! Full content unlocked."*
+     - Cumulative Layout Shift (CLS) recorded during the unlock event is < 0.1, fully compliant with Web Vitals thresholds.
+
+### Raw Execution Output
+```
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 2 tests using 1 worker
+  ✓  1 [desktop] › UNLOCK-01: Real-click UI login flow smoothly unlocks content in-place with scroll preservation and zero CLS shift (2.0s)
+  ✓  2 [mobile] › UNLOCK-01: Real-click UI login flow smoothly unlocks content in-place with scroll preservation and zero CLS shift (1.7s)
+  2 passed (9.0s)
+```
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
+
 
 
 
