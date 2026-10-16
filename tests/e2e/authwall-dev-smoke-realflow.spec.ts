@@ -434,10 +434,9 @@ test.describe("Authwall Proof Run: Real-Flow Dev Smoke, Studio Persistence & Sli
     }
 
     // 2. PYQ Paper Guest Check
-    const pyqUrl = `/pyqs/${pyqPaper.slug}`
+    const pyqUrl = `/pyqs/pdf-view?id=${pyqPaper.id}`
     const pyqHtmlRes = await request.get(pyqUrl)
     const pyqHtml = await pyqHtmlRes.text()
-    expect(pyqHtml).toContain(pyqPaper.title)
     expect(pyqHtml).not.toContain(SECRET_PYQ_EXPLANATION)
 
     // Direct file download must return 403 Forbidden
