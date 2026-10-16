@@ -610,8 +610,58 @@ Auditing 4 PYQ papers in dev DB...
 
 ---
 
+## Step 9: Static Analysis, TypeScript Baseline & Database Schema Verification
+
+### 1. ESLint (`npm run lint`)
+- **Status:** PASSED (Exit Code: 0, 0 Errors).
+- **Result:** Only pre-existing hook dependency and `<img>` element warnings in legacy components. Zero errors across all new and modified files.
+
+### 2. TypeScript Compilation (`npx tsc --noEmit`)
+- **Baseline Error Count:** 65 errors in 16 files (pre-existing baseline from commit `32945ca`).
+- **Post-Verification Error Count:** **65 errors in 16 files**.
+- **Net New TypeScript Errors:** **0 (ZERO)**.
+
+```
+Found 65 errors in 16 files.
+
+Errors  Files
+     1  app/admin/exercises/[id]/edit/page.tsx:45
+     1  app/api/assessments/[id]/start/route.ts:52
+     1  app/batches/[slug]/BatchDetailClient.tsx:99
+     1  components/admin/tracks/TrackCourseManager.tsx:45
+     6  components/admin/tracks/TrackForm.tsx:52
+     8  components/course/CourseBundleView.tsx:120
+    21  components/home/BatchEnrollModal.tsx:22
+     4  scripts/audit-pass4-sectionG-lock-leakage.ts:29
+     1  scripts/capture-and-diff.ts:172
+     7  scripts/seed-audit-users.ts:37
+     6  scripts/test-c1-viewport-user-mismatch.ts:113
+     1  scripts/test-m1-m2.ts:22
+     1  scripts/test-pass4-sectionE-progress.ts:61
+     1  scripts/test-pass4-sectionF-razorpay-checkout.ts:54
+     4  scripts/test-pass5-section1.ts:185
+     1  scripts/test-report-links.ts:3
+```
+
+### 3. Database Schema Verification (`npm run db:check`)
+- **Target:** `aws***.pooler.supabase.com:5432/postgres` (Dev Supabase DB).
+- **Status:** PASSED (Exit Code: 0).
+- **Result:** No drift detected. All Authwall columns (`isGated`, `previewPercentage`, `seoMode`, `gateTitle`, `gateSubtitle`, `gateMode`, `blockCount`, `contentHash`) verified in Prisma schema and database.
+
+```
+> aspirantbook@0.1.0 db:check
+> tsx scripts/db-check.ts
+
+[db:check] Verifying schema against connected DB: aws***.pooler.supabase.com:5432/postgres
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+```
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
+
 
 
 
