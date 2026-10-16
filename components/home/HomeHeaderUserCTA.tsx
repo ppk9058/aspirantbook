@@ -25,7 +25,7 @@ export default function HomeHeaderUserCTA({ initialSession }: HomeHeaderUserCTAP
     if (isLoading) {
         return (
             <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-24 h-10 rounded-xl bg-gray-100 animate-pulse" />
+                <div className="h-11 w-24 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800" />
             </div>
         )
     }
@@ -39,10 +39,11 @@ export default function HomeHeaderUserCTA({ initialSession }: HomeHeaderUserCTAP
 
     return (
         <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* Desktop-only dashboard shortcut; on phones it lives inside the avatar menu */}
             <Link
                 href={dashboardHref}
                 prefetch={true}
-                className="flex px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold text-xs sm:text-sm hover:opacity-95 transition-all shadow-xs items-center gap-1 sm:gap-1.5 shrink-0"
+                className="hidden min-h-11 items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#F26522] to-amber-500 px-4 text-sm font-bold text-white shadow-sm transition-all hover:opacity-95 active:scale-95 sm:inline-flex"
                 aria-label="Go to Dashboard"
             >
                 <span>Dashboard</span>
@@ -54,7 +55,7 @@ export default function HomeHeaderUserCTA({ initialSession }: HomeHeaderUserCTAP
                 <Link
                     href="/login"
                     prefetch={true}
-                    className="px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-xl border-2 border-[#F26522] text-[#F26522] hover:bg-[#F26522] hover:text-white font-bold text-xs sm:text-sm transition-all duration-200 shadow-2xs whitespace-nowrap shrink-0"
+                    className="inline-flex min-h-11 shrink-0 items-center rounded-xl border-2 border-[#F26522] px-3 text-xs font-bold whitespace-nowrap text-[#F26522] transition-all duration-200 hover:bg-[#F26522] hover:text-white active:scale-95 sm:px-5 sm:text-sm dark:border-orange-400 dark:text-orange-300 dark:hover:bg-orange-500 dark:hover:text-white"
                 >
                     <span>Login</span>
                     <span className="hidden sm:inline">/Register</span>

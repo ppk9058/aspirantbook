@@ -13,6 +13,17 @@ interface BatchCardItemProps {
     liveDemoBadge?: string | null
 }
 
+// Colourful, per-audience badge tints so the grid feels vibrant without any
+// invented data. Falls back to a neutral brand tint for unknown labels.
+function classTagStyle(classTag: string): string {
+    const tag = classTag.toLowerCase()
+    if (tag.includes("upsc")) return "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+    if (tag.includes("bpsc")) return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
+    if (tag.includes("skill")) return "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-500/20 dark:text-fuchsia-300"
+    if (tag.includes("class")) return "bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300"
+    return "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300"
+}
+
 export default function BatchCardItem({ batch, liveDemoBadge }: BatchCardItemProps) {
     const router = useRouter()
     const { data: session } = useSession()
@@ -101,101 +112,101 @@ export default function BatchCardItem({ batch, liveDemoBadge }: BatchCardItemPro
             onClick={handleCardClick}
             data-batch-card
             data-batch-search={`${batch.title} ${batch.targetText}`}
-            className="bg-white rounded-2xl border border-gray-200/90 hover:border-[#5B47FB]/50 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer group hover:-translate-y-1 select-none"
+            className="group flex cursor-pointer select-none flex-col justify-between overflow-hidden rounded-2xl border border-gray-200/90 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/60 hover:shadow-xl dark:border-white/10 dark:bg-gray-900 dark:hover:border-indigo-500/50"
         >
             <div>
                 {/* Top Banner Graphic */}
-                <div className="relative h-48 w-full bg-gray-50 overflow-hidden border-b border-gray-100">
+                <div className="relative h-44 w-full overflow-hidden border-b border-gray-100 bg-gray-50 sm:h-48 dark:border-white/10 dark:bg-white/5">
                     <Image
                         src={batch.image}
                         alt={batch.title}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     {/* Status Badges */}
                     {liveDemoBadge ? (
-                        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-600 backdrop-blur-xs text-white text-[10px] font-black uppercase tracking-wider shadow-sm animate-pulse">
-                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                        <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-red-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-sm backdrop-blur-sm">
+                            <span className="h-1.5 w-1.5 animate-ping rounded-full bg-white" />
                             <span>🔴 {liveDemoBadge}</span>
                         </div>
                     ) : batch.isLive ? (
-                        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-600/90 backdrop-blur-xs text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-200 animate-pulse" />
+                        <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-emerald-600/90 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-sm backdrop-blur-sm">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-200" />
                             <span>Video Course</span>
                         </div>
                     ) : (
-                        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/95 backdrop-blur-xs text-gray-950 text-[10px] font-black uppercase tracking-wider shadow-sm">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-950 animate-pulse" />
+                        <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-amber-500/95 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-gray-950 shadow-sm backdrop-blur-sm">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-950" />
                             <span>Coming Soon</span>
                         </div>
                     )}
                 </div>
 
                 {/* Card Details Body */}
-                <div className="p-5 space-y-4">
+                <div className="space-y-4 p-4 sm:p-5">
                     {/* Class Tag and Language Tag Row */}
-                    <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-orange-700">
+                    <div className="flex items-center justify-between gap-2">
+                        <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${classTagStyle(batch.classTag)}`}>
                             {batch.classTag}
                         </span>
-                        <span className="text-[10px] font-bold text-gray-700 bg-gray-100 px-2.5 py-0.5 rounded uppercase tracking-wider">
+                        <span className="rounded bg-gray-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-700 dark:bg-white/10 dark:text-gray-300">
                             {batch.language}
                         </span>
                     </div>
 
                     {/* Course Title */}
-                    <h3 className="font-extrabold text-base sm:text-lg text-gray-900 group-hover:text-indigo-700 transition-colors line-clamp-1 leading-snug">
+                    <h3 className="line-clamp-2 text-base font-extrabold leading-snug text-gray-900 transition-colors group-hover:text-indigo-700 sm:text-lg dark:text-white dark:group-hover:text-indigo-300">
                         {batch.title}
                     </h3>
 
                     {/* Syllabus / Target Meta */}
-                    <div className="space-y-2 text-xs text-gray-600">
+                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                         <div className="flex items-start gap-2.5">
-                            <BookOpen className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <BookOpen className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500 dark:text-gray-400" />
                             <span className="leading-tight">{batch.targetText}</span>
                         </div>
                         <div className="flex items-start gap-2.5">
-                            <Calendar className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                            <span className="leading-tight text-gray-600">{batch.scheduleText}</span>
+                            <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                            <span className="leading-tight">{batch.scheduleText}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Card Footer: Pricing & Action Button */}
-            <div className="p-5 pt-3 border-t border-gray-100 flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3 border-t border-gray-100 p-4 pt-3 sm:p-5 sm:pt-3 dark:border-white/10">
                 {/* Pricing column */}
-                <div>
+                <div className="min-w-0">
                     <div className="flex items-baseline gap-1.5">
-                        <span className="text-lg sm:text-xl font-black text-gray-900">
+                        <span className="text-lg font-black text-gray-900 sm:text-xl dark:text-white">
                             {batch.price}
                         </span>
                         {batch.originalPrice && (
-                            <span className="text-xs text-gray-600 line-through">
+                            <span className="text-xs text-gray-500 line-through dark:text-gray-400">
                                 {batch.originalPrice}
                             </span>
                         )}
                     </div>
                     {batch.discount && (
-                        <span className="text-[11px] font-bold text-emerald-700 block -mt-0.5">
+                        <span className="-mt-0.5 block text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                             {batch.discount}
                         </span>
                     )}
                 </div>
 
                 {/* Right Action Button with Arrow */}
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-shrink-0 items-center gap-1.5">
                     <button
                         type="button"
                         onClick={handleButtonClick}
                         disabled={isEnrolling}
-                        className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer z-10 active:scale-95 disabled:opacity-75 ${
+                        className={`z-10 flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-5 text-sm font-extrabold shadow-sm transition-all active:scale-95 disabled:opacity-75 ${
                             isComingSoon
-                                ? "bg-amber-500 hover:bg-amber-600 text-gray-950 font-black shadow-amber-200"
+                                ? "bg-amber-500 font-black text-gray-950 shadow-amber-200 hover:bg-amber-600"
                                 : isFree
-                                ? "bg-emerald-700 hover:bg-emerald-800 text-white shadow-emerald-200"
-                                : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200"
+                                ? "bg-emerald-700 text-white shadow-emerald-200 hover:bg-emerald-800"
+                                : "bg-indigo-600 text-white shadow-indigo-200 hover:bg-indigo-700"
                         }`}
                     >
                         {isEnrolling ? (
@@ -207,7 +218,7 @@ export default function BatchCardItem({ batch, liveDemoBadge }: BatchCardItemPro
                             <span>{btnLabel}</span>
                         )}
                     </button>
-                    <div className="p-2.5 rounded-xl border border-gray-200 text-gray-600 group-hover:bg-gray-100 group-hover:border-gray-300 transition-colors pointer-events-none">
+                    <div className="pointer-events-none flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 text-gray-600 transition-colors group-hover:border-gray-300 group-hover:bg-gray-100 dark:border-white/10 dark:text-gray-300 dark:group-hover:bg-white/10">
                         <ChevronRight className="h-4 w-4" />
                     </div>
                 </div>

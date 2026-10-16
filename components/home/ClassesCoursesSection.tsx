@@ -76,7 +76,7 @@ export default async function ClassesCoursesSection() {
     }
 
     return (
-        <section id="all-courses-container" className="pt-10 pb-24 border-t border-gray-100 bg-white">
+        <section id="all-courses-container" className="border-t border-gray-100 bg-white pt-10 pb-24 dark:border-white/10 dark:bg-gray-950">
             <ClassesTabsClient tabs={CLASS_TABS}>
                 {/* Courses Sections by Class - Server Rendered */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-16">
@@ -93,7 +93,7 @@ export default async function ClassesCoursesSection() {
                                 className="scroll-mt-40 space-y-6"
                             >
                                 {/* Section Heading */}
-                                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] tracking-tight">
+                                <h2 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl dark:text-white">
                                     {section.sectionTitle}
                                 </h2>
 
@@ -135,11 +135,12 @@ export default async function ClassesCoursesSection() {
                 </div>
             </ClassesTabsClient>
 
-            {/* Floating Support Call Button in Bottom Right as seen on PW */}
-            <div className="fixed bottom-6 right-6 z-50">
+            {/* Floating Support Call Button in Bottom Right (safe-area aware) */}
+            <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 z-50 sm:right-6">
                 <a
                     href="tel:+919999999999"
-                    className="w-13 h-13 bg-[#5B47FB] hover:bg-[#4a36ea] text-white rounded-2xl shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-105"
+                    aria-label="Call an academic counselor"
+                    className="flex h-13 w-13 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-xl transition-all duration-200 hover:scale-105 hover:bg-indigo-700"
                     title="Talk to an Academic Counselor"
                 >
                     <Phone className="h-6 w-6 fill-current" />

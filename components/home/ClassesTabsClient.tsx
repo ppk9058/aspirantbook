@@ -143,43 +143,42 @@ export default function ClassesTabsClient({ tabs, children }: ClassesTabsClientP
 
     return (
         <div ref={containerRef} onClick={handleContainerClick}>
-            {/* Sticky Class Filter Bar + Search Bar */}
-            <div className="sticky top-20 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-2xs py-3.5 mb-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    {/* Horizontal Class Pills List */}
-                    <div data-scroll-x="true" className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-1">
-                        {tabs.map((tab, idx) => {
+            {/* Sticky class filter bar + search. Offset clears the compact mobile
+                header (h-16) and the taller desktop header (h-20). */}
+            <div className="sticky top-16 z-40 mb-8 border-b border-gray-200/80 bg-white/95 py-3 shadow-sm backdrop-blur-md md:top-20 dark:border-white/10 dark:bg-gray-950/90">
+                <div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-4 sm:px-8 md:flex-row md:items-center">
+                    {/* Horizontal class chips */}
+                    <div data-scroll-x="true" className="flex items-center gap-2 overflow-x-auto py-0.5 no-scrollbar">
+                        {tabs.map((tab) => {
                             const isSelected = selectedTab === tab.id
                             return (
-                                <div key={tab.id} className="flex items-center flex-shrink-0">
-                                    <button
-                                        type="button"
-                                        onClick={() => scrollToClass(tab.id)}
-                                        className={`px-3 py-1.5 text-xs sm:text-sm font-semibold transition-all rounded-md cursor-pointer ${
-                                            isSelected
-                                                ? "text-[#5B47FB] font-bold border-b-2 border-[#5B47FB] bg-[#F5F3FF]"
-                                                : "text-[#5B47FB] hover:text-[#4338CA] hover:bg-gray-50"
-                                        }`}
-                                    >
-                                        {tab.label}
-                                    </button>
-                                    {idx < tabs.length - 1 && (
-                                        <span className="text-gray-300 mx-1.5 text-xs select-none">|</span>
-                                    )}
-                                </div>
+                                <button
+                                    key={tab.id}
+                                    type="button"
+                                    onClick={() => scrollToClass(tab.id)}
+                                    aria-pressed={isSelected}
+                                    className={`flex min-h-11 shrink-0 items-center rounded-full border px-4 text-xs font-bold transition-all active:scale-95 sm:text-sm ${
+                                        isSelected
+                                            ? "border-transparent bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/25"
+                                            : "border-gray-200 bg-white text-gray-600 hover:border-indigo-300 hover:text-indigo-700 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:hover:text-indigo-300"
+                                    }`}
+                                >
+                                    {tab.label}
+                                </button>
                             )
                         })}
                     </div>
 
                     {/* Right Search Input Box */}
-                    <div className="relative w-full md:w-80 flex-shrink-0">
-                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <div className="relative w-full flex-shrink-0 md:w-80">
+                        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search for Batches"
-                            className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm rounded-lg border border-gray-300 bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5B47FB]/30 focus:border-[#5B47FB]"
+                            aria-label="Search for batches"
+                            className="min-h-11 w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-500"
                         />
                     </div>
                 </div>
