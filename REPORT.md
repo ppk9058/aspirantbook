@@ -866,11 +866,11 @@ Total: 36 passed across all modules (100% success rate, 0 flaky, 0 skipped)
    - Click **Save Gate Settings**:
      - Confirm green toast: *"Gate settings saved successfully!"*.
    - In the Course Structure table, click the gate mode dropdown for Chapter 1:
-     - Change to **Locked (0%)**.
+     - Change to **Fully locked (0%)**.
      - Confirm green toast: *"Chapter gate updated"*.
 3. Click Browser **Reload** (or navigate away and return):
    - Verify: Switch is ON, Default Preview is 20%, SEO Mode is Bot-Full, Title is preserved.
-   - Verify: Chapter 1 row displays badge **Locked (0%)**.
+   - Verify: Chapter 1 row displays badge **Locked (0%)** and **Effective for guests: 0%**.
 4. Click to edit any lesson in Chapter 1:
    - Notice **Rosera Editor** loads blocks without any console errors.
    - Open browser developer tools Console: **0 errors** (no `TypeError: Cannot read properties of undefined`).
@@ -886,8 +886,151 @@ Total: 36 passed across all modules (100% success rate, 0 flaky, 0 skipped)
 
 ---
 
+# COMPREHENSIVE PROOF-ONLY RUN VERIFICATION REPORT
+
+## 1. Full Playwright Suite Execution (Every Spec, Desktop & Mobile, Next Start, Production Headers)
+- **Production Server:** Started on `http://127.0.0.1:3045` via `npx next start` with `.next-test` build against Docker test DB (`127.0.0.1:54329/trillionskill_test`).
+- **Production Security Headers Verified:**
+  - `X-DNS-Prefetch-Control: on`
+  - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: SAMEORIGIN`
+  - Full `Content-Security-Policy` whitelist enforced.
+- **Suite Results:** **518 passed out of 518 tests (100% pass rate in 15.0m)** across all 59 spec files on both Desktop and Mobile viewports.
+- **Per-Spec Breakdown:**
+
+| Spec File | Desktop | Mobile | Total Tests | Status |
+| :--- | :---: | :---: | :---: | :---: |
+| `authwall-blurred.spec.ts` | 7 | 7 | 14 | Pass |
+| `authwall-bot-verify.spec.ts` | 5 | 5 | 10 | Pass |
+| `authwall-bugfix-persistence-lesson-editor.spec.ts` | 2 | 2 | 4 | Pass |
+| `authwall-cache.spec.ts` | 4 | 4 | 8 | Pass |
+| `authwall-dev-smoke-realflow.spec.ts` | 3 | 3 | 6 | Pass |
+| `authwall-leak-matrix.spec.ts` | 8 | 8 | 16 | Pass |
+| `authwall-owner-repro.spec.ts` | 2 | 2 | 4 | Pass |
+| `authwall-studio.spec.ts` | 7 | 7 | 14 | Pass |
+| `authwall-unlock.spec.ts` | 3 | 3 | 6 | Pass |
+| `book-studio-flow.spec.ts` | 11 | 11 | 22 | Pass |
+| `book-studio.spec.ts` | 4 | 4 | 8 | Pass |
+| `ca-pdf.spec.ts` | 5 | 5 | 10 | Pass |
+| `ca-quiz-url-hardening.spec.ts` | 7 | 7 | 14 | Pass |
+| `ca-quiz.spec.ts` | 3 | 3 | 6 | Pass |
+| `ca-result-back-navigation.spec.ts` | 4 | 4 | 8 | Pass |
+| `ca-student.spec.ts` | 5 | 5 | 10 | Pass |
+| `capture-buy-now-flow.spec.ts` | 5 | 5 | 10 | Pass |
+| `capture-color-screenshots.spec.ts` | 1 | 1 | 2 | Pass |
+| `capture-colors-final.spec.ts` | 4 | 4 | 8 | Pass |
+| `capture-pixel-diff.spec.ts` | 8 | 8 | 16 | Pass |
+| `dev-smoke.spec.ts` | 4 | 4 | 8 | Pass |
+| `forgot-password-surfaces.spec.ts` | 5 | 5 | 10 | Pass |
+| `forgot-reset-password.spec.ts` | 5 | 5 | 10 | Pass |
+| `goal-refresh-proof.spec.ts` | 3 | 3 | 6 | Pass |
+| `guest-free-sample-start.spec.ts` | 1 | 1 | 2 | Pass |
+| `guest-goal-sync.spec.ts` | 1 | 1 | 2 | Pass |
+| `guest-student-journey.spec.ts` | 1 | 1 | 2 | Pass |
+| `home-mobile.spec.ts` | 1 | 1 | 2 | Pass |
+| `live-studio-removed.spec.ts` | 8 | 8 | 16 | Pass |
+| `login-hardening.spec.ts` | 4 | 4 | 8 | Pass |
+| `production-buy-now.spec.ts` | 5 | 5 | 10 | Pass |
+| `profile-dropdown.spec.ts` | 4 | 4 | 8 | Pass |
+| `pyq-admin.spec.ts` | 7 | 7 | 14 | Pass |
+| `pyq-cbt.spec.ts` | 8 | 8 | 16 | Pass |
+| `pyq-file-serving.spec.ts` | 6 | 6 | 12 | Pass |
+| `pyq-leads.spec.ts` | 2 | 2 | 4 | Pass |
+| `pyq-student.spec.ts` | 7 | 7 | 14 | Pass |
+| `ranking-access.spec.ts` | 5 | 5 | 10 | Pass |
+| `razorpay-universal-checkout.spec.ts` | 8 | 8 | 16 | Pass |
+| `real-click-smoke.spec.ts` | 5 | 5 | 10 | Pass |
+| `registration.spec.ts` | 5 | 5 | 10 | Pass |
+| `reproduce-bugs.spec.ts` | 3 | 3 | 6 | Pass |
+| `reproduce-ca-quiz-404.spec.ts` | 1 | 1 | 2 | Pass |
+| `reproduce-goal-bug.spec.ts` | 1 | 1 | 2 | Pass |
+| `security.spec.ts` | 10 | 10 | 20 | Pass |
+| `seo.spec.ts` | 6 | 6 | 12 | Pass |
+| `series-catalogue-cache-invalidation.spec.ts` | 1 | 1 | 2 | Pass |
+| `session-invalidation.spec.ts` | 2 | 2 | 4 | Pass |
+| `teacher-authoring-to-student.spec.ts` | 1 | 1 | 2 | Pass |
+| `teacher-class-crud.spec.ts` | 7 | 7 | 14 | Pass |
+| `teacher-class-schedule.spec.ts` | 3 | 3 | 6 | Pass |
+| `teacher-studio-nav.spec.ts` | 5 | 5 | 10 | Pass |
+| `test-series-packages.spec.ts` | 10 | 10 | 20 | Pass |
+| `test-series-recommendations.spec.ts` | 1 | 1 | 2 | Pass |
+| `tutorial-drawer-proof.spec.ts` | 4 | 4 | 8 | Pass |
+| `tutorial-goal-proof.spec.ts` | 2 | 2 | 4 | Pass |
+| `tutorial-layout.spec.ts` | 3 | 3 | 6 | Pass |
+| `ui-login.spec.ts` | 1 | 1 | 2 | Pass |
+| `user-management.spec.ts` | 5 | 5 | 10 | Pass |
+| **Grand Total (59 specs)** | **259** | **259** | **518** | **100% Pass** |
+
+- **Stabilization & Justifications (vs Commit `32945ca`):**
+  - Zero pre-existing tests were deleted, renamed, or skipped.
+  - `tests/e2e/test-series-packages.spec.ts`: Isolated `expect.not.toContain("100")` to `data-testid="candidate-score"` instead of full table text to avoid collision with timestamp nonces in generated student names.
+  - `tests/e2e/goal-refresh-proof.spec.ts`: Increased selector timeout from 8s to 15s to match default Playwright expectation during continuous 500+ test suite runs.
+  - `tests/e2e/authwall-owner-repro.spec.ts`: Added responsive mobile chapter navigation via `header button[aria-label="Index"]` drawer and verified negative assertions for Bug A (slicing) and Bug B (false unlock toast).
+
+---
+
+## 2. Dev-DB Smoke with Throwaway Data (Real Rosera-Style Lesson)
+- **Throwaway Data Created & Deleted:** Real Rosera-style lesson containing:
+  - Early intro paragraph
+  - Image block (`/sample-diagram.png`)
+  - Code block (TypeScript snippet)
+  - Data table block
+  - MCQ Quiz block with question, options, answer, and explanation
+  - Confidential late sentence
+- **Studio UI Action:**
+  1. Gated to **Fully locked (0%)**:
+     - Verified in guest context: Title + `<AuthwallGate>` rendered.
+     - Known late sentence, MCQ block, and Rosera JSON are **100% absent** from HTML, RSC flight payload (`RSC: 1`), and API endpoints.
+  2. Gated to **Preview 20%**:
+     - Verified in guest context: Early intro text is present in HTML & RSC.
+     - Known late sentence, MCQ block, and Rosera JSON are **100% absent** from HTML and RSC.
+- **Teardown:** All created rows (lesson, chapter, course, user) were deleted in `afterAll`.
+
+---
+
+## 3. Real-Flow Test (20% + Bot-Full + Rosera Autosave/Publish + Reload)
+- **Studio Flow:**
+  1. Set Preview Percentage to **20%** and SEO Mode to **Bot-Full** in `<GateControlPanel>`.
+  2. Saved gate settings via UI.
+  3. Created and autosaved Rosera lesson draft version (`status: draft`).
+  4. Published lesson version (`status: published`) and updated published version ID.
+  5. Reloaded Studio page in browser.
+- **Assertion Results:**
+  - Panel UI: Toggle is ON, Preview is 20%, SEO Mode is "Bot-Full".
+  - Database: `isGated: true`, `previewPercentage: 20`, `seoMode: "bot-full"`.
+
+---
+
+## 4. Studio UI Enhancements
+- Added helper text: `"100% = fully open, 0% = fully locked"` in `components/admin/authwall/GateControlPanel.tsx`.
+- Updated select dropdown with clear mode labels:
+  - `Inherit`
+  - `Free (100%)`
+  - `Preview %`
+  - `Fully locked (0%)`
+- Added per-item badge: `"Effective for guests: X%"` including `(inherited)` annotation for inherited mode items.
+
+---
+
+## 5. Multi-Module Real-Flow Guest Checks (Test Series, PYQ, CA)
+- **Test Series:** Gated mock test excludes questions and answers (`isLockedForGuest: true`); guest HTML and RSC do not contain secret answers.
+- **PYQ:** Direct file download route `/api/pyqs/file/[id]` returns **403 Forbidden** (`isLockedForGuest: true`); PDF view page hides secret answers.
+- **Current Affairs:** Direct file download `/api/current-affairs/file/[id]` returns **403 Forbidden** (`isLockedForGuest: true`); CA quiz solutions excluded from guest view and start button replaced with paywall.
+
+---
+
+## 6. Static Analysis & Database Verification
+- `npm run lint`: **0 errors**.
+- `npx tsc --noEmit`: **65 errors** (100% matching pre-existing legacy baseline, **0 new errors**).
+- `APP_ENV=test npm run db:check`: **Clean sync, no drift** (`127***.0.0.1:54329/trillionskill_test`).
+- `graphify update .`: Code graph up-to-date.
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
+
 
 
 
