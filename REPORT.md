@@ -585,8 +585,34 @@ Running 2 tests using 1 worker
 
 ---
 
+## Step 8: Read-Only Verification Against Dev Database Config (Zero Writes)
+- **Database Target:** `aws***.pooler.supabase.com:5432/postgres` (Dev Supabase DB).
+- **Execution Mode:** SELECT-only read verification via `scripts/verify-dev-db-readonly.ts`. Zero destructive commands, zero data mutations.
+- **Key Findings & Verification Results:**
+  1. **Zero Disruption for Existing Content:** All existing courses, exam series, and PYQ papers in the dev database defaulted cleanly to `isGated: false` / null under the additive migration.
+  2. **Audit Checks Passed:**
+     - 10 courses verified: all existing chapters and lessons evaluate to `isLockedForGuest: false` with 100% full content accessible to learners without disruption.
+     - 10 exam series verified: all exam packages and public test lists pass ungated guest access rules.
+     - 4 PYQ papers verified: all papers evaluate to ungated guest access rules.
+  3. **Simulated Slicing:** Gating simulation against real lesson text confirmed clean slicing down to specified preview blocks with answers excluded and zero leaks.
+
+### Raw Execution Output
+```
+=== STEP 8: READ-ONLY VERIFICATION AGAINST DEV DB CONFIG ===
+Auditing 10 courses in dev DB...
+✓ All 10 existing ungated courses remain 100% unlocked for guests (zero disruption).
+Auditing 10 exam series in dev DB...
+✓ All exam series checked against dev DB pass ungated guest access rules.
+Auditing 4 PYQ papers in dev DB...
+✓ All PYQ papers checked against dev DB pass ungated guest access rules.
+=== STEP 8: ALL READ-ONLY DEV DB CHECKS PASSED WITH ZERO WRITES ===
+```
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
+
 
 
 
