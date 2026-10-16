@@ -10,6 +10,8 @@ import { logContentAudit } from "@/lib/actions/admin/audit"
 const ChapterSchema = z.object({
     title: z.string().min(1, "Title is required"),
     description: z.string().optional(),
+    gateMode: z.enum(["inherit", "free", "preview", "locked"]).optional(),
+    previewPercentage: z.number().min(0).max(100).nullable().optional(),
 })
 
 async function revalidateCoursePages(courseId: string) {
@@ -23,13 +25,14 @@ async function revalidateCoursePages(courseId: string) {
         })
         if (course?.slug) {
             revalidatePath(`/courses/${course.slug}`)
+            revalidatePath(`/tutorials/${course.slug}`)
         }
     } catch (e) {
         console.warn("Failed to revalidate course slug path:", e)
     }
 }
 
-export async function createChapter(courseId: string, data: { title: string; description?: string }) {
+export async function createChapter(courseId: string, data: { title: string; description?: string; gateMode?: string; previewPercentage?: number | null }) {
     const session = await auth()
 
     if (!session || !canEditChapter(session.user)) {
@@ -49,6 +52,8 @@ export async function createChapter(courseId: string, data: { title: string; des
         data: {
             title: validated.title,
             description: validated.description,
+            gateMode: validated.gateMode || "inherit",
+            previewPercentage: validated.previewPercentage ?? null,
             courseId,
             order: (maxOrder?.order ?? -1) + 1,
         },
@@ -71,16 +76,36 @@ export async function createChapter(courseId: string, data: { title: string; des
     return chapter
 }
 
-export async function updateChapter(chapterId: string, data: { title?: string; description?: string }) {
+export async function updateChapter(
+    chapterId: string,
+    data: { title?: string; description?: string; gateMode?: string; previewPercentage?: number | null }
+) {
     const session = await auth()
 
     if (!session || !canEditChapter(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to update chapter")
     }
 
+    // Validate fields if provided
+    const updatePayload: Record<string, any> = {}
+    if (data.title !== undefined) updatePayload.title = data.title
+    if (data.description !== undefined) updatePayload.description = data.description
+    if (data.gateMode !== undefined) {
+        const raw = String(data.gateMode).toLowerCase()
+        if (["inherit", "free", "preview", "locked"].includes(raw)) {
+            updatePayload.gateMode = raw
+        }
+    }
+    if (data.previewPercentage !== undefined) {
+        updatePayload.previewPercentage =
+            data.previewPercentage === null
+                ? null
+                : Math.max(0, Math.min(100, Math.round(data.previewPercentage)))
+    }
+
     const chapter = await prisma.chapter.update({
         where: { id: chapterId },
-        data,
+        data: updatePayload,
         include: {
             lessons: {
                 orderBy: { order: "asc" },
@@ -94,10 +119,50 @@ export async function updateChapter(chapterId: string, data: { title?: string; d
         entityId: chapter.id,
         entityType: "CHAPTER",
         action: "UPDATE",
-        details: data,
+        details: updatePayload,
     })
 
     return chapter
+}
+
+export async function updateChaptersGateMode(
+    courseId: string,
+    chapterIds: string[],
+    gateMode: "inherit" | "free" | "preview" | "locked",
+    previewPercentage?: number | null
+) {
+    const session = await auth()
+
+    if (!session || !canEditChapter(session.user)) {
+        throw new Error("Unauthorized: Insufficient permissions to update chapters")
+    }
+
+    const cleanPercentage =
+        previewPercentage === null || previewPercentage === undefined
+            ? null
+            : Math.max(0, Math.min(100, Math.round(previewPercentage)))
+
+    await prisma.chapter.updateMany({
+        where: {
+            id: { in: chapterIds },
+            courseId,
+        },
+        data: {
+            gateMode,
+            previewPercentage: cleanPercentage,
+        },
+    })
+
+    await revalidateCoursePages(courseId)
+
+    await logContentAudit({
+        entityId: courseId,
+        entityType: "COURSE",
+        action: "UPDATE",
+        details: { bulkGateMode: gateMode, chapterIds, previewPercentage: cleanPercentage },
+    })
+
+    return { success: true }
 }
 
 export async function deleteChapter(chapterId: string) {

@@ -53,6 +53,11 @@ export interface CreatePaperInput {
   cbtTestId?: string
   hasCbtMode?: boolean
   status?: "DRAFT" | "IN_REVIEW" | "PUBLISHED" | "ARCHIVED"
+  isGated?: boolean
+  previewPercentage?: number
+  seoMode?: "preview" | "bot-full"
+  gateTitle?: string | null
+  gateSubtitle?: string | null
 }
 
 export interface UpdatePaperInput extends Partial<CreatePaperInput> {
@@ -489,6 +494,11 @@ export async function updatePaper(input: UpdatePaperInput) {
   if (input.cbtTestId !== undefined) data.cbtTestId = input.cbtTestId || null
   if (input.hasCbtMode !== undefined) data.hasCbtMode = input.hasCbtMode
   if (input.status !== undefined) data.status = input.status
+  if (input.isGated !== undefined) data.isGated = input.isGated
+  if (input.previewPercentage !== undefined) data.previewPercentage = Math.max(0, Math.min(100, Math.round(Number(input.previewPercentage))))
+  if (input.seoMode !== undefined) data.seoMode = input.seoMode
+  if (input.gateTitle !== undefined) data.gateTitle = input.gateTitle
+  if (input.gateSubtitle !== undefined) data.gateSubtitle = input.gateSubtitle
 
   const updated = await prisma.pyqPaper.update({
     where: { id: input.id },

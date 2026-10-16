@@ -18,6 +18,7 @@
     "test:e2e:canary": "APP_ENV=test BASE_URL=http://127.0.0.1:3045 npx playwright test --project=canary",
     "test:e2e:real-catalogue": "npx tsx scripts/reset-test-catalogue.ts && CATALOGUE_CASE=empty BASE_URL=http://127.0.0.1:3045 npx playwright test --project=real-catalogue-desktop --project=real-catalogue-mobile",
     "test:e2e:dev-smoke": "DEV_SMOKE=1 BASE_URL=http://127.0.0.1:3045 npx playwright test tests/e2e/dev-smoke.spec.ts",
+    "content:chunk": "tsx scripts/content-chunk.ts",
     "perf:check": "tsx scripts/perf-check.ts"
   },
   "dependencies": {

@@ -16,6 +16,8 @@ import { CodecademyContentRenderer } from "@/components/editor/CodecademyContent
 import { UniversalEditor } from "@/components/editor/UniversalEditor"
 import { TutorialImportModal } from "@/components/editor/TutorialImportModal"
 import { updateCourseDraft } from "@/lib/actions/admin/courses"
+import { updateChapter, updateChaptersGateMode } from "@/lib/actions/admin/chapters"
+import { GateControlPanel } from "@/components/admin/authwall/GateControlPanel"
 import { publishCourse, unpublishCourse } from "@/lib/actions/admin/publishing"
 import { Edit2, Check, Loader2, ArrowLeft, ExternalLink, CheckCircle2, XCircle, Video, Sparkles } from "lucide-react"
 
@@ -47,6 +49,11 @@ export default function CourseEditClient({
     const [editDifficulty, setEditDifficulty] = useState(course.difficulty || "BEGINNER")
     const [editTechnology, setEditTechnology] = useState(course.technology || "")
     const [editIsPremium, setEditIsPremium] = useState(course.isPremium || false)
+    const [isGated, setIsGated] = useState<boolean>(course.isGated ?? false)
+    const [previewPercentage, setPreviewPercentage] = useState<number>(course.previewPercentage ?? 20)
+    const [seoMode, setSeoMode] = useState<"preview" | "bot-full">((course.seoMode as any) || "preview")
+    const [gateTitle, setGateTitle] = useState<string>(course.gateTitle || "")
+    const [gateSubtitle, setGateSubtitle] = useState<string>(course.gateSubtitle || "")
     const [currentStatus, setCurrentStatus] = useState<string>(course.status || "DRAFT")
     const [editStatus, setEditStatus] = useState<string>(course.status || "DRAFT")
     const [isTogglingPublish, setIsTogglingPublish] = useState(false)
@@ -87,6 +94,11 @@ export default function CourseEditClient({
                 technology: editTechnology,
                 isPremium: editIsPremium,
                 status: editStatus,
+                isGated,
+                previewPercentage,
+                seoMode,
+                gateTitle: gateTitle || null,
+                gateSubtitle: gateSubtitle || null,
             })
             setCurrentStatus(editStatus)
             setIsEditingInfo(false)
@@ -95,6 +107,72 @@ export default function CourseEditClient({
             alert(err.message || "Failed to update course details")
         } finally {
             setIsSavingInfo(false)
+        }
+    }
+
+    const handleGateChange = async (updated: any) => {
+        const nextIsGated = updated.isGated !== undefined ? updated.isGated : isGated
+        const nextPct = updated.previewPercentage !== undefined ? updated.previewPercentage : previewPercentage
+        const nextSeo = updated.seoMode !== undefined ? updated.seoMode : seoMode
+        const nextTitle = updated.gateTitle !== undefined ? updated.gateTitle : gateTitle
+        const nextSubtitle = updated.gateSubtitle !== undefined ? updated.gateSubtitle : gateSubtitle
+
+        setIsGated(nextIsGated)
+        setPreviewPercentage(nextPct)
+        setSeoMode(nextSeo)
+        setGateTitle(nextTitle)
+        setGateSubtitle(nextSubtitle)
+
+        try {
+            await updateCourseDraft(course.id, {
+                isGated: nextIsGated,
+                previewPercentage: nextPct,
+                seoMode: nextSeo,
+                gateTitle: nextTitle || null,
+                gateSubtitle: nextSubtitle || null,
+            })
+            router.refresh()
+        } catch (err: any) {
+            console.error("Failed saving gate settings:", err)
+        }
+    }
+
+    const handleUpdateChapterGate = async (chapterId: string, gate: any) => {
+        try {
+            await updateChapter(chapterId, {
+                gateMode: gate.gateMode,
+                previewPercentage: gate.previewPercentage,
+            })
+            setChapters((prev: any[]) =>
+                prev.map((c) =>
+                    c.id === chapterId
+                        ? { ...c, gateMode: gate.gateMode, previewPercentage: gate.previewPercentage }
+                        : c
+                )
+            )
+            router.refresh()
+        } catch (e: any) {
+            alert(e.message || "Failed updating chapter gate mode")
+        }
+    }
+
+    const handleBulkUpdateChapters = async (
+        chapterIds: string[],
+        gateMode: "inherit" | "free" | "preview" | "locked",
+        pct?: number | null
+    ) => {
+        try {
+            await updateChaptersGateMode(course.id, chapterIds, gateMode, pct)
+            setChapters((prev: any[]) =>
+                prev.map((c) =>
+                    chapterIds.includes(c.id)
+                        ? { ...c, gateMode, previewPercentage: pct }
+                        : c
+                )
+            )
+            router.refresh()
+        } catch (e: any) {
+            alert(e.message || "Failed bulk updating chapters")
         }
     }
 
@@ -266,6 +344,23 @@ export default function CourseEditClient({
                 </div>
             </div>
 
+            {/* Centralized Authwall Gate Controls */}
+            <GateControlPanel
+                gate={{
+                    isGated,
+                    previewPercentage,
+                    seoMode,
+                    gateTitle,
+                    gateSubtitle,
+                }}
+                onChange={handleGateChange}
+                items={chapters.map((c: any) => ({
+                    gateMode: c.gateMode || "inherit",
+                    previewPercentage: c.previewPercentage,
+                }))}
+                moduleName="Tutorial Studio"
+            />
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Sidebar - Course Structure */}
                 <div className="lg:col-span-1">
@@ -278,6 +373,10 @@ export default function CourseEditClient({
                                 onSelect={handleSelect}
                                 onAddChapter={handleAddChapter}
                                 onAddLesson={handleAddLesson}
+                                onUpdateChapterGate={handleUpdateChapterGate}
+                                onBulkUpdateChapters={handleBulkUpdateChapters}
+                                isCourseGated={isGated}
+                                coursePreviewPercentage={previewPercentage}
                             />
                         </CardContent>
                     </Card>

@@ -21,6 +21,11 @@ export interface PackageSummary {
   category: string
   examName: string | null
   isPublished: boolean
+  isGated?: boolean
+  previewPercentage?: number
+  seoMode?: string
+  gateTitle?: string | null
+  gateSubtitle?: string | null
   createdById: string | null
   createdAt: string
   metrics: PackageMetrics
@@ -33,6 +38,8 @@ export interface PackageTestItem {
   durationMinutes: number
   totalMarks: number
   isPublished: boolean
+  gateMode?: string
+  previewPercentage?: number | null
   attemptsCount: number
   avgScore: number
   topRanks: {
@@ -256,6 +263,11 @@ export async function getExamPackageDetail({
       category: true,
       examName: true,
       isPublished: true,
+      isGated: true,
+      previewPercentage: true,
+      seoMode: true,
+      gateTitle: true,
+      gateSubtitle: true,
       createdById: true,
       createdAt: true,
     },
@@ -280,6 +292,8 @@ export async function getExamPackageDetail({
       durationMinutes: true,
       totalMarks: true,
       isPublished: true,
+      gateMode: true,
+      previewPercentage: true,
       _count: {
         select: {
           attempts: {
@@ -318,6 +332,8 @@ export async function getExamPackageDetail({
       durationMinutes: t.durationMinutes,
       totalMarks: t.totalMarks,
       isPublished: t.isPublished,
+      gateMode: t.gateMode,
+      previewPercentage: t.previewPercentage,
       attemptsCount: t._count.attempts,
       avgScore,
       topRanks,
@@ -334,10 +350,97 @@ export async function getExamPackageDetail({
       category: series.category,
       examName: series.examName,
       isPublished: series.isPublished,
+      isGated: series.isGated,
+      previewPercentage: series.previewPercentage,
+      seoMode: series.seoMode,
+      gateTitle: series.gateTitle,
+      gateSubtitle: series.gateSubtitle,
       createdById: series.createdById,
       createdAt: series.createdAt.toISOString(),
       metrics,
       tests,
     },
   }
+}
+
+export async function updateExamPackageGate({
+  packageIdOrSlug,
+  userId,
+  role,
+  data,
+}: {
+  packageIdOrSlug: string
+  userId: string
+  role: string
+  data: {
+    isGated?: boolean
+    previewPercentage?: number
+    seoMode?: "preview" | "bot-full" | string
+    gateTitle?: string | null
+    gateSubtitle?: string | null
+    tests?: { id: string; gateMode: string; previewPercentage?: number | null }[]
+  }
+}): Promise<{ status: 200 | 400 | 403 | 404; data?: any; error?: string }> {
+  const series = await prisma.examSeries.findFirst({
+    where: {
+      OR: [{ id: packageIdOrSlug }, { slug: packageIdOrSlug }],
+    },
+    select: { id: true, slug: true, createdById: true },
+  })
+
+  if (!series) {
+    return { status: 404, error: "Package not found" }
+  }
+
+  if (role !== "ADMIN" && series.createdById !== userId) {
+    return { status: 403, error: "Forbidden: You do not have permission to edit this package" }
+  }
+
+  // Update Series gate fields
+  const seriesUpdate: Record<string, any> = {}
+  if (data.isGated !== undefined) seriesUpdate.isGated = Boolean(data.isGated)
+  if (data.previewPercentage !== undefined) {
+    seriesUpdate.previewPercentage = Math.max(0, Math.min(100, Math.round(Number(data.previewPercentage) || 20)))
+  }
+  if (data.seoMode !== undefined) {
+    seriesUpdate.seoMode = String(data.seoMode).toLowerCase() === "bot-full" ? "bot-full" : "preview"
+  }
+  if (data.gateTitle !== undefined) seriesUpdate.gateTitle = data.gateTitle || null
+  if (data.gateSubtitle !== undefined) seriesUpdate.gateSubtitle = data.gateSubtitle || null
+
+  const updatedSeries = await prisma.$transaction(async (tx) => {
+    let s = series
+    if (Object.keys(seriesUpdate).length > 0) {
+      s = await tx.examSeries.update({
+        where: { id: series.id },
+        data: seriesUpdate,
+        select: { id: true, slug: true, createdById: true },
+      })
+    }
+
+    if (Array.isArray(data.tests)) {
+      for (const t of data.tests) {
+        if (!t.id) continue
+        const testMode = ["inherit", "free", "preview", "locked"].includes(String(t.gateMode).toLowerCase())
+          ? String(t.gateMode).toLowerCase()
+          : "inherit"
+        const testPct =
+          t.previewPercentage === null || t.previewPercentage === undefined
+            ? null
+            : Math.max(0, Math.min(100, Math.round(Number(t.previewPercentage))))
+
+        await tx.examTest.updateMany({
+          where: { id: t.id, seriesId: series.id },
+          data: {
+            gateMode: testMode,
+            previewPercentage: testPct,
+          },
+        })
+      }
+    }
+
+    return s
+  })
+
+  return { status: 200, data: updatedSeries }
 }

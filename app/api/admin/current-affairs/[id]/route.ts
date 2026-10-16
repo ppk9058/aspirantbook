@@ -97,9 +97,20 @@ export async function PUT(
       pdfUrlHi,
       fileSizeKbEn,
       fileSizeKbHi,
+      isGated,
+      previewPercentage,
+      seoMode,
+      gateTitle,
+      gateSubtitle,
     } = body
 
     const updateData: any = {}
+
+    if (isGated !== undefined) updateData.isGated = Boolean(isGated)
+    if (previewPercentage !== undefined) updateData.previewPercentage = Math.max(0, Math.min(100, Math.round(Number(previewPercentage))))
+    if (seoMode !== undefined) updateData.seoMode = seoMode === "bot-full" ? "bot-full" : "preview"
+    if (gateTitle !== undefined) updateData.gateTitle = gateTitle ? String(gateTitle).trim() : null
+    if (gateSubtitle !== undefined) updateData.gateSubtitle = gateSubtitle ? String(gateSubtitle).trim() : null
 
     if (title !== undefined) {
       if (typeof title !== "string" || !title.trim()) {

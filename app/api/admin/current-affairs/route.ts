@@ -86,6 +86,11 @@ export async function POST(request: NextRequest) {
       pdfUrlHi,
       fileSizeKbEn,
       fileSizeKbHi,
+      isGated,
+      previewPercentage,
+      seoMode,
+      gateTitle,
+      gateSubtitle,
     } = body
 
     if (!title || typeof title !== "string" || !title.trim()) {
@@ -126,6 +131,11 @@ export async function POST(request: NextRequest) {
         fileSizeKbHi: fileSizeKbHi ? Number(fileSizeKbHi) : null,
         status: initialStatus,
         createdById: user.userId,
+        isGated: Boolean(isGated),
+        previewPercentage: previewPercentage !== undefined ? Math.max(0, Math.min(100, Math.round(Number(previewPercentage)))) : 20,
+        seoMode: seoMode === "bot-full" ? "bot-full" : "preview",
+        gateTitle: gateTitle ? String(gateTitle).trim() : null,
+        gateSubtitle: gateSubtitle ? String(gateSubtitle).trim() : null,
       },
       include: {
         createdBy: {

@@ -92,3 +92,55 @@ All gate controls must be implemented **strictly inside these existing studios**
 - **Current Affairs Quizzes:** Linked directly with `ExamTest` records with `testType: "CURRENT_AFFAIRS"` under `current-affairs-system-series`.
 
 ---
+
+## Step 1: Data Model and Two-Level Studio Controls
+
+### 1. Schema Additions (Additive Only)
+- **Level 1 Models (`Course`, `ExamSeries`, `PyqPaper`, `CurrentAffairsPdf`):**
+  - `isGated` (Boolean, default `false`)
+  - `previewPercentage` (Int, default `20`)
+  - `seoMode` (String, default `"preview"`, values `"preview"` | `"bot-full"`)
+  - `gateTitle` (String, nullable)
+  - `gateSubtitle` (String, nullable)
+- **Level 2 Models (`Chapter`, `ExamTest`):**
+  - `gateMode` (String, default `"inherit"`, values `"inherit"` | `"free"` | `"preview"` | `"locked"`)
+  - `previewPercentage` (Int, nullable, used when `gateMode = "preview"`)
+- **Pre-chunking & Integrity Fields (`Lesson`, `ExamTest`, `PyqPaper`, `CurrentAffairsPdf`):**
+  - `blockCount` (Int, nullable)
+  - `contentHash` (String, nullable)
+
+### 2. Migration & Backfill
+- **Migration:** `prisma/migrations/20261016070000_add_authwall_gate_controls/migration.sql`
+- **Application:** Applied cleanly to Docker test database (`127.0.0.1:54329/trillionskill_test`) and verified via `npm run db:check`.
+- **Pre-chunker:** `lib/authwall/chunker.ts` with HTML-safe DOM block splitter (never cuts tags or code blocks), JSON question chunker, SHA-256 content hashing, and SEO diagnostics (word count + heading check).
+- **Backfill Script:** `scripts/content-chunk.ts` executable via `npm run content:chunk`. Tested and verified 100% idempotent (0 items on repeated run).
+
+### 3. Studio UI Controls Inside Existing Studios
+- **Reusable Studio Controls:**
+  - `components/admin/authwall/GateControlPanel.tsx`: Course/Series level panel with Enable toggle, preview slider + number input, seoMode select with descriptive SEO help, summary badges, and live crawler preview diagnostics.
+  - `components/admin/authwall/ItemGateRowControl.tsx`: Per-item compact selector (Inherit / Free / Preview % / Locked) with status badge.
+  - `components/admin/authwall/BulkGateActionBar.tsx`: Bulk multi-select action bar (Set Free, Set Locked, Set Preview %, Reset to Inherit, Make First N items Free).
+- **Integrated Studios:**
+  1. **Tutorial Studio (`CourseEditClient.tsx` & `ChapterList.tsx`):**
+     - Course-level gate panel in course settings.
+     - Per-chapter gate row control and bulk gate action bar.
+     - Persists through `updateCourseDraft` and `updateChaptersGateMode` in `lib/actions/admin/chapters.ts`.
+  2. **Test Series Studio (`PackageDetailView.tsx`):**
+     - Series-level gate panel in package edit view.
+     - Per-test gate row control and bulk gate action bar.
+     - Persists through `PATCH /api/exam/series/packages/[id]` and `updateExamPackageGate` in `lib/exam-packages.ts`.
+  3. **PYQ Studio (`PyqPapersListClient.tsx`):**
+     - GateControlPanel inside paper edit modal.
+     - Gate status badge in paper table rows.
+     - Persists through `PUT /api/admin/pyqs/papers/[id]` and `updatePaper` in `lib/pyqs-service.ts`.
+  4. **Current Affairs & Quiz Studio (`CurrentAffairsStudioClient.tsx`):**
+     - GateControlPanel inside monthly digest creation and edit modals.
+     - Gate status badge in digest list.
+     - Persists through `POST /api/admin/current-affairs` and `PUT /api/admin/current-affairs/[id]`.
+
+### 4. Verification
+- `npm run db:check`: Exit 0 (all 8 Authwall columns verified in sync with no drift).
+- `npm run content:chunk`: Exit 0 (151 lessons and 8 tests chunked; 0 on replay).
+- `npx tsc --noEmit`: 65 legacy errors in 16 files (baseline preserved; 0 errors in touched code).
+
+---

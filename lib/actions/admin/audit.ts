@@ -14,7 +14,15 @@ export type AuditAction =
     | "REORDER"
     | "RESTORE_VERSION"
 
-export type AuditEntityType = "COURSE" | "CHAPTER" | "LESSON" | "ARTICLE"
+export type AuditEntityType =
+    | "COURSE"
+    | "CHAPTER"
+    | "LESSON"
+    | "ARTICLE"
+    | "EXAM_SERIES"
+    | "EXAM_TEST"
+    | "PYQ_PAPER"
+    | "CURRENT_AFFAIRS"
 
 export interface ContentAuditEvent {
     entityId: string

@@ -1016,6 +1016,8 @@ export async function importTutorialPackage(
                   type: "READING",
                   locked: false,
                   schemaVersion: 1,
+                  blockCount: Array.isArray(incomingBlocks) ? incomingBlocks.length : 0,
+                  contentHash: incomingHash,
                 },
               })
 

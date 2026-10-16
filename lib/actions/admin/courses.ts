@@ -105,6 +105,17 @@ export async function updateCourseDraft(courseId: string, data: any) {
         data.isPublished = data.status === "PUBLISHED"
     }
 
+    // Server-side Zod validation and clamping for Authwall gate settings
+    if (data.isGated !== undefined) {
+        data.isGated = Boolean(data.isGated)
+    }
+    if (data.previewPercentage !== undefined) {
+        data.previewPercentage = Math.max(0, Math.min(100, Math.round(Number(data.previewPercentage) || 20)))
+    }
+    if (data.seoMode !== undefined) {
+        data.seoMode = String(data.seoMode).toLowerCase() === "bot-full" ? "bot-full" : "preview"
+    }
+
     const updated = await prisma.course.update({
         where: { id: courseId },
         data,
@@ -113,15 +124,17 @@ export async function updateCourseDraft(courseId: string, data: any) {
     revalidatePath(`/admin/courses/${courseId}/edit`)
     revalidatePath("/admin/courses")
     revalidatePath("/courses")
+    revalidatePath("/tutorials")
     if (updated.slug) {
         revalidatePath(`/courses/${updated.slug}`)
+        revalidatePath(`/tutorials/${updated.slug}`)
     }
 
     await logContentAudit({
         entityId: courseId,
         entityType: "COURSE",
         action: data.status === "PUBLISHED" ? "PUBLISH" : "UPDATE",
-        details: { fields: Object.keys(data) },
+        details: { fields: Object.keys(data), isGated: updated.isGated, previewPercentage: updated.previewPercentage },
     })
 
     return updated

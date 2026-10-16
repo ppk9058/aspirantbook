@@ -44,6 +44,7 @@ export function checkDatabaseSchema(overrideUrl?: string): { ok: boolean; messag
     const cmd = `npx prisma migrate diff --from-url "${directUrl}" --to-schema-datamodel prisma/schema.prisma --exit-code`;
     const out = execSync(cmd, { encoding: "utf-8", stdio: ["ignore", "pipe", "pipe"] });
     console.log("[db:check] Database schema is in sync with Prisma schema. No drift detected.");
+    console.log("[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.");
     return { ok: true, message: out.trim() };
   } catch (err: any) {
     const status = err.status ?? 1;

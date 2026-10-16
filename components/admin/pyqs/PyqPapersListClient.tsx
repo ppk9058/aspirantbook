@@ -20,6 +20,7 @@ import {
   X,
   Upload,
 } from "lucide-react"
+import { GateControlPanel } from "@/components/admin/authwall/GateControlPanel"
 
 interface Paper {
   id: string
@@ -41,6 +42,11 @@ interface Paper {
   category: { name: string; slug: string; badgeColor?: string | null }
   subExam?: { name: string; slug: string } | null
   _count: { leads: number; unlocks: number }
+  isGated?: boolean
+  previewPercentage?: number
+  seoMode?: "preview" | "bot-full"
+  gateTitle?: string | null
+  gateSubtitle?: string | null
 }
 
 interface Category {
@@ -80,6 +86,11 @@ export function PyqPapersListClient({
   const [editStage, setEditStage] = useState("PRELIMS")
   const [editCbtTestId, setEditCbtTestId] = useState("")
   const [editHasCbtMode, setEditHasCbtMode] = useState(false)
+  const [editIsGated, setEditIsGated] = useState(false)
+  const [editPreviewPercentage, setEditPreviewPercentage] = useState(20)
+  const [editSeoMode, setEditSeoMode] = useState<"preview" | "bot-full">("preview")
+  const [editGateTitle, setEditGateTitle] = useState("")
+  const [editGateSubtitle, setEditGateSubtitle] = useState("")
   const [isSavingEdit, setIsSavingEdit] = useState(false)
   const [isUploadingReplace, setIsUploadingReplace] = useState(false)
   const [isUploadingSolution, setIsUploadingSolution] = useState(false)
@@ -93,6 +104,11 @@ export function PyqPapersListClient({
     setEditStage(paper.stage)
     setEditCbtTestId(paper.cbtTestId || "")
     setEditHasCbtMode(paper.hasCbtMode || false)
+    setEditIsGated(paper.isGated ?? false)
+    setEditPreviewPercentage(paper.previewPercentage ?? 20)
+    setEditSeoMode(paper.seoMode ?? "preview")
+    setEditGateTitle(paper.gateTitle || "")
+    setEditGateSubtitle(paper.gateSubtitle || "")
   }
 
   const handleTogglePublish = async (paper: Paper) => {
@@ -138,6 +154,11 @@ export function PyqPapersListClient({
           stage: editStage,
           hasCbtMode: editHasCbtMode,
           cbtTestId: editCbtTestId.trim() || null,
+          isGated: editIsGated,
+          previewPercentage: editPreviewPercentage,
+          seoMode: editSeoMode,
+          gateTitle: editGateTitle.trim() || null,
+          gateSubtitle: editGateSubtitle.trim() || null,
         }),
       })
       if (!res.ok) {
@@ -438,6 +459,12 @@ export function PyqPapersListClient({
                         </span>
                       )}
                     </div>
+                    {paper.isGated && (
+                      <div className="flex items-center gap-1 text-[11px] text-purple-700 font-semibold mt-1">
+                        <Lock className="w-3 h-3 text-purple-600" />
+                        Gated ({paper.previewPercentage ?? 20}%)
+                      </div>
+                    )}
                     {paper.hasCbtMode && (
                       <div className="flex items-center gap-1 text-[11px] text-indigo-600 font-semibold mt-1">
                         <Zap className="w-3 h-3 text-indigo-500" />
@@ -623,6 +650,27 @@ export function PyqPapersListClient({
                     />
                   </div>
                 )}
+              </div>
+
+              {/* Centralized Gate Control */}
+              <div className="pt-2 border-t border-gray-100">
+                <GateControlPanel
+                  gate={{
+                    isGated: editIsGated,
+                    previewPercentage: editPreviewPercentage,
+                    seoMode: editSeoMode,
+                    gateTitle: editGateTitle,
+                    gateSubtitle: editGateSubtitle,
+                  }}
+                  onChange={(patch) => {
+                    if (patch.isGated !== undefined) setEditIsGated(patch.isGated)
+                    if (patch.previewPercentage !== undefined) setEditPreviewPercentage(patch.previewPercentage)
+                    if (patch.seoMode !== undefined) setEditSeoMode(patch.seoMode)
+                    if (patch.gateTitle !== undefined) setEditGateTitle(patch.gateTitle)
+                    if (patch.gateSubtitle !== undefined) setEditGateSubtitle(patch.gateSubtitle)
+                  }}
+                  moduleName="PYQ Paper"
+                />
               </div>
 
               {/* Replace Files */}

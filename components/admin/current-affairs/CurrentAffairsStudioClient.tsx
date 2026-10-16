@@ -20,7 +20,9 @@ import {
   Calendar,
   Globe,
   Loader2,
+  Lock,
 } from "lucide-react"
+import { GateControlPanel } from "@/components/admin/authwall/GateControlPanel"
 
 const MONTHS = [
   "January",
@@ -57,6 +59,11 @@ export interface CurrentAffairsPdfItem {
   } | null
   createdAt: string | Date
   updatedAt: string | Date
+  isGated?: boolean
+  previewPercentage?: number
+  seoMode?: "preview" | "bot-full"
+  gateTitle?: string | null
+  gateSubtitle?: string | null
 }
 
 interface Props {
@@ -97,6 +104,11 @@ export function CurrentAffairsStudioClient({
   const [formMonth, setFormMonth] = useState<number>(new Date().getMonth() + 1)
   const [formYear, setFormYear] = useState<number>(new Date().getFullYear())
   const [formStatus, setFormStatus] = useState<"DRAFT" | "PUBLISHED">("PUBLISHED")
+  const [formIsGated, setFormIsGated] = useState(false)
+  const [formPreviewPercentage, setFormPreviewPercentage] = useState(20)
+  const [formSeoMode, setFormSeoMode] = useState<"preview" | "bot-full">("preview")
+  const [formGateTitle, setFormGateTitle] = useState("")
+  const [formGateSubtitle, setFormGateSubtitle] = useState("")
 
   // Uploading state for PDFs
   const [enPdfUrl, setEnPdfUrl] = useState<string | null>(null)
@@ -131,6 +143,11 @@ export function CurrentAffairsStudioClient({
     setFormMonth(new Date().getMonth() + 1)
     setFormYear(new Date().getFullYear())
     setFormStatus("PUBLISHED")
+    setFormIsGated(false)
+    setFormPreviewPercentage(20)
+    setFormSeoMode("preview")
+    setFormGateTitle("")
+    setFormGateSubtitle("")
     setEnPdfUrl(null)
     setHiPdfUrl(null)
     setEnFileSizeKb(null)
@@ -146,6 +163,11 @@ export function CurrentAffairsStudioClient({
     setFormMonth(item.month)
     setFormYear(item.year)
     setFormStatus(item.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT")
+    setFormIsGated(item.isGated ?? false)
+    setFormPreviewPercentage(item.previewPercentage ?? 20)
+    setFormSeoMode(item.seoMode ?? "preview")
+    setFormGateTitle(item.gateTitle || "")
+    setFormGateSubtitle(item.gateSubtitle || "")
     setEnPdfUrl(item.pdfUrlEn || null)
     setHiPdfUrl(item.pdfUrlHi || null)
     setEnFileSizeKb(item.fileSizeKbEn || null)
@@ -221,6 +243,11 @@ export function CurrentAffairsStudioClient({
             pdfUrlHi: hiPdfUrl,
             fileSizeKbEn: enFileSizeKb,
             fileSizeKbHi: hiFileSizeKb,
+            isGated: formIsGated,
+            previewPercentage: formPreviewPercentage,
+            seoMode: formSeoMode,
+            gateTitle: formGateTitle.trim() || null,
+            gateSubtitle: formGateSubtitle.trim() || null,
           }),
         })
 
@@ -244,6 +271,11 @@ export function CurrentAffairsStudioClient({
             pdfUrlHi: hiPdfUrl,
             fileSizeKbEn: enFileSizeKb,
             fileSizeKbHi: hiFileSizeKb,
+            isGated: formIsGated,
+            previewPercentage: formPreviewPercentage,
+            seoMode: formSeoMode,
+            gateTitle: formGateTitle.trim() || null,
+            gateSubtitle: formGateSubtitle.trim() || null,
           }),
         })
 
@@ -510,6 +542,12 @@ export function CurrentAffairsStudioClient({
                           </>
                         )}
                       </button>
+                      {item.isGated && (
+                        <div className="flex items-center gap-1 text-[11px] text-purple-700 dark:text-purple-300 font-semibold mt-1">
+                          <Lock className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                          Gated ({item.previewPercentage ?? 20}%)
+                        </div>
+                      )}
                     </td>
                     {userRole === "ADMIN" && (
                       <td className="py-3.5 px-4 whitespace-nowrap text-xs text-muted-foreground">
@@ -696,6 +734,27 @@ export function CurrentAffairsStudioClient({
                     {isUploadingHi && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
                   </div>
                 </div>
+              </div>
+
+              {/* Centralized Gate Control */}
+              <div className="pt-2 border-t border-border">
+                <GateControlPanel
+                  gate={{
+                    isGated: formIsGated,
+                    previewPercentage: formPreviewPercentage,
+                    seoMode: formSeoMode,
+                    gateTitle: formGateTitle,
+                    gateSubtitle: formGateSubtitle,
+                  }}
+                  onChange={(patch) => {
+                    if (patch.isGated !== undefined) setFormIsGated(patch.isGated)
+                    if (patch.previewPercentage !== undefined) setFormPreviewPercentage(patch.previewPercentage)
+                    if (patch.seoMode !== undefined) setFormSeoMode(patch.seoMode)
+                    if (patch.gateTitle !== undefined) setFormGateTitle(patch.gateTitle)
+                    if (patch.gateSubtitle !== undefined) setFormGateSubtitle(patch.gateSubtitle)
+                  }}
+                  moduleName="Current Affairs"
+                />
               </div>
 
               {/* Status */}
