@@ -132,7 +132,37 @@ export default async function TestSeriesDetailPage({ params, searchParams }: Tes
         tags: [fullSeries.category.toLowerCase()],
         isFree: fullSeries.isFree ?? false,
         isPro: fullSeries.isPro ?? false,
+        isGated: Boolean(fullSeries.isGated),
+        previewPercentage: fullSeries.previewPercentage ?? 20,
+        seoMode: fullSeries.seoMode ?? "preview",
+        gateTitle: fullSeries.gateTitle,
+        gateSubtitle: fullSeries.gateSubtitle,
     }
 
-    return <TestSeriesDetailClient initialSeries={initialSeries} />
+    const jsonLd = fullSeries.isGated
+        ? {
+              "@context": "https://schema.org",
+              "@type": "Course",
+              name: fullSeries.title,
+              description: cleanDescription,
+              isAccessibleForFree: false,
+              hasPart: {
+                  "@type": "WebPageElement",
+                  isAccessibleForFree: false,
+                  cssSelector: "[role='region'][aria-label='Content Gate']",
+              },
+          }
+        : null
+
+    return (
+        <>
+            {jsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+            )}
+            <TestSeriesDetailClient initialSeries={initialSeries} />
+        </>
+    )
 }

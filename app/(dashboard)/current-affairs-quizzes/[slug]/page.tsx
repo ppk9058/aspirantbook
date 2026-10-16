@@ -15,6 +15,11 @@ import {
   Languages,
 } from "lucide-react"
 import { TestActionButton } from "@/components/test-series/TestActionButton"
+import { headers } from "next/headers"
+import { resolveAccess } from "@/lib/authwall/resolveAccess"
+import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify"
+import { AuthwallGate } from "@/components/authwall/AuthwallGate"
+import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
 
 export const dynamic = "force-dynamic"
 
@@ -73,6 +78,25 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
     process.env.NEXT_PUBLIC_SITE_URL ||
     "https://aspirantbook.com"
 
+  const headersList = await headers()
+  const isBot = await isVerifiedSearchEngineCrawler(headersList)
+  const allQuestions = (quiz.sections || []).flatMap((s: any) => s.questions || [])
+
+  const access = resolveAccess({
+    viewer: {
+      userId: session?.user?.id || null,
+      role: session?.user?.role || null,
+      isVerifiedBot: isBot,
+    },
+    content: allQuestions,
+    containerGate: quiz.series,
+    itemGate: {
+      gateMode: quiz.gateMode,
+      previewPercentage: quiz.previewPercentage,
+    },
+    isOwner: Boolean(isOwner),
+  })
+
   // JSON-LD Schema for Quiz
   const jsonLd = {
     "@context": "https://schema.org",
@@ -87,7 +111,14 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
     },
     learningResourceType: "Quiz",
     timeRequired: `PT${quiz.durationMinutes}M`,
-    isAccessibleForFree: quiz.accessMode === "FREE",
+    isAccessibleForFree: !access.isLockedForGuest && quiz.accessMode === "FREE",
+    hasPart: access.isLockedForGuest
+      ? {
+          "@type": "WebPageElement",
+          isAccessibleForFree: false,
+          cssSelector: "[role='region'][aria-label='Content Gate']",
+        }
+      : undefined,
     url: `${baseUrl}/current-affairs-quizzes/${canonicalSlug}`,
   }
 
@@ -189,22 +220,38 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
           </div>
         </div>
 
-        {/* CTA Button */}
-        <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
-          <Link
-            href={`/current-affairs-quizzes/${canonicalSlug}/instructions`}
-            className="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-base shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span>Start Quiz Instructions</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/current-affairs-quizzes"
-            className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl border border-border hover:bg-muted text-foreground font-semibold text-sm transition-colors text-center"
-          >
-            Browse All Quizzes
-          </Link>
-        </div>
+        {/* CTA Button or Authwall Gate */}
+        {access.isLockedForGuest ? (
+          <div className="pt-2">
+            <AuthwallGate
+              title={access.gateTitle || `Sign in to attempt ${quiz.title}`}
+              subtitle={
+                access.gateSubtitle ||
+                `This current affairs speed test is gated (${access.effectivePercentage}% preview). Sign in to attempt full quiz with live timer, instant rank, and detailed bilingual solutions.`
+              }
+              moduleName="Current Affairs Quiz"
+              totalItemsCount={quiz.totalQuestions}
+              previewCount={access.previewCount}
+              effectivePercentage={access.effectivePercentage}
+            />
+          </div>
+        ) : (
+          <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
+            <Link
+              href={`/current-affairs-quizzes/${canonicalSlug}/instructions`}
+              className="w-full sm:w-auto min-h-[48px] px-8 py-3 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold text-base shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Start Quiz Instructions</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/current-affairs-quizzes"
+              className="w-full sm:w-auto min-h-[48px] px-6 py-3 rounded-xl border border-border hover:bg-muted text-foreground font-semibold text-sm transition-colors text-center"
+            >
+              Browse All Quizzes
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Instructions & Guidelines Overview */}
@@ -240,6 +287,7 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
           </li>
         </ul>
       </div>
+      <AuthwallUnlockToast />
     </div>
   )
 }

@@ -33,6 +33,10 @@ export async function generateMetadata({
     }
 }
 
+import { headers } from "next/headers"
+import { resolveAccess } from "@/lib/authwall/resolveAccess"
+import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify"
+
 export default async function TutorialSlugPage({
     params,
 }: {
@@ -42,6 +46,8 @@ export default async function TutorialSlugPage({
     const session = await auth()
     const userRole = session?.user?.role
     const userId = session?.user?.id
+    const headersList = await headers()
+    const isBot = await isVerifiedSearchEngineCrawler(headersList)
 
     const course = await prisma.course.findFirst({
         where: { OR: [{ slug }, { id: slug }] },
@@ -122,14 +128,74 @@ export default async function TutorialSlugPage({
         hasAccess = !isPaidCourse
     }
 
+    // Apply Server-Side Slicing via Centralized resolveAccess
+    const viewer = {
+        userId: session?.user?.id || null,
+        role: userRole || null,
+        isVerifiedBot: isBot,
+    }
+
+    for (const ch of course.chapters || []) {
+        for (const l of ch.lessons || []) {
+            const access = resolveAccess({
+                viewer,
+                content: l.content,
+                containerGate: course,
+                itemGate: {
+                    gateMode: (ch as any).gateMode,
+                    previewPercentage: (ch as any).previewPercentage,
+                },
+                isOwner: (course as any).createdById === userId || (course as any).userId === userId,
+            })
+
+            if (access.isLockedForGuest) {
+                if (typeof l.content === "string" && l.content.trim().startsWith("{")) {
+                    l.content = JSON.stringify({ blocks: access.previewBlocks })
+                } else if (typeof l.content === "string" && l.content.trim().startsWith("[")) {
+                    l.content = JSON.stringify(access.previewBlocks)
+                } else {
+                    l.content = access.previewBlocks.map((b) => b.html || b.content || "").join("\n")
+                }
+                ;(l as any).isLockedForGuest = true
+                ;(l as any).gateTitle = access.gateTitle
+                ;(l as any).gateSubtitle = access.gateSubtitle
+                ;(l as any).effectivePercentage = access.effectivePercentage
+            }
+        }
+    }
+
     const safeCourse = toSafeCourseDto(course, hasAccess, hasAccess)
 
+    // Paywalled schema.org metadata for search crawlers
+    const jsonLd = course.isGated
+        ? {
+              "@context": "https://schema.org",
+              "@type": "TechArticle",
+              headline: course.title,
+              description: course.description,
+              isAccessibleForFree: false,
+              hasPart: {
+                  "@type": "WebPageElement",
+                  isAccessibleForFree: false,
+                  cssSelector: "[role='region'][aria-label='Content Gate']",
+              },
+          }
+        : null
+
     return (
-        <AspirantbookTutorialView
-            course={safeCourse as any}
-            chapters={safeCourse.chapters as any}
-            isEditor={isEditor}
-        />
+        <>
+            {jsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+            )}
+            <AspirantbookTutorialView
+                course={safeCourse as any}
+                chapters={safeCourse.chapters as any}
+                isEditor={isEditor}
+            />
+        </>
     )
 }
 

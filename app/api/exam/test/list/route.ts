@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { getStudentGoals, parseGoalIds } from "@/lib/goals/student-goals";
 import { applyQuizGoalFilter } from "@/lib/goals/goal-filters";
+import { resolveAccess } from "@/lib/authwall/resolveAccess";
+import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify";
 
 function mapQuestion(q: any, idx: number) {
   return {
@@ -83,6 +85,8 @@ export async function GET(req: NextRequest) {
         totalMarks: true,
         durationMinutes: true,
         accessMode: true,
+        gateMode: true,
+        previewPercentage: true,
         isPublished: true,
         createdById: true,
         _count: {
@@ -113,7 +117,19 @@ export async function GET(req: NextRequest) {
           },
         },
         series: {
-          select: { title: true, category: true, slug: true, isFree: true, isPro: true, languages: true },
+          select: {
+            title: true,
+            category: true,
+            slug: true,
+            isFree: true,
+            isPro: true,
+            languages: true,
+            isGated: true,
+            previewPercentage: true,
+            seoMode: true,
+            gateTitle: true,
+            gateSubtitle: true,
+          },
         },
         ...(includeQuestions
           ? {
@@ -147,10 +163,9 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
+    const isBot = await isVerifiedSearchEngineCrawler(req.headers);
+
     const mapped = tests.map((t: any) => {
-      const qCount = includeQuestions
-        ? (t.sections || []).reduce((acc: number, s: any) => acc + (s.questions?.length || 0), 0)
-        : 0;
       const isFreeSample = Boolean(t.series?.isPro && t.accessMode === "FREE");
       const submittedAttempts = t.attempts || [];
       const avgScore =
@@ -161,6 +176,25 @@ export async function GET(req: NextRequest) {
                 10
             ) / 10
           : 0;
+
+      const access = resolveAccess({
+        viewer: {
+          userId: session?.user?.id || null,
+          role,
+          isVerifiedBot: isBot,
+        },
+        content: t.sections || [],
+        containerGate: t.series,
+        itemGate: {
+          gateMode: t.gateMode,
+          previewPercentage: t.previewPercentage,
+        },
+        isOwner: Boolean(session?.user?.id && t.createdById === session.user.id),
+      });
+
+      const isLockedForGuest = access.isLockedForGuest;
+      const isFreeEffective = !isLockedForGuest && (t.accessMode === "FREE" || access.gateMode === "free");
+
       return {
         id: t.id,
         seriesId: t.seriesId,
@@ -177,9 +211,13 @@ export async function GET(req: NextRequest) {
         durationMinutes: t.durationMinutes,
         languages: t.series?.languages,
         accessMode: t.accessMode,
-        isFree: t.accessMode === "FREE",
+        isFree: isFreeEffective,
+        isLockedForGuest,
+        gateMode: access.gateMode,
+        effectivePercentage: access.effectivePercentage,
         seriesIsPro: Boolean(t.series?.isPro),
         seriesIsFree: Boolean(t.series?.isFree),
+        seriesIsGated: Boolean(t.series?.isGated),
         isFreeSample,
         isPublished: t.isPublished,
         attempts: t._count?.attempts ?? 0,

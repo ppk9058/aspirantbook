@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify"
 import fs from "fs/promises"
 import fsSync from "fs"
 import path from "path"
@@ -67,6 +68,29 @@ export async function GET(
             { status: 403 }
           )
         }
+      }
+    }
+
+    // 3. Authwall Gate Check: Gated papers require authentication unless crawler in bot-full mode
+    if (paper.isGated && (!user.isAuthenticated || !user.userId)) {
+      const isBot = await isVerifiedSearchEngineCrawler(request.headers)
+      if (!(isBot && paper.seoMode === "bot-full")) {
+        return NextResponse.json(
+          {
+            error: "Gated document: Please sign in to read or download this PYQ paper",
+            isLockedForGuest: true,
+            previewPercentage: paper.previewPercentage,
+            gateTitle: paper.gateTitle,
+            gateSubtitle: paper.gateSubtitle,
+          },
+          {
+            status: 403,
+            headers: {
+              "Cache-Control": "private, no-store",
+              "Vary": "Cookie, User-Agent",
+            },
+          }
+        )
       }
     }
 

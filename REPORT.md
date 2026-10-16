@@ -144,3 +144,58 @@ All gate controls must be implemented **strictly inside these existing studios**
 - `npx tsc --noEmit`: 65 legacy errors in 16 files (baseline preserved; 0 errors in touched code).
 
 ---
+
+## Step 2: Server-Side Slicing & Security Core
+
+### 1. Canonical Resolver (`lib/authwall/resolveAccess.ts`)
+- Single point of truth for guest gating across all modules.
+- **Inputs:** `viewer` (userId, role, isVerifiedBot), `content` (HTML string, JSON object, question array, or block array), `containerGate` (isGated, previewPercentage, seoMode, gateTitle, gateSubtitle), `itemGate` (gateMode, previewPercentage), and `isOwner`.
+- **Resolution Rules:**
+  - If viewer is logged-in, ADMIN, or owning TEACHER: 100% content, `isLockedForGuest: false`.
+  - If container `isGated === false`: 100% content, `isLockedForGuest: false`.
+  - If item `gateMode === "free"`: 100% content, `isLockedForGuest: false`.
+  - If item `gateMode === "locked"`: 0% content (empty preview slice), `isLockedForGuest: true`.
+  - If verified search engine crawler and `seoMode === "bot-full"`: 100% content, `isLockedForGuest: false`.
+  - Otherwise (guest + gated): slice content to `ceil(effectivePercentage% * total)`. Minimum 1 block if percentage > 0; 0% yields title only.
+- **Zero Leakage:**
+  - Content beyond the preview slice is stripped server-side before response serialisation.
+  - Never rendered into HTML markup, RSC payloads, JSON props, or client state.
+  - Test questions: locked questions are omitted entirely, and answer keys (`isCorrect`), explanation text, and solution rationales are stripped from the payload for unsubmitted questions.
+
+### 2. Search Engine Bot Verification (`lib/authwall/bot-verify.ts`)
+- Supports Googlebot, Bingbot, YandexBot, Baiduspider, Applebot, DuckDuckBot.
+- Verifies crawler authenticity using **Reverse DNS** (`dns.reverse`) followed by **Forward DNS** (`dns.lookup`) to prevent spoofing via forged `User-Agent` headers.
+- Employs a 24-hour LRU in-memory cache to guarantee zero DNS lookup latency overhead for repeat crawler requests.
+- Conforms to Google Search Central Paywalled Content standards via `schema.org` JSON-LD (`hasPart` with `cssSelector: "[role='region'][aria-label='Content Gate']"` and `isAccessibleForFree: false`).
+
+### 3. Module Integrations
+- **Tutorials (`app/(dashboard)/tutorials/[slug]/page.tsx` & `AspirantbookTutorialView.tsx`):**
+  - Resolves chapter/lesson gate mode.
+  - Slices HTML/block content server-side.
+  - Attaches `<AuthwallGate>` with blurred skeleton when locked for guests.
+- **Test Series (`app/(dashboard)/test-series/[id]/page.tsx` & `app/api/exam/test/list/route.ts`):**
+  - Package-level gate check; tests sliced according to `previewPercentage`.
+  - Non-preview tests locked with clear status badges and Authwall CTA.
+- **PYQs (`app/api/pyqs/[paperId]/route.ts` & `app/api/pyqs/file/[paperId]/route.ts`):**
+  - Paper-level gate check; questions sliced server-side with answers stripped.
+  - Direct PDF download route returns `403 Forbidden` (`{ error: "GATED_CONTENT" }`) for gated papers when requested by guests.
+- **Current Affairs & Quizzes (`app/(dashboard)/current-affairs-quizzes/[slug]/page.tsx` & `app/api/current-affairs/file/[id]/route.ts`):**
+  - Slices quiz questions server-side based on collection gate settings.
+  - Direct PDF download route returns `403 Forbidden` (`{ error: "GATED_CONTENT" }`) for guests.
+
+---
+
+## Step 3: Authwall UI Gate Component & Post-Login Unlock
+
+### 1. Blurred Authwall Component (`components/authwall/AuthwallGate.tsx`)
+- Semantic `<section role="region" aria-label="Content Gate">`.
+- Non-dismissible design: no close icon, ignores backdrop click, ignores escape key.
+- 6px Gaussian blur overlay with `pointer-events-none select-none user-select: none`.
+- High-converting conversion card using primary blue (`#1448d8`) button, clear benefit headline, and trust badge ("Instant access • 10,000+ Aspirants • Free account").
+- Automatic return redirect: passes `?callbackUrl=${encodeURIComponent(pathname)}` and stores current scroll position in `sessionStorage` (`authwall_scroll_pos`).
+
+### 2. Post-Login Scroll Restoration (`components/authwall/AuthwallUnlockToast.tsx`)
+- Detects post-login return using `authwall_scroll_pos` in `sessionStorage`.
+- Smoothly scrolls the user back to the exact reading position where they hit the gate.
+- Triggers an accessible, non-blocking notification toast: *"🎉 Welcome back! Full content unlocked."*
+

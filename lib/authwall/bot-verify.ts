@@ -38,13 +38,27 @@ const BOT_USER_AGENTS = [
  * Never trusts User-Agent alone.
  */
 export async function isVerifiedSearchEngineCrawler(
-  userAgent: string | null | undefined,
-  clientIp: string | null | undefined
+  inputOrUa: any,
+  ip?: string | null
 ): Promise<boolean> {
+  let userAgent: string | null = null
+  let clientIp: string | null = null
+
+  if (inputOrUa && typeof inputOrUa.get === "function") {
+    userAgent = inputOrUa.get("user-agent") || inputOrUa.get("User-Agent")
+    clientIp =
+      inputOrUa.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      inputOrUa.get("x-real-ip") ||
+      "127.0.0.1"
+  } else if (typeof inputOrUa === "string") {
+    userAgent = inputOrUa
+    clientIp = ip || "127.0.0.1"
+  }
+
   if (!userAgent || !clientIp) return false
 
   // 1. Check if User-Agent looks like a known search engine bot
-  const uaMatch = BOT_USER_AGENTS.some((pattern) => pattern.test(userAgent))
+  const uaMatch = BOT_USER_AGENTS.some((pattern) => pattern.test(userAgent!))
   if (!uaMatch) {
     return false
   }

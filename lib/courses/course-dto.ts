@@ -104,6 +104,13 @@ export function toSafeLessonDto(
     safe.attachmentUrl = null
   }
 
+  if ((rawLesson as any).isLockedForGuest) {
+    ;(safe as any).isLockedForGuest = true
+    ;(safe as any).gateTitle = (rawLesson as any).gateTitle
+    ;(safe as any).gateSubtitle = (rawLesson as any).gateSubtitle
+    ;(safe as any).effectivePercentage = (rawLesson as any).effectivePercentage
+  }
+
   return safe
 }
 

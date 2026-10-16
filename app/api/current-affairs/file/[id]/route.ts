@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify"
 import fs from "fs/promises"
 import fsSync from "fs"
 import path from "path"
@@ -44,6 +45,29 @@ export async function GET(
         return NextResponse.json(
           { error: "Authentication required to download" },
           { status: 401 }
+        )
+      }
+    }
+
+    // 2b. Authwall Gate Check: Gated PDFs require authentication unless crawler in bot-full mode
+    if (document.isGated && (!user.isAuthenticated || !user.userId)) {
+      const isBot = await isVerifiedSearchEngineCrawler(request.headers)
+      if (!(isBot && document.seoMode === "bot-full")) {
+        return NextResponse.json(
+          {
+            error: "Gated document: Please sign in to read or download this Current Affairs PDF",
+            isLockedForGuest: true,
+            previewPercentage: document.previewPercentage,
+            gateTitle: document.gateTitle,
+            gateSubtitle: document.gateSubtitle,
+          },
+          {
+            status: 403,
+            headers: {
+              "Cache-Control": "private, no-store",
+              "Vary": "Cookie, User-Agent",
+            },
+          }
         )
       }
     }

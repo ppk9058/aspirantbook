@@ -5,6 +5,8 @@ import Link from "next/link"
 import { Search, Palette, Sparkles, CheckCircle2, Lock, ArrowRight, Settings, Menu, X } from "lucide-react"
 import { RoseraRenderer } from "./RoseraRenderer"
 import { inlineFmt } from "@/lib/rosera/inline"
+import { AuthwallGate } from "@/components/authwall/AuthwallGate"
+import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
 import "./rosera.css"
 
 interface Lesson {
@@ -450,6 +452,10 @@ export function AspirantbookTutorialView({
             title: string
             content: string
             isLocked: boolean
+            isLockedForGuest?: boolean
+            gateTitle?: string | null
+            gateSubtitle?: string | null
+            effectivePercentage?: number
         }> = []
 
         chapters.forEach((ch) => {
@@ -469,6 +475,10 @@ export function AspirantbookTutorialView({
                     title: l.title,
                     content: l.content,
                     isLocked,
+                    isLockedForGuest: Boolean((l as any).isLockedForGuest || (ch as any).isLockedForGuest),
+                    gateTitle: (l as any).gateTitle || (ch as any).gateTitle,
+                    gateSubtitle: (l as any).gateSubtitle || (ch as any).gateSubtitle,
+                    effectivePercentage: (l as any).effectivePercentage || (ch as any).effectivePercentage,
                 })
             })
         })
@@ -1260,6 +1270,15 @@ export function AspirantbookTutorialView({
                                         </p>
                                     </div>
                                 )}
+
+                                {currentLesson.isLockedForGuest && (
+                                    <AuthwallGate
+                                        title={currentLesson.gateTitle}
+                                        subtitle={currentLesson.gateSubtitle}
+                                        moduleName="Tutorial"
+                                        effectivePercentage={currentLesson.effectivePercentage}
+                                    />
+                                )}
                             </div>
 
                             {/* Bottom Actions Row: Mark Complete + Next Chapter */}
@@ -1295,6 +1314,7 @@ export function AspirantbookTutorialView({
                     )}
                 </main>
             </div>
+            <AuthwallUnlockToast />
         </div>
     )
 }

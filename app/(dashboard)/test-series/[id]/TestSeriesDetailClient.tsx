@@ -32,6 +32,8 @@ import {
 import EnrollButton from "@/components/test-series/EnrollButton"
 import { TestActionButton } from "@/components/test-series/TestActionButton"
 import { useGoal } from "@/components/providers/GoalProvider"
+import { AuthwallGate } from "@/components/authwall/AuthwallGate"
+import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
 
 interface TestItem {
     id: string
@@ -43,6 +45,7 @@ interface TestItem {
     isFree: boolean
     attempts?: number
     testType?: string
+    isLockedForGuest?: boolean
 }
 
 interface TestSection {
@@ -226,6 +229,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                             isFree: t.isFree,
                             attempts: t.attempts,
                             testType: t.testType,
+                            isLockedForGuest: Boolean(t.isLockedForGuest),
                         })
                     }
                 }
@@ -646,6 +650,19 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                                 )
                             })}
                     </div>
+
+                    {Boolean(currentSeries.isGated && !session?.user?.id) && (
+                        <div className="mt-6">
+                            <AuthwallGate
+                                title={currentSeries.gateTitle}
+                                subtitle={currentSeries.gateSubtitle}
+                                moduleName="Test Series"
+                                totalItemsCount={currentSeries.totalTests}
+                                previewCount={currentSeries.freeTests}
+                                effectivePercentage={currentSeries.previewPercentage}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Sidebar: "More Testseries for you" (Real Published Series not yet enrolled) */}
@@ -826,6 +843,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                     />
                 </div>
             </div>
+            <AuthwallUnlockToast />
         </div>
     )
 }

@@ -5,6 +5,8 @@ import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { ArrowLeft, AlertCircle } from "lucide-react"
 import SecurePdfViewer from "@/components/pdf/SecurePdfViewer"
+import { AuthwallGate } from "@/components/authwall/AuthwallGate"
+import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
 
 export default function PYQPDFViewerPage() {
   const searchParams = useSearchParams()
@@ -85,18 +87,53 @@ export default function PYQPDFViewerPage() {
     )
   }
 
+  if (paper.isLockedForGuest) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16">
+        <div className="mb-4">
+          <Link
+            href="/pyqs"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to All Previous Year Papers
+          </Link>
+        </div>
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-xs mb-4">
+          <h1 className="text-xl font-bold text-gray-900">{paper.title}</h1>
+          <p className="text-xs text-gray-500 mt-1">
+            {paper.category?.name || "Official PYQ"} • {paper.year} • {paper.stage}
+          </p>
+        </div>
+        <AuthwallGate
+          title={paper.gateTitle || `Sign in to access ${paper.title}`}
+          subtitle={
+            paper.gateSubtitle ||
+            "This official previous year question paper is gated. Sign in to view and download full paper and solutions."
+          }
+          moduleName="PYQ Paper"
+          effectivePercentage={paper.previewPercentage ?? 20}
+        />
+        <AuthwallUnlockToast />
+      </div>
+    )
+  }
+
   return (
-    <SecurePdfViewer
-      isOpen={true}
-      onClose={() => router.push("/pyqs")}
-      src={`/api/pyqs/file/${paper.id}`}
-      downloadUrl={`/api/pyqs/file/${paper.id}?download=1`}
-      title={paper.title}
-      subtitle={`${paper.category?.name || "Official PYQ"} • ${paper.year} • ${paper.stage}`}
-      author={paper.subject || undefined}
-      downloadAllowed={true}
-      badgeLabel="Official PYQ Paper"
-      testId="pyq-pdf-viewer"
-    />
+    <>
+      <SecurePdfViewer
+        isOpen={true}
+        onClose={() => router.push("/pyqs")}
+        src={`/api/pyqs/file/${paper.id}`}
+        downloadUrl={`/api/pyqs/file/${paper.id}?download=1`}
+        title={paper.title}
+        subtitle={`${paper.category?.name || "Official PYQ"} • ${paper.year} • ${paper.stage}`}
+        author={paper.subject || undefined}
+        downloadAllowed={true}
+        badgeLabel="Official PYQ Paper"
+        testId="pyq-pdf-viewer"
+      />
+      <AuthwallUnlockToast />
+    </>
   )
 }
