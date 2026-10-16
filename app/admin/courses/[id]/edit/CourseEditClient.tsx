@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -58,7 +59,24 @@ export default function CourseEditClient({
     const [editStatus, setEditStatus] = useState<string>(course.status || "DRAFT")
     const [isTogglingPublish, setIsTogglingPublish] = useState(false)
     const [isSavingInfo, setIsSavingInfo] = useState(false)
+    const [isSavingGate, setIsSavingGate] = useState(false)
     const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+
+    // Sync all course and gate props whenever course prop changes (e.g. after refresh or navigation)
+    useEffect(() => {
+        setIsGated(course.isGated ?? false)
+        setPreviewPercentage(course.previewPercentage ?? 20)
+        setSeoMode((course.seoMode as any) || "preview")
+        setGateTitle(course.gateTitle || "")
+        setGateSubtitle(course.gateSubtitle || "")
+        setEditTitle(course.title || "")
+        setEditDescription(course.description || "")
+        setEditDifficulty(course.difficulty || "BEGINNER")
+        setEditTechnology(course.technology || "")
+        setEditIsPremium(course.isPremium || false)
+        setCurrentStatus(course.status || "DRAFT")
+        setEditStatus(course.status || "DRAFT")
+    }, [course])
 
     const handleTogglePublish = async () => {
         setIsTogglingPublish(true)
@@ -68,17 +86,19 @@ export default function CourseEditClient({
                 if (res?.success) {
                     setCurrentStatus("DRAFT")
                     setEditStatus("DRAFT")
+                    toast.success("Course unpublished (draft)")
                 }
             } else {
                 const res = await publishCourse(course.id)
                 if (res?.success) {
                     setCurrentStatus("PUBLISHED")
                     setEditStatus("PUBLISHED")
+                    toast.success("Course published live!")
                 }
             }
             router.refresh()
         } catch (err: any) {
-            alert(err.message || "Failed to update course status")
+            toast.error(err.message || "Failed to update course status")
         } finally {
             setIsTogglingPublish(false)
         }
@@ -102,11 +122,32 @@ export default function CourseEditClient({
             })
             setCurrentStatus(editStatus)
             setIsEditingInfo(false)
+            toast.success("Course details saved successfully")
             refreshData()
         } catch (err: any) {
-            alert(err.message || "Failed to update course details")
+            toast.error(err.message || "Failed to update course details")
         } finally {
             setIsSavingInfo(false)
+        }
+    }
+
+    const handleSaveGateSettings = async () => {
+        setIsSavingGate(true)
+        try {
+            await updateCourseDraft(course.id, {
+                isGated,
+                previewPercentage,
+                seoMode,
+                gateTitle: gateTitle || null,
+                gateSubtitle: gateSubtitle || null,
+            })
+            toast.success("Gate settings saved successfully!")
+            router.refresh()
+        } catch (err: any) {
+            console.error("Failed saving gate settings:", err)
+            toast.error(err.message || "Failed saving gate settings")
+        } finally {
+            setIsSavingGate(false)
         }
     }
 
@@ -133,7 +174,7 @@ export default function CourseEditClient({
             })
             router.refresh()
         } catch (err: any) {
-            console.error("Failed saving gate settings:", err)
+            console.error("Failed auto-saving gate settings:", err)
         }
     }
 
@@ -150,9 +191,10 @@ export default function CourseEditClient({
                         : c
                 )
             )
+            toast.success("Chapter gate updated")
             router.refresh()
         } catch (e: any) {
-            alert(e.message || "Failed updating chapter gate mode")
+            toast.error(e.message || "Failed updating chapter gate mode")
         }
     }
 
@@ -166,13 +208,14 @@ export default function CourseEditClient({
             setChapters((prev: any[]) =>
                 prev.map((c) =>
                     chapterIds.includes(c.id)
-                        ? { ...c, gateMode, previewPercentage: pct }
+                        ? { ...c, gateMode, previewPercentage: pct !== undefined ? pct : c.previewPercentage }
                         : c
                 )
             )
+            toast.success(`Updated ${chapterIds.length} chapters to ${gateMode}`)
             router.refresh()
         } catch (e: any) {
-            alert(e.message || "Failed bulk updating chapters")
+            toast.error(e.message || "Failed bulk updating chapters")
         }
     }
 
@@ -354,6 +397,8 @@ export default function CourseEditClient({
                     gateSubtitle,
                 }}
                 onChange={handleGateChange}
+                onSave={handleSaveGateSettings}
+                isSaving={isSavingGate}
                 items={chapters.map((c: any) => ({
                     gateMode: c.gateMode || "inherit",
                     previewPercentage: c.previewPercentage,
@@ -448,6 +493,11 @@ export default function CourseEditClient({
                                             status: targetStatus || data.status,
                                             duration: data.duration ? Number(data.duration) * 60 : undefined,
                                             prerequisites: data.prerequisites,
+                                            isGated,
+                                            previewPercentage,
+                                            seoMode,
+                                            gateTitle: gateTitle || null,
+                                            gateSubtitle: gateSubtitle || null,
                                         })
                                         setEditTitle(data.title)
                                         setEditDescription(data.description || "")

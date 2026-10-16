@@ -20,12 +20,24 @@ export function splitHtmlIntoBlocks(html: string): string[] {
   const trimmed = html.trim()
   if (!trimmed) return []
 
-  // Check if content is actually a JSON stringified array of blocks (e.g. Rosera blocks)
+  // Check if content is actually a JSON stringified array or object of blocks (e.g. Rosera blocks)
   if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
     try {
       const parsed = JSON.parse(trimmed)
       if (Array.isArray(parsed)) {
         return parsed.map((item) => (typeof item === "string" ? item : JSON.stringify(item)))
+      }
+    } catch {
+      // Fall through to HTML splitting
+    }
+  }
+
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+    try {
+      const parsed = JSON.parse(trimmed)
+      const arr = Array.isArray(parsed?.blocks) ? parsed.blocks : (Array.isArray(parsed?.activeBlocks) ? parsed.activeBlocks : null)
+      if (arr) {
+        return arr.map((item: any) => (typeof item === "string" ? item : JSON.stringify(item)))
       }
     } catch {
       // Fall through to HTML splitting
@@ -175,6 +187,21 @@ export function chunkContent(rawContent: any): any[] {
       }
     }
 
+    // Try parsing as JSON object containing blocks or activeBlocks
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+      try {
+        const parsed = JSON.parse(trimmed)
+        if (Array.isArray(parsed?.blocks)) {
+          return parsed.blocks
+        }
+        if (Array.isArray(parsed?.activeBlocks)) {
+          return parsed.activeBlocks
+        }
+      } catch {
+        // Not valid JSON, treat as HTML/text
+      }
+    }
+
     // Check if HTML
     if (trimmed.includes("<") && trimmed.includes(">")) {
       return splitHtmlIntoBlocks(trimmed)
@@ -188,6 +215,16 @@ export function chunkContent(rawContent: any): any[] {
       .map((p) => (p.startsWith("#") || p.startsWith("-") || p.startsWith("<") ? p : `<p>${p}</p>`))
 
     return paragraphs.length > 0 ? paragraphs : [`<p>${trimmed}</p>`]
+  }
+
+  // Case 3: Raw Object containing blocks array
+  if (rawContent && typeof rawContent === "object") {
+    if (Array.isArray(rawContent.blocks)) {
+      return rawContent.blocks
+    }
+    if (Array.isArray(rawContent.activeBlocks)) {
+      return rawContent.activeBlocks
+    }
   }
 
   return [rawContent]

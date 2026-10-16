@@ -16,8 +16,13 @@ const ChapterSchema = z.object({
 
 async function revalidateCoursePages(courseId: string) {
     revalidatePath(`/admin/courses/${courseId}/edit`)
+    revalidatePath(`/admin/tutorials/${courseId}/edit`)
+    revalidatePath(`/teacher/tutorials/${courseId}/edit`)
     revalidatePath("/admin/courses")
+    revalidatePath("/admin/tutorials")
+    revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
+    revalidatePath("/tutorials")
     try {
         const course = await prisma.course.findUnique({
             where: { id: courseId },

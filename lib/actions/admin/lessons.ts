@@ -21,8 +21,13 @@ const LessonSchema = z.object({
 
 async function revalidateLessonPages(courseId: string, lessonId?: string) {
     revalidatePath(`/admin/courses/${courseId}/edit`)
+    revalidatePath(`/admin/tutorials/${courseId}/edit`)
+    revalidatePath(`/teacher/tutorials/${courseId}/edit`)
     revalidatePath("/admin/courses")
+    revalidatePath("/admin/tutorials")
+    revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
+    revalidatePath("/tutorials")
     try {
         const course = await prisma.course.findUnique({
             where: { id: courseId },
@@ -30,6 +35,7 @@ async function revalidateLessonPages(courseId: string, lessonId?: string) {
         })
         if (course?.slug) {
             revalidatePath(`/courses/${course.slug}`)
+            revalidatePath(`/tutorials/${course.slug}`)
             if (lessonId) {
                 revalidatePath(`/learn/${course.slug}/${lessonId}`)
             }
@@ -415,61 +421,94 @@ export async function publishLessonVersion(
 }
 
 export async function getLessonBlocksAndVersions(lessonId: string) {
-    const session = await auth()
-    if (!session) {
-        throw new Error("Unauthorized")
-    }
+    try {
+        const session = await auth()
+        if (!session) {
+            return {
+                ok: false,
+                error: "Unauthorized: Please sign in to edit lessons",
+                lesson: null,
+                activeBlocks: [],
+                hasDraft: false,
+                currentPublishedVersionId: null,
+                currentDraftVersionId: null,
+                versions: [],
+            }
+        }
 
-    const lesson = await prisma.lesson.findUnique({
-        where: { id: lessonId },
-        include: {
-            versions: {
-                orderBy: { createdAt: "desc" },
-                take: 20,
+        const lesson = await prisma.lesson.findUnique({
+            where: { id: lessonId },
+            include: {
+                versions: {
+                    orderBy: { createdAt: "desc" },
+                    take: 20,
+                },
             },
-        },
-    })
+        })
 
-    if (!lesson) {
-        throw new Error("Lesson not found")
-    }
-
-    // Determine active blocks to load in editor
-    let activeBlocks: any[] = []
-    let hasDraft = false
-
-    if (lesson.currentDraftVersionId) {
-        const draftVer = lesson.versions.find((v) => v.id === lesson.currentDraftVersionId)
-        if (draftVer && draftVer.blocks) {
-            activeBlocks = Array.isArray(draftVer.blocks) ? draftVer.blocks : []
-            hasDraft = true
+        if (!lesson) {
+            return {
+                ok: false,
+                error: "Lesson not found",
+                lesson: null,
+                activeBlocks: [],
+                hasDraft: false,
+                currentPublishedVersionId: null,
+                currentDraftVersionId: null,
+                versions: [],
+            }
         }
-    }
 
-    if (activeBlocks.length === 0 && lesson.currentPublishedVersionId) {
-        const pubVer = lesson.versions.find((v) => v.id === lesson.currentPublishedVersionId)
-        if (pubVer && pubVer.blocks) {
-            activeBlocks = Array.isArray(pubVer.blocks) ? pubVer.blocks : []
+        // Determine active blocks to load in editor
+        let activeBlocks: any[] = []
+        let hasDraft = false
+
+        if (lesson.currentDraftVersionId) {
+            const draftVer = lesson.versions.find((v) => v.id === lesson.currentDraftVersionId)
+            if (draftVer && draftVer.blocks) {
+                activeBlocks = Array.isArray(draftVer.blocks) ? draftVer.blocks : []
+                hasDraft = true
+            }
         }
-    }
 
-    if (activeBlocks.length === 0 && lesson.content) {
-        try {
-            const parsed = JSON.parse(lesson.content)
-            if (Array.isArray(parsed)) activeBlocks = parsed
-            else if (parsed.blocks && Array.isArray(parsed.blocks)) activeBlocks = parsed.blocks
-        } catch {
-            activeBlocks = [{ bid: "legacy-p", t: "p", x: lesson.content }]
+        if (activeBlocks.length === 0 && lesson.currentPublishedVersionId) {
+            const pubVer = lesson.versions.find((v) => v.id === lesson.currentPublishedVersionId)
+            if (pubVer && pubVer.blocks) {
+                activeBlocks = Array.isArray(pubVer.blocks) ? pubVer.blocks : []
+            }
         }
-    }
 
-    return {
-        lesson,
-        activeBlocks,
-        hasDraft,
-        currentPublishedVersionId: lesson.currentPublishedVersionId,
-        currentDraftVersionId: lesson.currentDraftVersionId,
-        versions: lesson.versions,
+        if (activeBlocks.length === 0 && lesson.content) {
+            try {
+                const parsed = JSON.parse(lesson.content)
+                if (Array.isArray(parsed)) activeBlocks = parsed
+                else if (parsed.blocks && Array.isArray(parsed.blocks)) activeBlocks = parsed.blocks
+            } catch {
+                activeBlocks = [{ bid: "legacy-p", t: "p", x: lesson.content }]
+            }
+        }
+
+        return {
+            ok: true,
+            lesson,
+            activeBlocks,
+            hasDraft,
+            currentPublishedVersionId: lesson.currentPublishedVersionId,
+            currentDraftVersionId: lesson.currentDraftVersionId,
+            versions: lesson.versions || [],
+        }
+    } catch (err: any) {
+        console.error("Error in getLessonBlocksAndVersions:", err)
+        return {
+            ok: false,
+            error: err?.message || "Failed to load lesson content",
+            lesson: null,
+            activeBlocks: [],
+            hasDraft: false,
+            currentPublishedVersionId: null,
+            currentDraftVersionId: null,
+            versions: [],
+        }
     }
 }
 

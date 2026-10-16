@@ -241,7 +241,7 @@ export function RoseraEditor({
     setIsLoadingVersions(true)
     try {
       const res = await getLessonBlocksAndVersions(lessonId)
-      setVersionHistoryList(res.versions || [])
+      setVersionHistoryList(res?.versions || [])
     } catch {
       toast.error("Could not fetch version history")
     } finally {

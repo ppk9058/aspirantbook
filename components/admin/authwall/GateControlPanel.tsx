@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -14,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Lock, Unlock, ShieldAlert, Sparkles, Globe, AlertTriangle, CheckCircle2 } from "lucide-react"
+import { Lock, Unlock, ShieldAlert, Sparkles, Globe, AlertTriangle, CheckCircle2, Save, Loader2 } from "lucide-react"
 
 export interface GateState {
   isGated: boolean
@@ -32,6 +33,8 @@ export interface GateItemSummary {
 interface GateControlPanelProps {
   gate: GateState
   onChange: (updated: Partial<GateState>) => void
+  onSave?: () => Promise<void> | void
+  isSaving?: boolean
   items?: GateItemSummary[]
   estimatedWordCount?: number
   hasHeading?: boolean
@@ -42,6 +45,8 @@ interface GateControlPanelProps {
 export function GateControlPanel({
   gate,
   onChange,
+  onSave,
+  isSaving = false,
   items = [],
   estimatedWordCount = 450,
   hasHeading = true,
@@ -105,7 +110,7 @@ export function GateControlPanel({
             </div>
           </div>
 
-          {/* Status summary badge */}
+          {/* Status summary badge and Save Button */}
           <div className="flex items-center gap-2">
             <Badge
               variant={gate.isGated ? "default" : "outline"}
@@ -119,6 +124,24 @@ export function GateControlPanel({
                 ? `Gated, ${gate.previewPercentage}% preview, ${summary.freeCount} free, ${summary.lockedCount} locked`
                 : "Ungated (100% Free for Guests)"}
             </Badge>
+
+            {onSave && (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => onSave()}
+                disabled={disabled || isSaving}
+                className="h-7 text-xs font-bold gap-1 bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
+                data-testid="save-gate-settings-button"
+              >
+                {isSaving ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Save className="w-3.5 h-3.5" />
+                )}
+                <span>Save Gate Settings</span>
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>

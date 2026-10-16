@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { Lesson } from "@prisma/client"
 import { createLesson, updateLesson, deleteLesson, getLessonBlocksAndVersions } from "@/lib/actions/admin/lessons"
 import { UniversalEditor } from "@/components/editor/UniversalEditor"
 import { RoseraEditor } from "@/components/editor/RoseraEditor"
 import { Button } from "@/components/ui/button"
-import { Layers, FileText, Loader2 } from "lucide-react"
+import { Layers, FileText, Loader2, AlertCircle, RotateCcw } from "lucide-react"
 
 interface LessonEditorProps {
     chapterId: string
@@ -24,34 +24,35 @@ export function LessonEditor({ chapterId, lesson, onClose, onSaved }: LessonEdit
         draftVersionId: string | null
     } | null>(null)
     const [isLoadingBlocks, setIsLoadingBlocks] = useState(false)
+    const [blocksError, setBlocksError] = useState<string | null>(null)
+
+    const fetchBlocks = useCallback(async (lessonId: string) => {
+        setIsLoadingBlocks(true)
+        setBlocksError(null)
+        try {
+            const res = await getLessonBlocksAndVersions(lessonId)
+            if (!res || res.ok === false) {
+                setBlocksError(res?.error || "Failed to load lesson blocks. Please check your permissions or sign in again.")
+                return
+            }
+            setLoadedBlocksData({
+                activeBlocks: Array.isArray(res.activeBlocks) ? res.activeBlocks : [],
+                hasDraft: Boolean(res.hasDraft),
+                publishedVersionId: res.currentPublishedVersionId || null,
+                draftVersionId: res.currentDraftVersionId || null,
+            })
+        } catch (err: any) {
+            console.error("Failed to load lesson blocks:", err)
+            setBlocksError(err?.message || "Failed to load lesson blocks")
+        } finally {
+            setIsLoadingBlocks(false)
+        }
+    }, [])
 
     useEffect(() => {
         if (!lesson?.id) return
-
-        let mounted = true
-        setIsLoadingBlocks(true)
-        getLessonBlocksAndVersions(lesson.id)
-            .then((res) => {
-                if (mounted) {
-                    setLoadedBlocksData({
-                        activeBlocks: res.activeBlocks,
-                        hasDraft: res.hasDraft,
-                        publishedVersionId: res.currentPublishedVersionId,
-                        draftVersionId: res.currentDraftVersionId,
-                    })
-                }
-            })
-            .catch((err) => {
-                console.error("Failed to load lesson blocks:", err)
-            })
-            .finally(() => {
-                if (mounted) setIsLoadingBlocks(false)
-            })
-
-        return () => {
-            mounted = false
-        }
-    }, [lesson?.id])
+        fetchBlocks(lesson.id)
+    }, [lesson?.id, fetchBlocks])
 
     const handleSaveMetadata = async (data: any) => {
         const payload = {
@@ -88,6 +89,50 @@ export function LessonEditor({ chapterId, lesson, onClose, onSaved }: LessonEdit
                     <p className="text-xs font-black uppercase tracking-wider text-[#10162F]">
                         Loading Lesson Blocks & Versions...
                     </p>
+                </div>
+            )
+        }
+
+        if (blocksError) {
+            return (
+                <div className="p-8 bg-[#FDFBF7] rounded-2xl border-2 border-[#10162F] shadow-[6px_6px_0px_#10162F] space-y-4">
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="h-6 w-6 text-rose-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                            <h3 className="text-sm font-black text-[#10162F]">Could Not Load Lesson Blocks</h3>
+                            <p className="text-xs text-rose-700 font-medium mt-1">{blocksError}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 pt-2">
+                        <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => fetchBlocks(lesson.id)}
+                            className="bg-[#3A10E5] hover:bg-[#2c0cb3] text-white text-xs font-bold gap-1.5"
+                        >
+                            <RotateCcw className="h-3.5 w-3.5" />
+                            Retry Loading Blocks
+                        </Button>
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditorTab("metadata")}
+                            className="border-2 border-[#10162F] text-xs font-bold gap-1.5"
+                        >
+                            <FileText className="h-3.5 w-3.5" />
+                            Edit Lesson Settings & Video
+                        </Button>
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={onClose}
+                            className="text-xs font-bold"
+                        >
+                            Close
+                        </Button>
+                    </div>
                 </div>
             )
         }

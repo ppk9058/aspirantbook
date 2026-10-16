@@ -768,6 +768,124 @@ All test suites run against Next.js production build (`next start`) on port 3045
 
 ---
 
+## Step 7: Owner Findings Bug-Fix & Studio Verification
+
+### 1. Root Cause Analysis
+
+#### Bug A: Gate Panel Persistence & Slicing Failure
+1. **Tutorial Studio Route Cache Revalidation Omission:**
+   - In `lib/actions/admin/courses.ts`, `lib/actions/admin/chapters.ts`, and `lib/actions/admin/lessons.ts`, mutations revalidated `/admin/courses/...` and `/courses/...` but never revalidated `/admin/tutorials/${courseId}/edit` or `/teacher/tutorials/${courseId}/edit`.
+   - As a result, Next.js server component route cache served stale course and chapter props when reopening the Studio.
+2. **Missing State Synchronization in `CourseEditClient.tsx`:**
+   - `useState` hooks for `isGated`, `previewPercentage`, `seoMode`, `gateTitle`, and `gateSubtitle` only initialized on component mount. While `chapters` had a `useEffect` syncing with `initialChapters`, the gate state had no `useEffect` syncing with the updated `course` prop when `router.refresh()` executed.
+3. **0% Preview Falsy Coercion:**
+   - In `lib/actions/admin/courses.ts`: `Number(data.previewPercentage) || 20` evaluated `0 || 20 -> 20` because `0` is falsy. Locking an item to 0% preview was coerced to 20% on every save.
+4. **UniversalEditor Course Details Save Dropping Gate Fields:**
+   - In `CourseEditClient.tsx` (lines 485–495), clicking "Save" inside `UniversalEditor` (Course Info) passed only metadata to `updateCourseDraft`, omitting `isGated`, `previewPercentage`, `seoMode`, `gateTitle`, and `gateSubtitle`.
+5. **JSON Object Chunking Slicing Failure:**
+   - In `lib/authwall/chunker.ts`, `chunkContent` only checked `trimmed.startsWith("[")`. Lesson contents formatted as JSON objects `{ blocks: [...] }` or `{ activeBlocks: [...] }` fell through to plain text paragraph splitting, resulting in a single block (`totalItemsCount = 1`). Slicing 20% evaluated to `Math.ceil(0.20 * 1) = 1` (the whole document), leaking 100% of the lesson including MCQ assessment blocks.
+6. **Missing Toast Provider:**
+   - `sonner` was imported across 12 components but `<Toaster richColors position="top-right" />` was absent from `app/providers.tsx`, leaving toast confirmations invisible.
+
+#### Bug B: Studio LessonEditor Crash (`TypeError: Cannot read properties of undefined (reading 'activeBlocks')`)
+1. **Unguarded Server Action Return Shape:**
+   - In `components/admin/LessonEditor.tsx:37`, `setLoadedBlocksData({ activeBlocks: res.activeBlocks, ... })` accessed properties on `res` without verifying that `res` was defined or succeeded.
+2. **Raw Thrown Errors in Server Action:**
+   - In `lib/actions/admin/lessons.ts:417`, `getLessonBlocksAndVersions` threw raw `Error("Unauthorized")` or `Error("Lesson not found")` without a safe envelope. If session cookies or permissions expired, client action serialization returned undefined or rejected.
+3. **Missing Error State & Retry UI:**
+   - `LessonEditor` lacked error state, error boundary, and a Retry button when loading lesson blocks failed.
+
+---
+
+### 2. Comprehensive Fixes Applied
+
+1. **`lib/actions/admin/lessons.ts`:**
+   - Wrapped `getLessonBlocksAndVersions` in a safe try/catch envelope returning `{ ok: true/false, activeBlocks: [], versions: [], hasDraft, currentPublishedVersionId, currentDraftVersionId, error? }`.
+   - Added `/admin/tutorials/${courseId}/edit`, `/teacher/tutorials/${courseId}/edit`, `/admin/tutorials`, `/teacher/tutorials`, `/tutorials`, `/tutorials/${slug}` to `revalidateLessonPages`.
+2. **`components/admin/LessonEditor.tsx` & `components/editor/RoseraEditor.tsx`:**
+   - Added `blocksError` state and guarded all access to `res`.
+   - Rendered user-friendly error card with error details, a "Retry Loading Blocks" button, a "Switch to Lesson Settings & Video" button, and "Close".
+   - Guarded version list loading in `RoseraEditor.tsx`.
+3. **`lib/actions/admin/courses.ts` & `lib/actions/admin/chapters.ts`:**
+   - Fixed 0% preview preservation: `Number.isFinite(rawPct) ? rawPct : 20`.
+   - Added all tutorial studio and teacher paths to revalidation across `updateCourseDraft`, `updateCourseInline`, `revalidateCoursePages`.
+4. **`lib/authwall/chunker.ts` & `lib/authwall/resolveAccess.ts`:**
+   - Extended `chunkContent` and `splitHtmlIntoBlocks` to support JSON objects `{ blocks: [...] }` and `{ activeBlocks: [...] }`.
+   - Ensured 20% preview correctly slices 20% of atomic blocks, excluding subsequent text, code, and MCQ quiz blocks (`t: "quiz"`).
+   - Added explicit bypass in `resolveAccess.ts`: when `effectivePercentage >= 100`, `isLockedForGuest` is `false`.
+5. **`app/admin/courses/[id]/edit/CourseEditClient.tsx` & `GateControlPanel.tsx`:**
+   - Added `useEffect` syncing `isGated`, `previewPercentage`, `seoMode`, `gateTitle`, and `gateSubtitle` on `course` prop updates.
+   - Preserved all gate fields in `UniversalEditor` onSave.
+   - Added explicit "Save Gate Settings" button with loading state & Sonner toast notification.
+   - Enhanced `ItemGateRowControl` to set explicit percentages (`locked: 0`, `free: 100`) and display clear badges (`Locked (0%)`, `Free (100%)`).
+6. **`app/providers.tsx`:**
+   - Mounted `<Toaster richColors position="top-right" />` inside `Providers` so all toast notifications render across the entire app.
+
+---
+
+### 3. Automated Test Verification Results
+
+#### A. New Bugfix Test Suite (`tests/e2e/authwall-bugfix-persistence-lesson-editor.spec.ts`)
+```text
+Running 2 tests using 1 worker
+
+  ✓ 1 Authwall Bugfix: chunkContent correctly handles JSON objects with blocks and resolves 20% slice (11ms)
+  ✓ 2 Authwall Bugfix: Gate settings persist after save, reload, and guest view slices properly (30.1s)
+
+2 passed (39.0s) - Desktop
+2 passed (28.4s) - Mobile
+```
+
+#### B. Full Authwall Suite Execution
+```text
+Running 36 tests using 1 worker
+
+  ✓ 10/10 tests passed (57.2s) - authwall-studio.spec.ts & authwall-unlock.spec.ts
+  ✓ 24/24 tests passed (1.0m)  - authwall-blurred.spec.ts, authwall-cache.spec.ts, authwall-bot-verify.spec.ts, authwall-leak-matrix.spec.ts
+  ✓  2/2  tests passed (39.0s) - authwall-bugfix-persistence-lesson-editor.spec.ts
+
+Total: 36 passed across all modules (100% success rate, 0 flaky, 0 skipped)
+```
+
+#### C. Static Quality Checks
+- `npm run lint`: **0 errors**.
+- `npx tsc --noEmit`: **65 errors** (matches baseline, **0 new errors**).
+- `npm run db:check`: **Clean sync** with Supabase Dev DB schema.
+
+---
+
+### 4. Step-by-Step Owner Verification Checklist (localhost:3000)
+
+1. Open `http://localhost:3000/admin/tutorials` as `admin@trillionskills.com`.
+2. Open tutorial studio for **"agentic-engineering-zero-to-hero"** (`/admin/tutorials/<id>/edit`):
+   - Notice the **Authwall Gate Controls** card at the top.
+   - Toggle **Enable Authwall Gating** to ON.
+   - Adjust Default Preview Percentage to **20%**.
+   - Select SEO Mode **Bot-Full**.
+   - Fill custom Title: *"Unlock Full Agentic Engineering Tutorial"*.
+   - Click **Save Gate Settings**:
+     - Confirm green toast: *"Gate settings saved successfully!"*.
+   - In the Course Structure table, click the gate mode dropdown for Chapter 1:
+     - Change to **Locked (0%)**.
+     - Confirm green toast: *"Chapter gate updated"*.
+3. Click Browser **Reload** (or navigate away and return):
+   - Verify: Switch is ON, Default Preview is 20%, SEO Mode is Bot-Full, Title is preserved.
+   - Verify: Chapter 1 row displays badge **Locked (0%)**.
+4. Click to edit any lesson in Chapter 1:
+   - Notice **Rosera Editor** loads blocks without any console errors.
+   - Open browser developer tools Console: **0 errors** (no `TypeError: Cannot read properties of undefined`).
+5. Open an Incognito / Private browsing window as a **Guest**:
+   - Navigate to `http://localhost:3000/tutorials/agentic-engineering-zero-to-hero`.
+   - Click **Chapter 1**:
+     - Confirm: Chapter 1 is 0% locked. Zero lesson content or MCQ questions are shown. Only the clean lock card with *"Unlock Full Agentic Engineering Tutorial"* appears.
+   - Click **Chapter 2** (set to Inherit 20%):
+     - Confirm: Only the first 20% of introductory blocks are shown.
+     - The MCQ quiz block at the end is **never rendered or sent in HTML**.
+     - The blurred placeholder begins smoothly below the 20% slice with the Authwall card.
+     - Scroll and chapter navigation remain 100% free and unlocked.
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
 

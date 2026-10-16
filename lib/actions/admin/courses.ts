@@ -110,7 +110,8 @@ export async function updateCourseDraft(courseId: string, data: any) {
         data.isGated = Boolean(data.isGated)
     }
     if (data.previewPercentage !== undefined) {
-        data.previewPercentage = Math.max(0, Math.min(100, Math.round(Number(data.previewPercentage) || 20)))
+        const rawPct = Number(data.previewPercentage)
+        data.previewPercentage = Math.max(0, Math.min(100, Math.round(Number.isFinite(rawPct) ? rawPct : 20)))
     }
     if (data.seoMode !== undefined) {
         data.seoMode = String(data.seoMode).toLowerCase() === "bot-full" ? "bot-full" : "preview"
@@ -122,7 +123,11 @@ export async function updateCourseDraft(courseId: string, data: any) {
     })
 
     revalidatePath(`/admin/courses/${courseId}/edit`)
+    revalidatePath(`/admin/tutorials/${courseId}/edit`)
+    revalidatePath(`/teacher/tutorials/${courseId}/edit`)
     revalidatePath("/admin/courses")
+    revalidatePath("/admin/tutorials")
+    revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
     revalidatePath("/tutorials")
     if (updated.slug) {
@@ -172,10 +177,16 @@ export async function updateCourseInline(courseId: string, fields: Record<string
     })
 
     revalidatePath(`/admin/courses/${courseId}/edit`)
+    revalidatePath(`/admin/tutorials/${courseId}/edit`)
+    revalidatePath(`/teacher/tutorials/${courseId}/edit`)
     revalidatePath("/admin/courses")
+    revalidatePath("/admin/tutorials")
+    revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
+    revalidatePath("/tutorials")
     if (updated.slug) {
         revalidatePath(`/courses/${updated.slug}`)
+        revalidatePath(`/tutorials/${updated.slug}`)
     }
 
     await logContentAudit({

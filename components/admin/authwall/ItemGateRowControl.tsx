@@ -50,6 +50,16 @@ export function ItemGateRowControl({
         gateMode: "inherit",
         previewPercentage: null,
       })
+    } else if (newMode === "locked") {
+      onChange({
+        gateMode: "locked",
+        previewPercentage: 0,
+      })
+    } else if (newMode === "free") {
+      onChange({
+        gateMode: "free",
+        previewPercentage: 100,
+      })
     } else {
       onChange({
         gateMode: newMode,
@@ -79,13 +89,13 @@ export function ItemGateRowControl({
       case "free":
         return (
           <Badge className="text-[10px] py-0 px-1.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-300">
-            Free
+            Free (100%)
           </Badge>
         )
       case "locked":
         return (
           <Badge className="text-[10px] py-0 px-1.5 bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300 border-rose-300">
-            Locked
+            Locked (0%)
           </Badge>
         )
       case "preview":

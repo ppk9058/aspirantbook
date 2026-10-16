@@ -203,6 +203,22 @@ export function resolveAccess({
     effectivePercentage = containerPercentage
   }
 
+  // If effectivePercentage is 100%, content is 100% visible and not locked
+  if (effectivePercentage >= 100) {
+    return {
+      isLockedForGuest: false,
+      previewBlocks: allBlocks,
+      totalItemsCount,
+      previewCount: totalItemsCount,
+      gateMode,
+      effectivePercentage: 100,
+      isBotFullUnlocked: false,
+      isGated: true,
+      gateTitle: containerGate?.gateTitle,
+      gateSubtitle: containerGate?.gateSubtitle,
+    }
+  }
+
   // Slicing logic:
   let previewCount = 0
   if (effectivePercentage > 0 && totalItemsCount > 0) {

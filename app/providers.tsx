@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider"
 import { GoalProvider } from "@/components/providers/GoalProvider"
 import { MobileAuthProvider } from "@/components/auth/MobileAuthContext"
 import MobileAuthModal from "@/components/auth/MobileAuthModal"
+import { Toaster } from "sonner"
 
 import type { Session } from "next-auth"
 
@@ -28,6 +29,7 @@ export function Providers({
                     <MobileAuthProvider>
                         {children}
                         <MobileAuthModal />
+                        <Toaster richColors position="top-right" />
                     </MobileAuthProvider>
                 </GoalProvider>
             </ThemeProvider>
