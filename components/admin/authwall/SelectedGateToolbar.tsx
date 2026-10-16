@@ -143,10 +143,10 @@ export function SelectedGateToolbar({
   return (
     <div
       data-testid="selected-gate-toolbar"
-      className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 p-2 px-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-2xs text-xs mb-3 overflow-x-auto min-w-0"
+      className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 p-2 px-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-2xs text-xs mb-3 min-w-0"
     >
-      {/* Left: Selected item badge/name */}
-      <div className="flex items-center gap-1.5 min-w-0 max-w-[200px] sm:max-w-[260px] shrink-0">
+      {/* 1. Item Name (truncated) */}
+      <div className="flex items-center gap-1.5 min-w-0 max-w-[150px] sm:max-w-[180px] shrink-0">
         <TypeIcon className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
         <span className="text-[11px] uppercase tracking-wider font-extrabold text-gray-500 shrink-0">
           {typeLabel}:
@@ -159,103 +159,102 @@ export function SelectedGateToolbar({
         </span>
       </div>
 
-      {/* Middle: Mode selector & % input & Effective badge */}
-      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap min-w-0 flex-1">
-        {/* Mode Selector */}
-        <Select
-          value={mode}
-          onValueChange={(val) => handleModeChange(val as GateMode)}
-          disabled={disabled || isSaving}
+      {/* 2. Mode Selector */}
+      <Select
+        value={mode}
+        onValueChange={(val) => handleModeChange(val as GateMode)}
+        disabled={disabled || isSaving}
+      >
+        <SelectTrigger
+          data-testid="item-gate-mode-select"
+          className="h-7 text-xs w-[125px] sm:w-[130px] shrink-0 border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50"
         >
-          <SelectTrigger
-            data-testid="item-gate-mode-select"
-            className="h-7 text-xs w-[145px] shrink-0 border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="inherit">
-              <span className="flex items-center gap-1.5 text-xs">
-                <Sparkles className="w-3 h-3 text-indigo-500" />
-                Inherit
-              </span>
-            </SelectItem>
-            <SelectItem value="free">
-              <span className="flex items-center gap-1.5 text-xs">
-                <Unlock className="w-3 h-3 text-emerald-500" />
-                Free (100%)
-              </span>
-            </SelectItem>
-            <SelectItem value="preview">
-              <span className="flex items-center gap-1.5 text-xs">
-                <Eye className="w-3 h-3 text-amber-500" />
-                Preview %
-              </span>
-            </SelectItem>
-            <SelectItem value="locked">
-              <span className="flex items-center gap-1.5 text-xs">
-                <Lock className="w-3 h-3 text-rose-500" />
-                Fully locked (0%)
-              </span>
-            </SelectItem>
-          </SelectContent>
-        </Select>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="inherit">
+            <span className="flex items-center gap-1.5 text-xs">
+              <Sparkles className="w-3 h-3 text-indigo-500" />
+              Inherit
+            </span>
+          </SelectItem>
+          <SelectItem value="free">
+            <span className="flex items-center gap-1.5 text-xs">
+              <Unlock className="w-3 h-3 text-emerald-500" />
+              Free (100%)
+            </span>
+          </SelectItem>
+          <SelectItem value="preview">
+            <span className="flex items-center gap-1.5 text-xs">
+              <Eye className="w-3 h-3 text-amber-500" />
+              Preview %
+            </span>
+          </SelectItem>
+          <SelectItem value="locked">
+            <span className="flex items-center gap-1.5 text-xs">
+              <Lock className="w-3 h-3 text-rose-500" />
+              Fully locked (0%)
+            </span>
+          </SelectItem>
+        </SelectContent>
+      </Select>
 
-        {/* % Input (Visible only for preview mode) */}
-        {mode === "preview" && (
-          <div className="flex items-center gap-1 shrink-0 animate-in fade-in duration-150">
-            <Input
-              type="number"
-              min={0}
-              max={100}
-              value={localPct}
-              onChange={handlePctChange}
-              onBlur={handlePctBlur}
-              onKeyDown={handleKeyDown}
-              disabled={disabled || isSaving}
-              data-testid="item-gate-preview-input"
-              className="h-7 w-16 text-xs text-center px-1 font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              placeholder="%"
-            />
-            <span className="text-[11px] font-bold text-gray-500">%</span>
-          </div>
+      {/* 3. % Input (Preview % only) */}
+      {mode === "preview" && (
+        <div className="flex items-center gap-1 shrink-0 animate-in fade-in duration-150">
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            value={localPct}
+            onChange={handlePctChange}
+            onBlur={handlePctBlur}
+            onKeyDown={handleKeyDown}
+            disabled={disabled || isSaving}
+            data-testid="item-gate-preview-input"
+            className="h-7 w-13 text-xs text-center px-1 font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            placeholder="%"
+          />
+          <span className="text-[11px] font-bold text-gray-500">%</span>
+        </div>
+      )}
+
+      {/* 4. Save Button */}
+      <Button
+        size="sm"
+        onClick={handleSave}
+        disabled={disabled || isSaving}
+        data-testid="save-item-gate-btn"
+        className={`h-7 px-2.5 text-xs font-bold gap-1 shrink-0 transition-all ${
+          isDirty
+            ? "bg-purple-600 hover:bg-purple-700 text-white shadow-xs"
+            : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+        }`}
+      >
+        {isSaving ? (
+          <Loader2 className="w-3 h-3 animate-spin mr-1" />
+        ) : (
+          <Save className="w-3 h-3 mr-1" />
         )}
+        Save
+      </Button>
 
-        {/* Effective Badge */}
-        <Badge
-          data-testid="item-gate-mode-badge"
-          variant="secondary"
-          className="text-[10px] py-0.5 px-2 font-semibold shrink-0"
-        >
-          Effective for guests: {effectivePct}% {sourceLabel}
-        </Badge>
-      </div>
+      {/* 5. Effective Badge */}
+      <Badge
+        data-testid="item-gate-mode-badge"
+        variant="secondary"
+        className="text-[10px] py-0.5 px-2 font-semibold shrink-0"
+      >
+        Effective for guests: {effectivePct}% {sourceLabel}
+      </Badge>
 
-      {/* Right: Save Button & Helper text */}
-      <div className="flex items-center gap-2 shrink-0 ml-auto">
-        <Button
-          size="sm"
-          onClick={handleSave}
-          disabled={disabled || isSaving}
-          data-testid="save-item-gate-btn"
-          className={`h-7 px-3 text-xs font-bold gap-1 transition-all ${
-            isDirty
-              ? "bg-purple-600 hover:bg-purple-700 text-white shadow-xs"
-              : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-          }`}
-        >
-          {isSaving ? (
-            <Loader2 className="w-3 h-3 animate-spin mr-1" />
-          ) : (
-            <Save className="w-3 h-3 mr-1" />
-          )}
-          Save
-        </Button>
-
-        <span className="text-[10px] text-gray-400 dark:text-gray-500 hidden xl:inline shrink-0">
-          (100% = fully open, 0% = fully locked)
-        </span>
-      </div>
+      {/* 6. Helper Text */}
+      <span
+        className="text-[10px] text-gray-400 dark:text-gray-500 truncate min-w-0 flex-1 max-w-full"
+        title="(100% = fully open, 0% = fully locked)"
+      >
+        (100% = fully open, 0% = fully locked)
+      </span>
     </div>
   )
 }

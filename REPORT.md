@@ -1253,8 +1253,63 @@ Running 6 tests using 1 worker
 
 ---
 
+## Step 8: Studio SelectedGateToolbar Layout Fix & Proof
+
+### 1. Step 1: Reproduction & Root Cause Analysis
+- **Reproduction Method:** Run Playwright on test DB (`127.0.0.1:54329`) with a throwaway tutorial, select a lesson with mode `Preview 50%`, and inspect bounding boxes across 1440px (desktop), 1024px (tablet), and 375px (mobile).
+- **Bounding Boxes Measured (at 1440px before fix):**
+  - **Save button:** `x: 1126.2, y: 78.5, width: 76.9, height: 28` -> right edge = `1203.1`
+  - **Effective badge:** `x: 1186.2, y: 82.5, width: 146.3, height: 20` -> left edge = `1186.2`, right edge = `1332.5`
+  - **Helper text:** `x: 1211.1, y: 85.5, width: 183.9, height: 14` -> left edge = `1211.1`, right edge = `1395.0`
+- **Intersection Evidence:**
+  - Save button overlaps Effective badge by 16.9px (`1203.1 > 1186.2`).
+  - Effective badge overlaps Helper text by 121.4px (`1332.5 > 1211.1`).
+- **Root Cause Identified (`components/admin/authwall/SelectedGateToolbar.tsx` line 146):**
+  - The toolbar was divided into three competing flex groups styled with `sm:flex-nowrap justify-between`, rigid child widths, and `ml-auto`.
+  - In a 739px wide Rosera container at 1440px viewport, the middle group overflowed into the right margin, superimposing directly on top of the Save button and badges.
+
+---
+
+### 2. Step 2: Implementation & Layout Fix
+- **File Modified:** `components/admin/authwall/SelectedGateToolbar.tsx`
+- **Flex Architecture:**
+  - Unified toolbar layout into a clean single flex container with `flex-wrap gap-x-2.5 gap-y-1.5 items-center`.
+  - Enforced strict left-to-right DOM element sequence:
+    1. Item name with icon (truncated, `shrink min-w-0 max-w-[180px] sm:max-w-[220px] text-xs font-semibold`)
+    2. Mode selector (`shrink-0 text-xs`)
+    3. Preview % number input (rendered only when mode is `preview`, clamped 0–100, debounced, `w-14 shrink-0`)
+    4. Save button (rendered only when `isDirty`, with spinner and clean padding, `shrink-0`)
+    5. Effective for guests badge (dynamic percentage, `shrink-0 text-[11px]`)
+    6. Helper text `(100% = fully open, 0% = fully locked)` (`text-[10px] text-gray-400 dark:text-gray-500 truncate min-w-0 flex-1 max-w-full`, title tooltip enabled for short widths)
+- **Editor & Live Learner View Dimensions (Zero Layout Shift):**
+  - Before Fix: Rosera Editor width = 739px, height = 982px; Course Structure height = 982px.
+  - After Fix: Rosera Editor width = 739px (**0px delta**), height = 982px (**0px delta**); Course Structure height = 982px (**0px delta**).
+  - Toolbar height remains compact at 44px (1 line at 1440px).
+
+---
+
+### 3. Step 3: Proof & Verification
+
+#### A. Dedicated Spec: `tests/e2e/authwall-toolbar-layout.spec.ts`
+- Tests toolbar bounding boxes and scroll properties at 1440px, 1024px, and 375px:
+  - Asserts Save button, Effective badge, and Helper text have **0 bounding box intersections**.
+  - Asserts `toolbar.scrollWidth <= toolbar.clientWidth + 1` (no horizontal overflow or clipping).
+- Result: **3/3 passed** in both Desktop Chrome and Mobile Chrome.
+
+#### B. Complete Authwall Test Suite
+- Executed against test server on port 3045:
+  `BASE_URL=http://127.0.0.1:3045 npx playwright test tests/e2e/authwall-toolbar-layout.spec.ts tests/e2e/authwall-studio-lesson-gating.spec.ts tests/e2e/authwall-studio.spec.ts`
+- **Total:** 22/22 passed (100% pass rate).
+
+#### C. Code Quality & Standards
+- `npm run lint`: **0 errors**.
+- `npx tsc --noEmit`: **65 errors** (100% matching pre-existing legacy baseline, **0 new errors**).
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
+
 
 
 

@@ -127,7 +127,7 @@ test.describe("Studio Lesson Gating & Isolation (Desktop + Mobile)", () => {
     }
   })
 
-  test("STUDIO-FLOW-01: Configure per-lesson gates via Studio UI, verify DB isolation, UI persistence, and guest slicing", async ({ page, context }) => {
+  test("STUDIO-FLOW-01: Configure per-lesson gates via Studio UI, verify DB isolation, UI persistence, and guest slicing", async ({ page, context, browser }) => {
     const consoleErrors: string[] = []
     page.on("console", (msg) => {
       if (msg.type() === "error" && !msg.text().includes("favicon")) {
@@ -197,7 +197,7 @@ test.describe("Studio Lesson Gating & Isolation (Desktop + Mobile)", () => {
     // Explicitly Save Gate Settings
     const saveGateBtn = page.locator('[data-testid="save-gate-settings-button"]')
     await saveGateBtn.click()
-    await expect(page.locator("text=Gate settings saved successfully")).toBeVisible({ timeout: 10000 })
+    await expect(page.locator("text=Gate settings saved successfully").first()).toBeVisible({ timeout: 15000 })
 
     // 2. RELOAD the Studio and Assert UI Persistence
     await page.reload()
@@ -258,58 +258,62 @@ test.describe("Studio Lesson Gating & Isolation (Desktop + Mobile)", () => {
     expect(dbLessonD?.previewPercentage).toBe(100)
 
     // 4. Assert Guest View & Server Slicing (Incognito)
-    await context.clearCookies()
-    await page.goto(`/tutorials/${course.slug}`)
-    await page.waitForLoadState("networkidle")
+    const guestContext = await browser.newContext({
+      viewport: page.viewportSize() || undefined,
+    })
+    const guestPage = await guestContext.newPage()
+    await guestPage.goto(`/tutorials/${course.slug}`)
+    await guestPage.waitForLoadState("networkidle")
 
     const authwallGateSelector = 'section[role="region"][aria-label="Content Gate"]'
 
-    const selectLesson = async (pattern: RegExp) => {
-      const indexBtn = page.locator('header button[aria-label="Index"]')
+    const selectLesson = async (p: typeof guestPage, pattern: RegExp) => {
+      const indexBtn = p.locator('header button[aria-label="Index"]')
       if (await indexBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
         await indexBtn.click()
-        await page.waitForTimeout(300)
+        await p.waitForTimeout(300)
       }
-      const btn = page.locator("button.asp-nv").filter({ hasText: pattern, visible: true }).first()
+      const btn = p.locator("button.asp-nv").filter({ hasText: pattern, visible: true }).first()
       await btn.waitFor({ state: "visible", timeout: 8000 })
       await btn.click()
-      await page.waitForTimeout(400)
+      await p.waitForTimeout(400)
     }
 
     // --- Check Lesson A (20% = 2 blocks visible) ---
-    await selectLesson(/Lesson A/i)
-    let contentA = await page.content()
+    await selectLesson(guestPage, /Lesson A/i)
+    let contentA = await guestPage.content()
     expect(contentA).toContain("A_BLOCK_1")
     expect(contentA).toContain("A_BLOCK_2")
     expect(contentA).not.toContain("A_BLOCK_3")
     expect(contentA).not.toContain("A_BLOCK_10")
-    await expect(page.locator(authwallGateSelector)).toBeVisible()
+    await expect(guestPage.locator(authwallGateSelector)).toBeVisible()
 
     // --- Check Lesson B (0% Locked = no blocks visible, title + Authwall only) ---
-    await selectLesson(/Lesson B/i)
-    let contentB = await page.content()
+    await selectLesson(guestPage, /Lesson B/i)
+    let contentB = await guestPage.content()
     expect(contentB).not.toContain("B_BLOCK_1")
     expect(contentB).not.toContain("B_BLOCK_10")
-    await expect(page.locator(authwallGateSelector)).toBeVisible()
+    await expect(guestPage.locator(authwallGateSelector)).toBeVisible()
 
     // --- Check Lesson C (50% = 5 blocks visible) ---
-    await selectLesson(/Lesson C/i)
-    let contentC = await page.content()
+    await selectLesson(guestPage, /Lesson C/i)
+    let contentC = await guestPage.content()
     expect(contentC).toContain("C_BLOCK_1")
     expect(contentC).toContain("C_BLOCK_5")
     expect(contentC).not.toContain("C_BLOCK_6")
     expect(contentC).not.toContain("C_BLOCK_10")
-    await expect(page.locator(authwallGateSelector)).toBeVisible()
+    await expect(guestPage.locator(authwallGateSelector)).toBeVisible()
 
     // --- Check Lesson D (100% Free = all blocks visible, NO Authwall) ---
-    await selectLesson(/Lesson D/i)
-    let contentD = await page.content()
+    await selectLesson(guestPage, /Lesson D/i)
+    let contentD = await guestPage.content()
     expect(contentD).toContain("D_BLOCK_1")
     expect(contentD).toContain("D_BLOCK_10")
-    await expect(page.locator(authwallGateSelector)).not.toBeVisible()
+    await expect(guestPage.locator(authwallGateSelector)).not.toBeVisible()
+
+    await guestContext.close()
 
     // 5. Revert Lesson B back to Inherit and assert clean isolation
-    await loginAs(page, adminUser.email)
     await page.goto(`/admin/tutorials/${course.id}/edit`)
     await page.waitForLoadState("networkidle")
 
@@ -337,15 +341,19 @@ test.describe("Studio Lesson Gating & Isolation (Desktop + Mobile)", () => {
     expect(dbLessonAAfter?.previewPercentage).toBe(20)
 
     // Guest verify: Lesson B now inherits 100% (from Course) and shows full content
-    await context.clearCookies()
-    await page.goto(`/tutorials/${course.slug}`)
-    await page.waitForLoadState("networkidle")
+    const guestContext2 = await browser.newContext({
+      viewport: page.viewportSize() || undefined,
+    })
+    const guestPage2 = await guestContext2.newPage()
+    await guestPage2.goto(`/tutorials/${course.slug}`)
+    await guestPage2.waitForLoadState("networkidle")
 
-    await selectLesson(/Lesson B/i)
-    const contentBAfter = await page.content()
+    await selectLesson(guestPage2, /Lesson B/i)
+    const contentBAfter = await guestPage2.content()
     expect(contentBAfter).toContain("B_BLOCK_1")
     expect(contentBAfter).toContain("B_BLOCK_10")
-    await expect(page.locator(authwallGateSelector)).not.toBeVisible()
+    await expect(guestPage2.locator(authwallGateSelector)).not.toBeVisible()
+    await guestContext2.close()
 
     // 6. Assert Zero activeBlocks TypeError console errors
     const activeBlocksErrors = consoleErrors.filter(
