@@ -154,7 +154,9 @@ export default async function TutorialSlugPage({
                 } else if (typeof l.content === "string" && l.content.trim().startsWith("[")) {
                     l.content = JSON.stringify(access.previewBlocks)
                 } else {
-                    l.content = access.previewBlocks.map((b) => b.html || b.content || "").join("\n")
+                    l.content = access.previewBlocks
+                        .map((b) => (typeof b === "string" ? b : b.html || b.content || ""))
+                        .join("\n")
                 }
                 ;(l as any).isLockedForGuest = true
                 ;(l as any).gateTitle = access.gateTitle

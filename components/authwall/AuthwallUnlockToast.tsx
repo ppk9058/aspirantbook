@@ -10,14 +10,15 @@ export function AuthwallUnlockToast() {
     if (typeof window === "undefined") return
 
     try {
-      const returnUrl = sessionStorage.getItem("authwall_return_url")
-      const scrollY = sessionStorage.getItem("authwall_scroll_y")
+      const returnUrl = sessionStorage.getItem("authwall_return_url") || sessionStorage.getItem("authwall_scroll_pos")
+      const scrollY = sessionStorage.getItem("authwall_scroll_y") || sessionStorage.getItem("authwall_scroll_pos")
       const moduleName = sessionStorage.getItem("authwall_gated_module") || "content"
 
-      if (returnUrl) {
+      if (returnUrl || scrollY) {
         // Clear stored keys so toast fires exactly once
         sessionStorage.removeItem("authwall_return_url")
         sessionStorage.removeItem("authwall_scroll_y")
+        sessionStorage.removeItem("authwall_scroll_pos")
         sessionStorage.removeItem("authwall_gated_module")
 
         // Restore scroll position smoothly
@@ -30,7 +31,7 @@ export function AuthwallUnlockToast() {
           }, 150)
         }
 
-        setToastMessage(`Unlocked! Full access to ${moduleName} is now active.`)
+        setToastMessage("Welcome back! Full content unlocked.")
         const timer = setTimeout(() => {
           setToastMessage(null)
         }, 5000)

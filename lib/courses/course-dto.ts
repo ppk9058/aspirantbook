@@ -83,7 +83,11 @@ export function toSafeLessonDto(
 
   // Free text tutorials are public by spec: lesson content is readable by guests and logged-in users alike.
   // Paid courses and sensitive video media remain strictly protected by isUnlocked.
-  const allowContent = isUnlocked || (isFreeTutorial && rawLesson.type !== "VIDEO" && !rawLesson.videoUrl)
+  // Sliced preview content for gated lessons is explicitly allowed through.
+  const allowContent =
+    isUnlocked ||
+    Boolean((rawLesson as any).isLockedForGuest) ||
+    (isFreeTutorial && rawLesson.type !== "VIDEO" && !rawLesson.videoUrl)
 
   if (allowContent) {
     safe.content = rawLesson.content ?? null
