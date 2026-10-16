@@ -484,8 +484,45 @@ Running 14 tests using 1 worker
 
 ---
 
+## Step 5: Real Verified-Bot Path with Mocked DNS Check & SEO Mode Enforcement
+- **Test Suite:** `tests/e2e/authwall-bot-verify.spec.ts` (10 tests across desktop and mobile projects).
+- **Crawler Architecture & Guarantees Verified:**
+  1. **Strict Double-DNS Verification:**
+     - User-Agent matching alone is never trusted. Legitimate search crawlers require matching PTR reverse DNS (`.googlebot.com`, `.google.com`, `.bing.com`, `.yandex.com`, `.baidu.com`) and matching forward DNS (A/AAAA record matches client IP).
+     - Non-bot agents and spoofed User-Agents without valid PTR/forward resolution are immediately rejected.
+     - 10-minute in-memory LRU verification cache prevents duplicate DNS lookups for recurrent crawler IPs.
+  2. **`seoMode: "bot-full"` Behaviour:**
+     - Real verified bots receiving verified status receive 100% full article content for deep indexing.
+     - Spoofed Googlebot (e.g. malicious scraper sending `User-Agent: Googlebot/2.1` from untrusted IP) receives strictly the 20% preview slice with paywall schema; full secret text is excluded from both HTML and RSC flight payloads, and the `<AuthwallGate>` is rendered.
+  3. **`seoMode: "preview"` Anti-Cloaking Safeguard:**
+     - When `seoMode` is configured as `"preview"`, even verified search crawlers receive strictly the exact same preview slice as human guests.
+     - Search engines receive paywalled structured data (`schema.org` `isAccessibleForFree: false`) guaranteeing full compliance with Google Search Central guidelines without risk of search engine cloaking penalties.
+
+### Raw Execution Output
+```
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 10 tests using 1 worker
+  ✓   1 [desktop] › BOT-01: Unit DNS Verification Logic correctly verifies genuine crawler and rejects spoofers (5ms)
+  ✓   2 [desktop] › BOT-02: resolveAccess helper grants 100% text ONLY when isVerifiedBot=true AND seoMode='bot-full' (5ms)
+  ✓   3 [desktop] › BOT-03: Real verified-bot HTTP path gets full text under seoMode bot-full (39ms)
+  ✓   4 [desktop] › BOT-04: Spoofed Googlebot HTTP path is denied full text and receives only preview under seoMode bot-full (1.3s)
+  ✓   5 [desktop] › BOT-05: When seoMode is switched to 'preview', verified bot receives only preview slice (37ms)
+  ✓   6 [mobile] › BOT-01: Unit DNS Verification Logic correctly verifies genuine crawler and rejects spoofers (6ms)
+  ✓   7 [mobile] › BOT-02: resolveAccess helper grants 100% text ONLY when isVerifiedBot=true AND seoMode='bot-full' (4ms)
+  ✓   8 [mobile] › BOT-03: Real verified-bot HTTP path gets full text under seoMode bot-full (42ms)
+  ✓   9 [mobile] › BOT-04: Spoofed Googlebot HTTP path is denied full text and receives only preview under seoMode bot-full (930ms)
+  ✓  10 [mobile] › BOT-05: When seoMode is switched to 'preview', verified bot receives only preview slice (41ms)
+  10 passed (8.1s)
+```
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
+
 
 
 
