@@ -64,6 +64,8 @@ export default async function TutorialSlugPage({
                             content: true,
                             duration: true,
                             durationText: true,
+                            gateMode: true,
+                            previewPercentage: true,
                             versions: {
                                 orderBy: { createdAt: "desc" },
                                 take: 1,
@@ -137,19 +139,28 @@ export default async function TutorialSlugPage({
 
     for (const ch of course.chapters || []) {
         for (const l of ch.lessons || []) {
+            const rawLessonMode = (l as any).gateMode
+            const effectiveGateMode = rawLessonMode && rawLessonMode !== "inherit" ? rawLessonMode : (ch as any).gateMode
+            const effectivePreviewPct = (l as any).previewPercentage !== null && (l as any).previewPercentage !== undefined
+                ? (l as any).previewPercentage
+                : (ch as any).previewPercentage
+
             const access = resolveAccess({
                 viewer,
                 content: l.content,
                 containerGate: course,
                 itemGate: {
-                    gateMode: (ch as any).gateMode,
-                    previewPercentage: (ch as any).previewPercentage,
+                    gateMode: effectiveGateMode,
+                    previewPercentage: effectivePreviewPct,
                 },
                 isOwner: (course as any).createdById === userId || (course as any).userId === userId,
             })
 
             if (access.isLockedForGuest) {
-                if (typeof l.content === "string" && l.content.trim().startsWith("{")) {
+                if (access.effectivePercentage === 0 || access.previewBlocks.length === 0) {
+                    // Fully locked item: zero content sent to client, title + gate only
+                    l.content = ""
+                } else if (typeof l.content === "string" && l.content.trim().startsWith("{")) {
                     l.content = JSON.stringify({ blocks: access.previewBlocks })
                 } else if (typeof l.content === "string" && l.content.trim().startsWith("[")) {
                     l.content = JSON.stringify(access.previewBlocks)
@@ -162,6 +173,8 @@ export default async function TutorialSlugPage({
                 ;(l as any).gateTitle = access.gateTitle
                 ;(l as any).gateSubtitle = access.gateSubtitle
                 ;(l as any).effectivePercentage = access.effectivePercentage
+                ;(l as any).totalItemsCount = access.totalItemsCount
+                ;(l as any).previewCount = access.previewCount
             }
         }
     }

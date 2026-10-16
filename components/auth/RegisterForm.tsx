@@ -28,7 +28,11 @@ function SubmitButton() {
     )
 }
 
+import { useSearchParams } from "next/navigation"
+
 export function RegisterForm() {
+    const searchParams = useSearchParams()
+    const callbackUrl = searchParams.get("callbackUrl")
     const [state, dispatch, isPending] = useActionState(register, null)
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
@@ -40,11 +44,12 @@ export function RegisterForm() {
     useEffect(() => {
         if (state?.success) {
             const timer = setTimeout(() => {
-                window.location.href = "/login"
+                const target = callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login"
+                window.location.href = target
             }, 3000)
             return () => clearTimeout(timer)
         }
-    }, [state?.success])
+    }, [state?.success, callbackUrl])
 
     const getStrength = (pass: string) => {
         if (!pass) return 0

@@ -150,27 +150,38 @@ test.describe("Authwall: Cache Isolation, Entitlement Boundaries & Bot/Human Var
   })
 
   test("CACHE-03: Logout then browser Back shows only the preview slice, never secret content", async ({ page, context }) => {
-    // 1. Log in as user
-    await loginAs(page, enrolledUser.email)
-    await page.goto(`/tutorials/${course.slug}`)
-    let content = await page.content()
-    expect(content).toContain(SECRET_CONTENT)
+    const throwawayUser = await createActor(newNonce(), UserRole.FREE, "cache-throwaway")
 
-    // 2. Navigate away to another page (e.g. dashboard)
-    await page.goto("/dashboard")
-    await expect(page).toHaveURL(/.*dashboard.*/)
+    try {
+      // 1. Log in as throwaway user
+      await loginAs(page, throwawayUser.email)
+      await page.goto(`/tutorials/${course.slug}`)
+      let content = await page.content()
+      expect(content).toContain(SECRET_CONTENT)
 
-    // 3. Clear auth cookies (simulate logout)
-    await context.clearCookies()
+      // 2. Navigate away to another page (e.g. dashboard)
+      await page.goto("/dashboard")
+      await expect(page).toHaveURL(/.*dashboard.*/)
 
-    // 4. Hit browser back button and revalidate against server
-    await page.goBack()
-    await page.reload()
+      // 3. Clear auth cookies and invalidate session (simulate logout)
+      await context.clearCookies()
+      await prisma.user.update({
+        where: { id: throwawayUser.id },
+        data: { sessionVersion: { increment: 1 } },
+      })
+      await page.waitForTimeout(300)
 
-    // 5. Verify page content has revalidated and does NOT leak secret content
-    content = await page.content()
-    expect(content).not.toContain(SECRET_CONTENT)
-    expect(content).toContain(PREVIEW_CONTENT)
+      // 4. Hit browser back button and revalidate against server
+      await page.goBack()
+      await page.reload()
+
+      // 5. Verify page content has revalidated and does NOT leak secret content
+      content = await page.content()
+      expect(content).not.toContain(SECRET_CONTENT)
+      expect(content).toContain(PREVIEW_CONTENT)
+    } finally {
+      await prisma.user.delete({ where: { id: throwawayUser.id } }).catch(() => {})
+    }
   })
 
   test("CACHE-04: Verified-bot variant response never reaches human guests or users", async ({ request, browser }) => {

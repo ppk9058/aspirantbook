@@ -175,4 +175,66 @@ test.describe("Authwall: Real-Click UI Login, In-Place Content Expansion & Scrol
     // CLS must be well within Google's "Good" threshold (< 0.1)
     expect(clsScore).toBeLessThan(0.1)
   })
+
+  test("UNLOCK-02: Guest clicks Sign In, navigates back from /login without logging in: NO toast, Authwall still shown", async ({ page, context }) => {
+    await context.clearCookies()
+
+    await page.goto(`/tutorials/${unlockCourse.slug}`)
+    const startBtn = page.getByRole("button", { name: /Start Reading Tutorial|Constitutional Review/i }).first()
+    await startBtn.waitFor({ state: "visible", timeout: 10000 })
+    await startBtn.click()
+
+    const authwallSection = page.locator('section[role="region"][aria-label="Content Gate"]')
+    await expect(authwallSection).toBeVisible()
+
+    // Click Sign In
+    const signInCta = authwallSection.getByRole("link", { name: /Sign In to Unlock Free Access/i })
+    await signInCta.click()
+    await page.waitForURL((url) => url.pathname.includes("/login"), { timeout: 15000 })
+
+    // Return WITHOUT signing in
+    await page.goBack()
+
+    const postBackStartBtn = page.getByRole("button", { name: /Start Reading Tutorial|Constitutional Review/i }).first()
+    if (await postBackStartBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await postBackStartBtn.click()
+    }
+
+    // Assert: Authwall remains visible, NO toast appears
+    await expect(authwallSection).toBeVisible({ timeout: 10000 })
+    const toast = page.locator("[role='status']")
+    await expect(toast).not.toBeVisible()
+    await expect(page.locator(`text=${SECRET_CONTENT}`)).not.toBeVisible()
+  })
+
+  test("UNLOCK-03: Guest clicks Sign Up, navigates back from /register without registering: NO toast, Authwall still shown", async ({ page, context }) => {
+    await context.clearCookies()
+
+    await page.goto(`/tutorials/${unlockCourse.slug}`)
+    const startBtn = page.getByRole("button", { name: /Start Reading Tutorial|Constitutional Review/i }).first()
+    await startBtn.waitFor({ state: "visible", timeout: 10000 })
+    await startBtn.click()
+
+    const authwallSection = page.locator('section[role="region"][aria-label="Content Gate"]')
+    await expect(authwallSection).toBeVisible()
+
+    // Click Sign Up free
+    const signUpCta = authwallSection.getByRole("link", { name: /Sign up free/i })
+    await signUpCta.click()
+    await page.waitForURL((url) => url.pathname.includes("/register"), { timeout: 15000 })
+
+    // Return WITHOUT registering
+    await page.goBack()
+
+    const postBackRegisterStartBtn = page.getByRole("button", { name: /Start Reading Tutorial|Constitutional Review/i }).first()
+    if (await postBackRegisterStartBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await postBackRegisterStartBtn.click()
+    }
+
+    // Assert: Authwall remains visible, NO toast appears
+    await expect(authwallSection).toBeVisible({ timeout: 10000 })
+    const toast = page.locator("[role='status']")
+    await expect(toast).not.toBeVisible()
+    await expect(page.locator(`text=${SECRET_CONTENT}`)).not.toBeVisible()
+  })
 })

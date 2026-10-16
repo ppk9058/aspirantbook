@@ -112,7 +112,10 @@ export function toSafeLessonDto(
     ;(safe as any).isLockedForGuest = true
     ;(safe as any).gateTitle = (rawLesson as any).gateTitle
     ;(safe as any).gateSubtitle = (rawLesson as any).gateSubtitle
-    ;(safe as any).effectivePercentage = (rawLesson as any).effectivePercentage
+    ;(safe as any).effectivePercentage = (rawLesson as any).effectivePercentage !== undefined ? (rawLesson as any).effectivePercentage : 0
+    ;(safe as any).totalItemsCount = (rawLesson as any).totalItemsCount
+    ;(safe as any).previewCount = (rawLesson as any).previewCount
+    ;(safe as any).gateMode = (rawLesson as any).gateMode
   }
 
   return safe
@@ -134,10 +137,12 @@ export function toSafeChapterDto(
     title: rawChapter.title,
     order: rawChapter.order ?? 0,
     courseId: rawChapter.courseId,
+    gateMode: rawChapter.gateMode || "inherit",
+    previewPercentage: rawChapter.previewPercentage,
     lessons: Array.isArray(rawChapter.lessons)
       ? rawChapter.lessons.map((l: any) => toSafeLessonDto(l, hasAccess, allowTrialMedia, isFreeTutorial))
       : [],
-  }
+  } as any
 }
 
 /**

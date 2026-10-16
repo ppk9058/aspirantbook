@@ -7,6 +7,7 @@ import { z } from "zod"
 import { LessonType } from "@prisma/client"
 import { canEditContent, canDeleteContent } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
+import { chunkContent, computeContentHash } from "@/lib/authwall/chunker"
 
 const LessonSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -66,6 +67,10 @@ export async function createLesson(
         select: { order: true },
     })
 
+    const contentBlocks = validated.content ? chunkContent(validated.content) : []
+    const blockCount = contentBlocks.length > 0 ? contentBlocks.length : undefined
+    const contentHash = contentBlocks.length > 0 ? computeContentHash(contentBlocks) : undefined
+
     const lesson = await prisma.lesson.create({
         data: {
             title: validated.title,
@@ -75,6 +80,8 @@ export async function createLesson(
             slides: validated.slides || undefined,
             duration: validated.duration || undefined,
             xpReward: validated.xpReward || 10,
+            blockCount,
+            contentHash,
             chapterId,
             order: (maxOrder?.order ?? -1) + 1,
         },
@@ -115,13 +122,17 @@ export async function updateLesson(
         throw new Error("Unauthorized: Insufficient permissions to update lesson")
     }
 
+    const contentBlocks = data.content ? chunkContent(data.content) : undefined
+    const blockCount = contentBlocks ? contentBlocks.length : undefined
+    const contentHash = contentBlocks ? computeContentHash(contentBlocks) : undefined
+
     const lesson = await prisma.lesson.update({
         where: { id: lessonId },
         data: {
             ...(data.title !== undefined ? { title: data.title } : {}),
             ...(data.type !== undefined ? { type: data.type } : {}),
             ...(data.videoUrl !== undefined ? { videoUrl: data.videoUrl } : {}),
-            ...(data.content !== undefined ? { content: data.content } : {}),
+            ...(data.content !== undefined ? { content: data.content, blockCount, contentHash } : {}),
             ...(data.slides !== undefined ? { slides: data.slides } : {}),
             ...(data.duration !== undefined ? { duration: data.duration } : {}),
             ...(data.xpReward !== undefined ? { xpReward: data.xpReward } : {}),
@@ -374,6 +385,10 @@ export async function publishLessonVersion(
         },
     })
 
+    const blocksArr = Array.isArray(targetBlocks) ? targetBlocks : [targetBlocks]
+    const blocksCount = blocksArr.length
+    const contentHash = computeContentHash(blocksArr)
+
     // Update lesson
     await prisma.lesson.update({
         where: { id: lessonId },
@@ -382,6 +397,8 @@ export async function publishLessonVersion(
             currentDraftVersionId: null, // Draft is published, no pending changes
             locked: false,
             content: JSON.stringify(targetBlocks),
+            blockCount: blocksCount,
+            contentHash,
         },
     })
 

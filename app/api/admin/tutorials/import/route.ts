@@ -4,6 +4,7 @@ import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { logContentAudit } from "@/lib/actions/admin/audit"
 import { importTutorialPackage } from "@/lib/actions/admin/tutorial-import"
 import { validateOrMapCanonicalGoals } from "@/lib/tutorials-goal-categories"
+import { chunkContent, computeContentHash } from "@/lib/authwall/chunker"
 
 interface LessonImport {
   title: string
@@ -141,12 +142,19 @@ export async function POST(req: Request) {
 
           const lessonItems = ch.lessons && ch.lessons.length > 0 ? ch.lessons : [{ title: ch.title, content: description }]
           for (const [lIdx, l] of lessonItems.entries()) {
+            const lessonContent = l.content || description
+            const blocks = chunkContent(lessonContent)
+            const blockCount = blocks.length
+            const contentHash = computeContentHash(blocks)
+
             await prisma.lesson.create({
               data: {
                 title: l.title.trim() || `Lesson ${lIdx + 1}`,
                 order: l.order || lIdx + 1,
                 type: "READING",
-                content: l.content || description,
+                content: lessonContent,
+                blockCount,
+                contentHash,
                 durationText: l.durationText || "15 min read",
                 duration: l.duration || 15,
                 isTrial: true,
@@ -195,15 +203,21 @@ export async function POST(req: Request) {
               description: ch.description ? ch.description.trim() : null,
               lessons: {
                 create: (ch.lessons && ch.lessons.length > 0 ? ch.lessons : [{ title: ch.title }]).map(
-                  (l, lIdx) => ({
-                    title: l.title.trim() || `Lesson ${lIdx + 1}`,
-                    order: l.order || lIdx + 1,
-                    type: "READING",
-                    content: l.content || description,
-                    durationText: l.durationText || "15 min read",
-                    duration: l.duration || 15,
-                    isTrial: true,
-                  })
+                  (l, lIdx) => {
+                    const lessonContent = l.content || description
+                    const blocks = chunkContent(lessonContent)
+                    return {
+                      title: l.title.trim() || `Lesson ${lIdx + 1}`,
+                      order: l.order || lIdx + 1,
+                      type: "READING",
+                      content: lessonContent,
+                      blockCount: blocks.length,
+                      contentHash: computeContentHash(blocks),
+                      durationText: l.durationText || "15 min read",
+                      duration: l.duration || 15,
+                      isTrial: true,
+                    }
+                  }
                 ),
               },
             })),

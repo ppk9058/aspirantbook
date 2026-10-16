@@ -133,26 +133,29 @@ function ChapterIndexContent({
                                     const isSelected = activeId === l.id
                                     const isDone = Boolean(doneMap[l.id])
 
-                                    let isLocked = false
+                                    let isComingSoon = false
                                     try {
                                         const parsed = JSON.parse(l.content)
                                         if (parsed?.blocks?.[0]?.content?.includes("scheduled for an upcoming release")) {
-                                            isLocked = true
+                                            isComingSoon = true
                                         }
                                     } catch {}
+
+                                    const isItemGated = Boolean((l as any).isLockedForGuest || (ch as any)?.isLockedForGuest)
+                                    const isFullyLocked = isItemGated && ((l as any).effectivePercentage === 0 || (ch as any)?.effectivePercentage === 0)
 
                                     return (
                                         <button
                                             key={`${prefixId}-${l.id}`}
                                             ref={isSelected && activeItemRef ? activeItemRef : undefined}
                                             type="button"
-                                            disabled={isLocked}
-                                            onClick={() => onSelectLesson(l.id, isLocked)}
-                                            className={`asp-nv ${isSelected ? "active" : ""} ${isLocked ? "disabled" : ""}`}
-                                            title={isLocked ? "Coming in a later phase" : l.title}
+                                            disabled={isComingSoon}
+                                            onClick={() => onSelectLesson(l.id, false)}
+                                            className={`asp-nv ${isSelected ? "active" : ""} ${isComingSoon ? "disabled" : ""}`}
+                                            title={isComingSoon ? "Coming in a later phase" : isFullyLocked ? "Locked chapter — sign in to unlock" : l.title}
                                         >
                                             <span className="truncate pr-1">{l.title}</span>
-                                            {isDone && !isLocked && (
+                                            {isDone && !isComingSoon && (
                                                 <span
                                                     style={{ color: cGreen }}
                                                     className="ml-auto font-extrabold text-sm flex-shrink-0"
@@ -160,8 +163,8 @@ function ChapterIndexContent({
                                                     ✔
                                                 </span>
                                             )}
-                                            {isLocked && (
-                                                <span className="ml-auto text-xs opacity-70 flex-shrink-0">
+                                            {isFullyLocked && (
+                                                <span className="ml-auto text-xs opacity-70 flex-shrink-0" title="Locked content">
                                                     🔒
                                                 </span>
                                             )}
@@ -450,12 +453,14 @@ export function AspirantbookTutorialView({
             phaseTitle: string
             lessonId: string
             title: string
-            content: string
+            content: any
             isLocked: boolean
             isLockedForGuest?: boolean
             gateTitle?: string | null
             gateSubtitle?: string | null
             effectivePercentage?: number
+            totalItemsCount?: number
+            previewCount?: number
         }> = []
 
         chapters.forEach((ch) => {
@@ -468,6 +473,11 @@ export function AspirantbookTutorialView({
                     }
                 } catch {}
 
+                const isGuestLocked = Boolean((l as any).isLockedForGuest || (ch as any).isLockedForGuest)
+                const effPct = (l as any).effectivePercentage !== undefined
+                    ? (l as any).effectivePercentage
+                    : ((ch as any).effectivePercentage !== undefined ? (ch as any).effectivePercentage : 20)
+
                 list.push({
                     chapterId: ch.id,
                     phaseTitle: ch.title,
@@ -475,10 +485,12 @@ export function AspirantbookTutorialView({
                     title: l.title,
                     content: l.content,
                     isLocked,
-                    isLockedForGuest: Boolean((l as any).isLockedForGuest || (ch as any).isLockedForGuest),
+                    isLockedForGuest: isGuestLocked,
                     gateTitle: (l as any).gateTitle || (ch as any).gateTitle,
                     gateSubtitle: (l as any).gateSubtitle || (ch as any).gateSubtitle,
-                    effectivePercentage: (l as any).effectivePercentage || (ch as any).effectivePercentage,
+                    effectivePercentage: effPct,
+                    totalItemsCount: (l as any).totalItemsCount,
+                    previewCount: (l as any).previewCount,
                 })
             })
         })
@@ -1261,23 +1273,39 @@ export function AspirantbookTutorialView({
 
                             {/* Render lesson content using RoseraRenderer with exact theme colors */}
                             <div className="pt-2 text-base" style={{ color: cInk }}>
-                                {currentLesson.content && String(currentLesson.content).trim() ? (
-                                    <RoseraRenderer content={currentLesson.content} theme={theme} courseTitle={course.title} />
-                                ) : (
-                                    <div className="p-8 my-4 text-center rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50">
-                                        <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-                                            Lesson content is being finalized.
-                                        </p>
-                                    </div>
-                                )}
-
-                                {currentLesson.isLockedForGuest && (
+                                {currentLesson.isLockedForGuest && currentLesson.effectivePercentage === 0 ? (
+                                    /* 0% Locked Chapter: Never show placeholder text or body, show AuthwallGate immediately */
                                     <AuthwallGate
                                         title={currentLesson.gateTitle}
                                         subtitle={currentLesson.gateSubtitle}
                                         moduleName="Tutorial"
-                                        effectivePercentage={currentLesson.effectivePercentage}
+                                        effectivePercentage={0}
+                                        totalItemsCount={currentLesson.totalItemsCount}
+                                        previewCount={0}
                                     />
+                                ) : (
+                                    <>
+                                        {currentLesson.content && String(currentLesson.content).trim() ? (
+                                            <RoseraRenderer content={currentLesson.content} theme={theme} courseTitle={course.title} />
+                                        ) : (
+                                            <div className="p-8 my-4 text-center rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50">
+                                                <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+                                                    Lesson content is being finalized.
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {currentLesson.isLockedForGuest && (
+                                            <AuthwallGate
+                                                title={currentLesson.gateTitle}
+                                                subtitle={currentLesson.gateSubtitle}
+                                                moduleName="Tutorial"
+                                                effectivePercentage={currentLesson.effectivePercentage}
+                                                totalItemsCount={currentLesson.totalItemsCount}
+                                                previewCount={currentLesson.previewCount}
+                                            />
+                                        )}
+                                    </>
                                 )}
                             </div>
 

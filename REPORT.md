@@ -659,6 +659,115 @@ Errors  Files
 
 ---
 
+## Step 10: Big Bug-Fix & Hardening Run (Owner Findings on Real Dev DB)
+
+### 1. Owner's Findings on Dev Server (`localhost:3000`, Supabase Dev DB)
+- **Bug A (No Slicing / Full Content Rendered):** Chapters set to 20% preview or locked (0%) both showed the full chapter to guests, including MCQs. The Authwall card appeared only at the very end of the chapter saying *"You are viewing a 100% preview"* with an empty blurred placeholder.
+- **Bug B (False "Unlocked" Toast):** Clicking "Sign In" routed to `/login`. Navigating BACK without logging in fired the toast *"Welcome back! Full content unlocked."* because the toast triggered on `sessionStorage` (`authwall_scroll_pos`), not a verified user session.
+- **Requirement C (Non-blocking Authwall):** The gate must never lock page scroll (`overflow: hidden`, `position: fixed` on body are forbidden). Blurred placeholder covers only locked content with `pointer-events: none`; header, sidebar, chapter index, free chapters, and search must remain interactive at 60fps.
+
+### 2. Read-Only Audit & Reproduction Against Dev DB
+- Ran `scripts/audit-dev-db-gating.ts` against dev DB (`aws***.pooler.supabase.com:5432/postgres`):
+  - Course `agentic-engineering-zero-to-hero` had `isGated: true`, `previewPercentage: 100`.
+  - All 10 chapters had `gateMode: "inherit"`, `previewPercentage: null`.
+  - Content hashing showed 2 lessons and 1 CA PDF missing chunk metadata.
+- Automated reproduction in `tests/e2e/authwall-owner-repro.spec.ts`:
+  - `REPRO-B`: Confirmed false unlock toast fired on guest back-navigation.
+  - `REPRO-A`: Confirmed Authwall displayed "100% preview" with full content rendered.
+
+### 3. Root Cause Analysis
+- **Bug A:**
+  1. Dev DB container had `previewPercentage: 100` and all chapters had `gateMode: "inherit"`. `resolveAccess` inherited 100%, slicing 100% of blocks.
+  2. For 0% locked items, `effectivePercentage || fallback` in `AspirantbookTutorialView.tsx` evaluated `0 || ...` to falsy, defaulting to 20% or 100%.
+  3. `RoseraRenderer` was rendering before `<AuthwallGate>`, so if content was empty string it showed "Lesson content is being finalized" instead of title + Authwall only.
+  4. `sanitizeItemForGuest` only stripped `correctOption`/`explanation` and missed Rosera Schema V1 quiz keys `a` and `why`, leaking answers/explanations to guests.
+- **Bug B:**
+  1. `AuthwallUnlockToast.tsx` only checked `sessionStorage.getItem("authwall_scroll_y")` without checking `useSession()`. Navigating back from `/login` or `/register` fired the toast even for an unauthenticated guest.
+- **Requirement C:**
+  1. `ChapterIndexContent` disabled clicking on locked chapters (`disabled={isLocked}`), preventing users from reading previews or switching topics.
+
+### 4. Core Product Fixes Implemented
+1. **`lib/authwall/resolveAccess.ts`:**
+   - Explicitly strips Rosera Schema V1 embedded quiz fields (`a` [answer index], `why` [explanation], `answer`) in addition to standard exam fields. Recursively sanitizes nested quiz objects.
+   - Added fail-closed `try/catch` around `chunkContent`: if chunking fails on gated content, falls back to `[]` (empty preview, 0 blocks), never leaking full content.
+2. **`app/(dashboard)/tutorials/[slug]/page.tsx`:**
+   - Included `gateMode` and `previewPercentage` in the lesson `select`.
+   - Lesson-level gate settings take precedence over chapter settings.
+   - Slicing: for 0% locked items (`access.effectivePercentage === 0 || access.previewBlocks.length === 0`), `l.content = ""` (zero body sent to client).
+   - Preserved `totalItemsCount`, `previewCount`, `isLockedForGuest`, `gateTitle`, `gateSubtitle`, and `effectivePercentage` in lesson DTO.
+3. **`lib/courses/course-dto.ts`:**
+   - `toSafeLessonDto`: preserved `totalItemsCount`, `previewCount`, `gateMode`, and `effectivePercentage` (using `!== undefined ? ... : 0` so 0 is never coerced to falsy fallback).
+   - `toSafeChapterDto`: preserved `gateMode` and `previewPercentage`.
+4. **`components/editor/AspirantbookTutorialView.tsx`:**
+   - In `ChapterIndexContent`: removed `disabled={isLocked}` from gated chapters. Guests can click locked chapters freely to view the title and Authwall gate (non-blocking navigation).
+   - In content canvas: if `isLockedForGuest && effectivePercentage === 0`, skips `RoseraRenderer` and placeholder text completely, rendering only title, phase pill, and `<AuthwallGate>` with `effectivePercentage={0}`. If `effectivePercentage > 0`, renders preview blocks followed immediately by `<AuthwallGate>`.
+5. **`components/authwall/AuthwallGate.tsx`:**
+   - Dynamic subtitle for 0% locked chapters ("This chapter is locked. Sign in to unlock full access").
+   - Replaced absolute overlay with inline document flow (`relative -mt-36`), ensuring zero scroll jacking, zero `position: fixed` overlays, and `pointer-events: none` strictly on the blurred skeleton.
+   - Stores `authwall_timestamp` in `sessionStorage` on CTA click.
+6. **`components/authwall/AuthwallUnlockToast.tsx`:**
+   - Uses `useSession()` from `next-auth/react`.
+   - If `status !== "authenticated"` (or no valid session user ID), silently clears `authwall_*` keys and returns null (preventing false toast when navigating back from `/login` or `/register`).
+   - Checks key expiry (10 minutes max). Toast only renders when an authenticated session is verified.
+7. **`app/(auth)/register/page.tsx` & `components/auth/RegisterForm.tsx`:**
+   - Propagates `callbackUrl` from search parameters into registration completion and login link.
+8. **`lib/actions/admin/lessons.ts` & `app/api/admin/tutorials/import/route.ts`:**
+   - Automatic pre-chunking (`blockCount`, `contentHash`) on lesson create, update, publish, and AI import.
+9. **`scripts/content-chunk.ts` (Idempotent Backfill):**
+   - Printed masked DB host `aws***.pooler.supabase.com:5432/postgres`.
+   - Backfilled 3 items with missing chunk metadata (2 lessons, 1 CA PDF).
+   - Subsequent dry run verified **0 remaining items**.
+
+### 5. Automated E2E Test Suite Results (68/68 Passed)
+All test suites run against Next.js production build (`next start`) on port 3045:
+- **`tests/e2e/authwall-unlock.spec.ts` (6 passed in 22.4s):**
+  - UNLOCK-01 (Desktop + Mobile): Real-click UI login flow smoothly unlocks content in-place with scroll preservation and zero CLS shift.
+  - UNLOCK-02 (Desktop + Mobile): Guest clicks Sign In, navigates back from `/login` without logging in: NO toast, Authwall still shown.
+  - UNLOCK-03 (Desktop + Mobile): Guest clicks Sign Up, navigates back from `/register` without registering: NO toast, Authwall still shown.
+- **`tests/e2e/authwall-blurred.spec.ts` (14 passed in 24.3s):**
+  - Gated tutorials, PYQ downloads (403), CA downloads (403), crawler verification, and toast triggers.
+- **`tests/e2e/authwall-leak-matrix.spec.ts` (16 passed in 17.7s):**
+  - HTML, JSON-LD, OG tags, Next.js RSC payload, prefetch, 0% locked, inherit, and tag integrity.
+- **`tests/e2e/authwall-studio.spec.ts` (14 passed in 30.9s):**
+  - Bulk actions, row selectors, "Make first N items free", teacher authorization boundaries, import safety.
+- **`tests/e2e/authwall-bot-verify.spec.ts` (10 passed in 9.4s):**
+  - Genuine vs spoofed crawlers, reverse/forward DNS verification, 24h LRU cache.
+- **`tests/e2e/authwall-cache.spec.ts` (8 passed in 1.3m):**
+  - Guest/User/Guest cache isolation, entitlement boundaries, session logout back-navigation, bot/human variant separation.
+
+### 6. Static Analysis & Performance Budget
+- **`npm run lint`:** 0 errors.
+- **`npx tsc --noEmit`:** 65 errors (pre-existing baseline; **0 net new errors**).
+- **`npm run db:check`:** In sync with Supabase dev DB (`aws***.pooler.supabase.com:5432/postgres`), no drift.
+- **Web Vitals (Median of 5 runs on Gated Tutorial Chapter):**
+  - **Desktop:** TTFB = 208ms, FCP = 460ms, CLS = 0.000.
+  - **Mobile:** TTFB = 18ms, FCP = 96ms, CLS = 0.000.
+  - Both well within the strict speed budget (TTFB < 300ms, FCP < 500ms, CLS < 0.1).
+
+### 7. 10-Minute Owner Manual Verification Checklist
+1. Open Chrome/Safari in an Incognito / Private window and navigate to `http://localhost:3000/tutorials/agentic-engineering-zero-to-hero`.
+2. Click Chapter 1 (or any gated chapter):
+   - Notice the preview paragraphs are clearly readable.
+   - The blurred placeholder begins immediately after the preview slice and covers only the remaining content.
+   - Scroll up and down: body scroll is 100% smooth, no scroll jacking, no fixed modal overlay blocking the page.
+   - Click other chapters in the sidebar index: navigation works freely.
+3. For a chapter set to 0% preview (locked):
+   - Notice zero content body is sent or displayed; only the title and the clean "This chapter is locked" card are visible.
+   - No MCQ answers or explanation blocks appear in page source (`view-source:`) or DOM inspection.
+4. Click "Sign In to Unlock Free Access" on the Authwall card:
+   - Notice you are redirected to `/login?callbackUrl=...`.
+   - Without typing anything or logging in, click the browser **Back** button.
+   - Confirm: **NO false toast appears** ("Welcome back! Full content unlocked" remains completely silent).
+   - The chapter remains gated with the Authwall card intact.
+5. Repeat with "Sign up free" -> `/register` -> click browser **Back**:
+   - Confirm: **NO false toast appears**.
+6. Sign in with valid credentials:
+   - You are redirected back to the tutorial chapter.
+   - Content expands in place with 100% full text and MCQs unlocked.
+   - The toast *"🎉 Welcome back! Full content unlocked."* appears and auto-dismisses.
+
+---
+
 ## Final Verdict
 **READY TO MERGE (staging only)**
 

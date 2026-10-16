@@ -39,6 +39,7 @@ export function AuthwallGate({
         sessionStorage.setItem("authwall_return_url", window.location.href)
         sessionStorage.setItem("authwall_scroll_y", String(window.scrollY))
         sessionStorage.setItem("authwall_gated_module", moduleName)
+        sessionStorage.setItem("authwall_timestamp", String(Date.now()))
       } catch {
         // Safe storage write fallback
       }
@@ -50,7 +51,9 @@ export function AuthwallGate({
   const defaultTitle = title || `Read the complete ${moduleName} for free`
   const defaultSubtitle =
     subtitle ||
-    `You are viewing a ${effectivePercentage}% preview. Create a free account or sign in to continue reading with full solutions, explanations, and bookmarks.`
+    (effectivePercentage === 0
+      ? `This chapter is locked. Create a free account or sign in to continue reading with full solutions, explanations, and bookmarks.`
+      : `You are viewing a ${effectivePercentage}% preview. Create a free account or sign in to continue reading with full solutions, explanations, and bookmarks.`)
 
   return (
     <section
@@ -61,19 +64,18 @@ export function AuthwallGate({
       {/* Blurred Placeholder Skeleton Beneath Card */}
       <div
         aria-hidden="true"
-        className="pointer-events-none filter blur-[6px] opacity-40 select-none overflow-hidden space-y-3.5 max-h-56 border border-transparent"
+        className="pointer-events-none filter blur-[6px] opacity-40 select-none overflow-hidden space-y-3.5 h-44 border border-transparent"
       >
         <div className="h-4 w-5/6 bg-gray-400 dark:bg-gray-600 rounded-md animate-pulse" />
         <div className="h-4 w-full bg-gray-400 dark:bg-gray-600 rounded-md" />
         <div className="h-4 w-11/12 bg-gray-400 dark:bg-gray-600 rounded-md" />
-        <div className="h-24 w-full bg-gray-300 dark:bg-gray-700 rounded-xl" />
+        <div className="h-20 w-full bg-gray-300 dark:bg-gray-700 rounded-xl" />
         <div className="h-4 w-4/6 bg-gray-400 dark:bg-gray-600 rounded-md" />
-        <div className="h-4 w-3/4 bg-gray-400 dark:bg-gray-600 rounded-md" />
       </div>
 
-      {/* Non-dismissible Glassdoor / Quora Style CTA Card overlay */}
-      <div className="absolute inset-0 top-0 flex items-center justify-center bg-gradient-to-t from-white via-white/95 to-white/60 dark:from-[#060f1c] dark:via-[#060f1c]/95 dark:to-[#060f1c]/60 p-4 pt-8">
-        <div className="max-w-md w-full rounded-2xl bg-white dark:bg-[#0c1a30] border border-gray-200 dark:border-gray-800 shadow-2xl p-6 sm:p-7 text-center transform transition-all">
+      {/* Non-dismissible Glassdoor / Quora Style CTA Card inline in document flow */}
+      <div className="relative -mt-36 flex items-center justify-center p-2 sm:p-4">
+        <div className="max-w-md w-full rounded-2xl bg-white/95 dark:bg-[#0c1a30]/95 backdrop-blur-md border border-gray-200 dark:border-gray-800 shadow-2xl p-6 sm:p-7 text-center transform transition-all z-10">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-[#1448d8] dark:text-blue-400 mb-4 ring-8 ring-blue-50/50 dark:ring-blue-950/30">
             <Lock className="w-6 h-6 text-[#1448d8] dark:text-blue-400" />
           </div>

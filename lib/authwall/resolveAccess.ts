@@ -51,12 +51,15 @@ function clampPercentage(val: number | null | undefined, fallback: number = 20):
 
 /**
  * Sanitizes question / quiz items so guests never receive answers or explanations.
+ * Covers both standard exam questions and Rosera Schema V1 embedded quiz blocks (t: "quiz", a: answer, why: explanation).
  */
 function sanitizeItemForGuest(item: any): any {
   if (!item || typeof item !== "object") return item
 
   // Deep clone to prevent mutating original
-  const clone = { ...item }
+  const clone = Array.isArray(item) ? [...item] : { ...item }
+
+  // 1. Standard question / quiz / exam fields
   delete clone.correctOption
   delete clone.correctIndex
   delete clone.correctAnswer
@@ -70,12 +73,24 @@ function sanitizeItemForGuest(item: any): any {
   delete clone.topperAccuracy
   delete clone.paperPdfUrl
   delete clone.solutionPdfUrl
+
+  // 2. Rosera Schema V1 quiz block fields (a = correctIndex, why = explanation)
+  delete clone.a
+  delete clone.why
+  delete clone.answer
+
+  // 3. Nested quiz object if present
+  if (clone.quiz && typeof clone.quiz === "object") {
+    clone.quiz = sanitizeItemForGuest(clone.quiz)
+  }
+
   return clone
 }
 
 /**
  * ONE central server-only helper that determines access and slices content server-side.
  * Used across Tutorials, Test Series, PYQ, Current Affairs, and Quizzes.
+ * FAIL CLOSED: If chunking fails or errors on gated content, never leaks full content.
  */
 export function resolveAccess({
   viewer,
@@ -84,7 +99,13 @@ export function resolveAccess({
   itemGate,
   isOwner = false,
 }: ResolveAccessInput): ResolveAccessResult {
-  const allBlocks = chunkContent(content)
+  let allBlocks: any[] = []
+  try {
+    allBlocks = chunkContent(content)
+  } catch (err) {
+    console.error("[resolveAccess] Error chunking content on the fly, failing closed:", err)
+    allBlocks = []
+  }
   const totalItemsCount = allBlocks.length
 
   const isGated = Boolean(containerGate?.isGated)
