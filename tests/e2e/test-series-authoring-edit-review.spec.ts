@@ -1036,7 +1036,7 @@ test.describe(`${process.env.E2E_RUN_NONCE || "E2E"} test authoring edit and rev
     }
   });
 
-  test("12. Review page with 150 questions renders smoothly and 360px mobile check", async ({ page }) => {
+  test("12. Review page with 150 questions: measures render time against 2x budget, verifies jump-to-question, and checks 360px mobile viewport (long tasks NOT TESTED)", async ({ page }) => {
     test.setTimeout(180_000);
     await prisma.$connect();
     const nonce = newNonce();
@@ -1056,10 +1056,12 @@ test.describe(`${process.env.E2E_RUN_NONCE || "E2E"} test authoring edit and rev
       const startTime = Date.now();
       await page.goto(`/teacher/test-series/${largeTest.id}/review`);
 
-      // Verify 150 of 150 complete within budget (< 10000ms)
+      // Verify 150 of 150 complete within budget
       await expect(page.getByText("150 of 150 complete")).toBeVisible();
       const renderDuration = Date.now() - startTime;
-      expect(renderDuration).toBeLessThan(15000);
+      console.log(`[MEASURED_RENDER_TIME]: ${renderDuration} ms`);
+      // Budget set to ~2x the measured render time (measured ~2391ms, budget 5000ms)
+      expect(renderDuration).toBeLessThan(5000);
 
       // Verify first and 150th question render
       await expect(page.getByTestId("review-question-1")).toBeVisible();
@@ -1069,7 +1071,10 @@ test.describe(`${process.env.E2E_RUN_NONCE || "E2E"} test authoring edit and rev
       const jumpInput = page.getByPlaceholder("Q#");
       await jumpInput.fill("75");
       await jumpInput.press("Enter");
-      await expect(page.getByTestId("review-question-75")).toBeVisible();
+      const q75 = page.getByTestId("review-question-75");
+      await expect(q75).toBeVisible();
+      const q75Box = await q75.boundingBox();
+      expect(q75Box).not.toBeNull();
 
       // 360px viewport check on review page: verify no horizontal layout overflow
       await page.setViewportSize({ width: 360, height: 740 });
@@ -1142,6 +1147,12 @@ test.describe(`${process.env.E2E_RUN_NONCE || "E2E"} test authoring edit and rev
       const teacherForceRes = await page.request.delete(`/api/exam/test/${testRow.id}?force=true`);
       expect(teacherForceRes.status()).toBe(409);
 
+      // Verify test and attempts still exist in DB after teacher force delete rejection
+      const testStillExists = await prisma.examTest.findUnique({ where: { id: testRow.id } });
+      expect(testStillExists).not.toBeNull();
+      const attemptStillExists = await prisma.examAttempt.count({ where: { testId: testRow.id } });
+      expect(attemptStillExists).toBe(1);
+
       // 2. Admin logs in -> clicks delete -> sees force delete modal naming 1 attempt
       const adminContext = await browser.newContext();
       const adminPage = await adminContext.newPage();
@@ -1171,6 +1182,114 @@ test.describe(`${process.env.E2E_RUN_NONCE || "E2E"} test authoring edit and rev
       expect(dbTest).toBeNull();
 
       await adminContext.close();
+    } finally {
+      await cleanupNonce(nonce);
+    }
+  });
+
+  test("14. UI-driven overflow warnings: handleAiGenerate and handleRawPaperParse skip excess and show warning", async ({ page }) => {
+    test.setTimeout(180_000);
+    await prisma.$connect();
+    const nonce = newNonce();
+    const teacher = await createActor(nonce, "TEACHER", "teacher-ai-overflow");
+
+    try {
+      const series = await prisma.examSeries.create({
+        data: {
+          title: `${nonce} Overflow Package`,
+          slug: slugFor(`${nonce} Overflow Package`),
+          category: "BPSC",
+          examName: "BPSC Prelims",
+          createdById: teacher.id,
+          isPublished: true,
+        },
+      });
+
+      await loginThroughUi(page, teacher.email);
+      const seriesListPromise = page.waitForResponse(
+        (res) => res.url().includes("/api/exam/series/list") && res.status() === 200
+      );
+      await page.goto(`/teacher/test-series/create?seriesId=${series.slug}`);
+      await seriesListPromise;
+
+      // Step 1: Metadata
+      await page.getByPlaceholder("e.g. 72nd BPSC Prelims Full Mock Test 1").fill(`${nonce} Overflow Test`);
+      await page.getByRole("spinbutton").first().fill("45");
+      await page.getByRole("button", { name: /Free Test/ }).click();
+      await page.getByRole("button", { name: "Next", exact: true }).click();
+
+      // Step 2: 2 questions defined for Section 1
+      const countInput = page.getByRole("spinbutton").first();
+      await countInput.fill("2");
+      await page.getByRole("button", { name: "Next", exact: true }).click();
+
+      // Step 3: verify 0 of 2 complete
+      await expect(page.getByText("0 of 2 complete")).toBeVisible();
+
+      // Mock /api/exam/ai-parse to return 5 generated questions (exceeds 2 slots)
+      await page.route("**/api/exam/ai-parse", async (route) => {
+        const reqData = JSON.parse(route.request().postData() || "{}");
+        if (reqData.action === "generate-topic") {
+          const mockGenerated = Array.from({ length: 5 }, (_, i) => ({
+            questionEn: `${nonce} AI Question ${i + 1}`,
+            options: ["Opt A", "Opt B", "Opt C", "Opt D"],
+            correctOption: "A",
+            explanationEn: `AI Explanation ${i + 1}`,
+          }));
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({ success: true, data: { questions: mockGenerated } }),
+          });
+        } else if (reqData.action === "parse-text") {
+          const mockParsed = Array.from({ length: 4 }, (_, i) => ({
+            questionEn: `${nonce} Raw Paper Question ${i + 1}`,
+            options: ["Opt A", "Opt B", "Opt C", "Opt D"],
+            correctOption: "B",
+            explanationEn: `Raw Paper Explanation ${i + 1}`,
+          }));
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({ success: true, data: { questions: mockParsed } }),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      // 1. Test handleAiGenerate overflow
+      await page.getByRole("button", { name: /Bulk Import \/ AI Generate/ }).click();
+      await page.getByPlaceholder("e.g. Indian Constitution Polity").fill("Indian Polity");
+      await page.getByRole("button", { name: "Generate", exact: true }).click();
+
+      // Assert overflow warning is displayed: 3 questions skipped because test is 2
+      await expect(page.getByTestId("overflow-warning")).toBeVisible();
+      await expect(page.getByTestId("overflow-warning")).toContainText(
+        "3 question(s) were skipped because the test is full (2 questions defined in Step 2)"
+      );
+      await expect(page.getByText("2 of 2 complete")).toBeVisible();
+
+      // Dismiss overflow alert
+      await page.getByRole("button", { name: "Dismiss warning" }).click();
+      await expect(page.getByTestId("overflow-warning")).not.toBeVisible();
+
+      // Clear Question 2 so we have 1 empty slot for raw paper test
+      await page.getByRole("button", { name: "2", exact: true }).click();
+      await page.getByPlaceholder("Type the question in English…").fill("");
+      await expect(page.getByText("1 of 2 complete")).toBeVisible();
+
+      // 2. Test handleRawPaperParse overflow
+      await page.getByRole("button", { name: /Bulk Import \/ AI Generate/ }).click();
+      await page.getByPlaceholder(/1\. Who was the first President of India/i).fill("Raw paper pasted text");
+      await page.getByRole("button", { name: "Parse & Import to Section" }).click();
+
+      // Assert overflow warning: 3 questions skipped (since 4 returned, 1 slot filled)
+      await expect(page.getByTestId("overflow-warning")).toBeVisible();
+      await expect(page.getByTestId("overflow-warning")).toContainText(
+        "3 question(s) were skipped because the test is full (2 questions defined in Step 2)"
+      );
+      await expect(page.getByText("2 of 2 complete")).toBeVisible();
     } finally {
       await cleanupNonce(nonce);
     }
