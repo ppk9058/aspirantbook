@@ -103,6 +103,41 @@ export async function GET(
       }
     }
 
+    // Fetch all test questions in section + question order
+    const testQuestions = attempt.testId
+      ? await prisma.examQuestion.findMany({
+          where: {
+            section: {
+              testId: attempt.testId,
+            },
+          },
+          orderBy: [
+            { section: { order: "asc" } },
+            { order: "asc" },
+          ],
+          select: {
+            id: true,
+            questionEn: true,
+            questionHi: true,
+            optionAEn: true,
+            optionBEn: true,
+            optionCEn: true,
+            optionDEn: true,
+            optionAHi: true,
+            optionBHi: true,
+            optionCHi: true,
+            optionDHi: true,
+            correctOption: true,
+            explanationEn: true,
+            explanationHi: true,
+            subject: true,
+            difficulty: true,
+            positiveMarks: true,
+            negativeMarks: true,
+          },
+        })
+      : [];
+
     // Fetch all answers with question details
     const answers = await prisma.examAttemptAnswer.findMany({
       where: { attemptId },
@@ -132,51 +167,99 @@ export async function GET(
       },
     });
 
-    // Per-question analysis
-    const questionAnalysis = answers.map((ans) => {
-      const q = ans.question;
-      const options = [q.optionAEn, q.optionBEn, q.optionCEn, q.optionDEn].filter(
-        (o): o is string => o !== null && o !== undefined
-      );
-      const optionsHi = [q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi].filter(
-        (o): o is string => o !== null && o !== undefined
-      );
+    const answerMap = new Map(answers.map((a) => [a.questionId, a]));
 
-      const optionKeys = ["A", "B", "C", "D"];
-      const selectedIndex = ans.selectedOption
-        ? optionKeys.indexOf(ans.selectedOption)
-        : -1;
-      const correctIndex = optionKeys.indexOf(q.correctOption);
+    // Per-question analysis (use testQuestions if available to guarantee all questions in order)
+    const questionAnalysis =
+      testQuestions.length > 0
+        ? testQuestions.map((q) => {
+            const ans = answerMap.get(q.id);
+            const options = [q.optionAEn, q.optionBEn, q.optionCEn, q.optionDEn].filter(
+              (o): o is string => o !== null && o !== undefined
+            );
+            const optionsHi = [q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi].filter(
+              (o): o is string => o !== null && o !== undefined
+            );
 
-      const selectedOptionText =
-        selectedIndex >= 0 && selectedIndex < options.length
-          ? options[selectedIndex]
-          : null;
-      const correctOptionText =
-        correctIndex >= 0 && correctIndex < options.length
-          ? options[correctIndex]
-          : null;
+            const optionKeys = ["A", "B", "C", "D"];
+            const selectedIndex = ans?.selectedOption
+              ? optionKeys.indexOf(ans.selectedOption)
+              : -1;
+            const correctIndex = optionKeys.indexOf(q.correctOption);
 
-      return {
-        questionId: ans.questionId,
-        questionEn: q.questionEn,
-        questionHi: q.questionHi,
-        options,
-        optionsHi,
-        selectedOption: ans.selectedOption,
-        selectedOptionText,
-        correctOption: q.correctOption,
-        correctOptionText,
-        isCorrect: ans.isCorrect,
-        marksAwarded: ans.marksAwarded,
-        timeSpentSecs: ans.timeSpentSecs,
-        isMarked: ans.isMarked,
-        explanationEn: q.explanationEn,
-        explanationHi: q.explanationHi,
-        subject: q.subject,
-        difficulty: q.difficulty,
-      };
-    });
+            const selectedOptionText =
+              selectedIndex >= 0 && selectedIndex < options.length
+                ? options[selectedIndex]
+                : null;
+            const correctOptionText =
+              correctIndex >= 0 && correctIndex < options.length
+                ? options[correctIndex]
+                : null;
+
+            return {
+              questionId: q.id,
+              questionEn: q.questionEn,
+              questionHi: q.questionHi,
+              options,
+              optionsHi,
+              selectedOption: ans?.selectedOption ?? null,
+              selectedOptionText,
+              correctOption: q.correctOption,
+              correctOptionText,
+              isCorrect: ans?.isCorrect ?? false,
+              marksAwarded: ans?.marksAwarded ?? 0,
+              timeSpentSecs: ans?.timeSpentSecs ?? 0,
+              isMarked: ans?.isMarked ?? false,
+              explanationEn: q.explanationEn,
+              explanationHi: q.explanationHi,
+              subject: q.subject,
+              difficulty: q.difficulty,
+            };
+          })
+        : answers.map((ans) => {
+            const q = ans.question;
+            const options = [q.optionAEn, q.optionBEn, q.optionCEn, q.optionDEn].filter(
+              (o): o is string => o !== null && o !== undefined
+            );
+            const optionsHi = [q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi].filter(
+              (o): o is string => o !== null && o !== undefined
+            );
+
+            const optionKeys = ["A", "B", "C", "D"];
+            const selectedIndex = ans.selectedOption
+              ? optionKeys.indexOf(ans.selectedOption)
+              : -1;
+            const correctIndex = optionKeys.indexOf(q.correctOption);
+
+            const selectedOptionText =
+              selectedIndex >= 0 && selectedIndex < options.length
+                ? options[selectedIndex]
+                : null;
+            const correctOptionText =
+              correctIndex >= 0 && correctIndex < options.length
+                ? options[correctIndex]
+                : null;
+
+            return {
+              questionId: ans.questionId,
+              questionEn: q.questionEn,
+              questionHi: q.questionHi,
+              options,
+              optionsHi,
+              selectedOption: ans.selectedOption,
+              selectedOptionText,
+              correctOption: q.correctOption,
+              correctOptionText,
+              isCorrect: ans.isCorrect,
+              marksAwarded: ans.marksAwarded,
+              timeSpentSecs: ans.timeSpentSecs,
+              isMarked: ans.isMarked,
+              explanationEn: q.explanationEn,
+              explanationHi: q.explanationHi,
+              subject: q.subject,
+              difficulty: q.difficulty,
+            };
+          });
 
     // Time analysis
     const correctAnswers = answers.filter((a) => a.isCorrect);
