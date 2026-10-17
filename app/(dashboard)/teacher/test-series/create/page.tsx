@@ -4,7 +4,9 @@ import { useState, useCallback, Suspense, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { parseAndValidateQuestion } from "@/lib/exam/question-parser"
+import { processBulkJsonImport, naturalSortFiles, type BulkJsonPipelineResult } from "@/lib/exam/bulk-json-pipeline"
 import CreateSeriesModal from "@/components/exam/CreateSeriesModal"
+import ReviewAllQuestions from "@/components/exam/ReviewAllQuestions"
 import {
     ChevronLeft,
     ChevronRight,
@@ -429,10 +431,18 @@ function CreateTestContent() {
     const [aiPrompt, setAiPrompt] = useState("")
     const [aiLoading, setAiLoading] = useState(false)
     const [showPreview, setShowPreview] = useState(false)
+    const [showStep4Review, setShowStep4Review] = useState(false)
     const [published, setPublished] = useState(false)
     const [showToast, setShowToast] = useState(false)
     const [toastMessage, setToastMessage] = useState("")
     const [bulkImportOpen, setBulkImportOpen] = useState(false)
+    const [rawJsonText, setRawJsonText] = useState("")
+    const [jsonPreview, setJsonPreview] = useState<BulkJsonPipelineResult | null>(null)
+    const [isProcessingJson, setIsProcessingJson] = useState(false)
+    const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<number>>(new Set())
+    const [isImporting, setIsImporting] = useState(false)
+    const [uploadedFileBlocks, setUploadedFileBlocks] = useState<{ filename: string; content: string }[]>([])
+    const [importToast, setImportToast] = useState<{ message: string; isWarning?: boolean; batch: { questionIds: string[] } } | null>(null)
     const [isSaving, setIsSaving] = useState(false)
     const [savedTestId, setSavedTestId] = useState<string | null>(null)
     const [rawPaperText, setRawPaperText] = useState("")
@@ -441,6 +451,7 @@ function CreateTestContent() {
     const [uploadSuccess, setUploadSuccess] = useState<string | null>(null)
     const [isUploading, setIsUploading] = useState(false)
     const [paperWarning, setPaperWarning] = useState<string | null>(null)
+    const [importWarning, setImportWarning] = useState<string | null>(null)
     const [pyqFetchError, setPyqFetchError] = useState<string | null>(null)
     const [pyqPapersLoaded, setPyqPapersLoaded] = useState(false)
 
@@ -637,13 +648,57 @@ function CreateTestContent() {
             while (updated.length < numQuestions) updated.push(emptyQuestion(secId))
             if (updated.length > numQuestions) updated = updated.slice(0, numQuestions)
             // preserve order
-            const allOtherSections = prev.sections.filter((s) => s.id !== secId).map((s) => s.id)
             const ordered: Question[] = []
-            for (const sId of prev.sections.map((s) => s.id)) {
-                if (sId === secId) ordered.push(...updated)
-                else ordered.push(...others.filter((q) => q.sectionId === sId))
+            for (const s of prev.sections) {
+                if (s.id === secId) ordered.push(...updated)
+                else ordered.push(...others.filter((q) => q.sectionId === s.id))
             }
             return { ...prev, questions: ordered }
+        })
+    }
+
+    const updateSectionNumQuestions = (idx: number, numQuestions: number) => {
+        const count = Math.max(1, numQuestions)
+        const sec = formData.sections[idx]
+        if (!sec) return
+
+        if (count < sec.numQuestions) {
+            const existingForSec = formData.questions.filter((q) => q.sectionId === sec.id)
+            const droppedQuestions = existingForSec.slice(count)
+            const filledCount = droppedQuestions.filter(
+                (q) => isQuestionFilled(q) || Boolean(q.textEnglish?.trim())
+            ).length
+
+            if (filledCount > 0) {
+                const confirmed = window.confirm(
+                    `${filledCount} filled question(s) will be removed. Are you sure you want to reduce the section size?`
+                )
+                if (!confirmed) {
+                    return
+                }
+            }
+        }
+
+        setFormData((prev) => {
+            const secItem = prev.sections[idx]
+            if (!secItem) return prev
+            const secId = secItem.id
+            const sections = prev.sections.map((s, i) => (i === idx ? { ...s, numQuestions: count } : s))
+            const existingForSec = prev.questions.filter((q) => q.sectionId === secId)
+            let updated = [...existingForSec]
+            while (updated.length < count) updated.push(emptyQuestion(secId))
+            if (updated.length > count) updated = updated.slice(0, count)
+
+            const ordered: Question[] = []
+            for (const s of sections) {
+                if (s.id === secId) ordered.push(...updated)
+                else ordered.push(...prev.questions.filter((q) => q.sectionId === s.id))
+            }
+            return {
+                ...prev,
+                sections,
+                questions: ordered,
+            }
         })
     }
 
@@ -702,9 +757,13 @@ function CreateTestContent() {
         setStep((s) => s + 1)
         setCurrentSection(0)
         setCurrentQIdx(0)
+        setImportWarning(null)
     }
 
-    const handleBack = () => setStep((s) => s - 1)
+    const handleBack = () => {
+        setImportWarning(null)
+        setStep((s) => s - 1)
+    }
 
     // ── Step 3 helpers ──
     const sectionForStep3 = formData.sections[currentSection]
@@ -720,6 +779,153 @@ function CreateTestContent() {
 
     const completedCount = formData.questions.filter(isQuestionFilled).length
     const totalQCount = formData.questions.length
+
+    // ── Unified Sequential Question Importer ──
+    // Fills empty/incomplete slots starting from Q1 across sections sequentially (Section 1 first, then Section 2, etc.)
+    // Never grows totalQuestions or section numQuestions. Shows warning if incoming exceeds available empty slots.
+    const fillQuestionsSequentially = (incoming: Array<{
+        questionEn: string
+        questionHi?: string
+        optionAEn?: string
+        optionAHi?: string
+        optionBEn?: string
+        optionBHi?: string
+        optionCEn?: string
+        optionCHi?: string
+        optionDEn?: string
+        optionDHi?: string
+        options?: string[] | [string, string, string, string]
+        optionsHi?: string[] | [string, string, string, string]
+        correctOption?: string | number
+        explanationEn?: string
+        explanationHi?: string
+        difficulty?: string
+        subject?: string
+        topic?: string
+        videoUrl?: string
+    }>) => {
+        if (!incoming || incoming.length === 0) return
+
+        try {
+            const totalSlots = formData.sections.reduce((sum, s) => sum + s.numQuestions, 0)
+
+            // 1. Gather all empty/incomplete slots in strict sequential order (Section 1 first, then Section 2, etc.)
+            const emptySlots: Question[] = []
+            for (const sec of formData.sections) {
+                const secQs = formData.questions.filter((q) => q.sectionId === sec.id)
+                for (const q of secQs) {
+                    if (!isQuestionFilled(q)) {
+                        emptySlots.push(q)
+                    }
+                }
+            }
+
+            if (emptySlots.length === 0) {
+                const msg = `⚠️ Cannot import: Test already has all ${totalSlots} questions filled. All ${incoming.length} incoming question(s) were skipped.`
+                setUploadError(msg)
+                setImportWarning(msg)
+                return
+            }
+
+            const fitCount = Math.min(incoming.length, emptySlots.length)
+            const skippedCount = incoming.length - fitCount
+            const newlyFilledIds: string[] = []
+            const updatesById = new Map<string, Question>()
+
+            for (let i = 0; i < fitCount; i++) {
+                const targetQ = emptySlots[i]
+                const item = incoming[i]
+                newlyFilledIds.push(targetQ.id)
+
+                const optAEn = item.optionAEn ?? (Array.isArray(item.options) ? item.options[0] : "") ?? ""
+                const optAHi = item.optionAHi ?? (Array.isArray(item.optionsHi) ? item.optionsHi[0] : "") ?? ""
+                const optBEn = item.optionBEn ?? (Array.isArray(item.options) ? item.options[1] : "") ?? ""
+                const optBHi = item.optionBHi ?? (Array.isArray(item.optionsHi) ? item.optionsHi[1] : "") ?? ""
+                const optCEn = item.optionCEn ?? (Array.isArray(item.options) ? item.options[2] : "") ?? ""
+                const optCHi = item.optionCHi ?? (Array.isArray(item.optionsHi) ? item.optionsHi[2] : "") ?? ""
+                const optDEn = item.optionDEn ?? (Array.isArray(item.options) ? item.options[3] : "") ?? ""
+                const optDHi = item.optionDHi ?? (Array.isArray(item.optionsHi) ? item.optionsHi[3] : "") ?? ""
+
+                let ansIdx: 0 | 1 | 2 | 3 = 0
+                if (typeof item.correctOption === "number") {
+                    ansIdx = Math.min(3, Math.max(0, item.correctOption)) as 0 | 1 | 2 | 3
+                } else if (typeof item.correctOption === "string") {
+                    const normalized = item.correctOption.trim().toUpperCase()
+                    if (normalized === "B" || normalized === "1") ansIdx = 1
+                    else if (normalized === "C" || normalized === "2") ansIdx = 2
+                    else if (normalized === "D" || normalized === "3") ansIdx = 3
+                    else ansIdx = 0
+                }
+
+                const rawDiff = (item.difficulty || "Moderate").toUpperCase()
+                const difficulty =
+                    rawDiff === "HARD" ? "Hard" : rawDiff === "EASY" ? "Easy" : "Moderate"
+
+                const qTextEn = item.questionEn || ""
+                const qTextHi = item.questionHi || (qTextEn ? `(हिंदी) ${qTextEn}` : "")
+                const expEn = item.explanationEn || ""
+                const expHi = item.explanationHi || (expEn ? `(हिंदी) ${expEn}` : "")
+
+                updatesById.set(targetQ.id, {
+                    id: targetQ.id,
+                    sectionId: targetQ.sectionId,
+                    textEnglish: qTextEn,
+                    textHindi: qTextHi,
+                    options: [
+                        { english: optAEn, hindi: optAHi },
+                        { english: optBEn, hindi: optBHi },
+                        { english: optCEn, hindi: optCHi },
+                        { english: optDEn, hindi: optDHi },
+                    ],
+                    correctAnswer: ansIdx,
+                    explanationEnglish: expEn,
+                    explanationHindi: expHi,
+                    videoUrl: item.videoUrl || targetQ.videoUrl || "",
+                    difficulty,
+                    subject: item.subject || formData.examCategory || "General Studies",
+                    topic: item.topic || "General",
+                })
+            }
+
+            setFormData((prev) => ({
+                ...prev,
+                questions: prev.questions.map((q) => updatesById.get(q.id) ?? q),
+            }))
+
+            if (skippedCount > 0) {
+                const warningMsg = `⚠️ Imported ${fitCount} question(s). ${skippedCount} question(s) were skipped because the test is full (${totalSlots} questions defined in Step 2).`
+                setImportWarning(warningMsg)
+                setUploadError(warningMsg)
+                setUploadSuccess(`Imported ${fitCount} question(s) (${skippedCount} skipped).`)
+                setImportToast({
+                    message: warningMsg,
+                    isWarning: true,
+                    batch: { questionIds: newlyFilledIds },
+                })
+            } else {
+                setImportWarning(null)
+                setUploadError(null)
+                const successMsg = `🎉 Successfully imported ${fitCount} question(s)!`
+                setUploadSuccess(successMsg)
+                setImportToast({
+                    message: successMsg,
+                    isWarning: false,
+                    batch: { questionIds: newlyFilledIds },
+                })
+            }
+
+            setTimeout(() => {
+                setImportToast((curr) => (curr?.batch.questionIds === newlyFilledIds ? null : curr))
+            }, 10000)
+            setTimeout(() => setUploadSuccess(null), 4000)
+        } catch (err: any) {
+            console.error("Sequential import error:", err)
+            setUploadError(err.message || "An error occurred during import. No questions were added.")
+        }
+    }
+
+    // Canonical alias for backwards compatibility
+    const importQuestionsIntoSection = fillQuestionsSequentially
 
     // ── AI generate by topic ──
     const handleAiGenerate = async () => {
@@ -738,34 +944,14 @@ function CreateTestContent() {
             })
             const json = await res.json()
             const generated = json.data?.questions || []
-            const secId = sectionForStep3?.id
-            if (secId && generated.length > 0) {
-                const emptyQsForSec = formData.questions.filter(
-                    (q) => q.sectionId === secId && !isQuestionFilled(q)
-                )
-                const toFill = emptyQsForSec.slice(0, generated.length)
-                toFill.forEach((item: any, i: number) => {
-                    const q = toFill[i]
-                    const ansLetter = item.correctOption || "A"
-                    const ansIdx = ansLetter === "A" ? 0 : ansLetter === "B" ? 1 : ansLetter === "C" ? 2 : 3
-                    updateQuestion(q.id, {
-                        textEnglish: item.questionEn,
-                        textHindi: item.questionHi || `(हिंदी) ${item.questionEn}`,
-                        options: [
-                            { english: item.options[0], hindi: `(हिंदी) ${item.options[0]}` },
-                            { english: item.options[1], hindi: `(हिंदी) ${item.options[1]}` },
-                            { english: item.options[2], hindi: `(हिंदी) ${item.options[2]}` },
-                            { english: item.options[3], hindi: `(हिंदी) ${item.options[3]}` },
-                        ],
-                        correctAnswer: ansIdx as 0 | 1 | 2 | 3,
-                        explanationEnglish: item.explanationEn,
-                        explanationHindi: `(हिंदी) ${item.explanationEn}`,
-                        difficulty: item.difficulty === "HARD" ? "Hard" : item.difficulty === "EASY" ? "Easy" : "Moderate",
-                    })
-                })
+            if (generated.length > 0) {
+                fillQuestionsSequentially(generated)
+            } else {
+                setUploadError("AI could not generate questions for this topic. Please try another prompt.")
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error("AI Generate error", e)
+            setUploadError(e?.message || "Failed to generate questions with AI.")
         } finally {
             setAiLoading(false)
             setShowAiModal(false)
@@ -790,34 +976,14 @@ function CreateTestContent() {
             })
             const json = await res.json()
             const parsed = json.data?.questions || []
-            const secId = sectionForStep3?.id
-            if (secId && parsed.length > 0) {
-                const emptyQsForSec = formData.questions.filter(
-                    (q) => q.sectionId === secId && !isQuestionFilled(q)
-                )
-                const toFill = emptyQsForSec.slice(0, parsed.length)
-                toFill.forEach((item: any, i: number) => {
-                    const q = toFill[i]
-                    const ansLetter = item.correctOption || "A"
-                    const ansIdx = ansLetter === "A" ? 0 : ansLetter === "B" ? 1 : ansLetter === "C" ? 2 : 3
-                    updateQuestion(q.id, {
-                        textEnglish: item.questionEn,
-                        textHindi: `(हिंदी) ${item.questionEn}`,
-                        options: [
-                            { english: item.options[0], hindi: `(हिंदी) ${item.options[0]}` },
-                            { english: item.options[1], hindi: `(हिंदी) ${item.options[1]}` },
-                            { english: item.options[2], hindi: `(हिंदी) ${item.options[2]}` },
-                            { english: item.options[3], hindi: `(हिंदी) ${item.options[3]}` },
-                        ],
-                        correctAnswer: ansIdx as 0 | 1 | 2 | 3,
-                        explanationEnglish: item.explanationEn,
-                        explanationHindi: `(हिंदी) ${item.explanationEn}`,
-                        difficulty: "Moderate",
-                    })
-                })
+            if (parsed.length > 0) {
+                fillQuestionsSequentially(parsed)
+            } else {
+                setUploadError("Could not extract any questions from the pasted text. Please verify formatting.")
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error("Raw paper parse error", e)
+            setUploadError(e?.message || "Failed to parse raw paper text.")
         } finally {
             setRawLoading(false)
             setBulkImportOpen(false)
@@ -825,130 +991,67 @@ function CreateTestContent() {
         }
     }
 
-    // ── Flexible Question Importer (Supports 1 to 150+ Questions) ──
-    const importQuestionsIntoSection = (incoming: Array<{
-        questionEn: string
-        questionHi?: string
-        optionAEn?: string
-        optionAHi?: string
-        optionBEn?: string
-        optionBHi?: string
-        optionCEn?: string
-        optionCHi?: string
-        optionDEn?: string
-        optionDHi?: string
-        correctOption?: string | number
-        explanationEn?: string
-        explanationHi?: string
-        difficulty?: string
-        subject?: string
-        topic?: string
-    }>) => {
-        const secId = sectionForStep3?.id
-        if (!secId || incoming.length === 0) return
-
-        setFormData((prev) => {
-            const currentSecQs = prev.questions.filter((q) => q.sectionId === secId)
-            const otherSecQs = prev.questions.filter((q) => q.sectionId !== secId)
-            const newQuestionsForSec: Question[] = []
-
-            incoming.forEach((item, idx) => {
-                const existing = currentSecQs[idx]
-                const qId = existing?.id || generateId()
-
-                let ansIdx: 0 | 1 | 2 | 3 = 0
-                if (typeof item.correctOption === "number") {
-                    ansIdx = Math.min(3, Math.max(0, item.correctOption)) as 0 | 1 | 2 | 3
-                } else if (typeof item.correctOption === "string") {
-                    const normalized = item.correctOption.trim().toUpperCase()
-                    if (normalized === "B" || normalized === "1") ansIdx = 1
-                    else if (normalized === "C" || normalized === "2") ansIdx = 2
-                    else if (normalized === "D" || normalized === "3") ansIdx = 3
-                    else ansIdx = 0
+    const handleUndoImport = () => {
+        if (!importToast) return
+        const { questionIds } = importToast.batch
+        setFormData((prev) => ({
+            ...prev,
+            questions: prev.questions.map((q) => {
+                if (questionIds.includes(q.id)) {
+                    return {
+                        ...emptyQuestion(q.sectionId),
+                        id: q.id,
+                    }
                 }
-
-                newQuestionsForSec.push({
-                    id: qId,
-                    sectionId: secId,
-                    textEnglish: item.questionEn || `Question ${idx + 1}`,
-                    textHindi: item.questionHi || "",
-                    options: [
-                        { english: item.optionAEn || "", hindi: item.optionAHi || "" },
-                        { english: item.optionBEn || "", hindi: item.optionBHi || "" },
-                        { english: item.optionCEn || "", hindi: item.optionCHi || "" },
-                        { english: item.optionDEn || "", hindi: item.optionDHi || "" },
-                    ],
-                    correctAnswer: ansIdx,
-                    explanationEnglish: item.explanationEn || "",
-                    explanationHindi: item.explanationHi || "",
-                    videoUrl: "",
-                    difficulty:
-                        item.difficulty === "Hard" || item.difficulty === "HARD"
-                            ? "Hard"
-                            : item.difficulty === "Easy" || item.difficulty === "EASY"
-                            ? "Easy"
-                            : "Moderate",
-                    subject: item.subject || prev.examCategory || "General Studies",
-                    topic: item.topic || "General",
-                })
-            })
-
-            // If there were previously more questions, preserve them
-            if (currentSecQs.length > incoming.length) {
-                newQuestionsForSec.push(...currentSecQs.slice(incoming.length))
-            }
-
-            const updatedSections = prev.sections.map((s) => {
-                if (s.id === secId) {
-                    return { ...s, numQuestions: newQuestionsForSec.length }
-                }
-                return s
-            })
-
-            const allQs = [...otherSecQs, ...newQuestionsForSec]
-
-            return {
-                ...prev,
-                sections: updatedSections,
-                questions: allQs,
-                totalQuestions: allQs.length,
-                totalMarks: allQs.length,
-            }
-        })
-
-        setUploadSuccess(`🎉 Successfully imported ${incoming.length} questions into Section!`)
-        setTimeout(() => setUploadSuccess(null), 4000)
+                return q
+            }),
+        }))
+        setImportToast(null)
+        setImportWarning(null)
+        setUploadSuccess("Import undone successfully.")
+        setTimeout(() => setUploadSuccess(null), 3000)
     }
 
-    // ── Bulk File Upload Handler (CSV / JSON) ──
+    // ── Bulk File Upload Handler (CSV / Multiple JSON) ──
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
+        const rawFiles = Array.from(e.target.files || [])
+        if (rawFiles.length === 0) return
 
         setUploadError(null)
-        setIsUploading(true)
 
-        const reader = new FileReader()
-        reader.onload = (event) => {
-            try {
-                const text = (event.target?.result as string) || ""
-                const fileName = file.name.toLowerCase()
+        // F6. File limits: only .json/.csv, max 5 MB per file
+        for (const file of rawFiles) {
+            const name = file.name.toLowerCase()
+            if (!name.endsWith(".json") && !name.endsWith(".csv")) {
+                setUploadError(`Invalid file format: "${file.name}". Only .json and .csv files are supported.`)
+                e.target.value = ""
+                return
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                setUploadError(`File too large: "${file.name}" exceeds the 5 MB limit.`)
+                e.target.value = ""
+                return
+            }
+        }
 
-                if (fileName.endsWith(".json")) {
-                    const parsedJson = JSON.parse(text)
-                    const items = Array.isArray(parsedJson) ? parsedJson : parsedJson.questions || []
-                    if (!Array.isArray(items) || items.length === 0) {
-                        throw new Error("JSON file must contain an array of question objects")
-                    }
+        // F8. Mixed selection check (CSV + JSON together)
+        const hasCsv = rawFiles.some((f) => f.name.toLowerCase().endsWith(".csv"))
+        const hasJson = rawFiles.some((f) => f.name.toLowerCase().endsWith(".json"))
 
-                    const normalized = items.map((item: any, i: number) => {
-                        return parseAndValidateQuestion(item, i)
-                    })
+        if (hasCsv && hasJson) {
+            setUploadError("Select either CSV or JSON files, not both.")
+            e.target.value = ""
+            return
+        }
 
-                    importQuestionsIntoSection(normalized)
-                    setBulkImportOpen(false)
-                } else {
-                    // CSV parser
+        if (hasCsv) {
+            // F7. CSV flow unchanged (processes single CSV file)
+            const csvFile = rawFiles[0]
+            setIsUploading(true)
+            const reader = new FileReader()
+            reader.onload = (event) => {
+                try {
+                    const text = (event.target?.result as string) || ""
                     const rows = parseCSV(text)
                     if (rows.length < 2) {
                         throw new Error("CSV file must have a header row and at least one question row")
@@ -1018,22 +1121,144 @@ function CreateTestContent() {
 
                     importQuestionsIntoSection(normalized)
                     setBulkImportOpen(false)
+                } catch (err: any) {
+                    console.error("Bulk upload parse error:", err)
+                    setUploadError(err.message || "Failed to parse file. Please verify CSV formatting.")
+                } finally {
+                    setIsUploading(false)
+                    e.target.value = ""
                 }
-            } catch (err: any) {
-                console.error("Bulk upload parse error:", err)
-                setUploadError(err.message || "Failed to parse file. Please verify CSV or JSON formatting.")
-            } finally {
-                setIsUploading(false)
-                e.target.value = ""
             }
-        }
+            reader.onerror = () => {
+                setUploadError("Could not read file from disk.")
+                setIsUploading(false)
+            }
+            reader.readAsText(csvFile, "UTF-8")
+        } else {
+            // E1. Multi-file upload: natural-sort by filename (q1, q2, q10 order)
+            const sortedFiles = naturalSortFiles(rawFiles)
+            setIsUploading(true)
 
-        reader.onerror = () => {
-            setUploadError("Could not read file from disk.")
-            setIsUploading(false)
-        }
+            const readPromises = sortedFiles.map((file) => {
+                return new Promise<{ filename: string; content: string }>((resolve, reject) => {
+                    const reader = new FileReader()
+                    reader.onload = (event) =>
+                        resolve({ filename: file.name, content: (event.target?.result as string) || "" })
+                    reader.onerror = () => reject(new Error(`Could not read ${file.name} from disk.`))
+                    reader.readAsText(file, "UTF-8")
+                })
+            })
 
-        reader.readAsText(file, "UTF-8")
+            Promise.all(readPromises)
+                .then((blocks) => {
+                    setUploadedFileBlocks(blocks)
+                    // Pass existing questions from test to dedupe against (E4)
+                    const existingList = formData.questions.map((q) => ({ questionEn: q.textEnglish }))
+                    const result = processBulkJsonImport(
+                        blocks.map((b) => b.content),
+                        existingList
+                    )
+                    setJsonPreview(result)
+                    setSelectedQuestionIds(new Set(result.questions.map((q) => q.id)))
+                })
+                .catch((err: any) => {
+                    console.error("Bulk JSON upload parse error:", err)
+                    setUploadError(err.message || "Failed to parse JSON file(s).")
+                    setJsonPreview(null)
+                    setUploadedFileBlocks([])
+                })
+                .finally(() => {
+                    setIsUploading(false)
+                    e.target.value = ""
+                })
+        }
+    }
+
+    // E1. Move block up/down in file list
+    const moveFileBlock = (index: number, direction: -1 | 1) => {
+        const newIdx = index + direction
+        if (newIdx < 0 || newIdx >= uploadedFileBlocks.length) return
+        const nextBlocks = [...uploadedFileBlocks]
+        const temp = nextBlocks[index]
+        nextBlocks[index] = nextBlocks[newIdx]
+        nextBlocks[newIdx] = temp
+        setUploadedFileBlocks(nextBlocks)
+
+        try {
+            const existingList = formData.questions.map((q) => ({ questionEn: q.textEnglish }))
+            const result = processBulkJsonImport(
+                nextBlocks.map((b) => b.content),
+                existingList
+            )
+            setJsonPreview(result)
+            setSelectedQuestionIds(new Set(result.questions.map((q) => q.id)))
+        } catch (err: any) {
+            setUploadError(err.message || "Failed to reorder blocks.")
+        }
+    }
+
+    const handleProcessPastedJson = () => {
+        if (!rawJsonText.trim()) {
+            setUploadError("No JSON input provided. Please paste JSON content into the text box.")
+            return
+        }
+        setUploadError(null)
+        setIsProcessingJson(true)
+        setUploadedFileBlocks([])
+
+        // F5: Yield with setTimeout so UI spinner renders immediately for large inputs
+        setTimeout(() => {
+            try {
+                const existingList = formData.questions.map((q) => ({ questionEn: q.textEnglish }))
+                const result = processBulkJsonImport(rawJsonText, existingList)
+                setJsonPreview(result)
+                setSelectedQuestionIds(new Set(result.questions.map((q) => q.id)))
+            } catch (err: any) {
+                console.error("Pasted JSON process error:", err)
+                setUploadError(err.message || "Failed to parse pasted JSON.")
+                setJsonPreview(null)
+            } finally {
+                setIsProcessingJson(false)
+            }
+        }, 10)
+    }
+
+    // F3. Atomic import of checked questions only; prevents double import
+    const handleConfirmImport = () => {
+        if (!jsonPreview || isImporting) return
+        const selectedQuestions = jsonPreview.questions.filter((q) => selectedQuestionIds.has(q.id))
+        if (selectedQuestions.length === 0) return
+
+        setIsImporting(true)
+        try {
+            importQuestionsIntoSection(selectedQuestions)
+            setJsonPreview(null)
+            setRawJsonText("")
+            setUploadedFileBlocks([])
+            setBulkImportOpen(false)
+        } finally {
+            setIsImporting(false)
+        }
+    }
+
+    // F2. Download skipped report JSON
+    const downloadSkippedReport = () => {
+        if (!jsonPreview || jsonPreview.skipped.length === 0) return
+        const reportData = jsonPreview.skipped.map((s) => ({
+            block: s.blockIndex,
+            questionIndex: s.questionIndex,
+            reason: s.reason,
+            rawQuestion: s.rawItem || null,
+        }))
+        const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `skipped-questions-report-${new Date().toISOString().slice(0, 10)}.json`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
     }
 
     const buildMappedSections = () => {
@@ -1248,6 +1473,27 @@ function CreateTestContent() {
     // RENDER
     // ─────────────────────────────────────────────────────────────────────────
 
+    if (showStep4Review) {
+        return (
+            <ReviewAllQuestions
+                title={formData.title}
+                titleHindi={formData.titleHindi}
+                sections={formData.sections}
+                questions={formData.questions}
+                onBack={() => setShowStep4Review(false)}
+                onEditQuestion={(_qId, secId, qIdx) => {
+                    setShowStep4Review(false)
+                    const sIdx = formData.sections.findIndex((s) => s.id === secId)
+                    if (sIdx !== -1) {
+                        setCurrentSection(sIdx)
+                        setCurrentQIdx(qIdx)
+                        setStep(3)
+                    }
+                }}
+            />
+        )
+    }
+
     return (
         <div className="max-w-5xl mx-auto space-y-6 pb-16 px-3 sm:px-6">
             {/* Toast */}
@@ -1271,7 +1517,7 @@ function CreateTestContent() {
                         <Link
                             href={
                                 savedTestId
-                                    ? `/test-series/${savedTestId}/attempt?testId=${savedTestId}&title=${encodeURIComponent(formData.title)}&questions=${formData.questions.length}&marks=${formData.questions.length}&duration=${formData.durationMinutes}`
+                                    ? `/test-series/${savedTestId}/attempt?testId=${savedTestId}&title=${encodeURIComponent(formData.title)}&questions=${computedTotalQuestions}&marks=${computedTotalMarks}&duration=${formData.durationMinutes}`
                                     : "/test-series"
                             }
                             className="px-3 py-1.5 rounded-lg bg-black/20 hover:bg-black/30 text-white text-xs font-black transition-colors"
@@ -1285,6 +1531,38 @@ function CreateTestContent() {
                             Teacher Dashboard
                         </Link>
                     </div>
+                </div>
+            )}
+
+            {/* Import Toast with Undo */}
+            {importToast && (
+                <div
+                    data-testid="import-toast"
+                    className="fixed bottom-6 right-6 z-[9999] bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl font-medium text-sm flex items-center gap-4 animate-in slide-in-from-bottom-5 border border-slate-700"
+                >
+                    <div className="flex items-center gap-2">
+                        {importToast.isWarning ? (
+                            <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
+                        ) : (
+                            <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+                        )}
+                        <span>{importToast.message}</span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleUndoImport}
+                        className="px-3 py-1 rounded-md bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold transition-colors cursor-pointer"
+                    >
+                        Undo
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setImportToast(null)}
+                        className="text-slate-400 hover:text-white p-1 rounded cursor-pointer"
+                        aria-label="Close"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
                 </div>
             )}
 
@@ -1762,8 +2040,7 @@ function CreateTestContent() {
                                                 value={sec.numQuestions}
                                                 onChange={(e) => {
                                                     const v = parseInt(e.target.value) || 1
-                                                    updateSection(idx, { numQuestions: v })
-                                                    syncQuestionsForSection(sec.id, v)
+                                                    updateSectionNumQuestions(idx, v)
                                                 }}
                                                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20"
                                             />
@@ -1948,6 +2225,27 @@ function CreateTestContent() {
             {/* ──────────────────────────────────────────────────────────────── */}
             {step === 3 && (
                 <div className="space-y-4">
+                    {/* Overflow / Import warning banner */}
+                    {importWarning && (
+                        <div
+                            data-testid="overflow-warning"
+                            className="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700/50 rounded-2xl flex items-start justify-between gap-3 text-xs text-amber-800 dark:text-amber-200 font-medium animate-in fade-in"
+                        >
+                            <div className="flex items-center gap-2">
+                                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+                                <span>{importWarning}</span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setImportWarning(null)}
+                                className="text-amber-600 hover:text-amber-800 dark:hover:text-amber-100 cursor-pointer"
+                                aria-label="Dismiss warning"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+                    )}
+
                     {/* Progress bar */}
                     <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-2xl p-4 shadow-sm">
                         <div className="flex items-center justify-between mb-2">
@@ -1955,14 +2253,14 @@ function CreateTestContent() {
                                 Questions Complete
                             </span>
                             <span className="text-xs font-black text-[#00A8FF]">
-                                {completedCount} of {totalQCount} complete
+                                {completedCount} of {computedTotalQuestions} complete
                             </span>
                         </div>
                         <div className="w-full h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-gradient-to-r from-[#00A8FF] to-[#00D084] rounded-full transition-all duration-500"
                                 style={{
-                                    width: `${totalQCount > 0 ? (completedCount / totalQCount) * 100 : 0}%`,
+                                    width: `${computedTotalQuestions > 0 ? (completedCount / computedTotalQuestions) * 100 : 0}%`,
                                 }}
                             />
                         </div>
@@ -2006,7 +2304,7 @@ function CreateTestContent() {
                                                                 : "text-gray-400"
                                                         }`}
                                                     >
-                                                        {filled}/{qsForSec.length} complete
+                                                        {filled}/{sec.numQuestions} complete
                                                     </span>
                                                 </button>
                                             )
@@ -2079,7 +2377,7 @@ function CreateTestContent() {
                                     <div>
                                         <h3 className="text-sm font-black text-gray-800 dark:text-white">
                                             Question {currentQIdx + 1} of{" "}
-                                            {questionsForCurrentSection.length}
+                                            {sectionForStep3?.numQuestions ?? questionsForCurrentSection.length}
                                         </h3>
                                         <p className="text-xs text-gray-500 dark:text-gray-400">
                                             {sectionForStep3?.name}
@@ -2602,7 +2900,7 @@ function CreateTestContent() {
                                             <span>Open Student View →</span>
                                         </Link>
                                         <Link
-                                            href={`/test-series/${savedTestId}/attempt?testId=${savedTestId}&title=${encodeURIComponent(formData.title)}&questions=${formData.questions.length}&marks=${computedTotalMarks}&duration=${formData.durationMinutes}`}
+                                            href={`/test-series/${savedTestId}/attempt?testId=${savedTestId}&title=${encodeURIComponent(formData.title)}&questions=${computedTotalQuestions}&marks=${computedTotalMarks}&duration=${formData.durationMinutes}`}
                                             className="px-4 py-2.5 rounded-xl bg-[#00A8FF] hover:bg-[#0096e6] text-white font-black text-xs shadow-md transition-all flex items-center gap-1.5"
                                         >
                                             <span>Preview in CBT Arena →</span>
@@ -2627,7 +2925,15 @@ function CreateTestContent() {
                             <ChevronLeft className="h-4 w-4" />
                             Back to Questions
                         </button>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <button
+                                type="button"
+                                onClick={() => setShowStep4Review(true)}
+                                className="flex items-center gap-2 px-4 py-3 border border-sky-500 text-sky-700 dark:text-sky-400 font-bold text-sm rounded-xl hover:bg-sky-50 dark:hover:bg-white/5 transition-all cursor-pointer min-h-[44px]"
+                            >
+                                <FileText className="h-4 w-4" />
+                                <span>Review all questions</span>
+                            </button>
                             <button
                                 onClick={() => setShowPreview(true)}
                                 className="flex items-center gap-2 px-5 py-3 border border-[#00A8FF] text-[#00A8FF] font-bold text-sm rounded-xl hover:bg-[#00A8FF]/10 transition-all cursor-pointer"
@@ -2666,7 +2972,7 @@ function CreateTestContent() {
             {bulkImportOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm overflow-x-hidden">
                     <div
-                        style={{ maxWidth: "min(32rem, calc(100vw - 32px))" }}
+                        style={{ maxWidth: "min(40rem, calc(100vw - 32px))" }}
                         className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl w-full p-4 sm:p-6 shadow-2xl space-y-5 max-h-[90dvh] overflow-y-auto overflow-x-hidden box-border"
                     >
                         <div className="flex items-start justify-between gap-3">
@@ -2675,11 +2981,14 @@ function CreateTestContent() {
                                     Bulk Import / AI Generate
                                 </h3>
                                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 break-words">
-                                    Import from Excel/CSV or use AI to auto-generate questions
+                                    Import from Excel/CSV, paste raw JSON from Gemini/NotebookLM, or use AI
                                 </p>
                             </div>
                             <button
-                                onClick={() => setBulkImportOpen(false)}
+                                onClick={() => {
+                                    setBulkImportOpen(false)
+                                    setJsonPreview(null)
+                                }}
                                 className="shrink-0 p-2 rounded-lg text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                                 aria-label="Close bulk import modal"
                             >
@@ -2691,9 +3000,9 @@ function CreateTestContent() {
                         {uploadError && (
                             <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-xs text-red-600 dark:text-red-400 flex items-start gap-2">
                                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                                <div>
+                                <div className="min-w-0 flex-1">
                                     <p className="font-bold">Upload Error</p>
-                                    <p>{uploadError}</p>
+                                    <p className="break-words">{uploadError}</p>
                                 </div>
                             </div>
                         )}
@@ -2705,145 +3014,411 @@ function CreateTestContent() {
                             </div>
                         )}
 
-                        {/* Download Templates & File Upload */}
-                        <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3">
-                            <div className="flex items-center justify-between">
-                                <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                                    Excel, CSV or JSON File Import
-                                </p>
-                                <span className="text-[10px] text-gray-500 font-semibold">Supports up to 150+ Qs</span>
-                            </div>
+                        {/* ── JSON Import Preview Screen ── */}
+                        {jsonPreview ? (
+                            <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-gray-700 space-y-4">
+                                <div className="flex items-center justify-between gap-2">
+                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                                        <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                                        <span>JSON Import Preview</span>
+                                    </h4>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setJsonPreview(null)
+                                            setUploadedFileBlocks([])
+                                        }}
+                                        className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline cursor-pointer"
+                                    >
+                                        Clear Preview
+                                    </button>
+                                </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <button
-                                    type="button"
-                                    onClick={downloadSampleCsv}
-                                    className="flex items-center justify-center gap-1.5 py-2 px-3 border border-[#00A8FF]/40 text-sky-700 dark:text-sky-400 rounded-xl text-xs font-bold hover:bg-[#00A8FF]/5 transition-all cursor-pointer min-w-0"
-                                >
-                                    <FileSpreadsheet className="h-3.5 w-3.5 shrink-0" />
-                                    <span className="truncate">Download CSV Template</span>
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={downloadSampleJson}
-                                    className="flex items-center justify-center gap-1.5 py-2 px-3 border border-purple-400 text-purple-700 dark:text-purple-400 rounded-xl text-xs font-bold hover:bg-purple-50 dark:hover:bg-purple-950/20 transition-all cursor-pointer min-w-0"
-                                >
-                                    <Code2 className="h-3.5 w-3.5 shrink-0" />
-                                    <span className="truncate">Download JSON Template</span>
-                                </button>
-                            </div>
-
-                            <label className="flex flex-col items-center justify-center gap-2 py-6 border-2 border-dashed border-[#00A8FF]/40 hover:border-[#00A8FF] bg-blue-50/20 dark:bg-blue-900/10 rounded-xl cursor-pointer transition-all">
-                                {isUploading ? (
-                                    <div className="flex flex-col items-center gap-2">
-                                        <div className="w-6 h-6 border-2 border-[#00A8FF] border-t-transparent rounded-full animate-spin" />
-                                        <span className="text-xs font-bold text-[#00A8FF]">
-                                            Reading and importing questions…
-                                        </span>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Upload className="h-6 w-6 text-[#00A8FF]" />
-                                        <div className="text-center">
-                                            <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
-                                                Click to upload .CSV or .JSON file
-                                            </span>
-                                            <span className="text-[11px] text-gray-600 dark:text-gray-400">
-                                                Automatically populates questions, options, and answer keys
-                                            </span>
+                                {/* E1. Uploaded File Blocks Reorder List */}
+                                {uploadedFileBlocks.length > 1 && (
+                                    <div className="p-3 bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 rounded-xl space-y-2">
+                                        <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                            File Order (Natural-sorted, click ↑/↓ to reorder):
+                                        </p>
+                                        <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                                            {uploadedFileBlocks.map((block, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="flex items-center justify-between gap-2 p-1.5 bg-gray-50 dark:bg-white/5 rounded-lg text-xs"
+                                                >
+                                                    <span className="font-medium text-gray-800 dark:text-gray-200 truncate min-w-0">
+                                                        {idx + 1}. {block.filename}
+                                                    </span>
+                                                    <div className="flex items-center gap-1 shrink-0">
+                                                        <button
+                                                            type="button"
+                                                            disabled={idx === 0}
+                                                            onClick={() => moveFileBlock(idx, -1)}
+                                                            className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer font-bold text-xs"
+                                                            title="Move Up"
+                                                        >
+                                                            ↑
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            disabled={idx === uploadedFileBlocks.length - 1}
+                                                            onClick={() => moveFileBlock(idx, 1)}
+                                                            className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer font-bold text-xs"
+                                                            title="Move Down"
+                                                        >
+                                                            ↓
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
-                                    </>
+                                    </div>
                                 )}
-                                <input
-                                    type="file"
-                                    accept=".csv,.json,text/csv,application/json"
-                                    onChange={handleFileUpload}
-                                    disabled={isUploading}
-                                    className="hidden"
-                                />
-                            </label>
-                        </div>
 
-                        {/* AI Generate by Topic */}
-                        <div className="p-4 bg-gradient-to-r from-[#F3ECFF] to-white dark:from-[#1a0b2e] dark:to-[#071d33] rounded-xl border border-purple-200 dark:border-purple-900/50 space-y-3">
-                            <div className="flex items-center gap-2">
-                                <Wand2 className="h-4 w-4 text-[#9333EA]" />
-                                <p className="text-xs font-bold text-[#9333EA]">
-                                    AI Question Generator (By Topic)
-                                </p>
-                            </div>
-                            <p className="text-[11px] text-gray-600 dark:text-gray-300">
-                                Enter an exam topic to automatically generate 5 high-yield MCQs with bilingual options and explanations.
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-2">
-                                <input
-                                    type="text"
-                                    value={aiPrompt}
-                                    onChange={(e) => setAiPrompt(e.target.value)}
-                                    placeholder="e.g. Indian Constitution Polity"
-                                    className="w-full min-w-0 px-3 py-2 rounded-xl border border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 text-xs focus:outline-hidden focus:border-[#9333EA]"
-                                />
-                                <button
-                                    onClick={handleAiGenerate}
-                                    disabled={aiLoading || !aiPrompt.trim()}
-                                    className="w-full sm:w-auto shrink-0 px-4 py-2 bg-[#9333EA] hover:bg-[#7c22d4] text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                                >
-                                    {aiLoading ? (
-                                        <>
-                                            <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            Generating…
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Wand2 className="h-3.5 w-3.5" />
-                                            Generate
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
+                                {/* F1. Stats Summary Grid */}
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    <div className="p-2.5 bg-blue-50/50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-xl text-center">
+                                        <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-semibold block">Total Found</span>
+                                        <span className="text-base font-extrabold text-blue-700 dark:text-blue-300">{jsonPreview.totalFound}</span>
+                                    </div>
+                                    <div className="p-2.5 bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 rounded-xl text-center">
+                                        <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-semibold block">Valid to Import</span>
+                                        <span className="text-base font-extrabold text-emerald-700 dark:text-emerald-300">{jsonPreview.validCount}</span>
+                                    </div>
+                                    <div className="p-2.5 bg-purple-50/50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/50 rounded-xl text-center">
+                                        <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-semibold block">Batch Duplicates</span>
+                                        <span className="text-base font-extrabold text-purple-700 dark:text-purple-300">{jsonPreview.duplicatesRemoved}</span>
+                                    </div>
+                                    <div className="p-2.5 bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 rounded-xl text-center">
+                                        <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-semibold block">Already in Test</span>
+                                        <span className="text-base font-extrabold text-indigo-700 dark:text-indigo-300">{jsonPreview.alreadyInTestCount}</span>
+                                    </div>
+                                    <div className="p-2.5 bg-amber-50/50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-xl text-center">
+                                        <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-semibold block">Warnings</span>
+                                        <span className="text-base font-extrabold text-amber-700 dark:text-amber-300">{jsonPreview.warningCount}</span>
+                                    </div>
+                                    <div className="p-2.5 bg-red-50/50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl text-center">
+                                        <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-semibold block">Skipped</span>
+                                        <span className="text-base font-extrabold text-red-700 dark:text-red-300">{jsonPreview.skipped.length}</span>
+                                    </div>
+                                </div>
 
-                        {/* Paste Raw Paper */}
-                        <div className="p-4 bg-gradient-to-r from-blue-50/70 to-white dark:from-[#0a1c33] dark:to-[#071d33] rounded-xl border border-blue-200 dark:border-blue-900/50 space-y-3">
-                            <div className="flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-sky-700 dark:text-sky-400" />
-                                <p className="text-xs font-bold text-sky-700 dark:text-sky-400">
-                                    AI Raw Paper Ingestion (Paste Exam Paper)
-                                </p>
-                            </div>
-                            <p className="text-[11px] text-gray-600 dark:text-gray-300">
-                                Paste raw questions from Word/PDF with A/B/C/D choices. The engine will auto-detect questions, options, and answer keys.
-                            </p>
-                            <textarea
-                                rows={3}
-                                value={rawPaperText}
-                                onChange={(e) => setRawPaperText(e.target.value)}
-                                placeholder="1. Who was the first President of India? A) Nehru B) Patel C) Rajendra Prasad D) Ambedkar Ans: C Exp: ..."
-                                className="w-full px-3 py-2 rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-900 text-xs font-mono focus:outline-hidden focus:border-[#00A8FF]"
-                            />
-                            <button
-                                onClick={handleRawPaperParse}
-                                disabled={rawLoading || !rawPaperText.trim()}
-                                className="w-full py-2 bg-sky-700 hover:bg-sky-600 text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
-                            >
-                                {rawLoading ? (
-                                    <>
-                                        <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Parsing Questions…
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles className="h-3.5 w-3.5" />
-                                        Parse &amp; Import to Section
-                                    </>
+                                {/* F2. Skipped Items List + Download Skipped Report */}
+                                {jsonPreview.skipped.length > 0 && (
+                                    <div className="p-3 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 rounded-xl text-xs space-y-2 max-h-40 overflow-y-auto">
+                                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                                            <p className="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1">
+                                                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                                                <span>Skipped Items ({jsonPreview.skipped.length})</span>
+                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={downloadSkippedReport}
+                                                className="flex items-center gap-1 px-2.5 py-1 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 bg-amber-100 dark:bg-amber-900/50 rounded-md font-bold text-[11px] hover:bg-amber-200 dark:hover:bg-amber-900 transition-colors cursor-pointer"
+                                            >
+                                                <FileDown className="h-3 w-3" />
+                                                <span>Download Skipped Report (JSON)</span>
+                                            </button>
+                                        </div>
+                                        <ul className="space-y-1 text-gray-700 dark:text-gray-300 text-[11px]">
+                                            {jsonPreview.skipped.map((s, idx) => (
+                                                <li key={idx} className="flex items-start gap-1.5">
+                                                    <span className="font-semibold text-amber-700 dark:text-amber-400 shrink-0">
+                                                        Block {s.blockIndex}{s.questionIndex ? `, Q${s.questionIndex}` : ""}:
+                                                    </span>
+                                                    <span className="break-words">{s.reason}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 )}
-                            </button>
-                        </div>
+
+                                {/* F1. Questions Preview List with Checkboxes & Warnings */}
+                                {jsonPreview.validCount > 0 && (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                                Questions Ready ({selectedQuestionIds.size} of {jsonPreview.validCount} selected)
+                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (selectedQuestionIds.size === jsonPreview.questions.length) {
+                                                        setSelectedQuestionIds(new Set())
+                                                    } else {
+                                                        setSelectedQuestionIds(new Set(jsonPreview.questions.map((q) => q.id)))
+                                                    }
+                                                }}
+                                                className="text-xs text-sky-600 dark:text-sky-400 hover:underline font-semibold cursor-pointer"
+                                            >
+                                                {selectedQuestionIds.size === jsonPreview.questions.length ? "Deselect All" : "Select All"}
+                                            </button>
+                                        </div>
+
+                                        <div className="max-h-56 overflow-y-auto space-y-2 pr-1 divide-y divide-gray-100 dark:divide-gray-800/60 border border-gray-200 dark:border-gray-800 rounded-xl p-2.5 bg-white dark:bg-gray-900/40">
+                                            {jsonPreview.questions.map((q) => {
+                                                const isChecked = selectedQuestionIds.has(q.id)
+                                                return (
+                                                    <div key={q.id} className="pt-2 first:pt-0 space-y-1.5 text-xs">
+                                                        <div className="flex items-start gap-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isChecked}
+                                                                onChange={(e) => {
+                                                                    const next = new Set(selectedQuestionIds)
+                                                                    if (e.target.checked) next.add(q.id)
+                                                                    else next.delete(q.id)
+                                                                    setSelectedQuestionIds(next)
+                                                                }}
+                                                                className="h-4 w-4 mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300 dark:border-gray-700 cursor-pointer shrink-0"
+                                                                aria-label={`Select Question ${q.id}`}
+                                                            />
+                                                            <span className="font-bold text-[#00A8FF] shrink-0">Q{q.id}.</span>
+                                                            <div className="min-w-0 flex-1">
+                                                                <p className="text-gray-900 dark:text-gray-100 font-medium break-words">
+                                                                    {q.questionEn}
+                                                                </p>
+                                                                {q.questionHi && (
+                                                                    <p className="text-gray-500 dark:text-gray-400 text-[11px] mt-0.5 break-words">
+                                                                        {q.questionHi}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                            <span className="shrink-0 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold text-[10px] rounded-md">
+                                                                Ans: {q.correctOption}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Warnings per question (D1-D5, C5) */}
+                                                        {q.warnings && q.warnings.length > 0 && (
+                                                            <div className="ml-6 flex items-start gap-1 p-1.5 bg-amber-50/80 dark:bg-amber-950/40 rounded-lg border border-amber-200/60 dark:border-amber-900/40 text-[11px] text-amber-800 dark:text-amber-300">
+                                                                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500 mt-0.5" />
+                                                                <div className="min-w-0 flex-1 space-y-0.5">
+                                                                    {q.warnings.map((w, wIdx) => (
+                                                                        <p key={wIdx}>{w}</p>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Action Buttons */}
+                                <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                                    <button
+                                        type="button"
+                                        onClick={handleConfirmImport}
+                                        disabled={selectedQuestionIds.size === 0 || isImporting}
+                                        className="w-full sm:flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm min-h-[44px]"
+                                    >
+                                        <Check className="h-4 w-4 shrink-0" />
+                                        <span>
+                                            {isImporting
+                                                ? "Importing Questions…"
+                                                : `Import ${selectedQuestionIds.size} questions`}
+                                        </span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setJsonPreview(null)
+                                            setUploadedFileBlocks([])
+                                        }}
+                                        className="w-full sm:w-auto px-4 py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer min-h-[44px]"
+                                    >
+                                        Back to Edit
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Download Templates & File Upload */}
+                                <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                                            Excel, CSV or Multiple JSON File Import
+                                        </p>
+                                        <span className="text-[10px] text-gray-500 font-semibold">Supports up to 150+ Qs</span>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={downloadSampleCsv}
+                                            className="flex items-center justify-center gap-1.5 py-2 px-3 border border-[#00A8FF]/40 text-sky-700 dark:text-sky-400 rounded-xl text-xs font-bold hover:bg-[#00A8FF]/5 transition-all cursor-pointer min-w-0 min-h-[44px]"
+                                        >
+                                            <FileSpreadsheet className="h-3.5 w-3.5 shrink-0" />
+                                            <span className="truncate">Download CSV Template</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={downloadSampleJson}
+                                            className="flex items-center justify-center gap-1.5 py-2 px-3 border border-purple-400 text-purple-700 dark:text-purple-400 rounded-xl text-xs font-bold hover:bg-purple-50 dark:hover:bg-purple-950/20 transition-all cursor-pointer min-w-0 min-h-[44px]"
+                                        >
+                                            <Code2 className="h-3.5 w-3.5 shrink-0" />
+                                            <span className="truncate">Download JSON Template</span>
+                                        </button>
+                                    </div>
+
+                                    <label className="flex flex-col items-center justify-center gap-2 py-6 border-2 border-dashed border-[#00A8FF]/40 hover:border-[#00A8FF] bg-blue-50/20 dark:bg-blue-900/10 rounded-xl cursor-pointer transition-all">
+                                        {isUploading ? (
+                                            <div className="flex flex-col items-center gap-2">
+                                                <div className="w-6 h-6 border-2 border-[#00A8FF] border-t-transparent rounded-full animate-spin" />
+                                                <span className="text-xs font-bold text-[#00A8FF]">
+                                                    Reading and analyzing questions…
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <Upload className="h-6 w-6 text-[#00A8FF]" />
+                                                <div className="text-center">
+                                                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 block">
+                                                        Click to upload .CSV or multiple .JSON files
+                                                    </span>
+                                                    <span className="text-[11px] text-gray-600 dark:text-gray-400">
+                                                        Automatically cleans citations, fixes quotes &amp; merges blocks
+                                                    </span>
+                                                </div>
+                                            </>
+                                        )}
+                                        <input
+                                            type="file"
+                                            accept=".csv,.json,text/csv,application/json"
+                                            multiple
+                                            onChange={handleFileUpload}
+                                            disabled={isUploading}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                </div>
+
+                                {/* Paste JSON (multiple blocks allowed) */}
+                                <div className="p-4 bg-gradient-to-r from-emerald-50/60 to-white dark:from-[#05231c] dark:to-[#071d33] rounded-xl border border-emerald-200 dark:border-emerald-900/50 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Code2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                        <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                                            Paste JSON (multiple blocks allowed)
+                                        </p>
+                                    </div>
+                                    <p className="text-[11px] text-gray-600 dark:text-gray-300">
+                                        Paste multiple raw JSON blocks from Gemini or NotebookLM. Auto-cleans code fences, [1][2] citations, fixes quotes &amp; trailing commas, and keeps Hindi intact.
+                                    </p>
+                                    <textarea
+                                        rows={4}
+                                        value={rawJsonText}
+                                        onChange={(e) => setRawJsonText(e.target.value)}
+                                        placeholder='Paste raw JSON blocks here (e.g. [{"questionEn": "...", "questionHi": "...", "options": [...]}]). Multiple [ ... ] blocks allowed.'
+                                        className="w-full px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-gray-900 text-xs font-mono focus:outline-hidden focus:border-emerald-500"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleProcessPastedJson}
+                                        disabled={isProcessingJson || !rawJsonText.trim()}
+                                        className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm min-h-[44px]"
+                                    >
+                                        {isProcessingJson ? (
+                                            <>
+                                                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                Processing &amp; Validating…
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Sparkles className="h-3.5 w-3.5" />
+                                                Process &amp; Preview
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+
+                                {/* AI Generate by Topic */}
+                                <div className="p-4 bg-gradient-to-r from-[#F3ECFF] to-white dark:from-[#1a0b2e] dark:to-[#071d33] rounded-xl border border-purple-200 dark:border-purple-900/50 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Wand2 className="h-4 w-4 text-[#9333EA]" />
+                                        <p className="text-xs font-bold text-[#9333EA]">
+                                            AI Question Generator (By Topic)
+                                        </p>
+                                    </div>
+                                    <p className="text-[11px] text-gray-600 dark:text-gray-300">
+                                        Enter an exam topic to automatically generate 5 high-yield MCQs with bilingual options and explanations.
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row gap-2">
+                                        <input
+                                            type="text"
+                                            value={aiPrompt}
+                                            onChange={(e) => setAiPrompt(e.target.value)}
+                                            placeholder="e.g. Indian Constitution Polity"
+                                            className="w-full min-w-0 px-3 py-2 rounded-xl border border-purple-200 dark:border-purple-800 bg-white dark:bg-gray-900 text-xs focus:outline-hidden focus:border-[#9333EA]"
+                                        />
+                                        <button
+                                            onClick={handleAiGenerate}
+                                            disabled={aiLoading || !aiPrompt.trim()}
+                                            className="w-full sm:w-auto shrink-0 px-4 py-2 bg-[#9333EA] hover:bg-[#7c22d4] text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[44px]"
+                                        >
+                                            {aiLoading ? (
+                                                <>
+                                                    <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    Generating…
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Wand2 className="h-3.5 w-3.5" />
+                                                    Generate
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Paste Raw Paper */}
+                                <div className="p-4 bg-gradient-to-r from-blue-50/70 to-white dark:from-[#0a1c33] dark:to-[#071d33] rounded-xl border border-blue-200 dark:border-blue-900/50 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <FileText className="h-4 w-4 text-sky-700 dark:text-sky-400" />
+                                        <p className="text-xs font-bold text-sky-700 dark:text-sky-400">
+                                            AI Raw Paper Ingestion (Paste Exam Paper)
+                                        </p>
+                                    </div>
+                                    <p className="text-[11px] text-gray-600 dark:text-gray-300">
+                                        Paste raw questions from Word/PDF with A/B/C/D choices. The engine will auto-detect questions, options, and answer keys.
+                                    </p>
+                                    <textarea
+                                        rows={3}
+                                        value={rawPaperText}
+                                        onChange={(e) => setRawPaperText(e.target.value)}
+                                        placeholder="1. Who was the first President of India? A) Nehru B) Patel C) Rajendra Prasad D) Ambedkar Ans: C Exp: ..."
+                                        className="w-full px-3 py-2 rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-900 text-xs font-mono focus:outline-hidden focus:border-[#00A8FF]"
+                                    />
+                                    <button
+                                        onClick={handleRawPaperParse}
+                                        disabled={rawLoading || !rawPaperText.trim()}
+                                        className="w-full py-2 bg-sky-700 hover:bg-sky-600 text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm min-h-[44px]"
+                                    >
+                                        {rawLoading ? (
+                                            <>
+                                                <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                Parsing Questions…
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Sparkles className="h-3.5 w-3.5" />
+                                                Parse &amp; Import to Section
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </>
+                        )}
 
                         <button
-                            onClick={() => setBulkImportOpen(false)}
-                            className="w-full py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer"
+                            onClick={() => {
+                                setBulkImportOpen(false)
+                                setJsonPreview(null)
+                            }}
+                            className="w-full py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer min-h-[44px]"
                         >
                             Close
                         </button>
@@ -2881,7 +3456,7 @@ function CreateTestContent() {
                                 <span>·</span>
                                 <span>📝 {totalSectionQuestions} questions</span>
                                 <span>·</span>
-                                <span>🏆 {formData.totalMarks} marks</span>
+                                <span>🏆 {computedTotalMarks} marks</span>
                                 <span>·</span>
                                 <span className={formData.accessMode === "free" ? "text-[#00D084] font-bold" : "text-[#9333EA] font-bold"}>
                                     {formData.accessMode === "free" ? "Free" : "Pass Pro"}
