@@ -216,7 +216,7 @@ export default function ReviewAllQuestions({
                         {/* Desktop / Tablet Publish action or Published badge */}
                         {isPublished ? (
                             <div
-                                data-testid="review-published-badge"
+                                data-testid="desktop-published-badge"
                                 className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold min-h-[44px]"
                             >
                                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
@@ -238,7 +238,7 @@ export default function ReviewAllQuestions({
                                         <button
                                             type="button"
                                             disabled={true}
-                                            data-testid="review-publish-button"
+                                            data-testid="publish-top-bar-button"
                                             className="px-4 py-2 bg-emerald-600/40 text-white rounded-xl text-xs font-bold cursor-not-allowed opacity-60 min-h-[44px] flex items-center gap-1.5"
                                             title="Complete all questions before publishing"
                                         >
@@ -250,7 +250,7 @@ export default function ReviewAllQuestions({
                                     <button
                                         type="button"
                                         onClick={onPublish}
-                                        data-testid="review-publish-button"
+                                        data-testid="publish-top-bar-button"
                                         className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer min-h-[44px] flex items-center gap-1.5"
                                     >
                                         <CheckCircle2 className="h-4 w-4" />
@@ -485,7 +485,7 @@ export default function ReviewAllQuestions({
             <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#071d33]/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg flex items-center justify-between gap-2 min-h-[56px]">
                 {isPublished ? (
                     <div
-                        data-testid="mobile-review-published-badge"
+                        data-testid="mobile-published-badge"
                         className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold min-h-[44px]"
                     >
                         <CheckCircle2 className="h-4 w-4 text-emerald-500" />

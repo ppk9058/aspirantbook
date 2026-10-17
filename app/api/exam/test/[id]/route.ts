@@ -60,7 +60,7 @@ export async function PATCH(
       if (existingTest._count.attempts > 0) {
         return NextResponse.json(
           {
-            error: `Cannot unpublish test: this test has ${existingTest._count.attempts} student attempt(s).`,
+            error: `Cannot unpublish test: this test has ${existingTest._count.attempts} student attempt(s). Cannot unpublish test with existing attempts.`,
             attemptsCount: existingTest._count.attempts,
           },
           { status: 400 }
@@ -97,13 +97,13 @@ export async function PATCH(
             const ansRaw = (q.correctOption || "").trim().toUpperCase();
             const isAnsValid = ["A", "B", "C", "D"].includes(ansRaw);
 
-            if (!qEn) validationErrors.push(`${secTitle}, Q${qNum}: Question text cannot be empty.`);
-            if (!optA) validationErrors.push(`${secTitle}, Q${qNum}: Option A cannot be empty.`);
-            if (!optB) validationErrors.push(`${secTitle}, Q${qNum}: Option B cannot be empty.`);
-            if (!optC) validationErrors.push(`${secTitle}, Q${qNum}: Option C cannot be empty.`);
-            if (!optD) validationErrors.push(`${secTitle}, Q${qNum}: Option D cannot be empty.`);
+            if (!qEn) validationErrors.push(`${secTitle}, Question ${qNum}: Question text cannot be empty.`);
+            if (!optA) validationErrors.push(`${secTitle}, Question ${qNum}: Option A cannot be empty.`);
+            if (!optB) validationErrors.push(`${secTitle}, Question ${qNum}: Option B cannot be empty.`);
+            if (!optC) validationErrors.push(`${secTitle}, Question ${qNum}: Option C cannot be empty.`);
+            if (!optD) validationErrors.push(`${secTitle}, Question ${qNum}: Option D cannot be empty.`);
             if (!isAnsValid) {
-              validationErrors.push(`${secTitle}, Q${qNum}: Invalid correct answer. Must be A, B, C, or D.`);
+              validationErrors.push(`${secTitle}, Question ${qNum}: Invalid correct answer. Must be A, B, C, or D.`);
             }
           }
         }
@@ -116,7 +116,7 @@ export async function PATCH(
       if (validationErrors.length > 0) {
         return NextResponse.json(
           {
-            error: `Cannot publish test: ${validationErrors.length} question(s) have errors.`,
+            error: `Cannot publish test: one or more questions are incomplete (${validationErrors.length} question(s) have errors).`,
             details: validationErrors,
           },
           { status: 400 }

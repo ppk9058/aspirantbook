@@ -177,7 +177,7 @@ export default function PublishTestModal({
                         type="button"
                         onClick={handleConfirmPublish}
                         disabled={isPublishing}
-                        data-testid="publish-confirm-button"
+                        data-testid="confirm-publish-button"
                         className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors shadow-md min-h-[44px]"
                     >
                         {isPublishing ? (

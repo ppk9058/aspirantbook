@@ -711,7 +711,7 @@ export default function EditTestPage({
                             type="button"
                             onClick={handleOpenPublishModal}
                             disabled={isSaving}
-                            data-testid="publish-test-button"
+                            data-testid="publish-edit-button"
                             className="flex items-center gap-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer disabled:opacity-50 min-h-[44px]"
                         >
                             <CheckCircle2 className="h-4 w-4" />
@@ -789,7 +789,7 @@ export default function EditTestPage({
 
             {publishBlockErrors.length > 0 && (
                 <div
-                    data-testid="publish-block-error-banner"
+                    data-testid="publish-block-banner"
                     className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-2xl text-xs space-y-2.5 animate-in fade-in"
                 >
                     <div className="flex items-start gap-2 text-amber-900 dark:text-amber-200 font-bold">
@@ -807,7 +807,7 @@ export default function EditTestPage({
                                 <button
                                     type="button"
                                     onClick={() => handleJumpToQuestion(err.sectionId, err.qId)}
-                                    data-testid={`jump-question-${err.qNum}`}
+                                    data-testid={`jump-to-q-${err.qNum}`}
                                     className="text-sky-700 dark:text-sky-300 font-bold hover:underline cursor-pointer text-left min-h-[32px] inline-flex items-center gap-1"
                                 >
                                     <span>{err.message} — Jump to Question</span>
