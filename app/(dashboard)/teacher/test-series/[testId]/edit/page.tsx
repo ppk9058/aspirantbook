@@ -24,6 +24,7 @@ import {
     FileText,
 } from "lucide-react"
 import ReviewAllQuestions, { ReviewQuestionItem, ReviewSectionItem } from "@/components/exam/ReviewAllQuestions"
+import PublishTestModal from "@/components/exam/PublishTestModal"
 import {
     parseAndValidateReplaceByNumberJson,
     type ReplaceByNumberValidationResult,
@@ -125,6 +126,8 @@ export default function EditTestPage({
     const [titleHindi, setTitleHindi] = useState("")
     const [isPublished, setIsPublished] = useState(false)
     const [attemptsCount, setAttemptsCount] = useState(0)
+    const [isPublishModalOpen, setIsPublishModalOpen] = useState(false)
+    const [publishBlockErrors, setPublishBlockErrors] = useState<{ qNum: number; qId: string; sectionId: string; message: string }[]>([])
 
     // Sections & Questions
     const [sections, setSections] = useState<Section[]>([])
@@ -286,11 +289,11 @@ export default function EditTestPage({
         }
     }
 
-    const handleSave = async () => {
+    const handleSave = async (): Promise<boolean> => {
         if (!title.trim()) {
             setSaveError("Test title is required.")
             setSaveErrorDetails([])
-            return
+            return false
         }
 
         setIsSaving(true)
@@ -348,16 +351,18 @@ export default function EditTestPage({
                 setReplaceSuccessMessage(null)
                 setSaveError(errMsg)
                 if (Array.isArray(json.details)) setSaveErrorDetails(json.details)
-                return
+                return false
             }
 
             setSaveSuccessMessage("Test saved successfully!")
             setTimeout(() => setSaveSuccessMessage(null), 4000)
+            return true
         } catch (err: any) {
             console.error("Save test error:", err)
             setSaveSuccessMessage(null)
             setReplaceSuccessMessage(null)
             setSaveError(err.message || "Failed to save test.")
+            return false
         } finally {
             setIsSaving(false)
         }
@@ -368,6 +373,53 @@ export default function EditTestPage({
     const orderedQuestions = sections.flatMap((sec) =>
         questions.filter((q) => q.sectionId === sec.id)
     )
+
+    const getIncompleteQuestions = () => {
+        const errors: { qNum: number; qId: string; sectionId: string; message: string }[] = []
+        orderedQuestions.forEach((q, idx) => {
+            const qNum = idx + 1
+            const qEn = q.textEnglish?.trim()
+            const optA = q.options[0]?.english?.trim()
+            const optB = q.options[1]?.english?.trim()
+            const optC = q.options[2]?.english?.trim()
+            const optD = q.options[3]?.english?.trim()
+            const hasAns = q.correctAnswer !== null && q.correctAnswer !== undefined
+
+            const reasons: string[] = []
+            if (!qEn) reasons.push("question text is empty")
+            if (!optA || !optB || !optC || !optD) reasons.push("requires 4 English options")
+            if (!hasAns) reasons.push("requires a correct answer")
+
+            if (reasons.length > 0) {
+                errors.push({
+                    qNum,
+                    qId: q.id,
+                    sectionId: q.sectionId,
+                    message: `Q${qNum}: ${reasons.join(", ")}`,
+                })
+            }
+        })
+        return errors
+    }
+
+    const handleJumpToQuestion = (sectionId: string, qId: string) => {
+        const secIdx = sections.findIndex((s) => s.id === sectionId)
+        if (secIdx !== -1) setCurrentSectionIdx(secIdx)
+        const secQs = questions.filter((q) => q.sectionId === sectionId)
+        const qIdx = secQs.findIndex((q) => q.id === qId)
+        if (qIdx !== -1) setCurrentQIdx(qIdx)
+    }
+
+    const handleOpenPublishModal = () => {
+        setPublishBlockErrors([])
+        const incomplete = getIncompleteQuestions()
+        if (incomplete.length > 0) {
+            setPublishBlockErrors(incomplete)
+            setSaveError("Cannot publish test: incomplete questions must be completed first.")
+            return
+        }
+        setIsPublishModalOpen(true)
+    }
 
     const handleValidateAndPreviewReplace = () => {
         const result = parseAndValidateReplaceByNumberJson(replaceJsonInput, totalQuestionsCount)
@@ -527,25 +579,40 @@ export default function EditTestPage({
         }))
 
         return (
-            <ReviewAllQuestions
-                title={title}
-                titleHindi={titleHindi}
-                sections={reviewSections}
-                questions={reviewQuestions}
-                isPublished={isPublished}
-                attemptsCount={attemptsCount}
-                onBack={() => setShowFullReview(false)}
-                onEditQuestion={(qId, sectionId) => {
-                    setShowFullReview(false)
-                    const sIdx = sections.findIndex((s) => s.id === sectionId)
-                    if (sIdx !== -1) {
-                        setCurrentSectionIdx(sIdx)
-                        const secQs = questions.filter((q) => q.sectionId === sectionId)
-                        const qIdx = secQs.findIndex((q) => q.id === qId)
-                        if (qIdx !== -1) setCurrentQIdx(qIdx)
-                    }
-                }}
-            />
+            <>
+                <ReviewAllQuestions
+                    title={title}
+                    titleHindi={titleHindi}
+                    sections={reviewSections}
+                    questions={reviewQuestions}
+                    isPublished={isPublished}
+                    attemptsCount={attemptsCount}
+                    onBack={() => setShowFullReview(false)}
+                    onPublish={handleOpenPublishModal}
+                    publishSuccessMessage={saveSuccessMessage}
+                    onEditQuestion={(qId, sectionId) => {
+                        setShowFullReview(false)
+                        const sIdx = sections.findIndex((s) => s.id === sectionId)
+                        if (sIdx !== -1) {
+                            setCurrentSectionIdx(sIdx)
+                            const secQs = questions.filter((q) => q.sectionId === sectionId)
+                            const qIdx = secQs.findIndex((q) => q.id === qId)
+                            if (qIdx !== -1) setCurrentQIdx(qIdx)
+                        }
+                    }}
+                />
+                <PublishTestModal
+                    isOpen={isPublishModalOpen}
+                    onClose={() => setIsPublishModalOpen(false)}
+                    testId={id}
+                    testTitle={title}
+                    beforePublish={handleSave}
+                    onSuccess={() => {
+                        setIsPublished(true)
+                        setSaveSuccessMessage("Test published successfully! Structure is now locked.")
+                    }}
+                />
+            </>
         )
     }
 
@@ -638,6 +705,19 @@ export default function EditTestPage({
                             </>
                         )}
                     </button>
+
+                    {!isPublished && (
+                        <button
+                            type="button"
+                            onClick={handleOpenPublishModal}
+                            disabled={isSaving}
+                            data-testid="publish-test-button"
+                            className="flex items-center gap-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer disabled:opacity-50 min-h-[44px]"
+                        >
+                            <CheckCircle2 className="h-4 w-4" />
+                            <span>Publish</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -704,6 +784,37 @@ export default function EditTestPage({
                             ))}
                         </ul>
                     )}
+                </div>
+            )}
+
+            {publishBlockErrors.length > 0 && (
+                <div
+                    data-testid="publish-block-error-banner"
+                    className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-2xl text-xs space-y-2.5 animate-in fade-in"
+                >
+                    <div className="flex items-start gap-2 text-amber-900 dark:text-amber-200 font-bold">
+                        <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" />
+                        <div>
+                            <p>Cannot publish: {publishBlockErrors.length} question(s) are incomplete</p>
+                            <p className="font-normal text-[11px] text-amber-700 dark:text-amber-400">
+                                Click any question below to jump directly to it:
+                            </p>
+                        </div>
+                    </div>
+                    <ul className="pl-6 space-y-1 text-[11px]">
+                        {publishBlockErrors.map((err) => (
+                            <li key={err.qId}>
+                                <button
+                                    type="button"
+                                    onClick={() => handleJumpToQuestion(err.sectionId, err.qId)}
+                                    data-testid={`jump-question-${err.qNum}`}
+                                    className="text-sky-700 dark:text-sky-300 font-bold hover:underline cursor-pointer text-left min-h-[32px] inline-flex items-center gap-1"
+                                >
+                                    <span>{err.message} — Jump to Question</span>
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             )}
 
@@ -1489,6 +1600,18 @@ export default function EditTestPage({
                     </div>
                 </div>
             )}
+
+            <PublishTestModal
+                isOpen={isPublishModalOpen}
+                onClose={() => setIsPublishModalOpen(false)}
+                testId={id}
+                testTitle={title}
+                beforePublish={handleSave}
+                onSuccess={() => {
+                    setIsPublished(true)
+                    setSaveSuccessMessage("Test published successfully! Structure is now locked.")
+                }}
+            />
         </div>
     )
 }

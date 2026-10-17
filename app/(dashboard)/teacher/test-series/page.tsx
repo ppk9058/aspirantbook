@@ -26,6 +26,8 @@ import {
     RotateCcw
 } from "lucide-react"
 import CreateSeriesModal from "@/components/exam/CreateSeriesModal"
+import PublishTestModal from "@/components/exam/PublishTestModal"
+import { formatIstDateTime } from "@/lib/format-date"
 
 interface ManageTestItem {
     id: string
@@ -49,6 +51,7 @@ export default function TeacherTestSeriesManagePage() {
     const [selectedTab, setSelectedTab] = useState<"ALL" | "PUBLISHED" | "DRAFT" | "LIVE">("ALL")
     const [statusFilter, setStatusFilter] = useState("ALL")
     const [isCreatePackageModalOpen, setIsCreatePackageModalOpen] = useState(false)
+    const [publishModalTest, setPublishModalTest] = useState<ManageTestItem | null>(null)
 
     const loadAllTests = useCallback(async () => {
         const items: ManageTestItem[] = []
@@ -76,7 +79,7 @@ export default function TeacherTestSeriesManagePage() {
                         avgScore: typeof t.avgScore === "number" ? t.avgScore : 0,
                         submittedCount: typeof t.submittedAttemptsCount === "number" ? t.submittedAttemptsCount : (typeof t.avgScore === "number" && t.avgScore > 0 ? attempts : 0),
                         status: t.isPublished ? (t.isLive ? "LIVE" : "PUBLISHED") : "DRAFT",
-                        createdAt: t.createdAt ? new Date(t.createdAt).toLocaleDateString() : "Recent",
+                        createdAt: formatIstDateTime(t.createdAt),
                     })
                 })
             }
@@ -338,7 +341,7 @@ export default function TeacherTestSeriesManagePage() {
                                 <th className="py-4 px-4">Duration</th>
                                 <th className="py-4 px-4">Submissions</th>
                                 <th className="py-4 px-4">Status</th>
-                                <th className="py-4 px-6 text-right">Actions</th>
+                                <th className="py-4 px-6 text-right min-w-[340px]">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
@@ -352,7 +355,9 @@ export default function TeacherTestSeriesManagePage() {
                                             <div className="flex items-center gap-2 text-[11px] text-gray-600 dark:text-gray-400">
                                                 <span className="font-semibold text-sky-700 dark:text-sky-400">{test.category}</span>
                                                 <span>•</span>
-                                                <span>Created {test.createdAt}</span>
+                                                <span data-testid="test-created-at">
+                                                    {test.createdAt === "—" ? "—" : `Created ${test.createdAt}`}
+                                                </span>
                                             </div>
                                         </div>
                                     </td>
@@ -410,8 +415,21 @@ export default function TeacherTestSeriesManagePage() {
                                             {test.status}
                                         </span>
                                     </td>
-                                    <td className="py-4 px-6 text-right">
-                                        <div className="flex items-center justify-end gap-2">
+                                    <td className="py-4 px-6 text-right min-w-[340px]">
+                                        <div className="flex items-center justify-end gap-2 flex-wrap">
+                                            {test.status === "DRAFT" && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setPublishModalTest(test)}
+                                                    data-testid="publish-row-button"
+                                                    className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 min-h-[44px] cursor-pointer shadow-xs shrink-0"
+                                                    title="Publish Test"
+                                                    aria-label={`Publish ${test.title}`}
+                                                >
+                                                    <CheckCircle className="h-4 w-4" />
+                                                    <span>Publish</span>
+                                                </button>
+                                            )}
                                             <Link
                                                 href={`/test-series/${test.seriesId || "upsc-prelims-2026"}?testId=${test.id}`}
                                                 target="_blank"
@@ -527,6 +545,23 @@ export default function TeacherTestSeriesManagePage() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {publishModalTest && (
+                <PublishTestModal
+                    isOpen={Boolean(publishModalTest)}
+                    onClose={() => setPublishModalTest(null)}
+                    testId={publishModalTest.id}
+                    testTitle={publishModalTest.title}
+                    reviewUrl={`${basePath}/${publishModalTest.id}/review`}
+                    onSuccess={() => {
+                        const targetId = publishModalTest.id
+                        setTests((prev) =>
+                            prev.map((t) => (t.id === targetId ? { ...t, status: "PUBLISHED" } : t))
+                        )
+                        setPublishModalTest(null)
+                    }}
+                />
             )}
         </div>
     )

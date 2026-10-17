@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { AlertCircle, RotateCcw } from "lucide-react"
 import ReviewAllQuestions, { ReviewQuestionItem, ReviewSectionItem } from "@/components/exam/ReviewAllQuestions"
+import PublishTestModal from "@/components/exam/PublishTestModal"
 
 export default function TestReviewPage({
     params,
@@ -23,6 +24,8 @@ export default function TestReviewPage({
     const [attemptsCount, setAttemptsCount] = useState(0)
     const [sections, setSections] = useState<ReviewSectionItem[]>([])
     const [questions, setQuestions] = useState<ReviewQuestionItem[]>([])
+    const [isPublishModalOpen, setIsPublishModalOpen] = useState(false)
+    const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null)
 
     const loadReviewData = useCallback(async () => {
         setLoading(true)
@@ -134,17 +137,31 @@ export default function TestReviewPage({
     }
 
     return (
-        <ReviewAllQuestions
-            title={title}
-            titleHindi={titleHindi}
-            sections={sections}
-            questions={questions}
-            isPublished={isPublished}
-            attemptsCount={attemptsCount}
-            onBack={() => router.back()}
-            onEditQuestion={(qId) => {
-                router.push(`/teacher/test-series/${encodeURIComponent(id)}/edit?qId=${encodeURIComponent(qId)}`)
-            }}
-        />
+        <>
+            <ReviewAllQuestions
+                title={title}
+                titleHindi={titleHindi}
+                sections={sections}
+                questions={questions}
+                isPublished={isPublished}
+                attemptsCount={attemptsCount}
+                onBack={() => router.back()}
+                onEditQuestion={(qId) => {
+                    router.push(`/teacher/test-series/${encodeURIComponent(id)}/edit?qId=${encodeURIComponent(qId)}`)
+                }}
+                onPublish={() => setIsPublishModalOpen(true)}
+                publishSuccessMessage={publishSuccessMessage}
+            />
+            <PublishTestModal
+                isOpen={isPublishModalOpen}
+                onClose={() => setIsPublishModalOpen(false)}
+                testId={id}
+                testTitle={title}
+                onSuccess={() => {
+                    setIsPublished(true)
+                    setPublishSuccessMessage("Test published successfully! Students can now attempt it.")
+                }}
+            />
+        </>
     )
 }

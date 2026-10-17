@@ -89,6 +89,7 @@ export async function GET(req: NextRequest) {
         previewPercentage: true,
         isPublished: true,
         createdById: true,
+        createdAt: true,
         _count: {
           select: {
             attempts: {
@@ -220,6 +221,7 @@ export async function GET(req: NextRequest) {
         seriesIsGated: Boolean(t.series?.isGated),
         isFreeSample,
         isPublished: t.isPublished,
+        createdAt: t.createdAt ? t.createdAt.toISOString() : null,
         attempts: t._count?.attempts ?? 0,
         submittedAttemptsCount: submittedAttempts.length,
         avgScore,

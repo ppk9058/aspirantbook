@@ -47,6 +47,8 @@ interface ReviewAllQuestionsProps {
     isPublished?: boolean
     attemptsCount?: number
     subtitle?: string
+    onPublish?: () => void
+    publishSuccessMessage?: string | null
 }
 
 export default function ReviewAllQuestions({
@@ -59,6 +61,8 @@ export default function ReviewAllQuestions({
     isPublished = false,
     attemptsCount = 0,
     subtitle = "Review every question before publishing or saving",
+    onPublish,
+    publishSuccessMessage,
 }: ReviewAllQuestionsProps) {
     const [languageMode, setLanguageMode] = useState<"both" | "english" | "hindi">("both")
     const [jumpInput, setJumpInput] = useState("")
@@ -78,6 +82,28 @@ export default function ReviewAllQuestions({
     const completeCount = questions.filter(isFilled).length
     const incompleteCount = totalQuestions - completeCount
 
+    // Find 1-based global number of the first incomplete question
+    let firstIncompleteGlobalNum: number | null = null
+    let tempGlobalIdx = 0
+    for (const sec of sections) {
+        const secQs = questions.filter((q) => q.sectionId === sec.id)
+        for (const q of secQs) {
+            tempGlobalIdx++
+            if (!isFilled(q) && firstIncompleteGlobalNum === null) {
+                firstIncompleteGlobalNum = tempGlobalIdx
+            }
+        }
+    }
+
+    const handleJumpToFirstIncomplete = () => {
+        if (firstIncompleteGlobalNum !== null) {
+            const el = document.getElementById(`review-question-${firstIncompleteGlobalNum}`)
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "start" })
+            }
+        }
+    }
+
     const handleJump = (e: React.FormEvent) => {
         e.preventDefault()
         const targetNum = parseInt(jumpInput, 10)
@@ -93,7 +119,7 @@ export default function ReviewAllQuestions({
     let runningGlobalIndex = 0
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#060f1c] text-gray-900 dark:text-gray-100 pb-20">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#060f1c] text-gray-900 dark:text-gray-100 pb-28 sm:pb-20">
             {/* Sticky Header Bar */}
             <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#071d33]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-xs px-4 sm:px-6 py-3">
                 <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
@@ -117,7 +143,7 @@ export default function ReviewAllQuestions({
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                         {/* Progress pill */}
                         <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-bold shrink-0 min-h-[44px]">
                             <span className="text-[#00A8FF]">
@@ -186,6 +212,53 @@ export default function ReviewAllQuestions({
                                 Jump
                             </button>
                         </form>
+
+                        {/* Desktop / Tablet Publish action or Published badge */}
+                        {isPublished ? (
+                            <div
+                                data-testid="review-published-badge"
+                                className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold min-h-[44px]"
+                            >
+                                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                <span>Published</span>
+                            </div>
+                        ) : onPublish ? (
+                            <div className="hidden sm:flex items-center gap-2">
+                                {incompleteCount > 0 ? (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={handleJumpToFirstIncomplete}
+                                            data-testid="jump-incomplete-link"
+                                            className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer min-h-[44px] px-2"
+                                        >
+                                            <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                                            <span>{incompleteCount} incomplete - jump to first</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            disabled={true}
+                                            data-testid="review-publish-button"
+                                            className="px-4 py-2 bg-emerald-600/40 text-white rounded-xl text-xs font-bold cursor-not-allowed opacity-60 min-h-[44px] flex items-center gap-1.5"
+                                            title="Complete all questions before publishing"
+                                        >
+                                            <CheckCircle2 className="h-4 w-4" />
+                                            <span>Publish</span>
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={onPublish}
+                                        data-testid="review-publish-button"
+                                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer min-h-[44px] flex items-center gap-1.5"
+                                    >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        <span>Publish</span>
+                                    </button>
+                                )}
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             </header>
@@ -199,6 +272,19 @@ export default function ReviewAllQuestions({
                             This test has <strong>{attemptsCount} student attempt(s)</strong>.
                             Past attempt scores are not recalculated.
                         </span>
+                    </div>
+                </div>
+            )}
+
+            {/* Publish success banner */}
+            {publishSuccessMessage && (
+                <div
+                    data-testid="publish-success-banner"
+                    className="max-w-5xl mx-auto px-4 sm:px-6 pt-4"
+                >
+                    <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-2xl text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-2 animate-in fade-in">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                        <span>{publishSuccessMessage}</span>
                     </div>
                 </div>
             )}
@@ -394,6 +480,57 @@ export default function ReviewAllQuestions({
                     )
                 })}
             </main>
+
+            {/* Mobile Fixed Bottom Bar (360px friendly, respect safe-area) */}
+            <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#071d33]/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg flex items-center justify-between gap-2 min-h-[56px]">
+                {isPublished ? (
+                    <div
+                        data-testid="mobile-review-published-badge"
+                        className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold min-h-[44px]"
+                    >
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                        <span>Published</span>
+                    </div>
+                ) : onPublish ? (
+                    incompleteCount > 0 ? (
+                        <>
+                            <button
+                                type="button"
+                                onClick={handleJumpToFirstIncomplete}
+                                data-testid="mobile-jump-incomplete-link"
+                                className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer min-h-[44px] truncate"
+                            >
+                                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                                <span className="truncate">{incompleteCount} incomplete - jump</span>
+                            </button>
+                            <button
+                                type="button"
+                                disabled={true}
+                                data-testid="mobile-review-publish-button"
+                                className="px-3.5 py-2 bg-emerald-600/40 text-white rounded-xl text-xs font-bold cursor-not-allowed opacity-60 min-h-[44px] shrink-0 flex items-center gap-1.5"
+                            >
+                                <span>Publish</span>
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 min-h-[44px]">
+                                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                                <span>All Complete</span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={onPublish}
+                                data-testid="mobile-review-publish-button"
+                                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer min-h-[44px] shrink-0 flex items-center gap-1.5"
+                            >
+                                <CheckCircle2 className="h-4 w-4" />
+                                <span>Publish</span>
+                            </button>
+                        </>
+                    )
+                ) : null}
+            </div>
         </div>
     )
 }
