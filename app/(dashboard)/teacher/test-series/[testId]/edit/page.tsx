@@ -18,8 +18,16 @@ import {
     Video,
     Plus,
     Trash2,
+    Upload,
+    X,
+    Undo2,
+    FileText,
 } from "lucide-react"
 import ReviewAllQuestions, { ReviewQuestionItem, ReviewSectionItem } from "@/components/exam/ReviewAllQuestions"
+import {
+    parseAndValidateReplaceByNumberJson,
+    type ReplaceByNumberValidationResult,
+} from "@/lib/exam/bulk-json-pipeline"
 
 interface Option {
     english: string
@@ -76,6 +84,13 @@ function emptyQuestion(sectionId: string): Question {
     }
 }
 
+function formatQuestionNumbers(nums: number[]): string {
+    if (nums.length === 0) return ""
+    if (nums.length === 1) return `Q${nums[0]}`
+    if (nums.length === 2) return `Q${nums[0]} and Q${nums[1]}`
+    return `Q${nums.slice(0, -1).join(", Q")} and Q${nums[nums.length - 1]}`
+}
+
 export default function EditTestPage({
     params,
 }: {
@@ -93,6 +108,17 @@ export default function EditTestPage({
     const [saveErrorDetails, setSaveErrorDetails] = useState<string[]>([])
     const [isSaving, setIsSaving] = useState(false)
     const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null)
+
+    // Replace by question number state
+    const [isReplaceModalOpen, setIsReplaceModalOpen] = useState(false)
+    const [replaceJsonInput, setReplaceJsonInput] = useState("")
+    const [replaceStep, setReplaceStep] = useState<"input" | "preview">("input")
+    const [replaceValidation, setReplaceValidation] = useState<ReplaceByNumberValidationResult | null>(null)
+    const [lastReplaceUndo, setLastReplaceUndo] = useState<{
+        questions: Question[]
+        replacedNumbers: number[]
+    } | null>(null)
+    const [replaceSuccessMessage, setReplaceSuccessMessage] = useState<string | null>(null)
 
     // Test metadata
     const [title, setTitle] = useState("")
@@ -333,6 +359,104 @@ export default function EditTestPage({
         }
     }
 
+    const totalQuestionsCount = questions.length
+    const completedCount = questions.filter(isQuestionFilled).length
+    const orderedQuestions = sections.flatMap((sec) =>
+        questions.filter((q) => q.sectionId === sec.id)
+    )
+
+    const handleValidateAndPreviewReplace = () => {
+        const result = parseAndValidateReplaceByNumberJson(replaceJsonInput, totalQuestionsCount)
+        setReplaceValidation(result)
+        if (result.valid) {
+            setReplaceStep("preview")
+        }
+    }
+
+    const handleConfirmReplace = () => {
+        if (!replaceValidation || !replaceValidation.valid || replaceValidation.items.length === 0) return
+
+        const snapshot = [...questions]
+        const replacedNums = replaceValidation.items.map((it) => it.questionNumber)
+        const updated = [...questions]
+
+        for (const item of replaceValidation.items) {
+            const targetQ = orderedQuestions[item.questionNumber - 1]
+            if (!targetQ) continue
+            const idx = updated.findIndex((q) => q.id === targetQ.id)
+            if (idx === -1) continue
+
+            updated[idx] = {
+                ...updated[idx],
+                textEnglish: item.questionEn,
+                textHindi: item.questionHi || "",
+                options: [
+                    { english: item.optionAEn, hindi: item.optionAHi || "" },
+                    { english: item.optionBEn, hindi: item.optionBHi || "" },
+                    { english: item.optionCEn, hindi: item.optionCHi || "" },
+                    { english: item.optionDEn, hindi: item.optionDHi || "" },
+                ],
+                correctAnswer: item.correctAnswerIndex,
+                explanationEnglish: item.explanationEn || "",
+                explanationHindi: item.explanationHi || "",
+                difficulty: item.difficulty,
+                subject: item.subject || updated[idx].subject,
+                topic: item.topic || updated[idx].topic,
+                videoUrl: item.videoUrl ?? updated[idx].videoUrl,
+            }
+        }
+
+        setQuestions(updated)
+        setLastReplaceUndo({
+            questions: snapshot,
+            replacedNumbers: replacedNums,
+        })
+        setIsReplaceModalOpen(false)
+        setReplaceStep("input")
+        setReplaceJsonInput("")
+        setReplaceValidation(null)
+        setReplaceSuccessMessage(
+            `Successfully replaced ${replacedNums.length} question(s) (${formatQuestionNumbers(replacedNums)}). Click "Save Changes" to save.`
+        )
+    }
+
+    const handleCancelReplace = () => {
+        setIsReplaceModalOpen(false)
+        setReplaceStep("input")
+        setReplaceValidation(null)
+    }
+
+    const handleUndoReplace = () => {
+        if (!lastReplaceUndo) return
+        setQuestions(lastReplaceUndo.questions)
+        const undoneNums = lastReplaceUndo.replacedNumbers
+        setLastReplaceUndo(null)
+        setReplaceSuccessMessage(
+            `Restored original content for ${formatQuestionNumbers(undoneNums)}.`
+        )
+    }
+
+    const handleJsonFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        const reader = new FileReader()
+        reader.onload = (ev) => {
+            const content = (ev.target?.result as string) || ""
+            setReplaceJsonInput(content)
+            setReplaceValidation(null)
+            setReplaceStep("input")
+        }
+        reader.onerror = () => {
+            setReplaceValidation({
+                valid: false,
+                errors: ["Failed to read JSON file from disk."],
+                items: [],
+            })
+        }
+        reader.readAsText(file, "UTF-8")
+        e.target.value = ""
+    }
+
     if (loading) {
         return (
             <div className="max-w-5xl mx-auto p-8 flex flex-col items-center justify-center min-h-[50vh] gap-3">
@@ -421,9 +545,6 @@ export default function EditTestPage({
         )
     }
 
-    const totalQuestionsCount = questions.length
-    const completedCount = questions.filter(isQuestionFilled).length
-
     return (
         <div className="max-w-5xl mx-auto space-y-6 pb-20 px-3 sm:px-6">
             {/* Top Navigation & Status Bar */}
@@ -459,6 +580,33 @@ export default function EditTestPage({
                 </div>
 
                 <div className="flex items-center gap-2.5 flex-wrap">
+                    {lastReplaceUndo && (
+                        <button
+                            type="button"
+                            onClick={handleUndoReplace}
+                            data-testid="top-undo-replace-button"
+                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 text-xs font-bold hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all cursor-pointer min-h-[44px]"
+                            title={`Undo last replace for ${formatQuestionNumbers(lastReplaceUndo.replacedNumbers)}`}
+                        >
+                            <Undo2 className="h-4 w-4 text-amber-600" />
+                            <span>Undo Replace ({formatQuestionNumbers(lastReplaceUndo.replacedNumbers)})</span>
+                        </button>
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setIsReplaceModalOpen(true)
+                            setReplaceStep("input")
+                            setReplaceValidation(null)
+                        }}
+                        data-testid="open-replace-modal-button"
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-200 text-xs font-bold hover:bg-sky-100 dark:hover:bg-sky-900/40 transition-all cursor-pointer min-h-[44px]"
+                    >
+                        <Upload className="h-4 w-4 text-sky-600" />
+                        <span>Replace by Q#</span>
+                    </button>
+
                     <button
                         type="button"
                         onClick={() => setShowFullReview(true)}
@@ -544,6 +692,29 @@ export default function EditTestPage({
                 <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-2 animate-in fade-in">
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
                     <span>{saveSuccessMessage}</span>
+                </div>
+            )}
+
+            {replaceSuccessMessage && (
+                <div
+                    data-testid="replace-success-banner"
+                    className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-2xl text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center justify-between gap-3 animate-in fade-in flex-wrap"
+                >
+                    <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                        <span>{replaceSuccessMessage}</span>
+                    </div>
+                    {lastReplaceUndo && (
+                        <button
+                            type="button"
+                            onClick={handleUndoReplace}
+                            data-testid="replace-undo-button"
+                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs min-h-[44px]"
+                        >
+                            <Undo2 className="h-3.5 w-3.5" />
+                            <span>Undo Replace</span>
+                        </button>
+                    )}
                 </div>
             )}
 
@@ -1012,6 +1183,291 @@ export default function EditTestPage({
                     </div>
                 )}
             </div>
+
+            {/* Replace by Question Number Modal */}
+            {isReplaceModalOpen && (
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="replace-modal-title"
+                    className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
+                >
+                    <div className="w-full max-w-2xl sm:max-w-3xl bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/80 dark:bg-white/[0.02]">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-9 h-9 rounded-xl bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                                    <Upload className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <h2 id="replace-modal-title" className="text-sm font-black text-gray-900 dark:text-white">
+                                        Replace Questions by Number
+                                    </h2>
+                                    <p className="text-[11px] text-gray-500">
+                                        Target specific global question numbers (1..{totalQuestionsCount})
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleCancelReplace}
+                                aria-label="Close modal"
+                                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 overflow-y-auto space-y-4 flex-1">
+                            {replaceStep === "input" ? (
+                                <div className="space-y-4">
+                                    <div className="p-3.5 bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-900/50 rounded-2xl text-xs text-sky-900 dark:text-sky-200 space-y-1">
+                                        <p className="font-bold">How it works:</p>
+                                        <p className="text-[11px] text-sky-800 dark:text-sky-300">
+                                            Provide a JSON array where each object has a <code className="px-1 py-0.5 rounded bg-sky-100 dark:bg-sky-900/50 font-mono text-[10px]">questionNumber</code> (1 to {totalQuestionsCount}) and question fields (questionEn, options, correctOption, explanationEn, etc.).
+                                            Only targeted questions are replaced in-place. Question IDs, section order, and marks are strictly preserved.
+                                        </p>
+                                    </div>
+
+                                    {/* Action row: File upload + Sample button */}
+                                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                                        <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300 text-xs font-bold cursor-pointer transition-colors min-h-[44px]">
+                                            <FileText className="h-3.5 w-3.5 text-sky-500" />
+                                            <span>Upload JSON File</span>
+                                            <input
+                                                type="file"
+                                                accept=".json,application/json"
+                                                onChange={handleJsonFileUpload}
+                                                className="hidden"
+                                                data-testid="replace-file-input"
+                                            />
+                                        </label>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const sample = JSON.stringify([
+                                                    {
+                                                        questionNumber: 1,
+                                                        questionEn: "Sample replacement question in English?",
+                                                        questionHi: "हिंदी में नमूना प्रश्न?",
+                                                        optionAEn: "Option A",
+                                                        optionBEn: "Option B",
+                                                        optionCEn: "Option C",
+                                                        optionDEn: "Option D",
+                                                        correctOption: "B",
+                                                        explanationEn: "Detailed explanation here.",
+                                                        difficulty: "Moderate",
+                                                        subject: "General Studies",
+                                                        topic: "Sample Topic"
+                                                    }
+                                                ], null, 2)
+                                                setReplaceJsonInput(sample)
+                                                setReplaceValidation(null)
+                                            }}
+                                            className="text-xs font-semibold text-sky-600 hover:text-sky-500 cursor-pointer min-h-[44px] flex items-center px-2"
+                                        >
+                                            Insert Sample JSON
+                                        </button>
+                                    </div>
+
+                                    {/* JSON Textarea */}
+                                    <div>
+                                        <label htmlFor="replace-json-input" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                                            JSON Input <span className="text-red-500">*</span>
+                                        </label>
+                                        <textarea
+                                            id="replace-json-input"
+                                            rows={9}
+                                            value={replaceJsonInput}
+                                            onChange={(e) => {
+                                                setReplaceJsonInput(e.target.value)
+                                                if (replaceValidation) setReplaceValidation(null)
+                                            }}
+                                            placeholder='[&#10;  {&#10;    "questionNumber": 39,&#10;    "questionEn": "New question text...",&#10;    "optionAEn": "A",&#10;    "optionBEn": "B",&#10;    "optionCEn": "C",&#10;    "optionDEn": "D",&#10;    "correctOption": "B",&#10;    "explanationEn": "..."&#10;  }&#10;]'
+                                            data-testid="replace-json-textarea"
+                                            className="w-full font-mono text-xs p-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:border-sky-500 resize-none transition-all"
+                                        />
+                                    </div>
+
+                                    {/* Validation Error Banner */}
+                                    {replaceValidation && !replaceValidation.valid && (
+                                        <div
+                                            data-testid="replace-error-banner"
+                                            className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-2xl text-xs space-y-2 text-red-800 dark:text-red-300"
+                                        >
+                                            <div className="flex items-center gap-2 text-red-700 dark:text-red-400 font-bold">
+                                                <AlertCircle className="h-4 w-4 shrink-0" />
+                                                <span>Validation Failed: {replaceValidation.errors.length} error(s) found (Nothing applied)</span>
+                                            </div>
+                                            <ul className="list-disc pl-5 space-y-1 max-h-48 overflow-y-auto font-mono text-[11px] text-red-700 dark:text-red-300">
+                                                {replaceValidation.errors.map((err, i) => (
+                                                    <li key={i} data-testid="replace-error-item">{err}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                /* Preview Step */
+                                <div className="space-y-4">
+                                    <div className="p-3 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl">
+                                        <h3 data-testid="replace-confirm-title" className="text-sm font-black text-emerald-800 dark:text-emerald-300">
+                                            {formatQuestionNumbers(replaceValidation?.items.map((i) => i.questionNumber) || [])} will be replaced
+                                        </h3>
+                                        <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">
+                                            Review the old vs new comparison below. Question IDs, sections, order, and marks will remain identical.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+                                        {replaceValidation?.items.map((item) => {
+                                            const oldQ = orderedQuestions[item.questionNumber - 1]
+                                            if (!oldQ) return null
+                                            const oldCorrectLetter = oldQ.correctAnswer !== null ? ["A", "B", "C", "D"][oldQ.correctAnswer] : "—"
+
+                                            return (
+                                                <div
+                                                    key={item.questionNumber}
+                                                    data-testid={`replace-diff-item-${item.questionNumber}`}
+                                                    className="p-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.02] space-y-3"
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="px-2.5 py-0.5 rounded-lg bg-sky-600 text-white text-xs font-black">
+                                                            Question {item.questionNumber}
+                                                        </span>
+                                                        <span className="text-[11px] text-gray-500 font-semibold">
+                                                            {sections.find((s) => s.id === oldQ.sectionId)?.name || "Section"}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Question Text Diff */}
+                                                    <div className="space-y-1.5 text-xs">
+                                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Question Text</p>
+                                                        <div className="space-y-1">
+                                                            <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/60 text-red-800 dark:text-red-300">
+                                                                <span className="text-[10px] font-black uppercase text-red-600 block mb-0.5">Old:</span>
+                                                                <p className="line-through">{oldQ.textEnglish || "(empty)"}</p>
+                                                            </div>
+                                                            <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-300">
+                                                                <span className="text-[10px] font-black uppercase text-emerald-600 block mb-0.5">New:</span>
+                                                                <p className="font-semibold">{item.questionEn}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Correct Answer */}
+                                                    <div className="flex items-center gap-3 text-xs pt-1 border-t border-gray-200 dark:border-gray-800">
+                                                        <span className="text-gray-500 font-bold text-[11px]">Correct Answer:</span>
+                                                        <span className="line-through text-red-600 dark:text-red-400 font-bold">
+                                                            Option {oldCorrectLetter}
+                                                        </span>
+                                                        <span className="text-gray-400">→</span>
+                                                        <span className="text-emerald-600 dark:text-emerald-400 font-black">
+                                                            Option {item.correctOption}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Options Comparison */}
+                                                    <div className="text-[11px] grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-gray-200 dark:border-gray-800">
+                                                        {(["A", "B", "C", "D"] as const).map((letKey, oIdx) => {
+                                                            const oldOpt = oldQ.options[oIdx]?.english || ""
+                                                            const newOpt = oIdx === 0 ? item.optionAEn : oIdx === 1 ? item.optionBEn : oIdx === 2 ? item.optionCEn : item.optionDEn
+                                                            return (
+                                                                <div key={letKey} className="p-2 rounded-lg border border-gray-200 dark:border-gray-800 text-[11px]">
+                                                                    <span className="font-bold mr-1">Opt {letKey}:</span>
+                                                                    {oldOpt !== newOpt ? (
+                                                                        <span>
+                                                                            <span className="line-through text-red-500 mr-1">{oldOpt}</span>
+                                                                            <span className="text-emerald-600 font-semibold">{newOpt}</span>
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-gray-600 dark:text-gray-400">{newOpt}</span>
+                                                                    )}
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+
+                                                    {/* Explanation */}
+                                                    {(oldQ.explanationEnglish !== (item.explanationEn || "") || item.explanationEn) && (
+                                                        <div className="text-[11px] space-y-1 pt-1 border-t border-gray-200 dark:border-gray-800">
+                                                            <span className="text-gray-500 font-bold block">Explanation:</span>
+                                                            {oldQ.explanationEnglish && (
+                                                                <p className="line-through text-red-600 dark:text-red-400">
+                                                                    Old: {oldQ.explanationEnglish}
+                                                                </p>
+                                                            )}
+                                                            {item.explanationEn && (
+                                                                <p className="text-emerald-700 dark:text-emerald-300 font-medium">
+                                                                    New: {item.explanationEn}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3 bg-gray-50/80 dark:bg-white/[0.02]">
+                            {replaceStep === "input" ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={handleCancelReplace}
+                                        className="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer min-h-[44px]"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleValidateAndPreviewReplace}
+                                        data-testid="replace-validate-button"
+                                        className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shadow-xs cursor-pointer min-h-[44px] flex items-center gap-2"
+                                    >
+                                        <span>Validate & Preview</span>
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setReplaceStep("input")}
+                                            className="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer min-h-[44px]"
+                                        >
+                                            Back to Edit
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleCancelReplace}
+                                            data-testid="replace-cancel-button"
+                                            className="px-4 py-2.5 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-xs font-bold hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer min-h-[44px]"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleConfirmReplace}
+                                        data-testid="replace-confirm-button"
+                                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-xs cursor-pointer min-h-[44px] flex items-center gap-2"
+                                    >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        <span>Confirm & Replace</span>
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
