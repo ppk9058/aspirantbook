@@ -961,10 +961,11 @@ export default function EditTestPage({
                             {/* Question prompt (English / Hindi) */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                                    <label htmlFor="question-text-english" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                                         Question Text (English) <span className="text-red-500">*</span>
                                     </label>
                                     <textarea
+                                        id="question-text-english"
                                         rows={3}
                                         value={currentQ.textEnglish}
                                         onChange={(e) => updateQuestion(currentQ.id, { textEnglish: e.target.value })}
@@ -973,10 +974,11 @@ export default function EditTestPage({
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                                    <label htmlFor="question-text-hindi" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                                         Question Text (Hindi)
                                     </label>
                                     <textarea
+                                        id="question-text-hindi"
                                         rows={3}
                                         value={currentQ.textHindi}
                                         onChange={(e) => updateQuestion(currentQ.id, { textHindi: e.target.value })}

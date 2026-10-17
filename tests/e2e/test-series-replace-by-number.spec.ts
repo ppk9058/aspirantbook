@@ -427,4 +427,286 @@ test.describe("Replace questions by number on edit page", () => {
       await cleanupNonce(nonce);
     }
   });
+
+  test("4. 100-question PUBLISHED test: replace all 100 questions, verify IDs, verify persistence after refresh, print measured save time", async ({ page }) => {
+    test.setTimeout(300_000);
+    await prisma.$connect();
+    const nonce = newNonce();
+    const teacher = await createActor(nonce, "TEACHER", "teacher-pub-100q");
+
+    try {
+      // 1. Seed published test with 100 questions
+      const { test: testRow } = await seedSeriesWithTest({
+        nonce,
+        ownerId: teacher.id,
+        published: true,
+        questionCount: 100,
+      });
+
+      const originalQuestions = await prisma.examQuestion.findMany({
+        where: { section: { testId: testRow.id } },
+        orderBy: { order: "asc" },
+      });
+      expect(originalQuestions).toHaveLength(100);
+      const originalQIds = originalQuestions.map((q) => q.id);
+
+      // 2. Open edit page
+      await loginThroughUi(page, teacher.email);
+      await page.goto(`/teacher/test-series/${testRow.id}/edit`);
+      await expect(page.getByText("Loading test editor…")).not.toBeVisible({ timeout: 60_000 });
+
+      // 3. Open replace modal and replace ALL 100 questions
+      await page.getByTestId("open-replace-modal-button").click();
+      await expect(page.getByRole("dialog")).toBeVisible();
+
+      const replaceAll100Json = JSON.stringify(
+        Array.from({ length: 100 }, (_, i) => ({
+          questionNumber: i + 1,
+          questionEn: `${nonce} 100Q Pub Q${i + 1} Replaced English Question Text`,
+          questionHi: `${nonce} 100Q Pub Q${i + 1} Replaced Hindi Question Text`,
+          optionAEn: `Pub Opt A ${i + 1}`,
+          optionBEn: `Pub Opt B ${i + 1}`,
+          optionCEn: `Pub Opt C ${i + 1}`,
+          optionDEn: `Pub Opt D ${i + 1}`,
+          correctOption: (["A", "B", "C", "D"] as const)[(i + 1) % 4],
+          explanationEn: `${nonce} 100Q Pub Q${i + 1} New Explanation`,
+        }))
+      );
+
+      await page.getByTestId("replace-json-textarea").fill(replaceAll100Json);
+      await page.getByTestId("replace-validate-button").click();
+
+      await expect(page.getByTestId("replace-confirm-title")).toBeVisible();
+      await expect(page.getByTestId("replace-confirm-title")).toContainText("will be replaced");
+      await expect(page.getByTestId("replace-confirm-title")).toContainText("Q100");
+      await page.getByTestId("replace-confirm-button").click();
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+
+      // 4. Save Changes and measure save time
+      const saveResponsePromise = page.waitForResponse(
+        (res) => res.url().includes(`/api/exam/test/${testRow.id}/edit-data`) && res.request().method() === "PUT"
+      );
+
+      const t0 = Date.now();
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      const saveRes = await saveResponsePromise;
+      const saveDurationMs = Date.now() - t0;
+      console.log(`[MEASURED SAVE TIME - 100Q PUBLISHED ALL CHANGED]: ${saveDurationMs}ms`);
+
+      expect(saveRes.status()).toBe(200);
+      await expect(page.getByText("Test saved successfully!")).toBeVisible();
+
+      // 5. Assert all 100 question ids are identical to before
+      const afterSaveQuestions = await prisma.examQuestion.findMany({
+        where: { section: { testId: testRow.id } },
+        orderBy: { order: "asc" },
+      });
+      expect(afterSaveQuestions).toHaveLength(100);
+      expect(afterSaveQuestions.map((q) => q.id)).toEqual(originalQIds);
+
+      // Verify replaced content in DB
+      expect(afterSaveQuestions[0].questionEn).toBe(`${nonce} 100Q Pub Q1 Replaced English Question Text`);
+      expect(afterSaveQuestions[99].questionEn).toBe(`${nonce} 100Q Pub Q100 Replaced English Question Text`);
+
+      // 6. Assert content is preserved after refresh
+      await page.reload();
+      await expect(page.getByText("Loading test editor…")).not.toBeVisible({ timeout: 60_000 });
+      await expect(page.locator("#question-text-english")).toHaveValue(
+        `${nonce} 100Q Pub Q1 Replaced English Question Text`
+      );
+    } finally {
+      await cleanupNonce(nonce);
+    }
+  });
+
+  test("5. 100-question DRAFT test (mobile 360px): replace all 100 questions, assert IDs preserved, new content saved after refresh, measure save duration", async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: 360, height: 740 });
+    await prisma.$connect();
+    const nonce = newNonce();
+    const teacher = await createActor(nonce, "TEACHER", "teacher-draft-100q");
+
+    try {
+      // 1. Seed draft test with 100 questions
+      const { test: testRow } = await seedSeriesWithTest({
+        nonce,
+        ownerId: teacher.id,
+        published: false,
+        questionCount: 100,
+      });
+
+      const originalQuestions = await prisma.examQuestion.findMany({
+        where: { section: { testId: testRow.id } },
+        orderBy: { order: "asc" },
+      });
+      expect(originalQuestions).toHaveLength(100);
+      const originalQIds = originalQuestions.map((q) => q.id);
+
+      // 2. Open edit page on mobile
+      await loginThroughUi(page, teacher.email);
+      await page.goto(`/teacher/test-series/${testRow.id}/edit`);
+      await expect(page.getByText("Loading test editor…")).not.toBeVisible({ timeout: 60_000 });
+
+      // 3. Open replace modal and replace ALL 100 questions
+      await page.getByTestId("open-replace-modal-button").click();
+      await expect(page.getByRole("dialog")).toBeVisible();
+
+      const replaceAll100DraftJson = JSON.stringify(
+        Array.from({ length: 100 }, (_, i) => ({
+          questionNumber: i + 1,
+          questionEn: `${nonce} 100Q Draft Q${i + 1} Replaced English Question Text`,
+          questionHi: `${nonce} 100Q Draft Q${i + 1} Replaced Hindi Question Text`,
+          optionAEn: `Draft Opt A ${i + 1}`,
+          optionBEn: `Draft Opt B ${i + 1}`,
+          optionCEn: `Draft Opt C ${i + 1}`,
+          optionDEn: `Draft Opt D ${i + 1}`,
+          correctOption: (["A", "B", "C", "D"] as const)[(i + 1) % 4],
+          explanationEn: `${nonce} 100Q Draft Q${i + 1} New Explanation`,
+        }))
+      );
+
+      await page.getByTestId("replace-json-textarea").fill(replaceAll100DraftJson);
+      await page.getByTestId("replace-validate-button").click();
+
+      await expect(page.getByTestId("replace-confirm-title")).toBeVisible();
+      await expect(page.getByTestId("replace-confirm-title")).toContainText("will be replaced");
+      await expect(page.getByTestId("replace-confirm-title")).toContainText("Q100");
+      await page.getByTestId("replace-confirm-button").click();
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+
+      // 4. Save Changes and measure save time
+      const saveResponsePromise = page.waitForResponse(
+        (res) => res.url().includes(`/api/exam/test/${testRow.id}/edit-data`) && res.request().method() === "PUT"
+      );
+
+      const t0 = Date.now();
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      const saveRes = await saveResponsePromise;
+      const saveDurationMs = Date.now() - t0;
+      console.log(`[MEASURED SAVE TIME - 100Q DRAFT ALL CHANGED (MOBILE)]: ${saveDurationMs}ms`);
+
+      expect(saveRes.status()).toBe(200);
+      await expect(page.getByText("Test saved successfully!")).toBeVisible();
+
+      // 5. Assert all 100 question ids are identical to before
+      const afterSaveQuestions = await prisma.examQuestion.findMany({
+        where: { section: { testId: testRow.id } },
+        orderBy: { order: "asc" },
+      });
+      expect(afterSaveQuestions).toHaveLength(100);
+      expect(afterSaveQuestions.map((q) => q.id)).toEqual(originalQIds);
+
+      // Verify replaced content in DB
+      expect(afterSaveQuestions[0].questionEn).toBe(`${nonce} 100Q Draft Q1 Replaced English Question Text`);
+      expect(afterSaveQuestions[99].questionEn).toBe(`${nonce} 100Q Draft Q100 Replaced English Question Text`);
+
+      // 6. Assert content is preserved after refresh
+      await page.reload();
+      await expect(page.getByText("Loading test editor…")).not.toBeVisible({ timeout: 60_000 });
+      await expect(page.locator("#question-text-english")).toHaveValue(
+        `${nonce} 100Q Draft Q1 Replaced English Question Text`
+      );
+    } finally {
+      await cleanupNonce(nonce);
+    }
+  });
+
+  test("6. 100-question test: saving with no changes succeeds fast", async ({ page }) => {
+    test.setTimeout(240_000);
+    await prisma.$connect();
+    const nonce = newNonce();
+    const teacher = await createActor(nonce, "TEACHER", "teacher-no-changes-100q");
+
+    try {
+      // 1. Seed published test with 100 questions
+      const { test: testRow } = await seedSeriesWithTest({
+        nonce,
+        ownerId: teacher.id,
+        published: true,
+        questionCount: 100,
+      });
+
+      // 2. Open edit page
+      await loginThroughUi(page, teacher.email);
+      await page.goto(`/teacher/test-series/${testRow.id}/edit`);
+      await expect(page.getByText("Loading test editor…")).not.toBeVisible({ timeout: 60_000 });
+
+      // 3. Immediately save without changes
+      const saveResponsePromise = page.waitForResponse(
+        (res) => res.url().includes(`/api/exam/test/${testRow.id}/edit-data`) && res.request().method() === "PUT"
+      );
+
+      const t0 = Date.now();
+      await page.getByRole("button", { name: "Save Changes" }).click();
+      const saveRes = await saveResponsePromise;
+      const saveDurationMs = Date.now() - t0;
+      console.log(`[MEASURED SAVE TIME - 100Q NO CHANGES]: ${saveDurationMs}ms`);
+
+      expect(saveRes.status()).toBe(200);
+      await expect(page.getByText("Test saved successfully!")).toBeVisible();
+
+      // Fast assertion: since zero rows changed, Prisma transaction runs zero question update queries
+      expect(saveDurationMs).toBeLessThan(5000);
+    } finally {
+      await cleanupNonce(nonce);
+    }
+  });
+
+  test("7. Save failure shows error banner with Retry button and does not show success banner", async ({ page }) => {
+    test.setTimeout(180_000);
+    await prisma.$connect();
+    const nonce = newNonce();
+    const teacher = await createActor(nonce, "TEACHER", "teacher-save-retry");
+
+    try {
+      const { test: testRow } = await seedSeriesWithTest({
+        nonce,
+        ownerId: teacher.id,
+        published: true,
+        questionCount: 5,
+      });
+
+      await loginThroughUi(page, teacher.email);
+      await page.goto(`/teacher/test-series/${testRow.id}/edit`);
+      await expect(page.getByText("Loading test editor…")).not.toBeVisible({ timeout: 60_000 });
+
+      // Mock failure on PUT /edit-data
+      let failNextPut = true;
+      await page.route(`**/api/exam/test/${testRow.id}/edit-data`, async (route) => {
+        if (route.request().method() === "PUT" && failNextPut) {
+          await route.fulfill({
+            status: 500,
+            contentType: "application/json",
+            body: JSON.stringify({ error: "Transaction timeout simulated error" }),
+          });
+          failNextPut = false;
+        } else {
+          await route.continue();
+        }
+      });
+
+      // Click Save Changes
+      await page.getByRole("button", { name: "Save Changes" }).click();
+
+      // Error banner and retry button should be visible; success message MUST NOT be visible
+      await expect(page.getByTestId("save-error-banner")).toBeVisible();
+      await expect(page.getByText("Transaction timeout simulated error")).toBeVisible();
+      await expect(page.getByTestId("save-retry-button")).toBeVisible();
+      await expect(page.getByText("Test saved successfully!")).not.toBeVisible();
+
+      // Click Retry button
+      const retryResponsePromise = page.waitForResponse(
+        (res) => res.url().includes(`/api/exam/test/${testRow.id}/edit-data`) && res.request().method() === "PUT"
+      );
+      await page.getByTestId("save-retry-button").click();
+      const retryRes = await retryResponsePromise;
+      expect(retryRes.status()).toBe(200);
+
+      // Now success should show and error banner should disappear
+      await expect(page.getByText("Test saved successfully!")).toBeVisible();
+      await expect(page.getByTestId("save-error-banner")).not.toBeVisible();
+    } finally {
+      await cleanupNonce(nonce);
+    }
+  });
 });
