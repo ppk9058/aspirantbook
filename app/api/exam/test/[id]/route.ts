@@ -79,7 +79,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -110,6 +110,25 @@ export async function DELETE(
       return NextResponse.json({ error: "Forbidden: You do not own this test" }, { status: 403 });
     }
 
+    // Block deletion if student attempts exist (cascading attempt wipe protection)
+    const attemptsCount = await prisma.examAttempt.count({
+      where: { testId: id },
+    });
+
+    if (attemptsCount > 0) {
+      const url = new URL(req.url);
+      const forceDelete = url.searchParams.get("force") === "true";
+      if (!forceDelete || role !== "ADMIN") {
+        return NextResponse.json(
+          {
+            error: `Cannot delete test: this test has ${attemptsCount} existing student attempt(s). Deleting it will permanently erase candidate records.`,
+            attemptsCount,
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     await prisma.$transaction(async (tx) => {
       // Clear linked PYQ papers
       await tx.pyqPaper.updateMany({
@@ -133,7 +152,19 @@ export async function DELETE(
       }
 
       await tx.examTest.delete({ where: { id } });
+
+      // Keep ExamSeries.totalTests in sync if published test was deleted
+      if (existingTest.isPublished && existingTest.seriesId) {
+        await tx.examSeries.update({
+          where: { id: existingTest.seriesId },
+          data: { totalTests: { decrement: 1 } },
+        });
+      }
     });
+
+    const { revalidatePath, revalidateTag } = await import("next/cache");
+    revalidateTag("exam-series");
+    revalidatePath("/test-series");
 
     return NextResponse.json({ success: true, message: "Test deleted successfully" });
   } catch (error: any) {
