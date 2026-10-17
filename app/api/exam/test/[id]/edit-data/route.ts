@@ -208,6 +208,70 @@ export async function PUT(
       return null;
     };
 
+    const normalizeString = (val: any): string | null => {
+      if (val === null || val === undefined) return null;
+      const trimmed = String(val).trim();
+      return trimmed === "" ? null : trimmed;
+    };
+
+    const hasQuestionChanged = (
+      existing: any,
+      incoming: {
+        questionEn: string;
+        questionHi: string | null;
+        optionAEn: string;
+        optionBEn: string;
+        optionCEn: string;
+        optionDEn: string;
+        optionAHi: string | null;
+        optionBHi: string | null;
+        optionCHi: string | null;
+        optionDHi: string | null;
+        correctOption: string;
+        explanationEn: string | null;
+        explanationHi: string | null;
+        difficulty: string;
+        subject: string | null;
+        topic: string | null;
+        videoUrl: string | null;
+        order?: number;
+        positiveMarks?: number;
+        negativeMarks?: number;
+      }
+    ): boolean => {
+      if ((existing.questionEn || "").trim() !== incoming.questionEn) return true;
+      if (normalizeString(existing.questionHi) !== incoming.questionHi) return true;
+      if ((existing.optionAEn || "").trim() !== incoming.optionAEn) return true;
+      if ((existing.optionBEn || "").trim() !== incoming.optionBEn) return true;
+      if ((existing.optionCEn || "").trim() !== incoming.optionCEn) return true;
+      if ((existing.optionDEn || "").trim() !== incoming.optionDEn) return true;
+      if (normalizeString(existing.optionAHi) !== incoming.optionAHi) return true;
+      if (normalizeString(existing.optionBHi) !== incoming.optionBHi) return true;
+      if (normalizeString(existing.optionCHi) !== incoming.optionCHi) return true;
+      if (normalizeString(existing.optionDHi) !== incoming.optionDHi) return true;
+      if (existing.correctOption !== incoming.correctOption) return true;
+      if (normalizeString(existing.explanationEn) !== incoming.explanationEn) return true;
+      if (normalizeString(existing.explanationHi) !== incoming.explanationHi) return true;
+      if (existing.difficulty !== incoming.difficulty) return true;
+      if (normalizeString(existing.subject) !== incoming.subject) return true;
+      if (normalizeString(existing.topic) !== incoming.topic) return true;
+      if (normalizeString(existing.videoUrl) !== incoming.videoUrl) return true;
+      if (incoming.order !== undefined && existing.order !== incoming.order) return true;
+      if (
+        incoming.positiveMarks !== undefined &&
+        Number(existing.positiveMarks) !== Number(incoming.positiveMarks)
+      ) {
+        return true;
+      }
+      if (
+        incoming.negativeMarks !== undefined &&
+        Number(existing.negativeMarks) !== Number(incoming.negativeMarks)
+      ) {
+        return true;
+      }
+      return false;
+    };
+
     // ──────────────────────────────────────────────────────────────────────────
     // CASE 1: PUBLISHED TEST — STRUCTURE IS STRICTLY LOCKED
     // ──────────────────────────────────────────────────────────────────────────
@@ -337,34 +401,53 @@ export async function PUT(
       }
 
       // Execute update IN PLACE by ID inside a transaction (NEVER delete or recreate)
-      await prisma.$transaction(async (tx) => {
-        await tx.examTest.update({
-          where: { id },
-          data: {
-            title: title.trim(),
-            titleHi: titleHi ? String(titleHi).trim() : null,
-          },
-        });
-
-        for (const secInput of sections) {
-          if (secInput.title) {
-            await tx.examSection.update({
-              where: { id: secInput.id },
+      await prisma.$transaction(
+        async (tx) => {
+          const nextTitle = title.trim();
+          const nextTitleHi = titleHi ? String(titleHi).trim() : null;
+          if (
+            existingTest.title !== nextTitle ||
+            normalizeString(existingTest.titleHi) !== nextTitleHi
+          ) {
+            await tx.examTest.update({
+              where: { id },
               data: {
-                title: secInput.title.trim(),
-                titleHi: secInput.titleHi ? String(secInput.titleHi).trim() : null,
+                title: nextTitle,
+                titleHi: nextTitleHi,
               },
             });
           }
 
-          for (const q of secInput.questions) {
-            const ans = normalizeAnswer(q.correctOption) || "A";
-            const diff = String(q.difficulty || "MODERATE").toUpperCase();
-            const difficulty = ["EASY", "MODERATE", "HARD"].includes(diff) ? diff : "MODERATE";
+          for (const secInput of sections) {
+            const existingSec = existingSectionMap.get(secInput.id);
+            if (secInput.title && existingSec) {
+              const nextSecTitle = secInput.title.trim();
+              const nextSecTitleHi = secInput.titleHi ? String(secInput.titleHi).trim() : null;
+              if (
+                existingSec.title !== nextSecTitle ||
+                normalizeString(existingSec.titleHi) !== nextSecTitleHi
+              ) {
+                await tx.examSection.update({
+                  where: { id: secInput.id },
+                  data: {
+                    title: nextSecTitle,
+                    titleHi: nextSecTitleHi,
+                  },
+                });
+              }
+            }
 
-            await tx.examQuestion.update({
-              where: { id: q.id },
-              data: {
+            const existingQMap = new Map(
+              (existingSec?.questions || []).map((q) => [q.id, q])
+            );
+
+            for (const q of secInput.questions) {
+              const existingQ = existingQMap.get(q.id);
+              const ans = normalizeAnswer(q.correctOption) || "A";
+              const diff = String(q.difficulty || "MODERATE").toUpperCase();
+              const difficulty = ["EASY", "MODERATE", "HARD"].includes(diff) ? diff : "MODERATE";
+
+              const incomingData = {
                 questionEn: String(q.questionEn).trim(),
                 questionHi: q.questionHi ? String(q.questionHi).trim() : null,
                 optionAEn: String(q.optionAEn).trim(),
@@ -382,11 +465,22 @@ export async function PUT(
                 subject: q.subject ? String(q.subject).trim() : null,
                 topic: q.topic ? String(q.topic).trim() : null,
                 videoUrl: q.videoUrl ? String(q.videoUrl).trim() : null,
-              },
-            });
+              };
+
+              if (!existingQ || hasQuestionChanged(existingQ, incomingData)) {
+                await tx.examQuestion.update({
+                  where: { id: q.id },
+                  data: incomingData,
+                });
+              }
+            }
           }
+        },
+        {
+          maxWait: 10000,
+          timeout: 60000,
         }
-      });
+      );
     } else {
       // ──────────────────────────────────────────────────────────────────────────
       // CASE 2: DRAFT TEST (PART G) — STRUCTURE UNLOCKED
@@ -431,92 +525,90 @@ export async function PUT(
         }
       }
 
-      await prisma.$transaction(async (tx) => {
-        let totalQCount = 0;
-        let totalMarksSum = 0;
+      await prisma.$transaction(
+        async (tx) => {
+          let totalQCount = 0;
+          let totalMarksSum = 0;
 
-        for (let sIdx = 0; sIdx < sections.length; sIdx++) {
-          const secInput = sections[sIdx];
-          const secPos = Number(secInput.positiveMarks) || 1.0;
-          const secNeg = Number(secInput.negativeMarks) || 0.33;
-          const questions = Array.isArray(secInput.questions) ? secInput.questions : [];
+          for (let sIdx = 0; sIdx < sections.length; sIdx++) {
+            const secInput = sections[sIdx];
+            const secPos = Number(secInput.positiveMarks) || 1.0;
+            const secNeg = Number(secInput.negativeMarks) || 0.33;
+            const questions = Array.isArray(secInput.questions) ? secInput.questions : [];
 
-          let sectionId = secInput.id;
-          const existingSec = existingTest.sections.find((s) => s.id === sectionId);
+            let sectionId = secInput.id;
+            const existingSec = existingTest.sections.find((s) => s.id === sectionId);
 
-          if (existingSec) {
-            await tx.examSection.update({
-              where: { id: sectionId },
-              data: {
-                title: secInput.title?.trim() || `Section ${sIdx + 1}`,
-                titleHi: secInput.titleHi?.trim() || null,
-                order: sIdx + 1,
-                positiveMarks: secPos,
-                negativeMarks: secNeg,
-                timeLimitMins: secInput.timeLimitMins !== undefined && secInput.timeLimitMins !== null && secInput.timeLimitMins !== "" ? Number(secInput.timeLimitMins) : null,
-              },
-            });
-          } else {
-            const createdSec = await tx.examSection.create({
-              data: {
-                testId: id,
-                title: secInput.title?.trim() || `Section ${sIdx + 1}`,
-                titleHi: secInput.titleHi?.trim() || null,
-                order: sIdx + 1,
-                positiveMarks: secPos,
-                negativeMarks: secNeg,
-                timeLimitMins: secInput.timeLimitMins !== undefined && secInput.timeLimitMins !== null && secInput.timeLimitMins !== "" ? Number(secInput.timeLimitMins) : null,
-              },
-            });
-            sectionId = createdSec.id;
-          }
+            if (existingSec) {
+              const nextSecTitle = secInput.title?.trim() || `Section ${sIdx + 1}`;
+              const nextSecTitleHi = secInput.titleHi?.trim() || null;
+              const nextTimeLimit =
+                secInput.timeLimitMins !== undefined &&
+                secInput.timeLimitMins !== null &&
+                secInput.timeLimitMins !== ""
+                  ? Number(secInput.timeLimitMins)
+                  : null;
+              const secChanged =
+                existingSec.title !== nextSecTitle ||
+                normalizeString(existingSec.titleHi) !== nextSecTitleHi ||
+                existingSec.order !== sIdx + 1 ||
+                Number(existingSec.positiveMarks) !== secPos ||
+                Number(existingSec.negativeMarks) !== secNeg ||
+                (existingSec.timeLimitMins || null) !== nextTimeLimit;
 
-          // Existing question IDs in this section
-          const existingQIds = new Set(
-            existingSec ? existingSec.questions.map((q) => q.id) : []
-          );
-          const submittedQIds = new Set<string>();
-
-          for (let qIdx = 0; qIdx < questions.length; qIdx++) {
-            const q = questions[qIdx];
-            const ans = normalizeAnswer(q.correctOption) || "A";
-            const diff = String(q.difficulty || "MODERATE").toUpperCase();
-            const difficulty = ["EASY", "MODERATE", "HARD"].includes(diff) ? diff : "MODERATE";
-
-            if (q.id && existingQIds.has(q.id)) {
-              // Update in place by id
-              submittedQIds.add(q.id);
-              await tx.examQuestion.update({
-                where: { id: q.id },
-                data: {
-                  questionEn: String(q.questionEn || "").trim() || "Untitled Question",
-                  questionHi: q.questionHi?.trim() || null,
-                  optionAEn: String(q.optionAEn || "").trim() || "Option A",
-                  optionBEn: String(q.optionBEn || "").trim() || "Option B",
-                  optionCEn: String(q.optionCEn || "").trim() || "Option C",
-                  optionDEn: String(q.optionDEn || "").trim() || "Option D",
-                  optionAHi: q.optionAHi?.trim() || null,
-                  optionBHi: q.optionBHi?.trim() || null,
-                  optionCHi: q.optionCHi?.trim() || null,
-                  optionDHi: q.optionDHi?.trim() || null,
-                  correctOption: ans,
-                  explanationEn: q.explanationEn?.trim() || null,
-                  explanationHi: q.explanationHi?.trim() || null,
-                  difficulty: difficulty as any,
-                  subject: q.subject?.trim() || null,
-                  topic: q.topic?.trim() || null,
-                  videoUrl: q.videoUrl?.trim() || null,
-                  order: qIdx + 1,
-                  positiveMarks: secPos,
-                  negativeMarks: secNeg,
-                },
-              });
+              if (secChanged) {
+                await tx.examSection.update({
+                  where: { id: sectionId },
+                  data: {
+                    title: nextSecTitle,
+                    titleHi: nextSecTitleHi,
+                    order: sIdx + 1,
+                    positiveMarks: secPos,
+                    negativeMarks: secNeg,
+                    timeLimitMins: nextTimeLimit,
+                  },
+                });
+              }
             } else {
-              // Add new question for draft
-              const newQ = await tx.examQuestion.create({
+              const createdSec = await tx.examSection.create({
                 data: {
-                  sectionId,
-                  questionType: "MCQ",
+                  testId: id,
+                  title: secInput.title?.trim() || `Section ${sIdx + 1}`,
+                  titleHi: secInput.titleHi?.trim() || null,
+                  order: sIdx + 1,
+                  positiveMarks: secPos,
+                  negativeMarks: secNeg,
+                  timeLimitMins:
+                    secInput.timeLimitMins !== undefined &&
+                    secInput.timeLimitMins !== null &&
+                    secInput.timeLimitMins !== ""
+                      ? Number(secInput.timeLimitMins)
+                      : null,
+                },
+              });
+              sectionId = createdSec.id;
+            }
+
+            // Existing question IDs in this section
+            const existingQIds = new Set(
+              existingSec ? existingSec.questions.map((q) => q.id) : []
+            );
+            const existingQMap = new Map(
+              (existingSec ? existingSec.questions : []).map((q) => [q.id, q])
+            );
+            const submittedQIds = new Set<string>();
+
+            for (let qIdx = 0; qIdx < questions.length; qIdx++) {
+              const q = questions[qIdx];
+              const ans = normalizeAnswer(q.correctOption) || "A";
+              const diff = String(q.difficulty || "MODERATE").toUpperCase();
+              const difficulty = ["EASY", "MODERATE", "HARD"].includes(diff) ? diff : "MODERATE";
+
+              if (q.id && existingQIds.has(q.id)) {
+                // Update in place by id
+                submittedQIds.add(q.id);
+                const existingQ = existingQMap.get(q.id);
+                const incomingData = {
                   questionEn: String(q.questionEn || "").trim() || "Untitled Question",
                   questionHi: q.questionHi?.trim() || null,
                   optionAEn: String(q.optionAEn || "").trim() || "Option A",
@@ -537,47 +629,97 @@ export async function PUT(
                   order: qIdx + 1,
                   positiveMarks: secPos,
                   negativeMarks: secNeg,
-                },
-              });
-              submittedQIds.add(newQ.id);
+                };
+
+                if (!existingQ || hasQuestionChanged(existingQ, incomingData)) {
+                  await tx.examQuestion.update({
+                    where: { id: q.id },
+                    data: incomingData,
+                  });
+                }
+              } else {
+                // Add new question for draft
+                const newQ = await tx.examQuestion.create({
+                  data: {
+                    sectionId,
+                    questionType: "MCQ",
+                    questionEn: String(q.questionEn || "").trim() || "Untitled Question",
+                    questionHi: q.questionHi?.trim() || null,
+                    optionAEn: String(q.optionAEn || "").trim() || "Option A",
+                    optionBEn: String(q.optionBEn || "").trim() || "Option B",
+                    optionCEn: String(q.optionCEn || "").trim() || "Option C",
+                    optionDEn: String(q.optionDEn || "").trim() || "Option D",
+                    optionAHi: q.optionAHi?.trim() || null,
+                    optionBHi: q.optionBHi?.trim() || null,
+                    optionCHi: q.optionCHi?.trim() || null,
+                    optionDHi: q.optionDHi?.trim() || null,
+                    correctOption: ans,
+                    explanationEn: q.explanationEn?.trim() || null,
+                    explanationHi: q.explanationHi?.trim() || null,
+                    difficulty: difficulty as any,
+                    subject: q.subject?.trim() || null,
+                    topic: q.topic?.trim() || null,
+                    videoUrl: q.videoUrl?.trim() || null,
+                    order: qIdx + 1,
+                    positiveMarks: secPos,
+                    negativeMarks: secNeg,
+                  },
+                });
+                submittedQIds.add(newQ.id);
+              }
+
+              totalQCount++;
+              totalMarksSum += secPos;
             }
 
-            totalQCount++;
-            totalMarksSum += secPos;
-          }
-
-          // Delete questions removed from this draft section
-          if (existingSec) {
-            const removedQIds = existingSec.questions
-              .map((q) => q.id)
-              .filter((id) => !submittedQIds.has(id));
-            if (removedQIds.length > 0) {
-              await tx.examQuestion.deleteMany({
-                where: { id: { in: removedQIds } },
-              });
+            // Delete questions removed from this draft section
+            if (existingSec) {
+              const removedQIds = existingSec.questions
+                .map((q) => q.id)
+                .filter((id) => !submittedQIds.has(id));
+              if (removedQIds.length > 0) {
+                await tx.examQuestion.deleteMany({
+                  where: { id: { in: removedQIds } },
+                });
+              }
             }
           }
-        }
 
-        // Update overall test totals
-        await tx.examTest.update({
-          where: { id },
-          data: {
-            title: title.trim(),
-            titleHi: titleHi ? String(titleHi).trim() : null,
-            totalQuestions: totalQCount,
-            totalMarks: totalMarksSum,
-            isPublished: isPublishingNow,
-          },
-        });
+          // Update overall test totals
+          const nextTitle = title.trim();
+          const nextTitleHi = titleHi ? String(titleHi).trim() : null;
+          const testChanged =
+            existingTest.title !== nextTitle ||
+            normalizeString(existingTest.titleHi) !== nextTitleHi ||
+            existingTest.totalQuestions !== totalQCount ||
+            Number(existingTest.totalMarks) !== totalMarksSum ||
+            existingTest.isPublished !== isPublishingNow;
 
-        if (isPublishingNow) {
-          await tx.examSeries.update({
-            where: { id: existingTest.seriesId },
-            data: { totalTests: { increment: 1 } },
-          });
+          if (testChanged) {
+            await tx.examTest.update({
+              where: { id },
+              data: {
+                title: nextTitle,
+                titleHi: nextTitleHi,
+                totalQuestions: totalQCount,
+                totalMarks: totalMarksSum,
+                isPublished: isPublishingNow,
+              },
+            });
+          }
+
+          if (isPublishingNow) {
+            await tx.examSeries.update({
+              where: { id: existingTest.seriesId },
+              data: { totalTests: { increment: 1 } },
+            });
+          }
+        },
+        {
+          maxWait: 10000,
+          timeout: 60000,
         }
-      });
+      );
     }
 
     revalidateTag("exam-series");

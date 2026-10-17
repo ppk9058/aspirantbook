@@ -344,6 +344,8 @@ export default function EditTestPage({
             const json = await res.json()
             if (!res.ok) {
                 const errMsg = json.error || `Save failed with status ${res.status}`
+                setSaveSuccessMessage(null)
+                setReplaceSuccessMessage(null)
                 setSaveError(errMsg)
                 if (Array.isArray(json.details)) setSaveErrorDetails(json.details)
                 return
@@ -353,6 +355,8 @@ export default function EditTestPage({
             setTimeout(() => setSaveSuccessMessage(null), 4000)
         } catch (err: any) {
             console.error("Save test error:", err)
+            setSaveSuccessMessage(null)
+            setReplaceSuccessMessage(null)
             setSaveError(err.message || "Failed to save test.")
         } finally {
             setIsSaving(false)
@@ -670,13 +674,28 @@ export default function EditTestPage({
 
             {/* Error & Success Banners */}
             {saveError && (
-                <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-2xl text-xs space-y-2">
-                    <div className="flex items-start gap-2 text-red-700 dark:text-red-400">
-                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                        <div>
-                            <p className="font-bold">Error saving test</p>
-                            <p className="break-words">{saveError}</p>
+                <div
+                    data-testid="save-error-banner"
+                    className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-2xl text-xs space-y-3"
+                >
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="flex items-start gap-2 text-red-700 dark:text-red-400">
+                            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-bold">Error saving test</p>
+                                <p className="break-words">{saveError}</p>
+                            </div>
                         </div>
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            data-testid="save-retry-button"
+                            className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs min-h-[44px]"
+                        >
+                            <RotateCcw className="h-3.5 w-3.5" />
+                            <span>Retry</span>
+                        </button>
                     </div>
                     {saveErrorDetails.length > 0 && (
                         <ul className="pl-6 list-disc space-y-1 text-red-600 dark:text-red-300 text-[11px]">
