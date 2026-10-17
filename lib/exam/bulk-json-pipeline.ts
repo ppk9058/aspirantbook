@@ -957,3 +957,286 @@ export function processBulkJsonImport(
     salvagedReports,
   }
 }
+
+export interface ReplaceQuestionItem {
+  questionNumber: number
+  questionEn: string
+  questionHi?: string
+  optionAEn: string
+  optionAHi?: string
+  optionBEn: string
+  optionBHi?: string
+  optionCEn: string
+  optionCHi?: string
+  optionDEn: string
+  optionDHi?: string
+  correctOption: "A" | "B" | "C" | "D"
+  correctAnswerIndex: 0 | 1 | 2 | 3
+  explanationEn?: string
+  explanationHi?: string
+  difficulty: "Easy" | "Moderate" | "Hard"
+  subject?: string
+  topic?: string
+  videoUrl?: string
+}
+
+export interface ReplaceByNumberValidationResult {
+  valid: boolean
+  errors: string[]
+  items: ReplaceQuestionItem[]
+}
+
+/**
+ * Validates and normalizes JSON input for "Replace by question number" import mode.
+ * Input is a JSON string or parsed array.
+ * Validates:
+ * - questionNumber exists and is within 1..totalQuestions
+ * - no duplicate question numbers in the import batch
+ * - questionEn non-empty
+ * - 4 English options non-empty
+ * - correctOption in A-D
+ * If any item is invalid, valid is false, errors lists all per-item errors, and items is empty.
+ * Reuses sanitizeRawInput, stripMarkdownCodeFences, cleanTextValue, parseAndValidateQuestion.
+ */
+export function parseAndValidateReplaceByNumberJson(
+  rawInput: string | any[],
+  totalQuestions: number
+): ReplaceByNumberValidationResult {
+  if (totalQuestions <= 0) {
+    return {
+      valid: false,
+      errors: ["Invalid test question count: test has 0 questions."],
+      items: [],
+    }
+  }
+
+  let parsed: any = null
+
+  if (typeof rawInput === "string") {
+    let text = sanitizeRawInput(rawInput)
+    text = stripMarkdownCodeFences(text).trim()
+
+    if (!text) {
+      return {
+        valid: false,
+        errors: ["No JSON input provided. Please paste JSON content."],
+        items: [],
+      }
+    }
+
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      try {
+        let repaired = convertStructuralSmartQuotes(text)
+        repaired = removeTrailingCommas(repaired)
+        repaired = escapeControlCharsInStrings(repaired)
+        parsed = JSON.parse(repaired)
+      } catch (err: any) {
+        return {
+          valid: false,
+          errors: [`Invalid JSON syntax: ${err?.message || "Could not parse JSON"}`],
+          items: [],
+        }
+      }
+    }
+  } else {
+    parsed = rawInput
+  }
+
+  let rawItems: any[] = []
+  if (Array.isArray(parsed)) {
+    rawItems = parsed
+  } else if (parsed && typeof parsed === "object") {
+    if (Array.isArray(parsed.questions)) rawItems = parsed.questions
+    else if (Array.isArray(parsed.data)) rawItems = parsed.data
+    else if (Array.isArray(parsed.items)) rawItems = parsed.items
+    else {
+      return {
+        valid: false,
+        errors: ["Invalid JSON format: Expected a JSON array of question replacement items."],
+        items: [],
+      }
+    }
+  } else {
+    return {
+      valid: false,
+      errors: ["Invalid JSON format: Expected a JSON array of questions."],
+      items: [],
+    }
+  }
+
+  if (rawItems.length === 0) {
+    return {
+      valid: false,
+      errors: ["JSON array is empty. Please provide at least one question to replace."],
+      items: [],
+    }
+  }
+
+  rawItems = rawItems.map(sanitizeObjectKeys)
+
+  const errors: string[] = []
+  const items: ReplaceQuestionItem[] = []
+  const seenNumbers = new Set<number>()
+
+  for (let i = 0; i < rawItems.length; i++) {
+    const raw = rawItems[i]
+    const itemNumLabel = `Item ${i + 1}`
+
+    if (!raw || typeof raw !== "object") {
+      errors.push(`${itemNumLabel}: Expected an object.`)
+      continue
+    }
+
+    // 1. Validate questionNumber
+    const rawQNum = raw.questionNumber ?? raw.question_number ?? raw.qNum ?? raw.qNumber ?? raw.number
+    if (rawQNum === undefined || rawQNum === null || rawQNum === "") {
+      errors.push(`${itemNumLabel}: Missing 'questionNumber'.`)
+      continue
+    }
+
+    const qNum = typeof rawQNum === "number" ? rawQNum : Number(String(rawQNum).trim())
+    if (isNaN(qNum) || !Number.isInteger(qNum)) {
+      errors.push(`${itemNumLabel}: 'questionNumber' must be an integer.`)
+      continue
+    }
+
+    if (qNum < 1 || qNum > totalQuestions) {
+      errors.push(`${itemNumLabel}: questionNumber ${qNum} is out of range (must be between 1 and ${totalQuestions}).`)
+      continue
+    }
+
+    if (seenNumbers.has(qNum)) {
+      errors.push(`${itemNumLabel}: Duplicate questionNumber ${qNum} found in import.`)
+      continue
+    }
+    seenNumbers.add(qNum)
+
+    // 2. Validate question fields using existing helpers
+    try {
+      const rawQEn = raw.questionEn ?? raw.question ?? raw.question_en ?? raw.text ?? raw.textEnglish ?? ""
+      const qEn = cleanTextValue(rawQEn, { isQuestion: true })
+
+      const rawQHi = raw.questionHi ?? raw.question_hi ?? raw.textHindi ?? raw.hindi ?? ""
+      const qHi = rawQHi ? cleanTextValue(rawQHi, { isQuestion: true }) : ""
+
+      let optA = ""
+      let optB = ""
+      let optC = ""
+      let optD = ""
+      let optAHi = ""
+      let optBHi = ""
+      let optCHi = ""
+      let optDHi = ""
+
+      if (raw.options && typeof raw.options === "object" && !Array.isArray(raw.options)) {
+        const o = raw.options
+        optA = cleanTextValue(o.A ?? o.a ?? o["1"], { isOption: true })
+        optB = cleanTextValue(o.B ?? o.b ?? o["2"], { isOption: true })
+        optC = cleanTextValue(o.C ?? o.c ?? o["3"], { isOption: true })
+        optD = cleanTextValue(o.D ?? o.d ?? o["4"], { isOption: true })
+      } else if (Array.isArray(raw.options)) {
+        const getVal = (entry: any) =>
+          typeof entry === "object" && entry !== null ? entry.english ?? entry.text ?? entry.value ?? "" : entry
+        const getHi = (entry: any) =>
+          typeof entry === "object" && entry !== null ? entry.hindi ?? "" : ""
+
+        optA = cleanTextValue(getVal(raw.options[0]), { isOption: true })
+        optB = cleanTextValue(getVal(raw.options[1]), { isOption: true })
+        optC = cleanTextValue(getVal(raw.options[2]), { isOption: true })
+        optD = cleanTextValue(getVal(raw.options[3]), { isOption: true })
+
+        optAHi = cleanTextValue(getHi(raw.options[0]), { isOption: true })
+        optBHi = cleanTextValue(getHi(raw.options[1]), { isOption: true })
+        optCHi = cleanTextValue(getHi(raw.options[2]), { isOption: true })
+        optDHi = cleanTextValue(getHi(raw.options[3]), { isOption: true })
+      }
+
+      if (!optA) optA = cleanTextValue(raw.optionAEn ?? raw.optionA ?? raw.option_a ?? raw.optA, { isOption: true })
+      if (!optB) optB = cleanTextValue(raw.optionBEn ?? raw.optionB ?? raw.option_b ?? raw.optB, { isOption: true })
+      if (!optC) optC = cleanTextValue(raw.optionCEn ?? raw.optionC ?? raw.option_c ?? raw.optC, { isOption: true })
+      if (!optD) optD = cleanTextValue(raw.optionDEn ?? raw.optionD ?? raw.option_d ?? raw.optD, { isOption: true })
+
+      if (!optAHi) optAHi = cleanTextValue(raw.optionAHi ?? raw.option_a_hi ?? raw.optionsHi?.[0], { isOption: true })
+      if (!optBHi) optBHi = cleanTextValue(raw.optionBHi ?? raw.option_b_hi ?? raw.optionsHi?.[1], { isOption: true })
+      if (!optCHi) optCHi = cleanTextValue(raw.optionCHi ?? raw.option_c_hi ?? raw.optionsHi?.[2], { isOption: true })
+      if (!optDHi) optDHi = cleanTextValue(raw.optionDHi ?? raw.option_d_hi ?? raw.optionsHi?.[3], { isOption: true })
+
+      const rawExpEn = raw.explanationEn ?? raw.explanation ?? raw.explanation_en ?? raw.explanationEnglish ?? raw.solution ?? ""
+      const expEn = rawExpEn ? cleanTextValue(rawExpEn) : undefined
+
+      const rawExpHi = raw.explanationHi ?? raw.explanation_hi ?? raw.explanationHindi ?? ""
+      const expHi = rawExpHi ? cleanTextValue(rawExpHi) : undefined
+
+      const normalizedItem = {
+        questionEn: qEn,
+        questionHi: qHi || undefined,
+        optionAEn: optA,
+        optionAHi: optAHi || undefined,
+        optionBEn: optB,
+        optionBHi: optBHi || undefined,
+        optionCEn: optC,
+        optionCHi: optCHi || undefined,
+        optionDEn: optD,
+        optionDHi: optDHi || undefined,
+        correctOption: raw.correctOption ?? raw.correct_option ?? raw.correct_answer ?? raw.correctAnswer ?? raw.answer ?? raw.ans ?? raw.key,
+        explanationEn: expEn,
+        explanationHi: expHi,
+        difficulty: raw.difficulty,
+        subject: raw.subject ? cleanTextValue(raw.subject) : undefined,
+        topic: raw.topic ? cleanTextValue(raw.topic) : undefined,
+      }
+
+      // Run parseAndValidateQuestion to enforce:
+      // - questionEn non-empty
+      // - 4 English options non-empty
+      // - correctOption in A-D
+      const validated = parseAndValidateQuestion(normalizedItem, qNum - 1)
+
+      const ansLetter = validated.correctOption
+      const ansIdx = ansLetter === "B" ? 1 : ansLetter === "C" ? 2 : ansLetter === "D" ? 3 : 0
+      const rawDiff = String(validated.difficulty || "MODERATE").toUpperCase()
+      const mappedDiff = rawDiff === "HARD" ? "Hard" : rawDiff === "EASY" ? "Easy" : "Moderate"
+
+      items.push({
+        questionNumber: qNum,
+        questionEn: validated.questionEn,
+        questionHi: validated.questionHi,
+        optionAEn: validated.optionAEn,
+        optionAHi: validated.optionAHi,
+        optionBEn: validated.optionBEn,
+        optionBHi: validated.optionBHi,
+        optionCEn: validated.optionCEn,
+        optionCHi: validated.optionCHi,
+        optionDEn: validated.optionDEn,
+        optionDHi: validated.optionDHi,
+        correctOption: validated.correctOption,
+        correctAnswerIndex: ansIdx as 0 | 1 | 2 | 3,
+        explanationEn: validated.explanationEn,
+        explanationHi: validated.explanationHi,
+        difficulty: mappedDiff,
+        subject: validated.subject,
+        topic: validated.topic,
+        videoUrl: raw.videoUrl ? cleanTextValue(raw.videoUrl) : undefined,
+      })
+    } catch (err: any) {
+      errors.push(`Q${qNum}: ${err?.message || String(err)}`)
+    }
+  }
+
+  if (errors.length > 0) {
+    return {
+      valid: false,
+      errors,
+      items: [],
+    }
+  }
+
+  return {
+    valid: true,
+    errors: [],
+    items: items.sort((a, b) => a.questionNumber - b.questionNumber),
+  }
+}
+
