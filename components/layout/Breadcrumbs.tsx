@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ChevronRight, Home } from "lucide-react"
@@ -34,11 +35,39 @@ const SKIP_SEGMENTS = ["tracks"]
 export default function Breadcrumbs() {
     const pathname = usePathname()
     const homeHref = "/dashboard"
+    const [dynamicTitles, setDynamicTitles] = useState<Record<string, string>>({})
+
+    const segments = pathname ? pathname.split("/").filter(Boolean) : []
+
+    useEffect(() => {
+        const handleUpdate = (e: Event) => {
+            const custom = e as CustomEvent<{ segment: string; title: string }>
+            if (custom.detail?.segment && custom.detail?.title) {
+                setDynamicTitles(prev => ({
+                    ...prev,
+                    [custom.detail.segment]: custom.detail.title,
+                }))
+            }
+        }
+        window.addEventListener("update-breadcrumb-title", handleUpdate)
+
+        try {
+            const cached: Record<string, string> = {}
+            const currentSegments = pathname ? pathname.split("/").filter(Boolean) : []
+            for (const s of currentSegments) {
+                const stored = sessionStorage.getItem(`test-title-${s}`)
+                if (stored) cached[s] = stored
+            }
+            if (Object.keys(cached).length > 0) {
+                setDynamicTitles(prev => ({ ...prev, ...cached }))
+            }
+        } catch {}
+
+        return () => window.removeEventListener("update-breadcrumb-title", handleUpdate)
+    }, [pathname])
 
     // Don't show breadcrumbs on home page
     if (pathname === "/") return null
-
-    const segments = pathname.split("/").filter(Boolean)
 
     // Filter out skipped segments and build breadcrumbs
     const breadcrumbs = segments
@@ -46,10 +75,14 @@ export default function Breadcrumbs() {
         .map((segment, index, filteredSegments) => {
             const href = "/" + filteredSegments.slice(0, index + 1).join("/")
 
-            const label = ROUTE_LABELS[segment] || segment
+            // If a dynamic title exists (e.g. test title), use it;
+            // if segment is a raw ID (e.g. cuid), avoid raw ID in UI
+            const isIdLike = /^(c[a-z0-9]{20,}|[0-9a-f-]{32,})$/i.test(segment)
+            const dynamic = dynamicTitles[segment]
+            const label = dynamic || ROUTE_LABELS[segment] || (isIdLike ? "Test" : segment
                 .split("-")
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(" ")
+                .join(" "))
 
             return {
                 href,

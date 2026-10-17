@@ -272,9 +272,9 @@ function SolutionModal({ q, onClose }: { q: QuestionRow; onClose: () => void }) 
             marginBottom: 16,
           }}
         >
-          <p style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", margin: 0, lineHeight: 1.6 }}>{q.text}</p>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", margin: 0, lineHeight: 1.6, whiteSpace: "pre-line" }}>{q.text}</p>
           {q.textHi && (
-            <p style={{ fontSize: 12, color: "#64748b", margin: "8px 0 0", lineHeight: 1.5 }}>{q.textHi}</p>
+            <p style={{ fontSize: 12, color: "#64748b", margin: "8px 0 0", lineHeight: 1.5, whiteSpace: "pre-line" }}>{q.textHi}</p>
           )}
         </div>
 
@@ -339,9 +339,9 @@ function SolutionModal({ q, onClose }: { q: QuestionRow; onClose: () => void }) 
           >
             💡 Detailed Solution &amp; Explanation
           </div>
-          <p style={{ fontSize: 13, color: "#1e3a8a", lineHeight: 1.6, margin: 0 }}>{q.explanation}</p>
+          <p style={{ fontSize: 13, color: "#1e3a8a", lineHeight: 1.6, margin: 0, whiteSpace: "pre-line" }}>{q.explanation}</p>
           {q.explanationHi && (
-            <p style={{ fontSize: 12, color: "#3b82f6", lineHeight: 1.5, margin: "8px 0 0" }}>{q.explanationHi}</p>
+            <p style={{ fontSize: 12, color: "#3b82f6", lineHeight: 1.5, margin: "8px 0 0", whiteSpace: "pre-line" }}>{q.explanationHi}</p>
           )}
         </div>
 
@@ -1451,7 +1451,7 @@ function ResultContent() {
                           {q.no}
                         </td>
                         <td style={{ padding: "12px 14px", color: "#1f2937", maxWidth: 380 }}>
-                          <p style={{ margin: 0, fontWeight: 700, lineHeight: 1.4 }}>{q.text}</p>
+                          <p style={{ margin: 0, fontWeight: 700, lineHeight: 1.4, whiteSpace: "pre-line" }}>{q.text}</p>
                           <span
                             style={{
                               display: "inline-block",

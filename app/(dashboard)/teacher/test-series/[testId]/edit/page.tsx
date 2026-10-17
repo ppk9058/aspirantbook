@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback, use } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
+import { getTestSeriesBasePath } from "@/lib/exam/route-prefix"
 import {
     ChevronLeft,
     ChevronRight,
@@ -100,6 +101,8 @@ export default function EditTestPage({
     const resolvedParams = use(params)
     const id = resolvedParams.testId || resolvedParams.id || ""
     const router = useRouter()
+    const pathname = usePathname()
+    const basePath = getTestSeriesBasePath(pathname || "")
     const searchParams = useSearchParams()
     const targetQIdParam = searchParams.get("qId")
 
@@ -155,6 +158,13 @@ export default function EditTestPage({
             setTitleHindi(t.titleHi || "")
             setIsPublished(Boolean(t.isPublished))
             setAttemptsCount(json.data.attemptsCount || 0)
+
+            if (t.title) {
+                try {
+                    sessionStorage.setItem(`test-title-${id}`, t.title)
+                    window.dispatchEvent(new CustomEvent("update-breadcrumb-title", { detail: { segment: id, title: t.title } }))
+                } catch {}
+            }
 
             const loadedSections: Section[] = []
             const loadedQuestions: Question[] = []
@@ -541,7 +551,7 @@ export default function EditTestPage({
                             <span>Retry</span>
                         </button>
                         <Link
-                            href="/teacher/test-series"
+                            href={basePath}
                             className="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold hover:bg-gray-100 transition-colors flex items-center min-h-[44px]"
                         >
                             Back to Tests
@@ -617,12 +627,12 @@ export default function EditTestPage({
     }
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6 pb-20 px-3 sm:px-6">
-            {/* Top Navigation & Status Bar */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+        <div className="max-w-5xl mx-auto space-y-6 pb-28 sm:pb-20 px-3 sm:px-6">
+            {/* Top Navigation & Status Bar — Sticky on Desktop/Tablet with backdrop blur */}
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#060f1c]/95 backdrop-blur-md pt-4 pb-4 border-b border-gray-200 dark:border-gray-800 -mx-3 sm:-mx-6 px-3 sm:px-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <Link
-                        href="/teacher/test-series"
+                        href={basePath}
                         className="p-2 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                         aria-label="Back to tests list"
                     >
@@ -644,13 +654,14 @@ export default function EditTestPage({
                                 {isPublished ? "PUBLISHED" : "DRAFT"}
                             </span>
                         </div>
-                        <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mt-0.5">
+                        <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mt-0.5 truncate max-w-xs sm:max-w-md">
                             {title || "Edit Test"}
                         </h1>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 flex-wrap">
+                {/* Desktop Action Buttons */}
+                <div className="hidden sm:flex items-center gap-2.5 flex-wrap">
                     {lastReplaceUndo && (
                         <button
                             type="button"
@@ -719,6 +730,74 @@ export default function EditTestPage({
                         </button>
                     )}
                 </div>
+            </div>
+
+            {/* Mobile Fixed Safe-Area Bottom Bar (< sm, 360px friendly, min-h-[44px] touch targets) */}
+            <div
+                data-testid="edit-mobile-action-bar"
+                className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#060f1c]/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 p-2 pb-[max(0.625rem,env(safe-area-inset-bottom))] shadow-lg flex items-center justify-between gap-1.5 overflow-x-auto"
+            >
+                {lastReplaceUndo && (
+                    <button
+                        type="button"
+                        onClick={handleUndoReplace}
+                        data-testid="mobile-undo-replace-button"
+                        className="flex items-center justify-center p-2 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 text-xs font-bold shrink-0 min-h-[44px] min-w-[44px]"
+                        title="Undo Replace"
+                    >
+                        <Undo2 className="h-4 w-4 text-amber-600" />
+                    </button>
+                )}
+
+                <button
+                    type="button"
+                    onClick={() => {
+                        setIsReplaceModalOpen(true)
+                        setReplaceStep("input")
+                        setReplaceValidation(null)
+                    }}
+                    data-testid="mobile-open-replace-modal-button"
+                    className="flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl border border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-200 text-xs font-bold shrink-0 min-h-[44px]"
+                >
+                    <Upload className="h-4 w-4 text-sky-600" />
+                    <span>Replace</span>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setShowFullReview(true)}
+                    className="flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 text-xs font-bold shrink-0 min-h-[44px]"
+                >
+                    <Eye className="h-4 w-4 text-sky-500" />
+                    <span>Review ({totalQuestionsCount})</span>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer disabled:opacity-50 min-h-[44px]"
+                >
+                    {isSaving ? (
+                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                        <Save className="h-4 w-4" />
+                    )}
+                    <span>Save</span>
+                </button>
+
+                {!isPublished && (
+                    <button
+                        type="button"
+                        onClick={handleOpenPublishModal}
+                        disabled={isSaving}
+                        data-testid="mobile-publish-edit-button"
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer disabled:opacity-50 min-h-[44px]"
+                    >
+                        <CheckCircle2 className="h-4 w-4" />
+                        <span>Publish</span>
+                    </button>
+                )}
             </div>
 
             {/* Notification / Banner strip */}
@@ -1480,11 +1559,11 @@ export default function EditTestPage({
                                                         <div className="space-y-1">
                                                             <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/60 text-red-800 dark:text-red-300">
                                                                 <span className="text-[10px] font-black uppercase text-red-600 block mb-0.5">Old:</span>
-                                                                <p className="line-through">{oldQ.textEnglish || "(empty)"}</p>
+                                                                <p className="line-through whitespace-pre-line">{oldQ.textEnglish || "(empty)"}</p>
                                                             </div>
                                                             <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-300">
                                                                 <span className="text-[10px] font-black uppercase text-emerald-600 block mb-0.5">New:</span>
-                                                                <p className="font-semibold">{item.questionEn}</p>
+                                                                <p className="font-semibold whitespace-pre-line">{item.questionEn}</p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1527,12 +1606,12 @@ export default function EditTestPage({
                                                         <div className="text-[11px] space-y-1 pt-1 border-t border-gray-200 dark:border-gray-800">
                                                             <span className="text-gray-500 font-bold block">Explanation:</span>
                                                             {oldQ.explanationEnglish && (
-                                                                <p className="line-through text-red-600 dark:text-red-400">
+                                                                <p className="line-through text-red-600 dark:text-red-400 whitespace-pre-line">
                                                                     Old: {oldQ.explanationEnglish}
                                                                 </p>
                                                             )}
                                                             {item.explanationEn && (
-                                                                <p className="text-emerald-700 dark:text-emerald-300 font-medium">
+                                                                <p className="text-emerald-700 dark:text-emerald-300 font-medium whitespace-pre-line">
                                                                     New: {item.explanationEn}
                                                                 </p>
                                                             )}

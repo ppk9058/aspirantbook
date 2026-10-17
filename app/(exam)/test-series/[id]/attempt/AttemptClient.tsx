@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react"
 import dynamic from "next/dynamic"
 import { useSearchParams, useParams, useRouter } from "next/navigation"
 import { Flag, FileText, BookOpen, AlertTriangle, X, User, Pause, Play, Maximize2, ShieldAlert, Menu, Grid3X3 } from "lucide-react"
@@ -37,6 +37,10 @@ interface Question {
     subject: string
     explanation?: string
     explanationHi?: string
+    positiveMarks?: number
+    negativeMarks?: number
+    sectionTitle?: string
+    sectionId?: string
 }
 
 interface Attempt {
@@ -333,6 +337,18 @@ function Arena() {
     const testTitle = customTestRecord?.title || "Test Arena"
     const totalQs = questions.length
     const durationMin = customTestRecord?.durationMinutes ?? 120
+
+    const isBpsc = useMemo(() => {
+        const checkStr = (s?: string | null) => Boolean(s && /bpsc/i.test(s));
+        return (
+            checkStr(customTestRecord?.series?.examName) ||
+            checkStr(customTestRecord?.series?.category) ||
+            checkStr(customTestRecord?.series?.title) ||
+            checkStr(customTestRecord?.series?.slug) ||
+            checkStr(customTestRecord?.title) ||
+            checkStr(customTestRecord?.category)
+        );
+    }, [customTestRecord]);
 
     // Attempt key for IndexedDB (unique per attempt or test)
     const attemptKey = activeAttemptId ? `attempt-${activeAttemptId}` : (testId ? `${seriesId}-${testId}` : `${seriesId}-unknown`)
@@ -783,7 +799,15 @@ function Arena() {
                 if (Array.isArray(t.sections)) {
                     for (const sec of t.sections) {
                         if (Array.isArray(sec.questions)) {
-                            rawQuestions.push(...sec.questions)
+                            for (const q of sec.questions) {
+                                rawQuestions.push({
+                                    ...q,
+                                    sectionTitle: sec.title,
+                                    sectionId: sec.id,
+                                    sectionPositiveMarks: sec.positiveMarks,
+                                    sectionNegativeMarks: sec.negativeMarks,
+                                })
+                            }
                         }
                     }
                 }
@@ -801,6 +825,10 @@ function Arena() {
                     optionsHi: [q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi].filter((o: any) => o !== null && o !== undefined),
                     correctIndex: 0,
                     subject: q.subject || "General Studies",
+                    positiveMarks: q.positiveMarks ?? q.sectionPositiveMarks ?? t.positiveMarks ?? 1,
+                    negativeMarks: q.negativeMarks ?? q.sectionNegativeMarks ?? t.negativeMarks ?? 0.33,
+                    sectionTitle: q.sectionTitle,
+                    sectionId: q.sectionId,
                 }))
 
                 if (!isSubscribed) return
@@ -1430,6 +1458,7 @@ function Arena() {
                     </button>
                     <button
                         onClick={() => setShowSubmitModal(true)}
+                        data-testid="cbt-submit-button"
                         className="min-h-[44px] px-3 rounded-lg bg-teal-600 hover:bg-teal-700 active:scale-95 text-white text-xs font-bold shadow-sm transition flex items-center justify-center cursor-pointer"
                     >
                         Submit
@@ -1443,9 +1472,38 @@ function Arena() {
                     SECTIONS
                 </span>
                 <div className="flex items-center gap-2">
-                    <button type="button" className="px-4 py-1 rounded text-xs font-bold bg-[#1448d8] text-white whitespace-nowrap shadow-sm">
-                        Test
-                    </button>
+                    {Array.isArray(customTestRecord?.sections) && customTestRecord.sections.length > 0 ? (
+                        customTestRecord.sections.map((sec: any) => {
+                            const isCurrentSec = currentQuestion?.sectionId
+                                ? currentQuestion.sectionId === sec.id
+                                : currentQuestion?.sectionTitle === sec.title;
+                            return (
+                                <button
+                                    key={sec.id || sec.title}
+                                    type="button"
+                                    onClick={() => {
+                                        const targetIdx = questions.findIndex(
+                                            (q) => (q.sectionId && q.sectionId === sec.id) || (q.sectionTitle && q.sectionTitle === sec.title)
+                                        );
+                                        if (targetIdx !== -1) {
+                                            goTo(targetIdx);
+                                        }
+                                    }}
+                                    className={`px-4 py-1 rounded text-xs font-bold whitespace-nowrap transition-colors cursor-pointer min-h-[32px] ${
+                                        isCurrentSec
+                                            ? "bg-[#1448d8] text-white shadow-sm"
+                                            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    }`}
+                                >
+                                    {sec.title}
+                                </button>
+                            );
+                        })
+                    ) : (
+                        <button type="button" className="px-4 py-1 rounded text-xs font-bold bg-[#1448d8] text-white whitespace-nowrap shadow-sm min-h-[32px]">
+                            {currentQuestion?.sectionTitle || customTestRecord?.title || "Test"}
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -1466,9 +1524,15 @@ function Arena() {
                             </span>
                             <div className="flex items-center gap-1 md:gap-1.5">
                                 <span className="text-[10px] md:text-xs text-gray-500 font-semibold hidden sm:inline">Marks</span>
-                                <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-emerald-500 text-white">+1</span>
-                                <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-orange-500 text-white">-0.33</span>
-                                <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-gray-400 text-white">-0</span>
+                                <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-emerald-500 text-white">
+                                    +{currentQuestion?.positiveMarks ?? customTestRecord?.positiveMarks ?? 1}
+                                </span>
+                                <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-orange-500 text-white">
+                                    -{currentQuestion?.negativeMarks ?? customTestRecord?.negativeMarks ?? 0.33}
+                                </span>
+                                {isBpsc && (
+                                    <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-gray-400 text-white">-0</span>
+                                )}
                             </div>
                             <div className="flex items-center gap-1 ml-1 text-gray-500 dark:text-gray-400">
                                 <span className="text-[10px] md:text-xs font-semibold">Time</span>
@@ -1526,33 +1590,35 @@ function Arena() {
                                         >
                                             {sel && <div className="w-2 h-2 rounded-full bg-white" />}
                                         </div>
-                                        <div className="flex-1 text-sm leading-relaxed">
+                                        <div className="flex-1 text-sm leading-relaxed whitespace-pre-line">
                                             <MathRenderer text={optText} />
                                         </div>
                                     </label>
                                 )
                             })}
 
-                            {/* Question Not Attempted */}
-                            <label
-                                onClick={clearResponse}
-                                className={`flex items-center gap-3.5 p-3 rounded-xl border border-dashed transition-all cursor-pointer min-h-[44px] ${
-                                    curAttempt?.selected === null && curAttempt?.state !== "not-visited"
-                                        ? "border-sky-500 bg-sky-50/50 dark:bg-sky-950/20 text-sky-800 dark:text-sky-300"
-                                        : "border-gray-200 dark:border-gray-800 bg-transparent text-gray-400 hover:border-gray-300"
-                                }`}
-                            >
-                                <div
-                                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                                        curAttempt?.selected === null && curAttempt?.state !== "not-visited" ? "border-sky-500 bg-sky-500" : "border-gray-300 bg-white dark:bg-gray-800"
+                            {/* Question Not Attempted (BPSC only) */}
+                            {isBpsc && (
+                                <label
+                                    onClick={clearResponse}
+                                    className={`flex items-center gap-3.5 p-3 rounded-xl border border-dashed transition-all cursor-pointer min-h-[44px] ${
+                                        curAttempt?.selected === null && curAttempt?.state !== "not-visited"
+                                            ? "border-sky-500 bg-sky-50/50 dark:bg-sky-950/20 text-sky-800 dark:text-sky-300"
+                                            : "border-gray-200 dark:border-gray-800 bg-transparent text-gray-400 hover:border-gray-300"
                                     }`}
                                 >
-                                    {curAttempt?.selected === null && curAttempt?.state !== "not-visited" && (
-                                        <div className="w-2 h-2 rounded-full bg-white" />
-                                    )}
-                                </div>
-                                <span className="text-sm">Question Not Attempted</span>
-                            </label>
+                                    <div
+                                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                                            curAttempt?.selected === null && curAttempt?.state !== "not-visited" ? "border-sky-500 bg-sky-500" : "border-gray-300 bg-white dark:bg-gray-800"
+                                        }`}
+                                    >
+                                        {curAttempt?.selected === null && curAttempt?.state !== "not-visited" && (
+                                            <div className="w-2 h-2 rounded-full bg-white" />
+                                        )}
+                                    </div>
+                                    <span className="text-sm">Question Not Attempted</span>
+                                </label>
+                            )}
                         </div>
                     </div>
 
@@ -1604,6 +1670,7 @@ function Arena() {
                             </button>
                             <button
                                 onClick={() => setShowSubmitModal(true)}
+                                data-testid="cbt-submit-button"
                                 className="hidden lg:flex px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm font-bold shadow-sm transition whitespace-nowrap min-h-[44px] items-center justify-center cursor-pointer"
                             >
                                 Submit
@@ -1644,7 +1711,7 @@ function Arena() {
                         <LegendItem bg="#fff" label="Not Visited" count={counts.notVisited} />
                         <LegendItem bg="linear-gradient(135deg,#9333ea 50%,#22c55e 50%)" label="Marked and answered" count={counts.answeredMarked} />
                         <LegendItem bg="#ef4444" label="Not Answered" count={counts.notAnswered} />
-                        <LegendItem bg="#9ca3af" label="No option selected" count={0} isBox />
+                        {isBpsc && <LegendItem bg="#9ca3af" label="No option selected" count={0} isBox />}
                     </div>
 
                     {/* Section header */}
@@ -1652,7 +1719,9 @@ function Arena() {
                         padding: "6px 12px", background: "#e0f2fe",
                         borderBottom: "1px solid #bae6fd", flexShrink: 0
                     }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: "#075985" }}>SECTION : Test</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "#075985" }}>
+                            SECTION : {currentQuestion?.sectionTitle || "General Studies"}
+                        </span>
                     </div>
 
                     {/* Question Palette Grid */}
@@ -1765,13 +1834,13 @@ function Arena() {
                             <LegendItem bg="#fff" label="Not Visited" count={counts.notVisited} />
                             <LegendItem bg="linear-gradient(135deg,#9333ea 50%,#22c55e 50%)" label="Marked &amp; Ans" count={counts.answeredMarked} />
                             <LegendItem bg="#ef4444" label="Not Answered" count={counts.notAnswered} />
-                            <LegendItem bg="#9ca3af" label="Not Selected" count={0} isBox />
+                            {isBpsc && <LegendItem bg="#9ca3af" label="Not Selected" count={0} isBox />}
                         </div>
 
                         {/* Section Header */}
                         <div className="px-4 py-2 bg-sky-50 dark:bg-sky-950/40 border-b border-sky-100 dark:border-sky-900 shrink-0">
                             <span className="text-xs font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wide">
-                                SECTION : Test
+                                SECTION : {currentQuestion?.sectionTitle || "General Studies"}
                             </span>
                         </div>
 
@@ -1898,7 +1967,7 @@ function Arena() {
                             <button onClick={() => setShowSubmitModal(false)} style={{ flex: 1, minHeight: 44, padding: "10px 0", border: "1px solid #e5e7eb", borderRadius: 10, background: "#fff", fontSize: 13, fontWeight: 700, color: "#374151", cursor: "pointer" }}>
                                 Continue Test
                             </button>
-                            <button onClick={handleSubmit} style={{ flex: 1, minHeight: 44, padding: "10px 0", border: "none", borderRadius: 10, background: "#0d9488", fontSize: 13, fontWeight: 700, color: "#fff", cursor: "pointer" }}>
+                            <button onClick={handleSubmit} data-testid="cbt-confirm-submit-button" style={{ flex: 1, minHeight: 44, padding: "10px 0", border: "none", borderRadius: 10, background: "#0d9488", fontSize: 13, fontWeight: 700, color: "#fff", cursor: "pointer" }}>
                                 Submit Now
                             </button>
                         </div>

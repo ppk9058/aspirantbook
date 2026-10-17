@@ -2,19 +2,28 @@
 
 import React, { useState, useEffect, useCallback, use } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname, useParams } from "next/navigation"
 import { AlertCircle, RotateCcw } from "lucide-react"
 import ReviewAllQuestions, { ReviewQuestionItem, ReviewSectionItem } from "@/components/exam/ReviewAllQuestions"
 import PublishTestModal from "@/components/exam/PublishTestModal"
+import { getTestSeriesBasePath } from "@/lib/exam/route-prefix"
 
 export default function TestReviewPage({
     params,
 }: {
-    params: Promise<{ id?: string; testId?: string }>
+    params?: Promise<{ id?: string; testId?: string }>
 }) {
-    const resolvedParams = use(params)
-    const id = resolvedParams.testId || resolvedParams.id || ""
+    const routeParams = useParams()
+    let resolvedParams: { id?: string; testId?: string } | null = null
+    try {
+        if (params) {
+            resolvedParams = use(params)
+        }
+    } catch {}
+    const id = (routeParams?.testId as string) || (routeParams?.id as string) || resolvedParams?.testId || resolvedParams?.id || ""
     const router = useRouter()
+    const pathname = usePathname()
+    const basePath = getTestSeriesBasePath(pathname || "")
 
     const [loading, setLoading] = useState(true)
     const [fetchError, setFetchError] = useState<string | null>(null)
@@ -28,6 +37,10 @@ export default function TestReviewPage({
     const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null)
 
     const loadReviewData = useCallback(async () => {
+        if (!id) {
+            setLoading(false)
+            return
+        }
         setLoading(true)
         setFetchError(null)
         try {
@@ -43,6 +56,13 @@ export default function TestReviewPage({
             setTitleHindi(t.titleHi || "")
             setIsPublished(Boolean(t.isPublished))
             setAttemptsCount(json.data.attemptsCount || 0)
+
+            if (t.title) {
+                try {
+                    sessionStorage.setItem(`test-title-${id}`, t.title)
+                    window.dispatchEvent(new CustomEvent("update-breadcrumb-title", { detail: { segment: id, title: t.title } }))
+                } catch {}
+            }
 
             const loadedSections: ReviewSectionItem[] = []
             const loadedQuestions: ReviewQuestionItem[] = []
@@ -125,7 +145,7 @@ export default function TestReviewPage({
                             <span>Retry</span>
                         </button>
                         <Link
-                            href="/teacher/test-series"
+                            href={basePath}
                             className="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold hover:bg-gray-100 transition-colors flex items-center min-h-[44px]"
                         >
                             Back to Tests
@@ -147,7 +167,7 @@ export default function TestReviewPage({
                 attemptsCount={attemptsCount}
                 onBack={() => router.back()}
                 onEditQuestion={(qId) => {
-                    router.push(`/teacher/test-series/${encodeURIComponent(id)}/edit?qId=${encodeURIComponent(qId)}`)
+                    router.push(`${basePath}/${encodeURIComponent(id)}/edit?qId=${encodeURIComponent(qId)}`)
                 }}
                 onPublish={() => setIsPublishModalOpen(true)}
                 publishSuccessMessage={publishSuccessMessage}

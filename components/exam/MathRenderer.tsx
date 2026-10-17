@@ -51,14 +51,16 @@ export default function MathRenderer({ text, className = "" }: MathRendererProps
         }
     }, [text])
 
+    const combinedClass = `whitespace-pre-line ${className}`.trim()
+
     if (renderedHtml) {
         return (
             <span
-                className={`katex-math-render ${className}`}
+                className={`katex-math-render ${combinedClass}`}
                 dangerouslySetInnerHTML={{ __html: renderedHtml }}
             />
         )
     }
 
-    return <span className={className}>{text}</span>
+    return <span className={combinedClass}>{text}</span>
 }

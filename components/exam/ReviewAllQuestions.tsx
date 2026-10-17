@@ -397,12 +397,12 @@ export default function ReviewAllQuestions({
                                             {/* Question prompt text */}
                                             <div className="py-3 space-y-1.5">
                                                 {(languageMode === "both" || languageMode === "english") && (
-                                                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-pre-line">
                                                         <MathRenderer text={q.textEnglish || "(No English question text provided)"} />
                                                     </div>
                                                 )}
                                                 {(languageMode === "both" || languageMode === "hindi") && q.textHindi && (
-                                                    <div className="text-sm font-normal text-gray-600 dark:text-gray-400 pt-0.5">
+                                                    <div className="text-sm font-normal text-gray-600 dark:text-gray-400 pt-0.5 whitespace-pre-line">
                                                         <MathRenderer text={q.textHindi} />
                                                     </div>
                                                 )}
@@ -434,12 +434,12 @@ export default function ReviewAllQuestions({
                                                             </span>
                                                             <div className="min-w-0 flex-1 space-y-0.5">
                                                                 {(languageMode === "both" || languageMode === "english") && (
-                                                                    <div>
+                                                                    <div className="whitespace-pre-line">
                                                                         <MathRenderer text={opt?.english || `(Option ${letter} empty)`} />
                                                                     </div>
                                                                 )}
                                                                 {(languageMode === "both" || languageMode === "hindi") && opt?.hindi && (
-                                                                    <div className="text-gray-500 dark:text-gray-400 text-[11px]">
+                                                                    <div className="text-gray-500 dark:text-gray-400 text-[11px] whitespace-pre-line">
                                                                         <MathRenderer text={opt.hindi} />
                                                                     </div>
                                                                 )}
@@ -461,12 +461,12 @@ export default function ReviewAllQuestions({
                                                         Explanation:
                                                     </p>
                                                     {(languageMode === "both" || languageMode === "english") && q.explanationEnglish && (
-                                                        <div className="text-gray-800 dark:text-gray-200">
+                                                        <div className="text-gray-800 dark:text-gray-200 whitespace-pre-line">
                                                             <MathRenderer text={q.explanationEnglish} />
                                                         </div>
                                                     )}
                                                     {(languageMode === "both" || languageMode === "hindi") && q.explanationHindi && (
-                                                        <div className="text-gray-600 dark:text-gray-400">
+                                                        <div className="text-gray-600 dark:text-gray-400 whitespace-pre-line">
                                                             <MathRenderer text={q.explanationHindi} />
                                                         </div>
                                                     )}

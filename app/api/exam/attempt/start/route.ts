@@ -52,6 +52,9 @@ export async function POST(req: NextRequest) {
           select: {
             id: true,
             slug: true,
+            title: true,
+            examName: true,
+            category: true,
             isPublished: true,
             createdById: true,
           },
@@ -137,6 +140,9 @@ export async function POST(req: NextRequest) {
             select: {
               id: true,
               slug: true,
+              title: true,
+              examName: true,
+              category: true,
               isPublished: true,
               createdById: true,
             },
@@ -401,6 +407,7 @@ export async function POST(req: NextRequest) {
             totalQuestions: test.totalQuestions,
             positiveMarks: test.positiveMarks,
             negativeMarks: test.negativeMarks,
+            series: test.series,
             sections: test.sections,
           },
         },

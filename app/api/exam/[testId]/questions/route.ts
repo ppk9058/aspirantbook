@@ -24,7 +24,7 @@ export async function GET(
         where: { id: testId },
         include: {
           series: {
-            select: { id: true, slug: true, title: true },
+            select: { id: true, slug: true, title: true, examName: true, category: true },
           },
           sections: {
             orderBy: { order: "asc" },
@@ -66,7 +66,7 @@ export async function GET(
           orderBy: { createdAt: "asc" },
           include: {
             series: {
-              select: { id: true, slug: true, title: true },
+              select: { id: true, slug: true, title: true, examName: true, category: true },
             },
             sections: {
               orderBy: { order: "asc" },
@@ -200,6 +200,7 @@ export async function GET(
         totalMarks: test.totalMarks,
         positiveMarks: test.positiveMarks,
         negativeMarks: test.negativeMarks,
+        series: test.series,
         sections: test.sections.map((section: any) => ({
           id: section.id,
           title: section.title,
