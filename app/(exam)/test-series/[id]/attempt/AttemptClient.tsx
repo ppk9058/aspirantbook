@@ -1393,8 +1393,8 @@ function Arena() {
                         </span>
                     )}
                     {syncStatus === "error" && (
-                        <span style={{ fontSize: 11, color: "#dc2626", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }} title="Offline: Buffered in local storage">
-                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#ef4444" }} /> Offline
+                        <span style={{ fontSize: 11, color: "#dc2626", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }} title="Sync failed: Buffered locally, retrying...">
+                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#ef4444" }} /> Sync failed - retrying
                         </span>
                     )}
                     <TimerDisplay secs={timeLeft} />
@@ -1445,7 +1445,7 @@ function Arena() {
                         <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0" title="Saving to server..." />
                     )}
                     {syncStatus === "error" && (
-                        <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" title="Offline: Buffered locally" />
+                        <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" title="Sync failed - buffered locally, retrying..." />
                     )}
                     <MobileTimerDisplay secs={timeLeft} />
                     <button
@@ -1720,7 +1720,7 @@ function Arena() {
                         borderBottom: "1px solid #bae6fd", flexShrink: 0
                     }}>
                         <span style={{ fontSize: 12, fontWeight: 700, color: "#075985" }}>
-                            SECTION : {currentQuestion?.sectionTitle || "General Studies"}
+                            SECTION : {currentQuestion?.sectionTitle || "Section"}
                         </span>
                     </div>
 
@@ -1840,7 +1840,7 @@ function Arena() {
                         {/* Section Header */}
                         <div className="px-4 py-2 bg-sky-50 dark:bg-sky-950/40 border-b border-sky-100 dark:border-sky-900 shrink-0">
                             <span className="text-xs font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wide">
-                                SECTION : {currentQuestion?.sectionTitle || "General Studies"}
+                                SECTION : {currentQuestion?.sectionTitle || "Section"}
                             </span>
                         </div>
 
