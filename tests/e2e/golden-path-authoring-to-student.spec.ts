@@ -379,4 +379,171 @@ test.describe("Golden Path: Authoring to Student CBT Journey (UPSC vs BPSC)", ()
       await cleanupNonce(nonce);
     }
   });
+
+  test("Normal attempt sync check: answers 3 questions, switches questions, verifies 2+ sync cycles return 200 and badge never shows", async ({ page }, testInfo) => {
+    test.setTimeout(120_000);
+    await prisma.$connect();
+    const nonce = newNonce();
+    const admin = await createActor(nonce, "ADMIN", "admin-sync");
+    const student = await createActor(nonce, "FREE", "student-sync");
+
+    const isMobile = (testInfo.project.name || "").includes("mobile");
+
+    try {
+      // Seed a series with a published test containing 3 questions across sections
+      const seriesSlug = slugFor(`${nonce}-sync-series`);
+      const series = await prisma.examSeries.create({
+        data: {
+          title: `${nonce} Sync Verification Series`,
+          slug: seriesSlug,
+          examName: "Sync Check Exam",
+          category: "General",
+          isPublished: true,
+          isFree: true,
+          createdById: admin.id,
+        },
+      });
+
+      const testRow = await prisma.examTest.create({
+        data: {
+          seriesId: series.id,
+          title: `${nonce} Sync Test with 3 Questions`,
+          testType: "FULL_MOCK",
+          accessMode: "FREE",
+          durationMinutes: 60,
+          totalQuestions: 3,
+          totalMarks: 3,
+          positiveMarks: 1,
+          negativeMarks: 0.33,
+          isPublished: true,
+          createdById: admin.id,
+          sections: {
+            create: [
+              {
+                title: "General Section",
+                order: 1,
+                positiveMarks: 1,
+                negativeMarks: 0.33,
+                questions: {
+                  create: [
+                    {
+                      questionEn: "Question 1: What is the capital of France?",
+                      optionAEn: "Berlin",
+                      optionBEn: "Madrid",
+                      optionCEn: "Paris",
+                      optionDEn: "Rome",
+                      correctOption: "C",
+                      explanationEn: "Paris is the capital of France.",
+                      positiveMarks: 1,
+                      negativeMarks: 0.33,
+                      order: 1,
+                      subject: "Geography",
+                      questionType: "MCQ",
+                    },
+                    {
+                      questionEn: "Question 2: Which planet is known as the Red Planet?",
+                      optionAEn: "Venus",
+                      optionBEn: "Mars",
+                      optionCEn: "Jupiter",
+                      optionDEn: "Saturn",
+                      correctOption: "B",
+                      explanationEn: "Mars is known as the Red Planet.",
+                      positiveMarks: 1,
+                      negativeMarks: 0.33,
+                      order: 2,
+                      subject: "Science",
+                      questionType: "MCQ",
+                    },
+                    {
+                      questionEn: "Question 3: What is 12 multiplied by 12?",
+                      optionAEn: "124",
+                      optionBEn: "144",
+                      optionCEn: "164",
+                      optionDEn: "184",
+                      correctOption: "B",
+                      explanationEn: "12 * 12 = 144.",
+                      positiveMarks: 1,
+                      negativeMarks: 0.33,
+                      order: 3,
+                      subject: "Math",
+                      questionType: "MCQ",
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      });
+
+      // Intercept and record all /sync responses
+      const syncResponses: { status: number; url: string }[] = [];
+      page.on("response", (res) => {
+        if (res.url().includes("/sync")) {
+          syncResponses.push({ status: res.status(), url: res.url() });
+          console.log(`[SYNC OBSERVED] status=${res.status()} url=${res.url()}`);
+        }
+      });
+
+      // Student logs in and navigates to CBT attempt
+      await loginThroughUi(page, student.email);
+      await page.goto(`/test-series/${series.slug}/attempt?testId=${testRow.id}&lang=English`);
+
+      await expect(page.getByText("Q.1")).toBeVisible({ timeout: 30_000 });
+
+      // Answer Q1: Select "Paris"
+      await page.getByText("Paris").click();
+
+      // Wait 3s for sync debounce to fire (debounce is 2500ms)
+      await page.waitForTimeout(3000);
+
+      // Switch question: Click Save & Next
+      const saveNextBtn = page.getByRole("button", { name: "Save & Next" });
+      await saveNextBtn.click();
+      await expect(page.getByText("Q.2")).toBeVisible({ timeout: 10_000 });
+
+      // Answer Q2: Select "Mars"
+      await page.getByText("Mars").click();
+
+      // Wait 3s for sync debounce to fire
+      await page.waitForTimeout(3000);
+
+      // Switch question: Click Save & Next
+      await saveNextBtn.click();
+      await expect(page.getByText("Q.3")).toBeVisible({ timeout: 10_000 });
+
+      // Answer Q3: Select "144"
+      await page.getByText("144").click();
+
+      // Wait 3s for sync debounce to fire
+      await page.waitForTimeout(3000);
+
+      // Print the sync status codes observed
+      const observedCodes = syncResponses.map((r) => r.status);
+      console.log(`[SYNC STATUS CODES OBSERVED] count=${observedCodes.length} codes=${JSON.stringify(observedCodes)}`);
+
+      // Assert at least 2 sync cycles observed
+      expect(syncResponses.length).toBeGreaterThanOrEqual(2);
+
+      // Assert all sync calls returned 200
+      for (const res of syncResponses) {
+        expect(res.status).toBe(200);
+      }
+
+      // Assert the error badge never shows
+      await expect(page.getByText("Offline")).toHaveCount(0);
+      await expect(page.getByText("Sync failed - retrying")).toHaveCount(0);
+      await expect(page.locator("span[title*='Offline']")).toHaveCount(0);
+      await expect(page.locator("span[title*='Sync failed']")).toHaveCount(0);
+
+      // On desktop, verify Synced indicator is visible
+      if (!isMobile) {
+        await expect(page.getByText("Synced")).toBeVisible();
+      }
+
+      await takeStepScreenshot(page, `${testInfo.project.name}-09-normal-attempt-sync-verified`);
+    } finally {
+      await cleanupNonce(nonce);
+    }
+  });
 });
