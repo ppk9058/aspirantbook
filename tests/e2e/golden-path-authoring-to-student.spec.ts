@@ -182,11 +182,49 @@ test.describe("Golden Path: Authoring to Student CBT Journey (UPSC vs BPSC)", ()
       // ─────────────────────────────────────────────────────────────
       await loginThroughUi(page, student.email);
 
-      // Student starts attempt
+      // Student starts attempt while intercepting start API response
+      const startAttemptPromise = page.waitForResponse(
+        (res) => res.url().includes("/api/exam/attempt/start") && res.status() === 200,
+        { timeout: 30_000 }
+      );
       await page.goto(`/test-series/${series.slug}/attempt?testId=${testRow.id}&lang=English`);
 
       // Wait for CBT Arena to mount
       await expect(page.getByText("Q.1")).toBeVisible({ timeout: 30_000 });
+
+      // Verify start-attempt API JSON response contains no createdById and no isPublished under series
+      const startAttemptRes = await startAttemptPromise;
+      const startAttemptJson = await startAttemptRes.json();
+      const startSeries = startAttemptJson?.data?.test?.series;
+      expect(startSeries).toBeDefined();
+      expect(startSeries).not.toHaveProperty("createdById");
+      expect(startSeries).not.toHaveProperty("isPublished");
+      expect(startSeries).toEqual({
+        id: series.id,
+        slug: series.slug,
+        title: series.title,
+        examName: series.examName,
+        category: series.category,
+      });
+
+      // Verify questions API JSON response contains no createdById and no isPublished under series
+      const attemptId = startAttemptJson.data.attemptId;
+      const questionsRes = await page.request.get(
+        `${BASE}/api/exam/${testRow.id}/questions?attemptId=${encodeURIComponent(attemptId)}`
+      );
+      expect(questionsRes.ok()).toBe(true);
+      const questionsJson = await questionsRes.json();
+      const questionsSeries = questionsJson?.data?.test?.series;
+      expect(questionsSeries).toBeDefined();
+      expect(questionsSeries).not.toHaveProperty("createdById");
+      expect(questionsSeries).not.toHaveProperty("isPublished");
+      expect(questionsSeries).toEqual({
+        id: series.id,
+        slug: series.slug,
+        title: series.title,
+        examName: series.examName,
+        category: series.category,
+      });
 
       // Verify Marks in header: displays +2 and -0.66 (NOT +1 / -0.33!)
       await expect(page.getByText("+2")).toBeVisible();

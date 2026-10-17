@@ -200,7 +200,15 @@ export async function GET(
         totalMarks: test.totalMarks,
         positiveMarks: test.positiveMarks,
         negativeMarks: test.negativeMarks,
-        series: test.series,
+        series: test.series
+          ? {
+              id: test.series.id,
+              slug: test.series.slug,
+              title: test.series.title,
+              examName: test.series.examName,
+              category: test.series.category,
+            }
+          : null,
         sections: test.sections.map((section: any) => ({
           id: section.id,
           title: section.title,
