@@ -7,6 +7,7 @@ import {
   newNonce,
   prisma,
   saveArtifacts,
+  slugFor,
 } from "./test-series-e2e-helpers";
 
 test.describe(`${process.env.E2E_RUN_NONCE || "E2E"} teacher authoring to student catalogue`, () => {
@@ -154,6 +155,131 @@ test.describe(`${process.env.E2E_RUN_NONCE || "E2E"} teacher authoring to studen
       const adminSession = await loginThroughUi(adminPage, admin.email);
       expect(adminSession.user?.role).toBe("ADMIN");
       await adminContext.close();
+    } finally {
+      await cleanupNonce(nonce);
+    }
+  });
+
+  test("preserves 100 question slots: imports 20 questions sequentially into Q1-20, verifies Q21-100 incomplete, roundtrips Step 2, and asserts overflow warning on excess", async ({ page }) => {
+    test.setTimeout(180_000);
+    await prisma.$connect();
+    const nonce = newNonce();
+    const teacher = await createActor(nonce, "TEACHER", "teacher-importer");
+
+    try {
+      const teacherSession = await loginThroughUi(page, teacher.email);
+      expect(teacherSession.user?.role).toBe("TEACHER");
+
+      const series = await prisma.examSeries.create({
+        data: {
+          title: `${nonce} 100Q Package`,
+          slug: slugFor(`${nonce} 100Q Package`),
+          category: "BPSC",
+          examName: "BPSC Prelims",
+          description: `${nonce} package for import test`,
+          createdById: teacher.id,
+          isPublished: true,
+        },
+      });
+
+      await page.goto(`/teacher/test-series/create?seriesId=${series.slug}`);
+      await expect(page.getByRole("heading", { name: "Test Authoring Studio" })).toBeVisible();
+
+      // Step 1: Metadata
+      await page.getByPlaceholder("e.g. 72nd BPSC Prelims Full Mock Test 1").fill(`${nonce} 100 Question Test`);
+      await page.getByRole("spinbutton").first().fill("120");
+      await page.getByRole("button", { name: /Free Test/ }).click();
+      await page.getByRole("button", { name: "Next", exact: true }).click();
+
+      // Step 2: Configure Section with 100 Questions
+      const questionCountInput = page.getByRole("spinbutton").first();
+      await questionCountInput.fill("100");
+      await expect(page.getByText("Total Questions:")).toBeVisible();
+      await page.getByRole("button", { name: "Next", exact: true }).click();
+
+      // Step 3: Assert initial state is exactly 100 (never 120 or 135)
+      await expect(page.getByText("Question 1 of 100")).toBeVisible();
+      await expect(page.getByText("0 of 100 complete")).toBeVisible();
+
+      // Step 3: Bulk Import 20 questions
+      await page.getByRole("button", { name: /Bulk Import \/ AI Generate/ }).click();
+      const twentyQuestions = Array.from({ length: 20 }, (_, i) => ({
+        questionEn: `Test Question ${i + 1} English prompt text`,
+        questionHi: `प्रश्न ${i + 1} हिंदी पाठ`,
+        options: [
+          `Option A for Q${i + 1}`,
+          `Option B for Q${i + 1}`,
+          `Option C for Q${i + 1}`,
+          `Option D for Q${i + 1}`,
+        ],
+        correctOption: ["A", "B", "C", "D"][i % 4],
+        explanationEn: `Explanation for Q${i + 1}`,
+        difficulty: "MODERATE",
+      }));
+
+      await page.getByPlaceholder(/Paste raw JSON blocks here/i).fill(JSON.stringify(twentyQuestions));
+      await page.getByRole("button", { name: "Process & Preview" }).click();
+      await expect(page.getByRole("button", { name: "Import 20 questions" })).toBeVisible();
+      await page.getByRole("button", { name: "Import 20 questions" }).click();
+
+      // Assert total remains 100 (never 120 or 135) and Q1-20 are complete
+      await expect(page.getByText("Question 1 of 100")).toBeVisible();
+      await expect(page.getByText("20 of 100 complete")).toBeVisible();
+      await expect(page.getByRole("button", { name: "1", exact: true })).toHaveAttribute("title", "Q1: Complete");
+      await expect(page.getByRole("button", { name: "20", exact: true })).toHaveAttribute("title", "Q20: Complete");
+      await expect(page.getByRole("button", { name: "21", exact: true })).toHaveAttribute("title", "Q21: Incomplete");
+      await expect(page.getByRole("button", { name: "100", exact: true })).toHaveAttribute("title", "Q100: Incomplete");
+
+      // Step 3: Bulk Import 20 MORE questions (fills Q21-40)
+      await page.getByRole("button", { name: /Bulk Import \/ AI Generate/ }).click();
+      const twentyMoreQuestions = Array.from({ length: 20 }, (_, i) => ({
+        questionEn: `Test Question ${i + 21} English prompt text`,
+        options: ["A", "B", "C", "D"],
+        correctOption: "B",
+        explanationEn: `Explanation for Q${i + 21}`,
+      }));
+
+      await page.getByPlaceholder(/Paste raw JSON blocks here/i).fill(JSON.stringify(twentyMoreQuestions));
+      await page.getByRole("button", { name: "Process & Preview" }).click();
+      await expect(page.getByRole("button", { name: "Import 20 questions" })).toBeVisible();
+      await page.getByRole("button", { name: "Import 20 questions" }).click();
+
+      // Assert total remains 100 and Q1-40 are complete
+      await expect(page.getByText("Question 1 of 100")).toBeVisible();
+      await expect(page.getByText("40 of 100 complete")).toBeVisible();
+      await expect(page.getByRole("button", { name: "21", exact: true })).toHaveAttribute("title", "Q21: Complete");
+      await expect(page.getByRole("button", { name: "40", exact: true })).toHaveAttribute("title", "Q40: Complete");
+      await expect(page.getByRole("button", { name: "41", exact: true })).toHaveAttribute("title", "Q41: Incomplete");
+      await expect(page.getByRole("button", { name: "100", exact: true })).toHaveAttribute("title", "Q100: Incomplete");
+
+      // Test Step 2 roundtrip: Back to Sections -> Step 2 -> Next doesn't inflate slots
+      await page.getByRole("button", { name: "Back to Sections" }).click();
+      await expect(questionCountInput).toHaveValue("100");
+      await page.getByRole("button", { name: "Next", exact: true }).click();
+      await expect(page.getByText("Question 1 of 100")).toBeVisible();
+      await expect(page.getByText("40 of 100 complete")).toBeVisible();
+
+      // Test overflow case: Attempt to import 65 questions when only 60 empty slots remain
+      const sixtyFiveQuestions = Array.from({ length: 65 }, (_, i) => ({
+        questionEn: `Overflow Question ${i + 1} English text`,
+        options: ["A", "B", "C", "D"],
+        correctOption: "A",
+        explanationEn: `Explanation for overflow Q${i + 1}`,
+      }));
+
+      await page.getByRole("button", { name: /Bulk Import \/ AI Generate/ }).click();
+      await page.getByPlaceholder(/Paste raw JSON blocks here/i).fill(JSON.stringify(sixtyFiveQuestions));
+      await page.getByRole("button", { name: "Process & Preview" }).click();
+      await expect(page.getByRole("button", { name: "Import 65 questions" })).toBeVisible();
+      await page.getByRole("button", { name: "Import 65 questions" }).click();
+
+      // Assert overflow warning is displayed with exact skipped count (5 skipped)
+      await expect(page.getByTestId("overflow-warning")).toBeVisible();
+      await expect(page.getByTestId("overflow-warning")).toContainText("5 question(s) were skipped because the test is full (100 questions defined in Step 2)");
+
+      // Assert total remains 100, and now all 100 are complete
+      await expect(page.getByText("Question 1 of 100")).toBeVisible();
+      await expect(page.getByText("100 of 100 complete")).toBeVisible();
     } finally {
       await cleanupNonce(nonce);
     }
