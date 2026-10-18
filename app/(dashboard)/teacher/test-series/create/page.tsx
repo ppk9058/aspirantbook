@@ -441,44 +441,67 @@ function createDefaultSection(): Section {
     }
 }
 
-function getFormDataSnapshot(data: FormData): string {
+function normalizeString(val: any): string {
+    if (val === null || val === undefined) return ""
+    return String(val).trim()
+}
+
+function normalizeNumber(val: any, fallback = 0): number {
+    if (val === null || val === undefined || val === "") return fallback
+    const n = Number(val)
+    return isNaN(n) ? fallback : n
+}
+
+function normalizeFormData(data: FormData): string {
+    const sectionIndexMap = new Map<string, number>()
+    const normalizedSections = (data.sections || []).map((s, idx) => {
+        sectionIndexMap.set(s.id, idx)
+        return {
+            index: idx,
+            name: normalizeString(s.name),
+            nameHindi: normalizeString(s.nameHindi),
+            numQuestions: normalizeNumber(s.numQuestions, 10),
+            positiveMarks: normalizeNumber(s.positiveMarks, 1),
+            negativeMarks: normalizeNumber(s.negativeMarks, 0.33),
+            hasSectionalTime: Boolean(s.hasSectionalTime),
+            sectionalTimeMinutes: normalizeNumber(s.sectionalTimeMinutes, 20),
+        }
+    })
+
+    const normalizedQuestions = (data.questions || []).map((q) => ({
+        sectionIndex: sectionIndexMap.get(q.sectionId) ?? 0,
+        textEnglish: normalizeString(q.textEnglish),
+        textHindi: normalizeString(q.textHindi),
+        options: (q.options || []).map((o) => ({
+            english: normalizeString(o?.english),
+            hindi: normalizeString(o?.hindi),
+        })),
+        correctAnswer: q.correctAnswer === null || q.correctAnswer === undefined ? null : Number(q.correctAnswer),
+        explanationEnglish: normalizeString(q.explanationEnglish),
+        explanationHindi: normalizeString(q.explanationHindi),
+        videoUrl: normalizeString(q.videoUrl),
+        difficulty: normalizeString(q.difficulty).toLowerCase() || "moderate",
+        subject: normalizeString(q.subject),
+        topic: normalizeString(q.topic),
+    }))
+
     return JSON.stringify({
-        seriesId: data.seriesId || "",
-        pyqPaperId: data.pyqPaperId || "",
-        title: data.title || "",
-        titleHindi: data.titleHindi || "",
-        syllabus: data.syllabus || "",
-        syllabusHindi: data.syllabusHindi || "",
-        testType: data.testType || "",
-        accessMode: data.accessMode || "free",
-        durationMinutes: data.durationMinutes || 60,
+        seriesId: normalizeString(data.seriesId),
+        pyqPaperId: normalizeString(data.pyqPaperId),
+        title: normalizeString(data.title),
+        titleHindi: normalizeString(data.titleHindi),
+        syllabus: normalizeString(data.syllabus),
+        syllabusHindi: normalizeString(data.syllabusHindi),
+        testType: normalizeString(data.testType) || "Full Test",
+        accessMode: normalizeString(data.accessMode).toLowerCase() === "pro" ? "pro" : "free",
+        durationMinutes: normalizeNumber(data.durationMinutes, 60),
         isLive: Boolean(data.isLive),
-        liveStartAt: data.liveStartAt || "",
-        liveEndAt: data.liveEndAt || "",
-        sections: (data.sections || []).map((s) => ({
-            id: s.id,
-            name: s.name,
-            nameHindi: s.nameHindi,
-            numQuestions: s.numQuestions,
-            positiveMarks: s.positiveMarks,
-            negativeMarks: s.negativeMarks,
-            hasSectionalTime: s.hasSectionalTime,
-            sectionalTimeMinutes: s.sectionalTimeMinutes,
-        })),
-        questions: (data.questions || []).map((q) => ({
-            id: q.id,
-            sectionId: q.sectionId,
-            textEnglish: q.textEnglish,
-            textHindi: q.textHindi,
-            options: q.options,
-            correctAnswer: q.correctAnswer,
-            explanationEnglish: q.explanationEnglish,
-            explanationHindi: q.explanationHindi,
-            videoUrl: q.videoUrl,
-            difficulty: q.difficulty,
-            subject: q.subject,
-            topic: q.topic,
-        })),
+        liveStartAt: normalizeString(data.liveStartAt),
+        liveEndAt: normalizeString(data.liveEndAt),
+        month: data.month ? normalizeNumber(data.month) : null,
+        year: data.year ? normalizeNumber(data.year) : null,
+        sections: normalizedSections,
+        questions: normalizedQuestions,
     })
 }
 
@@ -565,9 +588,20 @@ function CreateTestContent() {
     const [isCreateSeriesModalOpen, setIsCreateSeriesModalOpen] = useState(false)
     const [seriesPackages, setSeriesPackages] = useState<any[]>([])
 
+    const [savedSnapshot, setSavedSnapshot] = useState<string>(() => normalizeFormData(formData))
+    const savedSnapshotRef = useRef<string>(savedSnapshot)
+    savedSnapshotRef.current = savedSnapshot
+
+    const isDirty = useMemo(() => {
+        return normalizeFormData(formData) !== savedSnapshot
+    }, [formData, savedSnapshot])
+
+    const isDirtyRef = useRef<boolean>(false)
+    isDirtyRef.current = isDirty
+
     const activeTestIdRef = useRef<string>(editTestId)
+    const loadedTestIdRef = useRef<string | null>(editTestId || null)
     const testUpdatedAtRef = useRef<string | null>(null)
-    const lastSavedDataRef = useRef<string>(getFormDataSnapshot(formData))
     const [lastSavedTime, setLastSavedTime] = useState<string | null>(null)
     const [isPublishedTest, setIsPublishedTest] = useState<boolean>(false)
 
@@ -577,14 +611,14 @@ function CreateTestContent() {
         }
     }, [editTestId])
 
-    const isDirty = useMemo(() => {
-        if (!lastSavedDataRef.current) return false
-        return getFormDataSnapshot(formData) !== lastSavedDataRef.current
-    }, [formData])
-
     // Load test data when editTestId is present
     useEffect(() => {
         if (!editTestId) return
+        if (loadedTestIdRef.current === editTestId && activeTestIdRef.current === editTestId && savedTestId === editTestId) {
+            return
+        }
+        loadedTestIdRef.current = editTestId
+        activeTestIdRef.current = editTestId
         let cancelled = false
         async function loadTestForEdit() {
             setLoadingEditData(true)
@@ -601,7 +635,7 @@ function CreateTestContent() {
                     id: s.id,
                     name: s.title || "General",
                     nameHindi: s.titleHi || "",
-                    numQuestions: s.questions?.length || 0,
+                    numQuestions: (s.questions && s.questions.length > 0) ? s.questions.length : 10,
                     positiveMarks: Number(s.positiveMarks) || 1,
                     negativeMarks: Number(s.negativeMarks) || 0.33,
                     hasSectionalTime: Boolean(s.timeLimitMins),
@@ -647,6 +681,9 @@ function CreateTestContent() {
                 else if (t.testType === "LIVE_SPEED") displayType = "Live Speed Test"
                 else if (t.testType === "CURRENT_AFFAIRS") displayType = "Current Affairs"
 
+                const finalSections = loadedSections.length > 0 ? loadedSections : [createDefaultSection()]
+                const finalQuestions = loadedQuestions.length > 0 ? loadedQuestions : buildInitialQuestions(finalSections)
+
                 const editFormData: FormData = {
                     seriesId: t.seriesId || "",
                     title: t.title || "",
@@ -658,20 +695,23 @@ function CreateTestContent() {
                     testType: displayType,
                     accessMode: (t.accessMode || "FREE").toLowerCase() === "pro" ? "pro" : "free",
                     durationMinutes: Number(t.durationMinutes) || 60,
-                    totalQuestions: Number(t.totalQuestions) || loadedQuestions.length,
+                    totalQuestions: Number(t.totalQuestions) || finalQuestions.length,
                     totalMarks: Number(t.totalMarks) || 100,
                     isLive: Boolean(t.isLive),
                     liveStartAt: t.liveStartAt ? new Date(t.liveStartAt).toISOString().slice(0, 16) : "",
                     liveEndAt: t.liveEndAt ? new Date(t.liveEndAt).toISOString().slice(0, 16) : "",
-                    sections: loadedSections.length > 0 ? loadedSections : [createDefaultSection()],
-                    questions: loadedQuestions.length > 0 ? loadedQuestions : buildInitialQuestions([createDefaultSection()]),
+                    sections: finalSections,
+                    questions: finalQuestions,
                 }
+
+                const loadedSnapshot = normalizeFormData(editFormData)
                 setFormData(editFormData)
+                setSavedSnapshot(loadedSnapshot)
+                savedSnapshotRef.current = loadedSnapshot
                 setSavedTestId(t.id)
                 activeTestIdRef.current = t.id
                 testUpdatedAtRef.current = t.updatedAt || null
                 setIsPublishedTest(Boolean(t.isPublished))
-                lastSavedDataRef.current = getFormDataSnapshot(editFormData)
                 if (t.updatedAt) {
                     setLastSavedTime(
                         new Date(t.updatedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
@@ -686,7 +726,7 @@ function CreateTestContent() {
         }
         loadTestForEdit()
         return () => { cancelled = true }
-    }, [editTestId])
+    }, [editTestId, savedTestId])
 
     const fetchSeriesList = useCallback(async () => {
         try {
@@ -984,18 +1024,18 @@ function CreateTestContent() {
     // Warn before leaving if there are unsaved changes
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            if (isDirty) {
+            if (isDirtyRef.current) {
                 e.preventDefault()
                 e.returnValue = ""
             }
         }
         window.addEventListener("beforeunload", handleBeforeUnload)
         return () => window.removeEventListener("beforeunload", handleBeforeUnload)
-    }, [isDirty])
+    }, [])
 
     useEffect(() => {
-        if (!isDirty) return
         const handleAnchorClick = (e: MouseEvent) => {
+            if (!isDirtyRef.current) return
             const target = e.target as HTMLElement | null
             const anchor = target?.closest("a")
             if (anchor && anchor.href && !anchor.href.startsWith("#") && !anchor.hasAttribute("download")) {
@@ -1013,7 +1053,7 @@ function CreateTestContent() {
         }
         document.addEventListener("click", handleAnchorClick, true)
         return () => document.removeEventListener("click", handleAnchorClick, true)
-    }, [isDirty])
+    }, [])
 
     const dirtyStatusElement = (
         <div className="flex items-center min-h-[28px]">
@@ -1627,6 +1667,7 @@ function CreateTestContent() {
         setDraftWarnings([])
 
         try {
+            const inFlightSnapshot = normalizeFormData(formData)
             const mappedSections = buildMappedSections()
             const mappedTestType = TEST_TYPE_MAP[formData.testType] || "FULL_MOCK"
             const mappedAccessMode = formData.accessMode === "free" ? "FREE" : "PRO"
@@ -1682,7 +1723,9 @@ function CreateTestContent() {
                 if (json.isPublished !== undefined) {
                     setIsPublishedTest(Boolean(json.isPublished))
                 }
-                lastSavedDataRef.current = getFormDataSnapshot(formData)
+                setSavedSnapshot(inFlightSnapshot)
+                savedSnapshotRef.current = inFlightSnapshot
+                isDirtyRef.current = false
                 setLastSavedTime(
                     new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
                 )
@@ -1732,12 +1775,15 @@ function CreateTestContent() {
 
                 const newId = json.data.id
                 activeTestIdRef.current = newId
+                loadedTestIdRef.current = newId
                 setSavedTestId(newId)
                 if (json.data.updatedAt) {
                     testUpdatedAtRef.current = json.data.updatedAt
                 }
                 setIsPublishedTest(false)
-                lastSavedDataRef.current = getFormDataSnapshot(formData)
+                setSavedSnapshot(inFlightSnapshot)
+                savedSnapshotRef.current = inFlightSnapshot
+                isDirtyRef.current = false
                 setLastSavedTime(
                     new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
                 )
@@ -1809,8 +1855,10 @@ function CreateTestContent() {
             }
             const mappedAccessMode = formData.accessMode === "free" ? "FREE" : "PRO"
 
-            if (editTestId) {
-                const res = await fetch(`/api/exam/test/${encodeURIComponent(editTestId)}/edit-data`, {
+            const targetId = activeTestIdRef.current || editTestId || savedTestId
+
+            if (targetId) {
+                const res = await fetch(`/api/exam/test/${encodeURIComponent(targetId)}/edit-data`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1833,6 +1881,10 @@ function CreateTestContent() {
                     if (Array.isArray(json.details)) setApiErrorDetails(json.details)
                     throw new Error(errMsg)
                 }
+                const finalSnapshot = normalizeFormData(formData)
+                setSavedSnapshot(finalSnapshot)
+                savedSnapshotRef.current = finalSnapshot
+                isDirtyRef.current = false
                 setPublished(true)
                 setToastMessage("Test updated and published successfully! 🎉 Redirecting to tests...")
                 setShowToast(true)
@@ -1874,7 +1926,13 @@ function CreateTestContent() {
             }
 
             const publishedId = json.data.id
+            activeTestIdRef.current = publishedId
+            loadedTestIdRef.current = publishedId
             setSavedTestId(publishedId)
+            const finalSnapshot = normalizeFormData(formData)
+            setSavedSnapshot(finalSnapshot)
+            savedSnapshotRef.current = finalSnapshot
+            isDirtyRef.current = false
             setPublished(true)
             setToastMessage("Test published successfully! 🎉 Redirecting to tests...")
             setShowToast(true)
