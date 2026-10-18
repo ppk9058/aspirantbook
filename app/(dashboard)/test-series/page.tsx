@@ -38,7 +38,7 @@ interface TestSeriesItem {
     id: string; slug?: string; title: string; category: string; description?: string
     goalId?: string; tags: string[]; highlights: string[]; totalTests: number
     freeTests: number; users: string; logoType: string; isFree: boolean; isPro: boolean
-    languages: string
+    languages: string; examName?: string
 }
 
 const CreateSeriesModal = dynamic(() => import("@/components/exam/CreateSeriesModal"), {
@@ -46,47 +46,30 @@ const CreateSeriesModal = dynamic(() => import("@/components/exam/CreateSeriesMo
 })
 
 
-const CATEGORIES = [
-    "All",
-    "UPSC",
-    "BPSC",
-    "BPSC TRE",
-    "Class 10",
-    "Class 9",
-    "Class 8",
-    "Class 7",
-    "Class 6",
-    "Skill"
-]
+interface CategoryChip {
+    id: string
+    label: string
+}
 
-function getMatchingCategory(goal?: { id?: string; name?: string } | null): string {
-    if (!goal) return "All"
-    const gid = (goal.id || "").toLowerCase().trim()
-    const gname = (goal.name || "").toLowerCase().trim()
+function isItemMatchingChip(item: TestSeriesItem, chipId: string): boolean {
+    if (chipId === "All") return true
+    const normalizedChip = chipId.trim().toLowerCase()
+    const itemGoalId = (item.goalId || "").trim().toLowerCase()
+    const itemCategorySlug = (item.category || "").trim().toLowerCase().replace(/\s+/g, "-")
+    const itemCategoryRaw = (item.category || "").trim().toLowerCase()
+    const itemSlug = (item.slug || item.id || "").trim().toLowerCase()
+    const tags = Array.isArray(item.tags) ? item.tags.map(t => t.trim().toLowerCase()) : []
 
-    // 1. Direct match with CATEGORIES
-    const exactName = CATEGORIES.find(
-        (cat) => cat !== "All" && cat.toLowerCase() === gname
+    // Exact matching only - no substring collision between "bpsc" and "bpsc-tre"
+    return (
+        itemGoalId === normalizedChip ||
+        itemCategorySlug === normalizedChip ||
+        itemCategoryRaw === normalizedChip ||
+        tags.includes(normalizedChip) ||
+        itemSlug === normalizedChip ||
+        (normalizedChip === "bpsc" && itemSlug.startsWith("bpsc-") && !itemSlug.startsWith("bpsc-tre")) ||
+        (normalizedChip !== "bpsc" && itemSlug.startsWith(`${normalizedChip}-`))
     )
-    if (exactName) return exactName
-
-    const exactId = CATEGORIES.find(
-        (cat) => cat !== "All" && cat.toLowerCase() === gid
-    )
-    if (exactId) return exactId
-
-    // 2. Normalized category mappings
-    if (gid === "skills" || gname === "skills" || gname === "skill") return "Skill"
-    if (gid === "bpsc-tre" || gname.includes("tre")) return "BPSC TRE"
-    if (gid === "bpsc" || gname === "bpsc") return "BPSC"
-    if (gid === "upsc" || gname === "upsc") return "UPSC"
-    if (gid === "class-10" || gname === "class 10" || gname === "10th") return "Class 10"
-    if (gid === "class-9" || gname === "class 9" || gname === "9th") return "Class 9"
-    if (gid === "class-8" || gname === "class 8" || gname === "8th") return "Class 8"
-    if (gid === "class-7" || gname === "class 7" || gname === "7th") return "Class 7"
-    if (gid === "class-6" || gname === "class 6" || gname === "6th") return "Class 6"
-
-    return "All"
 }
 
 // Custom Exam Emblem SVGs matching official seals exactly
@@ -298,13 +281,63 @@ export default function TestSeriesPage() {
         return () => { active = false }
     }, [isLoaded, selectedGoalIds, filterByGoal, selectedGoal?.id])
 
-    const filteredSeries = useMemo(() => {
-        let list = seriesPackages
+    const dynamicChips = useMemo<CategoryChip[]>(() => {
+        const chips: CategoryChip[] = [{ id: "All", label: "All" }]
 
-        return list.filter((item) => {
+        if (filterByGoal) {
+            // Mode A: One chip per selected target in selectedGoals
+            selectedGoals.forEach((g) => {
+                if (!g || !g.id) return
+                const gid = g.id.toLowerCase()
+                // Count series matching this target exactly
+                const count = seriesPackages.filter((item) => isItemMatchingChip(item, gid)).length
+                // Hide chips with zero tests
+                if (count > 0) {
+                    chips.push({
+                        id: gid,
+                        label: g.name,
+                    })
+                }
+            })
+        } else {
+            // Mode B: When "Show all exam tests" is active, build chips from categories actually present in fetched series
+            const categoryMap = new Map<string, string>() // normalizedId -> displayLabel
+            seriesPackages.forEach((item) => {
+                const label = item.category || item.examName || "General"
+                const normalizedId = (item.goalId || label).toLowerCase().replace(/\s+/g, "-")
+                if (!categoryMap.has(normalizedId)) {
+                    categoryMap.set(normalizedId, label)
+                }
+            })
+
+            categoryMap.forEach((label, id) => {
+                const count = seriesPackages.filter((item) => isItemMatchingChip(item, id)).length
+                if (count > 0) {
+                    chips.push({ id, label })
+                }
+            })
+        }
+
+        return chips
+    }, [filterByGoal, selectedGoals, seriesPackages])
+
+    // If the selected chip disappears after the goal or target set changes (e.g. a target is removed), reset to "All"
+    useEffect(() => {
+        if (selectedCategory !== "All") {
+            const stillExists = dynamicChips.some(
+                (c) => c.id.toLowerCase() === selectedCategory.toLowerCase()
+            )
+            if (!stillExists) {
+                setSelectedCategory("All")
+            }
+        }
+    }, [dynamicChips, selectedCategory])
+
+    const filteredSeries = useMemo(() => {
+        return seriesPackages.filter((item) => {
             const matchesCategory =
                 selectedCategory === "All" ||
-                item.category.toLowerCase() === selectedCategory.toLowerCase()
+                isItemMatchingChip(item, selectedCategory)
 
             const matchesSearch =
                 searchQuery.trim() === "" ||
@@ -572,22 +605,26 @@ export default function TestSeriesPage() {
                 </div>
             </div>
 
-            {/* Category Pills Row with data-scroll-x */}
-            <div data-scroll-x="true" className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-                {CATEGORIES.map((cat) => {
-                    const isSelected = selectedCategory === cat
+            {/* Dynamic Category Chips Row */}
+            <div className="flex flex-wrap items-center gap-2 py-1">
+                {dynamicChips.map((chip) => {
+                    const isSelected =
+                        selectedCategory === chip.id ||
+                        selectedCategory.toLowerCase() === chip.id.toLowerCase()
+
                     return (
                         <button
-                            key={cat}
+                            key={chip.id}
                             type="button"
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-white focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#071d33] ${
+                            onClick={() => setSelectedCategory(chip.id)}
+                            className={cn(
+                                "flex-shrink-0 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-white focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#071d33] min-h-[36px]",
                                 isSelected
                                     ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs"
                                     : "bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
-                            }`}
+                            )}
                         >
-                            {cat}
+                            {chip.label}
                         </button>
                     )
                 })}
@@ -605,12 +642,25 @@ export default function TestSeriesPage() {
                             </h3>
                             <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
                                 {searchQuery
-                                    ? `No test series matched your search "${searchQuery}" in category "${selectedCategory}".`
-                                    : filterByGoal
-                                        ? `No test series for ${selectedGoal?.name || "your target"} yet.`
-                                        : "No test series available yet."}
+                                    ? `No test series matched your search "${searchQuery}".`
+                                    : selectedCategory !== "All"
+                                        ? `No test series for ${dynamicChips.find(c => c.id.toLowerCase() === selectedCategory.toLowerCase())?.label || selectedCategory} yet.`
+                                        : filterByGoal
+                                            ? `No test series for ${selectedGoals.length > 1 ? "your targets" : selectedGoal?.name || "your target"} yet.`
+                                            : "No test series available yet."}
                             </p>
                             <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+                                {selectedCategory !== "All" && (
+                                    <button
+                                        onClick={() => {
+                                            setSelectedCategory("All")
+                                            setSearchQuery("")
+                                        }}
+                                        className="px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold rounded-xl cursor-pointer"
+                                    >
+                                        View All Series
+                                    </button>
+                                )}
                                 {filterByGoal && (
                                     <button
                                         onClick={() => {
@@ -618,7 +668,7 @@ export default function TestSeriesPage() {
                                             setSearchQuery("")
                                             setFilterByGoal(false)
                                         }}
-                                        className="px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold rounded-xl cursor-pointer"
+                                        className="px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-xl cursor-pointer"
                                     >
                                         Show all exam tests
                                     </button>
