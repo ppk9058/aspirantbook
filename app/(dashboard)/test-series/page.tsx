@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import Link from "next/link"
 import {
     Search,
@@ -57,6 +57,36 @@ const CATEGORIES = [
     "Class 6",
     "Skill"
 ]
+
+function getMatchingCategory(goal?: { id?: string; name?: string } | null): string {
+    if (!goal) return "All"
+    const gid = (goal.id || "").toLowerCase().trim()
+    const gname = (goal.name || "").toLowerCase().trim()
+
+    // 1. Direct match with CATEGORIES
+    const exactName = CATEGORIES.find(
+        (cat) => cat !== "All" && cat.toLowerCase() === gname
+    )
+    if (exactName) return exactName
+
+    const exactId = CATEGORIES.find(
+        (cat) => cat !== "All" && cat.toLowerCase() === gid
+    )
+    if (exactId) return exactId
+
+    // 2. Normalized category mappings
+    if (gid === "skills" || gname === "skills" || gname === "skill") return "Skill"
+    if (gid === "bpsc-tre" || gname.includes("tre")) return "BPSC TRE"
+    if (gid === "bpsc" || gname === "bpsc") return "BPSC"
+    if (gid === "upsc" || gname === "upsc") return "UPSC"
+    if (gid === "class-10" || gname === "class 10" || gname === "10th") return "Class 10"
+    if (gid === "class-9" || gname === "class 9" || gname === "9th") return "Class 9"
+    if (gid === "class-8" || gname === "class 8" || gname === "8th") return "Class 8"
+    if (gid === "class-7" || gname === "class 7" || gname === "7th") return "Class 7"
+    if (gid === "class-6" || gname === "class 6" || gname === "6th") return "Class 6"
+
+    return "All"
+}
 
 // Custom Exam Emblem SVGs matching official seals exactly
 function ExamLogo({ logoType }: { logoType: string }) {
@@ -188,7 +218,16 @@ export default function TestSeriesPage() {
     const { data: session } = useSession()
     const canCreate = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
     const { selectedGoal, selectedGoals, selectedGoalIds, selectGoal, openGoalModal } = useGoal()
-    const [selectedCategory, setSelectedCategory] = useState<string>("All")
+    const [selectedCategory, setSelectedCategory] = useState<string>(() => getMatchingCategory(selectedGoal))
+    const prevGoalIdRef = useRef(selectedGoal?.id)
+
+    // Sync category chip with active exam target
+    useEffect(() => {
+        if (selectedGoal?.id && selectedGoal.id !== prevGoalIdRef.current) {
+            prevGoalIdRef.current = selectedGoal.id
+            setSelectedCategory(getMatchingCategory(selectedGoal))
+        }
+    }, [selectedGoal])
     const [searchQuery, setSearchQuery] = useState<string>("")
     const [filterByGoal, setFilterByGoal] = useState<boolean>(true)
     const [savedSeries, setSavedSeries] = useState<string[]>([])
@@ -303,19 +342,24 @@ export default function TestSeriesPage() {
             {/* Top Navigation Bar: Explore vs My Tests vs Leaderboards */}
             <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-gray-800">
                 <div data-scroll-x="true" className="w-full sm:w-auto flex items-center gap-1.5 p-1 rounded-2xl bg-gray-100 dark:bg-gray-800/80 overflow-x-auto no-scrollbar snap-x">
-                    <span className="shrink-0 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-black bg-white dark:bg-[#071d33] text-sky-700 dark:text-sky-400 shadow-xs cursor-default whitespace-nowrap snap-start">
+                    <span className="shrink-0 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-black bg-white dark:bg-[#071d33] text-sky-700 dark:text-sky-400 shadow-xs cursor-default whitespace-nowrap snap-start select-none">
                         Explore Test Series
                     </span>
                     <Link
                         href="/test-series/my-tests"
-                        className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap snap-start"
+                        className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap snap-start select-none"
                     >
                         <span>My Tests &amp; Performance</span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <span
+                            className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"
+                            title="New activity or results available"
+                            aria-label="New activity or results available"
+                            role="status"
+                        />
                     </Link>
                     <Link
                         href="/test-series/bpsc-72nd-2026/leaderboard"
-                        className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap snap-start"
+                        className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap snap-start select-none"
                     >
                         <span>Live AIR Leaderboards</span>
                     </Link>
@@ -323,7 +367,7 @@ export default function TestSeriesPage() {
 
                 <Link
                     href="/my-tests"
-                    className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline shrink-0"
+                    className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline shrink-0 select-none"
                 >
                     <span>My Mistake Notebook →</span>
                 </Link>
@@ -341,7 +385,7 @@ export default function TestSeriesPage() {
                     <div className="min-w-0 flex-1">
                         {/* Top row: badge + "Change ›" dropdown */}
                         <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-800 dark:text-teal-300 border border-teal-500/30">
+                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-900 dark:text-teal-200 border border-teal-500/30 select-none">
                                 {selectedGoal.name}
                             </span>
 
@@ -349,7 +393,7 @@ export default function TestSeriesPage() {
                                 <DropdownMenuTrigger asChild>
                                     <button
                                         type="button"
-                                        className="text-xs font-bold text-teal-700 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 hover:underline flex items-center gap-0.5 cursor-pointer rounded-md px-1 py-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                                        className="text-xs font-bold text-teal-800 dark:text-teal-300 hover:text-teal-950 dark:hover:text-teal-100 hover:underline flex items-center gap-0.5 cursor-pointer rounded-md px-1 py-0.5 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                                         aria-label="Change active exam target"
                                     >
                                         <span>Change</span>
@@ -367,8 +411,9 @@ export default function TestSeriesPage() {
                                                 key={g.id}
                                                 onClick={() => {
                                                     selectGoal(g)
+                                                    setSelectedCategory(getMatchingCategory(g))
                                                 }}
-                                                className={`flex items-center justify-between px-2.5 py-2 text-xs font-bold rounded-lg cursor-pointer transition-colors ${
+                                                className={`flex items-center justify-between px-2.5 py-2 text-xs font-bold rounded-lg cursor-pointer transition-colors select-none ${
                                                     isActive
                                                         ? "bg-teal-50 dark:bg-teal-950/50 text-teal-800 dark:text-teal-300"
                                                         : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10"
@@ -387,7 +432,7 @@ export default function TestSeriesPage() {
                                     <DropdownMenuSeparator className="my-1 border-gray-100 dark:border-gray-800" />
                                     <DropdownMenuItem
                                         onClick={openGoalModal}
-                                        className="flex items-center gap-2 px-2.5 py-2 text-xs font-bold text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40 rounded-lg cursor-pointer"
+                                        className="flex items-center gap-2 px-2.5 py-2 text-xs font-bold text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40 rounded-lg cursor-pointer select-none"
                                     >
                                         <Plus className="h-4 w-4 shrink-0" />
                                         <span>Add exam target</span>
@@ -402,7 +447,7 @@ export default function TestSeriesPage() {
                         </h2>
 
                         {/* Subtitle */}
-                        <p className="text-[11px] text-gray-600 dark:text-gray-400 truncate mt-0.5">
+                        <p className="text-[11px] text-gray-700 dark:text-gray-300 truncate mt-0.5">
                             Curated test series and mock exams for your active target
                         </p>
                     </div>
@@ -413,7 +458,7 @@ export default function TestSeriesPage() {
                     {canCreate && (
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-black shadow-xs transition-all flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
+                            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-black shadow-xs transition-all flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer select-none"
                         >
                             <Plus className="h-4 w-4 stroke-[3]" />
                             <span>Create Series Package</span>
@@ -422,7 +467,7 @@ export default function TestSeriesPage() {
                     <button
                         type="button"
                         onClick={() => setFilterByGoal(!filterByGoal)}
-                        className="text-xs font-bold text-teal-700 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 hover:underline text-left sm:text-center py-1 sm:px-2 cursor-pointer rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                        className="text-xs font-bold text-teal-800 dark:text-teal-300 hover:text-teal-950 dark:hover:text-teal-100 hover:underline text-left sm:text-center py-1 sm:px-2 cursor-pointer select-none rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                     >
                         {filterByGoal ? "Show all exam tests →" : `Show only ${selectedGoal.name} →`}
                     </button>
@@ -492,8 +537,9 @@ export default function TestSeriesPage() {
                     return (
                         <button
                             key={cat}
+                            type="button"
                             onClick={() => setSelectedCategory(cat)}
-                            className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                            className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-white focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#071d33] ${
                                 isSelected
                                     ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs"
                                     : "bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
