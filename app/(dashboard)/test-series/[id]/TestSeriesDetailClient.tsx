@@ -104,26 +104,60 @@ function TestCardItem({
 
     return (
         <div className="p-4 sm:p-5 space-y-3 transition-colors hover:bg-gray-50/40 dark:hover:bg-white/5">
-            {/* Row 1: Title and Badges */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="flex items-center gap-2.5 flex-wrap min-w-0">
+            {/* Row 1: Title and All Action Buttons */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 flex-wrap min-w-0 flex-1">
                     <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white leading-snug break-words">
                         {test.title}
                     </h4>
                     {currentSeries.isPro && (test.isFree || (test as any).accessMode === "FREE" || (test as any).isFreeSample) ? (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 uppercase">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 uppercase shrink-0">
                             Free sample
                         </span>
                     ) : test.isFree ? (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 uppercase">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 uppercase shrink-0">
                             Free
                         </span>
                     ) : (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1 uppercase">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1 uppercase shrink-0">
                             <Lock className="h-2.5 w-2.5" />
                             Pro
                         </span>
                     )}
+                </div>
+
+                <div className="w-full sm:w-auto flex items-center justify-end flex-wrap gap-2 shrink-0">
+                    {canViewSolutions && (
+                        <Link
+                            href={solutionsHref}
+                            className="min-h-[44px] px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                            title="View Solutions"
+                        >
+                            <Check className="h-3.5 w-3.5" />
+                            <span>Solutions</span>
+                        </Link>
+                    )}
+
+                    <Link
+                        href={`/test-series/${test.id}/leaderboard`}
+                        className="min-h-[44px] px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                        title="View Leaderboard"
+                    >
+                        <BarChart3 className="h-3.5 w-3.5" />
+                        <span>Rankings</span>
+                    </Link>
+
+                    <TestActionButton
+                        testId={test.id}
+                        seriesId={currentSeries.id}
+                        testTitle={test.title}
+                        status={testStatusMap[test.id]}
+                        loading={statusLoading}
+                        returnPath={`/test-series/${currentSeries.id}`}
+                        isLocked={!test.isFree}
+                        onUnlockClick={() => setIsPassModalOpen(true)}
+                        isFreeSample={Boolean(currentSeries.isPro && (test.isFree || (test as any).accessMode === "FREE" || (test as any).isFreeSample))}
+                    />
                 </div>
             </div>
 
@@ -161,20 +195,20 @@ function TestCardItem({
 
             {/* Row 3: Full Syllabus directly inside card (hidden if no syllabus) */}
             {hasSyllabus && displayedSyllabus && (
-                <div className="bg-gray-50/80 dark:bg-white/5 rounded-xl p-3 sm:p-3.5 border border-gray-100/90 dark:border-gray-800/70 space-y-2">
+                <div className="bg-gray-50/80 dark:bg-white/5 rounded-xl p-3.5 sm:p-4 border border-gray-100/90 dark:border-gray-800/70 space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5">
-                            <BookOpen className="h-3.5 w-3.5 text-[#00A8FF]" />
-                            <span className="text-[11px] sm:text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                            <BookOpen className="h-4 w-4 text-[#00A8FF]" />
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
                                 Syllabus
                             </span>
                         </div>
                         {hasBothLanguages && (
-                            <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-700 p-0.5 bg-white dark:bg-gray-800 text-[10px] sm:text-[11px] font-bold">
+                            <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-700 p-0.5 bg-white dark:bg-gray-800 text-xs font-semibold">
                                 <button
                                     type="button"
                                     onClick={() => setSyllabusLang("en")}
-                                    className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                                    className={`px-3 py-1.5 min-h-[36px] rounded-md transition-colors cursor-pointer inline-flex items-center justify-center ${
                                         syllabusLang === "en"
                                             ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs"
                                             : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
@@ -185,7 +219,7 @@ function TestCardItem({
                                 <button
                                     type="button"
                                     onClick={() => setSyllabusLang("hi")}
-                                    className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                                    className={`px-3 py-1.5 min-h-[36px] rounded-md transition-colors cursor-pointer inline-flex items-center justify-center ${
                                         syllabusLang === "hi"
                                             ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs"
                                             : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
@@ -196,50 +230,11 @@ function TestCardItem({
                             </div>
                         )}
                     </div>
-                    <div className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line break-words">
+                    <div className="text-[15px] sm:text-base text-foreground/90 leading-relaxed sm:leading-7 whitespace-pre-line break-words">
                         {displayedSyllabus}
                     </div>
                 </div>
             )}
-
-            {/* Row 4: Action Row */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                <div className="flex items-center gap-2">
-                    {canViewSolutions && (
-                        <Link
-                            href={solutionsHref}
-                            className="min-h-[40px] px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
-                            title="View Solutions"
-                        >
-                            <Check className="h-3.5 w-3.5" />
-                            <span className="hidden sm:inline">Solutions</span>
-                        </Link>
-                    )}
-
-                    <Link
-                        href={`/test-series/${test.id}/leaderboard`}
-                        className="min-h-[40px] px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
-                        title="View Leaderboard"
-                    >
-                        <BarChart3 className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Rankings</span>
-                    </Link>
-                </div>
-
-                <div>
-                    <TestActionButton
-                        testId={test.id}
-                        seriesId={currentSeries.id}
-                        testTitle={test.title}
-                        status={testStatusMap[test.id]}
-                        loading={statusLoading}
-                        returnPath={`/test-series/${currentSeries.id}`}
-                        isLocked={!test.isFree}
-                        onUnlockClick={() => setIsPassModalOpen(true)}
-                        isFreeSample={Boolean(currentSeries.isPro && (test.isFree || (test as any).accessMode === "FREE" || (test as any).isFreeSample))}
-                    />
-                </div>
-            </div>
         </div>
     )
 }
