@@ -74,11 +74,14 @@ export async function GET(
           totalMarks: test.totalMarks,
           positiveMarks: test.positiveMarks,
           negativeMarks: test.negativeMarks,
+          syllabus: test.syllabus,
+          syllabusHi: test.syllabusHi,
           isLive: test.isLive,
           liveStartAt: test.liveStartAt,
           liveEndAt: test.liveEndAt,
           isPublished: test.isPublished,
           createdById: test.createdById,
+          updatedAt: test.updatedAt.toISOString(),
           sections: test.sections.map((s) => ({
             id: s.id,
             testId: s.testId,
@@ -153,6 +156,9 @@ export async function PUT(
     const existingTest = await prisma.examTest.findUnique({
       where: { id },
       include: {
+        series: {
+          select: { id: true, slug: true },
+        },
         sections: {
           orderBy: { order: "asc" },
           include: {
@@ -180,7 +186,42 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { title, titleHi, sections, isPublished: reqPublishState } = body;
+    const {
+      title,
+      titleHi,
+      syllabus,
+      syllabusHi,
+      seriesId,
+      testType,
+      accessMode,
+      durationMinutes,
+      sections,
+      isPublished: reqPublishState,
+      isLive,
+      liveStartAt,
+      liveEndAt,
+      month,
+      year,
+      lastKnownUpdatedAt,
+      forceOverwrite,
+    } = body;
+
+    // Concurrent modification guard
+    if (lastKnownUpdatedAt && !forceOverwrite) {
+      const dbUpdatedAt = new Date(existingTest.updatedAt).getTime();
+      const clientUpdatedAt = new Date(lastKnownUpdatedAt).getTime();
+      // Allow 2s clock skew / network roundtrip
+      if (dbUpdatedAt - clientUpdatedAt > 2000) {
+        return NextResponse.json(
+          {
+            error: "Concurrent edit conflict: This test was modified elsewhere after you loaded it.",
+            code: "CONCURRENT_MODIFICATION",
+            updatedAt: existingTest.updatedAt.toISOString(),
+          },
+          { status: 409 }
+        );
+      }
+    }
 
     if (!title || typeof title !== "string" || !title.trim()) {
       return NextResponse.json({ error: "Test title is required" }, { status: 400 });
@@ -191,6 +232,8 @@ export async function PUT(
     }
 
     const isPublishedTest = existingTest.isPublished;
+    // Rule: "Save never changes the published/draft status. If a test is already published, Save updates the live data. If it's a draft, it stays a draft."
+    const willBePublished = isPublishedTest ? true : Boolean(reqPublishState);
 
     // Helper to normalize correct answer to "A" | "B" | "C" | "D"
     const normalizeAnswer = (val: any): "A" | "B" | "C" | "D" | null => {
@@ -276,18 +319,20 @@ export async function PUT(
     // CASE 1: PUBLISHED TEST — STRUCTURE IS STRICTLY LOCKED
     // ──────────────────────────────────────────────────────────────────────────
     if (isPublishedTest) {
-      // Test-level locked fields: duration, testType
-      if (body.durationMinutes !== undefined && Number(body.durationMinutes) !== existingTest.durationMinutes) {
-        return NextResponse.json(
-          { error: `Structure locked: Cannot alter duration on published test (current: ${existingTest.durationMinutes}m, received: ${body.durationMinutes}m).` },
-          { status: 400 }
-        );
-      }
-      if (body.testType !== undefined && body.testType !== existingTest.testType) {
-        return NextResponse.json(
-          { error: `Structure locked: Cannot alter test type on published test.` },
-          { status: 400 }
-        );
+      // Test-level locked fields if there are student attempts: duration, testType
+      if (existingTest._count.attempts > 0) {
+        if (body.durationMinutes !== undefined && Number(body.durationMinutes) !== existingTest.durationMinutes) {
+          return NextResponse.json(
+            { error: `Structure locked: Cannot alter duration on published test with student attempts (current: ${existingTest.durationMinutes}m, received: ${body.durationMinutes}m).` },
+            { status: 400 }
+          );
+        }
+        if (body.testType !== undefined && body.testType !== existingTest.testType) {
+          return NextResponse.json(
+            { error: `Structure locked: Cannot alter test type on published test with student attempts.` },
+            { status: 400 }
+          );
+        }
       }
 
       // 1. Must have exact same number of sections
@@ -475,6 +520,29 @@ export async function PUT(
               }
             }
           }
+
+          const updateData: any = {
+            title: title.trim(),
+            titleHi: titleHi ? String(titleHi).trim() : null,
+          };
+          if (syllabus !== undefined) updateData.syllabus = syllabus ? String(syllabus).trim() : null;
+          if (syllabusHi !== undefined) updateData.syllabusHi = syllabusHi ? String(syllabusHi).trim() : null;
+          if (seriesId && seriesId !== existingTest.seriesId) updateData.seriesId = seriesId;
+          if (accessMode) {
+            updateData.accessMode = String(accessMode).toUpperCase() === "FREE" ? "FREE" : "PRO";
+          }
+          if (isLive !== undefined) updateData.isLive = Boolean(isLive);
+          if (liveStartAt !== undefined) updateData.liveStartAt = liveStartAt ? new Date(liveStartAt) : null;
+          if (liveEndAt !== undefined) updateData.liveEndAt = liveEndAt ? new Date(liveEndAt) : null;
+          if (month !== undefined) updateData.month = month !== null && month !== "" ? Number(month) : null;
+          if (year !== undefined) updateData.year = year !== null && year !== "" ? Number(year) : null;
+          if (existingTest._count.attempts === 0 && durationMinutes !== undefined && !isNaN(Number(durationMinutes))) {
+            updateData.durationMinutes = Number(durationMinutes);
+          }
+          await tx.examTest.update({
+            where: { id },
+            data: updateData,
+          });
         },
         {
           maxWait: 10000,
@@ -695,20 +763,39 @@ export async function PUT(
             Number(existingTest.totalMarks) !== totalMarksSum ||
             existingTest.isPublished !== isPublishingNow;
 
-          if (testChanged) {
-            await tx.examTest.update({
-              where: { id },
-              data: {
-                title: nextTitle,
-                titleHi: nextTitleHi,
-                totalQuestions: totalQCount,
-                totalMarks: totalMarksSum,
-                isPublished: isPublishingNow,
-              },
-            });
+          const updateData: any = {
+            title: nextTitle,
+            titleHi: nextTitleHi,
+            totalQuestions: totalQCount,
+            totalMarks: totalMarksSum,
+            isPublished: willBePublished,
+          };
+          if (syllabus !== undefined) updateData.syllabus = syllabus ? String(syllabus).trim() : null;
+          if (syllabusHi !== undefined) updateData.syllabusHi = syllabusHi ? String(syllabusHi).trim() : null;
+          if (seriesId && seriesId !== existingTest.seriesId) updateData.seriesId = seriesId;
+          if (testType) {
+            const rawType = String(testType).toUpperCase().replace(/\s+/g, "_");
+            const mapped = rawType.includes("MOCK") ? "FULL_MOCK" : (rawType.includes("FULL") ? "FULL_MOCK" : rawType);
+            updateData.testType = mapped;
           }
+          if (accessMode) {
+            updateData.accessMode = String(accessMode).toUpperCase() === "FREE" ? "FREE" : "PRO";
+          }
+          if (durationMinutes !== undefined && !isNaN(Number(durationMinutes))) {
+            updateData.durationMinutes = Number(durationMinutes);
+          }
+          if (isLive !== undefined) updateData.isLive = Boolean(isLive);
+          if (liveStartAt !== undefined) updateData.liveStartAt = liveStartAt ? new Date(liveStartAt) : null;
+          if (liveEndAt !== undefined) updateData.liveEndAt = liveEndAt ? new Date(liveEndAt) : null;
+          if (month !== undefined) updateData.month = month !== null && month !== "" ? Number(month) : null;
+          if (year !== undefined) updateData.year = year !== null && year !== "" ? Number(year) : null;
 
-          if (isPublishingNow) {
+          await tx.examTest.update({
+            where: { id },
+            data: updateData,
+          });
+
+          if (willBePublished && !existingTest.isPublished) {
             await tx.examSeries.update({
               where: { id: existingTest.seriesId },
               data: { totalTests: { increment: 1 } },
@@ -724,10 +811,24 @@ export async function PUT(
 
     revalidateTag("exam-series");
     revalidatePath("/test-series");
+    revalidatePath("/teacher/test-series");
+    if (existingTest.seriesId) {
+      revalidatePath(`/test-series/${existingTest.seriesId}`);
+    }
+    if (existingTest.series?.slug) {
+      revalidatePath(`/test-series/${existingTest.series.slug}`);
+    }
+
+    const updatedTest = await prisma.examTest.findUnique({
+      where: { id },
+      select: { updatedAt: true, isPublished: true },
+    });
 
     return NextResponse.json({
       success: true,
       message: "Test saved successfully",
+      updatedAt: updatedTest?.updatedAt?.toISOString() || new Date().toISOString(),
+      isPublished: updatedTest?.isPublished ?? isPublishedTest,
       hasAttempts: existingTest._count.attempts > 0,
       attemptsCount: existingTest._count.attempts,
     });

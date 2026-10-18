@@ -7,6 +7,9 @@ import { applyQuizGoalFilter } from "@/lib/goals/goal-filters";
 import { resolveAccess } from "@/lib/authwall/resolveAccess";
 import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function mapQuestion(q: any, idx: number) {
   return {
     id: idx + 1,
@@ -34,8 +37,15 @@ export async function GET(req: NextRequest) {
 
     const conditions: any[] = [];
 
+    const archivedParam = searchParams.get("archived");
+
     if (isAdmin) {
       // Admin sees both published and drafts
+      if (archivedParam === "true" || archivedParam === "1") {
+        conditions.push({ isArchived: true });
+      } else if (archivedParam !== "all") {
+        conditions.push({ isArchived: false });
+      }
     } else if (isTeacher) {
       // Teacher sees published + tests they created
       conditions.push({
@@ -44,9 +54,14 @@ export async function GET(req: NextRequest) {
           { createdById: session?.user?.id ?? "" },
         ],
       });
+      if (archivedParam === "true" || archivedParam === "1") {
+        conditions.push({ isArchived: true });
+      } else if (archivedParam !== "all") {
+        conditions.push({ isArchived: false });
+      }
     } else {
-      // Students/free users see published only
-      conditions.push({ isPublished: true });
+      // Students/free users see published and non-archived only
+      conditions.push({ isPublished: true, isArchived: false });
     }
 
     if (seriesId) {
@@ -84,10 +99,18 @@ export async function GET(req: NextRequest) {
         totalQuestions: true,
         totalMarks: true,
         durationMinutes: true,
+        syllabus: true,
+        syllabusHi: true,
         accessMode: true,
         gateMode: true,
         previewPercentage: true,
         isPublished: true,
+        isArchived: true,
+        archivedAt: true,
+        isLive: true,
+        liveStartAt: true,
+        liveEndAt: true,
+        order: true,
         createdById: true,
         createdAt: true,
         _count: {
@@ -210,6 +233,8 @@ export async function GET(req: NextRequest) {
         questions: t.totalQuestions,
         marks: t.totalMarks,
         durationMinutes: t.durationMinutes,
+        syllabus: t.syllabus,
+        syllabusHi: t.syllabusHi,
         languages: t.series?.languages,
         accessMode: t.accessMode,
         isFree: isFreeEffective,
@@ -221,6 +246,12 @@ export async function GET(req: NextRequest) {
         seriesIsGated: Boolean(t.series?.isGated),
         isFreeSample,
         isPublished: t.isPublished,
+        isArchived: Boolean(t.isArchived),
+        archivedAt: t.archivedAt ? t.archivedAt.toISOString() : null,
+        isLive: Boolean(t.isLive),
+        liveStartAt: t.liveStartAt ? t.liveStartAt.toISOString() : null,
+        liveEndAt: t.liveEndAt ? t.liveEndAt.toISOString() : null,
+        order: t.order ?? 0,
         createdAt: t.createdAt ? t.createdAt.toISOString() : null,
         attempts: t._count?.attempts ?? 0,
         submittedAttemptsCount: submittedAttempts.length,

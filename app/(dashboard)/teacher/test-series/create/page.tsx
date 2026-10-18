@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useCallback, Suspense, useEffect } from "react"
+import { useState, useCallback, Suspense, useEffect, useRef, useMemo } from "react"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { parseAndValidateQuestion } from "@/lib/exam/question-parser"
 import { processBulkJsonImport, naturalSortFiles, type BulkJsonPipelineResult } from "@/lib/exam/bulk-json-pipeline"
 import CreateSeriesModal from "@/components/exam/CreateSeriesModal"
 import ReviewAllQuestions from "@/components/exam/ReviewAllQuestions"
+import { useGoal } from "@/components/providers/GoalProvider"
 import {
     ChevronLeft,
     ChevronRight,
@@ -34,6 +35,7 @@ import {
     Code2,
     Check,
     AlertCircle,
+    Loader2,
 } from "lucide-react"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -75,6 +77,8 @@ interface FormData {
     pyqPaperId?: string
     title: string
     titleHindi: string
+    syllabus: string
+    syllabusHindi: string
     examCategory: string
     examName: string
     testType: string
@@ -94,6 +98,7 @@ interface FormData {
 }
 
 const TEST_TYPE_MAP: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL_TEST" | "PREVIOUS_YEAR" | "LIVE_SPEED" | "CURRENT_AFFAIRS"> = {
+    "Full Test": "FULL_MOCK",
     "Full Mock Test": "FULL_MOCK",
     "Chapter Test": "CHAPTER_TEST",
     "Sectional Test": "SECTIONAL_TEST",
@@ -275,7 +280,7 @@ const EXAM_CATEGORIES = [
 ]
 
 const TEST_TYPES = [
-    "Full Mock Test",
+    "Full Test",
     "Chapter Test",
     "Sectional Test",
     "Previous Year Paper",
@@ -283,6 +288,23 @@ const TEST_TYPES = [
     "Current Affairs",
     "PYQ",
 ]
+
+function detectCategoryMismatch(title?: string | null, category?: string | null): string | null {
+    if (!title || !category) return null
+    const t = title.toLowerCase()
+    const c = category.toLowerCase()
+
+    if (t.includes("bpsc") && !c.includes("bpsc")) {
+        return `Package title references "BPSC", but its category is "${category}". This causes cross-category display bugs (e.g. appearing under UPSC).`
+    }
+    if (t.includes("upsc") && !c.includes("upsc")) {
+        return `Package title references "UPSC", but its category is "${category}".`
+    }
+    if (t.includes("ssc") && !c.includes("ssc")) {
+        return `Package title references "SSC", but its category is "${category}".`
+    }
+    return null
+}
 
 const CA_MONTHS = [
     "January",
@@ -406,6 +428,60 @@ function CardHeader({ title, subtitle }: { title: string; subtitle?: string }) {
     )
 }
 
+function createDefaultSection(): Section {
+    return {
+        id: generateId(),
+        name: "General Studies",
+        nameHindi: "",
+        numQuestions: 10,
+        positiveMarks: 1,
+        negativeMarks: 0.33,
+        hasSectionalTime: false,
+        sectionalTimeMinutes: 20,
+    }
+}
+
+function getFormDataSnapshot(data: FormData): string {
+    return JSON.stringify({
+        seriesId: data.seriesId || "",
+        pyqPaperId: data.pyqPaperId || "",
+        title: data.title || "",
+        titleHindi: data.titleHindi || "",
+        syllabus: data.syllabus || "",
+        syllabusHindi: data.syllabusHindi || "",
+        testType: data.testType || "",
+        accessMode: data.accessMode || "free",
+        durationMinutes: data.durationMinutes || 60,
+        isLive: Boolean(data.isLive),
+        liveStartAt: data.liveStartAt || "",
+        liveEndAt: data.liveEndAt || "",
+        sections: (data.sections || []).map((s) => ({
+            id: s.id,
+            name: s.name,
+            nameHindi: s.nameHindi,
+            numQuestions: s.numQuestions,
+            positiveMarks: s.positiveMarks,
+            negativeMarks: s.negativeMarks,
+            hasSectionalTime: s.hasSectionalTime,
+            sectionalTimeMinutes: s.sectionalTimeMinutes,
+        })),
+        questions: (data.questions || []).map((q) => ({
+            id: q.id,
+            sectionId: q.sectionId,
+            textEnglish: q.textEnglish,
+            textHindi: q.textHindi,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            explanationEnglish: q.explanationEnglish,
+            explanationHindi: q.explanationHindi,
+            videoUrl: q.videoUrl,
+            difficulty: q.difficulty,
+            subject: q.subject,
+            topic: q.topic,
+        })),
+    })
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 function CreateTestContent() {
@@ -415,12 +491,17 @@ function CreateTestContent() {
     const queryCategory = searchParams.get("category") || ""
     const queryType = searchParams.get("type") || ""
     const queryPaperId = searchParams.get("paperId") || ""
+    const editTestId = searchParams.get("editTestId") || searchParams.get("testId") || ""
+
+    const { selectedGoal } = useGoal()
+    const [loadingEditData, setLoadingEditData] = useState(Boolean(editTestId))
+    const [showAllPackages, setShowAllPackages] = useState(false)
 
     const initialTestType = queryType === "PYQ" || (queryPaperId && !queryType)
         ? "PYQ"
         : (queryType === "CURRENT_AFFAIRS" || queryType === "Current Affairs"
             ? "Current Affairs"
-            : (TEST_TYPES.includes(queryType) ? queryType : "Full Mock Test"))
+            : (TEST_TYPES.includes(queryType) ? queryType : "Full Test"))
 
     const [step, setStep] = useState(1)
     const [errors, setErrors] = useState<Record<string, string>>({})
@@ -455,40 +536,157 @@ function CreateTestContent() {
     const [pyqFetchError, setPyqFetchError] = useState<string | null>(null)
     const [pyqPapersLoaded, setPyqPapersLoaded] = useState(false)
 
-    const defaultSection: Section = {
-        id: generateId(),
-        name: "General Studies",
-        nameHindi: "",
-        numQuestions: 10,
-        positiveMarks: 1,
-        negativeMarks: 0.33,
-        hasSectionalTime: false,
-        sectionalTimeMinutes: 20,
-    }
-
-    const [formData, setFormData] = useState<FormData>({
-        seriesId: querySeriesId || "",
-        pyqPaperId: "",
-        title: "",
-        titleHindi: "",
-        examCategory: initialTestType === "Current Affairs" ? "Current Affairs" : "",
-        examName: initialTestType === "Current Affairs" ? "Current Affairs" : "",
-        testType: initialTestType,
-        accessMode: "free",
-        durationMinutes: 60,
-        totalQuestions: 10,
-        totalMarks: 10,
-        isLive: false,
-        liveStartAt: "",
-        liveEndAt: "",
-        month: new Date().getMonth() + 1,
-        year: new Date().getFullYear(),
-        sections: [defaultSection],
-        questions: buildInitialQuestions([defaultSection]),
+    const [formData, setFormData] = useState<FormData>(() => {
+        const initialDefSection = createDefaultSection()
+        return {
+            seriesId: querySeriesId || "",
+            pyqPaperId: "",
+            title: "",
+            titleHindi: "",
+            syllabus: "",
+            syllabusHindi: "",
+            examCategory: initialTestType === "Current Affairs" ? "Current Affairs" : "",
+            examName: initialTestType === "Current Affairs" ? "Current Affairs" : "",
+            testType: initialTestType,
+            accessMode: "free",
+            durationMinutes: 60,
+            totalQuestions: 10,
+            totalMarks: 10,
+            isLive: false,
+            liveStartAt: "",
+            liveEndAt: "",
+            month: new Date().getMonth() + 1,
+            year: new Date().getFullYear(),
+            sections: [initialDefSection],
+            questions: buildInitialQuestions([initialDefSection]),
+        }
     })
 
     const [isCreateSeriesModalOpen, setIsCreateSeriesModalOpen] = useState(false)
     const [seriesPackages, setSeriesPackages] = useState<any[]>([])
+
+    const activeTestIdRef = useRef<string>(editTestId)
+    const testUpdatedAtRef = useRef<string | null>(null)
+    const lastSavedDataRef = useRef<string>(getFormDataSnapshot(formData))
+    const [lastSavedTime, setLastSavedTime] = useState<string | null>(null)
+    const [isPublishedTest, setIsPublishedTest] = useState<boolean>(false)
+
+    useEffect(() => {
+        if (editTestId) {
+            activeTestIdRef.current = editTestId
+        }
+    }, [editTestId])
+
+    const isDirty = useMemo(() => {
+        if (!lastSavedDataRef.current) return false
+        return getFormDataSnapshot(formData) !== lastSavedDataRef.current
+    }, [formData])
+
+    // Load test data when editTestId is present
+    useEffect(() => {
+        if (!editTestId) return
+        let cancelled = false
+        async function loadTestForEdit() {
+            setLoadingEditData(true)
+            try {
+                const res = await fetch(`/api/exam/test/${encodeURIComponent(editTestId)}/edit-data`)
+                const json = await res.json()
+                if (cancelled) return
+                if (!res.ok || !json.data?.test) {
+                    throw new Error(json.error || "Failed to load test for editing")
+                }
+                const t = json.data.test
+
+                const loadedSections: Section[] = (t.sections || []).map((s: any) => ({
+                    id: s.id,
+                    name: s.title || "General",
+                    nameHindi: s.titleHi || "",
+                    numQuestions: s.questions?.length || 0,
+                    positiveMarks: Number(s.positiveMarks) || 1,
+                    negativeMarks: Number(s.negativeMarks) || 0.33,
+                    hasSectionalTime: Boolean(s.timeLimitMins),
+                    sectionalTimeMinutes: Number(s.timeLimitMins) || 20,
+                }))
+
+                const loadedQuestions: Question[] = []
+                for (const s of t.sections || []) {
+                    for (const q of s.questions || []) {
+                        const correctIdx =
+                            q.correctOption === "A" ? 0 :
+                            q.correctOption === "B" ? 1 :
+                            q.correctOption === "C" ? 2 :
+                            q.correctOption === "D" ? 3 : null
+
+                        loadedQuestions.push({
+                            id: q.id,
+                            sectionId: s.id,
+                            textEnglish: q.questionEn || "",
+                            textHindi: q.questionHi || "",
+                            options: [
+                                { english: q.optionAEn || "", hindi: q.optionAHi || "" },
+                                { english: q.optionBEn || "", hindi: q.optionBHi || "" },
+                                { english: q.optionCEn || "", hindi: q.optionCHi || "" },
+                                { english: q.optionDEn || "", hindi: q.optionDHi || "" },
+                            ],
+                            correctAnswer: correctIdx,
+                            explanationEnglish: q.explanationEn || "",
+                            explanationHindi: q.explanationHi || "",
+                            videoUrl: q.videoUrl || "",
+                            difficulty: (q.difficulty === "HARD" ? "Hard" : q.difficulty === "EASY" ? "Easy" : "Moderate"),
+                            subject: q.subject || "",
+                            topic: q.topic || "",
+                        })
+                    }
+                }
+
+                let displayType = "Full Test"
+                if (t.testType === "FULL_MOCK" || t.testType === "Full Mock Test") displayType = "Full Test"
+                else if (t.testType === "CHAPTER_TEST") displayType = "Chapter Test"
+                else if (t.testType === "SECTIONAL_TEST") displayType = "Sectional Test"
+                else if (t.testType === "PREVIOUS_YEAR" || t.testType === "PYQ") displayType = "Previous Year Paper"
+                else if (t.testType === "LIVE_SPEED") displayType = "Live Speed Test"
+                else if (t.testType === "CURRENT_AFFAIRS") displayType = "Current Affairs"
+
+                const editFormData: FormData = {
+                    seriesId: t.seriesId || "",
+                    title: t.title || "",
+                    titleHindi: t.titleHi || "",
+                    syllabus: t.syllabus || "",
+                    syllabusHindi: t.syllabusHi || "",
+                    examCategory: t.series?.category || "",
+                    examName: t.series?.title || "",
+                    testType: displayType,
+                    accessMode: (t.accessMode || "FREE").toLowerCase() === "pro" ? "pro" : "free",
+                    durationMinutes: Number(t.durationMinutes) || 60,
+                    totalQuestions: Number(t.totalQuestions) || loadedQuestions.length,
+                    totalMarks: Number(t.totalMarks) || 100,
+                    isLive: Boolean(t.isLive),
+                    liveStartAt: t.liveStartAt ? new Date(t.liveStartAt).toISOString().slice(0, 16) : "",
+                    liveEndAt: t.liveEndAt ? new Date(t.liveEndAt).toISOString().slice(0, 16) : "",
+                    sections: loadedSections.length > 0 ? loadedSections : [createDefaultSection()],
+                    questions: loadedQuestions.length > 0 ? loadedQuestions : buildInitialQuestions([createDefaultSection()]),
+                }
+                setFormData(editFormData)
+                setSavedTestId(t.id)
+                activeTestIdRef.current = t.id
+                testUpdatedAtRef.current = t.updatedAt || null
+                setIsPublishedTest(Boolean(t.isPublished))
+                lastSavedDataRef.current = getFormDataSnapshot(editFormData)
+                if (t.updatedAt) {
+                    setLastSavedTime(
+                        new Date(t.updatedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+                    )
+                }
+            } catch (err: any) {
+                console.error("Error loading test for editing:", err)
+                setApiError(err.message || "Failed to load test details")
+            } finally {
+                setLoadingEditData(false)
+            }
+        }
+        loadTestForEdit()
+        return () => { cancelled = true }
+    }, [editTestId])
 
     const fetchSeriesList = useCallback(async () => {
         try {
@@ -610,8 +808,22 @@ function CreateTestContent() {
     }
 
     const removeSection = (idx: number) => {
+        const removed = formData.sections[idx]
+        if (!removed) return
+
+        const questionsForSec = formData.questions.filter((q) => q.sectionId === removed.id)
+        const filledCount = questionsForSec.filter(
+            (q) => isQuestionFilled(q) || Boolean(q.textEnglish?.trim())
+        ).length
+
+        if (filledCount > 0) {
+            const confirmed = window.confirm(
+                `Section "${removed.name}" contains ${filledCount} question(s). Removing this section will permanently delete these questions. Are you sure you want to remove it?`
+            )
+            if (!confirmed) return
+        }
+
         setFormData((prev) => {
-            const removed = prev.sections[idx]
             const sections = prev.sections.filter((_, i) => i !== idx)
             const questions = prev.questions.filter((q) => q.sectionId !== removed.id)
             return { ...prev, sections, questions }
@@ -741,8 +953,12 @@ function CreateTestContent() {
     const handleNext = () => {
         if (step === 1 && !validateStep1()) return
         if (step === 2 && !validateStep2()) return
+
+        // Auto-save changes in background so nothing is lost when moving steps
+        handleSaveCurrent({ stayOnStep: true, silent: true }).catch(console.error)
+
         if (step === 2) {
-            // Rebuild question bank to match section counts
+            // Rebuild question bank to match section counts while preserving existing questions
             setFormData((prev) => {
                 const newQuestions: Question[] = []
                 for (const sec of prev.sections) {
@@ -764,6 +980,56 @@ function CreateTestContent() {
         setImportWarning(null)
         setStep((s) => s - 1)
     }
+
+    // Warn before leaving if there are unsaved changes
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isDirty) {
+                e.preventDefault()
+                e.returnValue = ""
+            }
+        }
+        window.addEventListener("beforeunload", handleBeforeUnload)
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+    }, [isDirty])
+
+    useEffect(() => {
+        if (!isDirty) return
+        const handleAnchorClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement | null
+            const anchor = target?.closest("a")
+            if (anchor && anchor.href && !anchor.href.startsWith("#") && !anchor.hasAttribute("download")) {
+                const currentOrigin = window.location.origin
+                if (anchor.href.startsWith(currentOrigin) || anchor.href.startsWith("/")) {
+                    const confirmLeave = window.confirm(
+                        "You have unsaved changes in this test. Are you sure you want to leave without saving?"
+                    )
+                    if (!confirmLeave) {
+                        e.preventDefault()
+                        e.stopPropagation()
+                    }
+                }
+            }
+        }
+        document.addEventListener("click", handleAnchorClick, true)
+        return () => document.removeEventListener("click", handleAnchorClick, true)
+    }, [isDirty])
+
+    const dirtyStatusElement = (
+        <div className="flex items-center min-h-[28px]">
+            {isDirty ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 animate-in fade-in">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    Unsaved changes
+                </span>
+            ) : lastSavedTime ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 animate-in fade-in">
+                    <Check className="h-3.5 w-3.5" />
+                    All changes saved ({lastSavedTime})
+                </span>
+            ) : null}
+        </div>
+    )
 
     // ── Step 3 helpers ──
     const sectionForStep3 = formData.sections[currentSection]
@@ -1262,19 +1528,31 @@ function CreateTestContent() {
     }
 
     const buildMappedSections = () => {
-        return formData.sections.map((sec) => {
+        return formData.sections.map((sec, sIdx) => {
             const secQs = formData.questions.filter((q) => q.sectionId === sec.id)
             return {
+                id: sec.id,
                 title: sec.name,
                 titleHi: sec.nameHindi,
+                order: sIdx + 1,
                 positiveMarks: sec.positiveMarks,
                 negativeMarks: sec.negativeMarks,
                 timeLimitMins: sec.hasSectionalTime ? sec.sectionalTimeMinutes : null,
-                questions: secQs.map((q) => ({
+                questions: secQs.map((q, qIdx) => ({
+                    id: q.id,
+                    order: qIdx + 1,
                     questionEn: q.textEnglish,
                     questionHi: q.textHindi,
                     options: q.options.map((o) => o.english),
                     optionsHi: q.options.map((o) => o.hindi),
+                    optionAEn: q.options[0]?.english || "",
+                    optionBEn: q.options[1]?.english || "",
+                    optionCEn: q.options[2]?.english || "",
+                    optionDEn: q.options[3]?.english || "",
+                    optionAHi: q.options[0]?.hindi || "",
+                    optionBHi: q.options[1]?.hindi || "",
+                    optionCHi: q.options[2]?.hindi || "",
+                    optionDHi: q.options[3]?.hindi || "",
                     correctOption: (q.correctAnswer !== null ? ["A", "B", "C", "D"][q.correctAnswer] : "A") || "A",
                     explanationEn: q.explanationEnglish,
                     explanationHi: q.explanationHindi,
@@ -1289,84 +1567,208 @@ function CreateTestContent() {
         })
     }
 
-    const handleSaveDraft = async () => {
+    const handleSaveCurrent = async (options?: {
+        stayOnStep?: boolean
+        silent?: boolean
+        forceOverwrite?: boolean
+    }): Promise<boolean> => {
+        // Validate required Step 1 fields
+        const errs: Record<string, string> = {}
         if (!formData.title.trim()) {
-            setApiError("Please enter a test title before saving draft.")
-            setApiErrorDetails([])
-            return
+            errs.title = "Test title is required"
         }
-        if (!formData.seriesId && formData.testType !== "PYQ" && formData.testType !== "Current Affairs" && formData.testType !== "CURRENT_AFFAIRS") {
-            setApiError("Please select a target test series package before saving draft.")
-            setApiErrorDetails([])
-            return
+        if (
+            !formData.seriesId &&
+            formData.testType !== "PYQ" &&
+            formData.testType !== "Current Affairs" &&
+            formData.testType !== "CURRENT_AFFAIRS"
+        ) {
+            errs.seriesId = "Please select a target test series package"
         }
-        if (formData.testType === "PYQ" && !formData.pyqPaperId) {
-            setApiError("Please select a target PYQ paper to link this test to.")
-            setApiErrorDetails([])
-            return
+        if (!formData.durationMinutes || formData.durationMinutes < 1) {
+            errs.durationMinutes = "Duration must be at least 1 minute"
         }
+        if (formData.isLive && !formData.liveStartAt) {
+            errs.liveStartAt = "Live start time is required"
+        }
+        if (formData.isLive && !formData.liveEndAt) {
+            errs.liveEndAt = "Live end time is required"
+        }
+
+        if (Object.keys(errs).length > 0) {
+            setErrors(errs)
+            setApiError("Please fill in all required fields before saving.")
+            return false
+        }
+
+        // If on step 2, validate sections too
+        if (step === 2) {
+            formData.sections.forEach((sec, idx) => {
+                if (!sec.name.trim()) errs[`section_${idx}_name`] = "Section name required"
+                if (!sec.numQuestions || sec.numQuestions < 1)
+                    errs[`section_${idx}_numQ`] = "Must have at least 1 question"
+            })
+            const sectionalTimeSum = formData.sections
+                .filter((s) => s.hasSectionalTime)
+                .reduce((sum, s) => sum + (s.sectionalTimeMinutes || 0), 0)
+            if (sectionalTimeSum > formData.durationMinutes) {
+                errs.sectionalTime = `Total sectional time (${sectionalTimeSum}m) cannot exceed total test duration (${formData.durationMinutes}m)`
+            }
+            if (Object.keys(errs).length > 0) {
+                setErrors(errs)
+                setApiError("Please fix section validation errors before saving.")
+                return false
+            }
+        }
+
         setIsSaving(true)
         setApiError(null)
         setApiErrorDetails([])
         setDraftWarnings([])
+
         try {
             const mappedSections = buildMappedSections()
-            const mappedTestType = TEST_TYPE_MAP[formData.testType]
-            if (!mappedTestType) {
-                setApiError(`Invalid test type selected: "${formData.testType}". Please select a valid test type in Step 1.`)
-                setApiErrorDetails([])
-                setIsSaving(false)
-                return
-            }
+            const mappedTestType = TEST_TYPE_MAP[formData.testType] || "FULL_MOCK"
             const mappedAccessMode = formData.accessMode === "free" ? "FREE" : "PRO"
+            const targetId = activeTestIdRef.current || editTestId || savedTestId
 
-            const res = await fetch("/api/exam/test/create", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    seriesId: formData.seriesId || undefined,
-                    pyqPaperId: formData.pyqPaperId || undefined,
-                    title: formData.title,
-                    titleHi: formData.titleHindi,
-                    testType: mappedTestType,
-                    accessMode: mappedAccessMode,
-                    durationMinutes: formData.durationMinutes,
-                    isLive: formData.isLive,
-                    liveStartAt: formData.liveStartAt || null,
-                    liveEndAt: formData.liveEndAt || null,
-                    sections: mappedSections,
-                    isPublished: false,
-                    month: formData.month,
-                    year: formData.year,
-                }),
-            })
+            if (targetId) {
+                // Existing test: PUT /api/exam/test/[id]/edit-data
+                const res = await fetch(`/api/exam/test/${encodeURIComponent(targetId)}/edit-data`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title: formData.title,
+                        titleHi: formData.titleHindi || null,
+                        syllabus: formData.syllabus || null,
+                        syllabusHi: formData.syllabusHindi || null,
+                        seriesId: formData.seriesId || undefined,
+                        testType: mappedTestType,
+                        accessMode: mappedAccessMode,
+                        durationMinutes: formData.durationMinutes,
+                        isLive: formData.isLive,
+                        liveStartAt: formData.liveStartAt || null,
+                        liveEndAt: formData.liveEndAt || null,
+                        month: formData.month,
+                        year: formData.year,
+                        sections: mappedSections,
+                        lastKnownUpdatedAt: testUpdatedAtRef.current || undefined,
+                        forceOverwrite: options?.forceOverwrite,
+                    }),
+                })
+                const json = await res.json()
 
-            const json = await res.json()
-            if (!res.ok || !json.data?.id) {
-                const errMsg = json.error || `Save draft failed with status ${res.status}`
-                setApiError(errMsg)
-                if (Array.isArray(json.details)) setApiErrorDetails(json.details)
-                throw new Error(errMsg)
-            }
+                if (res.status === 409) {
+                    const overwrite = window.confirm(
+                        "Warning: This test was modified elsewhere after you loaded it.\n\nDo you want to overwrite those changes?"
+                    )
+                    if (overwrite) {
+                        return await handleSaveCurrent({ ...options, forceOverwrite: true })
+                    }
+                    setIsSaving(false)
+                    return false
+                }
 
-            setSavedTestId(json.data.id)
-            if (Array.isArray(json.warnings) && json.warnings.length > 0) {
-                setDraftWarnings(json.warnings)
-                setToastMessage(`Draft saved! Warning: ${json.warnings.length} incomplete question(s) were not saved.`)
-                setShowToast(true)
+                if (!res.ok) {
+                    const errMsg = json.error || `Save failed with status ${res.status}`
+                    setApiError(errMsg)
+                    if (Array.isArray(json.details)) setApiErrorDetails(json.details)
+                    throw new Error(errMsg)
+                }
+
+                if (json.updatedAt) {
+                    testUpdatedAtRef.current = json.updatedAt
+                }
+                if (json.isPublished !== undefined) {
+                    setIsPublishedTest(Boolean(json.isPublished))
+                }
+                lastSavedDataRef.current = getFormDataSnapshot(formData)
+                setLastSavedTime(
+                    new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+                )
+
+                if (!options?.silent) {
+                    setToastMessage(isPublishedTest ? "Changes saved to live test! 🎉" : "Saved")
+                    setShowToast(true)
+                }
+                if (options?.stayOnStep === false) {
+                    setTimeout(() => {
+                        router.push("/teacher/test-series")
+                    }, 1200)
+                }
+                return true
             } else {
-                setDraftWarnings([])
-                setToastMessage(json.data.message || "Draft saved successfully!")
-                setShowToast(true)
-                setTimeout(() => {
-                    router.push("/teacher/test-series")
-                }, 1200)
+                // New test: POST /api/exam/test/create
+                const res = await fetch("/api/exam/test/create", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        seriesId: formData.seriesId || undefined,
+                        pyqPaperId: formData.pyqPaperId || undefined,
+                        title: formData.title,
+                        titleHi: formData.titleHindi || null,
+                        syllabus: formData.syllabus || undefined,
+                        syllabusHi: formData.syllabusHindi || undefined,
+                        testType: mappedTestType,
+                        accessMode: mappedAccessMode,
+                        durationMinutes: formData.durationMinutes,
+                        isLive: formData.isLive,
+                        liveStartAt: formData.liveStartAt || null,
+                        liveEndAt: formData.liveEndAt || null,
+                        sections: mappedSections,
+                        isPublished: false,
+                        month: formData.month,
+                        year: formData.year,
+                    }),
+                })
+                const json = await res.json()
+
+                if (!res.ok || !json.data?.id) {
+                    const errMsg = json.error || `Save draft failed with status ${res.status}`
+                    setApiError(errMsg)
+                    if (Array.isArray(json.details)) setApiErrorDetails(json.details)
+                    throw new Error(errMsg)
+                }
+
+                const newId = json.data.id
+                activeTestIdRef.current = newId
+                setSavedTestId(newId)
+                if (json.data.updatedAt) {
+                    testUpdatedAtRef.current = json.data.updatedAt
+                }
+                setIsPublishedTest(false)
+                lastSavedDataRef.current = getFormDataSnapshot(formData)
+                setLastSavedTime(
+                    new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+                )
+
+                // Update URL to ?editTestId=<id> via router.replace without reloading
+                const params = new URLSearchParams(window.location.search)
+                params.set("editTestId", newId)
+                router.replace(`${window.location.pathname}?${params.toString()}`, { scroll: false })
+
+                if (!options?.silent) {
+                    setToastMessage("Saved as draft")
+                    setShowToast(true)
+                }
+                if (options?.stayOnStep === false) {
+                    setTimeout(() => {
+                        router.push("/teacher/test-series")
+                    }, 1200)
+                }
+                return true
             }
         } catch (e: any) {
-            console.error("Failed to save draft", e)
+            console.error("Save error:", e)
+            setApiError(e.message || "Failed to save test")
+            return false
         } finally {
             setIsSaving(false)
         }
+    }
+
+    const handleSaveDraft = async () => {
+        await handleSaveCurrent({ stayOnStep: false })
     }
 
     const handlePublish = async () => {
@@ -1407,6 +1809,39 @@ function CreateTestContent() {
             }
             const mappedAccessMode = formData.accessMode === "free" ? "FREE" : "PRO"
 
+            if (editTestId) {
+                const res = await fetch(`/api/exam/test/${encodeURIComponent(editTestId)}/edit-data`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title: formData.title,
+                        titleHi: formData.titleHindi || null,
+                        syllabus: formData.syllabus || null,
+                        syllabusHi: formData.syllabusHindi || null,
+                        seriesId: formData.seriesId || undefined,
+                        testType: mappedTestType,
+                        accessMode: mappedAccessMode,
+                        durationMinutes: formData.durationMinutes,
+                        sections: mappedSections,
+                        isPublished: true,
+                    }),
+                })
+                const json = await res.json()
+                if (!res.ok) {
+                    const errMsg = json.error || `Publish failed with status ${res.status}`
+                    setApiError(errMsg)
+                    if (Array.isArray(json.details)) setApiErrorDetails(json.details)
+                    throw new Error(errMsg)
+                }
+                setPublished(true)
+                setToastMessage("Test updated and published successfully! 🎉 Redirecting to tests...")
+                setShowToast(true)
+                setTimeout(() => {
+                    router.push("/teacher/test-series")
+                }, 1500)
+                return
+            }
+
             const res = await fetch("/api/exam/test/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -1415,6 +1850,8 @@ function CreateTestContent() {
                     pyqPaperId: formData.pyqPaperId || undefined,
                     title: formData.title,
                     titleHi: formData.titleHindi,
+                    syllabus: formData.syllabus || undefined,
+                    syllabusHi: formData.syllabusHindi || undefined,
                     testType: mappedTestType,
                     accessMode: mappedAccessMode,
                     durationMinutes: formData.durationMinutes,
@@ -1577,14 +2014,26 @@ function CreateTestContent() {
                         Back to Classes
                     </Link>
                     <h1 className="text-2xl font-black text-gray-900 dark:text-white">
-                        Test Authoring Studio
+                        {editTestId ? "Edit Test in Studio" : "Test Authoring Studio"}
                     </h1>
                     <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">
-                        Create a new test with bilingual question support
+                        {editTestId
+                            ? "Editing test questions, scoring, and metadata with live updates"
+                            : "Create a new test with bilingual question support"}
                     </p>
                 </div>
                 <StepIndicator current={step} />
             </div>
+
+            {loadingEditData && (
+                <div className="p-4 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 text-sky-800 dark:text-sky-300 text-xs flex items-center gap-3">
+                    <Loader2 className="h-5 w-5 animate-spin shrink-0 text-[#00A8FF]" />
+                    <div>
+                        <p className="font-bold">Loading test data for editing...</p>
+                        <p className="text-[11px] opacity-80">Fetching sections, questions, and test configuration.</p>
+                    </div>
+                </div>
+            )}
 
             {/* ──────────────────────────────────────────────────────────────── */}
             {/* STEP 1: Test Metadata */}
@@ -1592,7 +2041,7 @@ function CreateTestContent() {
             {step === 1 && (
                 <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
                     <CardHeader
-                        title="Step 1 — Test Metadata"
+                        title={editTestId ? "Step 1 — Edit Test Metadata" : "Step 1 — Test Metadata"}
                         subtitle="Basic information about this test"
                     />
                     <div className="p-6 space-y-5">
@@ -1606,7 +2055,7 @@ function CreateTestContent() {
                                     type="text"
                                     value={formData.title}
                                     onChange={(e) => updateField("title", e.target.value)}
-                                    placeholder="e.g. 72nd BPSC Prelims Full Mock Test 1"
+                                    placeholder="e.g. 72nd BPSC Prelims Full Test 1"
                                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all"
                                 />
                                 <FieldError msg={errors.title} />
@@ -1623,6 +2072,43 @@ function CreateTestContent() {
                                     placeholder="e.g. 72वीं बीपीएससी प्रारंभिक मॉक टेस्ट 1"
                                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all"
                                 />
+                            </div>
+                        </div>
+
+                        {/* Test Syllabus (English & Hindi) */}
+                        <div className="p-4 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/40 space-y-3">
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs font-black text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                    <BookOpen className="h-3.5 w-3.5 text-[#00A8FF]" />
+                                    <span>Test Syllabus &amp; Topics Covered</span>
+                                </label>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Shown on learner test card &amp; syllabus modal</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                                        Syllabus (English)
+                                    </label>
+                                    <textarea
+                                        rows={3}
+                                        value={formData.syllabus}
+                                        onChange={(e) => updateField("syllabus", e.target.value)}
+                                        placeholder="e.g. Modern History (1857-1947), Indian Polity Articles 1-51A, Current Affairs..."
+                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all leading-relaxed"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                                        Syllabus (Hindi) <span className="text-gray-400 font-normal">optional</span>
+                                    </label>
+                                    <textarea
+                                        rows={3}
+                                        value={formData.syllabusHindi}
+                                        onChange={(e) => updateField("syllabusHindi", e.target.value)}
+                                        placeholder="e.g. आधुनिक भारतीय इतिहास (1857-1947), भारतीय राजव्यवस्था अनुच्छेद 1-51A..."
+                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all leading-relaxed"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -1643,6 +2129,49 @@ function CreateTestContent() {
                                 </button>
                             </div>
                             <p className="text-[11px] text-gray-600 dark:text-gray-300 font-normal">Controls which public test series flash card and details page this test belongs to</p>
+
+                            {selectedGoal && selectedGoal.id !== "all" && !showAllPackages && (
+                                <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 py-0.5">
+                                    <span>Filtered by Target Goal: <strong className="text-sky-600 dark:text-sky-400">{selectedGoal.name || selectedGoal.id}</strong> ({seriesPackages.filter((pkg) => {
+                                        if (formData.seriesId === pkg.id) return true
+                                        const targetCategory = (queryCategory || selectedGoal?.id || selectedGoal?.name || "").toLowerCase().trim()
+                                        if (!targetCategory || targetCategory === "all") return true
+                                        const cat = (pkg.category || "").toLowerCase().trim()
+                                        if (cat === targetCategory) return true
+                                        if (targetCategory === "upsc") {
+                                            const text = `${pkg.title || ""} ${pkg.category || ""}`.toLowerCase()
+                                            if (text.includes("bpsc") || text.includes("bihar")) return false
+                                            return cat.includes("upsc")
+                                        }
+                                        if (targetCategory === "bpsc") return cat.includes("bpsc")
+                                        if (targetCategory === "ssc") return cat.includes("ssc")
+                                        if (targetCategory === "state-pcs") return cat.includes("state") || cat.includes("pcs")
+                                        if (targetCategory === "teaching") return cat.includes("teach") || cat.includes("tre")
+                                        return cat.includes(targetCategory) || targetCategory.includes(cat)
+                                    }).length} packages)</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowAllPackages(true)}
+                                        className="text-[#00A8FF] font-semibold hover:underline cursor-pointer"
+                                    >
+                                        Show all packages
+                                    </button>
+                                </div>
+                            )}
+
+                            {showAllPackages && selectedGoal && selectedGoal.id !== "all" && (
+                                <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 py-0.5">
+                                    <span>Showing all {seriesPackages.length} packages</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowAllPackages(false)}
+                                        className="text-[#00A8FF] font-semibold hover:underline cursor-pointer"
+                                    >
+                                        Filter by {selectedGoal.name || selectedGoal.id}
+                                    </button>
+                                </div>
+                            )}
+
                             <select
                                 value={formData.seriesId}
                                 onChange={(e) => {
@@ -1663,13 +2192,48 @@ function CreateTestContent() {
                                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all shadow-xs"
                             >
                                 <option value="">Select a test series package...</option>
-                                {seriesPackages.map((s) => (
-                                    <option key={s.id} value={s.id}>
-                                        {s.title} ({s.category})
-                                    </option>
-                                ))}
+                                {seriesPackages
+                                    .filter((pkg) => {
+                                        if (showAllPackages) return true
+                                        if (formData.seriesId === pkg.id) return true
+                                        const targetCategory = (queryCategory || selectedGoal?.id || selectedGoal?.name || "").toLowerCase().trim()
+                                        if (!targetCategory || targetCategory === "all") return true
+                                        const cat = (pkg.category || "").toLowerCase().trim()
+                                        if (cat === targetCategory) return true
+                                        if (targetCategory === "upsc") {
+                                            const text = `${pkg.title || ""} ${pkg.category || ""}`.toLowerCase()
+                                            if (text.includes("bpsc") || text.includes("bihar")) return false
+                                            return cat.includes("upsc")
+                                        }
+                                        if (targetCategory === "bpsc") return cat.includes("bpsc")
+                                        if (targetCategory === "ssc") return cat.includes("ssc")
+                                        if (targetCategory === "state-pcs") return cat.includes("state") || cat.includes("pcs")
+                                        if (targetCategory === "teaching") return cat.includes("teach") || cat.includes("tre")
+                                        return cat.includes(targetCategory) || targetCategory.includes(cat)
+                                    })
+                                    .map((s) => (
+                                        <option key={s.id} value={s.id}>
+                                            {s.title} ({s.category})
+                                        </option>
+                                    ))}
                             </select>
                             <FieldError msg={errors.seriesId} />
+
+                            {/* Category Mismatch Warning */}
+                            {(() => {
+                                const selPkg = seriesPackages.find((s) => s.id === formData.seriesId)
+                                const warn = selPkg ? detectCategoryMismatch(selPkg.title, selPkg.category) : null
+                                if (!warn) return null
+                                return (
+                                    <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs rounded-xl flex items-start gap-2 mt-2">
+                                        <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+                                        <div>
+                                            <p className="font-bold">{warn}</p>
+                                            <p className="text-[11px] opacity-80 mt-0.5">Please update the package's Category in Teacher Studio so it displays under the correct exam category.</p>
+                                        </div>
+                                    </div>
+                                )
+                            })()}
                         </div>
 
                         {/* Category & Exam Name (Read-only, derived) */}
@@ -1948,14 +2512,29 @@ function CreateTestContent() {
                         </div>
 
                         {/* Navigation */}
-                        <div className="flex justify-end pt-2">
-                            <button
-                                onClick={handleNext}
-                                className="flex items-center gap-2 px-7 py-3 bg-sky-700 hover:bg-sky-600 text-white font-bold text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] cursor-pointer"
-                            >
-                                Next
-                                <ChevronRight className="h-4 w-4" />
-                            </button>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                            <div className="flex items-center">
+                                {dirtyStatusElement}
+                            </div>
+                            <div className="flex items-center justify-end gap-3 w-full sm:w-auto">
+                                <button
+                                    type="button"
+                                    disabled={isSaving}
+                                    onClick={() => handleSaveCurrent({ stayOnStep: true })}
+                                    className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-200 font-bold text-sm rounded-xl transition-all cursor-pointer disabled:opacity-50 min-h-[44px] flex-1 sm:flex-initial"
+                                >
+                                    {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                    {isSaving ? "Saving..." : "Save"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleNext}
+                                    className="flex items-center justify-center gap-2 px-7 py-3 bg-sky-700 hover:bg-sky-600 text-white font-bold text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] cursor-pointer min-h-[44px] flex-1 sm:flex-initial"
+                                >
+                                    Next
+                                    <ChevronRight className="h-4 w-4" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2201,21 +2780,37 @@ function CreateTestContent() {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
                         <button
+                            type="button"
                             onClick={handleBack}
-                            className="flex items-center gap-2 px-6 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer"
+                            className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer min-h-[44px] w-full sm:w-auto"
                         >
                             <ChevronLeft className="h-4 w-4" />
                             Back
                         </button>
-                        <button
-                            onClick={handleNext}
-                            className="flex items-center gap-2 px-7 py-3 bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] cursor-pointer"
-                        >
-                            Next
-                            <ChevronRight className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center">
+                            {dirtyStatusElement}
+                        </div>
+                        <div className="flex items-center justify-end gap-3 w-full sm:w-auto">
+                            <button
+                                type="button"
+                                disabled={isSaving}
+                                onClick={() => handleSaveCurrent({ stayOnStep: true })}
+                                className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-200 font-bold text-sm rounded-xl transition-all cursor-pointer disabled:opacity-50 min-h-[44px] flex-1 sm:flex-initial"
+                            >
+                                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                {isSaving ? "Saving..." : "Save"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleNext}
+                                className="flex items-center justify-center gap-2 px-7 py-3 bg-[#00A8FF] hover:bg-[#0096e6] text-white font-bold text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] cursor-pointer min-h-[44px] flex-1 sm:flex-initial"
+                            >
+                                Next
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -2674,21 +3269,37 @@ function CreateTestContent() {
                         )}
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
                         <button
+                            type="button"
                             onClick={handleBack}
-                            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-xs sm:text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer w-full sm:w-auto"
+                            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-xs sm:text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer w-full sm:w-auto min-h-[44px]"
                         >
                             <ChevronLeft className="h-4 w-4" />
                             Back to Sections
                         </button>
-                        <button
-                            onClick={handleNext}
-                            className="flex items-center justify-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3 bg-sky-700 hover:bg-sky-600 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] cursor-pointer w-full sm:w-auto"
-                        >
-                            Preview & Publish
-                            <ChevronRight className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center">
+                            {dirtyStatusElement}
+                        </div>
+                        <div className="flex items-center justify-end gap-3 w-full sm:w-auto">
+                            <button
+                                type="button"
+                                disabled={isSaving}
+                                onClick={() => handleSaveCurrent({ stayOnStep: true })}
+                                className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-200 font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer disabled:opacity-50 min-h-[44px] flex-1 sm:flex-initial"
+                            >
+                                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                {isSaving ? "Saving..." : "Save"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleNext}
+                                className="flex items-center justify-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3 bg-sky-700 hover:bg-sky-600 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] cursor-pointer w-full sm:w-auto min-h-[44px] flex-1 sm:flex-initial"
+                            >
+                                Preview & Publish
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -2917,14 +3528,18 @@ function CreateTestContent() {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between flex-wrap gap-3">
-                        <button
-                            onClick={handleBack}
-                            className="flex items-center gap-2 px-6 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer"
-                        >
-                            <ChevronLeft className="h-4 w-4" />
-                            Back to Questions
-                        </button>
+                    <div className="flex items-center justify-between flex-wrap gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={handleBack}
+                                className="flex items-center gap-2 px-6 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer min-h-[44px]"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                Back to Questions
+                            </button>
+                            {dirtyStatusElement}
+                        </div>
                         <div className="flex items-center gap-3 flex-wrap">
                             <button
                                 type="button"
@@ -2935,31 +3550,34 @@ function CreateTestContent() {
                                 <span>Review all questions</span>
                             </button>
                             <button
+                                type="button"
                                 onClick={() => setShowPreview(true)}
-                                className="flex items-center gap-2 px-5 py-3 border border-[#00A8FF] text-[#00A8FF] font-bold text-sm rounded-xl hover:bg-[#00A8FF]/10 transition-all cursor-pointer"
+                                className="flex items-center gap-2 px-5 py-3 border border-[#00A8FF] text-[#00A8FF] font-bold text-sm rounded-xl hover:bg-[#00A8FF]/10 transition-all cursor-pointer min-h-[44px]"
                             >
                                 <Eye className="h-4 w-4" />
                                 Preview
                             </button>
                             <button
+                                type="button"
                                 disabled={isSaving}
                                 onClick={handleSaveDraft}
-                                className="flex items-center gap-2 px-5 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-50 transition-all cursor-pointer"
+                                className="flex items-center gap-2 px-5 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-50 transition-all cursor-pointer min-h-[44px]"
                             >
-                                <Save className="h-4 w-4" />
-                                {isSaving ? "Saving..." : "Save Draft"}
+                                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                {isSaving ? "Saving..." : (editTestId ? "Update Draft" : "Save Draft")}
                             </button>
                             <button
+                                type="button"
                                 disabled={isSaving || totalIncomplete > 0}
                                 onClick={handlePublish}
-                                className={`flex items-center gap-2 px-8 py-3 text-white font-black text-sm rounded-xl shadow-lg transition-all ${
+                                className={`flex items-center gap-2 px-8 py-3 text-white font-black text-sm rounded-xl shadow-lg transition-all min-h-[44px] ${
                                     totalIncomplete > 0 || isSaving
                                         ? "bg-gray-400 dark:bg-gray-700 cursor-not-allowed opacity-60"
                                         : "bg-[#00A8FF] hover:bg-[#0096e6] active:scale-[0.98] cursor-pointer"
                                 }`}
                             >
                                 <Rocket className="h-4 w-4" />
-                                {isSaving ? "Publishing..." : "Publish Test"}
+                                {isSaving ? "Saving..." : (editTestId ? "Update Test" : "Publish Test")}
                             </button>
                         </div>
                     </div>

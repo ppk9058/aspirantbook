@@ -14,6 +14,8 @@ function getNumber(val: any, fallback: number): number {
 const VALID_TEST_TYPES: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL_TEST" | "PREVIOUS_YEAR" | "LIVE_SPEED" | "CURRENT_AFFAIRS"> = {
   FULL_MOCK: "FULL_MOCK",
   "FULL MOCK TEST": "FULL_MOCK",
+  FULL_TEST: "FULL_MOCK",
+  "FULL TEST": "FULL_MOCK",
   CHAPTER: "CHAPTER_TEST",
   CHAPTER_TEST: "CHAPTER_TEST",
   "CHAPTER TEST": "CHAPTER_TEST",
@@ -66,6 +68,8 @@ export async function POST(req: NextRequest) {
       sections,
       isPublished,
       pyqPaperId,
+      syllabus,
+      syllabusHi,
       month,
       year,
     } = body;
@@ -336,6 +340,8 @@ export async function POST(req: NextRequest) {
             positiveMarks: preparedSections[0]?.positiveMarks ?? 1.0,
             negativeMarks: preparedSections[0]?.negativeMarks ?? 0.33,
             instructions: instructions ? String(instructions) : null,
+            syllabus: syllabus ? String(syllabus).trim() : null,
+            syllabusHi: syllabusHi ? String(syllabusHi).trim() : null,
             isLive: Boolean(isLive),
             liveStartAt: liveStartAt ? new Date(liveStartAt) : null,
             liveEndAt: liveEndAt ? new Date(liveEndAt) : null,
@@ -421,6 +427,10 @@ export async function POST(req: NextRequest) {
 
     revalidateTag("exam-series");
     revalidatePath("/test-series");
+    revalidatePath("/teacher/test-series");
+    if (targetSeriesId) {
+      revalidatePath(`/test-series/${targetSeriesId}`);
+    }
 
     return NextResponse.json({
       success: true,
@@ -428,6 +438,7 @@ export async function POST(req: NextRequest) {
         id: createdTest.id,
         title: createdTest.title,
         isPublished: createdTest.isPublished,
+        updatedAt: createdTest.updatedAt.toISOString(),
         savedQuestions: totalQuestionsCount,
         skippedQuestions: totalSkippedCount,
         message: isPublishMode
