@@ -23,8 +23,9 @@ import {
 
 import dynamic from "next/dynamic"
 import { useSession } from "next-auth/react"
-import { useGoal } from "@/components/providers/GoalProvider"
+import { useGoal, Goal } from "@/components/providers/GoalProvider"
 import GoalIcon from "@/components/layout/GoalIcon"
+import { cn } from "@/lib/utils"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -217,18 +218,46 @@ function ExamLogo({ logoType }: { logoType: string }) {
 export default function TestSeriesPage() {
     const { data: session } = useSession()
     const canCreate = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
-    const { selectedGoal, selectedGoals, selectedGoalIds, selectGoal, openGoalModal, isLoaded } = useGoal()
+    const {
+        selectedGoal,
+        selectedGoals,
+        selectedGoalIds,
+        selectGoal,
+        toggleGoal,
+        openGoalModal,
+        isLoaded,
+        allGoalsConfig,
+    } = useGoal()
     const [selectedCategory, setSelectedCategory] = useState<string>("All")
     const prevGoalIdRef = useRef<string | null>(null)
 
-    // Reset category chip to All when active goal changes
+    // Reset category chip to All when active goals change
     useEffect(() => {
         if (!isLoaded) return
-        if (selectedGoal?.id && selectedGoal.id !== prevGoalIdRef.current) {
-            prevGoalIdRef.current = selectedGoal.id
+        const currentKey = selectedGoalIds.slice().sort().join(",")
+        if (currentKey && currentKey !== prevGoalIdRef.current) {
+            prevGoalIdRef.current = currentKey
             setSelectedCategory("All")
         }
-    }, [selectedGoal, isLoaded])
+    }, [selectedGoalIds, isLoaded])
+
+    // Keep a list of exam targets available in the switcher
+    // Includes currently selected goals, plus popular goals (UPSC, BPSC, etc.) so user can toggle them directly
+    const availableTargets = useMemo(() => {
+        const map = new Map<string, Goal>()
+        // 1. Add all currently selected goals
+        selectedGoals.forEach((g) => {
+            if (g && g.id) map.set(g.id.toLowerCase(), g)
+        })
+        // 2. Add common popular exam targets from config
+        const popular = (allGoalsConfig?.popularGoals || []) as Goal[]
+        popular.forEach((g) => {
+            if (g && g.id && !map.has(g.id.toLowerCase())) {
+                map.set(g.id.toLowerCase(), g)
+            }
+        })
+        return Array.from(map.values())
+    }, [selectedGoals, allGoalsConfig?.popularGoals])
 
     const [searchQuery, setSearchQuery] = useState<string>("")
     const [filterByGoal, setFilterByGoal] = useState<boolean>(true)
@@ -254,7 +283,10 @@ export default function TestSeriesPage() {
         if (!isLoaded) return
         let active = true
         setSeriesLoading(true)
-        const goalQuery = selectedGoal?.id ? `goal=${encodeURIComponent(selectedGoal.id)}` : ""
+        const activeGoalsParam = selectedGoalIds.length > 0
+            ? selectedGoalIds.join(",")
+            : (selectedGoal?.id || "")
+        const goalQuery = activeGoalsParam ? `goal=${encodeURIComponent(activeGoalsParam)}` : ""
         const url = filterByGoal
             ? `/api/exam/series/list${goalQuery ? `?${goalQuery}` : ""}`
             : "/api/exam/series/list?includeAll=true"
@@ -264,61 +296,10 @@ export default function TestSeriesPage() {
             .catch(() => { if (active) setSeriesPackages([]) })
             .finally(() => { if (active) setSeriesLoading(false) })
         return () => { active = false }
-    }, [isLoaded, selectedGoal?.id, filterByGoal])
+    }, [isLoaded, selectedGoalIds, filterByGoal, selectedGoal?.id])
 
     const filteredSeries = useMemo(() => {
         let list = seriesPackages
-
-        // Goal-based filtering / curation when viewing "All" (multi-goal OR logic)
-        if (filterByGoal && selectedGoals.length > 0 && selectedCategory === "All") {
-            const goalMatches = list.filter((item) => {
-                const iGoal = (item.goalId || "").toLowerCase()
-                const iTags = (item.tags || []).map(t => t.toLowerCase())
-                const text = `${item.title} ${item.description || ""} ${item.category}`.toLowerCase()
-
-                return selectedGoals.some((g) => {
-                    const gid = g.id.toLowerCase()
-                    const gName = g.name.toLowerCase()
-
-                    if (gid === "upsc") {
-                        if (text.includes("bpsc") || text.includes("bihar")) return false
-                        return (iGoal === "upsc" || iTags.includes("upsc") || text.includes("upsc") || text.includes("civil services"))
-                    }
-
-                    if (iGoal === gid) return true
-
-                    if (gid === "bpsc") {
-                        return iGoal === "bpsc" || iTags.includes("bpsc") || text.includes("bpsc") || text.includes("bihar")
-                    }
-                    if (gid === "ssc" || gid === "govt-exams") {
-                        return iGoal === "ssc" || iGoal === "govt-exams" || iTags.includes("ssc") || iTags.includes("govt-exams") ||
-                            text.includes("ssc") || text.includes("cgl") || text.includes("banking") || text.includes("railway")
-                    }
-                    if (gid === "class-10") {
-                        return iGoal === "class-10" || item.category === "Class 10" || text.includes("class 10") || text.includes("10th")
-                    }
-                    if (gid === "class-9") {
-                        return iGoal === "class-9" || item.category === "Class 9" || text.includes("class 9") || text.includes("9th")
-                    }
-                    if (gid === "class-8") {
-                        return iGoal === "class-8" || item.category === "Class 8" || text.includes("class 8") || text.includes("8th")
-                    }
-                    if (gid === "class-7") {
-                        return iGoal === "class-7" || item.category === "Class 7" || text.includes("class 7") || text.includes("7th")
-                    }
-                    if (gid === "class-6") {
-                        return iGoal === "class-6" || item.category === "Class 6" || text.includes("class 6") || text.includes("6th")
-                    }
-                    if (gid === "skills") {
-                        return iGoal === "skills" || item.category === "Skill" || text.includes("coding") || text.includes("programming") || text.includes("python") || text.includes("dsa")
-                    }
-
-                    return iTags.includes(gid) || text.includes(gid) || text.includes(gName)
-                })
-            })
-
-            list = goalMatches
-        }
 
         return list.filter((item) => {
             const matchesCategory =
@@ -326,13 +307,14 @@ export default function TestSeriesPage() {
                 item.category.toLowerCase() === selectedCategory.toLowerCase()
 
             const matchesSearch =
+                searchQuery.trim() === "" ||
                 item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase()))
+                (Array.isArray(item.highlights) && item.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase())))
 
             return matchesCategory && matchesSearch
         })
-    }, [selectedCategory, searchQuery, filterByGoal, selectedGoals, seriesPackages])
+    }, [selectedCategory, searchQuery, seriesPackages])
 
     const toggleSave = (id: string, e: React.MouseEvent) => {
         e.stopPropagation()
@@ -379,60 +361,108 @@ export default function TestSeriesPage() {
 
             {/* Unified Active Exam Target Card */}
             <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                     {/* LEFT: Exam Icon Tile */}
                     <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-[#1448d8] to-[#1DB954] text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-xs shrink-0">
                         <GoalIcon name={selectedGoal.icon} className="h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
 
                     {/* CENTER */}
-                    <div className="min-w-0 flex-1">
-                        {/* Top row: badge + "Change ›" dropdown */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-900 dark:text-teal-200 border border-teal-500/30 select-none">
-                                {selectedGoal.name}
-                            </span>
+                    <div className="min-w-0 flex-1 space-y-1">
+                        {/* Top row: Multi-target chips + "Change or add exam" dropdown */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                            {selectedGoals.map((g) => {
+                                const isOnlyTarget = selectedGoals.length <= 1
+                                return (
+                                    <div
+                                        key={g.id}
+                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-100 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 text-[11px] font-bold text-teal-900 dark:text-teal-200 select-none"
+                                    >
+                                        <span>{g.name}</span>
+                                        <button
+                                            type="button"
+                                            disabled={isOnlyTarget}
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                if (isOnlyTarget) return
+                                                toggleGoal(g)
+                                            }}
+                                            title={isOnlyTarget ? "At least one exam target is required." : `Remove ${g.name}`}
+                                            aria-label={isOnlyTarget ? "At least one exam target is required." : `Remove ${g.name}`}
+                                            className={cn(
+                                                "rounded-xs p-0.5 transition-colors focus:outline-none",
+                                                isOnlyTarget
+                                                    ? "opacity-40 cursor-not-allowed text-teal-700/60 dark:text-teal-400/50"
+                                                    : "cursor-pointer hover:bg-teal-200/80 dark:hover:bg-teal-900 text-teal-800 dark:text-teal-300 hover:text-teal-950 dark:hover:text-white"
+                                            )}
+                                        >
+                                            <X className="h-3 w-3 stroke-[2.5]" />
+                                        </button>
+                                    </div>
+                                )
+                            })}
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <button
                                         type="button"
                                         className="text-xs font-bold text-teal-800 dark:text-teal-300 hover:text-teal-950 dark:hover:text-teal-100 hover:underline flex items-center gap-0.5 cursor-pointer rounded-md px-1 py-0.5 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
-                                        aria-label="Change active exam target"
+                                        aria-label="Change or add exam targets"
                                     >
-                                        <span>Change</span>
+                                        <span>Change or add exam</span>
                                         <ChevronRight className="h-3 w-3" />
                                     </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="start" className="w-56 p-1.5 shadow-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#071d33] rounded-xl z-50">
+                                <DropdownMenuContent
+                                    align="start"
+                                    className="w-64 max-w-[calc(100vw-32px)] p-1.5 shadow-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#071d33] rounded-xl z-50"
+                                >
                                     <div className="px-2 py-1 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                        Active Targets
+                                        Target Exams
                                     </div>
-                                    {selectedGoals.map((g) => {
-                                        const isActive = selectedGoal.id === g.id
-                                        return (
-                                            <DropdownMenuItem
-                                                key={g.id}
-                                                onClick={() => {
-                                                    selectGoal(g)
-                                                    setSelectedCategory(getMatchingCategory(g))
-                                                }}
-                                                className={`flex items-center justify-between px-2.5 py-2 text-xs font-bold rounded-lg cursor-pointer transition-colors select-none ${
-                                                    isActive
-                                                        ? "bg-teal-50 dark:bg-teal-950/50 text-teal-800 dark:text-teal-300"
-                                                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10"
-                                                }`}
-                                            >
-                                                <div className="flex items-center gap-2 min-w-0">
-                                                    <GoalIcon name={g.icon} className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" />
-                                                    <span className="truncate">{g.name}</span>
-                                                </div>
-                                                {isActive && (
-                                                    <Check className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0 ml-2" />
-                                                )}
-                                            </DropdownMenuItem>
-                                        )
-                                    })}
+                                    <div className="max-h-60 overflow-y-auto space-y-0.5 py-0.5">
+                                        {availableTargets.map((g) => {
+                                            const isChecked = selectedGoalIds.includes(g.id.toLowerCase())
+                                            const isOnlyChecked = isChecked && selectedGoalIds.length <= 1
+
+                                            return (
+                                                <DropdownMenuItem
+                                                    key={g.id}
+                                                    onSelect={(e) => {
+                                                        e.preventDefault()
+                                                        if (isOnlyChecked) return
+                                                        toggleGoal(g)
+                                                    }}
+                                                    className={cn(
+                                                        "flex items-center justify-between px-2.5 py-2 text-xs font-bold rounded-lg cursor-pointer transition-colors select-none",
+                                                        isChecked
+                                                            ? "bg-teal-50/80 dark:bg-teal-950/40 text-teal-900 dark:text-teal-200"
+                                                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10"
+                                                    )}
+                                                >
+                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                        <div
+                                                            className={cn(
+                                                                "h-4 w-4 rounded border flex items-center justify-center shrink-0 transition-colors",
+                                                                isChecked
+                                                                    ? "bg-teal-600 border-teal-600 text-white"
+                                                                    : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                                                            )}
+                                                        >
+                                                            {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
+                                                        </div>
+                                                        <GoalIcon name={g.icon} className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" />
+                                                        <span className="truncate">{g.name}</span>
+                                                    </div>
+                                                    {isOnlyChecked && (
+                                                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-normal ml-2">
+                                                            Required
+                                                        </span>
+                                                    )}
+                                                </DropdownMenuItem>
+                                            )
+                                        })}
+                                    </div>
                                     <DropdownMenuSeparator className="my-1 border-gray-100 dark:border-gray-800" />
                                     <DropdownMenuItem
                                         onClick={openGoalModal}
@@ -447,12 +477,16 @@ export default function TestSeriesPage() {
 
                         {/* Title */}
                         <h2 className="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate mt-0.5">
-                            {selectedGoal.fullName || selectedGoal.name} Curated Mocks
+                            {selectedGoals.length > 1
+                                ? "Your Exam Targets"
+                                : `${selectedGoal.fullName || selectedGoal.name} Curated Mocks`}
                         </h2>
 
                         {/* Subtitle */}
                         <p className="text-[11px] text-gray-700 dark:text-gray-300 truncate mt-0.5">
-                            Curated test series and mock exams for your active target
+                            {selectedGoals.length > 1
+                                ? "Curated test series and mock exams for your active targets"
+                                : "Curated test series and mock exams for your active target"}
                         </p>
                     </div>
                 </div>
@@ -471,9 +505,13 @@ export default function TestSeriesPage() {
                     <button
                         type="button"
                         onClick={() => setFilterByGoal(!filterByGoal)}
-                        className="text-xs font-bold text-teal-800 dark:text-teal-300 hover:text-teal-950 dark:hover:text-teal-100 hover:underline text-left sm:text-center py-1 sm:px-2 cursor-pointer select-none rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                        className="text-xs font-bold text-teal-800 dark:text-teal-300 hover:text-teal-950 dark:hover:text-teal-100 hover:underline text-left sm:text-center py-1 sm:px-2 cursor-pointer select-none rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 shrink-0"
                     >
-                        {filterByGoal ? "Show all exam tests →" : `Show only ${selectedGoal.name} →`}
+                        {filterByGoal
+                            ? "Show all exam tests →"
+                            : selectedGoals.length > 1
+                                ? "Show only your targets →"
+                                : `Show only ${selectedGoal.name} →`}
                     </button>
                 </div>
             </div>
