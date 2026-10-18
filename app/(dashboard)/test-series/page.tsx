@@ -299,7 +299,7 @@ export default function TestSeriesPage() {
     }
 
     return (
-        <div className="space-y-6 sm:space-y-8 pb-36 sm:pb-28 lg:pb-12">
+        <div className="space-y-6 pb-36 sm:pb-28 lg:pb-12">
             {/* Top Navigation Bar: Explore vs My Tests vs Leaderboards */}
             <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-gray-800">
                 <div data-scroll-x="true" className="w-full sm:w-auto flex items-center gap-1.5 p-1 rounded-2xl bg-gray-100 dark:bg-gray-800/80 overflow-x-auto no-scrollbar snap-x">
@@ -460,7 +460,7 @@ export default function TestSeriesPage() {
             </div>
 
             {/* Section Header with Search Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <h1 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                     Test Series by Categories
                 </h1>
