@@ -217,17 +217,19 @@ function ExamLogo({ logoType }: { logoType: string }) {
 export default function TestSeriesPage() {
     const { data: session } = useSession()
     const canCreate = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
-    const { selectedGoal, selectedGoals, selectedGoalIds, selectGoal, openGoalModal } = useGoal()
-    const [selectedCategory, setSelectedCategory] = useState<string>(() => getMatchingCategory(selectedGoal))
-    const prevGoalIdRef = useRef(selectedGoal?.id)
+    const { selectedGoal, selectedGoals, selectedGoalIds, selectGoal, openGoalModal, isLoaded } = useGoal()
+    const [selectedCategory, setSelectedCategory] = useState<string>("All")
+    const prevGoalIdRef = useRef<string | null>(null)
 
-    // Sync category chip with active exam target
+    // Reset category chip to All when active goal changes
     useEffect(() => {
+        if (!isLoaded) return
         if (selectedGoal?.id && selectedGoal.id !== prevGoalIdRef.current) {
             prevGoalIdRef.current = selectedGoal.id
-            setSelectedCategory(getMatchingCategory(selectedGoal))
+            setSelectedCategory("All")
         }
-    }, [selectedGoal])
+    }, [selectedGoal, isLoaded])
+
     const [searchQuery, setSearchQuery] = useState<string>("")
     const [filterByGoal, setFilterByGoal] = useState<boolean>(true)
     const [savedSeries, setSavedSeries] = useState<string[]>([])
@@ -239,17 +241,19 @@ export default function TestSeriesPage() {
 
     // Dynamic mistake notebook / solutions link based on selected goal
     const pyqSolutionLink = useMemo(() => {
-        const gid = selectedGoal.id.toLowerCase()
+        const gid = selectedGoal?.id?.toLowerCase() || ""
         if (gid === "bpsc") return "/test-series/bpsc-72nd-2026/solutions"
         if (gid === "upsc") return "/test-series/upsc-prelims-2026/solutions"
         if (gid === "ssc" || gid === "govt-exams") return "/test-series/ssc-cgl-2026/solutions"
         if (gid === "class-10") return "/test-series/class-10-boards-2026/solutions"
         if (gid === "skills") return "/test-series/skills-dsa-faang-2026/solutions"
         return "/test-series/bpsc-72nd-2026/solutions"
-    }, [selectedGoal.id])
+    }, [selectedGoal?.id])
 
     useEffect(() => {
+        if (!isLoaded) return
         let active = true
+        setSeriesLoading(true)
         const goalQuery = selectedGoal?.id ? `goal=${encodeURIComponent(selectedGoal.id)}` : ""
         const url = filterByGoal
             ? `/api/exam/series/list${goalQuery ? `?${goalQuery}` : ""}`
@@ -260,7 +264,7 @@ export default function TestSeriesPage() {
             .catch(() => { if (active) setSeriesPackages([]) })
             .finally(() => { if (active) setSeriesLoading(false) })
         return () => { active = false }
-    }, [selectedGoalIds, filterByGoal, selectedGoal?.id])
+    }, [isLoaded, selectedGoal?.id, filterByGoal])
 
     const filteredSeries = useMemo(() => {
         let list = seriesPackages
@@ -562,12 +566,20 @@ export default function TestSeriesPage() {
                                 No Test Series Found
                             </h3>
                             <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
-                                {seriesPackages.length === 0 ? "No test series available yet." : `No test series matched your search "${searchQuery}" in category "${selectedCategory}".`}
+                                {searchQuery
+                                    ? `No test series matched your search "${searchQuery}" in category "${selectedCategory}".`
+                                    : filterByGoal
+                                        ? `No test series for ${selectedGoal?.name || "your target"} yet.`
+                                        : "No test series available yet."}
                             </p>
                             <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
                                 {filterByGoal && (
                                     <button
-                                        onClick={() => setFilterByGoal(false)}
+                                        onClick={() => {
+                                            setSelectedCategory("All")
+                                            setSearchQuery("")
+                                            setFilterByGoal(false)
+                                        }}
                                         className="px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold rounded-xl cursor-pointer"
                                     >
                                         Show all exam tests

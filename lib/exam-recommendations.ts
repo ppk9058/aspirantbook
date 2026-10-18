@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getStudentGoals } from "@/lib/goals/student-goals";
+import { getStudentGoals, parseGoalIds } from "@/lib/goals/student-goals";
 import { applyTestSeriesGoalFilter } from "@/lib/goals/goal-filters";
 
 export interface RecommendedSeriesOptions {
@@ -42,8 +42,15 @@ export async function getRecommendedTestSeries(
     limit = 6,
   } = options;
 
-  // 1. Resolve student active goals (DB -> cookie)
-  const { goalIds } = await getStudentGoals(userId, cookieGoal);
+  // 1. Resolve student active goals (cookie/queryGoal override -> DB)
+  let goalIds: string[] = [];
+  if (cookieGoal) {
+    goalIds = parseGoalIds(cookieGoal);
+  }
+  if (goalIds.length === 0) {
+    const studentGoals = await getStudentGoals(userId, cookieGoal);
+    goalIds = studentGoals.goalIds;
+  }
 
   // 2. Determine excluded series for logged-in students
   const userExcludedSeriesIds = new Set<string>();
@@ -188,45 +195,39 @@ export async function getRecommendedTestSeries(
     };
   });
 
-  // 6. Ranking Order:
-  // (a) Same goal/category first (using lib/goals applyTestSeriesGoalFilter)
-  // (b) Popularity: Number of ExamSeriesEnrollment rows DESC (s._count.enrollments)
-  // (c) Published test count DESC
-  // (d) Newest DESC (createdAt)
-  // (e) Deterministic tie-breaker (id)
-  const matchesGoal = (card: RecommendedSeriesCard) => {
-    if (!goalIds || goalIds.length === 0) return false;
-    const match = applyTestSeriesGoalFilter([card], goalIds);
-    return match.length > 0;
-  };
+  // 6. Filter strictly by active goal(s) when specified (only series matching the selected goal appear)
+  let eligibleRecommendations = formatted;
+  if (goalIds && goalIds.length > 0) {
+    eligibleRecommendations = applyTestSeriesGoalFilter(formatted, goalIds);
+  }
 
-  formatted.sort((a, b) => {
-    // 1. Goal match first
-    const aGoal = matchesGoal(a) ? 1 : 0;
-    const bGoal = matchesGoal(b) ? 1 : 0;
-    if (aGoal !== bGoal) return bGoal - aGoal;
-
-    // 2. Popularity: ExamSeriesEnrollment count DESC
+  // 7. Ranking Order:
+  // (a) Popularity: Number of ExamSeriesEnrollment rows DESC (s._count.enrollments)
+  // (b) Published test count DESC
+  // (c) Newest DESC (createdAt)
+  // (d) Deterministic tie-breaker (id)
+  eligibleRecommendations.sort((a, b) => {
+    // 1. Popularity: ExamSeriesEnrollment count DESC
     if (b.enrollmentCount !== a.enrollmentCount) {
       return b.enrollmentCount - a.enrollmentCount;
     }
 
-    // 3. Published test count DESC
+    // 2. Published test count DESC
     if (b.totalTests !== a.totalTests) {
       return b.totalTests - a.totalTests;
     }
 
-    // 4. Newest DESC
+    // 3. Newest DESC
     if (b.createdAt.getTime() !== a.createdAt.getTime()) {
       return b.createdAt.getTime() - a.createdAt.getTime();
     }
 
-    // 5. Deterministic tie-breaker
+    // 4. Deterministic tie-breaker
     return a.id.localeCompare(b.id);
   });
 
   const maxItems = Math.min(Math.max(limit, 1), 6);
-  const sliced = formatted.slice(0, maxItems);
+  const sliced = eligibleRecommendations.slice(0, maxItems);
 
   // 7. Strip internal sorting fields so only canonical card fields + href are returned
   return sliced.map(
