@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
 import { getAttemptRanking } from "@/lib/exam-ranking";
 import { getQuizSlug } from "@/lib/current-affairs/slugs";
+import { canViewSolutions } from "@/lib/exam/access-control";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(
   _req: NextRequest,
@@ -12,7 +16,13 @@ export async function GET(
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        {
+          status: 401,
+          headers: { "Cache-Control": "private, no-store, max-age=0, must-revalidate" },
+        }
+      );
     }
 
     const { attemptId } = await params;
@@ -52,6 +62,10 @@ export async function GET(
             durationMinutes: true,
             totalMarks: true,
             totalQuestions: true,
+            isLive: true,
+            liveStartAt: true,
+            liveEndAt: true,
+            createdById: true,
             series: {
               select: {
                 id: true,
@@ -64,32 +78,36 @@ export async function GET(
       },
     });
 
-    if (!attempt) {
+    if (!attempt || !attempt.test) {
       return NextResponse.json({ error: "Attempt not found" }, { status: 404 });
     }
 
-    if (attempt.userId !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
+    // If attempt is not submitted yet, check if time expired and auto-grade
     if (attempt.status !== "SUBMITTED") {
-      const durationMinutes = attempt.test!.durationMinutes;
+      const durationMinutes = attempt.test.durationMinutes;
       const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
       const graceDeadlineMs = deadlineMs + 30 * 1000;
 
-      // If past deadline, auto-grade the attempt and proceed
+      // If past deadline on server clock, auto-grade the attempt and proceed
       if (Date.now() > graceDeadlineMs) {
         const graded = await gradeExamAttempt(attemptId, new Date());
         if (!graded) {
           return NextResponse.json(
             { error: "Result is being calculated, please retry in a moment", retryable: true },
-            { status: 202 }
+            {
+              status: 202,
+              headers: { "Cache-Control": "private, no-store, max-age=0, must-revalidate" },
+            }
           );
         }
+        attempt.status = "SUBMITTED";
       } else {
         return NextResponse.json(
           { error: "Attempt has not been submitted yet" },
-          { status: 409 }
+          {
+            status: 409,
+            headers: { "Cache-Control": "private, no-store, max-age=0, must-revalidate" },
+          }
         );
       }
     } else if (attempt.submittedAt === null) {
@@ -98,9 +116,41 @@ export async function GET(
       if (!graded) {
         return NextResponse.json(
           { error: "Result is being calculated, please retry in a moment", retryable: true },
-          { status: 202 }
+          {
+            status: 202,
+            headers: { "Cache-Control": "private, no-store, max-age=0, must-revalidate" },
+          }
         );
       }
+    }
+
+    // Canonical Server Access Control check: prevents paper leak during live tests and enforces ownership
+    const decision = canViewSolutions(
+      session.user,
+      {
+        id: attempt.test.id,
+        isLive: attempt.test.isLive,
+        liveStartAt: attempt.test.liveStartAt,
+        liveEndAt: attempt.test.liveEndAt,
+        createdById: attempt.test.createdById,
+      },
+      {
+        id: attempt.id,
+        userId: attempt.userId,
+        testId: attempt.testId,
+        status: attempt.status,
+        submittedAt: attempt.submittedAt,
+      }
+    );
+
+    if (!decision.allowed) {
+      return NextResponse.json(
+        { error: decision.reason, isLiveActive: decision.isLiveActive },
+        {
+          status: decision.statusCode,
+          headers: { "Cache-Control": "private, no-store, max-age=0, must-revalidate" },
+        }
+      );
     }
 
     // Fetch all test questions in section + question order
@@ -359,13 +409,23 @@ export async function GET(
           subjectBreakdown,
         },
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+        },
+      }
     );
   } catch (error) {
     console.error("[GET /api/exam/attempt/:attemptId/result]", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+        },
+      }
     );
   }
 }

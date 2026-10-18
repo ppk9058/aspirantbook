@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getTestRankings } from "@/lib/exam-ranking";
+import { canViewLeaderboard } from "@/lib/exam/access-control";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(
   req: NextRequest,
@@ -10,12 +14,28 @@ export async function GET(
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        {
+          status: 401,
+          headers: {
+            "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+          },
+        }
+      );
     }
 
     const { testId } = await params;
     if (!testId || typeof testId !== "string") {
-      return NextResponse.json({ error: "testId is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "testId is required" },
+        {
+          status: 400,
+          headers: {
+            "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+          },
+        }
+      );
     }
 
     // Search & Filter params
@@ -33,38 +53,79 @@ export async function GET(
         durationMinutes: true,
         isPublished: true,
         createdById: true,
+        isLive: true,
+        liveStartAt: true,
+        liveEndAt: true,
         series: { select: { title: true, examName: true } },
       },
     });
 
     if (!test) {
-      return NextResponse.json({ error: "Test not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Test not found" },
+        {
+          status: 404,
+          headers: {
+            "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+          },
+        }
+      );
     }
 
     if (!test.isPublished) {
       const isCreator = test.createdById === session.user.id;
       const isAdmin = (session.user as any).role === "ADMIN";
       if (!isCreator && !isAdmin) {
-        return NextResponse.json({ error: "Test not found" }, { status: 404 });
+        return NextResponse.json(
+          { error: "Test not found" },
+          {
+            status: 404,
+            headers: {
+              "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+            },
+          }
+        );
       }
     }
 
-    // Ownership check: a TEACHER cannot view submissions/rankings for another teacher's test
-    const userRole = (session.user as any).role;
-    if (userRole === "TEACHER" && test.createdById !== session.user.id) {
+    // Check if the current user has at least one SUBMITTED attempt for this test
+    const userSubmittedAttempt = await prisma.examAttempt.findFirst({
+      where: {
+        testId,
+        userId: session.user.id,
+        status: "SUBMITTED",
+      },
+      select: { id: true },
+    });
+
+    // Enforce canonical access control (handles role bypass: admin platform-wide, teacher author-only, student submitted-only, and live test end time check on server clock)
+    const accessDecision = canViewLeaderboard(
+      session.user as any,
+      test,
+      Boolean(userSubmittedAttempt)
+    );
+
+    if (!accessDecision.allowed) {
       return NextResponse.json(
-        { error: "Forbidden: You cannot view submissions for another teacher's test" },
-        { status: 403 }
+        {
+          error: accessDecision.reason,
+          isLiveActive: accessDecision.isLiveActive,
+        },
+        {
+          status: accessDecision.statusCode,
+          headers: {
+            "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+          },
+        }
       );
     }
 
     // Fetch deduplicated qualifying rankings using canonical ranking helper
     const { totalCandidates, rankedAttempts } = await getTestRankings(testId);
 
+    // Sanitize rankings: omit attemptId, userId, email, or any other internal database identifier.
+    // Return only public display fields, score, accuracy/percentile, time, and isCurrentUser flag.
     const rankList = rankedAttempts.map((a) => ({
-      id: a.userId,
-      userId: a.userId,
-      attemptId: a.attemptId,
       name: a.name,
       avatar: a.avatar,
       score: a.score,
@@ -113,18 +174,34 @@ export async function GET(
     }
     const marksDistribution = buckets.map((b) => ({ range: b.label, count: b.count }));
 
-    return NextResponse.json({
-      data: {
-        testTitle: test.title,
-        totalCandidates,
-        toppers: rankList.slice(0, 3),
-        leaderboard: filtered,
-        currentUserRank,
-        marksDistribution,
+    return NextResponse.json(
+      {
+        data: {
+          testTitle: test.title,
+          totalCandidates,
+          toppers: rankList.slice(0, 3),
+          leaderboard: filtered,
+          currentUserRank,
+          marksDistribution,
+        },
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error("[EXAM_LEADERBOARD_ERROR]", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+        },
+      }
+    );
   }
 }
+

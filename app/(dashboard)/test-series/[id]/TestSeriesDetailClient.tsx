@@ -48,6 +48,10 @@ interface TestItem {
     isLockedForGuest?: boolean
     syllabus?: string | null
     syllabusHi?: string | null
+    isLive?: boolean
+    liveStartAt?: string | null
+    liveEndAt?: string | null
+    createdById?: string | null
 }
 
 interface TestSection {
@@ -82,8 +86,35 @@ function TestCardItem({
     const [syllabusLang, setSyllabusLang] = useState<"en" | "hi">("en")
 
     const userAttemptId = submittedAttempts[test.id]
-    const isTeacherOrAdmin = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
-    const canViewSolutions = !!userAttemptId || isTeacherOrAdmin
+    const isAdmin = session?.user?.role === "ADMIN"
+    const isAuthorTeacher = session?.user?.role === "TEACHER" && test.createdById === session?.user?.id
+    const isStaffWithAccess = isAdmin || isAuthorTeacher
+
+    // Check live window
+    const now = new Date()
+    const isLiveActive = Boolean(
+        test.isLive && test.liveEndAt && now < new Date(test.liveEndAt)
+    )
+
+    // Access decisions
+    const canViewSolutions = isStaffWithAccess || (!!userAttemptId && !isLiveActive)
+    const solutionsLockedReason = !session?.user
+        ? "Sign in and submit the test to view solutions"
+        : !userAttemptId && !isStaffWithAccess
+        ? "Submit the test to view solutions"
+        : isLiveActive
+        ? `Available after live test ends${test.liveEndAt ? ` at ${new Date(test.liveEndAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : ""}`
+        : ""
+
+    const canViewLeaderboard = isStaffWithAccess || (!!userAttemptId && !isLiveActive)
+    const leaderboardLockedReason = !session?.user
+        ? "Sign in and submit the test to view rankings"
+        : !userAttemptId && !isStaffWithAccess
+        ? "Submit the test to view rankings"
+        : isLiveActive
+        ? `Available after live test ends${test.liveEndAt ? ` at ${new Date(test.liveEndAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : ""}`
+        : ""
+
     const solutionsHref = userAttemptId
         ? `/test-series/${currentSeries.id}/solutions?testId=${encodeURIComponent(test.id)}&attemptId=${encodeURIComponent(userAttemptId)}`
         : `/test-series/${currentSeries.id}/solutions?testId=${encodeURIComponent(test.id)}`
@@ -127,25 +158,47 @@ function TestCardItem({
                 </div>
 
                 <div className="w-full sm:w-auto flex items-center justify-end flex-wrap gap-2 shrink-0">
-                    {canViewSolutions && (
+                    {canViewSolutions ? (
                         <Link
                             href={solutionsHref}
                             className="min-h-[44px] px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
                             title="View Solutions"
                         >
-                            <Check className="h-3.5 w-3.5" />
+                            <Check className="h-3.5 w-3.5 text-emerald-600" />
                             <span>Solutions</span>
                         </Link>
+                    ) : (
+                        <button
+                            type="button"
+                            disabled
+                            className="min-h-[44px] px-3 py-2 rounded-xl border border-gray-200/70 dark:border-gray-800 text-gray-400 dark:text-gray-600 text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-not-allowed opacity-60 shrink-0"
+                            title={solutionsLockedReason}
+                        >
+                            <Lock className="h-3.5 w-3.5" />
+                            <span>Solutions</span>
+                        </button>
                     )}
 
-                    <Link
-                        href={`/test-series/${test.id}/leaderboard`}
-                        className="min-h-[44px] px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
-                        title="View Leaderboard"
-                    >
-                        <BarChart3 className="h-3.5 w-3.5" />
-                        <span>Rankings</span>
-                    </Link>
+                    {canViewLeaderboard ? (
+                        <Link
+                            href={`/test-series/${test.id}/leaderboard`}
+                            className="min-h-[44px] px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 text-xs font-bold transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                            title="View Leaderboard"
+                        >
+                            <BarChart3 className="h-3.5 w-3.5 text-sky-600" />
+                            <span>Rankings</span>
+                        </Link>
+                    ) : (
+                        <button
+                            type="button"
+                            disabled
+                            className="min-h-[44px] px-3 py-2 rounded-xl border border-gray-200/70 dark:border-gray-800 text-gray-400 dark:text-gray-600 text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-not-allowed opacity-60 shrink-0"
+                            title={leaderboardLockedReason}
+                        >
+                            <Lock className="h-3.5 w-3.5" />
+                            <span>Rankings</span>
+                        </button>
+                    )}
 
                     <TestActionButton
                         testId={test.id}

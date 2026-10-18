@@ -251,6 +251,7 @@ export async function GET(req: NextRequest) {
         isLive: Boolean(t.isLive),
         liveStartAt: t.liveStartAt ? t.liveStartAt.toISOString() : null,
         liveEndAt: t.liveEndAt ? t.liveEndAt.toISOString() : null,
+        createdById: t.createdById,
         order: t.order ?? 0,
         createdAt: t.createdAt ? t.createdAt.toISOString() : null,
         attempts: t._count?.attempts ?? 0,
