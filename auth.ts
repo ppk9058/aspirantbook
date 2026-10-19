@@ -1,3 +1,4 @@
+import { cache } from "react"
 import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { authConfig } from "./auth.config"
@@ -292,9 +293,9 @@ export function setMockSessionProvider(provider: (() => any) | null) {
     mockSessionProvider = provider
 }
 
-export const auth: typeof nextAuthResult.auth = ((...args: any[]) => {
+export const auth: typeof nextAuthResult.auth = cache(((...args: any[]) => {
     if (mockSessionProvider && args.length === 0) {
         return Promise.resolve(mockSessionProvider())
     }
     return (nextAuthResult.auth as any)(...args)
-}) as any
+})) as any

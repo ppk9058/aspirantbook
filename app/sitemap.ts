@@ -2,7 +2,6 @@ import { MetadataRoute } from "next"
 import { prisma } from "@/lib/prisma"
 import { getAllBooks } from "@/lib/books/bookService"
 
-export const dynamic = "force-dynamic"
 export const revalidate = 3600 // 1 hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -63,7 +62,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             prisma.examSeries.findMany({
                 where: {
                     isPublished: true,
-                    slug: { notIn: ["current-affairs-system-series", "pyq-system-series"] },
+                    isArchived: false,
+                    slug: { notIn: ["current-affairs-system-series", "pyq-system-series", "unassigned-tests-system-series"] },
                 },
                 select: { slug: true },
             }).catch(() => []),

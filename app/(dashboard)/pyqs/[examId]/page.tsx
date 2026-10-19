@@ -4,7 +4,7 @@ import { PyqStudentListingClient } from "@/components/pyqs/PyqStudentListingClie
 import Link from "next/link"
 import { ArrowLeft, BookOpen, AlertCircle, Sparkles } from "lucide-react"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 
 export default async function ExamCategoryDetailPage({
   params,
