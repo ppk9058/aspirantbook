@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { unstable_cache } from "next/cache"
 import { ensureDefaultPyqData, getAllPapers } from "@/lib/pyqs-service"
 import { PyqStudentListingClient } from "@/components/pyqs/PyqStudentListingClient"
 import { BookOpen, Sparkles, ShieldCheck } from "lucide-react"
@@ -14,13 +15,9 @@ export const metadata = {
   description: "Download and practice verified previous year examination papers for BPSC, UPSC, NCERT, and State Boards with answer keys and CBT simulations.",
 }
 
-export default async function PreviousYearQuestionsPage() {
+async function fetchPyqCatalog(sortedGoalsStr: string) {
+  const goalIds = sortedGoalsStr ? sortedGoalsStr.split(",").filter(Boolean) : []
   await ensureDefaultPyqData()
-
-  const session = await auth()
-  const cookieStore = await cookies()
-  const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null
-  const { goalIds } = await getStudentGoals(session?.user?.id, cookieGoal)
 
   const [categories, papers] = await Promise.all([
     prisma.pyqCategory.findMany({
@@ -50,6 +47,30 @@ export default async function PreviousYearQuestionsPage() {
         })
       })
     : categories
+
+  return {
+    papers: filteredPapers,
+    categories: filteredCategories,
+  }
+}
+
+const getCachedPyqCatalog = unstable_cache(
+  fetchPyqCatalog,
+  ["pyqs-catalog-v1"],
+  { revalidate: 60, tags: ["pyqs"] }
+)
+
+const getPyqCatalog =
+  process.env.APP_ENV === "test" ? fetchPyqCatalog : getCachedPyqCatalog
+
+export default async function PreviousYearQuestionsPage() {
+  const session = await auth()
+  const cookieStore = await cookies()
+  const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null
+  const { goalIds } = await getStudentGoals(session?.user?.id, cookieGoal)
+  const sortedGoalsStr = [...goalIds].sort().join(",")
+
+  const { papers: filteredPapers, categories: filteredCategories } = await getPyqCatalog(sortedGoalsStr)
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

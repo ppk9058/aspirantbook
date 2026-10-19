@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+import { unstable_cache } from "next/cache"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { TutorialsClientView, TutorialItem } from "./TutorialsClientView"
@@ -104,6 +105,90 @@ import { cookies } from "next/headers"
 import { getStudentGoals } from "@/lib/goals/student-goals"
 import { doesCategoryMatchAnyGoal } from "@/lib/goals/goal-filters"
 
+async function fetchTutorials(isStaff: boolean, sortedGoalsStr: string): Promise<TutorialItem[]> {
+    const goalIds = sortedGoalsStr ? sortedGoalsStr.split(",").filter(Boolean) : []
+    const dbCourses = await prisma.course.findMany({
+        orderBy: { createdAt: "desc" },
+        include: {
+            chapters: {
+                orderBy: { order: "asc" },
+                include: {
+                    lessons: {
+                        orderBy: { order: "asc" },
+                        select: { id: true, title: true, type: true, videoUrl: true },
+                    },
+                },
+            },
+            _count: {
+                select: { enrollments: true },
+            },
+        },
+    })
+
+    // Strictly include ONLY text-based tutorials created in Tutorial Studio
+    // Video courses belong exclusively to the Courses menu
+    const textTutorials = dbCourses.filter((c) => {
+        if (c.slug === "72nd-bpsc-prelims-current-affairs") return false
+        const lowerTitle = (c.title || "").toLowerCase()
+        const lowerSlug = (c.slug || "").toLowerCase()
+        if (lowerTitle.includes("video course") || lowerTitle.includes("video tutorial") || lowerSlug.includes("video")) {
+            return false
+        }
+        const allLessons = c.chapters?.flatMap((ch: any) => ch.lessons || []) || []
+        const hasVideoLessons = allLessons.some((l: any) => Boolean(l.videoUrl) || l.type === "VIDEO")
+        if (hasVideoLessons) return false
+
+        // Hide tutorials with 0 lessons from student listings (still visible to teacher/admin and Studio)
+        if (!isStaff && allLessons.length === 0) {
+            return false
+        }
+
+        return true
+    })
+
+    // Filter by Global Goal server-side (query/data layer with OR logic for multi-goal):
+    const goalFilteredTutorials = textTutorials.filter((t) => {
+        return doesCategoryMatchAnyGoal(t.technology, goalIds)
+    })
+
+    if (goalFilteredTutorials.length > 0) {
+        return goalFilteredTutorials.map((t) => ({
+            id: t.id,
+            title: t.title,
+            slug: t.slug,
+            description: t.description,
+            status: t.status,
+            difficulty: t.difficulty,
+            technology: t.technology,
+            createdAt: t.createdAt instanceof Date ? t.createdAt.toISOString() : t.createdAt,
+            updatedAt: t.updatedAt instanceof Date ? t.updatedAt.toISOString() : t.updatedAt,
+            chapters: t.chapters?.map((ch) => ({
+                id: ch.id,
+                title: ch.title,
+                order: ch.order,
+                lessons: ch.lessons.map((l) => ({
+                    id: l.id,
+                    title: l.title,
+                    type: l.type,
+                    videoUrl: l.videoUrl,
+                })),
+            })),
+            _count: t._count,
+        }))
+    }
+
+    return []
+}
+
+const getCachedTutorials = unstable_cache(
+    fetchTutorials,
+    ["tutorials-list-v1"],
+    { revalidate: 60, tags: ["tutorials", "courses"] }
+)
+
+const getTutorials =
+    process.env.APP_ENV === "test" ? fetchTutorials : getCachedTutorials
+
 export default async function TutorialsPage() {
     const session = await auth()
     const userRole = session?.user?.role || null
@@ -113,83 +198,13 @@ export default async function TutorialsPage() {
     const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null
     const { goalIds, primaryGoal } = await getStudentGoals(session?.user?.id, cookieGoal)
 
+    const isStaff = userRole === "ADMIN" || userRole === "TEACHER"
+    const sortedGoalsStr = [...goalIds].sort().join(",")
+
     let tutorials: TutorialItem[] = []
 
     try {
-        const dbCourses = await prisma.course.findMany({
-            orderBy: { createdAt: "desc" },
-            include: {
-                chapters: {
-                    orderBy: { order: "asc" },
-                    include: {
-                        lessons: {
-                            orderBy: { order: "asc" },
-                            select: { id: true, title: true, type: true, videoUrl: true },
-                        },
-                    },
-                },
-                _count: {
-                    select: { enrollments: true },
-                },
-            },
-        })
-
-        const isStaff = userRole === "ADMIN" || userRole === "TEACHER"
-
-        // Strictly include ONLY text-based tutorials created in Tutorial Studio
-        // Video courses belong exclusively to the Courses menu
-        const textTutorials = dbCourses.filter((c) => {
-            if (c.slug === "72nd-bpsc-prelims-current-affairs") return false
-            const lowerTitle = (c.title || "").toLowerCase()
-            const lowerSlug = (c.slug || "").toLowerCase()
-            if (lowerTitle.includes("video course") || lowerTitle.includes("video tutorial") || lowerSlug.includes("video")) {
-                return false
-            }
-            const allLessons = c.chapters?.flatMap((ch: any) => ch.lessons || []) || []
-            const hasVideoLessons = allLessons.some((l: any) => Boolean(l.videoUrl) || l.type === "VIDEO")
-            if (hasVideoLessons) return false
-
-            // Hide tutorials with 0 lessons from student listings (still visible to teacher/admin and Studio)
-            if (!isStaff && allLessons.length === 0) {
-                return false
-            }
-
-            return true
-        })
-
-        // Filter by Global Goal server-side (query/data layer with OR logic for multi-goal):
-        const goalFilteredTutorials = textTutorials.filter((t) => {
-            return doesCategoryMatchAnyGoal(t.technology, goalIds)
-        })
-
-        if (goalFilteredTutorials.length > 0) {
-            tutorials = goalFilteredTutorials.map((t) => ({
-                id: t.id,
-                title: t.title,
-                slug: t.slug,
-                description: t.description,
-                status: t.status,
-                difficulty: t.difficulty,
-                technology: t.technology,
-                createdAt: t.createdAt,
-                updatedAt: t.updatedAt,
-                chapters: t.chapters?.map((ch) => ({
-                    id: ch.id,
-                    title: ch.title,
-                    order: ch.order,
-                    lessons: ch.lessons.map((l) => ({
-                        id: l.id,
-                        title: l.title,
-                        type: l.type,
-                        videoUrl: l.videoUrl,
-                    })),
-                })),
-                _count: t._count,
-            }))
-        } else {
-            // Do not re-enable hardcoded fallback tutorials. Return empty array for strict goal isolation
-            tutorials = []
-        }
+        tutorials = await getTutorials(isStaff, sortedGoalsStr)
     } catch (err: any) {
         console.warn("Database error on /tutorials:", err.message)
         tutorials = []
