@@ -27,10 +27,10 @@ export async function GET(
     if (fs.existsSync(sampleFilePath)) {
       fileBuffer = fs.readFileSync(sampleFilePath);
     } else {
-      // Create minimal valid PDF in memory for tests & offline preview
-      fileBuffer = Buffer.from(
-        "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<<>>>>endobj\nxref\n0 4\n0000000000 65535 f\n0000000009 00000 n\n0000000052 00000 n\n0000000101 00000 n\ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n178\n%%EOF"
-      );
+      // Create minimal valid PDF padded to 4KB for range slicing tests
+      const header = "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<<>>>>endobj\nxref\n0 4\n0000000000 65535 f\n0000000009 00000 n\n0000000052 00000 n\n0000000101 00000 n\ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n178\n%%EOF\n";
+      const padding = "%" + "A".repeat(Math.max(0, 4096 - header.length));
+      fileBuffer = Buffer.from(header + padding);
     }
 
     const totalSize = fileBuffer.length;
