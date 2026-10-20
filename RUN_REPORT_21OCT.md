@@ -393,3 +393,33 @@ trillionskill-test-db   Up 2 hours (healthy)   127.0.0.1:54329->5432/tcp
   - Mobile test suite (`cd apps/mobile && npm test`): **24 / 24 passed**.
   - TypeScript: Shared 0 errors, Mobile 0 errors, Web 65 baseline errors (0 new errors).
 - **Checkpoint Tag**: `checkpoint/phase-7`
+
+---
+
+## Phase 8 - Run-on-Phone Tooling & Documentation
+
+- **Status**: PASSED
+- **LAN Detection & Environment Provisioning**:
+  - Implemented `scripts/mobile-env.mjs`:
+    - Inspects network interfaces via `os.networkInterfaces()`, prioritizing active Wi-Fi/Ethernet adapters (`en0`, `eth0`, `wlan0`) while ignoring container and loopback bridges.
+    - Successfully detected LAN IP (`192.168.0.101`).
+    - Writes `EXPO_PUBLIC_API_URL=http://<lan-ip>:3045` into `apps/mobile/.env.local`.
+    - Outputs ASCII QR code via `qrcode-terminal` for instant Expo Go pairing.
+- **Companion Mobile Seed Script**:
+  - Implemented `scripts/seed-mobile-test.ts` (`npm run seed:mobile-test`):
+    - Seeds 3 testing roles:
+      1. Guest: Free catalogue access & 20% preview slices without login.
+      2. Student (Pro): `student.mobile@aspirantbook.com` / `Student123!` (Active yearly Pro subscription, 2 pre-seeded mock test attempts).
+      3. Admin: `admin.mobile@aspirantbook.com` / `Admin123!` (Administrative access).
+- **Run-on-Phone Dev Server Launcher**:
+  - Implemented `scripts/dev-lan.mjs` (`npm run dev:lan`):
+    - Provisions LAN IP environment.
+    - Concurrently launches Next.js test API server on `0.0.0.0:3045` (`APP_ENV=test`) and Expo Metro bundler in LAN mode (`npx expo start --lan`).
+    - Handled clean process termination (`SIGINT`/`SIGTERM`).
+- **Comprehensive Documentation**:
+  - Created `docs/RUN_ON_PHONE.md`:
+    - Step-by-step instructions for Android & iOS Expo Go scanning.
+    - Pre-seeded test credentials.
+    - Switching to Dev DB with strict read-only warnings.
+    - Troubleshooting Wi-Fi router isolation, macOS Application Firewall, and LAN IP network hopping.
+- **Checkpoint Tag**: `checkpoint/phase-8`
