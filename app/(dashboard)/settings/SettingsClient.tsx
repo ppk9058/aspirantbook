@@ -17,8 +17,10 @@ import {
     LogOut,
     Trash2,
     ShieldAlert,
+    ShieldCheck,
     X,
 } from "lucide-react"
+import Link from "next/link"
 import { useTheme } from "@/components/providers/ThemeProvider"
 import { updateProfile, changePassword, deleteAccount } from "@/lib/actions/user/profile"
 import { logoutAllDevicesAction } from "@/lib/actions/auth"
@@ -494,6 +496,35 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                                 <Trash2 className="h-4 w-4" />
                                 Delete My Account
                             </Button>
+                        </CardContent>
+                    </Card>
+
+                    {/* Legal, Privacy & Policies */}
+                    <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-xs">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-base font-bold flex items-center gap-2">
+                                <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                                Legal &amp; Compliance
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2 text-xs">
+                            <p className="text-slate-600 dark:text-slate-400 mb-3">
+                                Review our terms of service, data privacy rules, and student data protection standards.
+                            </p>
+                            <div className="flex flex-wrap gap-4 pt-1">
+                                <Link
+                                    href="/privacy"
+                                    className="font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1"
+                                >
+                                    <span>Privacy Policy &rarr;</span>
+                                </Link>
+                                <Link
+                                    href="/terms"
+                                    className="font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1"
+                                >
+                                    <span>Terms &amp; Conditions &rarr;</span>
+                                </Link>
+                            </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
