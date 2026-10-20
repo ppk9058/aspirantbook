@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { unstable_cache } from "next/cache"
 import { Metadata } from "next"
 import CurrentAffairsQuizzesClient from "@/components/quizzes/CurrentAffairsQuizzesClient"
 
@@ -15,8 +16,8 @@ export default async function CurrentAffairsQuizzesPage() {
 
   // Fetch published monthly CA PDFs directly from database
   let initialPdfs: any[] = []
-  try {
-    initialPdfs = await prisma.currentAffairsPdf.findMany({
+  const fetchCaPdfs = async () => {
+    return prisma.currentAffairsPdf.findMany({
       where: { status: "PUBLISHED" },
       orderBy: [
         { year: "desc" },
@@ -38,6 +39,18 @@ export default async function CurrentAffairsQuizzesPage() {
         createdAt: true,
       },
     })
+  }
+
+  const getCachedCaPdfs = unstable_cache(
+    fetchCaPdfs,
+    ["current-affairs-pdfs-v1"],
+    { revalidate: 60, tags: ["current-affairs"] }
+  )
+
+  const getCaPdfs = process.env.APP_ENV === "test" ? fetchCaPdfs : getCachedCaPdfs
+
+  try {
+    initialPdfs = await getCaPdfs()
   } catch (err) {
     console.error("Error loading initial Current Affairs PDFs:", err)
   }

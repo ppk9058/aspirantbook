@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { unstable_cache } from "next/cache"
 import Link from "next/link"
 import { Compass, Sparkles, BookOpen, Clock, ArrowRight, Target, CheckCircle2, ShieldCheck } from "lucide-react"
 
@@ -12,8 +13,8 @@ export default async function TracksPage({
 
     let tracks: any[] = []
 
-    try {
-        tracks = await prisma.track.findMany({
+    const fetchTracks = async () => {
+        return prisma.track.findMany({
             where: {
                 isPublished: true,
             },
@@ -26,6 +27,18 @@ export default async function TracksPage({
                 order: "asc",
             },
         })
+    }
+
+    const getCachedTracks = unstable_cache(
+        fetchTracks,
+        ["tracks-list-v1"],
+        { revalidate: 60, tags: ["tracks"] }
+    )
+
+    const getTracks = process.env.APP_ENV === "test" ? fetchTracks : getCachedTracks
+
+    try {
+        tracks = await getTracks()
     } catch {
         console.warn("Database offline on /tracks, serving fallback tracks.")
         tracks = [
