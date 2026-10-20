@@ -44,6 +44,7 @@ export default function PdfCanvasViewer({
       setErrorMessage(null);
 
       try {
+        // @ts-ignore - dynamic import of pdfjs-dist ESM bundle
         const pdfjsLib = await import('pdfjs-dist/build/pdf.mjs');
         if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
           pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';

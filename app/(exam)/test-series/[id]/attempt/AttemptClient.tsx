@@ -1087,7 +1087,7 @@ function Arena() {
                 const listener = App.addListener("appStateChange", ({ isActive }) => {
                     if (!isActive) {
                         // Immediately autosave current answers to server & IDB
-                        flushSync()
+                        syncAttemptToServer(currentAttemptsRef.current, tabSwitchCountRef.current)
 
                         // 5-second grace period before recording violation
                         pauseTimer = setTimeout(() => {
@@ -1138,7 +1138,7 @@ function Arena() {
         }
         document.addEventListener("visibilitychange", handleVisibilityChange)
         return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
-    }, [submitted, paused, flushSync])
+    }, [submitted, paused, syncAttemptToServer])
 
     // ── Anti-Cheat: Right-click & Copy-Paste disable ──────────────
     useEffect(() => {
