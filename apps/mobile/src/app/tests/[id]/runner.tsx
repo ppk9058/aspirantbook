@@ -92,17 +92,32 @@ export default function CbtRunnerScreen() {
         if (!mounted) return;
 
         if (res.ok && res.data) {
-          const data = res.data;
+          const data = res.data as any;
           setAttempt(data);
-          const qs = data.questions || [];
+          const rawQuestions = data.questions || [];
+          const qs: Question[] = rawQuestions.map((q: any) => ({
+            id: q.id,
+            order: q.questionNumber || q.order || 1,
+            sectionId: q.sectionId,
+            sectionName: q.sectionName,
+            text: q.textEn || q.text || "",
+            options: Array.isArray(q.options)
+              ? q.options
+              : (q.optionsEn || []).map((opt: string, idx: number) => ({
+                  id: String.fromCharCode(65 + idx),
+                  text: opt,
+                })),
+            positiveMarks: q.positiveMarks || 2,
+            negativeMarks: q.negativeMarks || 0.5,
+          }));
           setQuestions(qs);
 
           // Restore existing responses
           const existingAnswers: Record<string, string> = {};
           if (Array.isArray(data.responses)) {
             data.responses.forEach((r: any) => {
-              if (r.selectedOptionId) {
-                existingAnswers[r.questionId] = r.selectedOptionId;
+              if (r.selectedOptionId || r.selectedOption) {
+                existingAnswers[r.questionId] = r.selectedOptionId || r.selectedOption;
               }
             });
           }
@@ -114,11 +129,10 @@ export default function CbtRunnerScreen() {
           }
 
           // Target end calculation from server
-          if (data.targetEndTimestamp) {
-            targetEndRef.current = new Date(data.targetEndTimestamp).getTime();
-            const now = Date.now();
-            const rem = Math.max(0, Math.floor((targetEndRef.current - now) / 1000));
-            setRemainingSeconds(rem);
+          if (data.targetEndTimestamp || data.timeRemainingSecs) {
+            const remSecs = data.timeRemainingSecs || 3600;
+            targetEndRef.current = Date.now() + remSecs * 1000;
+            setRemainingSeconds(remSecs);
           } else {
             // Default 60 minutes if not specified
             targetEndRef.current = Date.now() + 60 * 60 * 1000;

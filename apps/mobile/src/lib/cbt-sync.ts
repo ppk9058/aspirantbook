@@ -17,6 +17,14 @@ let currentSequence = 0;
 let isSyncing = false;
 
 export const CbtSyncQueue = {
+  async init() {
+    return Promise.resolve();
+  },
+
+  enqueue(attemptId: string, questionId: string, selectedOption: string | null) {
+    this.saveAnswer(attemptId, questionId, selectedOption).catch(() => {});
+  },
+
   /**
    * Immediately persists answer locally (O(1)) and enqueues for cloud synchronization.
    */
@@ -64,7 +72,10 @@ export const CbtSyncQueue = {
   /**
    * Flushes unsynced answers to the server in a single batch.
    */
-  async flush(attemptId: string): Promise<{ syncedCount: number; pendingCount: number }> {
+  async flush(attemptId?: string): Promise<{ syncedCount: number; pendingCount: number }> {
+    if (!attemptId) {
+      return { syncedCount: 0, pendingCount: 0 };
+    }
     if (isSyncing) return { syncedCount: 0, pendingCount: this.getPendingCount(attemptId) };
 
     const unsynced: LocalAnswerRecord[] = [];
@@ -132,3 +143,5 @@ export const CbtSyncQueue = {
     }
   },
 };
+
+export const cbtSyncQueue = CbtSyncQueue;

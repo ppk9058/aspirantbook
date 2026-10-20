@@ -79,7 +79,8 @@ export const api = createApiClient({
     let response = await fetch(url, init);
 
     // If 401 Unauthorized, perform single-flight refresh and retry once
-    if (response.status === 401 && !url.includes("/api/v1/auth/")) {
+    const urlStr = typeof url === "string" ? url : (url as any).url || "";
+    if (response.status === 401 && !urlStr.includes("/api/v1/auth/")) {
       const newAccessToken = await refreshAccessTokenSingleFlight();
       if (newAccessToken) {
         const retryHeaders = new Headers(init.headers || {});
@@ -91,3 +92,9 @@ export const api = createApiClient({
     return response;
   },
 });
+
+export const apiClient = {
+  ...api,
+  baseUrl: API_BASE_URL,
+  getAccessToken: async () => Storage.getAccessToken(),
+};

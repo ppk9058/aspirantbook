@@ -21,7 +21,8 @@ export default function ForgotPasswordScreen() {
 
     setLoading(true);
     try {
-      await fetch(`${api.getConfig ? "http://10.0.2.2:3045" : ""}/api/v1/auth/forgot-password`, {
+      const baseUrl = "http://10.0.2.2:3045";
+      await fetch(`${baseUrl}/api/v1/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),

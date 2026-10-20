@@ -1,10 +1,19 @@
 import { Platform } from "react-native";
+import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { api } from "./api";
 
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
   // Push tokens only available on physical mobile devices
   if (Platform.OS !== "android" && Platform.OS !== "ios") {
+    return null;
+  }
+
+  // Remote push notifications are not supported inside Expo Go (SDK 52+); requires development build
+  const isExpoGo =
+    Constants.appOwnership === "expo" ||
+    Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+  if (isExpoGo) {
     return null;
   }
 

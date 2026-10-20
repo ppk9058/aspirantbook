@@ -8,16 +8,21 @@ import { COLORS } from "@/lib/theme";
 interface AvailableOnWebsiteModalProps {
   visible: boolean;
   onClose: () => void;
-  itemTitle: string;
+  itemTitle?: string;
+  title?: string;
   webUrl?: string;
+  reason?: string;
 }
 
 export function AvailableOnWebsiteModal({
   visible,
   onClose,
   itemTitle,
+  title,
   webUrl = "https://aspirantbook.com",
+  reason,
 }: AvailableOnWebsiteModalProps) {
+  const displayTitle = itemTitle || title || "Item";
   const handleOpenWebsite = async () => {
     try {
       await WebBrowser.openBrowserAsync(webUrl);
@@ -44,7 +49,7 @@ export function AvailableOnWebsiteModal({
 
           <Text style={styles.title}>Available on our website</Text>
           <Text style={styles.subtitle}>
-            "{itemTitle}" can be enrolled or purchased on the AspirantBook website. Once enrolled, it will automatically sync to your mobile library.
+            {reason || `"${displayTitle}" can be enrolled or unlocked on the AspirantBook website. Once enrolled, it will automatically sync to your mobile library.`}
           </Text>
 
           <Button

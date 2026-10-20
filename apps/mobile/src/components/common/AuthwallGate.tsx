@@ -7,20 +7,28 @@ import { Card } from "./Card";
 import { COLORS } from "@/lib/theme";
 
 interface AuthwallGateProps {
-  isLocked: boolean;
-  totalBlocks: number;
-  previewBlocks: number;
+  isLocked?: boolean;
+  totalBlocks?: number;
+  previewBlocks?: number;
+  totalCount?: number;
+  previewCount?: number;
+  title?: string;
   gateTitle?: string | null;
   gateSubtitle?: string | null;
-  children: React.ReactNode;
+  onUnlock?: () => void;
+  children?: React.ReactNode;
 }
 
 export function AuthwallGate({
-  isLocked,
+  isLocked = true,
   totalBlocks,
   previewBlocks,
+  totalCount,
+  previewCount,
+  title,
   gateTitle,
   gateSubtitle,
+  onUnlock,
   children,
 }: AuthwallGateProps) {
   const router = useRouter();
@@ -29,7 +37,9 @@ export function AuthwallGate({
     return <>{children}</>;
   }
 
-  const remaining = Math.max(0, totalBlocks - previewBlocks);
+  const total = totalBlocks ?? totalCount ?? 0;
+  const preview = previewBlocks ?? previewCount ?? 0;
+  const remaining = Math.max(0, total - preview);
 
   return (
     <View style={styles.container}>

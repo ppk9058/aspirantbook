@@ -1,5 +1,5 @@
 import { describe, it, before, after } from "node:test";
-import assert from "node:assert/strict";
+import * as assert from "node:assert/strict";
 import { prisma } from "../lib/prisma";
 import {
   loginWithEmailPassword,
@@ -263,9 +263,11 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
   it("Guest receives ONLY 20% preview slice on gated tutorial lesson (no secret blocks)", async () => {
     const guestViewer = {
       userId: null,
+      name: null,
+      email: null,
       role: "FREE" as const,
       isGuest: true,
-      authMethod: "none" as const,
+      authMethod: "guest" as const,
     };
 
     const lesson = await getLessonDetail(guestViewer, courseSlug, testLessonGatedId);
@@ -285,9 +287,11 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
   it("Fully locked lesson returns 0 content blocks to guest (title only)", async () => {
     const guestViewer = {
       userId: null,
+      name: null,
+      email: null,
       role: "FREE" as const,
       isGuest: true,
-      authMethod: "none" as const,
+      authMethod: "guest" as const,
     };
 
     const lesson = await getLessonDetail(guestViewer, courseSlug, testLessonLockedId);
@@ -301,9 +305,11 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
   it("Fail-closed: Missing chunks content never crashes and returns 0 leaked blocks", async () => {
     const guestViewer = {
       userId: null,
+      name: null,
+      email: null,
       role: "FREE" as const,
       isGuest: true,
-      authMethod: "none" as const,
+      authMethod: "guest" as const,
     };
 
     const lesson = await getLessonDetail(guestViewer, courseSlug, testLessonCorruptId);
@@ -322,6 +328,7 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
 
     const user1Viewer = {
       userId: user1Id,
+      name: "Student One",
       email: user1Email,
       role: "FREE" as const,
       isGuest: false,
@@ -340,6 +347,7 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
   it("CRITICAL: Active attempt questions NEVER leak correctOption or explanation", async () => {
     const user1Viewer = {
       userId: user1Id,
+      name: "Student One",
       email: user1Email,
       role: "FREE" as const,
       isGuest: false,
@@ -360,6 +368,7 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
   it("CRITICAL: Solutions endpoint rejects with 403 before test submission", async () => {
     const user1Viewer = {
       userId: user1Id,
+      name: "Student One",
       email: user1Email,
       role: "FREE" as const,
       isGuest: false,
@@ -381,6 +390,7 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
   it("IDOR Guard: User 2 cannot access or view User 1's test attempt", async () => {
     const user1Viewer = {
       userId: user1Id,
+      name: "Student One",
       email: user1Email,
       role: "FREE" as const,
       isGuest: false,
@@ -389,6 +399,7 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
 
     const user2Viewer = {
       userId: user2Id,
+      name: "Student Two",
       email: user2Email,
       role: "FREE" as const,
       isGuest: false,
@@ -409,6 +420,7 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
   it("IDOR Guard: User 2 cannot sync answers or mutate User 1's test attempt", async () => {
     const user1Viewer = {
       userId: user1Id,
+      name: "Student One",
       email: user1Email,
       role: "FREE" as const,
       isGuest: false,
@@ -417,6 +429,7 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
 
     const user2Viewer = {
       userId: user2Id,
+      name: "Student Two",
       email: user2Email,
       role: "FREE" as const,
       isGuest: false,
@@ -427,9 +440,14 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
 
     await assert.rejects(
       async () => {
-        await syncAttemptAnswers(user2Viewer, start.attemptId, [
-          { questionId: "dummy-q-id", selectedOption: "A", sequenceNumber: 1 },
-        ]);
+        await syncAttemptAnswers(
+          user2Viewer,
+          start.attemptId,
+          [
+            { questionId: "dummy-q-id", selectedOption: "A", sequenceNumber: 1 },
+          ],
+          1
+        );
       },
       { message: /FORBIDDEN: Attempt belongs to another user/ }
     );

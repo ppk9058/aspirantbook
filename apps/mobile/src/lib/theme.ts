@@ -33,3 +33,21 @@ export const COLORS = {
 };
 
 export type ThemeMode = "light" | "dark";
+
+export function useTheme() {
+  return {
+    theme: {
+      colors: {
+        primary: COLORS.primary,
+        background: COLORS.light.background,
+        card: COLORS.light.card,
+        border: COLORS.light.border,
+        text: COLORS.light.textPrimary,
+        textMuted: COLORS.light.textMuted,
+        danger: COLORS.light.danger,
+        success: COLORS.light.success,
+      },
+    },
+    isDark: false,
+  };
+}

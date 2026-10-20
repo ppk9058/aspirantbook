@@ -75,7 +75,7 @@ export function createApiClient(options: ApiClientOptions) {
         onUnauthorized();
       }
 
-      const json = await res.json().catch(() => null);
+      const json: any = await res.json().catch(() => null);
 
       if (!res.ok) {
         return {
@@ -192,7 +192,11 @@ export function createApiClient(options: ApiClientOptions) {
     getTutorials: () => request<TutorialSummaryDto[]>("/api/v1/tutorials"),
     getTutorialDetail: (slug: string) =>
       request<TutorialSummaryDto>(`/api/v1/tutorials/${slug}`),
+    getTutorial: (slug: string) =>
+      request<TutorialSummaryDto>(`/api/v1/tutorials/${slug}`),
     getLessonDetail: (tutorialSlug: string, lessonId: string) =>
+      request<LessonDetailDto>(`/api/v1/tutorials/${tutorialSlug}/lessons/${lessonId}`),
+    getTutorialLesson: (tutorialSlug: string, lessonId: string) =>
       request<LessonDetailDto>(`/api/v1/tutorials/${tutorialSlug}/lessons/${lessonId}`),
     updateLessonProgress: (
       tutorialSlug: string,
