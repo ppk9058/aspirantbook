@@ -28,6 +28,8 @@ import {
     BookOpen,
     Sparkles,
 } from "lucide-react"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 import EnrollButton from "@/components/test-series/EnrollButton"
 import { TestActionButton } from "@/components/test-series/TestActionButton"
 import { useGoal } from "@/components/providers/GoalProvider"
@@ -851,12 +853,18 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                             </div>
                         </div>
 
-                        <button
-                            onClick={() => setIsPassModalOpen(true)}
-                            className="w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer text-center min-h-[44px]"
-                        >
-                            Get Pass
-                        </button>
+                        {!isPurchaseAllowedInApp() ? (
+                            <div className="mt-4">
+                                <AvailableOnWebsite fullWidth size="md" url={`/test-series/${initialSeries.slug || initialSeries.id}`} />
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setIsPassModalOpen(true)}
+                                className="w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer text-center min-h-[44px]"
+                            >
+                                Get Pass
+                            </button>
+                        )}
                     </div>
 
                     {/* Right Sidebar: "More Testseries for you" (Filtered by target goal) */}

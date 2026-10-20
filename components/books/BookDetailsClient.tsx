@@ -28,6 +28,8 @@ import {
   ShoppingCart,
   Check,
 } from "lucide-react"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 
 interface BookDetailsClientProps {
   initialBook?: Book | null
@@ -201,6 +203,10 @@ function BookDetailsContent({ initialBook, slug }: BookDetailsClientProps) {
                     <span>Download PDF</span>
                   </a>
                 </div>
+              </div>
+            ) : !isPurchaseAllowedInApp() ? (
+              <div className="hidden sm:block pt-1">
+                <AvailableOnWebsite fullWidth size="lg" url={`/books/${book.slug}`} />
               </div>
             ) : (
               /* Desktop Action Buttons: Add to Cart + Buy Now */
@@ -516,24 +522,30 @@ function BookDetailsContent({ initialBook, slug }: BookDetailsClientProps) {
 
       {/* Mobile Sticky Bottom Bar with Add to Cart and Buy Now */}
       {!isOwned && (
-        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 p-3 flex items-center gap-2 shadow-lg safe-area-bottom">
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className="flex-1 py-3 px-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-extrabold text-xs flex items-center justify-center gap-1 active:scale-95"
-          >
-            <ShoppingCart className="w-3.5 h-3.5" />
-            <span>{isItemInCart ? "In Cart" : "Add to Cart"}</span>
-          </button>
+        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 p-3 shadow-lg safe-area-bottom">
+          {!isPurchaseAllowedInApp() ? (
+            <AvailableOnWebsite fullWidth size="md" url={`/books/${book.slug}`} />
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="flex-1 py-3 px-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-extrabold text-xs flex items-center justify-center gap-1 active:scale-95"
+              >
+                <ShoppingCart className="w-3.5 h-3.5" />
+                <span>{isItemInCart ? "In Cart" : "Add to Cart"}</span>
+              </button>
 
-          <button
-            type="button"
-            onClick={handleBuyNow}
-            className="flex-1 py-3 px-3 rounded-xl bg-[#fb641b] hover:bg-[#e85813] text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md active:scale-95"
-          >
-            <Zap className="w-3.5 h-3.5 fill-white" />
-            <span>Buy Now</span>
-          </button>
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                className="flex-1 py-3 px-3 rounded-xl bg-[#fb641b] hover:bg-[#e85813] text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md active:scale-95"
+              >
+                <Zap className="w-3.5 h-3.5 fill-white" />
+                <span>Buy Now</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
 

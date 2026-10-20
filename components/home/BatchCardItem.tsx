@@ -7,6 +7,8 @@ import { useSession } from "next-auth/react"
 import { BookOpen, Calendar, ChevronRight, Loader2 } from "lucide-react"
 import { COURSE_SLUG_MAP, type BatchCourse } from "./homepage-courses.data"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 
 interface BatchCardItemProps {
     batch: BatchCourse
@@ -197,27 +199,33 @@ export default function BatchCardItem({ batch, liveDemoBadge }: BatchCardItemPro
 
                 {/* Right Action Button with Arrow */}
                 <div className="flex flex-shrink-0 items-center gap-1.5">
-                    <button
-                        type="button"
-                        onClick={handleButtonClick}
-                        disabled={isEnrolling}
-                        className={`z-10 flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-5 text-sm font-extrabold shadow-sm transition-all active:scale-95 disabled:opacity-75 ${
-                            isComingSoon
-                                ? "bg-amber-500 font-black text-gray-950 shadow-amber-200 hover:bg-amber-600"
-                                : isFree
-                                ? "bg-emerald-700 text-white shadow-emerald-200 hover:bg-emerald-800"
-                                : "bg-indigo-600 text-white shadow-indigo-200 hover:bg-indigo-700"
-                        }`}
-                    >
-                        {isEnrolling ? (
-                            <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                <span>Enrolling...</span>
-                            </>
-                        ) : (
-                            <span>{btnLabel}</span>
-                        )}
-                    </button>
+                    {actionType === "buy" && !isPurchaseAllowedInApp() ? (
+                        <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                            <AvailableOnWebsite size="sm" url={detailsUrl} />
+                        </div>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={handleButtonClick}
+                            disabled={isEnrolling}
+                            className={`z-10 flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-5 text-sm font-extrabold shadow-sm transition-all active:scale-95 disabled:opacity-75 ${
+                                isComingSoon
+                                    ? "bg-amber-500 font-black text-gray-950 shadow-amber-200 hover:bg-amber-600"
+                                    : isFree
+                                    ? "bg-emerald-700 text-white shadow-emerald-200 hover:bg-emerald-800"
+                                    : "bg-indigo-600 text-white shadow-indigo-200 hover:bg-indigo-700"
+                            }`}
+                        >
+                            {isEnrolling ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <span>Enrolling...</span>
+                                </>
+                            ) : (
+                                <span>{btnLabel}</span>
+                            )}
+                        </button>
+                    )}
                     <div className="pointer-events-none flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 text-gray-600 transition-colors group-hover:border-gray-300 group-hover:bg-gray-100 dark:border-white/10 dark:text-gray-300 dark:group-hover:bg-white/10">
                         <ChevronRight className="h-4 w-4" />
                     </div>

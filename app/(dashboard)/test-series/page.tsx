@@ -25,6 +25,8 @@ import dynamic from "next/dynamic"
 import { useSession } from "next-auth/react"
 import { useGoal, Goal } from "@/components/providers/GoalProvider"
 import GoalIcon from "@/components/layout/GoalIcon"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 import { cn } from "@/lib/utils"
 import {
     DropdownMenu,
@@ -568,13 +570,17 @@ export default function TestSeriesPage() {
                     </div>
 
                     <div className="shrink-0">
-                        <button
-                            onClick={() => setIsPassModalOpen(true)}
-                            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
-                        >
-                            <span>Get Pass</span>
-                            <ArrowRight className="h-3.5 w-3.5" />
-                        </button>
+                        {!isPurchaseAllowedInApp() ? (
+                            <AvailableOnWebsite size="sm" url="/pricing" />
+                        ) : (
+                            <button
+                                onClick={() => setIsPassModalOpen(true)}
+                                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
+                            >
+                                <span>Get Pass</span>
+                                <ArrowRight className="h-3.5 w-3.5" />
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

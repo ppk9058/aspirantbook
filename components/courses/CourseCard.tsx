@@ -11,6 +11,8 @@ import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 import { CoursePromoBadge } from "@/components/course/CoursePromoBadge"
 import type { CourseBadgeInfo } from "@/lib/coupons/badge-query"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 
 interface CourseCardProps {
     course: {
@@ -198,26 +200,32 @@ function CourseCard({
                         ) : null}
 
                         {/* Action Button: Watch Now (enrolled), Enroll (free), Buy Now (paid) */}
-                        <button
-                            type="button"
-                            onClick={handleActionButtonClick}
-                            className={`w-full py-2.5 px-3 min-h-[44px] rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-[2px_2px_0px_#10162F] dark:shadow-none border border-[#10162F] dark:border-slate-700 cursor-pointer ${
-                                enrolled
-                                    ? "bg-indigo-700 hover:bg-indigo-800 text-white"
-                                    : isFree
-                                    ? "bg-emerald-700 hover:bg-emerald-800 text-white"
-                                    : "bg-amber-700 hover:bg-amber-800 text-white"
-                            }`}
-                        >
-                            <PlayCircle className="h-4 w-4" />
-                            <span>
-                                {enrolled
-                                    ? "Watch Now"
-                                    : isFree
-                                    ? "Enroll"
-                                    : "Buy Now"}
-                            </span>
-                        </button>
+                        {!enrolled && !isFree && !isPurchaseAllowedInApp() ? (
+                            <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                                <AvailableOnWebsite fullWidth size="sm" url={`/courses/${course.slug}`} />
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={handleActionButtonClick}
+                                className={`w-full py-2.5 px-3 min-h-[44px] rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-[2px_2px_0px_#10162F] dark:shadow-none border border-[#10162F] dark:border-slate-700 cursor-pointer ${
+                                    enrolled
+                                        ? "bg-indigo-700 hover:bg-indigo-800 text-white"
+                                        : isFree
+                                        ? "bg-emerald-700 hover:bg-emerald-800 text-white"
+                                        : "bg-amber-700 hover:bg-amber-800 text-white"
+                                }`}
+                            >
+                                <PlayCircle className="h-4 w-4" />
+                                <span>
+                                    {enrolled
+                                        ? "Watch Now"
+                                        : isFree
+                                        ? "Enroll"
+                                        : "Buy Now"}
+                                </span>
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

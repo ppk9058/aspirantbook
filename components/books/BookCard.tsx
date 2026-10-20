@@ -6,6 +6,8 @@ import { Book } from "@/lib/books/types"
 import { useBookCart } from "@/lib/books/cartContext"
 import { useWishlist } from "@/lib/books/wishlistContext"
 import { Star, Plus, Minus, Heart, Zap, ShoppingCart } from "lucide-react"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 
 interface BookCardProps {
   book: Book
@@ -116,7 +118,11 @@ export default function BookCard({ book }: BookCardProps) {
 
       {/* Action Buttons: Add to Cart (turns into stepper) + Buy Now */}
       <div className="mt-3 pt-2 grid grid-cols-2 gap-2">
-        {cartItem ? (
+        {!isPurchaseAllowedInApp() ? (
+          <div className="col-span-2">
+            <AvailableOnWebsite size="sm" fullWidth url={`/books/${book.slug}`} />
+          </div>
+        ) : cartItem ? (
           <div
             onClick={(e) => {
               e.preventDefault()

@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef, useCallback } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 import {
   Video,
   Radio,
@@ -1787,12 +1789,16 @@ export default function LiveDemoRoomClient({
                     <span>{isHandRaised ? "✋ Hand Raised" : "✋ Raise Hand"}</span>
                   </button>
                 )}
-                <Link
-                  href={`/checkout?courseId=${course.slug}`}
-                  className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs shadow-md transition-all text-center cursor-pointer"
-                >
-                  Buy Now
-                </Link>
+                {!isPurchaseAllowedInApp() ? (
+                  <AvailableOnWebsite size="sm" url={`/courses/${course.slug}`} />
+                ) : (
+                  <Link
+                    href={`/checkout?courseId=${course.slug}`}
+                    className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs shadow-md transition-all text-center cursor-pointer"
+                  >
+                    Buy Now
+                  </Link>
+                )}
               </div>
             </div>
           )}

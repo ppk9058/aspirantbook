@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { CheckCheck, Plus, Loader2, ShieldCheck, ArrowRight } from "lucide-react"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 
 interface EnrollButtonProps {
     seriesId: string          // slug or id
@@ -127,6 +129,10 @@ export default function EnrollButton({
                 <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
         )
+    }
+
+    if (!effectiveIsFree && !isPurchaseAllowedInApp()) {
+        return <AvailableOnWebsite size={size} url={`/test-series/${seriesId}`} className={className} />
     }
 
     return (

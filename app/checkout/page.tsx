@@ -23,6 +23,8 @@ import { createCheckoutSession } from "@/lib/actions/payment/stripe"
 import { createRazorpayOrder } from "@/lib/actions/payment/razorpay"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 import Image from "next/image"
 import { useRazorpayCheckout } from "@/lib/payments/useRazorpayCheckout"
 
@@ -581,6 +583,13 @@ function CheckoutContent() {
                                         </>
                                     )}
                                 </Button>
+                            ) : !isPurchaseAllowedInApp() ? (
+                                <div className="space-y-2">
+                                    <AvailableOnWebsite fullWidth size="lg" url={typeof window !== "undefined" ? window.location.href : "/checkout"} />
+                                    <p className="text-xs text-center text-gray-500">
+                                        In-app purchases are disabled. Complete this checkout on our website.
+                                    </p>
+                                </div>
                             ) : (
                                 <Button
                                     className="w-full h-14 text-base font-extrabold bg-[#5B47FB] hover:bg-[#4835ea] text-white rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"

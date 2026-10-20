@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Crown, Loader2, Check, RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 
 interface PricingPlanButtonProps {
     planName: string
@@ -94,6 +96,14 @@ export default function PricingPlanButton({
 
     const isSuccess = checkoutStatus === "success"
     const isActive = isCurrentUserPlan || isSuccess
+
+    if (!isActive && !isPurchaseAllowedInApp()) {
+        return (
+            <div className="space-y-4">
+                <AvailableOnWebsite fullWidth size="lg" url="/pricing" />
+            </div>
+        )
+    }
 
     return (
         <div className="space-y-4">

@@ -94,6 +94,15 @@ export function getNativePlatform(): 'android' | 'ios' | 'web' {
 }
 
 /**
+ * Returns false inside the native app unless explicitly allowed by config flag.
+ * In a standard web browser, returns true.
+ */
+export function isPurchaseAllowedInApp(): boolean {
+  if (!isNativeApp()) return true;
+  return process.env.NEXT_PUBLIC_APP_ALLOW_PURCHASE === 'true';
+}
+
+/**
  * Server-side check for native app from request headers or cookies.
  */
 export function isNativeAppServer(headers: Headers, cookies?: { get: (name: string) => { value: string } | undefined }): boolean {

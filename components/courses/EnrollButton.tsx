@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Loader2, ShoppingCart, Sparkles, CheckCheck } from "lucide-react"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
 
 interface EnrollButtonProps {
     courseId: string
@@ -81,6 +83,10 @@ export default function EnrollButton({
                 Enrolled • Continue Learning
             </Button>
         )
+    }
+
+    if (isPremium && !isPurchaseAllowedInApp()) {
+        return <AvailableOnWebsite size="lg" url={`/courses/${courseSlug || courseId}`} />
     }
 
     return (

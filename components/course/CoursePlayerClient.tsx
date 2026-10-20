@@ -33,6 +33,9 @@ import {
 import { toggleLessonCompletion } from "@/lib/actions/course/progress"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { isPurchaseAllowedInApp } from "@/lib/native/platform"
+import { AvailableOnWebsite } from "@/components/native/AvailableOnWebsite"
+import { openExternalUrl } from "@/lib/native/browser"
 
 interface LessonItem {
   id: string
@@ -707,6 +710,10 @@ export function CoursePlayerClient({
                 <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 pt-2">
                   <button
                     onClick={() => {
+                      if (!isPurchaseAllowedInApp()) {
+                        openExternalUrl(`/courses/${course.slug}`)
+                        return
+                      }
                       if (session?.user) {
                         router.push(`/checkout?courseId=${course.id}`)
                       } else {
@@ -724,7 +731,7 @@ export function CoursePlayerClient({
                     }}
                     className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold text-white bg-sky-500 hover:bg-sky-400 transition-all shadow-lg shadow-sky-500/30 hover:scale-105 cursor-pointer"
                   >
-                    Buy Now
+                    {!isPurchaseAllowedInApp() ? "Available on our website" : "Buy Now"}
                   </button>
 
                   {trialLesson && (
