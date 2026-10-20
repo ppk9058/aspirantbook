@@ -17,6 +17,10 @@ export async function GET(
     const { id } = await params;
     const book = await getLibraryBookDetail(viewer, id);
 
+    if (!book.isFullAccess) {
+      return apiError("FORBIDDEN", "Ownership required to access full book file", 403, undefined, reqId);
+    }
+
     // If file is local or dummy sample PDF:
     const rangeHeader = req.headers.get("range");
 

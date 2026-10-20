@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
+import { canViewSolutions } from "@/lib/exam/access-control";
 import { Viewer } from "@/lib/api/v1/viewer";
 import {
   TestListItemDto,
@@ -362,7 +363,13 @@ export async function syncAttemptAnswers(
 
   const attempt = await prisma.examAttempt.findUnique({
     where: { id: attemptId },
-    select: { id: true, userId: true, status: true },
+    select: {
+      id: true,
+      userId: true,
+      status: true,
+      startedAt: true,
+      test: { select: { durationMinutes: true } },
+    },
   });
 
   if (!attempt) {
@@ -377,34 +384,69 @@ export async function syncAttemptAnswers(
     throw new Error("BAD_REQUEST: Cannot sync answers on an already finalized attempt");
   }
 
-  // Idempotently upsert each answer batch
+  // Check deadline + 30s grace period:
+  const durationMinutes = attempt.test?.durationMinutes ?? 60;
+  const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
+  const graceDeadlineMs = deadlineMs + 30 * 1000;
+
+  if (Date.now() > graceDeadlineMs) {
+    throw new Error("BAD_REQUEST: Attempt deadline has expired; answers are rejected");
+  }
+
+  // Monotonically and idempotently upsert each answer batch
+  let syncedCount = 0;
   for (const a of answers) {
-    await prisma.examAttemptAnswer.upsert({
+    const existing = await prisma.examAttemptAnswer.findUnique({
       where: {
         attemptId_questionId: {
           attemptId,
           questionId: a.questionId,
         },
       },
-      update: {
-        selectedOption: a.selectedOption ?? null,
-        ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
-        ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
-        clientSeq: a.sequenceNumber,
-      },
-      create: {
-        attemptId,
-        questionId: a.questionId,
-        selectedOption: a.selectedOption ?? null,
-        isMarked: a.isMarked ?? false,
-        timeSpentSecs: a.timeSpentSecs ?? 0,
-        clientSeq: a.sequenceNumber,
-      },
+      select: { clientSeq: true },
     });
+
+    if (existing) {
+      if (
+        existing.clientSeq !== null &&
+        existing.clientSeq !== undefined &&
+        existing.clientSeq > a.sequenceNumber
+      ) {
+        // Monotonic guard: older sequence packet cannot overwrite newer answer
+        continue;
+      }
+      await prisma.examAttemptAnswer.update({
+        where: {
+          attemptId_questionId: {
+            attemptId,
+            questionId: a.questionId,
+          },
+        },
+        data: {
+          selectedOption: a.selectedOption ?? null,
+          ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
+          ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
+          clientSeq: a.sequenceNumber,
+        },
+      });
+      syncedCount++;
+    } else {
+      await prisma.examAttemptAnswer.create({
+        data: {
+          attemptId,
+          questionId: a.questionId,
+          selectedOption: a.selectedOption ?? null,
+          isMarked: a.isMarked ?? false,
+          timeSpentSecs: a.timeSpentSecs ?? 0,
+          clientSeq: a.sequenceNumber,
+        },
+      });
+      syncedCount++;
+    }
   }
 
   return {
-    syncedCount: answers.length,
+    syncedCount,
     lastSequenceNumber,
   };
 }
@@ -420,7 +462,13 @@ export async function submitTestAttempt(
 
   const attempt = await prisma.examAttempt.findUnique({
     where: { id: attemptId },
-    select: { id: true, userId: true, status: true },
+    select: {
+      id: true,
+      userId: true,
+      status: true,
+      startedAt: true,
+      test: { select: { durationMinutes: true } },
+    },
   });
 
   if (!attempt) {
@@ -431,29 +479,62 @@ export async function submitTestAttempt(
     throw new Error("FORBIDDEN: Attempt belongs to another user");
   }
 
-  // If final answers provided in submit payload, sync them first
-  if (finalAnswers && finalAnswers.length > 0 && attempt.status === "IN_PROGRESS") {
+  // Idempotent submit: if already submitted, return the existing result
+  if (attempt.status === "SUBMITTED") {
+    return getAttemptResult(viewer, attemptId);
+  }
+
+  const durationMinutes = attempt.test?.durationMinutes ?? 60;
+  const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
+  const graceDeadlineMs = deadlineMs + 30 * 1000;
+  const withinDeadline = Date.now() <= graceDeadlineMs;
+
+  // If final answers provided in submit payload AND within deadline, sync them
+  if (withinDeadline && finalAnswers && finalAnswers.length > 0 && attempt.status === "IN_PROGRESS") {
     for (const a of finalAnswers) {
-      await prisma.examAttemptAnswer.upsert({
+      const existing = await prisma.examAttemptAnswer.findUnique({
         where: {
           attemptId_questionId: {
             attemptId,
             questionId: a.questionId,
           },
         },
-        update: {
-          selectedOption: a.selectedOption ?? null,
-          ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
-          ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
-        },
-        create: {
-          attemptId,
-          questionId: a.questionId,
-          selectedOption: a.selectedOption ?? null,
-          isMarked: a.isMarked ?? false,
-          timeSpentSecs: a.timeSpentSecs ?? 0,
-        },
+        select: { clientSeq: true },
       });
+      if (existing) {
+        if (
+          existing.clientSeq !== null &&
+          existing.clientSeq !== undefined &&
+          existing.clientSeq > a.sequenceNumber
+        ) {
+          continue;
+        }
+        await prisma.examAttemptAnswer.update({
+          where: {
+            attemptId_questionId: {
+              attemptId,
+              questionId: a.questionId,
+            },
+          },
+          data: {
+            selectedOption: a.selectedOption ?? null,
+            ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
+            ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
+            clientSeq: a.sequenceNumber,
+          },
+        });
+      } else {
+        await prisma.examAttemptAnswer.create({
+          data: {
+            attemptId,
+            questionId: a.questionId,
+            selectedOption: a.selectedOption ?? null,
+            isMarked: a.isMarked ?? false,
+            timeSpentSecs: a.timeSpentSecs ?? 0,
+            clientSeq: a.sequenceNumber,
+          },
+        });
+      }
     }
   }
 
@@ -541,8 +622,14 @@ export async function getAttemptSolutions(
       userId: true,
       testId: true,
       status: true,
+      submittedAt: true,
       test: {
         select: {
+          id: true,
+          isLive: true,
+          liveStartAt: true,
+          liveEndAt: true,
+          createdById: true,
           sections: {
             orderBy: { order: "asc" },
             select: {
@@ -592,13 +679,32 @@ export async function getAttemptSolutions(
     throw new Error("NOT_FOUND: Attempt not found");
   }
 
-  if (attempt.userId !== viewer.userId && viewer.role !== "ADMIN") {
-    throw new Error("FORBIDDEN: Attempt belongs to another user");
-  }
-
   // CRITICAL SECURITY RULE: Solutions are visible ONLY after the test is submitted
   if (attempt.status !== "SUBMITTED") {
     throw new Error("FORBIDDEN: Solutions and explanations become available only after test submission");
+  }
+
+  // Authoritative server-side access control via shared helper
+  const decision = canViewSolutions(
+    { id: viewer.userId, role: viewer.role },
+    {
+      id: attempt.test.id,
+      isLive: attempt.test.isLive,
+      liveStartAt: attempt.test.liveStartAt,
+      liveEndAt: attempt.test.liveEndAt,
+      createdById: attempt.test.createdById,
+    },
+    {
+      id: attempt.id,
+      userId: attempt.userId,
+      testId: attempt.testId,
+      status: attempt.status,
+      submittedAt: attempt.submittedAt,
+    }
+  );
+
+  if (!decision.allowed) {
+    throw new Error(`FORBIDDEN: ${decision.reason}`);
   }
 
   const answerMap = new Map(attempt.answers.map((a) => [a.questionId, a]));

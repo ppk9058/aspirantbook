@@ -1,4 +1,4 @@
-import { getAllBooks, getBookById } from "@/lib/books/bookService";
+import { getAllBooks, getBookById, hasUserPurchasedBook } from "@/lib/books/bookService";
 import { Viewer } from "@/lib/api/v1/viewer";
 import { LibraryItemDto } from "@aspirantbook/shared";
 
@@ -24,8 +24,12 @@ export async function getLibraryBookDetail(viewer: Viewer, id: string) {
     throw new Error("NOT_FOUND: Book not found in library");
   }
 
-  // Reader security: Only authorized/authenticated viewers can access the full PDF
-  const canAccessFull = !viewer.isGuest;
+  // Reader security: Check purchase ownership
+  const isPaid =
+    (typeof book.price === "number" && book.price > 0) ||
+    (typeof book.originalPrice === "number" && book.originalPrice > 0);
+  const isOwner = viewer.userId ? await hasUserPurchasedBook(viewer.userId, book.id) : false;
+  const canAccessFull = !viewer.isGuest && (isOwner || !isPaid || viewer.role === "ADMIN");
   const downloadUrl = canAccessFull && book.fullPdfUrl ? book.fullPdfUrl : book.samplePdfUrl;
 
   return {
@@ -36,6 +40,7 @@ export async function getLibraryBookDetail(viewer: Viewer, id: string) {
     coverImage: book.coverImage || null,
     fileSize: typeof book.fileSize === "number" ? book.fileSize : 5_000_000,
     fileUrl: downloadUrl || "",
-    isFullAccess: canAccessFull && Boolean(book.fullPdfUrl),
+    isFullAccess: canAccessFull,
+    isFree: !isPaid,
   };
 }

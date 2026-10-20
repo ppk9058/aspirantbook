@@ -19,6 +19,7 @@ import { getViewer } from "../lib/api/v1/viewer";
 import { NextRequest } from "next/server";
 import { createAccessToken } from "../lib/api/v1/tokens";
 import { GET as getLibraryFile } from "../app/api/v1/library/[id]/file/route";
+import { createOrder, markBookOrderCompleted } from "../lib/books/bookService";
 
 describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => {
   let user1Id: string;
@@ -83,6 +84,30 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
       where: { id: deactUserId },
       data: { isActive: false },
     });
+
+    // 3b. Grant User 1 ownership of sample test book for Range tests
+    const sampleOrd = await createOrder({
+      id: `ord-authwall-${Date.now()}`,
+      orderNumber: `ORD-AUTH-${Date.now()}`,
+      date: new Date().toISOString(),
+      userId: user1Id,
+      userEmail: user1Email,
+      items: [
+        {
+          bookId: "bpsc-72nd-prelims-current-affairs",
+          book: { id: "bpsc-72nd-prelims-current-affairs" } as any,
+          quantity: 1,
+          addedAt: new Date().toISOString(),
+        },
+      ],
+      originalTotal: 350,
+      discountTotal: 0,
+      couponDiscount: 0,
+      finalTotal: 350,
+      paymentMethod: "UPI",
+      status: "pending_payment",
+    });
+    await markBookOrderCompleted({ orderId: sampleOrd.id, razorpayPaymentId: "pay_sample_123" });
 
     // 4. Create Course with Gated, Locked, and Corrupt lessons
     const course = await prisma.course.create({
