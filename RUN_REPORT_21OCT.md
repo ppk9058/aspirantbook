@@ -361,3 +361,35 @@ trillionskill-test-db   Up 2 hours (healthy)   127.0.0.1:54329->5432/tcp
   - Expo doctor: **17 / 17 checks passed**.
   - TypeScript: Mobile 0 errors, Shared 0 errors, Web 65 baseline errors (0 new errors).
 - **Checkpoint Tag**: `checkpoint/phase-6`
+
+---
+
+## Phase 7 - Account Deletion & Push Service [API + SHARED]
+
+- **Status**: PASSED
+- **Account Deletion (Apple App Store 5.1.1(v) Compliant)**:
+  - Added `DELETE /api/v1/me` endpoint in `app/api/v1/me/route.ts`.
+  - Added `deleteViewerAccount` in `lib/services/user.service.ts`:
+    - Re-authentication requirement: validates password via `bcrypt.compare` for password-protected accounts; requires confirmation code `"DELETE_ACCOUNT"` for OTP / social accounts.
+    - Security protection: forbids deletion of the last remaining active administrator (`ADMIN`).
+    - Session revocation: revokes all active `DeviceSession` rows in database.
+    - Push token cleanup: removes all `DevicePushToken` rows associated with the user.
+    - Personal data anonymization: deactivates user (`isActive: false`), sets name to `"Deleted User"`, nulls phone number and avatar, scrambles email to `deleted-{id}@anonymized.trillionskill.local`, and increments `sessionVersion`.
+    - Statutory financial record preservation: statutory audit records (payments, orders, attempt histories) remain intact in database linked to user ID.
+    - In-process cache invalidation: instantly purges viewer auth cache.
+- **In-App Mobile UI (Profile Screen)**:
+  - Added native "Danger Zone" card in `apps/mobile/src/app/(tabs)/profile.tsx` with warning message, `AlertTriangle` styling, and confirmation action sheet.
+  - Linked to `api.deleteMe({ confirmation: "DELETE_ACCOUNT" })`: on deletion, wipes local secure auth tokens (`Storage.clearAllAuthTokens()`), invalidates TanStack Query cache, and resets navigation to login.
+- **Expo Push Notification Service**:
+  - Implemented `lib/services/push.service.ts`:
+    - Clean API: `sendToUser(userId, payload)`, `sendToBatch(userIds, payload)`.
+    - Handles Expo push API batching in chunks of 100 messages.
+    - Handles ticket errors: detects `DeviceNotRegistered` error and automatically removes inactive tokens from database.
+    - Implemented receipt checking helper `getPushReceipts(receiptIds)`.
+- **Test Evidence**:
+  - Account deletion real-flow tests (`APP_ENV=test npx tsx --test tests/api-v1-account-deletion.test.ts`): **6 / 6 passed**.
+  - Push service unit tests (`npx tsx --test tests/unit/push-service.test.ts`): **5 / 5 passed**.
+  - All API v1 tests (`APP_ENV=test npx tsx --test tests/api-v1-*.test.ts`): **45 / 45 passed**.
+  - Mobile test suite (`cd apps/mobile && npm test`): **24 / 24 passed**.
+  - TypeScript: Shared 0 errors, Mobile 0 errors, Web 65 baseline errors (0 new errors).
+- **Checkpoint Tag**: `checkpoint/phase-7`

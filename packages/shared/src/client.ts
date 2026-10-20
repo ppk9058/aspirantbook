@@ -5,7 +5,12 @@ import {
   RefreshTokenRequest,
   DeviceSessionDto,
 } from "./dto/auth.dto";
-import { ViewerProfileDto, UpdateProfileRequest } from "./dto/user.dto";
+import {
+  ViewerProfileDto,
+  UpdateProfileRequest,
+  DeleteAccountRequest,
+  DeleteAccountResponseDto,
+} from "./dto/user.dto";
 import {
   TestListItemDto,
   TestDetailDto,
@@ -139,6 +144,11 @@ export function createApiClient(options: ApiClientOptions) {
     updateMe: (body: UpdateProfileRequest) =>
       request<ViewerProfileDto>("/api/v1/me", {
         method: "PATCH",
+        body: JSON.stringify(body),
+      }),
+    deleteMe: (body: DeleteAccountRequest) =>
+      request<DeleteAccountResponseDto>("/api/v1/me", {
+        method: "DELETE",
         body: JSON.stringify(body),
       }),
 

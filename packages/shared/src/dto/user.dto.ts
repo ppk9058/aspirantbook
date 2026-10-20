@@ -18,3 +18,16 @@ export interface ViewerProfileDto extends UserSummaryDto {
     streakDays: number;
   };
 }
+
+export const DeleteAccountRequestSchema = z.object({
+  password: z.string().min(1).max(255).optional(),
+  confirmation: z.string().min(1).max(50).optional(),
+});
+
+export type DeleteAccountRequest = z.infer<typeof DeleteAccountRequestSchema>;
+
+export interface DeleteAccountResponseDto {
+  deleted: boolean;
+  anonymized: boolean;
+  message: string;
+}

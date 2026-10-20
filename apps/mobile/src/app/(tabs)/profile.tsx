@@ -18,6 +18,7 @@ import {
   Shield,
   ExternalLink,
   Trash2,
+  AlertTriangle,
 } from "lucide-react-native";
 import { Card } from "@/components/common/Card";
 import { Button } from "@/components/common/Button";
@@ -80,6 +81,35 @@ export default function ProfileScreen() {
             await Storage.clearAllAuthTokens();
             await clearPersistedQueryCache(queryClient);
             router.replace("/(auth)/login");
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      "Delete Account Permanently",
+      "This will immediately sign you out, revoke all device sessions, and anonymize your personal data. Financial and order records are preserved for audit. This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Yes, Delete Account",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const res = await api.deleteMe({ confirmation: "DELETE_ACCOUNT" });
+              if (!res.ok) {
+                Alert.alert("Deletion Failed", res.error?.message || "Failed to delete account");
+                return;
+              }
+              await Storage.clearAllAuthTokens();
+              await clearPersistedQueryCache(queryClient);
+              Alert.alert("Account Deleted", "Your account and personal data have been anonymized.");
+              router.replace("/(auth)/login");
+            } catch (err: any) {
+              Alert.alert("Error", err?.message || "An unexpected error occurred");
+            }
           },
         },
       ]
@@ -203,31 +233,41 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.legalRow}
+            style={[styles.legalRow, { borderBottomWidth: 0 }]}
             onPress={() => WebBrowser.openBrowserAsync("https://aspirantbook.com/terms")}
           >
             <Shield size={16} color="#64748B" />
             <Text style={styles.legalLink}>Terms of Service</Text>
             <ExternalLink size={14} color="#94A3B8" />
           </TouchableOpacity>
-
-          {!isGuest && (
-            <TouchableOpacity
-              style={[styles.legalRow, { borderBottomWidth: 0 }]}
-              onPress={() =>
-                WebBrowser.openBrowserAsync("https://aspirantbook.com/settings")
-              }
-            >
-              <Trash2 size={16} color="#EF4444" />
-              <Text style={[styles.legalLink, { color: "#EF4444" }]}>
-                Delete Account & Data (Web Portal)
-              </Text>
-              <ExternalLink size={14} color="#EF4444" />
-            </TouchableOpacity>
-          )}
         </Card>
 
-        <Text style={styles.versionText}>AspirantBook Mobile v1.0.0 (SDK 52)</Text>
+        {/* Danger Zone: In-App Account Deletion (App Store Guideline 5.1.1(v)) */}
+        {!isGuest && (
+          <Card style={styles.dangerZoneCard}>
+            <View style={styles.sectionTitleRow}>
+              <AlertTriangle size={18} color="#DC2626" />
+              <Text style={[styles.sectionTitle, { color: "#DC2626" }]}>
+                Danger Zone
+              </Text>
+            </View>
+            <Text style={styles.dangerZoneDesc}>
+              Permanently delete your account, wipe all active device sessions, and anonymize your personal data. This cannot be undone.
+            </Text>
+            <TouchableOpacity
+              style={styles.deleteAccountBtn}
+              onPress={handleDeleteAccount}
+              accessibilityRole="button"
+              accessibilityLabel="Delete Account Permanently"
+              testID="btn-delete-account"
+            >
+              <Trash2 size={16} color="#DC2626" />
+              <Text style={styles.deleteAccountBtnText}>Delete Account & Data</Text>
+            </TouchableOpacity>
+          </Card>
+        )}
+
+        <Text style={styles.versionText}>AspirantBook Mobile v1.0.0 (SDK 53)</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -404,6 +444,37 @@ const styles = StyleSheet.create({
     color: "#334155",
     flex: 1,
     marginLeft: 10,
+  },
+  dangerZoneCard: {
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    backgroundColor: "#FEF2F2",
+  },
+  dangerZoneDesc: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: "#7F1D1D",
+    marginTop: 8,
+    marginBottom: 14,
+  },
+  deleteAccountBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#FCA5A5",
+    gap: 8,
+  },
+  deleteAccountBtnText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#DC2626",
   },
   versionText: {
     fontSize: 12,

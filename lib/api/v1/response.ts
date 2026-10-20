@@ -129,16 +129,27 @@ export function handleApiError(err: unknown, requestId?: string) {
   }
 
   // Handle known error codes thrown by business logic
+  if (errMessage.includes("VALIDATION_ERROR") || errMessage.includes("BAD_REQUEST")) {
+    const cleanMsg = errMessage.replace(/^(VALIDATION_ERROR|BAD_REQUEST):\s*/, "");
+    return apiError("VALIDATION_ERROR", cleanMsg || "Invalid request parameters", 400, undefined, reqId);
+  }
+
   if (errMessage.includes("UNAUTHORIZED") || errMessage.includes("Unauthorized")) {
     return apiError("UNAUTHORIZED", "Authentication required", 401, undefined, reqId);
   }
 
   if (errMessage.includes("FORBIDDEN") || errMessage.includes("Forbidden")) {
-    return apiError("FORBIDDEN", "You do not have access to this resource", 403, undefined, reqId);
+    const cleanMsg = errMessage.startsWith("FORBIDDEN:")
+      ? errMessage.replace(/^FORBIDDEN:\s*/, "")
+      : "You do not have access to this resource";
+    return apiError("FORBIDDEN", cleanMsg, 403, undefined, reqId);
   }
 
   if (errMessage.includes("NOT_FOUND") || errMessage.includes("Not found")) {
-    return apiError("NOT_FOUND", "Resource not found", 404, undefined, reqId);
+    const cleanMsg = errMessage.startsWith("NOT_FOUND:")
+      ? errMessage.replace(/^NOT_FOUND:\s*/, "")
+      : "Resource not found";
+    return apiError("NOT_FOUND", cleanMsg, 404, undefined, reqId);
   }
 
   // Server error fallback - log internally, send safe message to client

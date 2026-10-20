@@ -1,5 +1,12 @@
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { ViewerProfileDto, UpdateProfileRequest } from "@aspirantbook/shared";
+import {
+  ViewerProfileDto,
+  UpdateProfileRequest,
+  DeleteAccountRequest,
+  DeleteAccountResponseDto,
+} from "@aspirantbook/shared";
+import { invalidateViewerCache } from "@/lib/api/v1/viewer";
 
 export async function getViewerProfile(userId: string): Promise<ViewerProfileDto> {
   const user = await prisma.user.findUnique({
@@ -65,4 +72,93 @@ export async function updateViewerProfile(
   });
 
   return getViewerProfile(userId);
+}
+
+export async function deleteViewerAccount(
+  userId: string,
+  options: DeleteAccountRequest
+): Promise<DeleteAccountResponseDto> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      role: true,
+      password: true,
+      email: true,
+      isActive: true,
+    },
+  });
+
+  if (!user || !user.isActive) {
+    throw new Error("NOT_FOUND: User account not found or already deleted");
+  }
+
+  // Protect last remaining administrator
+  if (user.role === "ADMIN") {
+    const adminCount = await prisma.user.count({
+      where: { role: "ADMIN", isActive: true },
+    });
+    if (adminCount <= 1) {
+      throw new Error("FORBIDDEN: Cannot delete the last remaining active administrator account");
+    }
+  }
+
+  // Re-authentication check
+  if (user.password) {
+    if (!options.password) {
+      throw new Error("VALIDATION_ERROR: Password re-authentication required to delete account");
+    }
+    const isPasswordValid = await bcrypt.compare(options.password, user.password);
+    if (!isPasswordValid) {
+      throw new Error("FORBIDDEN: Incorrect password confirmation");
+    }
+  } else {
+    // Users without password (OAuth or OTP registration)
+    if (
+      options.confirmation !== "DELETE_ACCOUNT" &&
+      options.confirmation !== "DELETE"
+    ) {
+      throw new Error("VALIDATION_ERROR: Confirmation code 'DELETE_ACCOUNT' required to delete account");
+    }
+  }
+
+  // 1. Invalidate active device sessions (mobile)
+  await prisma.deviceSession.updateMany({
+    where: { userId, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+
+  // 2. Delete push notification device tokens
+  await prisma.devicePushToken.deleteMany({
+    where: { userId },
+  });
+
+  // 3. Remove OAuth provider link
+  await prisma.account.deleteMany({
+    where: { userId },
+  });
+
+  // 4. Anonymize user personal data and deactivate account
+  // Note: Financial/payment/order records and exam attempts remain linked to user.id for statutory audits
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      isActive: false,
+      email: `deleted-${user.id}@anonymized.trillionskill.local`,
+      name: "Deleted User",
+      phoneNumber: null,
+      image: null,
+      password: null,
+      sessionVersion: { increment: 1 },
+    },
+  });
+
+  // 5. Invalidate in-process cache
+  invalidateViewerCache(userId);
+
+  return {
+    deleted: true,
+    anonymized: true,
+    message: "Account and personal data have been anonymized and all sessions revoked.",
+  };
 }

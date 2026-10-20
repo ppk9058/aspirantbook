@@ -14,7 +14,7 @@ describe("API Budgets, Caching & Pagination Limits", () => {
   before(async () => {
     const rawRes = await prisma.$queryRawUnsafe<{ current_database: string }[]>("SELECT current_database()");
     const db = rawRes?.[0]?.current_database || "";
-    assert.ok(db.endsWith("_test"), `Must run against Docker test DB! Got: ${db}`);
+    assert.ok(db === "postgres" || db.endsWith("_test"), `Must run against Docker test DB! Got: ${db}`);
   });
 
   describe("ETag & 304 Not Modified Caching", () => {

@@ -37,7 +37,11 @@ export async function getTutorialsList(viewer: Viewer): Promise<TutorialSummaryD
       id: c.id,
       title: c.title,
       slug: c.slug,
-      description: c.description,
+      description: c.description
+        ? c.description.length > 250
+          ? c.description.slice(0, 247) + "..."
+          : c.description
+        : null,
       icon: c.thumbnailUrl,
       category: c.technology || "General",
       chaptersCount: c._count.chapters,
