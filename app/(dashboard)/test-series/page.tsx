@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import Link from "next/link"
 import {
     Search,
@@ -23,15 +23,22 @@ import {
 
 import dynamic from "next/dynamic"
 import { useSession } from "next-auth/react"
-import { useGoal } from "@/components/providers/GoalProvider"
+import { useGoal, Goal } from "@/components/providers/GoalProvider"
 import GoalIcon from "@/components/layout/GoalIcon"
-import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
+import { cn } from "@/lib/utils"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface TestSeriesItem {
     id: string; slug?: string; title: string; category: string; description?: string
     goalId?: string; tags: string[]; highlights: string[]; totalTests: number
     freeTests: number; users: string; logoType: string; isFree: boolean; isPro: boolean
-    languages: string
+    languages: string; examName?: string
 }
 
 const CreateSeriesModal = dynamic(() => import("@/components/exam/CreateSeriesModal"), {
@@ -39,18 +46,31 @@ const CreateSeriesModal = dynamic(() => import("@/components/exam/CreateSeriesMo
 })
 
 
-const CATEGORIES = [
-    "All",
-    "UPSC",
-    "BPSC",
-    "BPSC TRE",
-    "Class 10",
-    "Class 9",
-    "Class 8",
-    "Class 7",
-    "Class 6",
-    "Skill"
-]
+interface CategoryChip {
+    id: string
+    label: string
+}
+
+function isItemMatchingChip(item: TestSeriesItem, chipId: string): boolean {
+    if (chipId === "All") return true
+    const normalizedChip = chipId.trim().toLowerCase()
+    const itemGoalId = (item.goalId || "").trim().toLowerCase()
+    const itemCategorySlug = (item.category || "").trim().toLowerCase().replace(/\s+/g, "-")
+    const itemCategoryRaw = (item.category || "").trim().toLowerCase()
+    const itemSlug = (item.slug || item.id || "").trim().toLowerCase()
+    const tags = Array.isArray(item.tags) ? item.tags.map(t => t.trim().toLowerCase()) : []
+
+    // Exact matching only - no substring collision between "bpsc" and "bpsc-tre"
+    return (
+        itemGoalId === normalizedChip ||
+        itemCategorySlug === normalizedChip ||
+        itemCategoryRaw === normalizedChip ||
+        tags.includes(normalizedChip) ||
+        itemSlug === normalizedChip ||
+        (normalizedChip === "bpsc" && itemSlug.startsWith("bpsc-") && !itemSlug.startsWith("bpsc-tre")) ||
+        (normalizedChip !== "bpsc" && itemSlug.startsWith(`${normalizedChip}-`))
+    )
+}
 
 // Custom Exam Emblem SVGs matching official seals exactly
 function ExamLogo({ logoType }: { logoType: string }) {
@@ -181,8 +201,47 @@ function ExamLogo({ logoType }: { logoType: string }) {
 export default function TestSeriesPage() {
     const { data: session } = useSession()
     const canCreate = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
-    const { selectedGoal, selectedGoals, selectedGoalIds, openGoalModal } = useGoal()
+    const {
+        selectedGoal,
+        selectedGoals,
+        selectedGoalIds,
+        selectGoal,
+        toggleGoal,
+        openGoalModal,
+        isLoaded,
+        allGoalsConfig,
+    } = useGoal()
     const [selectedCategory, setSelectedCategory] = useState<string>("All")
+    const prevGoalIdRef = useRef<string | null>(null)
+
+    // Reset category chip to All when active goals change
+    useEffect(() => {
+        if (!isLoaded) return
+        const currentKey = selectedGoalIds.slice().sort().join(",")
+        if (currentKey && currentKey !== prevGoalIdRef.current) {
+            prevGoalIdRef.current = currentKey
+            setSelectedCategory("All")
+        }
+    }, [selectedGoalIds, isLoaded])
+
+    // Keep a list of exam targets available in the switcher
+    // Includes currently selected goals, plus popular goals (UPSC, BPSC, etc.) so user can toggle them directly
+    const availableTargets = useMemo(() => {
+        const map = new Map<string, Goal>()
+        // 1. Add all currently selected goals
+        selectedGoals.forEach((g) => {
+            if (g && g.id) map.set(g.id.toLowerCase(), g)
+        })
+        // 2. Add common popular exam targets from config
+        const popular = (allGoalsConfig?.popularGoals || []) as Goal[]
+        popular.forEach((g) => {
+            if (g && g.id && !map.has(g.id.toLowerCase())) {
+                map.set(g.id.toLowerCase(), g)
+            }
+        })
+        return Array.from(map.values())
+    }, [selectedGoals, allGoalsConfig?.popularGoals])
+
     const [searchQuery, setSearchQuery] = useState<string>("")
     const [filterByGoal, setFilterByGoal] = useState<boolean>(true)
     const [savedSeries, setSavedSeries] = useState<string[]>([])
@@ -194,91 +253,101 @@ export default function TestSeriesPage() {
 
     // Dynamic mistake notebook / solutions link based on selected goal
     const pyqSolutionLink = useMemo(() => {
-        const gid = selectedGoal.id.toLowerCase()
+        const gid = selectedGoal?.id?.toLowerCase() || ""
         if (gid === "bpsc") return "/test-series/bpsc-72nd-2026/solutions"
         if (gid === "upsc") return "/test-series/upsc-prelims-2026/solutions"
         if (gid === "ssc" || gid === "govt-exams") return "/test-series/ssc-cgl-2026/solutions"
         if (gid === "class-10") return "/test-series/class-10-boards-2026/solutions"
         if (gid === "skills") return "/test-series/skills-dsa-faang-2026/solutions"
         return "/test-series/bpsc-72nd-2026/solutions"
-    }, [selectedGoal.id])
+    }, [selectedGoal?.id])
 
     useEffect(() => {
+        if (!isLoaded) return
         let active = true
-        const url = filterByGoal ? "/api/exam/series/list" : "/api/exam/series/list?includeAll=true"
+        setSeriesLoading(true)
+        const activeGoalsParam = selectedGoalIds.length > 0
+            ? selectedGoalIds.join(",")
+            : (selectedGoal?.id || "")
+        const goalQuery = activeGoalsParam ? `goal=${encodeURIComponent(activeGoalsParam)}` : ""
+        const url = filterByGoal
+            ? `/api/exam/series/list${goalQuery ? `?${goalQuery}` : ""}`
+            : "/api/exam/series/list?includeAll=true"
         fetch(url)
             .then((res) => res.json())
             .then((json) => { if (active && json.success && Array.isArray(json.data)) setSeriesPackages(json.data) })
             .catch(() => { if (active) setSeriesPackages([]) })
             .finally(() => { if (active) setSeriesLoading(false) })
         return () => { active = false }
-    }, [selectedGoalIds, filterByGoal])
+    }, [isLoaded, selectedGoalIds, filterByGoal, selectedGoal?.id])
 
-    const filteredSeries = useMemo(() => {
-        let list = seriesPackages
+    const dynamicChips = useMemo<CategoryChip[]>(() => {
+        const chips: CategoryChip[] = [{ id: "All", label: "All" }]
 
-        // Goal-based filtering / curation when viewing "All" (multi-goal OR logic)
-        if (filterByGoal && selectedGoals.length > 0 && selectedCategory === "All") {
-            const goalMatches = list.filter((item) => {
-                const iGoal = (item.goalId || "").toLowerCase()
-                const iTags = (item.tags || []).map(t => t.toLowerCase())
-                const text = `${item.title} ${item.description || ""} ${item.category}`.toLowerCase()
-
-                return selectedGoals.some((g) => {
-                    const gid = g.id.toLowerCase()
-                    const gName = g.name.toLowerCase()
-
-                    if (iGoal === gid) return true
-
-                    if (gid === "bpsc") {
-                        return iGoal === "bpsc" || iTags.includes("bpsc") || text.includes("bpsc") || text.includes("bihar")
-                    }
-                    if (gid === "upsc") {
-                        return (iGoal === "upsc" || iTags.includes("upsc") || text.includes("upsc")) && !text.includes("bpsc") && !text.includes("bihar")
-                    }
-                    if (gid === "ssc" || gid === "govt-exams") {
-                        return iGoal === "ssc" || iGoal === "govt-exams" || iTags.includes("ssc") || iTags.includes("govt-exams") ||
-                            text.includes("ssc") || text.includes("cgl") || text.includes("banking") || text.includes("railway")
-                    }
-                    if (gid === "class-10") {
-                        return iGoal === "class-10" || item.category === "Class 10" || text.includes("class 10") || text.includes("10th")
-                    }
-                    if (gid === "class-9") {
-                        return iGoal === "class-9" || item.category === "Class 9" || text.includes("class 9") || text.includes("9th")
-                    }
-                    if (gid === "class-8") {
-                        return iGoal === "class-8" || item.category === "Class 8" || text.includes("class 8") || text.includes("8th")
-                    }
-                    if (gid === "class-7") {
-                        return iGoal === "class-7" || item.category === "Class 7" || text.includes("class 7") || text.includes("7th")
-                    }
-                    if (gid === "class-6") {
-                        return iGoal === "class-6" || item.category === "Class 6" || text.includes("class 6") || text.includes("6th")
-                    }
-                    if (gid === "skills") {
-                        return iGoal === "skills" || item.category === "Skill" || text.includes("coding") || text.includes("programming") || text.includes("python") || text.includes("dsa")
-                    }
-
-                    return iTags.includes(gid) || text.includes(gid) || text.includes(gName)
-                })
+        if (filterByGoal) {
+            // Mode A: One chip per selected target in selectedGoals
+            selectedGoals.forEach((g) => {
+                if (!g || !g.id) return
+                const gid = g.id.toLowerCase()
+                // Count series matching this target exactly
+                const count = seriesPackages.filter((item) => isItemMatchingChip(item, gid)).length
+                // Hide chips with zero tests
+                if (count > 0) {
+                    chips.push({
+                        id: gid,
+                        label: g.name,
+                    })
+                }
+            })
+        } else {
+            // Mode B: When "Show all exam tests" is active, build chips from categories actually present in fetched series
+            const categoryMap = new Map<string, string>() // normalizedId -> displayLabel
+            seriesPackages.forEach((item) => {
+                const label = item.category || item.examName || "General"
+                const normalizedId = (item.goalId || label).toLowerCase().replace(/\s+/g, "-")
+                if (!categoryMap.has(normalizedId)) {
+                    categoryMap.set(normalizedId, label)
+                }
             })
 
-            list = goalMatches
+            categoryMap.forEach((label, id) => {
+                const count = seriesPackages.filter((item) => isItemMatchingChip(item, id)).length
+                if (count > 0) {
+                    chips.push({ id, label })
+                }
+            })
         }
 
-        return list.filter((item) => {
+        return chips
+    }, [filterByGoal, selectedGoals, seriesPackages])
+
+    // If the selected chip disappears after the goal or target set changes (e.g. a target is removed), reset to "All"
+    useEffect(() => {
+        if (selectedCategory !== "All") {
+            const stillExists = dynamicChips.some(
+                (c) => c.id.toLowerCase() === selectedCategory.toLowerCase()
+            )
+            if (!stillExists) {
+                setSelectedCategory("All")
+            }
+        }
+    }, [dynamicChips, selectedCategory])
+
+    const filteredSeries = useMemo(() => {
+        return seriesPackages.filter((item) => {
             const matchesCategory =
                 selectedCategory === "All" ||
-                item.category.toLowerCase() === selectedCategory.toLowerCase()
+                isItemMatchingChip(item, selectedCategory)
 
             const matchesSearch =
+                searchQuery.trim() === "" ||
                 item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase()))
+                (Array.isArray(item.highlights) && item.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase())))
 
             return matchesCategory && matchesSearch
         })
-    }, [selectedCategory, searchQuery, filterByGoal, selectedGoals, seriesPackages])
+    }, [selectedCategory, searchQuery, seriesPackages])
 
     const toggleSave = (id: string, e: React.MouseEvent) => {
         e.stopPropagation()
@@ -288,23 +357,28 @@ export default function TestSeriesPage() {
     }
 
     return (
-        <div className="space-y-6 sm:space-y-8 pb-36 sm:pb-28 lg:pb-12">
+        <div className="space-y-6 pb-36 sm:pb-28 lg:pb-12">
             {/* Top Navigation Bar: Explore vs My Tests vs Leaderboards */}
             <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-gray-800">
                 <div data-scroll-x="true" className="w-full sm:w-auto flex items-center gap-1.5 p-1 rounded-2xl bg-gray-100 dark:bg-gray-800/80 overflow-x-auto no-scrollbar snap-x">
-                    <span className="shrink-0 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-black bg-white dark:bg-[#071d33] text-sky-700 dark:text-sky-400 shadow-xs cursor-default whitespace-nowrap snap-start">
+                    <span className="shrink-0 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-black bg-white dark:bg-[#071d33] text-sky-700 dark:text-sky-400 shadow-xs cursor-default whitespace-nowrap snap-start select-none">
                         Explore Test Series
                     </span>
                     <Link
                         href="/test-series/my-tests"
-                        className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap snap-start"
+                        className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap snap-start select-none"
                     >
                         <span>My Tests &amp; Performance</span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <span
+                            className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"
+                            title="New activity or results available"
+                            aria-label="New activity or results available"
+                            role="status"
+                        />
                     </Link>
                     <Link
                         href="/test-series/bpsc-72nd-2026/leaderboard"
-                        className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap snap-start"
+                        className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors whitespace-nowrap snap-start select-none"
                     >
                         <span>Live AIR Leaderboards</span>
                     </Link>
@@ -312,58 +386,165 @@ export default function TestSeriesPage() {
 
                 <Link
                     href="/my-tests"
-                    className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline shrink-0"
+                    className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline shrink-0 select-none"
                 >
                     <span>My Mistake Notebook →</span>
                 </Link>
             </div>
 
-            {/* Shared Goal & Exam Target Bar */}
-            <GoalSelectorBar
-                title="Target Exams & Test Series"
-                subtitle="Showing curated test series and mock exams for your active targets"
-            />
-
-            {/* Active Goal Compact Dynamic Banner */}
-            <div className="p-3.5 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-[#1448d8] to-[#1DB954] text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-xs shrink-0">
+            {/* Unified Active Exam Target Card */}
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                    {/* LEFT: Exam Icon Tile */}
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-[#1448d8] to-[#1DB954] text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-xs shrink-0">
                         <GoalIcon name={selectedGoal.icon} className="h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
-                    <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-800 dark:text-teal-300 border border-teal-500/30">
-                                {selectedGoal.name}
-                            </span>
-                            <button
-                                onClick={openGoalModal}
-                                className="text-xs font-bold text-teal-700 dark:text-teal-400 hover:underline flex items-center gap-0.5 cursor-pointer"
-                            >
-                                Change
-                                <ChevronRight className="h-3 w-3" />
-                            </button>
+
+                    {/* CENTER */}
+                    <div className="min-w-0 flex-1 space-y-1">
+                        {/* Top row: Multi-target chips + "Change or add exam" dropdown */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                            {selectedGoals.map((g) => {
+                                const isOnlyTarget = selectedGoals.length <= 1
+                                return (
+                                    <div
+                                        key={g.id}
+                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-100 dark:bg-teal-950/70 border border-teal-200 dark:border-teal-800 text-[11px] font-bold text-teal-900 dark:text-teal-200 select-none"
+                                    >
+                                        <span>{g.name}</span>
+                                        <button
+                                            type="button"
+                                            disabled={isOnlyTarget}
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                if (isOnlyTarget) return
+                                                toggleGoal(g)
+                                            }}
+                                            title={isOnlyTarget ? "At least one exam target is required." : `Remove ${g.name}`}
+                                            aria-label={isOnlyTarget ? "At least one exam target is required." : `Remove ${g.name}`}
+                                            className={cn(
+                                                "rounded-xs p-0.5 transition-colors focus:outline-none",
+                                                isOnlyTarget
+                                                    ? "opacity-40 cursor-not-allowed text-teal-700/60 dark:text-teal-400/50"
+                                                    : "cursor-pointer hover:bg-teal-200/80 dark:hover:bg-teal-900 text-teal-800 dark:text-teal-300 hover:text-teal-950 dark:hover:text-white"
+                                            )}
+                                        >
+                                            <X className="h-3 w-3 stroke-[2.5]" />
+                                        </button>
+                                    </div>
+                                )
+                            })}
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className="text-xs font-bold text-teal-800 dark:text-teal-300 hover:text-teal-950 dark:hover:text-teal-100 hover:underline flex items-center gap-0.5 cursor-pointer rounded-md px-1 py-0.5 select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                                        aria-label="Change or add exam targets"
+                                    >
+                                        <span>Change or add exam</span>
+                                        <ChevronRight className="h-3 w-3" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                    align="start"
+                                    className="w-64 max-w-[calc(100vw-32px)] p-1.5 shadow-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#071d33] rounded-xl z-50"
+                                >
+                                    <div className="px-2 py-1 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                        Target Exams
+                                    </div>
+                                    <div className="max-h-60 overflow-y-auto space-y-0.5 py-0.5">
+                                        {availableTargets.map((g) => {
+                                            const isChecked = selectedGoalIds.includes(g.id.toLowerCase())
+                                            const isOnlyChecked = isChecked && selectedGoalIds.length <= 1
+
+                                            return (
+                                                <DropdownMenuItem
+                                                    key={g.id}
+                                                    onSelect={(e) => {
+                                                        e.preventDefault()
+                                                        if (isOnlyChecked) return
+                                                        toggleGoal(g)
+                                                    }}
+                                                    className={cn(
+                                                        "flex items-center justify-between px-2.5 py-2 text-xs font-bold rounded-lg cursor-pointer transition-colors select-none",
+                                                        isChecked
+                                                            ? "bg-teal-50/80 dark:bg-teal-950/40 text-teal-900 dark:text-teal-200"
+                                                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10"
+                                                    )}
+                                                >
+                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                        <div
+                                                            className={cn(
+                                                                "h-4 w-4 rounded border flex items-center justify-center shrink-0 transition-colors",
+                                                                isChecked
+                                                                    ? "bg-teal-600 border-teal-600 text-white"
+                                                                    : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                                                            )}
+                                                        >
+                                                            {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
+                                                        </div>
+                                                        <GoalIcon name={g.icon} className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" />
+                                                        <span className="truncate">{g.name}</span>
+                                                    </div>
+                                                    {isOnlyChecked && (
+                                                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-normal ml-2">
+                                                            Required
+                                                        </span>
+                                                    )}
+                                                </DropdownMenuItem>
+                                            )
+                                        })}
+                                    </div>
+                                    <DropdownMenuSeparator className="my-1 border-gray-100 dark:border-gray-800" />
+                                    <DropdownMenuItem
+                                        onClick={openGoalModal}
+                                        className="flex items-center gap-2 px-2.5 py-2 text-xs font-bold text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40 rounded-lg cursor-pointer select-none"
+                                    >
+                                        <Plus className="h-4 w-4 shrink-0" />
+                                        <span>Add exam target</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
+
+                        {/* Title */}
                         <h2 className="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate mt-0.5">
-                            {selectedGoal.fullName || selectedGoal.name} Curated Mocks
+                            {selectedGoals.length > 1
+                                ? "Your Exam Targets"
+                                : `${selectedGoal.fullName || selectedGoal.name} Curated Mocks`}
                         </h2>
+
+                        {/* Subtitle */}
+                        <p className="text-[11px] text-gray-700 dark:text-gray-300 truncate mt-0.5">
+                            {selectedGoals.length > 1
+                                ? "Curated test series and mock exams for your active targets"
+                                : "Curated test series and mock exams for your active target"}
+                        </p>
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
+                {/* RIGHT: single action */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-teal-500/10">
                     {canCreate && (
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-black shadow-xs transition-all flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
+                            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-black shadow-xs transition-all flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer select-none"
                         >
                             <Plus className="h-4 w-4 stroke-[3]" />
                             <span>Create Series Package</span>
                         </button>
                     )}
                     <button
+                        type="button"
                         onClick={() => setFilterByGoal(!filterByGoal)}
-                        className="text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-300 text-center py-1 sm:px-2 cursor-pointer"
+                        className="text-xs font-bold text-teal-800 dark:text-teal-300 hover:text-teal-950 dark:hover:text-teal-100 hover:underline text-left sm:text-center py-1 sm:px-2 cursor-pointer select-none rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 shrink-0"
                     >
-                        {filterByGoal ? "Show all exam tests →" : `Show only ${selectedGoal.name} →`}
+                        {filterByGoal
+                            ? "Show all exam tests →"
+                            : selectedGoals.length > 1
+                                ? "Show only your targets →"
+                                : `Show only ${selectedGoal.name} →`}
                     </button>
                 </div>
             </div>
@@ -399,7 +580,7 @@ export default function TestSeriesPage() {
             </div>
 
             {/* Section Header with Search Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <h1 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                     Test Series by Categories
                 </h1>
@@ -424,21 +605,26 @@ export default function TestSeriesPage() {
                 </div>
             </div>
 
-            {/* Category Pills Row with data-scroll-x */}
-            <div data-scroll-x="true" className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-                {CATEGORIES.map((cat) => {
-                    const isSelected = selectedCategory === cat
+            {/* Dynamic Category Chips Row */}
+            <div className="flex flex-wrap items-center gap-2 py-1">
+                {dynamicChips.map((chip) => {
+                    const isSelected =
+                        selectedCategory === chip.id ||
+                        selectedCategory.toLowerCase() === chip.id.toLowerCase()
+
                     return (
                         <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                            key={chip.id}
+                            type="button"
+                            onClick={() => setSelectedCategory(chip.id)}
+                            className={cn(
+                                "flex-shrink-0 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-white focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#071d33] min-h-[36px]",
                                 isSelected
                                     ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs"
                                     : "bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
-                            }`}
+                            )}
                         >
-                            {cat}
+                            {chip.label}
                         </button>
                     )
                 })}
@@ -455,13 +641,34 @@ export default function TestSeriesPage() {
                                 No Test Series Found
                             </h3>
                             <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
-                                {seriesPackages.length === 0 ? "No test series available yet." : `No test series matched your search "${searchQuery}" in category "${selectedCategory}".`}
+                                {searchQuery
+                                    ? `No test series matched your search "${searchQuery}".`
+                                    : selectedCategory !== "All"
+                                        ? `No test series for ${dynamicChips.find(c => c.id.toLowerCase() === selectedCategory.toLowerCase())?.label || selectedCategory} yet.`
+                                        : filterByGoal
+                                            ? `No test series for ${selectedGoals.length > 1 ? "your targets" : selectedGoal?.name || "your target"} yet.`
+                                            : "No test series available yet."}
                             </p>
                             <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+                                {selectedCategory !== "All" && (
+                                    <button
+                                        onClick={() => {
+                                            setSelectedCategory("All")
+                                            setSearchQuery("")
+                                        }}
+                                        className="px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold rounded-xl cursor-pointer"
+                                    >
+                                        View All Series
+                                    </button>
+                                )}
                                 {filterByGoal && (
                                     <button
-                                        onClick={() => setFilterByGoal(false)}
-                                        className="px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold rounded-xl cursor-pointer"
+                                        onClick={() => {
+                                            setSelectedCategory("All")
+                                            setSearchQuery("")
+                                            setFilterByGoal(false)
+                                        }}
+                                        className="px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-xl cursor-pointer"
                                     >
                                         Show all exam tests
                                     </button>

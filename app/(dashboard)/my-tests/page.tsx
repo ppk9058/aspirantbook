@@ -33,16 +33,36 @@ export default async function MyTestsPage() {
 
     try {
         if (userId) {
-            // ── 1. In-Progress attempts ──────────────────────────────────
-            const dbInProgress = await prisma.examAttempt.findMany({
-                where: {
-                    userId,
-                    status: "IN_PROGRESS",
-                },
-                include: { test: { include: { series: true } } },
-                orderBy: { startedAt: "desc" },
-                take: 5,
-            })
+            // ── 1, 2, 3: Fetch in-progress, enrollments, and completed in parallel ──
+            const [dbInProgress, dbEnrollments, dbCompleted] = await Promise.all([
+                prisma.examAttempt.findMany({
+                    where: {
+                        userId,
+                        status: "IN_PROGRESS",
+                    },
+                    include: { test: { include: { series: true } } },
+                    orderBy: { startedAt: "desc" },
+                    take: 5,
+                }),
+                prisma.examSeriesEnrollment.findMany({
+                    where: { userId, status: "ACTIVE" },
+                    include: {
+                        series: {
+                            include: { tests: { where: { isPublished: true }, select: { id: true, title: true, order: true } } }
+                        },
+                    },
+                    orderBy: { enrolledAt: "desc" },
+                }),
+                prisma.examAttempt.findMany({
+                    where: {
+                        userId,
+                        status: { in: ["SUBMITTED", "TIMED_OUT"] },
+                    },
+                    include: { test: { include: { series: true } } },
+                    orderBy: { submittedAt: "desc" },
+                    take: 50,
+                }),
+            ])
 
             inProgressTests = dbInProgress.map((att) => {
                 const elapsedMins = Math.round(
@@ -78,31 +98,20 @@ export default async function MyTestsPage() {
                 }
             })
 
-            // ── 2. Enrolled series from ExamSeriesEnrollment table ───────
-            const dbEnrollments = await prisma.examSeriesEnrollment.findMany({
-                where: { userId, status: "ACTIVE" },
-                include: {
-                    series: {
-                        include: { tests: { where: { isPublished: true }, select: { id: true, title: true, order: true } } }
-                    },
-                },
-                orderBy: { enrolledAt: "desc" },
-            })
-
             for (const enrollment of dbEnrollments) {
                 const s = enrollment.series
                 const slug = s.slug || s.id
 
                 // Count how many tests this user has attempted in this series
-                const attemptCount = await prisma.examAttempt.count({
-                    where: { userId, test: { seriesId: s.id } },
-                })
-
-                // Next unattempted published test
-                const attemptedTestIds = await prisma.examAttempt.findMany({
-                    where: { userId, test: { seriesId: s.id } },
-                    select: { testId: true },
-                })
+                const [attemptCount, attemptedTestIds] = await Promise.all([
+                    prisma.examAttempt.count({
+                        where: { userId, test: { seriesId: s.id } },
+                    }),
+                    prisma.examAttempt.findMany({
+                        where: { userId, test: { seriesId: s.id } },
+                        select: { testId: true },
+                    }),
+                ])
                 const attemptedIds = new Set(attemptedTestIds.map((a) => a.testId))
                 const nextTest = s.tests
                     .sort((a, b) => a.order - b.order)
@@ -140,17 +149,6 @@ export default async function MyTestsPage() {
                     highlights: [],
                 })
             }
-
-            // ── 3. Completed attempts for Performance Hub (Grouped by Test) ──
-            const dbCompleted = await prisma.examAttempt.findMany({
-                where: {
-                    userId,
-                    status: { in: ["SUBMITTED", "TIMED_OUT"] },
-                },
-                include: { test: { include: { series: true } } },
-                orderBy: { submittedAt: "desc" },
-                take: 50,
-            })
 
             // Group by testId: 1 card per test
             const testGroups = new Map<string, typeof dbCompleted>()

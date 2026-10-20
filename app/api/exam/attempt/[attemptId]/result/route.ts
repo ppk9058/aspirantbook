@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
 import { getAttemptRanking } from "@/lib/exam-ranking";
 import { getQuizSlug } from "@/lib/current-affairs/slugs";
+import { canViewSolutions } from "@/lib/exam/access-control";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(
   _req: NextRequest,
@@ -12,7 +16,13 @@ export async function GET(
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        {
+          status: 401,
+          headers: { "Cache-Control": "private, no-store, max-age=0, must-revalidate" },
+        }
+      );
     }
 
     const { attemptId } = await params;
@@ -52,6 +62,10 @@ export async function GET(
             durationMinutes: true,
             totalMarks: true,
             totalQuestions: true,
+            isLive: true,
+            liveStartAt: true,
+            liveEndAt: true,
+            createdById: true,
             series: {
               select: {
                 id: true,
@@ -64,32 +78,36 @@ export async function GET(
       },
     });
 
-    if (!attempt) {
+    if (!attempt || !attempt.test) {
       return NextResponse.json({ error: "Attempt not found" }, { status: 404 });
     }
 
-    if (attempt.userId !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
+    // If attempt is not submitted yet, check if time expired and auto-grade
     if (attempt.status !== "SUBMITTED") {
-      const durationMinutes = attempt.test!.durationMinutes;
+      const durationMinutes = attempt.test.durationMinutes;
       const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
       const graceDeadlineMs = deadlineMs + 30 * 1000;
 
-      // If past deadline, auto-grade the attempt and proceed
+      // If past deadline on server clock, auto-grade the attempt and proceed
       if (Date.now() > graceDeadlineMs) {
         const graded = await gradeExamAttempt(attemptId, new Date());
         if (!graded) {
           return NextResponse.json(
             { error: "Result is being calculated, please retry in a moment", retryable: true },
-            { status: 202 }
+            {
+              status: 202,
+              headers: { "Cache-Control": "private, no-store, max-age=0, must-revalidate" },
+            }
           );
         }
+        attempt.status = "SUBMITTED";
       } else {
         return NextResponse.json(
           { error: "Attempt has not been submitted yet" },
-          { status: 409 }
+          {
+            status: 409,
+            headers: { "Cache-Control": "private, no-store, max-age=0, must-revalidate" },
+          }
         );
       }
     } else if (attempt.submittedAt === null) {
@@ -98,10 +116,77 @@ export async function GET(
       if (!graded) {
         return NextResponse.json(
           { error: "Result is being calculated, please retry in a moment", retryable: true },
-          { status: 202 }
+          {
+            status: 202,
+            headers: { "Cache-Control": "private, no-store, max-age=0, must-revalidate" },
+          }
         );
       }
     }
+
+    // Canonical Server Access Control check: prevents paper leak during live tests and enforces ownership
+    const decision = canViewSolutions(
+      session.user,
+      {
+        id: attempt.test.id,
+        isLive: attempt.test.isLive,
+        liveStartAt: attempt.test.liveStartAt,
+        liveEndAt: attempt.test.liveEndAt,
+        createdById: attempt.test.createdById,
+      },
+      {
+        id: attempt.id,
+        userId: attempt.userId,
+        testId: attempt.testId,
+        status: attempt.status,
+        submittedAt: attempt.submittedAt,
+      }
+    );
+
+    if (!decision.allowed) {
+      return NextResponse.json(
+        { error: decision.reason, isLiveActive: decision.isLiveActive },
+        {
+          status: decision.statusCode,
+          headers: { "Cache-Control": "private, no-store, max-age=0, must-revalidate" },
+        }
+      );
+    }
+
+    // Fetch all test questions in section + question order
+    const testQuestions = attempt.testId
+      ? await prisma.examQuestion.findMany({
+          where: {
+            section: {
+              testId: attempt.testId,
+            },
+          },
+          orderBy: [
+            { section: { order: "asc" } },
+            { order: "asc" },
+          ],
+          select: {
+            id: true,
+            questionEn: true,
+            questionHi: true,
+            optionAEn: true,
+            optionBEn: true,
+            optionCEn: true,
+            optionDEn: true,
+            optionAHi: true,
+            optionBHi: true,
+            optionCHi: true,
+            optionDHi: true,
+            correctOption: true,
+            explanationEn: true,
+            explanationHi: true,
+            subject: true,
+            difficulty: true,
+            positiveMarks: true,
+            negativeMarks: true,
+          },
+        })
+      : [];
 
     // Fetch all answers with question details
     const answers = await prisma.examAttemptAnswer.findMany({
@@ -132,51 +217,99 @@ export async function GET(
       },
     });
 
-    // Per-question analysis
-    const questionAnalysis = answers.map((ans) => {
-      const q = ans.question;
-      const options = [q.optionAEn, q.optionBEn, q.optionCEn, q.optionDEn].filter(
-        (o): o is string => o !== null && o !== undefined
-      );
-      const optionsHi = [q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi].filter(
-        (o): o is string => o !== null && o !== undefined
-      );
+    const answerMap = new Map(answers.map((a) => [a.questionId, a]));
 
-      const optionKeys = ["A", "B", "C", "D"];
-      const selectedIndex = ans.selectedOption
-        ? optionKeys.indexOf(ans.selectedOption)
-        : -1;
-      const correctIndex = optionKeys.indexOf(q.correctOption);
+    // Per-question analysis (use testQuestions if available to guarantee all questions in order)
+    const questionAnalysis =
+      testQuestions.length > 0
+        ? testQuestions.map((q) => {
+            const ans = answerMap.get(q.id);
+            const options = [q.optionAEn, q.optionBEn, q.optionCEn, q.optionDEn].filter(
+              (o): o is string => o !== null && o !== undefined
+            );
+            const optionsHi = [q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi].filter(
+              (o): o is string => o !== null && o !== undefined
+            );
 
-      const selectedOptionText =
-        selectedIndex >= 0 && selectedIndex < options.length
-          ? options[selectedIndex]
-          : null;
-      const correctOptionText =
-        correctIndex >= 0 && correctIndex < options.length
-          ? options[correctIndex]
-          : null;
+            const optionKeys = ["A", "B", "C", "D"];
+            const selectedIndex = ans?.selectedOption
+              ? optionKeys.indexOf(ans.selectedOption)
+              : -1;
+            const correctIndex = optionKeys.indexOf(q.correctOption);
 
-      return {
-        questionId: ans.questionId,
-        questionEn: q.questionEn,
-        questionHi: q.questionHi,
-        options,
-        optionsHi,
-        selectedOption: ans.selectedOption,
-        selectedOptionText,
-        correctOption: q.correctOption,
-        correctOptionText,
-        isCorrect: ans.isCorrect,
-        marksAwarded: ans.marksAwarded,
-        timeSpentSecs: ans.timeSpentSecs,
-        isMarked: ans.isMarked,
-        explanationEn: q.explanationEn,
-        explanationHi: q.explanationHi,
-        subject: q.subject,
-        difficulty: q.difficulty,
-      };
-    });
+            const selectedOptionText =
+              selectedIndex >= 0 && selectedIndex < options.length
+                ? options[selectedIndex]
+                : null;
+            const correctOptionText =
+              correctIndex >= 0 && correctIndex < options.length
+                ? options[correctIndex]
+                : null;
+
+            return {
+              questionId: q.id,
+              questionEn: q.questionEn,
+              questionHi: q.questionHi,
+              options,
+              optionsHi,
+              selectedOption: ans?.selectedOption ?? null,
+              selectedOptionText,
+              correctOption: q.correctOption,
+              correctOptionText,
+              isCorrect: ans?.isCorrect ?? false,
+              marksAwarded: ans?.marksAwarded ?? 0,
+              timeSpentSecs: ans?.timeSpentSecs ?? 0,
+              isMarked: ans?.isMarked ?? false,
+              explanationEn: q.explanationEn,
+              explanationHi: q.explanationHi,
+              subject: q.subject,
+              difficulty: q.difficulty,
+            };
+          })
+        : answers.map((ans) => {
+            const q = ans.question;
+            const options = [q.optionAEn, q.optionBEn, q.optionCEn, q.optionDEn].filter(
+              (o): o is string => o !== null && o !== undefined
+            );
+            const optionsHi = [q.optionAHi, q.optionBHi, q.optionCHi, q.optionDHi].filter(
+              (o): o is string => o !== null && o !== undefined
+            );
+
+            const optionKeys = ["A", "B", "C", "D"];
+            const selectedIndex = ans.selectedOption
+              ? optionKeys.indexOf(ans.selectedOption)
+              : -1;
+            const correctIndex = optionKeys.indexOf(q.correctOption);
+
+            const selectedOptionText =
+              selectedIndex >= 0 && selectedIndex < options.length
+                ? options[selectedIndex]
+                : null;
+            const correctOptionText =
+              correctIndex >= 0 && correctIndex < options.length
+                ? options[correctIndex]
+                : null;
+
+            return {
+              questionId: ans.questionId,
+              questionEn: q.questionEn,
+              questionHi: q.questionHi,
+              options,
+              optionsHi,
+              selectedOption: ans.selectedOption,
+              selectedOptionText,
+              correctOption: q.correctOption,
+              correctOptionText,
+              isCorrect: ans.isCorrect,
+              marksAwarded: ans.marksAwarded,
+              timeSpentSecs: ans.timeSpentSecs,
+              isMarked: ans.isMarked,
+              explanationEn: q.explanationEn,
+              explanationHi: q.explanationHi,
+              subject: q.subject,
+              difficulty: q.difficulty,
+            };
+          });
 
     // Time analysis
     const correctAnswers = answers.filter((a) => a.isCorrect);
@@ -276,13 +409,23 @@ export async function GET(
           subjectBreakdown,
         },
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+        },
+      }
     );
   } catch (error) {
     console.error("[GET /api/exam/attempt/:attemptId/result]", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+        },
+      }
     );
   }
 }

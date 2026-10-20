@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ testId: string }> }
@@ -9,14 +12,27 @@ export async function GET(
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        {
+          status: 401,
+          headers: {
+            "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+          },
+        }
+      );
     }
 
     const role = (session.user as any).role;
     if (role !== "TEACHER" && role !== "ADMIN") {
       return NextResponse.json(
         { error: "Forbidden: Teacher or Admin role required" },
-        { status: 403 }
+        {
+          status: 403,
+          headers: {
+            "Cache-Control": "private, no-store, max-age=0, must-revalidate",
+          },
+        }
       );
     }
 

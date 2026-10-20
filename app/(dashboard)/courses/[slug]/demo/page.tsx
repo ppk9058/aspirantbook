@@ -11,14 +11,15 @@ export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const session = await auth()
+  const [session, course] = await Promise.all([
+    auth(),
+    prisma.course.findFirst({
+      where: { OR: [{ slug }, { id: slug }] },
+      select: { id: true, title: true, status: true, isPublished: true }
+    }),
+  ])
   const userRole = session?.user?.role
   const userId = session?.user?.id
-
-  const course = await prisma.course.findFirst({
-    where: { OR: [{ slug }, { id: slug }] },
-    select: { id: true, title: true, status: true, isPublished: true }
-  })
 
   if (!course || !isCourseVisibleToUser(course, userRole, userId)) {
     notFound()
@@ -36,28 +37,28 @@ export default async function CourseDemoPage({
 }) {
   const { slug } = await params
   const { slot: slotIdParam, testMode: testModeParam } = await searchParams
-  const session = await auth()
+  const [session, course] = await Promise.all([
+    auth(),
+    prisma.course.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        description: true,
+        thumbnailUrl: true,
+        price: true,
+        originalPrice: true,
+        discountPercent: true,
+        technology: true,
+        status: true,
+        isPublished: true,
+      },
+    }),
+  ])
 
   const isTeacherOrAdmin = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
   const isTestMode = testModeParam === "true" && isTeacherOrAdmin
-
-  // 1. Resolve Course
-  const course = await prisma.course.findUnique({
-    where: { slug },
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      description: true,
-      thumbnailUrl: true,
-      price: true,
-      originalPrice: true,
-      discountPercent: true,
-      technology: true,
-      status: true,
-      isPublished: true,
-    },
-  })
 
   if (!course || !isCourseVisibleToUser(course, session?.user?.role, session?.user?.id)) {
     notFound()

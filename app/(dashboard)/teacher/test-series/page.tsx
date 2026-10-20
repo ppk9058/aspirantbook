@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
 import {
     Plus,
     Search,
@@ -19,9 +21,13 @@ import {
     TrendingUp,
     Shield,
     BarChart3,
-    Layers
+    Layers,
+    AlertCircle,
+    RotateCcw
 } from "lucide-react"
 import CreateSeriesModal from "@/components/exam/CreateSeriesModal"
+import PublishTestModal from "@/components/exam/PublishTestModal"
+import { formatIstDateTime } from "@/lib/format-date"
 
 interface ManageTestItem {
     id: string
@@ -45,6 +51,7 @@ export default function TeacherTestSeriesManagePage() {
     const [selectedTab, setSelectedTab] = useState<"ALL" | "PUBLISHED" | "DRAFT" | "LIVE">("ALL")
     const [statusFilter, setStatusFilter] = useState("ALL")
     const [isCreatePackageModalOpen, setIsCreatePackageModalOpen] = useState(false)
+    const [publishModalTest, setPublishModalTest] = useState<ManageTestItem | null>(null)
 
     const loadAllTests = useCallback(async () => {
         const items: ManageTestItem[] = []
@@ -72,7 +79,7 @@ export default function TeacherTestSeriesManagePage() {
                         avgScore: typeof t.avgScore === "number" ? t.avgScore : 0,
                         submittedCount: typeof t.submittedAttemptsCount === "number" ? t.submittedAttemptsCount : (typeof t.avgScore === "number" && t.avgScore > 0 ? attempts : 0),
                         status: t.isPublished ? (t.isLive ? "LIVE" : "PUBLISHED") : "DRAFT",
-                        createdAt: t.createdAt ? new Date(t.createdAt).toLocaleDateString() : "Recent",
+                        createdAt: formatIstDateTime(t.createdAt),
                     })
                 })
             }
@@ -102,9 +109,70 @@ export default function TeacherTestSeriesManagePage() {
         ? Math.round((tests.reduce((acc, curr) => acc + (curr.avgScore * (curr.submittedCount ?? 0)), 0) / totalSubmittedAttempts) * 10) / 10
         : null
 
-    const handleDelete = (id: string) => {
-        if (confirm("Are you sure you want to delete this test?")) {
+    const pathname = usePathname()
+    const basePath = pathname.startsWith("/admin") ? "/admin/test-series" : "/teacher/test-series"
+
+    const { data: session } = useSession()
+    const isAdmin = (session?.user as any)?.role === "ADMIN" || pathname.startsWith("/admin")
+
+    const [deleteError, setDeleteError] = useState<string | null>(null)
+    const [deletingId, setDeletingId] = useState<string | null>(null)
+    const [pendingForceDelete, setPendingForceDelete] = useState<{ id: string; title: string; attemptsCount: number } | null>(null)
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this test? All questions and attempts will be removed.")) {
+            return
+        }
+        setDeletingId(id)
+        setDeleteError(null)
+        try {
+            const res = await fetch(`/api/exam/test/${encodeURIComponent(id)}`, {
+                method: "DELETE",
+            })
+            const data = await res.json()
+            if (res.status === 409) {
+                if (isAdmin && (data.attemptsCount || 0) > 0) {
+                    setPendingForceDelete({
+                        id,
+                        title: tests.find((t) => t.id === id)?.title || "Test",
+                        attemptsCount: data.attemptsCount,
+                    })
+                    return
+                }
+                throw new Error(data.error || "Cannot delete test with existing attempts.")
+            }
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || `Failed to delete test (status ${res.status})`)
+            }
             setTests((prev) => prev.filter((t) => t.id !== id))
+        } catch (err: any) {
+            console.error("Delete test error:", err)
+            setDeleteError(err.message || "Failed to delete test. Please retry.")
+        } finally {
+            setDeletingId(null)
+        }
+    }
+
+    const handleConfirmForceDelete = async () => {
+        if (!pendingForceDelete) return
+        const id = pendingForceDelete.id
+        setDeletingId(id)
+        setDeleteError(null)
+        try {
+            const res = await fetch(`/api/exam/test/${encodeURIComponent(id)}?force=true`, {
+                method: "DELETE",
+            })
+            const data = await res.json()
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || `Failed to force delete test (status ${res.status})`)
+            }
+            setTests((prev) => prev.filter((t) => t.id !== id))
+            setPendingForceDelete(null)
+        } catch (err: any) {
+            console.error("Force delete test error:", err)
+            setDeleteError(err.message || "Failed to force delete test.")
+        } finally {
+            setDeletingId(null)
         }
     }
 
@@ -129,7 +197,7 @@ export default function TeacherTestSeriesManagePage() {
 
                 <div className="flex items-center gap-3 flex-wrap">
                     <Link
-                        href="/teacher/test-series/packages"
+                        href={`${basePath}/packages`}
                         className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-800 dark:text-gray-200 font-bold text-sm shadow-xs transition-all min-h-[44px]"
                     >
                         <Layers className="h-4 w-4 text-[#00A8FF]" />
@@ -143,7 +211,7 @@ export default function TeacherTestSeriesManagePage() {
                         <span>+ New Series Package</span>
                     </button>
                     <Link
-                        href="/teacher/test-series/create"
+                        href={`${basePath}/create`}
                         className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#00A8FF] to-[#0080ff] hover:from-[#0096e6] hover:to-[#0070e6] text-white font-bold text-sm shadow-lg shadow-[#00A8FF]/20 transition-all active:scale-[0.98] min-h-[44px]"
                     >
                         <Plus className="h-4 w-4 stroke-[3]" />
@@ -151,6 +219,23 @@ export default function TeacherTestSeriesManagePage() {
                     </Link>
                 </div>
             </div>
+
+            {/* Delete Error Feedback Banner */}
+            {deleteError && (
+                <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-2xl text-xs flex items-center justify-between gap-3 text-red-700 dark:text-red-300">
+                    <div className="flex items-center gap-2 min-w-0">
+                        <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+                        <span className="font-semibold break-words">{deleteError}</span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setDeleteError(null)}
+                        className="px-3 py-1.5 rounded-xl border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 hover:bg-red-100 font-bold shrink-0 min-h-[36px] cursor-pointer"
+                    >
+                        Dismiss
+                    </button>
+                </div>
+            )}
 
             {/* Quick Metrics Bar */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -256,7 +341,7 @@ export default function TeacherTestSeriesManagePage() {
                                 <th className="py-4 px-4">Duration</th>
                                 <th className="py-4 px-4">Submissions</th>
                                 <th className="py-4 px-4">Status</th>
-                                <th className="py-4 px-6 text-right">Actions</th>
+                                <th className="py-4 px-6 text-right min-w-[340px]">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
@@ -270,7 +355,9 @@ export default function TeacherTestSeriesManagePage() {
                                             <div className="flex items-center gap-2 text-[11px] text-gray-600 dark:text-gray-400">
                                                 <span className="font-semibold text-sky-700 dark:text-sky-400">{test.category}</span>
                                                 <span>•</span>
-                                                <span>Created {test.createdAt}</span>
+                                                <span data-testid="test-created-at">
+                                                    {test.createdAt === "—" ? "—" : `Created ${test.createdAt}`}
+                                                </span>
                                             </div>
                                         </div>
                                     </td>
@@ -328,8 +415,21 @@ export default function TeacherTestSeriesManagePage() {
                                             {test.status}
                                         </span>
                                     </td>
-                                    <td className="py-4 px-6 text-right">
-                                        <div className="flex items-center justify-end gap-2">
+                                    <td className="py-4 px-6 text-right min-w-[340px]">
+                                        <div className="flex items-center justify-end gap-2 flex-wrap">
+                                            {test.status === "DRAFT" && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setPublishModalTest(test)}
+                                                    data-testid="publish-row-button"
+                                                    className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 min-h-[44px] cursor-pointer shadow-xs shrink-0"
+                                                    title="Publish Test"
+                                                    aria-label={`Publish ${test.title}`}
+                                                >
+                                                    <CheckCircle className="h-4 w-4" />
+                                                    <span>Publish</span>
+                                                </button>
+                                            )}
                                             <Link
                                                 href={`/test-series/${test.seriesId || "upsc-prelims-2026"}?testId=${test.id}`}
                                                 target="_blank"
@@ -354,18 +454,36 @@ export default function TeacherTestSeriesManagePage() {
                                             >
                                                 <BarChart3 className="h-4 w-4" />
                                             </Link>
-                                            <button
-                                                disabled
-                                                className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50 transition-colors"
-                                                title="Edit coming soon"
-                                                aria-label="Edit coming soon"
+                                            <Link
+                                                href={`${basePath}/${test.id}/submissions`}
+                                                className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-purple-600 hover:border-purple-500/40 transition-colors flex items-center justify-center min-h-[44px] min-w-[44px]"
+                                                title="View Submissions"
+                                                aria-label="View Submissions"
+                                            >
+                                                <Users className="h-4 w-4" />
+                                            </Link>
+                                            <Link
+                                                href={`${basePath}/${test.id}/review`}
+                                                className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-sky-600 hover:border-sky-500/40 transition-colors flex items-center justify-center min-h-[44px] min-w-[44px]"
+                                                title="Review Questions"
+                                                aria-label="Review Questions"
+                                            >
+                                                <FileText className="h-4 w-4" />
+                                            </Link>
+                                            <Link
+                                                href={`${basePath}/${test.id}/edit`}
+                                                className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-sky-600 hover:border-sky-500/40 transition-colors flex items-center justify-center min-h-[44px] min-w-[44px]"
+                                                title="Edit Test"
+                                                aria-label="Edit Test"
                                             >
                                                 <Pencil className="h-4 w-4" />
-                                            </button>
+                                            </Link>
                                             <button
+                                                disabled={deletingId === test.id}
                                                 onClick={() => handleDelete(test.id)}
-                                                className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-colors"
+                                                className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-red-500 hover:border-red-500/40 transition-colors disabled:opacity-40 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                                                 title="Delete Test"
+                                                aria-label="Delete Test"
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </button>
@@ -388,6 +506,63 @@ export default function TeacherTestSeriesManagePage() {
                     loadAllTests()
                 }}
             />
+
+            {/* Admin Force Delete Confirmation Modal */}
+            {pendingForceDelete && (
+                <div
+                    data-testid="force-delete-modal"
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                >
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
+                        <div className="flex items-start gap-3">
+                            <div className="p-2 rounded-xl bg-red-100 dark:bg-red-950/50 text-red-600 shrink-0">
+                                <AlertCircle className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-black text-gray-900 dark:text-white">
+                                    Confirm Force Deletion
+                                </h3>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                    Warning: This test has <strong className="text-red-600 dark:text-red-400 font-bold">{pendingForceDelete.attemptsCount} student attempt(s)</strong>. Force deleting will permanently erase candidate records, answers, and scores.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-end gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setPendingForceDelete(null)}
+                                className="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold text-xs hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer min-h-[44px]"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmForceDelete}
+                                className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition-colors shadow-sm cursor-pointer min-h-[44px]"
+                            >
+                                Force Delete ({pendingForceDelete.attemptsCount} attempts)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {publishModalTest && (
+                <PublishTestModal
+                    isOpen={Boolean(publishModalTest)}
+                    onClose={() => setPublishModalTest(null)}
+                    testId={publishModalTest.id}
+                    testTitle={publishModalTest.title}
+                    reviewUrl={`${basePath}/${publishModalTest.id}/review`}
+                    onSuccess={() => {
+                        const targetId = publishModalTest.id
+                        setTests((prev) =>
+                            prev.map((t) => (t.id === targetId ? { ...t, status: "PUBLISHED" } : t))
+                        )
+                        setPublishModalTest(null)
+                    }}
+                />
+            )}
         </div>
     )
 }

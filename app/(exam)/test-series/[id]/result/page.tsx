@@ -20,6 +20,7 @@ import {
   BookOpen,
 } from "lucide-react"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
+import MathRenderer from "@/components/exam/MathRenderer"
 
 // ─────────────────────────────────────────────────────────────────
 // Types
@@ -39,6 +40,8 @@ interface QuestionRow {
   id?: string | number
   text: string
   textHi?: string | null
+  options?: string[]
+  optionsHi?: string[]
   subject: string
   yourAnswer: string
   yourAnswerText?: string
@@ -272,9 +275,9 @@ function SolutionModal({ q, onClose }: { q: QuestionRow; onClose: () => void }) 
             marginBottom: 16,
           }}
         >
-          <p style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", margin: 0, lineHeight: 1.6 }}>{q.text}</p>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", margin: 0, lineHeight: 1.6, whiteSpace: "pre-line" }}>{q.text}</p>
           {q.textHi && (
-            <p style={{ fontSize: 12, color: "#64748b", margin: "8px 0 0", lineHeight: 1.5 }}>{q.textHi}</p>
+            <p style={{ fontSize: 12, color: "#64748b", margin: "8px 0 0", lineHeight: 1.5, whiteSpace: "pre-line" }}>{q.textHi}</p>
           )}
         </div>
 
@@ -339,9 +342,9 @@ function SolutionModal({ q, onClose }: { q: QuestionRow; onClose: () => void }) 
           >
             💡 Detailed Solution &amp; Explanation
           </div>
-          <p style={{ fontSize: 13, color: "#1e3a8a", lineHeight: 1.6, margin: 0 }}>{q.explanation}</p>
+          <p style={{ fontSize: 13, color: "#1e3a8a", lineHeight: 1.6, margin: 0, whiteSpace: "pre-line" }}>{q.explanation}</p>
           {q.explanationHi && (
-            <p style={{ fontSize: 12, color: "#3b82f6", lineHeight: 1.5, margin: "8px 0 0" }}>{q.explanationHi}</p>
+            <p style={{ fontSize: 12, color: "#3b82f6", lineHeight: 1.5, margin: "8px 0 0", whiteSpace: "pre-line" }}>{q.explanationHi}</p>
           )}
         </div>
 
@@ -370,8 +373,6 @@ function SolutionModal({ q, onClose }: { q: QuestionRow; onClose: () => void }) 
 // ─────────────────────────────────────────────────────────────────
 // RESULT PAGE CONTENT
 // ─────────────────────────────────────────────────────────────────
-
-const PAGE_SIZE = 20
 
 function ResultContent() {
   const params = useParams()
@@ -496,9 +497,13 @@ function ResultContent() {
 
   // State
   const [activeSection, setActiveSection] = useState<"analysis" | "questions">("analysis")
-  const [qPage, setQPage] = useState(0)
   const [showSolution, setShowSolution] = useState<QuestionRow | null>(null)
   const [expandSubject, setExpandSubject] = useState(true)
+  const [languageMode, setLanguageMode] = useState<"both" | "english" | "hindi">("both")
+  const [statusFilter, setStatusFilter] = useState<"all" | "correct" | "wrong" | "skipped">("all")
+  const [jumpInput, setJumpInput] = useState("")
+  const [allExpanded, setAllExpanded] = useState(true)
+  const [collapsedQuestions, setCollapsedQuestions] = useState<Record<number, boolean>>({})
 
   if (status === "unauthenticated" || (!session?.user && status !== "loading")) {
     return (
@@ -643,6 +648,8 @@ function ResultContent() {
       id: qa.questionId,
       text: qa.questionEn || "",
       textHi: qa.questionHi || null,
+      options: Array.isArray(qa.options) ? qa.options : [],
+      optionsHi: Array.isArray(qa.optionsHi) ? qa.optionsHi : [],
       subject: qa.subject || "General Studies",
       yourAnswer: qa.selectedOption || "—",
       yourAnswerText: qa.selectedOptionText || "Not Attempted",
@@ -665,8 +672,52 @@ function ResultContent() {
     marks: sb.marksObtained,
   }))
 
-  const totalPages = Math.ceil(allQuestions.length / PAGE_SIZE)
-  const pageQuestions = allQuestions.slice(qPage * PAGE_SIZE, (qPage + 1) * PAGE_SIZE)
+  const filteredQuestions = allQuestions.filter((q) => {
+    if (statusFilter === "all") return true
+    return q.status === statusFilter
+  })
+
+  const countAll = allQuestions.length
+  const countCorrect = allQuestions.filter((q) => q.status === "correct").length
+  const countWrong = allQuestions.filter((q) => q.status === "wrong").length
+  const countSkipped = allQuestions.filter((q) => q.status === "skipped").length
+
+  const toggleAllExpanded = () => {
+    setAllExpanded((prev) => !prev)
+    setCollapsedQuestions({})
+  }
+
+  const toggleQuestionExplanation = (qNo: number) => {
+    setCollapsedQuestions((prev) => ({
+      ...prev,
+      [qNo]: prev[qNo] !== undefined ? !prev[qNo] : !allExpanded,
+    }))
+  }
+
+  const handleJump = (e: React.FormEvent) => {
+    e.preventDefault()
+    const targetNum = parseInt(jumpInput, 10)
+    if (!isNaN(targetNum) && targetNum >= 1 && targetNum <= allQuestions.length) {
+      if (statusFilter !== "all") {
+        setStatusFilter("all")
+      }
+      setTimeout(() => {
+        const el = document.getElementById(`review-question-${targetNum}`)
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" })
+        }
+      }, 50)
+    }
+  }
+
+  const handleDownloadPdf = () => {
+    setActiveSection("questions")
+    setStatusFilter("all")
+    setAllExpanded(true)
+    setTimeout(() => {
+      window.print()
+    }, 150)
+  }
 
   const statusColor = (s: QuestionRow["status"]) =>
     s === "correct" ? "#16a34a" : s === "wrong" ? "#dc2626" : "#6b7280"
@@ -869,7 +920,7 @@ function ResultContent() {
               {
                 icon: <CheckCircle style={{ width: 16, height: 16 }} />,
                 label: "Correct",
-                val: `+${correct}`,
+                val: `${correct}`,
                 bg: "rgba(34,197,94,0.25)",
                 border: "rgba(34,197,94,0.5)",
                 val2: `+${correctMarks.toFixed(2)} marks`,
@@ -877,7 +928,7 @@ function ResultContent() {
               {
                 icon: <XCircle style={{ width: 16, height: 16 }} />,
                 label: "Wrong",
-                val: `-${wrong}`,
+                val: `${wrong}`,
                 bg: "rgba(239,68,68,0.25)",
                 border: "rgba(239,68,68,0.5)",
                 val2: `-${negativeMarks.toFixed(2)} marks`,
@@ -1366,210 +1417,299 @@ function ResultContent() {
         {/* ══ TAB 2: QUESTION-WISE REVIEW (ACTUAL TEST QUESTIONS) ══ */}
         {activeSection === "questions" && (
           <div style={{ animation: "slideDown 0.3s ease" }}>
-            <div
-              style={{
-                background: "#fff",
-                borderRadius: 16,
-                border: "1px solid #e5e7eb",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                overflow: "hidden",
-              }}
-            >
-              {/* Table Header */}
-              <div
-                style={{
-                  padding: "16px 20px",
-                  borderBottom: "1px solid #f3f4f6",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <h3
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 800,
-                    color: "#111827",
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 4,
-                      height: 18,
-                      background: "linear-gradient(#8b5cf6,#6366f1)",
-                      borderRadius: 4,
-                    }}
-                  />
-                  Question-wise Performance Review
-                </h3>
-                <div style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>
-                  Showing all {allQuestions.length} Questions
+            {/* Global Print Stylesheet for Download PDF */}
+            <style dangerouslySetInnerHTML={{ __html: `
+              @media print {
+                body, html {
+                  background: #fff !important;
+                  color: #000 !important;
+                }
+                header,
+                nav,
+                .print-hidden,
+                .print\\:hidden,
+                button {
+                  display: none !important;
+                }
+                .print-only-header {
+                  display: block !important;
+                }
+                .review-question-card {
+                  break-inside: avoid !important;
+                  page-break-inside: avoid !important;
+                  margin-bottom: 20px !important;
+                  border: 1px solid #d1d5db !important;
+                  box-shadow: none !important;
+                  background: #fff !important;
+                  padding: 16px !important;
+                }
+                .question-explanation {
+                  display: block !important;
+                }
+                * {
+                  overflow: visible !important;
+                }
+              }
+            ` }} />
+
+            {/* Print-Only Header (Summary for PDF download) */}
+            <div className="hidden print:block print-header-summary print-only-header mb-6 pb-4 border-b-2 border-black">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-xl font-black text-black">{testTitle}</h1>
+                  <p className="text-xs text-gray-700 mt-1">Detailed Question-wise Performance &amp; Solutions Report</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-black">{score.toFixed(2)} / {totalMarks}</div>
+                  <div className="text-xs font-bold">{passed ? "PASSED" : "FAILED"}</div>
                 </div>
               </div>
-
-              {/* Desktop / Tablet Table (>= 768px, md:block) */}
-              <div className="hidden md:block overflow-x-auto">
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                  <thead>
-                    <tr style={{ background: "#f9fafb" }}>
-                      {["Q#", "Question / Subject", "Your Answer", "Correct Answer", "Status", "Action"].map(
-                        (h) => (
-                          <th
-                            key={h}
-                            style={{
-                              padding: "11px 14px",
-                              textAlign: h === "Q#" || h === "Action" ? "center" : "left",
-                              fontWeight: 700,
-                              color: "#374151",
-                              fontSize: 11,
-                              textTransform: "uppercase",
-                              letterSpacing: 0.5,
-                              borderBottom: "2px solid #e5e7eb",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {h}
-                          </th>
-                        )
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pageQuestions.map((q) => (
-                      <tr
-                        key={q.no}
-                        style={{
-                          background: "#fff",
-                          borderBottom: "1px solid #f3f4f6",
-                        }}
-                      >
-                        <td style={{ padding: "12px 14px", textAlign: "center", fontWeight: 800, color: "#6b7280" }}>
-                          {q.no}
-                        </td>
-                        <td style={{ padding: "12px 14px", color: "#1f2937", maxWidth: 380 }}>
-                          <p style={{ margin: 0, fontWeight: 700, lineHeight: 1.4 }}>{q.text}</p>
-                          <span
-                            style={{
-                              display: "inline-block",
-                              marginTop: 4,
-                              fontSize: 10,
-                              color: "#64748b",
-                              background: "#f1f5f9",
-                              padding: "1px 6px",
-                              borderRadius: 4,
-                            }}
-                          >
-                            {q.subject}
-                          </span>
-                        </td>
-                        <td style={{ padding: "12px 14px" }}>
-                          <span
-                            style={{
-                              padding: "3px 10px",
-                              borderRadius: 6,
-                              background: q.status === "wrong" ? "#fef2f2" : q.status === "correct" ? "#f0fdf4" : "#f9fafb",
-                              color: q.status === "wrong" ? "#dc2626" : q.status === "correct" ? "#16a34a" : "#6b7280",
-                              fontWeight: 800,
-                            }}
-                          >
-                            {q.yourAnswer}
-                          </span>
-                        </td>
-                        <td style={{ padding: "12px 14px" }}>
-                          <span
-                            style={{
-                              padding: "3px 10px",
-                              borderRadius: 6,
-                              background: "#f0fdf4",
-                              color: "#16a34a",
-                              fontWeight: 800,
-                            }}
-                          >
-                            {q.correctAnswer}
-                          </span>
-                        </td>
-                        <td style={{ padding: "12px 14px" }}>
-                          <div
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 4,
-                              padding: "4px 10px",
-                              borderRadius: 20,
-                              background: statusBg(q.status),
-                              color: statusColor(q.status),
-                              fontWeight: 800,
-                              fontSize: 11,
-                            }}
-                          >
-                            <span>{statusIcon(q.status)}</span>
-                            <span style={{ textTransform: "capitalize" }}>{q.status}</span>
-                          </div>
-                        </td>
-                        <td style={{ padding: "12px 14px", textAlign: "center" }}>
-                          <button
-                            onClick={() => setShowSolution(q)}
-                            style={{
-                              padding: "6px 14px",
-                              minHeight: 36,
-                              borderRadius: 8,
-                              background: "#f0fdf4",
-                              color: "#16a34a",
-                              border: "1px solid #bbf7d0",
-                              fontWeight: 700,
-                              fontSize: 11,
-                              cursor: "pointer",
-                            }}
-                          >
-                            View Solution
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="flex flex-wrap gap-4 mt-3 pt-2 border-t border-gray-300 text-xs font-semibold">
+                {rank !== null && <span>Rank: #{rank} of {totalCandidates}</span>}
+                {percentile !== null && <span>Percentile: {percentile}%</span>}
+                <span>Total Questions: {allQuestions.length}</span>
+                <span className="text-emerald-700">Correct: {correct} (+{correctMarks.toFixed(2)} marks)</span>
+                <span className="text-red-700">Wrong: {wrong} (-{negativeMarks.toFixed(2)} marks)</span>
+                <span>Skipped: {skipped}</span>
               </div>
+            </div>
 
-              {/* Mobile Stacked Cards Layout (< 768px, block md:hidden) */}
-              <div className="block md:hidden p-3 space-y-3">
-                {pageQuestions.map((q) => (
-                  <div key={q.no} className="p-3.5 rounded-xl border border-gray-200 bg-white shadow-xs space-y-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-gray-500">Q.{q.no}</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 truncate max-w-[140px]">{q.subject}</span>
-                      </div>
-                      <div style={{ background: statusBg(q.status), color: statusColor(q.status) }} className="px-2.5 py-0.5 rounded-full text-xs font-extrabold flex items-center gap-1">
-                        <span>{statusIcon(q.status)}</span>
-                        <span className="capitalize">{q.status}</span>
-                      </div>
-                    </div>
-                    <p className="text-xs font-bold text-gray-800 line-clamp-3 leading-relaxed">{q.text}</p>
-                    <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-                      <div className="p-2 rounded-lg bg-gray-50 border border-gray-100">
-                        <div className="text-[10px] text-gray-400 font-bold uppercase">Your Ans</div>
-                        <div className="font-extrabold truncate" style={{ color: q.status === "correct" ? "#16a34a" : q.status === "wrong" ? "#dc2626" : "#6b7280" }}>
-                          {q.yourAnswer}
-                        </div>
-                      </div>
-                      <div className="p-2 rounded-lg bg-emerald-50/60 border border-emerald-100">
-                        <div className="text-[10px] text-emerald-600 font-bold uppercase">Correct Ans</div>
-                        <div className="font-extrabold text-emerald-700 truncate">{q.correctAnswer}</div>
-                      </div>
-                    </div>
+            {/* Sticky Controls Bar */}
+            <div className="review-sticky-bar sticky top-0 z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 p-2.5 sm:px-4 shadow-xs rounded-xl mb-4 print:hidden">
+              <div className="flex flex-wrap items-center justify-between gap-2.5">
+                {/* Filter Pills */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {[
+                    { key: "all", label: "All", count: countAll, color: "text-gray-700 bg-gray-100 dark:bg-gray-800" },
+                    { key: "correct", label: "Correct", count: countCorrect, color: "text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40" },
+                    { key: "wrong", label: "Wrong", count: countWrong, color: "text-red-700 bg-red-50 dark:bg-red-950/40" },
+                    { key: "skipped", label: "Skipped", count: countSkipped, color: "text-gray-600 bg-gray-100 dark:bg-gray-800" },
+                  ].map((f) => (
                     <button
-                      onClick={() => setShowSolution(q)}
-                      className="w-full min-h-[44px] py-2.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-bold text-xs flex items-center justify-center cursor-pointer transition-colors"
+                      key={f.key}
+                      type="button"
+                      onClick={() => setStatusFilter(f.key as typeof statusFilter)}
+                      className={`min-h-[44px] px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                        statusFilter === f.key
+                          ? "border-sky-500 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 shadow-xs"
+                          : `border-gray-200 dark:border-gray-700 ${f.color} hover:border-gray-300`
+                      }`}
                     >
-                      View Solution &amp; Explanation
+                      {f.label} ({f.count})
                     </button>
+                  ))}
+                </div>
+
+                {/* Right tools: Language Toggle, Jump, Expand All */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Language Toggle */}
+                  <div className="flex items-center bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-semibold shrink-0 min-h-[44px]">
+                    {(["both", "english", "hindi"] as const).map((mode) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        onClick={() => setLanguageMode(mode)}
+                        className={`min-h-[44px] px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                          languageMode === mode
+                            ? "bg-white dark:bg-sky-600 text-sky-700 dark:text-white shadow-xs font-bold"
+                            : "text-gray-600 dark:text-gray-400 hover:text-gray-900"
+                        }`}
+                      >
+                        {mode === "both" ? "Both" : mode === "english" ? "English" : "हिंदी"}
+                      </button>
+                    ))}
                   </div>
-                ))}
+
+                  {/* Jump to Question */}
+                  <form onSubmit={handleJump} className="flex items-center gap-1.5 shrink-0 min-h-[44px]">
+                    <input
+                      type="number"
+                      min={1}
+                      max={allQuestions.length || 1}
+                      value={jumpInput}
+                      onChange={(e) => setJumpInput(e.target.value)}
+                      placeholder="Q#"
+                      className="w-16 px-2.5 py-1.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-bold focus:outline-hidden focus:border-sky-500 min-h-[44px]"
+                      aria-label="Jump to question number"
+                    />
+                    <button
+                      type="submit"
+                      className="min-h-[44px] px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+                    >
+                      Jump
+                    </button>
+                  </form>
+
+                  {/* Expand/Collapse All toggle */}
+                  <button
+                    type="button"
+                    onClick={toggleAllExpanded}
+                    className="min-h-[44px] px-3 py-1.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 text-gray-700 dark:text-gray-200 text-xs font-bold transition-colors cursor-pointer shrink-0"
+                  >
+                    {allExpanded ? "Collapse Explanations" : "Expand Explanations"}
+                  </button>
+                </div>
               </div>
+            </div>
+
+            {/* Questions List (All N questions rendered on one scrolling page) */}
+            <div className="space-y-4">
+              {filteredQuestions.map((q) => {
+                const isExplanationVisible = collapsedQuestions[q.no] !== undefined ? !collapsedQuestions[q.no] : allExpanded
+
+                return (
+                  <article
+                    key={q.no}
+                    id={`review-question-${q.no}`}
+                    data-testid={`review-question-${q.no}`}
+                    className="review-question-card p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs space-y-3.5 print:border print:border-gray-300 print:shadow-none print:break-inside-avoid print:mb-6"
+                  >
+                    {/* Header strip: Number, badges, status */}
+                    <div className="flex items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-800 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2.5 py-1 rounded-lg bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-xs font-black">
+                          Q{q.no}
+                        </span>
+                        <span className="text-xs font-black text-gray-800 dark:text-gray-200">
+                          Question {q.no}
+                        </span>
+                        <span
+                          style={{ background: statusBg(q.status), color: statusColor(q.status) }}
+                          className="px-2.5 py-0.5 rounded-full text-xs font-extrabold flex items-center gap-1"
+                        >
+                          <span>{statusIcon(q.status)}</span>
+                          <span className="capitalize">{q.status}</span>
+                        </span>
+                        {q.subject && (
+                          <span className="text-[11px] text-gray-500 font-medium">
+                            • {q.subject}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* View Solution modal button (kept for modal support and existing Playwright tests) */}
+                      <button
+                        type="button"
+                        onClick={() => setShowSolution(q)}
+                        className="print:hidden flex items-center gap-1 px-3 py-1.5 rounded-lg border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 text-xs font-bold hover:bg-emerald-100 transition-colors cursor-pointer min-h-[44px]"
+                        aria-label={`View Solution for question ${q.no}`}
+                      >
+                        <span>View Solution</span>
+                      </button>
+                    </div>
+
+                    {/* Question prompt text */}
+                    <div className="py-1 space-y-1.5">
+                      {(languageMode === "both" || languageMode === "english") && (
+                        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-pre-line leading-relaxed">
+                          <MathRenderer text={q.text || "(No English question text)"} />
+                        </div>
+                      )}
+                      {(languageMode === "both" || languageMode === "hindi") && q.textHi && (
+                        <div className="text-sm font-normal text-gray-600 dark:text-gray-400 pt-0.5 whitespace-pre-line leading-relaxed">
+                          <MathRenderer text={q.textHi} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 4 Options Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                      {["A", "B", "C", "D"].map((letter, optIdx) => {
+                        const optEnglish = q.options?.[optIdx]
+                        const optHindi = q.optionsHi?.[optIdx]
+                        const isStudentAnswer = q.yourAnswer === letter
+                        const isCorrectAnswer = q.correctAnswer === letter
+
+                        let borderBgClass = "border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-white/5 text-gray-700 dark:text-gray-300"
+                        if (isCorrectAnswer) {
+                          borderBgClass = "border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-100 shadow-xs"
+                        } else if (isStudentAnswer) {
+                          borderBgClass = "border-red-400 bg-red-50/70 dark:bg-red-950/40 text-red-900 dark:text-red-100 shadow-xs"
+                        }
+
+                        return (
+                          <div
+                            key={letter}
+                            className={`p-3 rounded-xl border text-xs flex items-start gap-2.5 transition-all print:border print:border-gray-300 print:bg-white ${borderBgClass}`}
+                          >
+                            <span
+                              className={`w-5 h-5 rounded-md flex items-center justify-center font-black text-[11px] shrink-0 mt-0.5 ${
+                                isCorrectAnswer
+                                  ? "bg-emerald-600 text-white"
+                                  : isStudentAnswer
+                                  ? "bg-red-600 text-white"
+                                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                              }`}
+                            >
+                              {letter}
+                            </span>
+                            <div className="min-w-0 flex-1 space-y-0.5">
+                              {(languageMode === "both" || languageMode === "english") && (
+                                <div className="whitespace-pre-line">
+                                  <MathRenderer text={optEnglish || `(Option ${letter} empty)`} />
+                                </div>
+                              )}
+                              {(languageMode === "both" || languageMode === "hindi") && optHindi && (
+                                <div className="text-gray-500 dark:text-gray-400 text-[11px] whitespace-pre-line">
+                                  <MathRenderer text={optHindi} />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col gap-1 items-end shrink-0">
+                              {isCorrectAnswer && (
+                                <span className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-black rounded-md print:border print:border-black print:text-black print:bg-gray-200">
+                                  Correct answer
+                                </span>
+                              )}
+                              {isStudentAnswer && (
+                                <span className={`px-2 py-0.5 text-white text-[10px] font-black rounded-md print:border print:border-black print:text-black print:bg-gray-100 ${isCorrectAnswer ? "bg-emerald-700" : "bg-red-600"}`}>
+                                  Your answer
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Inline Solution & Explanation */}
+                    {isExplanationVisible ? (
+                      <div className="question-explanation mt-3 p-3.5 bg-blue-50/70 dark:bg-blue-950/20 rounded-xl border border-blue-200/80 dark:border-blue-900/40 text-xs space-y-1.5 print:bg-gray-50 print:border-gray-300 print:block">
+                        <div className="flex items-center justify-between">
+                          <p className="font-bold text-sky-800 dark:text-sky-300 uppercase tracking-wider text-[10px]">
+                            💡 Explanation:
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => toggleQuestionExplanation(q.no)}
+                            className="text-[10px] font-bold text-sky-700 dark:text-sky-400 hover:underline print:hidden min-h-[32px] px-2 cursor-pointer"
+                          >
+                            Hide
+                          </button>
+                        </div>
+                        {(languageMode === "both" || languageMode === "english") && q.explanation && (
+                          <div className="text-gray-800 dark:text-gray-200 whitespace-pre-line leading-relaxed">
+                            <MathRenderer text={q.explanation} />
+                          </div>
+                        )}
+                        {(languageMode === "both" || languageMode === "hindi") && q.explanationHi && (
+                          <div className="text-gray-600 dark:text-gray-400 whitespace-pre-line leading-relaxed">
+                            <MathRenderer text={q.explanationHi} />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => toggleQuestionExplanation(q.no)}
+                        className="text-xs font-bold text-sky-600 hover:underline print:hidden min-h-[44px] flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>▶ Show Explanation</span>
+                      </button>
+                    )}
+                  </article>
+                )
+              })}
             </div>
           </div>
         )}

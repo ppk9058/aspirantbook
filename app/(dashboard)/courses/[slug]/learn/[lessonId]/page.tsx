@@ -9,13 +9,14 @@ export const dynamic = "force-dynamic"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; lessonId: string }> }) {
   const { slug, lessonId } = await params
-  const session = await auth()
+  const [session, course] = await Promise.all([
+    auth(),
+    prisma.course.findFirst({
+      where: { OR: [{ slug }, { id: slug }] },
+      select: { id: true, title: true, status: true, isPublished: true }
+    }),
+  ])
   const userRole = session?.user?.role
-
-  const course = await prisma.course.findFirst({
-    where: { OR: [{ slug }, { id: slug }] },
-    select: { id: true, title: true, status: true, isPublished: true }
-  })
 
   if (!course || !isCourseVisibleToUser(course, userRole)) {
     notFound()
@@ -39,22 +40,23 @@ export default async function CourseLearnPage({
   params: Promise<{ slug: string; lessonId: string }>
 }) {
   const { slug, lessonId } = await params
-  const session = await auth()
-  const userRole = session?.user?.role
-
-  const course = await prisma.course.findUnique({
-    where: { slug },
-    include: {
-      chapters: {
-        orderBy: { order: "asc" },
-        include: {
-          lessons: {
-            orderBy: { order: "asc" },
+  const [session, course] = await Promise.all([
+    auth(),
+    prisma.course.findUnique({
+      where: { slug },
+      include: {
+        chapters: {
+          orderBy: { order: "asc" },
+          include: {
+            lessons: {
+              orderBy: { order: "asc" },
+            },
           },
         },
       },
-    },
-  })
+    }),
+  ])
+  const userRole = session?.user?.role
 
   if (!course || !isCourseVisibleToUser(course, userRole)) {
     notFound()
@@ -71,14 +73,23 @@ export default async function CourseLearnPage({
 
   if (session?.user?.id) {
     try {
-      const existingEnrollment = await prisma.enrollment.findUnique({
-        where: {
-          userId_courseId: {
-            userId: session.user.id,
-            courseId: course.id,
+      const [existingEnrollment, records] = await Promise.all([
+        prisma.enrollment.findUnique({
+          where: {
+            userId_courseId: {
+              userId: session.user.id,
+              courseId: course.id,
+            },
           },
-        },
-      })
+        }),
+        prisma.progress.findMany({
+          where: {
+            userId: session.user.id,
+            lessonId: { in: allLessonIds },
+          },
+          select: { lessonId: true, completed: true, timeSpent: true },
+        }),
+      ])
 
       if (existingEnrollment) {
         isEnrolled = true
@@ -93,13 +104,6 @@ export default async function CourseLearnPage({
         isEnrolled = true
       }
 
-      const records = await prisma.progress.findMany({
-        where: {
-          userId: session.user.id,
-          lessonId: { in: allLessonIds },
-        },
-        select: { lessonId: true, completed: true, timeSpent: true },
-      })
       records.forEach((r) => {
         if (r.completed) initialCompletedIds[r.lessonId] = true
         if (r.timeSpent) initialProgressTimes[r.lessonId] = r.timeSpent

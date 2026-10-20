@@ -7,10 +7,12 @@ import { startOfDay, endOfDay, subDays } from "date-fns"
 /**
  * Aggregate course analytics for a specific date
  */
-export async function aggregateCourseAnalytics(courseId: string, date: Date) {
-    const session = await auth()
-    if (!session || session.user.role !== "ADMIN") {
-        throw new Error("Unauthorized")
+export async function aggregateCourseAnalytics(courseId: string, date: Date, preVerified = false) {
+    if (!preVerified) {
+        const session = await auth()
+        if (!session || session.user.role !== "ADMIN") {
+            throw new Error("Unauthorized")
+        }
     }
 
     const startDate = startOfDay(date)
@@ -153,87 +155,83 @@ export async function aggregateCourseAnalytics(courseId: string, date: Date) {
 /**
  * Aggregate user analytics for a specific date
  */
-export async function aggregateUserAnalytics(userId: string, date: Date) {
-    const session = await auth()
-    if (!session || session.user.role !== "ADMIN") {
-        throw new Error("Unauthorized")
+export async function aggregateUserAnalytics(userId: string, date: Date, preVerified = false) {
+    if (!preVerified) {
+        const session = await auth()
+        if (!session || session.user.role !== "ADMIN") {
+            throw new Error("Unauthorized")
+        }
     }
 
     const startDate = startOfDay(date)
     const endDate = endOfDay(date)
 
-    // Get activity metrics
-    const lessonsCompleted = await prisma.progress.count({
-        where: {
-            userId,
-            completed: true,
-            lastAccessed: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-    })
-
-    const exercisesCompleted = await prisma.submission.count({
-        where: {
-            userId,
-            passed: true,
-            createdAt: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-    })
-
-    const assessmentsTaken = await prisma.assessmentAttempt.count({
-        where: {
-            userId,
-            startedAt: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-    })
-
-    // Get progress records for time spent
-    const progressRecords = await prisma.progress.findMany({
-        where: {
-            userId,
-            lastAccessed: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-        select: {
-            timeSpent: true,
-        },
-    })
-
-    const timeSpentMinutes = progressRecords.reduce((sum, p) => sum + (p.timeSpent || 0), 0)
-
-    // Get achievements unlocked
-    const achievementsUnlocked = await prisma.userAchievement.count({
-        where: {
-            userId,
-            unlockedAt: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-    })
-
-    // Get user data
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-            streak: true,
-            _count: {
-                select: {
-                    enrollments: true,
+    // Get activity metrics — all queries are independent, run in parallel
+    const [lessonsCompleted, exercisesCompleted, assessmentsTaken, progressRecords, achievementsUnlocked, user] = await Promise.all([
+        prisma.progress.count({
+            where: {
+                userId,
+                completed: true,
+                lastAccessed: {
+                    gte: startDate,
+                    lte: endDate,
                 },
             },
-        },
-    })
+        }),
+        prisma.submission.count({
+            where: {
+                userId,
+                passed: true,
+                createdAt: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+            },
+        }),
+        prisma.assessmentAttempt.count({
+            where: {
+                userId,
+                startedAt: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+            },
+        }),
+        prisma.progress.findMany({
+            where: {
+                userId,
+                lastAccessed: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+            },
+            select: {
+                timeSpent: true,
+            },
+        }),
+        prisma.userAchievement.count({
+            where: {
+                userId,
+                unlockedAt: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+            },
+        }),
+        prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                streak: true,
+                _count: {
+                    select: {
+                        enrollments: true,
+                    },
+                },
+            },
+        }),
+    ])
+
+    const timeSpentMinutes = progressRecords.reduce((sum, p) => sum + (p.timeSpent || 0), 0)
 
     // Upsert analytics record
     const analytics = await prisma.userAnalytics.upsert({
@@ -273,10 +271,12 @@ export async function aggregateUserAnalytics(userId: string, date: Date) {
 /**
  * Aggregate revenue analytics for a specific date
  */
-export async function aggregateRevenueAnalytics(date: Date) {
-    const session = await auth()
-    if (!session || session.user.role !== "ADMIN") {
-        throw new Error("Unauthorized")
+export async function aggregateRevenueAnalytics(date: Date, preVerified = false) {
+    if (!preVerified) {
+        const session = await auth()
+        if (!session || session.user.role !== "ADMIN") {
+            throw new Error("Unauthorized")
+        }
     }
 
     const startDate = startOfDay(date)
@@ -396,7 +396,7 @@ export async function runDailyAnalytics() {
     const today = new Date()
 
     // Aggregate revenue
-    await aggregateRevenueAnalytics(today)
+    await aggregateRevenueAnalytics(today, true)
 
     // Get all courses and aggregate
     const courses = await prisma.course.findMany({
@@ -405,7 +405,7 @@ export async function runDailyAnalytics() {
     })
 
     for (const course of courses) {
-        await aggregateCourseAnalytics(course.id, today)
+        await aggregateCourseAnalytics(course.id, today, true)
     }
 
     // Get active users and aggregate
@@ -419,7 +419,7 @@ export async function runDailyAnalytics() {
     })
 
     for (const user of activeUsers) {
-        await aggregateUserAnalytics(user.id, today)
+        await aggregateUserAnalytics(user.id, today, true)
     }
 
     return {

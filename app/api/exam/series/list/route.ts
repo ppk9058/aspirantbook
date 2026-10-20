@@ -17,9 +17,9 @@ export async function GET(req: NextRequest) {
     const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null;
     const { goalIds: userGoalIds } = await getStudentGoals(session?.user?.id, cookieGoal);
 
-    // If query string attempts to pass a goal, ensure it cannot broaden access beyond user's active goals
+    // Query string goal takes explicit priority over cookie/profile goals
     const queryGoal = searchParams.get("goal");
-    const activeGoalIds = queryGoal && userGoalIds.length === 0
+    const activeGoalIds = queryGoal
       ? parseGoalIds(queryGoal)
       : userGoalIds;
 
@@ -83,6 +83,10 @@ export async function GET(req: NextRequest) {
         languages: s.languages,
         highlights,
         description: cleanDescription,
+        bannerUrl: s.bannerUrl || null,
+        syllabus: s.syllabus || null,
+        keyFeatures: Array.isArray(s.keyFeatures) ? s.keyFeatures : [],
+        whyThisSeries: s.whyThisSeries || null,
         goalId: s.category.toLowerCase().replace(/\s+/g, "-"),
         tags: [s.category.toLowerCase()],
         isFree: s.isFree ?? false,

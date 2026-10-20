@@ -129,6 +129,14 @@ export function invalidateBooksCache() {
 }
 
 let cachedOrders: BookOrder[] | null = null
+let lastOrdersCacheTime = 0
+const ORDERS_CACHE_TTL_MS = 10_000 // 10 seconds TTL
+
+export function invalidateOrdersCache() {
+  cachedOrders = null
+  lastOrdersCacheTime = 0
+}
+
 let cachedCoupons: Coupon[] | null = null
 
 async function ensureDataFiles() {
@@ -449,10 +457,15 @@ export async function deleteBook(id: string): Promise<boolean> {
 // ----------------- ORDERS -----------------
 
 export async function getAllOrders(): Promise<BookOrder[]> {
+  if (cachedOrders && Date.now() - lastOrdersCacheTime < ORDERS_CACHE_TTL_MS) {
+    return cachedOrders
+  }
+
   try {
     await ensureDataFiles()
     const orders = await safeReadJson<BookOrder[]>(ORDERS_FILE, INITIAL_ORDERS)
     cachedOrders = orders
+    lastOrdersCacheTime = Date.now()
     return orders
   } catch (err) {
     console.error("Error reading book-orders.json:", err)
@@ -522,6 +535,7 @@ export async function createOrder(orderData: BookOrder): Promise<BookOrder> {
   const updated = [safeOrder, ...orders]
   await atomicWriteJson(ORDERS_FILE, updated)
   cachedOrders = updated
+  lastOrdersCacheTime = Date.now()
   return safeOrder
 }
 
@@ -560,6 +574,7 @@ export async function markBookOrderCompleted({
   // Atomically persist orders
   await atomicWriteJson(ORDERS_FILE, orders)
   cachedOrders = orders
+  lastOrdersCacheTime = Date.now()
 
   // Increment salesCount once for each book in the order
   for (const item of currentOrder.items || []) {
@@ -585,6 +600,7 @@ export async function markBookOrderFailed(orderId: string): Promise<boolean> {
   orders[idx].status = "failed"
   await atomicWriteJson(ORDERS_FILE, orders)
   cachedOrders = orders
+  lastOrdersCacheTime = Date.now()
   return true
 }
 
@@ -600,6 +616,7 @@ export async function updateOrderStatus(
   orders[idx].status = status
   await atomicWriteJson(ORDERS_FILE, orders)
   cachedOrders = orders
+  lastOrdersCacheTime = Date.now()
   return orders[idx]
 }
 
