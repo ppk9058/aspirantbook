@@ -20,6 +20,8 @@ export function getClientIp(req: Request | { headers: Headers }): string {
     hasWarnedProxy = true;
   }
   if (isTrustedProxy) {
+    const cfIp = req.headers.get("cf-connecting-ip");
+    if (cfIp) return cfIp.trim();
     const forwarded = req.headers.get("x-forwarded-for");
     if (forwarded) {
       const firstIp = forwarded.split(",")[0]?.trim();
