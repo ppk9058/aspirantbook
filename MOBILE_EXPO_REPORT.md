@@ -82,3 +82,23 @@
 - Web behavior remains 100% intact: registration requires 13+ consent, privacy and terms pages render cleanly, push-token endpoint enforces rate-limiting and Zod validation.
 
 ---
+
+## Step 2: Workspaces and Shared Package (`@aspirantbook/shared`)
+
+### 1. Workspace Configuration
+- Root `package.json` updated with `"workspaces": ["packages/*", "apps/*"]` while leaving all root scripts (`npm run dev/build/start/lint/test`) completely unchanged.
+- Single root `package-lock.json` retained; no workspace hoisting conflicts.
+- Next.js root and TypeScript path mapping configured via `@aspirantbook/shared` pointing to `./packages/shared/src/index.ts`.
+
+### 2. Extracted Pure Logic
+- **`exam-grading.ts`**: Pure calculation of positive/negative scoring, correct/wrong/skipped counts, and marked-for-review tracking without database dependencies. Re-exported and consumed by web's `lib/exam-grading.ts`.
+- **`authwall.ts`**: Pure access resolution, question and quiz block sanitization (preventing answer leakage), and preview slicing percentages (0%, 20%, 50%, 100%, locked, single-block fallback).
+- **`constants.ts` & `formatters.ts`**: Standardized goal categories, app color tokens, duration and currency formatters.
+- **`dto/`**: Zod schemas and typed DTOs for authentication, profiles, tests, CBT answer batches, tutorials, library, push devices, and system config.
+- **`client.ts` (`createApiClient`)**: Typed, promise-based API client supporting Bearer tokens, token refresh interception, and uniform envelope unwrapping.
+
+### 3. Unit Tests
+- Suite: `packages/shared/tests/shared.test.ts`
+- Results: 13 / 13 tests passing (grading arithmetic, authwall slicing, DTO validation, formatters) in ~280ms.
+
+---

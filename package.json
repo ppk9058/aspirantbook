@@ -2,6 +2,10 @@
   "name": "aspirantbook",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "predev": "npm run db:check",
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' next dev",
