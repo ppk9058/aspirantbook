@@ -13,8 +13,11 @@ import {
     Globe,
     Zap,
     BookOpen,
-    Eye
+    Eye,
+    ArrowUp,
+    ArrowDown
 } from "lucide-react"
+import { ImageUpload } from "@/components/ui/image-upload"
 
 const LOGO_OPTIONS = [
     { id: "upsc", label: "UPSC Emblem" },
@@ -62,6 +65,10 @@ export default function CreateSeriesModal({
     const [languages, setLanguages] = useState("English, Hindi")
     const [highlights, setHighlights] = useState<string[]>([""])
     const [description, setDescription] = useState("")
+    const [bannerUrl, setBannerUrl] = useState("")
+    const [syllabus, setSyllabus] = useState("")
+    const [keyFeatures, setKeyFeatures] = useState<string[]>([""])
+    const [whyThisSeries, setWhyThisSeries] = useState("")
     const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [createdItem, setCreatedItem] = useState<any | null>(null)
@@ -84,6 +91,34 @@ export default function CreateSeriesModal({
         setHighlights((prev) => prev.filter((_, i) => i !== index))
     }
 
+    const handleAddKeyFeature = () => {
+        setKeyFeatures((prev) => [...prev, ""])
+    }
+
+    const handleUpdateKeyFeature = (index: number, val: string) => {
+        setKeyFeatures((prev) => {
+            const next = [...prev]
+            next[index] = val
+            return next
+        })
+    }
+
+    const handleRemoveKeyFeature = (index: number) => {
+        setKeyFeatures((prev) => prev.filter((_, i) => i !== index))
+    }
+
+    const handleMoveKeyFeature = (index: number, direction: "up" | "down") => {
+        setKeyFeatures((prev) => {
+            const next = [...prev]
+            const targetIdx = direction === "up" ? index - 1 : index + 1
+            if (targetIdx < 0 || targetIdx >= next.length) return prev
+            const temp = next[index]
+            next[index] = next[targetIdx]
+            next[targetIdx] = temp
+            return next
+        })
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!title.trim()) return
@@ -98,6 +133,10 @@ export default function CreateSeriesModal({
             languages,
             highlights: highlights.map((h) => h.trim()).filter((h) => h.length > 0),
             description: description.trim(),
+            bannerUrl: bannerUrl.trim() || null,
+            syllabus: syllabus.trim() || null,
+            keyFeatures: keyFeatures.map((f) => f.trim()).filter((f) => f.length > 0),
+            whyThisSeries: whyThisSeries.trim() || null,
         }
 
         try {
@@ -327,6 +366,109 @@ export default function CreateSeriesModal({
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Comprehensive description for the details page banner..."
                                     className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-medium focus:ring-2 focus:ring-[#00A8FF]"
+                                />
+                            </div>
+
+                            {/* Test Banner */}
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-1">
+                                    Test Banner (Recommended: 1200x400px or 16:9 aspect ratio, max 5MB)
+                                </label>
+                                <ImageUpload
+                                    value={bannerUrl}
+                                    onChange={(url) => setBannerUrl(url)}
+                                    onRemove={() => setBannerUrl("")}
+                                    folder="test-series-banners"
+                                />
+                                <p className="text-[11px] text-gray-500 mt-1">
+                                    Displays as the hero visual banner on the learner-side details page.
+                                </p>
+                            </div>
+
+                            {/* Syllabus for the Whole Series */}
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-1">
+                                    Series Syllabus (Full Curriculum Outline)
+                                </label>
+                                <textarea
+                                    rows={4}
+                                    value={syllabus}
+                                    onChange={(e) => setSyllabus(e.target.value)}
+                                    placeholder="Outline the full test series syllabus (topics, subjects, phases)..."
+                                    className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-medium focus:ring-2 focus:ring-[#00A8FF] leading-relaxed"
+                                />
+                            </div>
+
+                            {/* Key Features of the Test Series */}
+                            <div>
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <label className="text-xs font-bold text-gray-700">
+                                        Key Features of the Test Series (Repeatable)
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={handleAddKeyFeature}
+                                        className="text-[11px] font-bold text-[#00A8FF] hover:underline flex items-center gap-1 cursor-pointer"
+                                    >
+                                        <Plus className="h-3 w-3" /> Add Feature
+                                    </button>
+                                </div>
+
+                                <div className="space-y-2">
+                                    {keyFeatures.map((feat, idx) => (
+                                        <div key={idx} className="flex items-center gap-1.5">
+                                            <span className="text-gray-400 text-xs font-bold w-5 text-right">{idx + 1}.</span>
+                                            <input
+                                                type="text"
+                                                value={feat}
+                                                onChange={(e) => handleUpdateKeyFeature(idx, e.target.value)}
+                                                placeholder={`e.g. Detailed Bilingual Video Solutions for all questions`}
+                                                className="flex-1 px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-medium focus:ring-1 focus:ring-[#00A8FF]"
+                                            />
+                                            <button
+                                                type="button"
+                                                disabled={idx === 0}
+                                                onClick={() => handleMoveKeyFeature(idx, "up")}
+                                                className="p-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-30 rounded cursor-pointer"
+                                                title="Move feature up"
+                                            >
+                                                <ArrowUp className="h-3.5 w-3.5" />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                disabled={idx === keyFeatures.length - 1}
+                                                onClick={() => handleMoveKeyFeature(idx, "down")}
+                                                className="p-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-30 rounded cursor-pointer"
+                                                title="Move feature down"
+                                            >
+                                                <ArrowDown className="h-3.5 w-3.5" />
+                                            </button>
+                                            {keyFeatures.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveKeyFeature(idx)}
+                                                    className="p-1.5 text-gray-400 hover:text-red-500 rounded cursor-pointer"
+                                                    title="Remove feature"
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Why This Test Series */}
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-1">
+                                    Why This Test Series (Pedagogy &amp; Value Proposition)
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={whyThisSeries}
+                                    onChange={(e) => setWhyThisSeries(e.target.value)}
+                                    placeholder="Highlight why learners should enroll in this specific series..."
+                                    className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-medium focus:ring-2 focus:ring-[#00A8FF] leading-relaxed"
                                 />
                             </div>
 

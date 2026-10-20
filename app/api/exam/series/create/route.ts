@@ -28,6 +28,10 @@ export async function POST(req: NextRequest) {
       languages = "English, Hindi",
       highlights = [],
       description = "",
+      bannerUrl = null,
+      syllabus = null,
+      keyFeatures = [],
+      whyThisSeries = null,
       isPublished = true,
       isPro = true,
     } = body;
@@ -66,6 +70,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const cleanKeyFeatures = Array.isArray(keyFeatures)
+      ? keyFeatures.map((f: any) => String(f).trim()).filter((f: string) => f.length > 0)
+      : [];
+
     // Upsert or create series with real columns
     const series = await prisma.examSeries.upsert({
       where: { slug },
@@ -77,6 +85,10 @@ export async function POST(req: NextRequest) {
         logoType: logoType || "general",
         highlights: cleanHighlights,
         languages: languages || "English, Hindi",
+        bannerUrl: bannerUrl ? String(bannerUrl).trim() : null,
+        syllabus: syllabus ? String(syllabus).trim() : null,
+        keyFeatures: cleanKeyFeatures,
+        whyThisSeries: whyThisSeries ? String(whyThisSeries).trim() : null,
         isPublished: Boolean(isPublished),
         isPro: Boolean(isPro),
       },
@@ -93,6 +105,10 @@ export async function POST(req: NextRequest) {
         freeTests: 0,
         usersCount: 0,
         languages: languages || "English, Hindi",
+        bannerUrl: bannerUrl ? String(bannerUrl).trim() : null,
+        syllabus: syllabus ? String(syllabus).trim() : null,
+        keyFeatures: cleanKeyFeatures,
+        whyThisSeries: whyThisSeries ? String(whyThisSeries).trim() : null,
         isPublished: Boolean(isPublished),
         isPro: Boolean(isPro),
         createdById: session.user.id,

@@ -862,16 +862,36 @@ model ExamSeries {
   seoMode      String       @default("preview") // "preview" | "bot-full"
   gateTitle    String?
   gateSubtitle String?
+  bannerUrl    String?
+  syllabus     String?
+  keyFeatures  String[]     @default([])
+  whyThisSeries String?
+  isArchived   Boolean      @default(false)
+  archivedAt   DateTime?
   createdById  String
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   tests        ExamTest[]
   enrollments  ExamSeriesEnrollment[]
+  slugHistory  PackageSlugHistory[]
 
   @@index([slug])
   @@index([category])
   @@index([isPublished])
   @@index([isPublished, createdAt])
+  @@index([isArchived])
+}
+
+model PackageSlugHistory {
+  id        String     @id @default(cuid())
+  seriesId  String
+  oldSlug   String     @unique
+  newSlug   String
+  createdAt DateTime   @default(now())
+  series    ExamSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@index([oldSlug])
+  @@index([seriesId])
 }
 
 // Tracks a student's enrollment / pass purchase for a test series
@@ -919,6 +939,8 @@ model ExamTest {
   positiveMarks   Float         @default(1.0)
   negativeMarks   Float         @default(0.33)
   instructions    String?
+  syllabus        String?
+  syllabusHi      String?       // Hindi syllabus
   isLive          Boolean       @default(false)
   liveStartAt     DateTime?
   liveEndAt       DateTime?
@@ -926,6 +948,8 @@ model ExamTest {
   month           Int?
   year            Int?
   isPublished     Boolean       @default(false)
+  isArchived      Boolean       @default(false)
+  archivedAt      DateTime?
   // Authwall Gate Settings & Pre-chunking
   gateMode          String        @default("inherit") // "inherit" | "free" | "preview" | "locked"
   previewPercentage Int?
@@ -943,6 +967,7 @@ model ExamTest {
   @@index([isPublished])
   @@index([seriesId, isPublished])
   @@index([year, month])
+  @@index([isArchived])
 }
 
 model ExamSection {
