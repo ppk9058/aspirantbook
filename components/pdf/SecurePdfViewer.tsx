@@ -1,7 +1,9 @@
 "use client"
 
-import React, { useEffect } from "react"
-import { X, Download, ShieldCheck, BookOpen, FileText } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import { X, Download, ShieldCheck, BookOpen, FileText, Monitor, Smartphone } from "lucide-react"
+import { isNativeApp } from "@/lib/native/platform"
+import PdfCanvasViewer from "./PdfCanvasViewer"
 
 export interface SecurePdfViewerProps {
   isOpen: boolean
@@ -46,6 +48,20 @@ export default function SecurePdfViewer({
 }: SecurePdfViewerProps) {
   const resolvedSrc = src || (bookId ? `/api/books/${bookId}/download?inline=1` : "")
   const resolvedDownloadUrl = downloadUrl || (bookId ? `/api/books/${bookId}/download?download=true` : undefined)
+
+  // Default to canvas renderer in native app or when iframe is unsupported/mobile
+  const [useCanvas, setUseCanvas] = useState<boolean>(true)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (isNativeApp()) {
+        setUseCanvas(true)
+      } else {
+        // In desktop web, allow iframe or canvas
+        setUseCanvas(window.innerWidth < 768)
+      }
+    }
+  }, [])
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -105,6 +121,28 @@ export default function SecurePdfViewer({
 
           {/* Action Controls */}
           <div className="flex items-center gap-2 shrink-0">
+            {/* View Mode Toggle for desktop browsers */}
+            {!isNativeApp() && (
+              <button
+                type="button"
+                onClick={() => setUseCanvas((prev) => !prev)}
+                className="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+                title={useCanvas ? "Switch to Browser PDF Viewer" : "Switch to Canvas Reader"}
+              >
+                {useCanvas ? (
+                  <>
+                    <Monitor className="w-3.5 h-3.5" />
+                    <span>Browser View</span>
+                  </>
+                ) : (
+                  <>
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Canvas Reader</span>
+                  </>
+                )}
+              </button>
+            )}
+
             {downloadAllowed && resolvedDownloadUrl && (
               <a
                 href={resolvedDownloadUrl}
@@ -127,13 +165,17 @@ export default function SecurePdfViewer({
           </div>
         </div>
 
-        {/* Secure PDF Iframe Viewport */}
+        {/* Secure PDF Viewport */}
         <div className="flex-1 bg-gray-100 dark:bg-slate-950 relative overflow-hidden">
-          <iframe
-            src={resolvedSrc}
-            className="w-full h-full border-0"
-            title={`PDF Reader: ${title}`}
-          />
+          {useCanvas ? (
+            <PdfCanvasViewer src={resolvedSrc} title={title} />
+          ) : (
+            <iframe
+              src={resolvedSrc}
+              className="w-full h-full border-0"
+              title={`PDF Reader: ${title}`}
+            />
+          )}
         </div>
       </div>
     </div>
