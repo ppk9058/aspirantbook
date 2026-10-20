@@ -57,12 +57,13 @@ export function applyTestSeriesGoalFilter<T extends { id: string; title: string;
         return goalIds.some((gid) => {
             const normalized = gid.toLowerCase()
 
-            if (iGoal === normalized) return true
-
             if (normalized === "upsc") {
-                return (iGoal === "upsc" || iTags.includes("upsc") || text.includes("upsc") || text.includes("civil services")) &&
-                    !text.includes("bpsc") && !text.includes("bihar")
+                const isBpscMismatch = text.includes("bpsc") || text.includes("bihar")
+                if (isBpscMismatch) return false
+                return (iGoal === "upsc" || iTags.includes("upsc") || text.includes("upsc") || text.includes("civil services"))
             }
+
+            if (iGoal === normalized) return true
             if (normalized === "bpsc") {
                 return iGoal === "bpsc" || iTags.includes("bpsc") || text.includes("bpsc") || text.includes("bihar")
             }

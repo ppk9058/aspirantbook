@@ -136,9 +136,11 @@ export function ItemGateRowControl({
   let effectivePct = 100
   let inheritanceSource = ""
 
-  if (!isCourseGated) {
-    effectivePct = 100
-  } else if (currentMode === "free") {
+  const resolvedInheritText = !isCourseGated
+    ? "Inherit (Package: Off)"
+    : `Inherit (Package: ${coursePreviewPercentage}%)`
+
+  if (currentMode === "free") {
     effectivePct = 100
   } else if (currentMode === "locked") {
     effectivePct = 0
@@ -147,7 +149,10 @@ export function ItemGateRowControl({
     effectivePct = !isNaN(parsed) ? Math.max(0, Math.min(100, parsed)) : (value.previewPercentage ?? coursePreviewPercentage)
   } else {
     // Inherit mode
-    if (parentGateMode && parentGateMode.toLowerCase() !== "inherit") {
+    if (!isCourseGated) {
+      effectivePct = 100
+      inheritanceSource = "Package: Off"
+    } else if (parentGateMode && parentGateMode.toLowerCase() !== "inherit") {
       const parentMode = parentGateMode.toLowerCase()
       inheritanceSource = parentName || "Phase"
       if (parentMode === "free") {
@@ -160,30 +165,13 @@ export function ItemGateRowControl({
         effectivePct = coursePreviewPercentage
       }
     } else {
-      inheritanceSource = "Course"
+      inheritanceSource = `Package: ${coursePreviewPercentage}%`
       effectivePct = coursePreviewPercentage
     }
   }
 
   // Visual status badge
   const renderBadge = () => {
-    if (!isCourseGated) {
-      return (
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <Badge variant="outline" className="text-[10px] py-0 px-1.5 text-gray-500 border-gray-200">
-            Ungated
-          </Badge>
-          <Badge
-            variant="outline"
-            className="text-[10px] py-0 px-1.5 border-dashed text-gray-600 dark:text-gray-400"
-            data-testid="item-effective-guest-badge"
-          >
-            Effective for guests: 100%
-          </Badge>
-        </div>
-      )
-    }
-
     return (
       <div className="flex items-center gap-1.5 flex-wrap">
         {currentMode === "free" && (
@@ -216,7 +204,7 @@ export function ItemGateRowControl({
             variant="outline"
             className="text-[10px] py-0 px-1.5 text-blue-700 bg-blue-50/50 dark:text-blue-300 border-blue-200"
           >
-            Inherit ({effectivePct}%)
+            {!isCourseGated ? "Inherit (Off)" : `Inherit (${effectivePct}%)`}
           </Badge>
         )}
         <Badge
@@ -224,7 +212,7 @@ export function ItemGateRowControl({
           className="text-[10px] py-0 px-1.5 font-medium border-dashed border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300"
           data-testid="item-effective-guest-badge"
         >
-          Effective for guests: {effectivePct}%{inheritanceSource ? ` (from ${inheritanceSource})` : ""}
+          Effective for guests: {effectivePct}%
         </Badge>
       </div>
     )
@@ -245,14 +233,22 @@ export function ItemGateRowControl({
           disabled={disabled}
         >
           <SelectTrigger
-            className="h-7 w-32 text-xs font-medium bg-white dark:bg-gray-800"
+            className="h-7 min-w-[150px] max-w-[210px] text-xs font-medium bg-white dark:bg-gray-800"
             data-testid="item-gate-mode-select"
           >
-            <SelectValue placeholder="Mode" />
+            <span className="truncate">
+              {currentMode === "inherit"
+                ? resolvedInheritText
+                : currentMode === "free"
+                ? "Free (100%)"
+                : currentMode === "preview"
+                ? `Preview ${effectivePct}%`
+                : "Locked (0%)"}
+            </span>
           </SelectTrigger>
           <SelectContent className="bg-white dark:bg-gray-800 border-border">
             <SelectItem value="inherit" className="text-xs">
-              Inherit
+              {resolvedInheritText}
             </SelectItem>
             <SelectItem value="free" className="text-xs">
               Free (100%)

@@ -791,4 +791,129 @@ test.describe("Test Series Packages Studio, Ownership & Authoritative Metrics", 
     await expect(page.locator("[data-testid='submissions-title']")).toContainText(testA1.title)
     await expect(page.locator("[data-testid='metric-candidates']")).toHaveText("2")
   })
+
+  test("T-PKG-11: Teacher A updates package details via API & revalidates", async ({ page }) => {
+    await loginThroughUi(page, teacherA.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    const updatedTitle = `Updated Package A ${nonce}`
+    const res = await page.request.patch(`/api/exam/series/packages/${packageA.id}`, {
+      data: {
+        title: updatedTitle,
+        description: "Updated description for test series package.",
+        isFree: false,
+        isPro: true,
+        price: 499,
+        discountPrice: 299,
+      },
+    })
+    expect(res.status()).toBe(200)
+    const json = await res.json()
+    expect(json.success).toBe(true)
+    expect(json.package.title).toBe(updatedTitle)
+
+    // Verify in database
+    const dbSeries = await prisma.examSeries.findUnique({ where: { id: packageA.id } })
+    expect(dbSeries?.title).toBe(updatedTitle)
+    expect(dbSeries?.isFree).toBe(false)
+    expect(dbSeries?.isPro).toBe(true)
+  })
+
+  test("T-PKG-12: Teacher B cannot update or delete Teacher A's package (403)", async ({ page }) => {
+    await loginThroughUi(page, teacherB.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    // Attempt patch
+    const patchRes = await page.request.patch(`/api/exam/series/packages/${packageA.id}`, {
+      data: { title: "Hacked Title" },
+    })
+    expect(patchRes.status()).toBe(403)
+
+    // Attempt delete
+    const deleteRes = await page.request.delete(`/api/exam/series/packages/${packageA.id}`)
+    expect(deleteRes.status()).toBe(403)
+  })
+
+  test("T-PKG-13: Package delete with active dependencies archives package safely", async ({ page }) => {
+    await loginThroughUi(page, teacherA.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    // packageA has enrollments and attempts, so DELETE must soft-delete / archive
+    const deleteRes = await page.request.delete(`/api/exam/series/packages/${packageA.id}`)
+    expect(deleteRes.status()).toBe(200)
+    const json = await deleteRes.json()
+    expect(json.action).toBe("archived")
+
+    // Verify database record still exists but is marked archived and unpublished
+    const dbSeries = await prisma.examSeries.findUnique({ where: { id: packageA.id } })
+    expect(dbSeries).not.toBeNull()
+    expect(dbSeries?.isArchived).toBe(true)
+    expect(dbSeries?.isPublished).toBe(false)
+  })
+
+  test("T-PKG-14: Archived package can be restored", async ({ page }) => {
+    await loginThroughUi(page, teacherA.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    const restoreRes = await page.request.post(`/api/exam/series/packages/${packageA.id}/restore`)
+    expect(restoreRes.status()).toBe(200)
+    const json = await restoreRes.json()
+    expect(json.success).toBe(true)
+
+    // Verify database record is restored
+    const dbSeries = await prisma.examSeries.findUnique({ where: { id: packageA.id } })
+    expect(dbSeries?.isArchived).toBe(false)
+  })
+
+  test("T-PKG-15: Test detach moves test to unassigned system series", async ({ page }) => {
+    await loginThroughUi(page, teacherA.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    const detachRes = await page.request.post(`/api/exam/test/${testA3.id}/detach`)
+    expect(detachRes.status()).toBe(200)
+    const json = await detachRes.json()
+    expect(json.success).toBe(true)
+
+    // Verify test in database has series set to unassigned-tests-system-series
+    const dbTest = await prisma.examTest.findUnique({
+      where: { id: testA3.id },
+      include: { series: true },
+    })
+    expect(dbTest?.series.slug).toBe("unassigned-tests-system-series")
+  })
+
+  test("T-PKG-16: Test duplicate creates independent clone", async ({ page }) => {
+    await loginThroughUi(page, teacherA.email)
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15_000 }).catch(() => {})
+
+    const dupRes = await page.request.post(`/api/exam/test/${testA2.id}/duplicate`)
+    expect(dupRes.status()).toBe(200)
+    const json = await dupRes.json()
+    expect(json.success).toBe(true)
+    expect(json.test.id).not.toBe(testA2.id)
+    expect(json.test.title).toContain("(Copy)")
+
+    // Clean up created clone in DB
+    if (json.test?.id) {
+      await prisma.examTest.delete({ where: { id: json.test.id } }).catch(() => {})
+    }
+  })
+
+  test("T-PKG-17: Cookie fallback ts_demo_role is blocked from mutations", async ({ page }) => {
+    // Attempt patch with demo cookie without authenticated session
+    await page.context().clearCookies()
+    await page.context().addCookies([
+      {
+        name: "ts_demo_role",
+        value: "admin",
+        domain: "127.0.0.1",
+        path: "/",
+      },
+    ])
+
+    const unauthPatch = await page.request.patch(`/api/exam/series/packages/${packageA.id}`, {
+      data: { title: "Cookie Exploit" },
+    })
+    expect([401, 403]).toContain(unauthPatch.status())
+  })
 })

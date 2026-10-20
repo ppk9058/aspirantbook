@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { cookies } from "next/headers"
 import { listExamPackages } from "@/lib/exam-packages"
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const session = await auth()
     const cookieStore = await cookies()
@@ -22,13 +22,21 @@ export async function GET() {
       )
     }
 
+    const { searchParams } = new URL(req.url)
+    const archivedParam = (searchParams.get("archived") || "ACTIVE").toUpperCase() as
+      | "ACTIVE"
+      | "ARCHIVED"
+      | "ALL"
+
     const packages = await listExamPackages({
       userId,
       role: effectiveRole,
+      archivedFilter: archivedParam,
     })
 
     return NextResponse.json({ success: true, packages })
   } catch (error: any) {
-    return NextResponse.json({ error: "Failed to list packages" }, { status: 500 })
+    console.error("[GET /api/exam/series/packages] Error listing packages:", error)
+    return NextResponse.json({ error: error.message || "Failed to list packages" }, { status: 500 })
   }
 }
