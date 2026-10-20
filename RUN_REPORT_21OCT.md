@@ -326,3 +326,38 @@ trillionskill-test-db   Up 2 hours (healthy)   127.0.0.1:54329->5432/tcp
   - Expo doctor: **17 / 17 checks passed**.
   - TypeScript: Shared 0 errors, Mobile 0 errors, Web 65 baseline errors (0 new errors).
 - **Checkpoint Tag**: `checkpoint/phase-5`
+
+---
+
+## Phase 6 - Native PDF Reading [MOBILE]
+
+- **Status**: PASSED
+- **Evaluated PDF Options**:
+  - `react-native-pdf` (v7.0.5) with `react-native-blob-util` (v0.19.11) and Expo Config Plugins (`@config-plugins/react-native-pdf@11.0.0` & `@config-plugins/react-native-blob-util@11.0.0` matching Expo SDK 53):
+    - Actively maintained (v7.0.5 released 2024; config plugins v11.0.0 built for Expo SDK 53).
+    - Supports React Native New Architecture (Fabric `RNPDFPdfNativeComponent`).
+    - Offline `file://` playback support with local caching and page jump navigation.
+    - Added config plugin to `apps/mobile/app.config.ts`.
+- **PdfRenderer Architecture**:
+  - Implemented `PdfRenderer` in `apps/mobile/src/components/common/PdfRenderer.tsx`.
+  - Feature detection: checks dynamic availability of native PDF component.
+  - In Development Client / Standalone APK: renders hardware-accelerated canvas PDF viewer.
+  - In Expo Go: displays clear, informative fallback banner explaining sandboxed preview mode, auto-saved page bookmark, and private DRM sandbox.
+- **Offline DRM & Storage Management**:
+  - Implemented `apps/mobile/src/lib/pdf-manager.ts`:
+    - Deterministic app-private storage paths under `documentDirectory/books/doc_{safeId}.pdf`.
+    - Sanitizes document identifiers against directory traversal (`..`, slashes, symbols).
+    - Restores and persists last-read page position across sessions.
+    - Persists resumable download resume tokens.
+    - DRM ownership-loss purge: deletes cached PDF files and clears page memory immediately if access is revoked or user logs out.
+- **Library UI Integration**:
+  - Updated `apps/mobile/src/app/(tabs)/library.tsx` with downloaded status badges ("Saved Offline" / "Cloud").
+  - Updated `apps/mobile/src/app/reader/[id].tsx` to mount `PdfRenderer` with local or signed URL.
+- **Test Evidence**:
+  - Mobile tests (`cd apps/mobile && npm test`): **24 / 24 passed** (including 7/7 in `tests/pdf-manager.test.ts`).
+  - Bundler verification:
+    - Android production bundle export: **SUCCESS** (2957 modules bundled into 5.82 MB bytecode).
+    - iOS production bundle export: **SUCCESS** (2978 modules bundled into 5.86 MB bytecode).
+  - Expo doctor: **17 / 17 checks passed**.
+  - TypeScript: Mobile 0 errors, Shared 0 errors, Web 65 baseline errors (0 new errors).
+- **Checkpoint Tag**: `checkpoint/phase-6`

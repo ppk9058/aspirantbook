@@ -25,6 +25,8 @@ import {
 import { useTheme } from '../../lib/theme';
 import { apiClient } from '../../lib/api';
 import { AvailableOnWebsiteModal } from '../../components/common/AvailableOnWebsiteModal';
+import { PdfRenderer } from '../../components/common/PdfRenderer';
+import { getPdfStoragePath, isPdfDownloaded, verifyOwnershipOrDelete } from '../../lib/pdf-manager';
 
 export default function ReaderScreen() {
   const { id, type = 'library', title = 'Document' } = useLocalSearchParams<{
@@ -268,18 +270,12 @@ export default function ReaderScreen() {
 
         {/* Reader Document Viewer Container */}
         <View style={[styles.readerViewer, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-          <Text style={[styles.viewerHeading, { color: theme.colors.text }]}>Document Content</Text>
-          <Text style={[styles.viewerNotice, { color: theme.colors.textMuted }]}>
-            High-fidelity PDF document rendering mode enabled with HTTP range-chunking.
-          </Text>
-
-          <View style={styles.dummyPage}>
-            <Text style={[styles.pageIndicator, { color: theme.colors.textMuted }]}>Page 1 of {metadata?.pageCount || 12}</Text>
-            <Text style={[styles.pageSampleText, { color: theme.colors.text }]}>
-              {metadata?.summary ||
-                'This preview demonstrates offline-capable PDF streaming via standard app-private container. The full PDF viewer renders securely without public storage exposure.'}
-            </Text>
-          </View>
+          <PdfRenderer
+            documentId={id}
+            sourceUri={localFileUri || `${apiClient.baseUrl}/library/${id}/file`}
+            title={metadata?.title || title}
+            totalPages={metadata?.pageCount || 12}
+          />
         </View>
       </ScrollView>
     </View>

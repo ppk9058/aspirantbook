@@ -2,7 +2,8 @@ import React, { Component, ReactNode } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { parseRoseraBlock, ParsedRoseraBlock } from "../../lib/rosera-parser";
 
-export { parseRoseraBlock, type ParsedRoseraBlock };
+export { parseRoseraBlock };
+export type { ParsedRoseraBlock };
 
 export interface RoseraBlock {
   type: string;

@@ -10,12 +10,51 @@ import {
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
-import { BookCheck, FileText } from "lucide-react-native";
+import { BookCheck, FileText, CheckCircle2 } from "lucide-react-native";
 import { FlashList } from "@shopify/flash-list";
 import { Card } from "@/components/common/Card";
 import { Skeleton } from "@/components/common/Skeleton";
 import { api } from "@/lib/api";
+import { isPdfDownloaded } from "@/lib/pdf-manager";
 import { COLORS } from "@/lib/theme";
+
+function LibraryBookCard({ book, onRead }: { book: any; onRead: () => void }) {
+  const [downloaded, setDownloaded] = React.useState(false);
+
+  React.useEffect(() => {
+    isPdfDownloaded(book.id).then(setDownloaded).catch(() => setDownloaded(false));
+  }, [book.id]);
+
+  return (
+    <Card style={styles.card}>
+      <View style={styles.cardContent}>
+        <View style={styles.iconCircle}>
+          <FileText size={22} color={COLORS.primary} />
+        </View>
+        <View style={styles.textDetails}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <Text style={styles.bookTitle} numberOfLines={1}>
+              {book.title}
+            </Text>
+            {downloaded && (
+              <View style={styles.downloadedBadge}>
+                <CheckCircle2 size={12} color="#16a34a" />
+                <Text style={styles.downloadedText}>Saved</Text>
+              </View>
+            )}
+          </View>
+          <Text style={styles.authorText}>{book.author}</Text>
+          <Text style={styles.sizeText}>
+            {(book.fileSize / 1024 / 1024).toFixed(1)} MB • Digital Edition
+          </Text>
+        </View>
+        <TouchableOpacity style={styles.readBtn} onPress={onRead}>
+          <Text style={styles.readBtnText}>{downloaded ? "Read Offline" : "Read PDF"}</Text>
+        </TouchableOpacity>
+      </View>
+    </Card>
+  );
+}
 
 export default function LibraryScreen() {
   const router = useRouter();
@@ -54,28 +93,10 @@ export default function LibraryScreen() {
             estimatedItemSize={95}
             keyExtractor={(book) => book.id}
             renderItem={({ item: book }) => (
-              <Card style={styles.card}>
-                <View style={styles.cardContent}>
-                  <View style={styles.iconCircle}>
-                    <FileText size={22} color={COLORS.primary} />
-                  </View>
-                  <View style={styles.textDetails}>
-                    <Text style={styles.bookTitle} numberOfLines={1}>
-                      {book.title}
-                    </Text>
-                    <Text style={styles.authorText}>{book.author}</Text>
-                    <Text style={styles.sizeText}>
-                      {(book.fileSize / 1024 / 1024).toFixed(1)} MB • Digital Edition
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.readBtn}
-                    onPress={() => router.push(`/reader/${book.id}`)}
-                  >
-                    <Text style={styles.readBtnText}>Read PDF</Text>
-                  </TouchableOpacity>
-                </View>
-              </Card>
+              <LibraryBookCard
+                book={book}
+                onRead={() => router.push(`/reader/${book.id}`)}
+              />
             )}
           />
         ) : (
@@ -142,6 +163,20 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#0F172A",
     marginBottom: 2,
+  },
+  downloadedBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#dcfce7",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    gap: 3,
+  },
+  downloadedText: {
+    color: "#15803d",
+    fontSize: 10,
+    fontWeight: "700",
   },
   authorText: {
     fontSize: 12,

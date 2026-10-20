@@ -43,6 +43,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-secure-store",
     "expo-sqlite",
     "expo-web-browser",
+    "expo-asset",
+    "@config-plugins/react-native-blob-util",
+    "@config-plugins/react-native-pdf",
     [
       "expo-notifications",
       {
