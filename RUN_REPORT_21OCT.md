@@ -269,3 +269,28 @@ trillionskill-test-db   Up 2 hours (healthy)   127.0.0.1:54329->5432/tcp
   - Merge-caused failures: **0**
   - Pre-existing / Web-only Studio: Teacher authoring studio placeholder selector timeout (logged WEB-TODO).
 - **Checkpoint Tag**: `checkpoint/phase-3`
+
+## Phase 4: Upgrade to Latest Stable Expo SDK [MOBILE]
+- **Expo Go Store Compatibility Findings**:
+  - Official Expo documentation confirms that Expo Go binaries downloaded from the Apple App Store and Google Play Store are strictly locked to a single SDK runtime version. Running a project on an older SDK causes runtime version rejection in physical store builds.
+  - Upgrading to Expo SDK 53 aligns the mobile application with React 19 and React Native 0.79.6, resolving the version split with the web application (`react: 19.0.0`).
+- **SDK 53 Upgrade Hop**:
+  - Upgraded `apps/mobile` to `expo@~53.0.27`, `react@19.0.0`, `react-native@0.79.6`, `expo-router@~5.1.11`, `@shopify/flash-list@1.7.6`, `react-native-screens@~4.11.1`.
+  - Added `apps/mobile/babel.config.js` with `babel-preset-expo`.
+  - Configured `apps/mobile/metro.config.js` preserving monorepo watch paths.
+  - Added canonical entry point `apps/mobile/index.js` using explicit `require.context("./src/app")` to ensure seamless monorepo asset/bundle resolution.
+  - Added `"expo-web-browser"` plugin to `apps/mobile/app.config.ts`.
+- **Verification Gates**:
+  - `npx expo-doctor` in `apps/mobile`: **17 / 17 checks passed** (0 issues detected).
+  - TypeScript mobile (`cd apps/mobile && npx tsc --noEmit`): **0 errors** (clean exit code 0).
+  - TypeScript shared (`cd packages/shared && npx tsc --noEmit`): **0 errors** (clean exit code 0).
+  - Mobile tests (`npm test` in `apps/mobile`): **6 / 6 pass** (~416ms).
+  - Production Android Export (`npx expo export --platform android`): **2841 modules bundled**, 5.4 MB Hermes bytecode bundle generated.
+  - Production iOS Export (`npx expo export --platform ios`): **2837 modules bundled**, 5.38 MB Hermes bytecode bundle generated.
+  - Web Next.js Build (`npm run build`): **Compiled successfully**, 159 routes generated (clean exit code 0).
+  - Web TypeScript (`npx tsc --noEmit`): **65 baseline legacy errors** (0 new errors).
+  - Web Smoke Playwright Suite:
+    - `tests/e2e/registration.spec.ts`: **10 / 10 passed** (~1.0m)
+    - `tests/e2e/guest-student-journey.spec.ts`: **2 / 2 passed**
+    - `tests/e2e/authwall-blurred.spec.ts`: **14 / 14 passed**
+- **Checkpoint Tags**: `checkpoint/sdk-53`, `checkpoint/phase-4`

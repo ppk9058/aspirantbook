@@ -4,11 +4,10 @@
     "strict": true,
     "skipLibCheck": true,
     "typeRoots": [
-      "./node_modules/@types"
+      "./node_modules/@types",
+      "../../node_modules/@types"
     ],
     "paths": {
-      "react": ["./node_modules/@types/react"],
-      "react-dom": ["./node_modules/@types/react-dom"],
       "@/*": ["./src/*"],
       "@aspirantbook/shared": ["../../packages/shared/src/index.ts"]
     }

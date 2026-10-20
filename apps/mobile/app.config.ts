@@ -42,6 +42,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "expo-secure-store",
     "expo-sqlite",
+    "expo-web-browser",
     [
       "expo-notifications",
       {
