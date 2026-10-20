@@ -74,7 +74,12 @@ function slugify(text: string): string {
 }
 
 // ─── INITIAL SEEDER (Bootstraps standard categories & sub-exams without fake papers) ────────────
+let isDefaultPyqDataEnsured = false
+
 export async function ensureDefaultPyqData() {
+  if (isDefaultPyqDataEnsured) {
+    return
+  }
   const standardExamHeads = [
     {
       name: "BPSC TRE",
@@ -178,13 +183,51 @@ export async function ensureDefaultPyqData() {
     },
   ]
 
-  for (const head of standardExamHeads) {
-    const existingCat = await prisma.pyqCategory.findFirst({
-      where: { OR: [{ slug: head.slug }, { name: head.name }] },
-    })
+  // Fast pre-check: batch fetch existing categories & their sub-exams in a single query
+  const existingCategories = await prisma.pyqCategory.findMany({
+    where: {
+      OR: [
+        { slug: { in: standardExamHeads.map((h) => h.slug) } },
+        { name: { in: standardExamHeads.map((h) => h.name) } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      subExams: {
+        select: { slug: true },
+      },
+    },
+  })
 
-    let catId = existingCat?.id
-    if (!existingCat) {
+  const catMap = new Map<string, { id: string; subExamSlugs: Set<string> }>()
+  for (const cat of existingCategories) {
+    const entry = {
+      id: cat.id,
+      subExamSlugs: new Set(cat.subExams.map((s) => s.slug)),
+    }
+    catMap.set(cat.slug, entry)
+    catMap.set(cat.name, entry)
+  }
+
+  const allExist = standardExamHeads.every((head) => {
+    const found = catMap.get(head.slug) || catMap.get(head.name)
+    if (!found) return false
+    return head.subExams.every((sub) => found.subExamSlugs.has(sub.slug))
+  })
+
+  if (allExist) {
+    isDefaultPyqDataEnsured = true
+    return
+  }
+
+  // Only create missing categories or sub-exams if any are absent
+  for (const head of standardExamHeads) {
+    let catEntry = catMap.get(head.slug) || catMap.get(head.name)
+    let catId = catEntry?.id
+
+    if (!catId) {
       const created = await prisma.pyqCategory.create({
         data: {
           name: head.name,
@@ -197,14 +240,14 @@ export async function ensureDefaultPyqData() {
         },
       })
       catId = created.id
+      catEntry = { id: catId, subExamSlugs: new Set() }
+      catMap.set(head.slug, catEntry)
+      catMap.set(head.name, catEntry)
     }
 
-    if (catId) {
+    if (catId && catEntry) {
       for (const sub of head.subExams) {
-        const existingSub = await prisma.pyqSubExam.findFirst({
-          where: { categoryId: catId, slug: sub.slug },
-        })
-        if (!existingSub) {
+        if (!catEntry.subExamSlugs.has(sub.slug)) {
           await prisma.pyqSubExam.create({
             data: {
               categoryId: catId,
@@ -214,10 +257,13 @@ export async function ensureDefaultPyqData() {
               isPublished: true,
             },
           })
+          catEntry.subExamSlugs.add(sub.slug)
         }
       }
     }
   }
+
+  isDefaultPyqDataEnsured = true
 }
 
 // ─── CATEGORY OPERATIONS (Teacher & Admin Read, Admin Create/Update/Delete) ───
