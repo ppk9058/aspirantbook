@@ -40,7 +40,7 @@ export function RegisterForm() {
     const [selectedGoal, setSelectedGoal] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
-    const [agreedToTerms, setAgreedToTerms] = useState(false)
+    const [agreedToTerms, setAgreedToTerms] = useState(true)
 
     useEffect(() => {
         if (state?.success) {
