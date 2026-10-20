@@ -423,3 +423,76 @@ trillionskill-test-db   Up 2 hours (healthy)   127.0.0.1:54329->5432/tcp
     - Switching to Dev DB with strict read-only warnings.
     - Troubleshooting Wi-Fi router isolation, macOS Application Firewall, and LAN IP network hopping.
 - **Checkpoint Tag**: `checkpoint/phase-8`
+
+---
+
+## Phase 9 - Final Proof, Cleanup & Scorecard
+
+- **Status**: PASSED
+- **Regression Suites Execution Evidence**:
+  1. `packages/shared` tests: **13 / 13 passed** (Exam grading, Authwall preview slicing, DTO validation, Formatters).
+  2. `apps/mobile` tests: **24 / 24 passed** (CBT timer engine, offline queue sequencing, refresh token mutex, offline edge cases, Rosera error boundary, query persistence, native PDF manager & DRM cache).
+  3. `tests/unit` + `tests/api-v1-*`:
+     - Unit tests (`APP_ENV=test npx tsx --test tests/unit/*.test.ts`): **47 / 47 passed**.
+     - API v1 tests (`APP_ENV=test npx tsx --test tests/api-v1-*.test.ts`): **45 / 45 passed**.
+  4. Web Lint & TypeScript:
+     - `npm run lint`: **0 errors** (all warnings reviewed).
+     - `npx tsc --noEmit`: **65 errors in 16 files** (exact baseline match against `32945ca`; **0 new errors**).
+     - Shared and Mobile TypeScript: **0 errors**.
+  5. Database Drift Check:
+     - `npm run db:check`: **0 drift detected** against Supabase database.
+  6. Expo Doctor:
+     - `cd apps/mobile && npx expo-doctor`: **17 / 17 checks passed**.
+  7. Mobile Bundle Exports:
+     - Android Hermes bytecode export (`npx expo export --platform android`): **SUCCESS** (2957 modules bundled into 5.83 MB bytecode bundle).
+     - iOS Hermes bytecode export (`npx expo export --platform ios`): **SUCCESS** (2978 modules bundled into 5.87 MB bytecode bundle).
+  8. Dev DB Read-Only Smoke Test:
+     - Ran Next.js on temporary port 3050 against Dev DB (`aws***.pooler.supabase.com:5432/postgres`):
+     - `GET /api/v1/config`: HTTP 200 OK (`etag: "d5bb73d23d4007ae99dac4ea5af8562b"`).
+     - `GET /api/v1/goals`: HTTP 200 OK (`etag: "909e399e7a61ad19c3a7077a26cc6e01"`), returned all 6 active catalogue goals matching live data.
+- **Housekeeping Completed**:
+  - `apps/mobile/dist` and `.next-dev-smoke` purged.
+  - Verified `.gitignore`: `/.next-test/`, `apps/mobile/dist/`, `apps/mobile/.expo/` are ignored.
+  - Updated root `AGENTS.md` section 6 with mobile architecture, testing, and `npm run dev:lan`.
+- **Checkpoint Tag**: `checkpoint/phase-9`
+
+---
+
+## Final Executive Scorecard & Baseline Comparisons
+
+| Metric / Test Suite | Previous Run (`MOBILE_EXPO_REPORT.md`) | Baseline `32945ca` | Current Final Run (`expo-mobile`) | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **Expo SDK Version** | SDK 52 (Late 2024) | SDK 52 | **SDK 53.0.27 (Latest Stable)** | UPGRADED |
+| **React Native / React** | React Native 0.76.7, React 18.3.1 | RN 0.76.7 | **RN 0.79.6, React 19.0.0** | UPGRADED |
+| **Expo Doctor Checks** | 17 / 17 | 17 / 17 | **17 / 17 clean** | GREEN |
+| **Mobile Bundle Exports** | Android + iOS passed | Passed | **Android (5.83 MB) + iOS (5.87 MB) passed** | GREEN |
+| **Packages/Shared Tests** | 13 / 13 | 13 / 13 | **13 / 13 passed** | GREEN |
+| **Mobile Test Suite** | 6 / 6 | 6 / 6 | **24 / 24 passed** (+18 new tests) | GREEN |
+| **Unit Test Suite** | 42 / 42 | 42 / 42 | **47 / 47 passed** (+5 new tests) | GREEN |
+| **API v1 Test Suite** | 13 / 13 | 13 / 13 | **45 / 45 passed** (+32 new tests) | GREEN |
+| **Web TypeScript Errors** | Claimed 66 (unverified) | 65 errors | **65 errors (0 NEW errors)** | VERIFIED |
+| **Shared & Mobile TS Errors**| 0 errors | 0 errors | **0 errors** | GREEN |
+| **ESLint Errors** | 0 errors | 0 errors | **0 errors** | GREEN |
+| **Prisma Schema Drift** | 0 drift | 0 drift | **0 drift** | GREEN |
+| **Playwright Web Suites** | 530 / 534 (4 missing CATALOGUE_CASE) | 530 / 534 | **4/4 real-only series catalogue passed with `CATALOGUE_CASE=empty`** | RESOLVED |
+| **Account Deletion (5.1.1(v))**| None (External web redirect) | None | **In-app `DELETE /api/v1/me` & Profile Danger Zone** | HARDENED |
+| **Expo Push Notification Service**| None | None | **`lib/services/push.service.ts` with auto-pruning** | BUILT |
+| **Offline Hardening & Caching**| None | None | **SQLite TanStack persistence, ETags, 304s, FlashList** | HARDENED |
+| **Native PDF Viewer & DRM** | Download-only fallback | Download-only | **PdfRenderer interface, Expo Go fallback, DRM purge** | BUILT |
+| **Run-on-Phone Tooling** | Manual IP configuration | Manual IP | **`npm run dev:lan`, `seed:mobile-test`, QR pairing** | BUILT |
+
+---
+
+## Checkpoint Tags Summary
+
+- `checkpoint/phase-0`: Preflight checks verified clean git status and test DB.
+- `checkpoint/phase-1`: Reconciled 653a966, baseline tsc comparison (65 errors), dev DB up to date.
+- `checkpoint/phase-2`: Security parity (solutions/rankings access control, whitelist DTOs, deadline guards).
+- `checkpoint/phase-3`: Full regression passed across web Playwright and unit suites.
+- `checkpoint/sdk-53`: Upgraded to Expo SDK 53, React 19, RN 0.79.6.
+- `checkpoint/phase-4`: Validated dual exports, expo-doctor 17/17, web build clean.
+- `checkpoint/phase-5`: Speed and offline hardening (TanStack Query SQLite persistence, ETag/304, FlashList).
+- `checkpoint/phase-6`: Native PDF reader interface, Expo Go fallback, DRM cache manager.
+- `checkpoint/phase-7`: App Store 5.1.1(v) account deletion, Expo push service, Profile Danger Zone.
+- `checkpoint/phase-8`: Run-on-phone tooling (`npm run dev:lan`, `npm run seed:mobile-test`, docs).
+- `checkpoint/phase-9`: Final verification, Dev DB read-only smoke, AGENTS.md update.

@@ -52,6 +52,7 @@ For any UI work (page, component, layout or styling bug) load the `responsive-ui
 - Video lessons: player sticky at the top on phones, tabs below, no overlay text on the poster.
 - Tutorials / Rosera renderer: content is themed through CSS variables (`--tutorial-*`, `--rz-*`); never hardcode colours; all text goes through the shared inline formatter.
 - Importers (tutorial packages): match by external ids, never by title alone; imports create drafts; no deletions.
+- Mobile App (React Native + Expo SDK 53): code lives in `apps/mobile/`, shared logic/types in `packages/shared/`, mobile REST API in `app/api/v1/`. Test commands: `npm run seed:mobile-test`, `cd apps/mobile && npm test`, `npx expo-doctor`. Run on physical phone via Expo Go: `npm run dev:lan` (auto-detects LAN IP, launches Next.js on 3045 and Expo Metro on 8081 with interactive QR code). See `docs/RUN_ON_PHONE.md`.
 
 ## 7. Commands
 - Dev: `npm run dev`  Build: `npm run build`  Lint: `npm run lint`  Types: `npx tsc --noEmit`
