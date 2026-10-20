@@ -77,6 +77,11 @@
   .safe-area-top {
     padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
   }
+
+  body.is-native-app {
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 /* Custom scrollbar */

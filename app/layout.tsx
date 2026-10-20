@@ -3,6 +3,7 @@ import "@/lib/boot-guard";
 import "./globals.css";
 import { Providers } from "./providers"
 import { auth } from "@/auth"
+import NativeAppListener from "@/components/native/NativeAppListener"
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
 
@@ -72,7 +73,10 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning={true}>
-        <Providers session={session}>{children}</Providers>
+        <Providers session={session}>
+          <NativeAppListener />
+          {children}
+        </Providers>
       </body>
     </html>
   )

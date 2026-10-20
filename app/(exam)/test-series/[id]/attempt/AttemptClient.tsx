@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react"
 import { saveExamState, loadExamState, clearExamState } from "@/lib/exam-idb"
 import MathRenderer from "@/components/exam/MathRenderer"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
+import { isCapacitorNative } from "@/lib/native/platform"
 
 function formatQuestionText(text: string): string {
     if (!text) return ""
@@ -983,8 +984,9 @@ function Arena() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [testId, seriesId, lang, retryCount])
 
-    // ── AUTO FULLSCREEN on mount ─────────────────────────────────
+    // ── AUTO FULLSCREEN on mount (Web-only) ──────────────────────
     useEffect(() => {
+        if (isCapacitorNative()) return
         const enterFS = async () => {
             try {
                 if (!document.fullscreenElement) {
@@ -999,8 +1001,9 @@ function Arena() {
         return () => clearTimeout(t)
     }, [])
 
-    // Listen for fullscreen changes (e.g. user presses Esc)
+    // Listen for fullscreen changes (Web-only)
     useEffect(() => {
+        if (isCapacitorNative()) return
         const onFSChange = () => setIsFullscreen(!!document.fullscreenElement)
         document.addEventListener("fullscreenchange", onFSChange)
         return () => document.removeEventListener("fullscreenchange", onFSChange)
@@ -1072,8 +1075,54 @@ function Arena() {
         }
     }, [submitted, paused, serverDeadline])
 
-    // ── Anti-Cheat: Tab Switch / Visibility Detection ─────────────
+    // ── Anti-Cheat: Tab Switch / Visibility Detection (Web) & App State (Native) ─────
     useEffect(() => {
+        // In native app, App state change with grace period is used instead of visibilitychange
+        // to avoid counting momentary phone calls or notification shade swipes as violations.
+        if (isCapacitorNative()) {
+            let pauseTimer: any = null
+            let cleanupFn: (() => void) | null = null
+
+            import("@capacitor/app").then(({ App }) => {
+                const listener = App.addListener("appStateChange", ({ isActive }) => {
+                    if (!isActive) {
+                        // Immediately autosave current answers to server & IDB
+                        flushSync()
+
+                        // 5-second grace period before recording violation
+                        pauseTimer = setTimeout(() => {
+                            if (!submitted && !paused) {
+                                setTabSwitchCount(prev => {
+                                    const next = prev + 1
+                                    if (next >= 3) {
+                                        setShowAutoSubmitModal(true)
+                                    } else {
+                                        setShowTabWarningModal(true)
+                                    }
+                                    return next
+                                })
+                            }
+                        }, 5000)
+                    } else {
+                        // App resumed within grace period: cancel violation
+                        if (pauseTimer) {
+                            clearTimeout(pauseTimer)
+                            pauseTimer = null
+                        }
+                    }
+                })
+
+                cleanupFn = () => {
+                    listener.then(h => h.remove()).catch(() => {})
+                }
+            }).catch(() => {})
+
+            return () => {
+                if (pauseTimer) clearTimeout(pauseTimer)
+                if (cleanupFn) cleanupFn()
+            }
+        }
+
         const handleVisibilityChange = () => {
             if (document.hidden && !submitted && !paused) {
                 setTabSwitchCount(prev => {
@@ -1089,7 +1138,7 @@ function Arena() {
         }
         document.addEventListener("visibilitychange", handleVisibilityChange)
         return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
-    }, [submitted, paused])
+    }, [submitted, paused, flushSync])
 
     // ── Anti-Cheat: Right-click & Copy-Paste disable ──────────────
     useEffect(() => {
@@ -1133,12 +1182,20 @@ function Arena() {
             }
         }
 
+        const handleNativeBack = () => {
+            if (!submitted) {
+                setShowExitConfirmModal(true)
+            }
+        }
+
         window.addEventListener("beforeunload", handleBeforeUnload)
         window.addEventListener("popstate", handlePopState)
+        window.addEventListener("nativeExamBack", handleNativeBack)
 
         return () => {
             window.removeEventListener("beforeunload", handleBeforeUnload)
             window.removeEventListener("popstate", handlePopState)
+            window.removeEventListener("nativeExamBack", handleNativeBack)
         }
     }, [submitted])
 
@@ -1246,6 +1303,7 @@ function Arena() {
     }, [performSubmit])
 
     const toggleFS = () => {
+        if (isCapacitorNative()) return
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {})
         } else {
@@ -1402,13 +1460,15 @@ function Arena() {
 
                 {/* Buttons */}
                 <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={toggleFS} style={{
-                        display: "flex", alignItems: "center", gap: 5,
-                        padding: "5px 12px", border: "1px solid #d1d5db", borderRadius: 4,
-                        background: "#fff", fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer"
-                    }}>
-                        {isFullscreen ? "Exit Full Screen" : <><Maximize2 style={{ width: 13, height: 13 }} /> Switch Full Screen</>}
-                    </button>
+                    {!isCapacitorNative() && (
+                        <button onClick={toggleFS} style={{
+                            display: "flex", alignItems: "center", gap: 5,
+                            padding: "5px 12px", border: "1px solid #d1d5db", borderRadius: 4,
+                            background: "#fff", fontSize: 12, fontWeight: 600, color: "#374151", cursor: "pointer"
+                        }}>
+                            {isFullscreen ? "Exit Full Screen" : <><Maximize2 style={{ width: 13, height: 13 }} /> Switch Full Screen</>}
+                        </button>
+                    )}
                     <button onClick={() => setPaused(p => !p)} style={{
                         display: "flex", alignItems: "center", gap: 5,
                         padding: "5px 12px", border: "1px solid #d1d5db", borderRadius: 4,
