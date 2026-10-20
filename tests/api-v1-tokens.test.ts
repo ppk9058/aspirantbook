@@ -182,6 +182,7 @@ describe("API v1: CBT Exam Engine, Answer Slicing & IDOR Checks", () => {
       series = await prisma.examSeries.create({
         data: {
           title: "Test Series 2026",
+          examName: "UPSC CSE",
           slug: `test-series-${Date.now()}`,
           category: "UPSC",
           createdById: userId1,

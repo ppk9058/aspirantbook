@@ -52,7 +52,7 @@ export async function GET(
 
       const chunk = fileBuffer.subarray(start, end + 1);
 
-      return new NextResponse(chunk, {
+      return new NextResponse(chunk as any, {
         status: 206,
         headers: {
           "Content-Range": `bytes ${start}-${end}/${totalSize}`,
@@ -65,7 +65,7 @@ export async function GET(
       });
     }
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(fileBuffer as any, {
       status: 200,
       headers: {
         "Accept-Ranges": "bytes",

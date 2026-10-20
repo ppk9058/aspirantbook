@@ -44,7 +44,7 @@ export async function getTestsList(
             where: { userId: viewer.userId },
             select: { id: true, score: true, status: true },
             take: 1,
-            orderBy: { createdAt: "desc" },
+            orderBy: { startedAt: "desc" },
           }
         : false,
     },
@@ -96,24 +96,9 @@ export async function getTestDetail(viewer: Viewer, testId: string): Promise<Tes
         select: {
           id: true,
           title: true,
-          logoUrl: true,
+          thumbnailUrl: true,
         },
       },
-      attempts: viewer.userId
-        ? {
-            where: { userId: viewer.userId, status: "SUBMITTED" },
-            orderBy: { submittedAt: "desc" },
-            take: 5,
-            select: {
-              id: true,
-              score: true,
-              totalMarks: true,
-              percentile: true,
-              allIndiaRank: true,
-              submittedAt: true,
-            },
-          }
-        : false,
     },
   });
 
@@ -121,16 +106,30 @@ export async function getTestDetail(viewer: Viewer, testId: string): Promise<Tes
     throw new Error("NOT_FOUND: Test not found");
   }
 
-  const previousAttempts = Array.isArray(test.attempts)
-    ? test.attempts.map((a) => ({
-        id: a.id,
-        score: a.score,
-        totalMarks: a.totalMarks,
-        percentile: a.percentile,
-        rank: a.allIndiaRank,
-        submittedAt: a.submittedAt ? a.submittedAt.toISOString() : null,
-      }))
+  const previousAttemptsRaw = viewer.userId
+    ? await prisma.examAttempt.findMany({
+        where: { testId, userId: viewer.userId, status: "SUBMITTED" },
+        orderBy: { submittedAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          score: true,
+          totalMarks: true,
+          percentile: true,
+          allIndiaRank: true,
+          submittedAt: true,
+        },
+      })
     : [];
+
+  const previousAttempts = previousAttemptsRaw.map((a) => ({
+    id: a.id,
+    score: a.score,
+    totalMarks: a.totalMarks,
+    percentile: a.percentile,
+    rank: a.allIndiaRank,
+    submittedAt: a.submittedAt ? a.submittedAt.toISOString() : null,
+  }));
 
   return {
     id: test.id,
@@ -147,7 +146,7 @@ export async function getTestDetail(viewer: Viewer, testId: string): Promise<Tes
     series: {
       id: test.series.id,
       title: test.series.title,
-      logoUrl: test.series.logoUrl,
+      logoUrl: test.series.thumbnailUrl,
     },
     previousAttempts,
   };
@@ -340,7 +339,7 @@ export async function getAttemptDetail(
     attemptId: attempt.id,
     testId: attempt.testId,
     testTitle: attempt.test.title,
-    status: attempt.status,
+    status: attempt.status as any,
     startedAt: attempt.startedAt.toISOString(),
     submittedAt: attempt.submittedAt ? attempt.submittedAt.toISOString() : null,
     serverNow: new Date().toISOString(),

@@ -12,7 +12,7 @@ export async function getDashboardSummary(
     // 1. Fetch recent attempt or test
     const attempts = await prisma.examAttempt.findMany({
       where: { userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { startedAt: "desc" },
       take: 3,
       select: {
         id: true,
@@ -66,7 +66,8 @@ export async function getDashboardSummary(
   }
 
   // 3. Continue learning tutorial
-  const tutorial = await prisma.tutorial.findFirst({
+  const tutorial = await prisma.course.findFirst({
+    where: { isPublished: true },
     select: {
       id: true,
       title: true,

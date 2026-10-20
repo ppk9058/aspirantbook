@@ -21,7 +21,7 @@ export async function checkV1RateLimit(
         "TOO_MANY_REQUESTS",
         "Rate limit exceeded. Please wait before retrying.",
         429,
-        { retryAfter: res.resetInSeconds }
+        { retryAfter: res.windowSeconds }
       ),
     };
   }

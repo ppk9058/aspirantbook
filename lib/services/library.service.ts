@@ -13,7 +13,7 @@ export async function getLibraryItems(viewer: Viewer): Promise<LibraryItemDto[]>
     coverImage: b.coverImage || null,
     author: b.author || "AspirantBook Editorial",
     fileSize: typeof b.fileSize === "number" ? b.fileSize : 5_000_000,
-    fileUrl: b.previewPdfUrl || b.fullPdfUrl || "",
+    fileUrl: b.samplePdfUrl || b.fullPdfUrl || "",
     acquiredAt: b.createdAt || new Date().toISOString(),
   }));
 }
@@ -26,7 +26,7 @@ export async function getLibraryBookDetail(viewer: Viewer, id: string) {
 
   // Reader security: Only authorized/authenticated viewers can access the full PDF
   const canAccessFull = !viewer.isGuest;
-  const downloadUrl = canAccessFull && book.fullPdfUrl ? book.fullPdfUrl : book.previewPdfUrl;
+  const downloadUrl = canAccessFull && book.fullPdfUrl ? book.fullPdfUrl : book.samplePdfUrl;
 
   return {
     id: book.id,
