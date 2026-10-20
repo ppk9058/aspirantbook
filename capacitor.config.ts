@@ -6,6 +6,7 @@ const config: CapacitorConfig = {
   appId: 'com.aspirantbook.app',
   appName: 'aspirantbook',
   webDir: 'public',
+  appendUserAgent: ' AspirantBookApp/1.0',
   server: {
     url: serverUrl,
     cleartext: serverUrl.startsWith('http://'),

@@ -117,11 +117,31 @@ export default auth((req) => {
 
     const requestHeaders = new Headers(req.headers)
     requestHeaders.set("x-pathname", nextUrl.pathname)
-    return NextResponse.next({
+
+    const isNativeParam = nextUrl.searchParams.get("app") === "1"
+    const ua = req.headers.get("user-agent") || ""
+    const hasNativeUa = ua.includes("AspirantBookApp")
+    const hasNativeCookie = req.cookies.get("is_native_app")?.value === "1"
+
+    if (isNativeParam || hasNativeUa || hasNativeCookie) {
+        requestHeaders.set("x-is-native-app", "1")
+    }
+
+    const response = NextResponse.next({
         request: {
             headers: requestHeaders,
         },
     })
+
+    if (isNativeParam || hasNativeUa) {
+        response.cookies.set("is_native_app", "1", {
+            path: "/",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 30, // 30 days
+        })
+    }
+
+    return response
 })
 
 export const config = {
