@@ -49,6 +49,7 @@ model User {
   createdDemoSlots   DemoSlot[]          @relation("UserCreatedDemoSlots")
   currentAffairsPdfs CurrentAffairsPdf[] @relation("UserCurrentAffairsPdfs")
   pushTokens         DevicePushToken[]
+  deviceSessions     DeviceSession[]
 
   @@index([email])
   @@index([role])
@@ -1411,5 +1412,28 @@ model DevicePushToken {
   @@index([userId])
   @@index([platform])
 }
+
+model DeviceSession {
+  id               String    @id @default(cuid())
+  userId           String
+  refreshTokenHash String    @unique
+  familyId         String
+  deviceName       String?
+  platform         String    // "android" | "ios" | "web"
+  appVersion       String?
+  ip               String?
+  userAgent        String?
+  createdAt        DateTime  @default(now())
+  lastUsedAt       DateTime  @default(now())
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  replacedById     String?
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([expiresAt])
+}
+
 
 

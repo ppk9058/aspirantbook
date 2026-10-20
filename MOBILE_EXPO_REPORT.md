@@ -102,3 +102,71 @@
 - Results: 13 / 13 tests passing (grading arithmetic, authwall slicing, DTO validation, formatters) in ~280ms.
 
 ---
+
+## Step 3 & 4: API v1 Foundation & Token Authentication
+
+### 1. Token Authentication Architecture
+- **Access Tokens:** Short-lived JWTs (15-minute lifespan) signed via Web Crypto (`jose`, HS256) using `AUTH_SECRET`. Payload contains `sub` (userId), `email`, `role`, `sessionVersion`, `familyId`, and `sessionId`.
+- **Refresh Tokens:** High-entropy 256-bit opaque random hex string. Only its SHA-256 hash is persisted in `DeviceSession`.
+- **Token Rotation:** On every call to `POST /api/v1/auth/refresh`, the old refresh token is atomically retired (`revokedAt = now()`, `replacedById = newSession.id`) and a brand new refresh token + access token pair is issued.
+- **Reuse Detection & Anti-Theft:** If an old, already-replaced refresh token is presented, the system detects a replay attack, immediately revokes all sessions sharing that `familyId`, increments `user.sessionVersion` to invalidate any active access tokens, logs a security audit event, and returns HTTP 401.
+- **Fast Viewer Resolution (`getViewer`):** Checks `Authorization: Bearer <token>` or falls back to NextAuth cookie session. Evaluates signature, expiration, user `isActive`, and `sessionVersion` match via a single indexed database lookup with an in-process memory cache (10s TTL).
+
+### 2. Database Migration (`DeviceSession`)
+- **Migration ID:** `20261021020000_add_device_session`
+- **Applied to Test Database (`127.0.0.1:54329`)**: Verified clean with zero schema drift via `npm run db:check`.
+- **Commands for Production / Dev Database (DO NOT RUN NOW - Documented for Owner)**:
+  ```bash
+  DATABASE_URL="<dev_supabase_connection>" DIRECT_URL="<dev_supabase_direct>" npx prisma migrate status
+  DATABASE_URL="<dev_supabase_connection>" DIRECT_URL="<dev_supabase_direct>" npx prisma migrate deploy
+  ```
+- **Rollback SQL (`20261021020000_add_device_session/rollback.sql`)**:
+  ```sql
+  DROP TABLE IF EXISTS "DeviceSession" CASCADE;
+  ```
+
+### 3. Route Matrix (All 40 Operations Generated & Verified)
+| Method | Path | Auth | Roles | Ownership Check | Rate Limit | Validation | Test File |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `PUT` | `/api/v1/attempts/[id]/answers` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | 120 req / 60s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/attempts/[id]/result` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/attempts/[id]` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/attempts/[id]/solutions` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/attempts/[id]/submit` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | 20 req / 60s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/auth/forgot-password` | Public / Guest-Safe | All | N/A | 5 req / 3600s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/auth/google` | Public / Guest-Safe | All (501 until configured) | N/A | Global IP | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/auth/login` | Public / Guest-Safe | All | N/A | 10 req / 60s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/auth/logout` | Public / Guest-Safe | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/auth/logout-all` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/auth/otp/request` | Public / Guest-Safe | All (Dev bypass / 501 prod) | N/A | 5 req / 60s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/auth/otp/verify` | Public / Guest-Safe | All (Dev bypass / 501 prod) | N/A | 10 req / 60s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/auth/refresh` | Public / Guest-Safe | All | N/A | 30 req / 60s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/auth/register` | Public / Guest-Safe | All | N/A | 5 req / 3600s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/auth/reset-password` | Public / Guest-Safe | All | N/A | 10 req / 3600s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `DELETE` | `/api/v1/auth/sessions/[id]` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/auth/sessions` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/config` | Public / Guest-Safe | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/current-affairs/[slug]` | Bearer JWT / Cookie | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/current-affairs` | Bearer JWT / Cookie | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/devices` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | 10 req / 60s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `DELETE` | `/api/v1/devices` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | 10 req / 60s | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/goals` | Public / Guest-Safe | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/home` | Bearer JWT / Cookie | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/library/[id]/file` | Bearer JWT / Cookie | All | HTTP Range (206) | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/library` | Bearer JWT / Cookie | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/me` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `PATCH` | `/api/v1/me` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `PATCH` | `/api/v1/notifications/read` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/notifications` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/openapi.json` | Public / Guest-Safe | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/pyq/exams` | Public / Guest-Safe | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/pyq/papers/[id]` | Bearer JWT / Cookie | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/tests/[id]/attempts` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | 20 req / 60s | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/tests/[id]` | Bearer JWT / Cookie | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/tests` | Bearer JWT / Cookie | All | N/A | Global IP | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `POST` | `/api/v1/tutorials/[slug]/lessons/[id]/progress` | Bearer JWT (Required) | Authenticated Users | Strict IDOR Guard | Global IP | Zod Request Schema | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/tutorials/[slug]/lessons/[id]` | Bearer JWT / Cookie | All | Authwall Slicing | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/tutorials/[slug]` | Bearer JWT / Cookie | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+| `GET` | `/api/v1/tutorials` | Bearer JWT / Cookie | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
+
+---
