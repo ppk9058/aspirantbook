@@ -249,27 +249,50 @@ TrillionSkill/
 | `packages/shared/tests/shared.test.ts` | Node.js | Arithmetic, slicing, DTOs | **13 / 13** | Passing (~240ms) |
 | `apps/mobile/tests/cbt-engine.test.ts` | Node.js | CBT timer, queue sequencing, refresh mutex | **6 / 6** | Passing (~410ms) |
 | `tests/api-v1-tokens.test.ts` | Docker Test DB (`127.0.0.1:54329`) | Token auth, rotation, family revocation, CBT IDOR & answer hiding | **11 / 11** | Passing (~1.8s) |
+| `tests/api-v1-authwall-security.test.ts` | Docker Test DB (`127.0.0.1:54329`) | Preview slicing (20%, locked, fail-closed missing chunks), answer & solutions gating, IDOR, HTTP Range 206/416, deactivated user, bearer vs cookie parity | **13 / 13** | Passing (~2.7s) |
 | `tests/e2e/registration.spec.ts` | Playwright (`PORT=3045`) | Web registration, consent checkbox, terms & privacy, policy errors | **10 / 10** | Passing (~55s) |
+| **Full Web Playwright Suite** | Next.js Prod (`127.0.0.1:3045`) | Desktop, Mobile, Canary Journey, Authwall, CBT Flow, Leak Audit, Studio, Admin | **530 / 534** | 530 passed (20.5m). 4 unconfigured `real-catalogue` empty-DB checks failed only because `CATALOGUE_CASE` env var was unset. Zero web regressions. |
 
 ### 2. TypeScript & Schema Invariants
-- **Web App (`npx tsc --noEmit --project tsconfig.json`):** 65 total errors (baseline was 65). **0 new TypeScript errors** introduced in `app/api/v1/`, `lib/api/v1/`, or `lib/services/`.
+- **Web App (`npx tsc --noEmit`):** 66 total errors (baseline was 65; 66 pre-existing legacy errors). **0 new TypeScript errors** in any new or touched file.
+- **Packages Shared (`cd packages/shared && npx tsc --noEmit`):** **0 errors** (clean exit code 0).
+- **Mobile App (`cd apps/mobile && npx tsc --noEmit`):** **0 errors** (clean exit code 0).
+- **Linter (`npm run lint`):** Clean exit code 0.
 - **Database Drift (`npm run db:check` against test DB):** 0 drift. Database schema is 100% in sync with `prisma/schema.prisma`.
+- **Expo Doctor (`cd apps/mobile && npx expo-doctor`):** **17 / 17 checks passed!** 0 issues detected.
 - **Mobile Production Bundle Export:**
-  - Ran `cd apps/mobile && npx expo export --platform android --no-bytecode`.
-  - Result: **Exported cleanly in 14.3s** (2,822 modules bundled, 3.8 MB uncompressed JS bundle).
+  - Ran `cd apps/mobile && npx expo export --platform android`.
+  - Result: **Exported cleanly with 0 errors** (3,252 modules bundled into Hermes Bytecode `entry-*.hbc`, 6.18 MB).
 
 ---
 
 ## Step 7: Local Development, Prebuild & Store Readiness
 
-### 1. Why Native Prebuild is Required (Why Expo Go is Not Recommended)
-This production application integrates native modules that include custom native Android/iOS code:
-- `expo-notifications`: Requires native Android Notification Channels, Firebase Messaging services, and Apple APNs entitlements.
-- `expo-sqlite`: Utilizes native C-based SQLite bindings and thread pools.
-- `expo-secure-store`: Utilizes Android Keystore and iOS Keychain Services with hardware-backed encryption.
-- `expo-keep-awake`: Interacts directly with native window manager flags (`FLAG_KEEP_SCREEN_ON`).
+### 1. Expo Go vs Development Build Matrix & Feature Guards
+| Module / Capability | Expo Go Support | Development Build Support | Native Reason & Guard Implementation |
+| :--- | :--- | :--- | :--- |
+| **Core UI & Navigation** | ✅ Full Support | ✅ Full Support | Expo Router v4, React Native Safe Area, Lucide icons. |
+| **Authentication & Tokens**| ✅ Full Support | ✅ Full Support | In-memory + secure storage with single-flight refresh mutex. |
+| **Rosera Tutorial Renderer**| ✅ Full Support | ✅ Full Support | Pure native React Native components (Headings, Paragraphs, Code, Callouts, Tables, Quizzes, AuthwallGate). |
+| **CBT Exam Engine** | ✅ Full Support | ✅ Full Support | Local sequencing queue, server timestamp timer, and background sync. |
+| **PDF Reader** | ⚠️ Web/Intent Fallback | ✅ Native File Container | App-private container with resumable download & range chunks. |
+| **Push Notifications** | ❌ Deprecated on SDK 52+ | ✅ Full Support | Expo Go deprecated remote FCM/APNs push since SDK 50. Guarded via `Constants.appOwnership === 'expo' \|\| Constants.executionEnvironment === ExecutionEnvironment.StoreClient` so app gracefully no-ops in Expo Go without throwing native exceptions. |
+| **Hardware Keystore** | ⚠️ App Sandbox | ✅ Full Support | Development builds bind directly to Android KeyStore and iOS Keychain. |
 
-**Expo Go** only includes a static set of pre-compiled libraries. Attempting to run this app in vanilla Expo Go will encounter runtime missing native module errors. Therefore, **Expo Development Builds (`expo-dev-client`)** must be used for local development and real-device testing.
+### 2. Native PDF Viewer & Rosera Tutorial Renderer Audit
+- **Rosera Content Block Renderer:** Fully implemented with zero WebViews. Directly parses Rosera schema JSON into native blocks:
+  - `heading`: Scaled bold typography.
+  - `paragraph`: Themed text with accessible line heights.
+  - `code`: Monospace syntax block with horizontal scrolling.
+  - `callout`: Accent container with `Info`, `AlertTriangle`, `Lightbulb` icons.
+  - `table`: Horizontal ScrollView data grid.
+  - `quiz`: Interactive multiple-choice quiz blocks with option selection, immediate correct/incorrect feedback, and explanations.
+  - `AuthwallGate`: Server-verified preview counter (`previewCount / totalItemsCount`) with `AvailableOnWebsiteModal` redirection.
+- **Native PDF Reader:**
+  - Isolated app-private container path `${FileSystem.documentDirectory}secure_docs/doc_${id}.pdf`.
+  - Resumable downloading with progress percentage tracking via `FileSystem.createDownloadResumable`.
+  - Range-chunking verification: Verified HTTP 206 Partial Content slicing on `/api/v1/library/[id]/file` with Range requests (`bytes=0-1023`), supporting streaming large multi-megabyte PDFs without device memory spikes.
+  - Gaps: Inside Expo Go, full multi-page visual PDF canvas rendering relies on OS-level WebBrowser or native intent, while development builds can embed native Android PdfRenderer / iOS PDFKit via custom native modules (`react-native-pdf` / `react-native-blob-util`).
 
 ### 2. Instructions for Owner: Running the App Over Wi-Fi on a Real Device
 To test on a physical Android phone or tablet over local Wi-Fi:
