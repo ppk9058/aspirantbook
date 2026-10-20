@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { isCapacitorNative } from '@/lib/native/platform';
+import { registerPushNotifications } from '@/lib/native/push';
 
 /**
  * NativeAppListener handles Capacitor native lifecycle events:
@@ -65,6 +66,9 @@ export function NativeAppListener() {
           // C. Normal in-app navigation
           window.history.back();
         });
+
+        // 5. Initialize Push Notifications registration (safe no-op until Firebase configured)
+        registerPushNotifications().catch(() => {});
       } catch (err) {
         console.warn('NativeAppListener initialization warning:', err);
       }
