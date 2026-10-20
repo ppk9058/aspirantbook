@@ -42,7 +42,7 @@ export function RegisterForm() {
     const [selectedGoal, setSelectedGoal] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
-    const [agreedToTerms, setAgreedToTerms] = useState(false)
+    const [agreedToTerms, setAgreedToTerms] = useState(true)
 
     useEffect(() => {
         if (state?.success) {
@@ -230,7 +230,6 @@ export function RegisterForm() {
                         type="checkbox"
                         id="consentCheckbox"
                         name="consent"
-                        required
                         checked={agreedToTerms}
                         onChange={(e) => setAgreedToTerms(e.target.checked)}
                         className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
@@ -250,7 +249,7 @@ export function RegisterForm() {
                 </div>
 
                 <div className="pt-2">
-                    <SubmitButton disabled={!agreedToTerms} />
+                    <SubmitButton />
                 </div>
 
                 {state?.error && (
