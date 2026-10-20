@@ -72,6 +72,13 @@ export function NativeAppListener() {
 
     initNativePlugins();
 
+    // Register offline-fallback service worker in production
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+
     return () => {
       isMounted = false;
       if (backButtonHandle) {
