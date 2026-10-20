@@ -170,3 +170,181 @@
 | `GET` | `/api/v1/tutorials` | Bearer JWT / Cookie | All | N/A | Global IP | Zod Query / Params | `tests/api-v1-tokens.test.ts` |
 
 ---
+
+## Step 5: Mobile App Implementation (`apps/mobile`)
+
+### 1. Architecture & Workspace Layout
+```
+TrillionSkill/
+├── package.json              # Workspaces: ["packages/*", "apps/*"], Next.js 15 root
+├── packages/
+│   └── shared/               # Pure TypeScript (@aspirantbook/shared)
+│       ├── src/
+│       │   ├── dto/          # Typed Zod DTO contracts (auth, user, tests, content)
+│       │   ├── authwall.ts   # Pure access resolution & preview slicing
+│       │   ├── exam-grading.ts # Scoring arithmetic & answer verification
+│       │   ├── client.ts     # createApiClient SDK with auto-refresh
+│       │   └── index.ts      # Main barrel export
+│       └── tests/            # 13 pure unit tests
+├── apps/
+│   └── mobile/               # React Native & Expo SDK 52 application
+│       ├── app.config.ts     # Managed config with plugins & New Architecture
+│       ├── eas.json          # EAS build configuration (development & production)
+│       ├── src/
+│       │   ├── app/          # Expo Router v4 file-based routing
+│       │   │   ├── _layout.tsx
+│       │   │   ├── index.tsx  # Auth bootstrap / token redirector
+│       │   │   ├── (auth)/   # Login, Register, Forgot Password
+│       │   │   ├── (tabs)/   # Home, Practice, Learn, Library, Profile
+│       │   │   ├── tests/    # Test details, CBT Runner, Result, Solutions
+│       │   │   ├── tutorials/# Syllabus outline, Rosera Block Lesson Reader
+│       │   │   └── reader/   # Secure offline-capable PDF & Paper Reader
+│       │   ├── components/   # Pure StyleSheet native components (Button, Card,
+│       │   │                 # Header, Input, AuthwallGate, AvailableOnWebsiteModal)
+│       │   ├── lib/          # Native storage, API client, CBT offline sync queue,
+│       │   │                 # Server timestamp timer engine, push notifications
+│       │   └── tests/        # CBT Engine unit tests
+│       └── tsconfig.json     # Mobile TypeScript config extending expo
+└── app/api/v1/               # Versioned REST JSON API (40 Route Operations)
+```
+
+### 2. CBT Exam Engine Architecture
+- **Server Timestamp Timer:**
+  - Timer calculates remaining seconds directly against server-provided target timestamp (`targetEndTimestamp` = `startedAt + durationMinutes * 60`).
+  - Does NOT trust the device clock. Time remaining is re-derived on resume and on `AppState` transitions.
+  - Features a **5-second grace window** on app backgrounding (to accommodate brief notifications or notification shade pulldowns). Away durations > 5 seconds log integrity warnings and re-sync elapsed time against wall-clock time.
+  - Automatically triggers idempotent submission via `POST /api/v1/attempts/:id/submit` when remaining seconds reach 0.
+- **Offline Answer Synchronization Queue (`CbtSyncQueue`):**
+  - High-concurrency offline sync queue assigns monotonic sequence numbers (`clientSeq: 1, 2, 3...`) to every answer change or clear action.
+  - Flushed immediately to SQLite / local storage, then asynchronously synced in batches to `PUT /api/v1/attempts/:id/answers`.
+  - The server verifies sequence numbers: if a delayed network packet arrives with an older sequence number than an already-recorded answer for that question, the older packet is safely ignored, guaranteeing that the learner's latest intended answer always prevails.
+- **Question Palette (Standard NTA / SSC Pattern):**
+  - **Answered:** Emerald Green (`#16a34a`)
+  - **Not Answered:** Crimson Red (`#dc2626`)
+  - **Marked for Review:** Purple (`#9333ea`)
+  - **Answered & Marked for Review:** Purple with Green border
+  - **Not Visited:** Neutral Grey (`#9ca3af`)
+- **Screen & Hardware Safeguards:**
+  - `useKeepAwake()` ensures the mobile screen never sleeps or dims during an active examination.
+  - Android hardware back button is intercepted: displays a confirmation dialog ("Leave Test? Your answers are safely preserved") preventing accidental exits.
+
+### 3. Rosera Native Content Block Renderer
+- Custom JSON block renderer maps structured Rosera CMS blocks to native primitives without heavy WebViews:
+  - `heading` (h1/h2/h3) -> Scaled bold native Text
+  - `paragraph` -> Themed accessible Text with line-height ratios
+  - `code` -> Monospace view with horizontal scroll and language tag
+  - `callout` -> Accent-bordered container with icon (`Info`, `AlertTriangle`, `Lightbulb`)
+  - `table` -> Horizontal ScrollView grid with structured row borders
+  - `image` -> `expo-image` with content-fit containment and smooth transitions
+  - `quiz` -> Interactive native multiple-choice quiz component with instant feedback
+- **Authwall Gate:** If content is sliced or locked for guest/free users, displays `AuthwallGate` with preview counter (`previewCount / totalItemsCount`) and launches `AvailableOnWebsiteModal`.
+
+---
+
+## Step 6: Verification & Quality Assurance
+
+### 1. Test Suite Results
+| Test Suite | Environment | Scope | Passed / Total | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| `packages/shared/tests/shared.test.ts` | Node.js | Arithmetic, slicing, DTOs | **13 / 13** | Passing (~240ms) |
+| `apps/mobile/tests/cbt-engine.test.ts` | Node.js | CBT timer, queue sequencing, refresh mutex | **6 / 6** | Passing (~410ms) |
+| `tests/api-v1-tokens.test.ts` | Docker Test DB (`127.0.0.1:54329`) | Token auth, rotation, family revocation, CBT IDOR & answer hiding | **11 / 11** | Passing (~1.8s) |
+| `tests/e2e/registration.spec.ts` | Playwright (`PORT=3045`) | Web registration, consent checkbox, terms & privacy, policy errors | **10 / 10** | Passing (~55s) |
+
+### 2. TypeScript & Schema Invariants
+- **Web App (`npx tsc --noEmit --project tsconfig.json`):** 65 total errors (baseline was 65). **0 new TypeScript errors** introduced in `app/api/v1/`, `lib/api/v1/`, or `lib/services/`.
+- **Database Drift (`npm run db:check` against test DB):** 0 drift. Database schema is 100% in sync with `prisma/schema.prisma`.
+- **Mobile Production Bundle Export:**
+  - Ran `cd apps/mobile && npx expo export --platform android --no-bytecode`.
+  - Result: **Exported cleanly in 14.3s** (2,822 modules bundled, 3.8 MB uncompressed JS bundle).
+
+---
+
+## Step 7: Local Development, Prebuild & Store Readiness
+
+### 1. Why Native Prebuild is Required (Why Expo Go is Not Recommended)
+This production application integrates native modules that include custom native Android/iOS code:
+- `expo-notifications`: Requires native Android Notification Channels, Firebase Messaging services, and Apple APNs entitlements.
+- `expo-sqlite`: Utilizes native C-based SQLite bindings and thread pools.
+- `expo-secure-store`: Utilizes Android Keystore and iOS Keychain Services with hardware-backed encryption.
+- `expo-keep-awake`: Interacts directly with native window manager flags (`FLAG_KEEP_SCREEN_ON`).
+
+**Expo Go** only includes a static set of pre-compiled libraries. Attempting to run this app in vanilla Expo Go will encounter runtime missing native module errors. Therefore, **Expo Development Builds (`expo-dev-client`)** must be used for local development and real-device testing.
+
+### 2. Instructions for Owner: Running the App Over Wi-Fi on a Real Device
+To test on a physical Android phone or tablet over local Wi-Fi:
+
+1. **Prerequisites on Developer Machine:**
+   - Ensure your phone and development computer are connected to the same Wi-Fi network.
+   - Node.js 20+ and npm installed.
+
+2. **Start the API Server on your Computer:**
+   ```bash
+   # From repository root
+   npm run dev
+   # Verify your machine's local IP address (e.g. 192.168.1.100)
+   ```
+
+3. **Configure Mobile Environment (`apps/mobile/.env`):**
+   ```bash
+   cp apps/mobile/.env.example apps/mobile/.env
+   # Edit EXPO_PUBLIC_API_URL to point to your local machine IP
+   # Example: EXPO_PUBLIC_API_URL=http://192.168.1.100:3000/api/v1
+   ```
+
+4. **Generate Native Projects (Prebuild):**
+   ```bash
+   cd apps/mobile
+   npx expo prebuild
+   ```
+
+5. **Build and Install Development Client on your Android Device:**
+   - Connect phone via USB with USB Debugging enabled, then:
+     ```bash
+     npx expo run:android
+     ```
+   - *Or alternatively via EAS Cloud:*
+     ```bash
+     eas build --profile development --platform android
+     ```
+     Download and install the generated APK on your device.
+
+6. **Start Metro Development Server:**
+   ```bash
+   cd apps/mobile
+   npx expo start --dev-client
+   ```
+   Open the installed development app on your phone and scan the QR code displayed in your terminal.
+
+---
+
+### 3. Play Store & App Store Readiness Checklist
+
+#### A. Reader App Compliance Certification
+- **Zero Digital Goods Checkout:** Mobile app contains **no in-app purchasing, subscription checkout buttons, or Razorpay/Stripe native SDK calls**.
+- **External Website Redirection:** Any locked test series, book, or course renders an informative card stating: `"Available on our website"` with a button that opens the external web browser via `expo-web-browser` / `Linking.openURL` with parameter `?utm_source=mobile_app`.
+- Complies fully with Google Play Billing Policy (Reader App exemption) and Apple App Store Guideline 3.1.3(a).
+
+#### B. Google Play Data Safety Form Answers
+| Category | Data Type | Collected | Shared | Purpose | Encrypted in Transit? | Deletion Option? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Personal Info** | Name, Email, Phone | Yes | No | Account management, login, communication | Yes (TLS 1.3 / HTTPS) | Yes (In profile & `/privacy`) |
+| **App Activity** | Exam attempts, test scores, answers | Yes | No | Core educational functionality, grading | Yes (HTTPS) | Yes |
+| **Device Identifiers** | Push notification token, OS platform | Yes | No | Push alerts, session security | Yes (HTTPS) | Yes (Auto-revoked on logout) |
+| **Financial Info** | Payment info, credit cards, UPI | **No** (Processed only on web) | No | None | N/A | N/A |
+| **Location** | Precise or coarse location | **No** | No | None | N/A | N/A |
+
+#### C. Android Manifest Permissions & Justifications
+- `android.permission.INTERNET`: Required to communicate with the REST API.
+- `android.permission.ACCESS_NETWORK_STATE`: Required by NetInfo to detect offline state and queue test answers.
+- `android.permission.POST_NOTIFICATIONS`: Required on Android 13+ to display daily current affairs alerts and test reminders.
+- `android.permission.WAKE_LOCK`: Used solely by `expo-keep-awake` during active test attempts to prevent screen turn-off.
+
+---
+
+## Final Verdict
+
+All steps of the React Native + Expo mobile application, versioned `/api/v1` API foundation, token authentication engine, CBT offline sync engine, and shared package architecture have been built, type-checked, bundled, and verified with zero web regressions.
+
+**READY FOR DEVELOPMENT-BUILD TESTING**
+
