@@ -26,6 +26,7 @@ import { useTheme } from '../../../lib/theme';
 import { apiClient } from '../../../lib/api';
 import { AuthwallGate } from '../../../components/common/AuthwallGate';
 import { AvailableOnWebsiteModal } from '../../../components/common/AvailableOnWebsiteModal';
+import { RoseraErrorBoundary } from '../../../components/common/RoseraRenderer';
 
 interface RoseraBlock {
   type: string;
@@ -179,6 +180,7 @@ export default function TutorialLessonScreen() {
         <Text style={[styles.mainTitle, { color: theme.colors.text }]}>{lesson.title}</Text>
 
         {/* Rosera Block Renderer */}
+        <RoseraErrorBoundary>
         {blocks.map((block, idx) => {
           switch (block.type) {
             case 'heading': {
@@ -353,6 +355,7 @@ export default function TutorialLessonScreen() {
               );
           }
         })}
+        </RoseraErrorBoundary>
 
         {/* Authwall Gate if Sliced / Locked */}
         {isLocked && (

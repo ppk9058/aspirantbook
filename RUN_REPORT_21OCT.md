@@ -294,3 +294,35 @@ trillionskill-test-db   Up 2 hours (healthy)   127.0.0.1:54329->5432/tcp
     - `tests/e2e/guest-student-journey.spec.ts`: **2 / 2 passed**
     - `tests/e2e/authwall-blurred.spec.ts`: **14 / 14 passed**
 - **Checkpoint Tags**: `checkpoint/sdk-53`, `checkpoint/phase-4`
+
+## Phase 5: Speed and Offline Hardening [MOBILE + API]
+- **Instant Content & Query Cache Persistence**:
+  - Implemented `StorageAdapter` interface in `apps/mobile/src/lib/cache-storage.ts` with `SQLiteKVAdapter` using `expo-sqlite` (supports Expo Go and native builds) and `memoryStorageAdapter` seam (swappable for MMKV in dev builds).
+  - Built `persistQueryClient`, `restoreQueryClient`, and `clearPersistedQueryCache` in `apps/mobile/src/lib/query-persistence.ts`.
+  - Configured per-resource `CACHE_POLICIES` for stale-while-revalidate:
+    - Home: `staleTime: 3m`, `gcTime: 24h`
+    - Tests: `staleTime: 5m`, `gcTime: 24h`
+    - Tutorials: `staleTime: 10m`, `gcTime: 48h`
+    - Current Affairs: `staleTime: 5m`, `gcTime: 24h`
+    - Library: `staleTime: 15m`, `gcTime: 72h`
+  - Integrated `OfflineBanner` in `apps/mobile/src/app/_layout.tsx` monitoring connectivity via `expo-network`.
+  - Linked cache purging on logout in `apps/mobile/src/app/(tabs)/profile.tsx` ensuring local user cache is wiped on session signout.
+- **Lists Optimization**:
+  - Integrated `@shopify/flash-list` (`1.7.6`) in `apps/mobile/src/app/(tabs)/library.tsx` with `estimatedItemSize={95}` and stable `book.id` keys.
+- **API Budgets & 304 Caching**:
+  - Implemented `apiCachedSuccess` in `lib/api/v1/response.ts` computing MD5 ETags and returning HTTP `304 Not Modified` on matching `If-None-Match`.
+  - Enabled ETag caching on `GET /api/v1/config` (max-age=60s, stale-while-revalidate=120s) and `GET /api/v1/goals` (max-age=300s, stale-while-revalidate=600s).
+  - Enforced 50-item ceiling and default 20-item limits across `tests`, `tutorials`, and `library` endpoints.
+  - Verified API budget compliance:
+    - `/api/v1/config`: payload ~520 B (< 10 KB budget ceiling); 304 returns 0 byte body.
+    - `/api/v1/goals`: payload ~750 B (< 10 KB budget ceiling); 304 returns 0 byte body.
+    - `/api/v1/tests`, `/api/v1/tutorials`, `/api/v1/library`: payload sizes strictly < 50 KB ceiling.
+- **Offline CBT & Rosera Hardening**:
+  - Extracted `parseRoseraBlock` and created `RoseraErrorBoundary` with safe fallback handling for malformed and unknown block types.
+  - Implemented comprehensive offline CBT and renderer test suite in `apps/mobile/tests/offline-hardening.test.ts`.
+- **Test Evidence**:
+  - Mobile tests (`cd apps/mobile && npm test`): **17 / 17 passed** (~520ms).
+  - API v1 tests (`npx tsx --test tests/api-v1-*.test.ts`): **39 / 39 passed** (~4.9s).
+  - Expo doctor: **17 / 17 checks passed**.
+  - TypeScript: Shared 0 errors, Mobile 0 errors, Web 65 baseline errors (0 new errors).
+- **Checkpoint Tag**: `checkpoint/phase-5`

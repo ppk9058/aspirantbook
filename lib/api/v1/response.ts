@@ -37,6 +37,40 @@ export function apiSuccess<T>(
   );
 }
 
+export function apiCachedSuccess<T>(
+  req: Request | { headers: Headers },
+  data: T,
+  cacheControl = "public, max-age=60, stale-while-revalidate=120",
+  requestId?: string
+) {
+  const reqId = getRequestId(req);
+  const payloadStr = JSON.stringify({ ok: true, data });
+  const hash = crypto.createHash("md5").update(payloadStr).digest("hex");
+  const etag = `"${hash}"`;
+  const ifNoneMatch = "headers" in req ? req.headers.get("if-none-match") : null;
+
+  if (ifNoneMatch && (ifNoneMatch === etag || ifNoneMatch === `W/${etag}`)) {
+    return new NextResponse(null, {
+      status: 304,
+      headers: {
+        ETag: etag,
+        "Cache-Control": cacheControl,
+        "x-request-id": reqId,
+      },
+    });
+  }
+
+  return apiSuccess(
+    data,
+    200,
+    {
+      ETag: etag,
+      "Cache-Control": cacheControl,
+    },
+    reqId
+  );
+}
+
 export function apiError(
   code: string,
   message: string,

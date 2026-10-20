@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { BookCheck, FileText } from "lucide-react-native";
+import { FlashList } from "@shopify/flash-list";
 import { Card } from "@/components/common/Card";
 import { Skeleton } from "@/components/common/Skeleton";
 import { api } from "@/lib/api";
@@ -48,30 +49,35 @@ export default function LibraryScreen() {
             <Skeleton height={80} borderRadius={16} />
           </View>
         ) : data && data.length > 0 ? (
-          data.map((book) => (
-            <Card key={book.id} style={styles.card}>
-              <View style={styles.cardContent}>
-                <View style={styles.iconCircle}>
-                  <FileText size={22} color={COLORS.primary} />
+          <FlashList
+            data={data}
+            estimatedItemSize={95}
+            keyExtractor={(book) => book.id}
+            renderItem={({ item: book }) => (
+              <Card style={styles.card}>
+                <View style={styles.cardContent}>
+                  <View style={styles.iconCircle}>
+                    <FileText size={22} color={COLORS.primary} />
+                  </View>
+                  <View style={styles.textDetails}>
+                    <Text style={styles.bookTitle} numberOfLines={1}>
+                      {book.title}
+                    </Text>
+                    <Text style={styles.authorText}>{book.author}</Text>
+                    <Text style={styles.sizeText}>
+                      {(book.fileSize / 1024 / 1024).toFixed(1)} MB • Digital Edition
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.readBtn}
+                    onPress={() => router.push(`/reader/${book.id}`)}
+                  >
+                    <Text style={styles.readBtnText}>Read PDF</Text>
+                  </TouchableOpacity>
                 </View>
-                <View style={styles.textDetails}>
-                  <Text style={styles.bookTitle} numberOfLines={1}>
-                    {book.title}
-                  </Text>
-                  <Text style={styles.authorText}>{book.author}</Text>
-                  <Text style={styles.sizeText}>
-                    {(book.fileSize / 1024 / 1024).toFixed(1)} MB • Digital Edition
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.readBtn}
-                  onPress={() => router.push(`/reader/${book.id}`)}
-                >
-                  <Text style={styles.readBtnText}>Read PDF</Text>
-                </TouchableOpacity>
-              </View>
-            </Card>
-          ))
+              </Card>
+            )}
+          />
         ) : (
           <View style={styles.emptyBox}>
             <BookCheck size={36} color="#94A3B8" />

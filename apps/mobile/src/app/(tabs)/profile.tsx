@@ -23,6 +23,7 @@ import { Card } from "@/components/common/Card";
 import { Button } from "@/components/common/Button";
 import { api } from "@/lib/api";
 import { Storage } from "@/lib/storage";
+import { clearPersistedQueryCache } from "@/lib/query-persistence";
 import { COLORS } from "@/lib/theme";
 
 export default function ProfileScreen() {
@@ -58,7 +59,7 @@ export default function ProfileScreen() {
             await api.logout(refreshToken).catch(() => {});
           }
           await Storage.clearAllAuthTokens();
-          queryClient.clear();
+          await clearPersistedQueryCache(queryClient);
           router.replace("/(auth)/login");
         },
       },
@@ -77,7 +78,7 @@ export default function ProfileScreen() {
           onPress: async () => {
             await api.logoutAll().catch(() => {});
             await Storage.clearAllAuthTokens();
-            queryClient.clear();
+            await clearPersistedQueryCache(queryClient);
             router.replace("/(auth)/login");
           },
         },

@@ -4,7 +4,7 @@ import { LibraryItemDto } from "@aspirantbook/shared";
 
 export async function getLibraryItems(viewer: Viewer): Promise<LibraryItemDto[]> {
   const books = await getAllBooks();
-  const published = books.filter((b) => !b.status || b.status === "published");
+  const published = books.filter((b) => !b.status || b.status === "published").slice(0, 50);
 
   return published.map((b) => ({
     id: b.id,

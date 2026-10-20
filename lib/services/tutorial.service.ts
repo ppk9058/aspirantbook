@@ -7,6 +7,7 @@ export async function getTutorialsList(viewer: Viewer): Promise<TutorialSummaryD
   const courses = await prisma.course.findMany({
     where: { isPublished: true },
     orderBy: { createdAt: "desc" },
+    take: 50,
     select: {
       id: true,
       title: true,
