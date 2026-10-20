@@ -68,3 +68,6 @@ artifacts/
 .env.test
 graphify-out/
 uploads/
+.expo/
+apps/mobile/dist/
+apps/mobile/.expo/
