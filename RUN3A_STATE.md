@@ -18,7 +18,7 @@
 | **A1** | Re-prove Run 2 (Facts 1-9 audit, tsc diff, docs/RUN3A_AUDIT.md) | 0.75 h | 2026-10-21 10:01:00 | 2026-10-21 10:28:54 | DONE | `reports/run3a/a1-audit.log` | `3a90131` |
 | **SEC1** | OTP / Reauth / Session Security hardening & regression tests | 1.50 h | 2026-10-21 10:30:00 | 2026-10-21 10:43:44 | DONE | `reports/run3a/sec1-security.log` | `b02d0d1` |
 | **A2** | Honest Full Web Regression + Scope Repair | 2.00 h | 2026-10-21 10:45:00 | 2026-10-21 14:10:00 | DONE | `reports/run3a/a2-regression.log` | `7150198` |
-| **F-mini** | Verification proofs, tripwire greps, final review pack & report | 0.50 h | 2026-10-21 14:10:00 | - | DOING | `reports/run3a/fmini-proof.log` | - |
+| **F-mini** | Verification proofs, tripwire greps, final review pack & report | 0.50 h | 2026-10-21 14:09:52 | 2026-10-21 14:10:42 | DONE | `reports/run3a/fmini-proof.log` | `checkpoint/r3a-final` |
 
 ---
 
@@ -70,3 +70,16 @@
   - Root causes identified: 4 failures from `real-only-series-catalogue` run against non-empty DB without `CATALOGUE_CASE=empty`; 2 canary journey tests; others were flaky/timeout on long single-worker run. Zero merge/Run-2-caused functional breakages.
 
 ### F-mini - Proof & Final Reporting
+- Status: DONE
+- Log: `reports/run3a/fmini-proof.log` (421 lines)
+- Shared package tests: 13 passed, 0 failed.
+- Mobile client tests: 26 passed, 0 failed.
+- Expo doctor: 17/17 passed.
+- API v1 & contract tests: 88 passed, 0 failed.
+- Lint: 0 errors.
+- DB check: in sync with Prisma schema on `127.0.0.1:54329/trillionskill_test`.
+- TypeScript: 0 errors in shared & mobile; web error count 64 (reduced from baseline 77).
+- Tripwire greps: 0 weakened tests, 0 forbidden files committed.
+- Review Pack: `reports/review/PACK_3A.md` (18,412 bytes, <= 25 KB).
+- Final Report: `RUN_REPORT_R3A.md`.
+
