@@ -1,37 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   ScrollView,
+  TextInput,
   TouchableOpacity,
   StyleSheet,
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Input } from "@/components/common/Input";
-import { Button } from "@/components/common/Button";
-import { api } from "@/lib/api";
-import { Storage } from "@/lib/storage";
-import { registerForPushNotificationsAsync } from "@/lib/push";
-import { COLORS } from "@/lib/theme";
+import { Mail, Lock, Eye, EyeOff, Sparkles, ArrowRight } from "lucide-react-native";
+import { Button } from "../../components/primitives/Button";
+import { useTheme } from "../../theme/ThemeProvider";
+import { api } from "../../lib/api";
+import { Storage } from "../../lib/storage";
+import { registerForPushNotificationsAsync } from "../../lib/push";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { colors, tokens } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [googleEnabled, setGoogleEnabled] = useState(false);
-  const [otpEnabled, setOtpEnabled] = useState(false);
-
-  useEffect(() => {
-    api.getConfig().then((res) => {
-      if (res.ok && res.data) {
-        setGoogleEnabled(res.data.googleAuthEnabled);
-        setOtpEnabled(res.data.otpAuthEnabled);
-      }
-    });
-  }, []);
 
   const handleLogin = async () => {
     if (!email.trim() || !password) {
@@ -70,81 +62,149 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Brand Header */}
         <View style={styles.header}>
-          <Text style={styles.brandTitle}>AspirantBook</Text>
-          <Text style={styles.brandSubtitle}>
-            Welcome back! Sign in to access your test series and tutorials.
+          <View style={styles.brandBadge}>
+            <Sparkles size={14} color={colors.primary} />
+            <Text style={[styles.brandBadgeText, { color: colors.primary }]}>
+              TrillionSkill
+            </Text>
+          </View>
+          <Text style={[styles.brandTitle, { color: colors.textPrimary }]}>
+            Sign In
+          </Text>
+          <Text style={[styles.brandSubtitle, { color: colors.textSecondary }]}>
+            Welcome back! Enter your details to continue your mock tests and courses.
           </Text>
         </View>
 
-        <View style={styles.form}>
-          <Input
-            label="Email Address"
-            placeholder="you@example.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-          />
+        {/* Login Form Card */}
+        <View
+          style={[
+            styles.formCard,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+              borderRadius: tokens.radius.xl,
+            },
+          ]}
+        >
+          {/* Email Input */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
+              Email Address
+            </Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.md,
+                },
+              ]}
+            >
+              <Mail size={18} color={colors.textMuted} style={styles.inputIcon} />
+              <TextInput
+                placeholder="name@example.com"
+                placeholderTextColor={colors.textMuted}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                style={[styles.textInput, { color: colors.textPrimary }]}
+              />
+            </View>
+          </View>
 
-          <Input
-            label="Password"
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
-            isPassword
-          />
+          {/* Password Input */}
+          <View style={styles.inputGroup}>
+            <View style={styles.passwordLabelRow}>
+              <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
+                Password
+              </Text>
+              <TouchableOpacity
+                onPress={() => router.push("/(auth)/forgot-password")}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={[styles.forgotText, { color: colors.primary }]}>
+                  Forgot password?
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={[
+                styles.inputWrapper,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.md,
+                },
+              ]}
+            >
+              <Lock size={18} color={colors.textMuted} style={styles.inputIcon} />
+              <TextInput
+                placeholder="Enter password"
+                placeholderTextColor={colors.textMuted}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                style={[styles.textInput, { color: colors.textPrimary }]}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                {showPassword ? (
+                  <EyeOff size={18} color={colors.textMuted} />
+                ) : (
+                  <Eye size={18} color={colors.textMuted} />
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
 
-          <TouchableOpacity
-            style={styles.forgotBtn}
-            onPress={() => router.push("/(auth)/forgot-password")}
-          >
-            <Text style={styles.forgotText}>Forgot password?</Text>
-          </TouchableOpacity>
-
+          {/* Submit Button */}
           <Button
-            title="Sign In"
-            onPress={handleLogin}
+            title={loading ? "Signing In..." : "Sign In"}
+            variant="primary"
+            size="lg"
             loading={loading}
-            style={styles.loginBtn}
+            onPress={handleLogin}
+            style={styles.submitBtn}
           />
 
-          {googleEnabled && (
-            <Button
-              title="Sign In with Google"
-              onPress={() => Alert.alert("Google Sign-In", "Google Sign-In initialized")}
-              variant="outline"
-              style={styles.altBtn}
-            />
-          )}
-
-          {otpEnabled && (
-            <Button
-              title="Sign In with Mobile OTP"
-              onPress={() => Alert.alert("Mobile OTP", "OTP Sign-In initialized")}
-              variant="secondary"
-              style={styles.altBtn}
-            />
-          )}
-
+          {/* Register Link */}
           <TouchableOpacity
             style={styles.registerLink}
             onPress={() => router.push("/(auth)/register")}
           >
-            <Text style={styles.registerText}>
+            <Text style={[styles.registerText, { color: colors.textSecondary }]}>
               Don't have an account?{" "}
-              <Text style={styles.registerHighlight}>Create Account</Text>
+              <Text style={[styles.registerHighlight, { color: colors.primary }]}>
+                Create Account
+              </Text>
             </Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.guestLink}
-            onPress={() => router.replace("/(tabs)/home")}
-          >
-            <Text style={styles.guestText}>Continue as Guest</Text>
-          </TouchableOpacity>
         </View>
+
+        {/* Continue as Guest */}
+        <TouchableOpacity
+          style={styles.guestLink}
+          onPress={() => router.replace("/(tabs)/home")}
+        >
+          <Text style={[styles.guestText, { color: colors.textMuted }]}>
+            Continue as Guest Learner →
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -153,69 +213,98 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
   },
   scroll: {
-    padding: 24,
+    padding: 20,
     justifyContent: "center",
+    flexGrow: 1,
   },
   header: {
-    marginTop: 20,
-    marginBottom: 32,
+    marginBottom: 24,
+  },
+  brandBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 8,
+  },
+  brandBadgeText: {
+    fontSize: 13,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   brandTitle: {
     fontSize: 28,
     fontWeight: "800",
-    color: "#0F172A",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   brandSubtitle: {
     fontSize: 14,
-    color: "#64748B",
     lineHeight: 20,
   },
-  form: {
-    backgroundColor: "#FFFFFF",
+  formCard: {
     padding: 20,
-    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    marginBottom: 16,
   },
-  forgotBtn: {
-    alignSelf: "flex-end",
-    marginBottom: 20,
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+  passwordLabelRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
   },
   forgotText: {
-    fontSize: 13,
-    color: COLORS.primary,
+    fontSize: 12,
     fontWeight: "600",
   },
-  loginBtn: {
-    marginBottom: 12,
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 48,
+    borderWidth: 1,
+    paddingHorizontal: 12,
   },
-  altBtn: {
-    marginBottom: 12,
+  inputIcon: {
+    marginRight: 8,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 15,
+    height: "100%",
+  },
+  eyeIcon: {
+    padding: 4,
+  },
+  submitBtn: {
+    width: "100%",
+    marginTop: 8,
+    marginBottom: 14,
   },
   registerLink: {
-    marginTop: 16,
     alignItems: "center",
+    paddingVertical: 4,
   },
   registerText: {
     fontSize: 13,
-    color: "#64748B",
   },
   registerHighlight: {
-    color: COLORS.primary,
     fontWeight: "700",
   },
   guestLink: {
-    marginTop: 18,
     alignItems: "center",
-    padding: 8,
+    paddingVertical: 12,
   },
   guestText: {
     fontSize: 13,
-    color: "#94A3B8",
     fontWeight: "600",
   },
 });

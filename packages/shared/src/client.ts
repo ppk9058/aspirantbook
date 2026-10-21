@@ -149,6 +149,11 @@ export function createApiClient(options: ApiClientOptions) {
       request<{ success: boolean }>(`/api/v1/auth/sessions/${id}`, {
         method: "DELETE",
       }),
+    forgotPassword: (email: string) =>
+      request<{ success: boolean }>("/api/v1/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      }),
 
     // User & Profile
     getMe: () => request<ViewerProfileDto>("/api/v1/me"),

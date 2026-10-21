@@ -3,40 +3,52 @@ import {
   View,
   Text,
   ScrollView,
+  TextInput,
   TouchableOpacity,
   StyleSheet,
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CheckSquare, Square } from "lucide-react-native";
-import { Input } from "@/components/common/Input";
-import { Button } from "@/components/common/Button";
-import { api } from "@/lib/api";
-import { Storage } from "@/lib/storage";
-import { registerForPushNotificationsAsync } from "@/lib/push";
-import { COLORS } from "@/lib/theme";
+import * as WebBrowser from "expo-web-browser";
+import {
+  User,
+  Mail,
+  Lock,
+  Phone,
+  CheckSquare,
+  Square,
+  Sparkles,
+  Eye,
+  EyeOff,
+} from "lucide-react-native";
+import { Button } from "../../components/primitives/Button";
+import { useTheme } from "../../theme/ThemeProvider";
+import { api } from "../../lib/api";
+import { Storage } from "../../lib/storage";
+import { registerForPushNotificationsAsync } from "../../lib/push";
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { colors, tokens } = useTheme();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [goal, setGoal] = useState("UPSC");
+  const [showPassword, setShowPassword] = useState(false);
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
     if (!name.trim() || !email.trim() || !password) {
-      Alert.alert("Missing Fields", "Please fill in all required fields.");
+      Alert.alert("Missing Fields", "Please fill in your name, email, and password.");
       return;
     }
 
     if (!consent) {
       Alert.alert(
         "Consent Required",
-        "You must confirm you are 13+ and agree to our Terms and Privacy Policy."
+        "You must confirm you are 13+ and agree to the Terms of Service and Privacy Policy."
       );
       return;
     }
@@ -48,7 +60,7 @@ export default function RegisterScreen() {
         email: email.trim(),
         password,
         phoneNumber: phone.trim() || undefined,
-        selectedGoal: goal,
+        selectedGoal: "UPSC",
         consent: true,
         platform: "android",
         deviceName: "Mobile App",
@@ -69,53 +81,170 @@ export default function RegisterScreen() {
       registerForPushNotificationsAsync().catch(() => {});
       router.replace("/(tabs)/home");
     } catch {
-      Alert.alert("Error", "Network error. Please try again.");
+      Alert.alert("Error", "Network connection error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  const openLegal = async (path: string) => {
+    try {
+      await WebBrowser.openBrowserAsync(`https://trillionskill.com/${path}`);
+    } catch {}
+  };
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
-          <Text style={styles.brandTitle}>Create Account</Text>
-          <Text style={styles.brandSubtitle}>
-            Join thousands of serious aspirants preparing with AspirantBook.
+          <View style={styles.brandBadge}>
+            <Sparkles size={14} color={colors.primary} />
+            <Text style={[styles.brandBadgeText, { color: colors.primary }]}>
+              TrillionSkill
+            </Text>
+          </View>
+          <Text style={[styles.brandTitle, { color: colors.textPrimary }]}>
+            Create Account
+          </Text>
+          <Text style={[styles.brandSubtitle, { color: colors.textSecondary }]}>
+            Join thousands of serious aspirants preparing with high-yield mock tests and video courses.
           </Text>
         </View>
 
-        <View style={styles.form}>
-          <Input
-            label="Full Name *"
-            placeholder="John Doe"
-            value={name}
-            onChangeText={setName}
-          />
+        <View
+          style={[
+            styles.formCard,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+              borderRadius: tokens.radius.xl,
+            },
+          ]}
+        >
+          {/* Full Name */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
+              Full Name *
+            </Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.md,
+                },
+              ]}
+            >
+              <User size={18} color={colors.textMuted} style={styles.inputIcon} />
+              <TextInput
+                placeholder="Aarav Sharma"
+                placeholderTextColor={colors.textMuted}
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="words"
+                style={[styles.textInput, { color: colors.textPrimary }]}
+              />
+            </View>
+          </View>
 
-          <Input
-            label="Email Address *"
-            placeholder="you@example.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-          />
+          {/* Email Address */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
+              Email Address *
+            </Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.md,
+                },
+              ]}
+            >
+              <Mail size={18} color={colors.textMuted} style={styles.inputIcon} />
+              <TextInput
+                placeholder="name@example.com"
+                placeholderTextColor={colors.textMuted}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                style={[styles.textInput, { color: colors.textPrimary }]}
+              />
+            </View>
+          </View>
 
-          <Input
-            label="Phone Number (Optional)"
-            placeholder="+91 98765 43210"
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-          />
+          {/* Password */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
+              Password (min 8 chars) *
+            </Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.md,
+                },
+              ]}
+            >
+              <Lock size={18} color={colors.textMuted} style={styles.inputIcon} />
+              <TextInput
+                placeholder="Create strong password"
+                placeholderTextColor={colors.textMuted}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                style={[styles.textInput, { color: colors.textPrimary }]}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                {showPassword ? (
+                  <EyeOff size={18} color={colors.textMuted} />
+                ) : (
+                  <Eye size={18} color={colors.textMuted} />
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
 
-          <Input
-            label="Password (min 8 chars) *"
-            placeholder="Create a strong password"
-            value={password}
-            onChangeText={setPassword}
-            isPassword
-          />
+          {/* Optional Phone */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
+              Mobile Number (Optional)
+            </Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.md,
+                },
+              ]}
+            >
+              <Phone size={18} color={colors.textMuted} style={styles.inputIcon} />
+              <TextInput
+                placeholder="+91 98765 43210"
+                placeholderTextColor={colors.textMuted}
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                style={[styles.textInput, { color: colors.textPrimary }]}
+              />
+            </View>
+          </View>
 
           {/* 13+ Consent Checkbox */}
           <TouchableOpacity
@@ -125,33 +254,49 @@ export default function RegisterScreen() {
             accessibilityLabel="Consent checkbox"
           >
             {consent ? (
-              <CheckSquare size={20} color={COLORS.accent} />
+              <CheckSquare size={20} color={colors.primary} />
             ) : (
-              <Square size={20} color="#94A3B8" />
+              <Square size={20} color={colors.textMuted} />
             )}
-            <Text style={styles.consentText}>
-              I am 13+ and agree to the{" "}
-              <Text style={styles.linkText}>Terms</Text> and{" "}
-              <Text style={styles.linkText}>Privacy Policy</Text>.
+            <Text style={[styles.consentText, { color: colors.textSecondary }]}>
+              I confirm I am 13+ and agree to the{" "}
+              <Text
+                style={[styles.linkText, { color: colors.primary }]}
+                onPress={() => openLegal("terms")}
+              >
+                Terms of Service
+              </Text>{" "}
+              and{" "}
+              <Text
+                style={[styles.linkText, { color: colors.primary }]}
+                onPress={() => openLegal("privacy")}
+              >
+                Privacy Policy
+              </Text>.
             </Text>
           </TouchableOpacity>
 
+          {/* Submit Button */}
           <Button
-            title="Create Free Account"
-            onPress={handleRegister}
+            title={loading ? "Creating Account..." : "Create Account"}
+            variant="primary"
+            size="lg"
             loading={loading}
             disabled={!consent}
-            variant="accent"
+            onPress={handleRegister}
             style={styles.submitBtn}
           />
 
+          {/* Login Link */}
           <TouchableOpacity
             style={styles.loginLink}
             onPress={() => router.push("/(auth)/login")}
           >
-            <Text style={styles.loginText}>
+            <Text style={[styles.loginText, { color: colors.textSecondary }]}>
               Already have an account?{" "}
-              <Text style={styles.loginHighlight}>Sign In</Text>
+              <Text style={[styles.loginHighlight, { color: colors.primary }]}>
+                Sign In
+              </Text>
             </Text>
           </TouchableOpacity>
         </View>
@@ -163,64 +308,94 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
   },
   scroll: {
-    padding: 24,
+    padding: 20,
+    justifyContent: "center",
+    flexGrow: 1,
   },
   header: {
-    marginTop: 10,
-    marginBottom: 24,
+    marginBottom: 20,
+  },
+  brandBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 8,
+  },
+  brandBadgeText: {
+    fontSize: 13,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   brandTitle: {
     fontSize: 26,
     fontWeight: "800",
-    color: "#0F172A",
     marginBottom: 6,
   },
   brandSubtitle: {
     fontSize: 13,
-    color: "#64748B",
     lineHeight: 18,
   },
-  form: {
-    backgroundColor: "#FFFFFF",
+  formCard: {
     padding: 20,
-    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    marginBottom: 16,
+  },
+  inputGroup: {
+    marginBottom: 14,
+  },
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 48,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+  },
+  inputIcon: {
+    marginRight: 8,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 15,
+    height: "100%",
+  },
+  eyeIcon: {
+    padding: 4,
   },
   consentRow: {
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    marginTop: 4,
+    alignItems: "flex-start",
+    marginVertical: 14,
+    gap: 10,
   },
   consentText: {
-    fontSize: 12,
-    color: "#475569",
-    marginLeft: 8,
     flex: 1,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 18,
   },
   linkText: {
-    color: COLORS.primary,
-    fontWeight: "600",
+    fontWeight: "700",
     textDecorationLine: "underline",
   },
   submitBtn: {
-    marginBottom: 16,
+    width: "100%",
+    marginBottom: 14,
   },
   loginLink: {
     alignItems: "center",
-    padding: 6,
+    paddingVertical: 4,
   },
   loginText: {
     fontSize: 13,
-    color: "#64748B",
   },
   loginHighlight: {
-    color: COLORS.primary,
     fontWeight: "700",
   },
 });
