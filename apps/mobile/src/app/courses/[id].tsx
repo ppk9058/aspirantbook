@@ -32,6 +32,7 @@ import { ErrorState } from "../../components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import { buildWebUrl } from "../../lib/web-links";
 import { CourseDetailDto, CourseChapterDto } from "@aspirantbook/shared";
 
 export default function CourseDetailScreen() {
@@ -79,7 +80,8 @@ export default function CourseDetailScreen() {
   };
 
   const handleOpenWebsite = async (slug: string) => {
-    const websiteUrl = `https://trillionskill.com/courses/${slug}?utm_source=mobile_app`;
+    // Reader model web checkout with utm_source=mobile_app
+    const websiteUrl = buildWebUrl(`/courses/${slug}`, "course_enroll");
     try {
       await WebBrowser.openBrowserAsync(websiteUrl);
     } catch {

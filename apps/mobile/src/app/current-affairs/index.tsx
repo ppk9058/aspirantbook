@@ -29,6 +29,7 @@ import { EmptyState } from "../../../src/components/primitives/EmptyState";
 import { ErrorState } from "../../../src/components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
+import { buildWebUrl } from "../../lib/web-links";
 import { CurrentAffairsItemDto } from "@aspirantbook/shared";
 
 type ModeTab = "quizzes" | "monthlyPdfs";
@@ -56,7 +57,7 @@ export default function CurrentAffairsScreen() {
   };
 
   const handleOpenPdf = async (item: CurrentAffairsItemDto) => {
-    const url = `https://trillionskill.com/current-affairs/${item.slug}?utm_source=mobile_app`;
+    const url = buildWebUrl(`/current-affairs/${item.slug}`, "current_affairs_pdf");
     await WebBrowser.openBrowserAsync(url);
   };
 

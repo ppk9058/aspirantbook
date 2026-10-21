@@ -8,6 +8,7 @@ import { Badge } from "../components/primitives/Badge";
 import { Button } from "../components/primitives/Button";
 import { useTheme } from "../theme/ThemeProvider";
 import { useAuth } from "../context/AuthContext";
+import { buildWebUrl } from "../lib/web-links";
 
 export default function SubscriptionScreen() {
   const { colors, tokens } = useTheme();
@@ -15,8 +16,9 @@ export default function SubscriptionScreen() {
 
   const handleOpenPricing = async () => {
     try {
+      // Reader model web checkout with utm_source=mobile_app
       await WebBrowser.openBrowserAsync(
-        "https://trillionskill.com/pricing?utm_source=mobile_app"
+        buildWebUrl("/pricing", "subscription_screen")
       );
     } catch {}
   };

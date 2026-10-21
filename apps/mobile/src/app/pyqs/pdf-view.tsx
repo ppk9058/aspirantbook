@@ -24,6 +24,7 @@ import {
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import { buildWebUrl } from "../../lib/web-links";
 import { Card } from "../../../src/components/primitives/Card";
 import { Button } from "../../../src/components/primitives/Button";
 import { Badge } from "../../../src/components/primitives/Badge";
@@ -66,7 +67,7 @@ export default function PyqPdfViewScreen() {
 
   const handleOpenPdf = async () => {
     setStatusMessage(null);
-    const url = paper?.fileUrl || `https://trillionskill.com/pyqs/${paperId}?utm_source=mobile_app`;
+    const url = paper?.fileUrl || buildWebUrl(`/pyqs/${paperId}`, "pyq_view");
     try {
       await WebBrowser.openBrowserAsync(url);
     } catch {

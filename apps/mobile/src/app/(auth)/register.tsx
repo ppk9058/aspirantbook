@@ -27,6 +27,7 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
 import { Storage } from "../../lib/storage";
 import { registerForPushNotificationsAsync } from "../../lib/push";
+import { buildWebUrl } from "../../lib/web-links";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -87,7 +88,7 @@ export default function RegisterScreen() {
 
   const openLegal = async (path: string) => {
     try {
-      await WebBrowser.openBrowserAsync(`https://trillionskill.com/${path}`);
+      await WebBrowser.openBrowserAsync(buildWebUrl(`/${path}`, "legal"));
     } catch {}
   };
 

@@ -28,6 +28,7 @@ import { Badge } from "../../../components/primitives/Badge";
 import { Button } from "../../../components/primitives/Button";
 import { Skeleton } from "../../../components/primitives/Skeleton";
 import { EmptyState } from "../../../components/primitives/EmptyState";
+import { buildWebUrl } from "../../../lib/web-links";
 import { ErrorState } from "../../../components/primitives/ErrorState";
 import { useTheme } from "../../../theme/ThemeProvider";
 import { api } from "../../../lib/api";
@@ -63,7 +64,7 @@ export default function ExamSeriesDetailScreen() {
 
   const handleUnlockOnWeb = async () => {
     const slug = data?.series?.slug || id;
-    const url = `https://trillionskill.com/test-series/${slug}?utm_source=mobile_app`;
+    const url = buildWebUrl(`/test-series/${slug}`, "series_unlock");
     await WebBrowser.openBrowserAsync(url);
   };
 
