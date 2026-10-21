@@ -1,7 +1,12 @@
-import React from "react";
-import { Text, TextStyle, StyleSheet } from "react-native";
+import React, { useMemo } from "react";
+import { Text, TextStyle, StyleSheet, View } from "react-native";
 import { useTheme } from "../../theme/ThemeProvider";
-import { parseLatexToUnicode } from "../../lib/latex-parser";
+import {
+  parseMathSegments,
+  parseLatexToUnicode,
+  isComplexMath,
+  MathSegment,
+} from "../../lib/latex-parser";
 
 interface MathRendererProps {
   text: string;
@@ -10,48 +15,92 @@ interface MathRendererProps {
 }
 
 export function MathRenderer({ text, style, fontSize }: MathRendererProps) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+
+  const segments = useMemo(() => {
+    return parseMathSegments(text || "");
+  }, [text]);
 
   if (!text) return null;
 
-  // Split into math ($...$ or $$...$$) and normal segments
-  const parts = text.split(/(\$\$[\s\S]+?\$\$|\$[^\$]+?\$)/g);
-
   return (
-    <Text style={[{ color: colors.textPrimary, fontSize: fontSize || 16, lineHeight: 24 }, style]}>
-      {parts.map((part, index) => {
-        if (!part) return null;
-        const isDisplay = part.startsWith("$$") && part.endsWith("$$");
-        const isInline = part.startsWith("$") && part.endsWith("$");
+    <Text
+      style={[
+        {
+          color: colors.textPrimary,
+          fontSize: fontSize || 16,
+          lineHeight: (fontSize || 16) * 1.5,
+        },
+        style,
+      ]}
+    >
+      {segments.map((seg, index) => {
+        if (!seg.content) return null;
 
-        if (isDisplay || isInline) {
-          const rawMath = isDisplay ? part.slice(2, -2) : part.slice(1, -1);
-          const parsed = parseLatexToUnicode(rawMath);
+        if (!seg.isMath) {
+          return <Text key={index}>{seg.content}</Text>;
+        }
+
+        const isComplex = isComplexMath(seg.raw);
+        const parsed = parseLatexToUnicode(seg.raw);
+
+        // Fallback to monospace styling for complex environments or unparseable raw math
+        const isFallback = isComplex || parsed.includes("\\");
+
+        if (seg.isDisplay) {
           return (
             <Text
               key={index}
               style={[
-                styles.mathText,
+                styles.displayMathText,
                 {
-                  fontStyle: "italic",
-                  color: colors.primary,
-                  fontWeight: "600",
+                  color: isFallback ? colors.textPrimary : colors.primary,
+                  fontFamily: isFallback ? "monospace" : undefined,
+                  backgroundColor: isFallback
+                    ? isDark
+                      ? "#1e293b"
+                      : "#f1f5f9"
+                    : "transparent",
                 },
               ]}
             >
-              {isDisplay ? `\n  ${parsed}  \n` : ` ${parsed} `}
+              {`\n  ${parsed}  \n`}
             </Text>
           );
         }
 
-        return <Text key={index}>{part}</Text>;
+        return (
+          <Text
+            key={index}
+            style={[
+              styles.inlineMathText,
+              {
+                color: isFallback ? colors.textPrimary : colors.primary,
+                fontFamily: isFallback ? "monospace" : undefined,
+                backgroundColor: isFallback
+                  ? isDark
+                    ? "#1e293b"
+                    : "#f1f5f9"
+                  : "transparent",
+              },
+            ]}
+          >
+            {` ${parsed} `}
+          </Text>
+        );
       })}
     </Text>
   );
 }
 
 const styles = StyleSheet.create({
-  mathText: {
-    fontFamily: undefined,
+  inlineMathText: {
+    fontStyle: "italic",
+    fontWeight: "600",
+  },
+  displayMathText: {
+    fontStyle: "normal",
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

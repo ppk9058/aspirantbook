@@ -67,10 +67,25 @@ export const SYMBOL_MAP: Record<string, string> = {
   "\\lor": "∨",
   "\\neg": "¬",
   "\\to": "→",
+  "\\rightarrow": "→",
   "\\leftarrow": "←",
   "\\Rightarrow": "⇒",
   "\\Leftrightarrow": "⇔",
   "\\degree": "°",
+  "\\circ": "°",
+  "\\quad": "  ",
+  "\\qquad": "    ",
+  "\\,": " ",
+  "\\;": " ",
+  "\\:": " ",
+};
+
+export const BLACKBOARD_MAP: Record<string, string> = {
+  "\\mathbb{R}": "ℝ",
+  "\\mathbb{N}": "ℕ",
+  "\\mathbb{Z}": "ℤ",
+  "\\mathbb{Q}": "ℚ",
+  "\\mathbb{C}": "ℂ",
 };
 
 export const SUPERSCRIPT_MAP: Record<string, string> = {
@@ -92,6 +107,7 @@ export const SUPERSCRIPT_MAP: Record<string, string> = {
   "n": "ⁿ",
   "i": "ⁱ",
   "x": "ˣ",
+  "y": "ʸ",
 };
 
 export const SUBSCRIPT_MAP: Record<string, string> = {
@@ -124,14 +140,152 @@ export const SUBSCRIPT_MAP: Record<string, string> = {
   "t": "ₜ",
 };
 
+export interface MathSegment {
+  content: string;
+  isMath: boolean;
+  isDisplay?: boolean;
+  raw: string;
+}
+
+/**
+ * Tokenizes text into math ($...$ or $$...$$) and normal segments.
+ * Protects against malformed unclosed single/double dollars so sentences never drop text.
+ */
+export function parseMathSegments(text: string): MathSegment[] {
+  if (!text) return [];
+
+  const segments: MathSegment[] = [];
+  let cursor = 0;
+
+  while (cursor < text.length) {
+    // Check for display math $$
+    const displayStart = text.indexOf("$$", cursor);
+    const inlineStart = text.indexOf("$", cursor);
+
+    if (displayStart !== -1 && (inlineStart === -1 || displayStart <= inlineStart)) {
+      // Normal text before $$
+      if (displayStart > cursor) {
+        segments.push({
+          content: text.slice(cursor, displayStart),
+          isMath: false,
+          raw: text.slice(cursor, displayStart),
+        });
+      }
+      const displayEnd = text.indexOf("$$", displayStart + 2);
+      if (displayEnd !== -1) {
+        const rawMath = text.slice(displayStart + 2, displayEnd);
+        segments.push({
+          content: rawMath,
+          isMath: true,
+          isDisplay: true,
+          raw: rawMath,
+        });
+        cursor = displayEnd + 2;
+      } else {
+        // Malformed unclosed $$: treat remainder as normal text
+        segments.push({
+          content: text.slice(displayStart),
+          isMath: false,
+          raw: text.slice(displayStart),
+        });
+        break;
+      }
+    } else if (inlineStart !== -1) {
+      // Normal text before $
+      if (inlineStart > cursor) {
+        segments.push({
+          content: text.slice(cursor, inlineStart),
+          isMath: false,
+          raw: text.slice(cursor, inlineStart),
+        });
+      }
+      const inlineEnd = text.indexOf("$", inlineStart + 1);
+      // Ensure closing dollar is not immediately followed by another dollar and not on another paragraph
+      if (inlineEnd !== -1 && !text.slice(inlineStart + 1, inlineEnd).includes("\n\n")) {
+        const rawMath = text.slice(inlineStart + 1, inlineEnd);
+        segments.push({
+          content: rawMath,
+          isMath: true,
+          isDisplay: false,
+          raw: rawMath,
+        });
+        cursor = inlineEnd + 1;
+      } else {
+        // Malformed unclosed $: treat as text
+        segments.push({
+          content: text.slice(inlineStart),
+          isMath: false,
+          raw: text.slice(inlineStart),
+        });
+        break;
+      }
+    } else {
+      // Remainder of string
+      segments.push({
+        content: text.slice(cursor),
+        isMath: false,
+        raw: text.slice(cursor),
+      });
+      break;
+    }
+  }
+
+  return segments;
+}
+
+/**
+ * Checks whether math has complex environments best suited for KaTeX WebView.
+ */
+export function isComplexMath(math: string): boolean {
+  if (!math) return false;
+  return (
+    math.includes("\\begin{pmatrix}") ||
+    math.includes("\\begin{vmatrix}") ||
+    math.includes("\\begin{matrix}") ||
+    math.includes("\\begin{cases}") ||
+    math.includes("\\begin{align}") ||
+    math.includes("\\begin{array}") ||
+    math.includes("\\det(")
+  );
+}
+
+/**
+ * Translates LaTeX math into clean readable Unicode representation.
+ * Handles nested fractions, roots, Greek symbols, superscripts, subscripts,
+ * vectors, blackboard bold, and matrices.
+ */
 export function parseLatexToUnicode(math: string): string {
+  if (!math || !math.trim()) return "";
   let s = math.trim();
 
-  // Convert \frac{a}{b} -> (a / b)
-  s = s.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, "($1 / $2)");
+  // Blackboard bold (ℝ, ℕ, etc.)
+  for (const [tex, uni] of Object.entries(BLACKBOARD_MAP)) {
+    s = s.split(tex).join(uni);
+  }
 
-  // Convert \sqrt{x} -> √(x)
+  // Vectors \vec{F} -> F
+  s = s.replace(/\\vec\{([^{}]+)\}/g, "$1⃗");
+
+  // Nth Root \sqrt[3]{27} -> ³√(27)
+  s = s.replace(/\\sqrt\[([0-9a-z]+)\]\{([^{}]+)\}/g, (_, deg, val) => {
+    const supDeg = deg
+      .split("")
+      .map((c: string) => SUPERSCRIPT_MAP[c] || c)
+      .join("");
+    return `${supDeg}√(${val})`;
+  });
+
+  // Square roots \sqrt{x} -> √(x)
   s = s.replace(/\\sqrt\{([^{}]+)\}/g, "√($1)");
+
+  // Handle fractions, including nested ones
+  let prev = "";
+  let iterations = 0;
+  while (s.includes("\\frac") && prev !== s && iterations < 5) {
+    prev = s;
+    iterations++;
+    s = s.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, "($1 / $2)");
+  }
 
   // Replace Greek characters
   for (const [tex, uni] of Object.entries(GREEK_MAP)) {
@@ -143,7 +297,28 @@ export function parseLatexToUnicode(math: string): string {
     s = s.split(tex).join(uni);
   }
 
-  // Convert superscripts: ^{abc} or ^2
+  // Text commands
+  s = s.replace(/\\text\{([^{}]+)\}/g, "$1");
+  s = s.replace(/\\mathrm\{([^{}]+)\}/g, "$1");
+  s = s.replace(/\\mathbf\{([^{}]+)\}/g, "$1");
+  s = s.replace(/\\mathit\{([^{}]+)\}/g, "$1");
+
+  // Matrix and Cases environments format
+  s = s.replace(/\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}/g, (_, content) => {
+    const rows = content.trim().split("\\\\").map((r: string) => r.trim().split("&").map((c: string) => c.trim()).join(" "));
+    return `[ ${rows.join(" ; ")} ]`;
+  });
+  s = s.replace(/\\begin\{vmatrix\}([\s\S]*?)\\end\{vmatrix\}/g, (_, content) => {
+    const rows = content.trim().split("\\\\").map((r: string) => r.trim().split("&").map((c: string) => c.trim()).join(" "));
+    return `| ${rows.join(" ; ")} |`;
+  });
+  s = s.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g, (_, content) => {
+    const rows = content.trim().split("\\\\").map((r: string) => r.trim().split("&").map((c: string) => c.trim()).join(" "));
+    return `{ ${rows.join(" , ")} }`;
+  });
+
+  // Convert superscripts: ^{abc} or ^2 or ^\circ
+  s = s.replace(/\^\\circ/g, "°");
   s = s.replace(/\^\{([^{}]+)\}/g, (_, chars) =>
     chars
       .split("")
@@ -161,10 +336,8 @@ export function parseLatexToUnicode(math: string): string {
   );
   s = s.replace(/_([0-9a-z+-])/gi, (_, c) => SUBSCRIPT_MAP[c] || `_${c}`);
 
-  // Remove leftover curly braces or LaTeX commands
-  s = s.replace(/\\mathrm\{([^{}]+)\}/g, "$1");
-  s = s.replace(/\\mathbf\{([^{}]+)\}/g, "$1");
-  s = s.replace(/\\text\{([^{}]+)\}/g, "$1");
+  // Clean remaining braces
+  s = s.replace(/[{}]/g, "");
 
-  return s;
+  return s.trim();
 }
