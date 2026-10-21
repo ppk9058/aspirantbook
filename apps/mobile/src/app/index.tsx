@@ -13,7 +13,8 @@ export default function BootstrapScreen() {
       try {
         const token = await Storage.getAccessToken();
         if (!token) {
-          router.replace("/(auth)/login");
+          // Allow guest exploration matching web behavior
+          router.replace("/(tabs)/home");
           return;
         }
 
@@ -23,10 +24,12 @@ export default function BootstrapScreen() {
           registerForPushNotificationsAsync().catch(() => {});
           router.replace("/(tabs)/home");
         } else {
-          router.replace("/(auth)/login");
+          // Token expired or invalid, fallback to guest mode
+          await Storage.clearAllAuthTokens();
+          router.replace("/(tabs)/home");
         }
       } catch {
-        router.replace("/(auth)/login");
+        router.replace("/(tabs)/home");
       }
     }
 

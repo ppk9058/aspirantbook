@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Flame, Clock, PlayCircle, Award, Sparkles } from "lucide-react-native";
 import { Card } from "@/components/common/Card";
 import { Skeleton } from "@/components/common/Skeleton";
+import { AppShell } from "@/components/shell/AppShell";
 import { api } from "@/lib/api";
 import { COLORS } from "@/lib/theme";
 
@@ -28,7 +29,7 @@ export default function HomeScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <AppShell testID="home-screen">
       <ScrollView
         contentContainerStyle={styles.scroll}
         refreshControl={
@@ -149,7 +150,7 @@ export default function HomeScreen() {
           </>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </AppShell>
   );
 }
 

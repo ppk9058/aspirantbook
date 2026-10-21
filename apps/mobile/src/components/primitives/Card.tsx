@@ -1,11 +1,11 @@
 import React from "react";
-import { View, TouchableOpacity, StyleSheet, ViewStyle } from "react-native";
+import { View, TouchableOpacity, StyleSheet, ViewStyle, StyleProp } from "react-native";
 import { useTheme } from "../../theme/ThemeProvider";
 
 export interface CardProps {
   children: React.ReactNode;
   onPress?: () => void;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   variant?: "default" | "elevated" | "outlined";
   testID?: string;
 }
@@ -53,11 +53,10 @@ export function Card({
     }
   };
 
-  const containerStyle: ViewStyle = {
+  const baseStyle: ViewStyle = {
     borderRadius: tokens.radius.xl,
     padding: tokens.spacing.lg,
     ...getVariantStyle(),
-    ...style,
   };
 
   if (onPress) {
@@ -65,7 +64,7 @@ export function Card({
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.85}
-        style={containerStyle}
+        style={[baseStyle, style]}
         testID={testID}
       >
         {children}
@@ -74,7 +73,7 @@ export function Card({
   }
 
   return (
-    <View style={containerStyle} testID={testID}>
+    <View style={[baseStyle, style]} testID={testID}>
       {children}
     </View>
   );
