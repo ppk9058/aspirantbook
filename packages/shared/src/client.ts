@@ -37,6 +37,12 @@ import {
   NotificationItemDto,
   AppConfigDto,
   RegisterPushTokenRequest,
+  CourseSummaryDto,
+  CourseDetailDto,
+  CourseLessonDetailDto,
+  MyLearningDto,
+  CareerTrackDto,
+  CareerTrackDetailDto,
 } from "./dto/content.dto";
 
 export interface ApiResponse<T> {
@@ -251,6 +257,39 @@ export function createApiClient(options: ApiClientOptions) {
         }
       ),
     getLibrary: () => request<LibraryItemDto[]>("/api/v1/library"),
+
+    // Courses & Video Player
+    getCourses: (query?: { category?: string; difficulty?: string; search?: string; cursor?: string; limit?: number }) => {
+      const q = new URLSearchParams();
+      if (query?.category) q.set("category", query.category);
+      if (query?.difficulty) q.set("difficulty", query.difficulty);
+      if (query?.search) q.set("search", query.search);
+      if (query?.cursor) q.set("cursor", query.cursor);
+      if (query?.limit) q.set("limit", String(query.limit));
+      const qs = q.toString();
+      return request<CourseSummaryDto[]>(`/api/v1/courses${qs ? `?${qs}` : ""}`);
+    },
+    getCourseDetail: (courseIdOrSlug: string) =>
+      request<CourseDetailDto>(`/api/v1/courses/${courseIdOrSlug}`),
+    enrollFreeCourse: (courseId: string) =>
+      request<{ success: boolean; enrolledAt: string }>(`/api/v1/courses/${courseId}/enroll`, {
+        method: "POST",
+      }),
+    getCourseLesson: (courseSlug: string, lessonId: string) =>
+      request<CourseLessonDetailDto>(`/api/v1/courses/${courseSlug}/lessons/${lessonId}`),
+    updateCourseLessonProgress: (
+      courseSlug: string,
+      lessonId: string,
+      body: { completed: boolean; timeSpent?: number }
+    ) =>
+      request<{ success: boolean }>(`/api/v1/courses/${courseSlug}/lessons/${lessonId}/progress`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    getMyLearning: () => request<MyLearningDto>("/api/v1/my-learning"),
+    getCareerTracks: () => request<CareerTrackDto[]>("/api/v1/career-tracks"),
+    getCareerTrackDetail: (trackIdOrSlug: string) =>
+      request<CareerTrackDetailDto>(`/api/v1/career-tracks/${trackIdOrSlug}`),
 
     // Notifications
     getNotifications: () => request<NotificationItemDto[]>("/api/v1/notifications"),

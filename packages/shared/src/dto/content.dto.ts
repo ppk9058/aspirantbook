@@ -156,3 +156,105 @@ export interface DashboardSummaryDto {
     questionCount: number;
   } | null;
 }
+
+// Courses & Video Player
+export interface CourseSummaryDto {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  thumbnailUrl?: string | null;
+  difficulty: string;
+  duration: number;
+  rating: number;
+  enrollmentCount: number;
+  isFree: boolean;
+  price: number;
+  chaptersCount: number;
+  lessonsCount: number;
+  isEnrolled: boolean;
+}
+
+export interface CourseLessonItemDto {
+  id: string;
+  title: string;
+  durationText?: string | null;
+  duration?: number | null;
+  isTrial: boolean;
+  order: number;
+  isLocked: boolean;
+  isCompleted: boolean;
+}
+
+export interface CourseChapterDto {
+  id: string;
+  title: string;
+  order: number;
+  lessons: CourseLessonItemDto[];
+}
+
+export interface CourseDetailDto {
+  course: CourseSummaryDto;
+  chapters: CourseChapterDto[];
+  isEnrolled: boolean;
+}
+
+export interface CourseLessonDetailDto {
+  id: string;
+  title: string;
+  courseTitle: string;
+  courseSlug: string;
+  chapterTitle?: string | null;
+  videoUrl?: string | null;
+  content?: string | null;
+  durationText?: string | null;
+  isCompleted: boolean;
+  isLocked: boolean;
+  navigation: {
+    prevLessonId?: string | null;
+    nextLessonId?: string | null;
+  };
+}
+
+// My Learning
+export interface MyLearningItemDto {
+  courseId: string;
+  title: string;
+  slug: string;
+  thumbnailUrl?: string | null;
+  totalLessons: number;
+  completedLessons: number;
+  progressPercent: number;
+  enrolledAt: string;
+  lastLessonId?: string | null;
+}
+
+export interface MyLearningDto {
+  enrolledCourses: MyLearningItemDto[];
+}
+
+// Career Tracks
+export interface CareerTrackCourseDto {
+  id: string;
+  title: string;
+  slug: string;
+  thumbnailUrl?: string | null;
+  difficulty: string;
+  duration: number;
+  isEnrolled: boolean;
+}
+
+export interface CareerTrackDto {
+  id: string;
+  title: string;
+  slug: string;
+  type: string;
+  description: string;
+  thumbnail?: string | null;
+  totalCourses: number;
+}
+
+export interface CareerTrackDetailDto {
+  track: CareerTrackDto;
+  courses: CareerTrackCourseDto[];
+}
