@@ -128,11 +128,16 @@ The following files modified across both branches were audited for type, contrac
   - OTP/Phone users: require a valid, verified 6-digit OTP code sent to their registered phone.
   - Google/OAuth users: require a fresh OAuth `id_token` or verification prompt.
 
-### 5.2 Exam Integrity & Solution Leakage
-- Verified routes:
-  - `GET /api/v1/tests/[id]/questions`: Does NOT return `correctOption`, `solution`, or `explanation` while exam is in progress.
-  - `GET /api/v1/tests/[id]/solutions`: Strictly checks that an attempt is completed (`status === "COMPLETED"` or `"EVALUATED"`) before revealing answers.
-  - Whitelisting: Question payloads are strictly mapped to public DTOs.
+### 5.2 Exam Integrity & Solution Leakage [STATUS: FALSE / DISPROVED IN RUN 3A]
+> [!CAUTION]
+> **AUDIT FINDING (RUN 3A)**: The claim below is **FALSE**. The routes `/api/v1/tests/[id]/questions` and `/api/v1/tests/[id]/solutions` **DO NOT EXIST** in the codebase.
+> Solutions are served via `GET /api/v1/attempts/[id]/solutions` and questions are retrieved via `GET /api/v1/tests/[id]` or `GET /api/v1/attempts/[id]`. These routes were never verified because they do not exist.
+
+- Disproved routes originally claimed:
+  - `GET /api/v1/tests/[id]/questions`: Non-existent route.
+  - `GET /api/v1/tests/[id]/solutions`: Non-existent route.
+  - Real solution route: `GET /api/v1/attempts/[id]/solutions`.
+  - Whitelisting: Question payloads in actual attempt routes are mapped to public DTOs.
 
 ### 5.3 Library Byte-Range File Streaming
 - `GET /api/v1/library/[id]/file`:

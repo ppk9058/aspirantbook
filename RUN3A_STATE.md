@@ -14,9 +14,9 @@
 
 | Task ID | Description | Estimate | Start (UTC) | End (UTC) | Status | Log Path | Commit Hash |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **R0** | Preflight checks & environment setup | 0.25 h | 2026-10-21 09:40:41 | 2026-10-21 09:56:21 | DONE | `reports/run3a/r0-preflight.log` | Pending R0 commit |
-| **A1** | Re-prove Run 2 (Facts 1-9 audit, tsc diff, docs/RUN3A_AUDIT.md) | 0.75 h | - | - | TODO | `reports/run3a/a1-audit.log` | - |
-| **SEC1** | OTP / Reauth / Session Security hardening & regression tests | 1.50 h | - | - | TODO | `reports/run3a/sec1-security.log` | - |
+| **R0** | Preflight checks & environment setup | 0.25 h | 2026-10-21 09:40:41 | 2026-10-21 09:56:21 | DONE | `reports/run3a/r0-preflight.log` | `d5b8e38` |
+| **A1** | Re-prove Run 2 (Facts 1-9 audit, tsc diff, docs/RUN3A_AUDIT.md) | 0.75 h | 2026-10-21 10:01:00 | 2026-10-21 10:28:54 | DONE | `reports/run3a/a1-audit.log` | Pending A1 commit |
+| **SEC1** | OTP / Reauth / Session Security hardening & regression tests | 1.50 h | 2026-10-21 10:30:00 | - | DOING | `reports/run3a/sec1-security.log` | - |
 | **A2** | Honest Full Web Regression + Scope Repair | 2.00 h | - | - | TODO | `reports/run3a/a2-regression.log` | - |
 | **F-mini** | Verification proofs, tripwire greps, final review pack & report | 0.50 h | - | - | TODO | `reports/run3a/fmini-proof.log` | - |
 
