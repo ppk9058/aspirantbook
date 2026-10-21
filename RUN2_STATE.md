@@ -24,8 +24,8 @@
 | **R8** | Native PDF Evaluation & Implementation | **DONE** | 2026-10-21T06:02:00Z | 2026-10-21T06:10:00Z | `552b901` | `reports/run2/r8-native-pdf.log` |
 | **R9** | Speed/Offline Gaps & Mutation Proofs | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:00Z | `d89bde1` | `reports/run2/r9-speed-offline.log` |
 | **R10** | Phone Tooling & Docs Hardening | **DONE** | 2026-10-21T06:18:00Z | 2026-10-21T06:24:00Z | `01d683e` | `reports/run2/r10-phone-tooling.log` |
-| **R11** | Contract Tests & Mobile Journey | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:28Z | Pending | `reports/run2/r11-contract-journey.log` |
-| **R12** | Final Proof, Clean Dist & Tripwires | **TODO** | | | | `reports/run2/r12-final-proof.log` |
+| **R11** | Contract Tests & Mobile Journey | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:28Z | `58a3df4` | `reports/run2/r11-contract-journey.log` |
+| **R12** | Final Proof, Clean Dist & Tripwires | **DONE** | 2026-10-21T07:27:00Z | 2026-10-21T08:12:00Z | Pending | `reports/run2/r12-final-proof.log` |
 | **B1** | Dependency Audit & Vulnerability Fixes | **TODO** | | | | `reports/run2/b1-audit.log` |
 | **B2** | Bundle-Size Analysis & Reductions | **TODO** | | | | `reports/run2/b2-bundle-size.log` |
 | **B3** | Deep-Link / Scheme Config Check | **TODO** | | | | `reports/run2/b3-deep-link.log` |
@@ -80,5 +80,23 @@
   18. Schema contract checks on all core GET routes (`/config`, `/goals`, `/current-affairs`, `/pyq/exams`, `/tutorials`, `/library`)
   19. OpenAPI consistency check (`/api/v1/openapi.json` covers 100% of implemented v1 endpoints)
 - All 19 tests pass (0 failures, 0 skipped). Raw log: `reports/run2/r11-contract-journey.log`.
+
+### R12: Final Proof, Clean Dist & Tripwires
+- Clean production build from scratch: 159/159 static pages generated, exit 0.
+- All 79 API v1 and contract tests passed across 8 suites.
+- All 26 mobile tests passed (`npm test` in `apps/mobile/`).
+- 17/17 `expo-doctor` checks passed.
+- Both Android & iOS Expo exports exit 0.
+- Dev-DB read-only smoke on port 3050: All 6 required URLs verified HTTP 200 with 0 P2022 errors:
+  - `/api/v1/config` (200)
+  - `/api/v1/openapi.json` (200)
+  - `/api/v1/tests` (200)
+  - `/api/v1/tutorials` (200)
+  - `/test-series` (200)
+  - `/current-affairs-quizzes` (200)
+- Tripwires: 0 skipped/fixme tests added; 0 forbidden files committed; 0 secrets exposed.
+- Hardened `AGENTS.md` with branch map, scope tags, and both-test-sets rules.
+- Confirmed `stash@{0}` untouched (`88f95e437366b6c03d2107303ec9f2d4a7e9cb91`).
+- Raw log: `reports/run2/r12-final-proof.log`.
 
 ---

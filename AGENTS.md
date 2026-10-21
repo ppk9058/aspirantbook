@@ -12,6 +12,28 @@ Read this file at the start of every task. The full UI standard lives in
 - Never commit, push, amend or force unless the task says so; the user commits. Before reporting done, tsc, lint and the relevant Playwright tests must pass.
 - Do not edit package.json or the lockfile unless the task needs it; say so first.
 
+## 0.1 Branch Map & Repository Invariants
+- **Web Canonical Branch**: `TrillionSkill-ver2` (web releases).
+- **Mobile App Canonical Branch**: `expo-mobile` (Expo React Native mobile client & v1 API).
+- **Stale Branches**: `authwall` is STALE (never branch from or merge into it).
+- **Forbidden Branches**: `mobile-app` is legacy Capacitor (NEVER merge into `expo-mobile`).
+- **Start-of-Run Checks**:
+  1. Confirm `git branch --show-current` matches the target task branch.
+  2. Confirm `.git/MERGE_HEAD` does not exist.
+  3. Ensure Docker test DB is up on `127.0.0.1:54329` (`npm run test:db:up`).
+  4. Never commit `data/books.json`, `.env*`, `apps/mobile/dist`, or test logs.
+- **Both-Test-Sets Rule**:
+  Any changes touching shared boundaries (`packages/shared`, `lib/services/**`, `lib/exam*`, or `app/api/v1/**`) affect both web and mobile: MUST run BOTH test suites:
+  1. Web: `BASE_URL=http://127.0.0.1:3045 npx playwright test`
+  2. Mobile & API: `cd apps/mobile && npm test && npx expo-doctor` and `npx tsx --test tests/api-v1-*.ts tests/contract-v1.test.ts`.
+
+## 0.2 Project Map & Scope Tags
+- `[WEB]`: Web UI pages & components (`app/(dashboard)/**`, `components/**`, `app/admin/**`).
+- `[MOBILE]`: React Native client (`apps/mobile/**`).
+- `[SHARED]`: Cross-platform contracts & DTOs (`packages/shared/**`).
+- `[API]`: Versioned REST API (`app/api/v1/**`).
+- `[LIB]`: Backend core domain services (`lib/services/**`, `lib/exam*`, `lib/authwall/**`).
+
 ## 1. Product reality (why these rules exist)
 - Most of our learners use phones (and tablets). Mobile is the PRIMARY experience, desktop is an enhancement.
 - Stack: Next.js App Router, React, TypeScript, Tailwind, Radix UI, lucide-react, Prisma.
@@ -52,7 +74,7 @@ For any UI work (page, component, layout or styling bug) load the `responsive-ui
 - Video lessons: player sticky at the top on phones, tabs below, no overlay text on the poster.
 - Tutorials / Rosera renderer: content is themed through CSS variables (`--tutorial-*`, `--rz-*`); never hardcode colours; all text goes through the shared inline formatter.
 - Importers (tutorial packages): match by external ids, never by title alone; imports create drafts; no deletions.
-- Mobile App (React Native + Expo SDK 53): code lives in `apps/mobile/`, shared logic/types in `packages/shared/`, mobile REST API in `app/api/v1/`. Test commands: `npm run seed:mobile-test`, `cd apps/mobile && npm test`, `npx expo-doctor`. Run on physical phone via Expo Go: `npm run dev:lan` (auto-detects LAN IP, launches Next.js on 3045 and Expo Metro on 8081 with interactive QR code). See `docs/RUN_ON_PHONE.md`.
+- Mobile App (React Native + Expo SDK 54): code lives in `apps/mobile/`, shared logic/types in `packages/shared/`, mobile REST API in `app/api/v1/`. Test commands: `npm run seed:mobile-test`, `cd apps/mobile && npm test`, `npx expo-doctor`. Run on physical phone via Expo Go: `npm run dev:lan` (auto-detects LAN IP, launches Next.js on 3045 and Expo Metro on 8081 with interactive QR code). See `docs/RUN_ON_PHONE.md`.
 
 ## 7. Commands
 - Dev: `npm run dev`  Build: `npm run build`  Lint: `npm run lint`  Types: `npx tsc --noEmit`

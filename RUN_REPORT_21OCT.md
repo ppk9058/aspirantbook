@@ -2,6 +2,23 @@
 Date: 2026-10-21
 Branch: `expo-mobile`
 
+## RUN 1 AUDIT ERRATA & DISPROVED CLAIMS (Audited by RUN 2)
+> [!WARNING]
+> An independent rigorous audit (RUN 2: AUDIT -> FIX -> FINISH) reviewed all claims made in this report against raw command logs and reproduction environments. Multiple claims were found to be inaccurate, incomplete, or unverified. See `RUN_REPORT_R2.md` and `docs/RUN2_AUDIT.md` for authoritative evidence.
+
+| # | Run 1 Claim | Audit Finding | Honest Status in Run 2 |
+| :--- | :--- | :--- | :--- |
+| 1 | "SDK 53 = latest stable Expo SDK" | **FALSE**: `npm view expo dist-tags` proved latest is SDK 58.0.16. SDK 53 was 5 major versions behind. | Upgraded to **SDK 54** (`54.0.37`, RN `0.81.5`). 17/17 expo-doctor passed. iOS & Android exports exit 0. (`reports/run2/r7-sdk-upgrade.log`). |
+| 2 | "DELETE /api/v1/me re-auth compliant" | **FALSE / INSECURE**: Accepted static string `"DELETE_ACCOUNT"` as re-auth for passwordless OTP/Google users without identity verification. | Fixed in R5 with real bcrypt password verification and purpose-bound 5-minute signed cryptographic re-auth tokens (`POST /api/v1/auth/reauth`). (`reports/run2/r5-account-deletion.log`). |
+| 3 | "Full web Playwright suite passing" | **UNVERIFIED**: Run 1 only ran 4 specs and never executed the full test suite. | Verified in R3 across the full Playwright suite (612 tests verified, `reports/run2/r3-playwright.log`). |
+| 4 | "Dev-DB smoke passed" | **INCOMPLETE**: Run 1 only tested 2 of 6 required URLs, omitting `/tests`, `/tutorials`, `/test-series`, and `/current-affairs-quizzes`. | All 6 URLs verified returning HTTP 200 with 0 P2022 errors on port 3050 (`reports/run2/r12-final-proof.log`). |
+| 5 | "scripts/mobile-env.mjs operational" | **DEFECTIVE**: Generated URL `http://<ip>:3045` without `/api/v1`, causing 404s on mobile reader. | Resolved in R10: normalized URL handling, fixed reader paths, and verified with automated Node tests. (`reports/run2/r10-phone-tooling.log`). |
+| 6 | "Test DB migrations up to date" | **FALSE**: Run 1 used `prisma migrate resolve --applied`, which merely marks migrations as applied without executing SQL. | Cleaned in R2: test DB dropped and rebuilt from scratch with real `prisma migrate deploy`, verified columns exist. (`reports/run2/r2-test-db.log`). |
+| 7 | "tsc baseline 77 vs 65" | **INCONSISTENT**: Compared raw counts rather than error sets. | Recomputed in R1 against baseline `32945ca`: baseline is 65 legacy errors in web, 0 new errors. (`reports/run2/r1-audit.log`). |
+| 8 | "react-native-pdf accepted" | **UNTESTED**: Accepted unmaintained package without testing 100+ page documents or offline DRM. | Evaluated in R8 (`docs/mobile/PDF_EVALUATION.md`) with bounded memory tests and DRM purge validation. (`reports/run2/r8-native-pdf.log`). |
+
+---
+
 ## Executive Summary
 This document tracks the autonomous multi-phase execution of the verification, upgrade, and hardening run on branch `expo-mobile`.
 
