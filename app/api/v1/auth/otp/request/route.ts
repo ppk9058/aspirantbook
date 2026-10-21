@@ -2,28 +2,9 @@ import { NextRequest } from "next/server";
 import { OtpRequestSchema } from "@aspirantbook/shared";
 import { apiSuccess, apiError, handleApiError, getRequestId } from "@/lib/api/v1/response";
 import { checkV1RateLimit } from "@/lib/api/v1/rate-limit";
+import { isDevBypassAllowed } from "@/lib/api/v1/dev-bypass";
 
 export const dynamic = "force-dynamic";
-
-function isDevBypassAllowed(): boolean {
-  if (process.env.NODE_ENV === "production" && process.env.APP_ENV !== "test") {
-    return false;
-  }
-  let isLocalTestDb = false;
-  try {
-    const dbUrl = process.env.DATABASE_URL || "";
-    const parsed = new URL(dbUrl);
-    isLocalTestDb =
-      (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") &&
-      parsed.pathname.endsWith("_test");
-  } catch {
-    isLocalTestDb = false;
-  }
-  return (
-    process.env.ALLOW_DEV_MOBILE_LOGIN === "true" ||
-    (process.env.APP_ENV === "test" && isLocalTestDb)
-  );
-}
 
 export async function POST(req: NextRequest) {
   const reqId = getRequestId(req);
@@ -31,13 +12,14 @@ export async function POST(req: NextRequest) {
     const rl = await checkV1RateLimit(req, "auth_otp_req", 5, 60);
     if (!rl.allowed) return rl.response!;
 
-    const hasSmsGateway = Boolean(process.env.SMS_API_KEY);
     const devBypass = isDevBypassAllowed();
 
-    if (!hasSmsGateway && !devBypass) {
+    // When devBypass is off => ALWAYS 501, even if SMS_API_KEY is set.
+    // Zero-cost rule: no real SMS is sent.
+    if (!devBypass) {
       return apiError(
         "NOT_IMPLEMENTED",
-        "SMS OTP service is currently being configured. Please use email & password sign-in.",
+        "SMS OTP service is currently disabled. Please use email & password sign-in.",
         501,
         undefined,
         reqId
@@ -49,19 +31,19 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return apiError(
         "VALIDATION_ERROR",
-        parsed.error.errors[0]?.message || "Invalid phone number",
+        parsed.error.errors[0]?.message || "Invalid phone number payload",
         400,
         parsed.error.format(),
         reqId
       );
     }
 
+    // In dev bypass mode, return explicit dev bypass notice (never claim "OTP sent" unless generated)
     return apiSuccess(
       {
-        success: true,
-        message: devBypass
-          ? "OTP generated (dev bypass code: 123456)"
-          : "OTP sent to your mobile phone number.",
+        message: "Dev OTP bypass active. Use verification code 123456.",
+        phoneNumber: parsed.data.phoneNumber,
+        devBypass: true,
       },
       200,
       {},

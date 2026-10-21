@@ -11,28 +11,9 @@ import {
   hashRefreshToken,
 } from "@/lib/api/v1/tokens";
 import { logAuditEvent } from "@/lib/api/v1/audit";
+import { isDevBypassAllowed } from "@/lib/api/v1/dev-bypass";
 
 export const dynamic = "force-dynamic";
-
-function isDevBypassAllowed(): boolean {
-  if (process.env.NODE_ENV === "production" && process.env.APP_ENV !== "test") {
-    return false;
-  }
-  let isLocalTestDb = false;
-  try {
-    const dbUrl = process.env.DATABASE_URL || "";
-    const parsed = new URL(dbUrl);
-    isLocalTestDb =
-      (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") &&
-      parsed.pathname.endsWith("_test");
-  } catch {
-    isLocalTestDb = false;
-  }
-  return (
-    process.env.ALLOW_DEV_MOBILE_LOGIN === "true" ||
-    (process.env.APP_ENV === "test" && isLocalTestDb)
-  );
-}
 
 export async function POST(req: NextRequest) {
   const reqId = getRequestId(req);
@@ -40,13 +21,14 @@ export async function POST(req: NextRequest) {
     const rl = await checkV1RateLimit(req, "auth_otp_verify", 10, 60);
     if (!rl.allowed) return rl.response!;
 
-    const hasSmsGateway = Boolean(process.env.SMS_API_KEY);
     const devBypass = isDevBypassAllowed();
 
-    if (!hasSmsGateway && !devBypass) {
+    // When devBypass is off => ALWAYS 501, even if SMS_API_KEY is set.
+    // Prevents backdoor logins with arbitrary codes when SMS gateway key is configured.
+    if (!devBypass) {
       return apiError(
         "NOT_IMPLEMENTED",
-        "SMS OTP service is currently being configured. Please use email & password sign-in.",
+        "SMS OTP service is currently disabled. Please use email & password sign-in.",
         501,
         undefined,
         reqId
@@ -58,15 +40,15 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return apiError(
         "VALIDATION_ERROR",
-        parsed.error.errors[0]?.message || "Invalid OTP payload",
+        parsed.error.errors[0]?.message || "Invalid verification payload",
         400,
         parsed.error.format(),
         reqId
       );
     }
 
-    // In dev bypass, code "123456" is accepted
-    if (devBypass && parsed.data.code !== "123456") {
+    // In dev bypass, code "123456" is strictly required
+    if (parsed.data.code !== "123456") {
       return apiError("UNAUTHORIZED", "Invalid verification code", 401, undefined, reqId);
     }
 
@@ -150,9 +132,10 @@ export async function POST(req: NextRequest) {
 
     await logAuditEvent({
       actorId: user.id,
-      action: "USER_LOGIN_OTP_MOBILE",
+      action: "USER_LOGIN_OTP_DEV_BYPASS",
       targetId: session.id,
       ip,
+      details: { platform: parsed.data.platform, devBypass: true },
     });
 
     return apiSuccess(
@@ -170,7 +153,7 @@ export async function POST(req: NextRequest) {
           role: user.role,
           image: user.image,
           phoneNumber: user.phoneNumber,
-          goal: (user as any).selectedGoal,
+          goal: user.selectedGoal,
           emailVerified: user.emailVerified,
           isActive: user.isActive,
         },

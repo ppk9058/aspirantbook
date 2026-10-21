@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { verifyReauthToken } from "@/lib/api/v1/tokens";
+import { verifyReauthToken, markReauthTokenUsed } from "@/lib/api/v1/tokens";
 import { logAuditEvent } from "@/lib/api/v1/audit";
 import {
   ViewerProfileDto,
@@ -78,7 +78,8 @@ export async function updateViewerProfile(
 
 export async function deleteViewerAccount(
   userId: string,
-  options: DeleteAccountRequest
+  options: DeleteAccountRequest,
+  currentSessionId?: string | null
 ): Promise<DeleteAccountResponseDto> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -116,27 +117,31 @@ export async function deleteViewerAccount(
       }
       reauthMethod = "PASSWORD";
     } else if (options.reauthToken) {
-      const verifyRes = await verifyReauthToken(options.reauthToken, user.id, "delete_account");
+      const verifyRes = await verifyReauthToken(options.reauthToken, user.id, "delete_account", currentSessionId);
       if (!verifyRes.valid) {
         throw new Error(`UNAUTHORIZED: Invalid, expired, or wrong-purpose re-authentication token: ${verifyRes.reason}`);
       }
+      if (verifyRes.jti) {
+        markReauthTokenUsed(verifyRes.jti);
+      }
       reauthMethod = "REAUTH_TOKEN";
     } else {
-      throw new Error("UNAUTHORIZED: Password re-authentication required to delete account");
+      throw new Error("REAUTH_REQUIRED: Password re-authentication required to delete account");
     }
   } else {
     // Users without password (OAuth or OTP registration)
     // NEVER accept a static string like "DELETE_ACCOUNT".
     if (options.reauthToken) {
-      const verifyRes = await verifyReauthToken(options.reauthToken, user.id, "delete_account");
+      const verifyRes = await verifyReauthToken(options.reauthToken, user.id, "delete_account", currentSessionId);
       if (!verifyRes.valid) {
         throw new Error(`UNAUTHORIZED: Invalid, expired, or wrong-purpose re-authentication token: ${verifyRes.reason}`);
       }
+      if (verifyRes.jti) {
+        markReauthTokenUsed(verifyRes.jti);
+      }
       reauthMethod = "REAUTH_TOKEN";
-    } else if (options.otp) {
-      reauthMethod = "OTP";
     } else {
-      throw new Error("UNAUTHORIZED: Purpose-bound re-authentication token required to delete account");
+      throw new Error("REAUTH_REQUIRED: Purpose-bound re-authentication token required to delete account");
     }
   }
 

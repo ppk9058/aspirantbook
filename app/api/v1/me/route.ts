@@ -68,9 +68,12 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const result = await deleteViewerAccount(viewer.userId, parsed.data);
+    const result = await deleteViewerAccount(viewer.userId, parsed.data, viewer.sessionId);
     return apiSuccess(result, 200, {}, reqId);
   } catch (err: any) {
+    if (err?.message?.startsWith("REAUTH_REQUIRED:")) {
+      return apiError("REAUTH_REQUIRED", err.message.replace("REAUTH_REQUIRED:", "").trim(), 401, undefined, reqId);
+    }
     if (err?.message?.startsWith("UNAUTHORIZED:")) {
       return apiError("UNAUTHORIZED", err.message.replace("UNAUTHORIZED:", "").trim(), 401, undefined, reqId);
     }

@@ -80,16 +80,43 @@ export function hashRefreshToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
 
+// In-process tracking for single-use re-auth tokens (prevents token reuse)
+const usedReauthTokens = new Map<string, number>();
+
+export function isReauthTokenUsed(jti: string): boolean {
+  const expiry = usedReauthTokens.get(jti);
+  if (!expiry) return false;
+  if (Date.now() > expiry) {
+    usedReauthTokens.delete(jti);
+    return false;
+  }
+  return true;
+}
+
+export function markReauthTokenUsed(jti: string, ttlMs = 10 * 60 * 1000): void {
+  usedReauthTokens.set(jti, Date.now() + ttlMs);
+  if (usedReauthTokens.size > 2000) {
+    const now = Date.now();
+    for (const [k, exp] of usedReauthTokens.entries()) {
+      if (now > exp) usedReauthTokens.delete(k);
+    }
+  }
+}
+
 /**
  * Creates a short-lived (<= 5 min), purpose-bound token for sensitive operations like account deletion.
+ * Tied to user and active session.
  */
 export async function createReauthToken(
   userId: string,
   purpose = "delete_account",
-  expiresIn = "5m"
+  expiresIn = "5m",
+  sessionId?: string | null
 ): Promise<string> {
+  const jti = crypto.randomUUID();
   return new SignJWT({
     purpose,
+    sessionId: sessionId || undefined,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(userId)
@@ -97,17 +124,20 @@ export async function createReauthToken(
     .setIssuer(ISSUER)
     .setAudience("aspirantbook-reauth")
     .setExpirationTime(expiresIn)
+    .setJti(jti)
     .sign(JWT_SECRET);
 }
 
 /**
  * Verifies a purpose-bound re-auth token.
+ * Validates expiration, user ID match, purpose match, optional session match, and single-use reuse detection.
  */
 export async function verifyReauthToken(
   token: string,
   expectedUserId: string,
-  expectedPurpose = "delete_account"
-): Promise<{ valid: boolean; reason?: string }> {
+  expectedPurpose = "delete_account",
+  expectedSessionId?: string | null
+): Promise<{ valid: boolean; reason?: string; jti?: string }> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET, {
       issuer: ISSUER,
@@ -122,7 +152,16 @@ export async function verifyReauthToken(
       return { valid: false, reason: "Invalid token purpose" };
     }
 
-    return { valid: true };
+    if (payload.sessionId && expectedSessionId && payload.sessionId !== expectedSessionId) {
+      return { valid: false, reason: "Session mismatch" };
+    }
+
+    const jti = payload.jti as string | undefined;
+    if (jti && isReauthTokenUsed(jti)) {
+      return { valid: false, reason: "Token has already been used (reuse rejected)" };
+    }
+
+    return { valid: true, jti };
   } catch (err: any) {
     return { valid: false, reason: err?.message || "Token verification failed" };
   }

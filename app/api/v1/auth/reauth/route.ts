@@ -3,6 +3,8 @@ import { apiSuccess, apiError, handleApiError, getRequestId } from "@/lib/api/v1
 import { getViewer } from "@/lib/api/v1/viewer";
 import { createReauthToken } from "@/lib/api/v1/tokens";
 import { checkV1RateLimit } from "@/lib/api/v1/rate-limit";
+import { getClientIp } from "@/lib/rate-limit";
+import { isDevBypassAllowed } from "@/lib/api/v1/dev-bypass";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
@@ -16,7 +18,9 @@ export async function POST(req: NextRequest) {
       return apiError("UNAUTHORIZED", "Authentication required to request re-auth token", 401, undefined, reqId);
     }
 
-    const rl = await checkV1RateLimit(req, "auth_reauth", 10, 60, viewer.userId);
+    const ip = getClientIp(req);
+    // Tightened rate limit: 5 attempts per 15 min (900 seconds) per user+IP
+    const rl = await checkV1RateLimit(req, "auth_reauth", 5, 900, `${viewer.userId}:${ip}`);
     if (!rl.allowed) return rl.response!;
 
     const body = await req.json().catch(() => ({}));
@@ -41,22 +45,29 @@ export async function POST(req: NextRequest) {
         return apiError("UNAUTHORIZED", "Incorrect password confirmation", 401, undefined, reqId);
       }
     } else {
-      // OTP or OAuth user: require valid OTP code
-      // If dev/test or valid OTP verification:
+      // Passwordless users (OTP or OAuth):
+      if (!isDevBypassAllowed()) {
+        return apiError(
+          "REAUTH_UNAVAILABLE",
+          "Automated re-authentication is not available for passwordless accounts without SMS. Please contact support to request account deletion.",
+          501,
+          undefined,
+          reqId
+        );
+      }
+
       const otpCode = body.otp;
       if (!otpCode || typeof otpCode !== "string") {
         return apiError("UNAUTHORIZED", "Valid OTP verification required for passwordless re-authentication", 401, undefined, reqId);
       }
-      // Verify OTP in DB if not test bypass
-      if ((process.env.APP_ENV === "test" || process.env.NODE_ENV !== "production") && otpCode === "123456") {
-        // Valid test OTP
-      } else {
-        // In production without SMS gateway, OTP re-auth is unavailable; require password
+
+      if (otpCode !== "123456") {
         return apiError("UNAUTHORIZED", "Invalid verification code", 401, undefined, reqId);
       }
     }
 
-    const reauthToken = await createReauthToken(user.id, purpose, "5m");
+    // Issue purpose-bound token tied to user and current session, <= 5 min expiry
+    const reauthToken = await createReauthToken(user.id, purpose, "5m", viewer.sessionId);
 
     return apiSuccess(
       {
