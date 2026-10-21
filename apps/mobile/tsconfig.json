@@ -14,7 +14,10 @@
       "@aspirantbook/shared": [
         "../../packages/shared/src/index.ts"
       ]
-    }
+    },
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "**/*.ts",

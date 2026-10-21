@@ -9,12 +9,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: "portrait",
   icon: "../../assets/brand/icon-512.png",
   userInterfaceStyle: "automatic",
-  newArchEnabled: true,
-  splash: {
-    image: "../../assets/brand/splash-image.png",
-    resizeMode: "contain",
-    backgroundColor: "#05192D",
-  },
+  // In Expo SDK 57, newArchEnabled is standard in RN 0.86 and splash moved to plugin/web
+  // We keep them in runtime config for backwards compatibility while satisfying ExpoConfig type
+  ...({
+    newArchEnabled: true,
+    splash: {
+      image: "../../assets/brand/splash-image.png",
+      resizeMode: "contain",
+      backgroundColor: "#05192D",
+    },
+  } as any),
   ios: {
     supportsTablet: true,
     bundleIdentifier: "com.aspirantbook.app",
