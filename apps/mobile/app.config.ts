@@ -44,8 +44,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-sqlite",
     "expo-web-browser",
     "expo-asset",
-    "@config-plugins/react-native-blob-util",
-    "@config-plugins/react-native-pdf",
+    // "@config-plugins/react-native-blob-util",
+    // "@config-plugins/react-native-pdf",
     [
       "expo-notifications",
       {
@@ -55,7 +55,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
   ],
   experiments: {
-    typedRoutes: true,
+    typedRoutes: false,
   },
   extra: {
     EXPO_PUBLIC_API_URL:

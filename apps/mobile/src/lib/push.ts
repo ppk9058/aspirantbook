@@ -1,6 +1,5 @@
 import { Platform } from "react-native";
 import Constants, { ExecutionEnvironment } from "expo-constants";
-import * as Notifications from "expo-notifications";
 import { api } from "./api";
 
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
@@ -18,6 +17,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
   }
 
   try {
+    const Notifications = require("expo-notifications") as typeof import("expo-notifications");
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
 
