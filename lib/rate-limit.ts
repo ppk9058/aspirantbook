@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import crypto from "crypto";
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -65,7 +66,7 @@ export async function checkRateLimit(
       });
     }
 
-    const id = `${key}_${windowStartMs}`;
+    const id = crypto.randomUUID();
 
     const res: any[] = await prisma.$queryRawUnsafe(
       `

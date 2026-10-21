@@ -415,12 +415,11 @@ export async function syncAttemptAnswers(
         // Monotonic guard: older sequence packet cannot overwrite newer answer
         continue;
       }
-      await prisma.examAttemptAnswer.update({
+      const updated = await prisma.examAttemptAnswer.updateMany({
         where: {
-          attemptId_questionId: {
-            attemptId,
-            questionId: a.questionId,
-          },
+          attemptId,
+          questionId: a.questionId,
+          clientSeq: { lte: a.sequenceNumber },
         },
         data: {
           selectedOption: a.selectedOption ?? null,
@@ -429,19 +428,44 @@ export async function syncAttemptAnswers(
           clientSeq: a.sequenceNumber,
         },
       });
-      syncedCount++;
+      if (updated.count > 0) {
+        syncedCount++;
+      }
     } else {
-      await prisma.examAttemptAnswer.create({
-        data: {
-          attemptId,
-          questionId: a.questionId,
-          selectedOption: a.selectedOption ?? null,
-          isMarked: a.isMarked ?? false,
-          timeSpentSecs: a.timeSpentSecs ?? 0,
-          clientSeq: a.sequenceNumber,
-        },
-      });
-      syncedCount++;
+      try {
+        await prisma.examAttemptAnswer.create({
+          data: {
+            attemptId,
+            questionId: a.questionId,
+            selectedOption: a.selectedOption ?? null,
+            isMarked: a.isMarked ?? false,
+            timeSpentSecs: a.timeSpentSecs ?? 0,
+            clientSeq: a.sequenceNumber,
+          },
+        });
+        syncedCount++;
+      } catch (err: any) {
+        if (err?.code === "P2002") {
+          const updated = await prisma.examAttemptAnswer.updateMany({
+            where: {
+              attemptId,
+              questionId: a.questionId,
+              clientSeq: { lte: a.sequenceNumber },
+            },
+            data: {
+              selectedOption: a.selectedOption ?? null,
+              ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
+              ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
+              clientSeq: a.sequenceNumber,
+            },
+          });
+          if (updated.count > 0) {
+            syncedCount++;
+          }
+        } else {
+          throw err;
+        }
+      }
     }
   }
 
@@ -509,12 +533,11 @@ export async function submitTestAttempt(
         ) {
           continue;
         }
-        await prisma.examAttemptAnswer.update({
+        await prisma.examAttemptAnswer.updateMany({
           where: {
-            attemptId_questionId: {
-              attemptId,
-              questionId: a.questionId,
-            },
+            attemptId,
+            questionId: a.questionId,
+            clientSeq: { lte: a.sequenceNumber },
           },
           data: {
             selectedOption: a.selectedOption ?? null,
@@ -524,16 +547,36 @@ export async function submitTestAttempt(
           },
         });
       } else {
-        await prisma.examAttemptAnswer.create({
-          data: {
-            attemptId,
-            questionId: a.questionId,
-            selectedOption: a.selectedOption ?? null,
-            isMarked: a.isMarked ?? false,
-            timeSpentSecs: a.timeSpentSecs ?? 0,
-            clientSeq: a.sequenceNumber,
-          },
-        });
+        try {
+          await prisma.examAttemptAnswer.create({
+            data: {
+              attemptId,
+              questionId: a.questionId,
+              selectedOption: a.selectedOption ?? null,
+              isMarked: a.isMarked ?? false,
+              timeSpentSecs: a.timeSpentSecs ?? 0,
+              clientSeq: a.sequenceNumber,
+            },
+          });
+        } catch (err: any) {
+          if (err?.code === "P2002") {
+            await prisma.examAttemptAnswer.updateMany({
+              where: {
+                attemptId,
+                questionId: a.questionId,
+                clientSeq: { lte: a.sequenceNumber },
+              },
+              data: {
+                selectedOption: a.selectedOption ?? null,
+                ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
+                ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
+                clientSeq: a.sequenceNumber,
+              },
+            });
+          } else {
+            throw err;
+          }
+        }
       }
     }
   }
