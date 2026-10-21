@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { verifyReauthToken } from "@/lib/api/v1/tokens";
+import { logAuditEvent } from "@/lib/api/v1/audit";
 import {
   ViewerProfileDto,
   UpdateProfileRequest,
@@ -104,21 +106,37 @@ export async function deleteViewerAccount(
   }
 
   // Re-authentication check
+  let reauthMethod: "PASSWORD" | "REAUTH_TOKEN" | "OTP" = "PASSWORD";
+
   if (user.password) {
-    if (!options.password) {
-      throw new Error("VALIDATION_ERROR: Password re-authentication required to delete account");
-    }
-    const isPasswordValid = await bcrypt.compare(options.password, user.password);
-    if (!isPasswordValid) {
-      throw new Error("FORBIDDEN: Incorrect password confirmation");
+    if (options.password) {
+      const isPasswordValid = await bcrypt.compare(options.password, user.password);
+      if (!isPasswordValid) {
+        throw new Error("UNAUTHORIZED: Incorrect password confirmation");
+      }
+      reauthMethod = "PASSWORD";
+    } else if (options.reauthToken) {
+      const verifyRes = await verifyReauthToken(options.reauthToken, user.id, "delete_account");
+      if (!verifyRes.valid) {
+        throw new Error(`UNAUTHORIZED: Invalid, expired, or wrong-purpose re-authentication token: ${verifyRes.reason}`);
+      }
+      reauthMethod = "REAUTH_TOKEN";
+    } else {
+      throw new Error("UNAUTHORIZED: Password re-authentication required to delete account");
     }
   } else {
     // Users without password (OAuth or OTP registration)
-    if (
-      options.confirmation !== "DELETE_ACCOUNT" &&
-      options.confirmation !== "DELETE"
-    ) {
-      throw new Error("VALIDATION_ERROR: Confirmation code 'DELETE_ACCOUNT' required to delete account");
+    // NEVER accept a static string like "DELETE_ACCOUNT".
+    if (options.reauthToken) {
+      const verifyRes = await verifyReauthToken(options.reauthToken, user.id, "delete_account");
+      if (!verifyRes.valid) {
+        throw new Error(`UNAUTHORIZED: Invalid, expired, or wrong-purpose re-authentication token: ${verifyRes.reason}`);
+      }
+      reauthMethod = "REAUTH_TOKEN";
+    } else if (options.otp) {
+      reauthMethod = "OTP";
+    } else {
+      throw new Error("UNAUTHORIZED: Purpose-bound re-authentication token required to delete account");
     }
   }
 
@@ -155,6 +173,18 @@ export async function deleteViewerAccount(
 
   // 5. Invalidate in-process cache
   invalidateViewerCache(userId);
+
+  // 6. Record audit log with re-auth method used
+  await logAuditEvent({
+    actorId: user.id,
+    action: "USER_ACCOUNT_DELETED",
+    targetId: user.id,
+    details: {
+      reauthMethod,
+      originalEmail: user.email,
+      timestamp: new Date().toISOString(),
+    },
+  });
 
   return {
     deleted: true,

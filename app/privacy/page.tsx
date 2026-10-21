@@ -105,7 +105,7 @@ export default function PrivacyPolicyPage() {
                 <Link href="/settings" className="font-bold underline text-amber-800 dark:text-amber-200">
                   Settings &gt; Security &gt; Danger Zone &gt; Delete My Account
                 </Link>
-                . Confirming your password will instantly terminate all active sessions, erase your credentials, and anonymize your records.
+                . Confirming your password will instantly terminate all active sessions, erase your credentials, and anonymize your records. In the AspirantBook mobile application (iOS & Android), tap Profile &gt; Delete Account, confirm your re-authentication (password or dedicated OTP), and tap Delete Account.
               </p>
               <p>
                 <strong>Email Deletion Request:</strong> If you are unable to access your account, you can email our Data Protection team at{" "}

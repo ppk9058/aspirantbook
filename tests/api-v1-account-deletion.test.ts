@@ -156,7 +156,7 @@ describe("API v1 Account Deletion & Anonymization (App Store 5.1.1(v) Real-Flow)
     assert.equal(body.error.code, "UNAUTHORIZED");
   });
 
-  it("rejects deletion when password is wrong (403)", async () => {
+  it("rejects deletion when password is wrong (401)", async () => {
     const req = new NextRequest("http://127.0.0.1:3045/api/v1/me", {
       method: "DELETE",
       headers: {
@@ -167,13 +167,13 @@ describe("API v1 Account Deletion & Anonymization (App Store 5.1.1(v) Real-Flow)
     });
 
     const res = await deleteMeRoute(req);
-    assert.equal(res.status, 403);
+    assert.equal(res.status, 401);
     const body = await res.json();
     assert.equal(body.ok, false);
     assert.match(body.error.message, /Incorrect password/i);
   });
 
-  it("rejects deletion on password-protected user when password is omitted (400)", async () => {
+  it("rejects deletion on password-protected user when password is omitted (401)", async () => {
     const req = new NextRequest("http://127.0.0.1:3045/api/v1/me", {
       method: "DELETE",
       headers: {
@@ -184,13 +184,71 @@ describe("API v1 Account Deletion & Anonymization (App Store 5.1.1(v) Real-Flow)
     });
 
     const res = await deleteMeRoute(req);
-    assert.equal(res.status, 400);
+    assert.equal(res.status, 401);
     const body = await res.json();
     assert.equal(body.ok, false);
     assert.match(body.error.message, /Password re-authentication required/i);
   });
 
-  it("successfully deletes and anonymizes standard user with valid password", async () => {
+  it("rejects static magic string 'DELETE_ACCOUNT' for passwordless OTP user (401)", async () => {
+    const req = new NextRequest("http://127.0.0.1:3045/api/v1/me", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${noPasswordUser.token}`,
+      },
+      body: JSON.stringify({ confirmation: "DELETE_ACCOUNT" }),
+    });
+
+    const res = await deleteMeRoute(req);
+    assert.equal(res.status, 401);
+    const body = await res.json();
+    assert.equal(body.ok, false);
+    assert.match(body.error.message, /re-authentication token required/i);
+  });
+
+  it("rejects purpose-bound token with WRONG purpose (401)", async () => {
+    const { createReauthToken } = await import("../lib/api/v1/tokens");
+    const wrongPurposeToken = await createReauthToken(noPasswordUser.id, "reset_password", "5m");
+
+    const req = new NextRequest("http://127.0.0.1:3045/api/v1/me", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${noPasswordUser.token}`,
+      },
+      body: JSON.stringify({ reauthToken: wrongPurposeToken }),
+    });
+
+    const res = await deleteMeRoute(req);
+    assert.equal(res.status, 401);
+    const body = await res.json();
+    assert.equal(body.ok, false);
+    assert.match(body.error.message, /Invalid token purpose|wrong-purpose/i);
+  });
+
+  it("rejects purpose-bound token that is EXPIRED (401)", async () => {
+    const { createReauthToken } = await import("../lib/api/v1/tokens");
+    // Generate token that expired 10 seconds ago (-10s)
+    const expiredToken = await createReauthToken(noPasswordUser.id, "delete_account", "-10s");
+
+    const req = new NextRequest("http://127.0.0.1:3045/api/v1/me", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${noPasswordUser.token}`,
+      },
+      body: JSON.stringify({ reauthToken: expiredToken }),
+    });
+
+    const res = await deleteMeRoute(req);
+    assert.equal(res.status, 401);
+    const body = await res.json();
+    assert.equal(body.ok, false);
+    assert.match(body.error.message, /expired|jwt expired/i);
+  });
+
+  it("successfully deletes and anonymizes standard user with valid password and verifies audit log", async () => {
     const req = new NextRequest("http://127.0.0.1:3045/api/v1/me", {
       method: "DELETE",
       headers: {
@@ -248,29 +306,43 @@ describe("API v1 Account Deletion & Anonymization (App Store 5.1.1(v) Real-Flow)
     });
     const getRes = await getMeRoute(getReq);
     assert.equal(getRes.status, 401);
+
+    // 6. Audit log must record the re-auth method used (PASSWORD)
+    const auditEntry = await prisma.auditLog.findFirst({
+      where: { actorId: standardUser.id, action: "USER_ACCOUNT_DELETED" },
+      orderBy: { createdAt: "desc" },
+    });
+    assert.ok(auditEntry, "AuditLog entry must be recorded");
+    const meta = auditEntry.metadata as any;
+    assert.equal(meta?.reauthMethod, "PASSWORD", "Audit log must record PASSWORD method");
+
+    // 7. Re-registration with original email creates a NEW user id, does not resurrect old data
+    const rereg = await registerUser({
+      name: "Standard Resurrected",
+      email: standardUser.email,
+      password: "NewPassword123!",
+      consent: true,
+      platform: "android",
+    });
+    assert.notEqual(rereg.user.id, standardUser.id, "Re-registration must create a brand NEW user id");
+    assert.equal(rereg.user.email, standardUser.email);
+    assert.equal(rereg.user.isActive, true);
+
+    // Cleanup new user
+    await prisma.user.delete({ where: { id: rereg.user.id } }).catch(() => {});
   });
 
-  it("handles non-password (OTP/Social) users with confirmation code", async () => {
-    // Missing confirmation
-    const reqMissing = new NextRequest("http://127.0.0.1:3045/api/v1/me", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${noPasswordUser.token}`,
-      },
-      body: JSON.stringify({ confirmation: "WRONG_CODE" }),
-    });
-    const resMissing = await deleteMeRoute(reqMissing);
-    assert.equal(resMissing.status, 400);
+  it("successfully deletes passwordless OTP user with valid purpose-bound re-auth token", async () => {
+    const { createReauthToken } = await import("../lib/api/v1/tokens");
+    const validToken = await createReauthToken(noPasswordUser.id, "delete_account", "5m");
 
-    // Valid confirmation
     const reqValid = new NextRequest("http://127.0.0.1:3045/api/v1/me", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${noPasswordUser.token}`,
       },
-      body: JSON.stringify({ confirmation: "DELETE_ACCOUNT" }),
+      body: JSON.stringify({ reauthToken: validToken }),
     });
     const resValid = await deleteMeRoute(reqValid);
     assert.equal(resValid.status, 200);
@@ -283,6 +355,15 @@ describe("API v1 Account Deletion & Anonymization (App Store 5.1.1(v) Real-Flow)
     });
     assert.ok(dbUser);
     assert.equal(dbUser.isActive, false);
+
+    // Audit log must record REAUTH_TOKEN method
+    const auditEntry = await prisma.auditLog.findFirst({
+      where: { actorId: noPasswordUser.id, action: "USER_ACCOUNT_DELETED" },
+      orderBy: { createdAt: "desc" },
+    });
+    assert.ok(auditEntry, "AuditLog entry must be recorded");
+    const meta = auditEntry.metadata as any;
+    assert.equal(meta?.reauthMethod, "REAUTH_TOKEN", "Audit log must record REAUTH_TOKEN method");
   });
 
   it("prevents deleting the last remaining active administrator account", async () => {

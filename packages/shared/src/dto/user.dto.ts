@@ -21,6 +21,8 @@ export interface ViewerProfileDto extends UserSummaryDto {
 
 export const DeleteAccountRequestSchema = z.object({
   password: z.string().min(1).max(255).optional(),
+  reauthToken: z.string().min(1).max(2048).optional(),
+  otp: z.string().min(4).max(8).optional(),
   confirmation: z.string().min(1).max(50).optional(),
 });
 

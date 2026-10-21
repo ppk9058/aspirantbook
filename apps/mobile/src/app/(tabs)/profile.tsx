@@ -88,32 +88,66 @@ export default function ProfileScreen() {
   };
 
   const handleDeleteAccount = async () => {
-    Alert.alert(
-      "Delete Account Permanently",
-      "This will immediately sign you out, revoke all device sessions, and anonymize your personal data. Financial and order records are preserved for audit. This action cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Yes, Delete Account",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const res = await api.deleteMe({ confirmation: "DELETE_ACCOUNT" });
-              if (!res.ok) {
-                Alert.alert("Deletion Failed", res.error?.message || "Failed to delete account");
+    if (Alert.prompt) {
+      Alert.prompt(
+        "Delete Account",
+        "Enter your password to confirm permanent account deletion:",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: async (password?: string) => {
+              if (!password) {
+                Alert.alert("Error", "Password is required to delete account.");
                 return;
               }
-              await Storage.clearAllAuthTokens();
-              await clearPersistedQueryCache(queryClient);
-              Alert.alert("Account Deleted", "Your account and personal data have been anonymized.");
-              router.replace("/(auth)/login");
-            } catch (err: any) {
-              Alert.alert("Error", err?.message || "An unexpected error occurred");
-            }
+              try {
+                const res = await api.deleteMe({ password });
+                if (!res.ok) {
+                  Alert.alert("Deletion Failed", res.error?.message || "Failed to delete account");
+                  return;
+                }
+                await Storage.clearAllAuthTokens();
+                await clearPersistedQueryCache(queryClient);
+                Alert.alert("Account Deleted", "Your account and personal data have been anonymized.");
+                router.replace("/(auth)/login");
+              } catch (err: any) {
+                Alert.alert("Error", err?.message || "An unexpected error occurred");
+              }
+            },
           },
-        },
-      ]
-    );
+        ],
+        "secure-text"
+      );
+    } else {
+      Alert.alert(
+        "Delete Account Permanently",
+        "This will immediately sign you out, revoke all device sessions, and anonymize your personal data. Financial and order records are preserved for audit. This action cannot be undone.",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Yes, Delete Account",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                const res = await api.deleteMe({});
+                if (!res.ok) {
+                  Alert.alert("Re-Authentication Required", res.error?.message || "Please re-authenticate to confirm account deletion.");
+                  return;
+                }
+                await Storage.clearAllAuthTokens();
+                await clearPersistedQueryCache(queryClient);
+                Alert.alert("Account Deleted", "Your account and personal data have been anonymized.");
+                router.replace("/(auth)/login");
+              } catch (err: any) {
+                Alert.alert("Error", err?.message || "An unexpected error occurred");
+              }
+            },
+          },
+        ]
+      );
+    }
   };
 
   const isGuest = !profileQuery.data?.id;
@@ -267,7 +301,7 @@ export default function ProfileScreen() {
           </Card>
         )}
 
-        <Text style={styles.versionText}>AspirantBook Mobile v1.0.0 (SDK 53)</Text>
+        <Text style={styles.versionText}>AspirantBook Mobile v1.0.0 (SDK 54)</Text>
       </ScrollView>
     </SafeAreaView>
   );

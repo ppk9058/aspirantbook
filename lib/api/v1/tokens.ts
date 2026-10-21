@@ -79,3 +79,51 @@ export function generateOpaqueRefreshToken(): string {
 export function hashRefreshToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
+
+/**
+ * Creates a short-lived (<= 5 min), purpose-bound token for sensitive operations like account deletion.
+ */
+export async function createReauthToken(
+  userId: string,
+  purpose = "delete_account",
+  expiresIn = "5m"
+): Promise<string> {
+  return new SignJWT({
+    purpose,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setSubject(userId)
+    .setIssuedAt()
+    .setIssuer(ISSUER)
+    .setAudience("aspirantbook-reauth")
+    .setExpirationTime(expiresIn)
+    .sign(JWT_SECRET);
+}
+
+/**
+ * Verifies a purpose-bound re-auth token.
+ */
+export async function verifyReauthToken(
+  token: string,
+  expectedUserId: string,
+  expectedPurpose = "delete_account"
+): Promise<{ valid: boolean; reason?: string }> {
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET, {
+      issuer: ISSUER,
+      audience: "aspirantbook-reauth",
+    });
+
+    if (payload.sub !== expectedUserId) {
+      return { valid: false, reason: "Token subject mismatch" };
+    }
+
+    if (payload.purpose !== expectedPurpose) {
+      return { valid: false, reason: "Invalid token purpose" };
+    }
+
+    return { valid: true };
+  } catch (err: any) {
+    return { valid: false, reason: err?.message || "Token verification failed" };
+  }
+}

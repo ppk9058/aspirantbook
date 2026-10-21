@@ -70,7 +70,13 @@ export async function DELETE(req: NextRequest) {
 
     const result = await deleteViewerAccount(viewer.userId, parsed.data);
     return apiSuccess(result, 200, {}, reqId);
-  } catch (err) {
+  } catch (err: any) {
+    if (err?.message?.startsWith("UNAUTHORIZED:")) {
+      return apiError("UNAUTHORIZED", err.message.replace("UNAUTHORIZED:", "").trim(), 401, undefined, reqId);
+    }
+    if (err?.message?.startsWith("FORBIDDEN:")) {
+      return apiError("FORBIDDEN", err.message.replace("FORBIDDEN:", "").trim(), 403, undefined, reqId);
+    }
     return handleApiError(err, reqId);
   }
 }
