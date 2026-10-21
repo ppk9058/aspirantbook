@@ -2,17 +2,34 @@ import React from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { CreditCard, ExternalLink, ShieldCheck, Zap } from "lucide-react-native";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "../components/shell/AppShell";
 import { Card } from "../components/primitives/Card";
 import { Badge } from "../components/primitives/Badge";
 import { Button } from "../components/primitives/Button";
+import { Skeleton } from "../components/primitives/Skeleton";
 import { useTheme } from "../theme/ThemeProvider";
 import { useAuth } from "../context/AuthContext";
+import { api } from "../lib/api";
 import { buildWebUrl } from "../lib/web-links";
 
 export default function SubscriptionScreen() {
   const { colors, tokens } = useTheme();
   const { user, hasActivePass } = useAuth();
+
+  const purchasesQuery = useQuery({
+    queryKey: ["user-purchases"],
+    queryFn: async () => {
+      const res = await api.getPurchases();
+      if (!res.ok) throw new Error(res.error?.message || "Failed to load purchases");
+      return res.data;
+    },
+    enabled: Boolean(user),
+  });
+
+  const purchasesData = purchasesQuery.data;
+  const historyList = purchasesData?.history || [];
+  const daysRemaining = purchasesData?.activeSubscription?.daysRemaining;
 
   const handleOpenPricing = async () => {
     try {
@@ -85,7 +102,11 @@ export default function SubscriptionScreen() {
             ]}
           >
             {hasActivePass
-              ? "Your subscription is currently active with complete access to all test series, PYQs, and video lessons."
+              ? `Your subscription is active with complete access to all test series, PYQs, and video lessons.${
+                  daysRemaining !== null && daysRemaining !== undefined
+                    ? ` (${daysRemaining} days remaining)`
+                    : ""
+                }`
               : "Upgrade with Pass to unlock 500+ mock tests, previous year papers, and comprehensive courses."}
           </Text>
 
@@ -100,6 +121,64 @@ export default function SubscriptionScreen() {
             />
           </View>
         </Card>
+
+        {/* Payment & Order History */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            Payment & Order History
+          </Text>
+
+          {!user ? (
+            <Card style={styles.infoCard}>
+              <Text style={[styles.infoCardText, { color: colors.textSecondary }]}>
+                Sign in to view your payment history and subscription records.
+              </Text>
+            </Card>
+          ) : purchasesQuery.isLoading ? (
+            <View style={{ gap: 10 }}>
+              <Skeleton height={64} borderRadius={12} />
+              <Skeleton height={64} borderRadius={12} />
+            </View>
+          ) : historyList.length === 0 ? (
+            <Card style={styles.infoCard}>
+              <Text style={[styles.infoCardText, { color: colors.textSecondary }]}>
+                No past transactions or payment records found for this account.
+              </Text>
+            </Card>
+          ) : (
+            historyList.map((item) => (
+              <Card key={item.id} style={styles.purchaseCard}>
+                <View style={styles.purchaseTopRow}>
+                  <Text style={[styles.purchasePlan, { color: colors.textPrimary }]}>
+                    {item.description || "Pass Subscription"}
+                  </Text>
+                  <Badge
+                    label={String(item.status).toUpperCase()}
+                    variant={
+                      String(item.status).toUpperCase() === "PAID" ||
+                      String(item.status).toUpperCase() === "ACTIVE"
+                        ? "success"
+                        : "neutral"
+                    }
+                    size="sm"
+                  />
+                </View>
+                <View style={styles.purchaseBottomRow}>
+                  <Text style={[styles.purchaseDate, { color: colors.textSecondary }]}>
+                    {new Date(item.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </Text>
+                  <Text style={[styles.purchaseAmount, { color: colors.textPrimary }]}>
+                    {item.amount > 0 ? `₹${(item.amount / 100).toFixed(0)}` : "Included"}
+                  </Text>
+                </View>
+              </Card>
+            ))
+          )}
+        </View>
 
         {/* Reader Model Compliance */}
         <View
@@ -175,6 +254,49 @@ const styles = StyleSheet.create({
   },
   planAction: {
     marginTop: 4,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    marginBottom: 10,
+  },
+  infoCard: {
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  infoCardText: {
+    fontSize: 13,
+    textAlign: "center",
+  },
+  purchaseCard: {
+    padding: 14,
+    marginBottom: 8,
+  },
+  purchaseTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  purchasePlan: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  purchaseBottomRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  purchaseDate: {
+    fontSize: 12,
+  },
+  purchaseAmount: {
+    fontSize: 14,
+    fontWeight: "700",
   },
   noteBox: {
     flexDirection: "row",
