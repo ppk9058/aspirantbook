@@ -90,7 +90,6 @@ export default function LibraryScreen() {
         ) : data && data.length > 0 ? (
           <FlashList
             data={data}
-            estimatedItemSize={95}
             keyExtractor={(book) => book.id}
             renderItem={({ item: book }) => (
               <LibraryBookCard

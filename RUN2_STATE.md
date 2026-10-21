@@ -17,7 +17,7 @@
 | **R1** | Independent Audit Ledger & Baseline | **DONE** | 2026-10-21T00:00:15Z | 2026-10-21T00:06:00Z | `26d073a` | `reports/run2/r1-audit.log` |
 | **R2** | Test DB from Scratch & Migrations | **DONE** | 2026-10-21T00:06:00Z | 2026-10-21T00:08:00Z | `081dc6d` | `reports/run2/r2-test-db.log` |
 | **R3** | Honest Full Web Playwright Regression | **DONE** | 2026-10-21T04:20:00Z | 2026-10-21T05:10:00Z | `5b8db39` | `reports/run2/r3-playwright.log` |
-| **R7** | Expo SDK 53 -> Latest Stable (58.x) | **TODO** | | | | `reports/run2/r7-sdk-upgrade.log` |
+| **R7** | Expo SDK 53 -> Latest Stable (58.x) | **DOING** | 2026-10-21T05:15:00Z | | | `reports/run2/r7-sdk-upgrade.log` |
 | **R4** | Security Parity Gaps & Concurrency | **TODO** | | | | `reports/run2/r4-security.log` |
 | **R5** | Account Deletion Real Re-Auth | **TODO** | | | | `reports/run2/r5-account-deletion.log` |
 | **R6** | Push Service Completion & Flag | **TODO** | | | | `reports/run2/r6-push-service.log` |
@@ -35,5 +35,27 @@
 | **B7** | Mutation Proof for 10 More API Tests | **TODO** | | | | `reports/run2/b7-mutations.log` |
 | **B8** | Login/OTP Rate-Limit Review | **TODO** | | | | `reports/run2/b8-rate-limits.log` |
 | **SOAK**| Multi-Run Soak Testing | **TODO** | | | | `reports/run2/soak.log` |
+
+---
+
+## Task Details & Progress Notes
+
+### R7 Hop: SDK 53 -> 54
+- Upgraded `expo` to `54.0.37`, `react-native` to `0.81.5`.
+- Updated `@config-plugins/react-native-pdf` & `@config-plugins/react-native-blob-util` to `12.0.0`.
+- Updated `@shopify/flash-list` to `2.0.2` and removed deprecated `estimatedItemSize` in `apps/mobile/src/app/(tabs)/library.tsx`.
+- Updated legacy FileSystem import to `expo-file-system/legacy` in `apps/mobile/src/app/reader/[id].tsx`.
+- Upgraded `lucide-react-native` to `^1.60.0`.
+- Excluded `react` and `@types/react` from Expo install validation to prevent conflict with root Next.js React 19.
+- Verified:
+  - `apps/mobile && npx expo-doctor`: 17/17 passed.
+  - `(cd apps/mobile && npx tsc --noEmit) && (cd packages/shared && npx tsc --noEmit)`: 0 errors.
+  - `cd apps/mobile && npm test`: 24/24 passed.
+  - `npx expo export -p android && npx expo export -p ios`: Both exit 0.
+  - Metro bundle curl test: HTTP 200 (3519 modules bundled).
+  - Prebuild test: Passed in isolated environment.
+  - Web smoke (`guest-free-sample-start.spec.ts`): 2/2 passed.
+  - Web tsc: 65 baseline errors (0 new errors).
+
 
 ---
