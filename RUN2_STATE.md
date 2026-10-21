@@ -25,7 +25,7 @@
 | **R9** | Speed/Offline Gaps & Mutation Proofs | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:00Z | `d89bde1` | `reports/run2/r9-speed-offline.log` |
 | **R10** | Phone Tooling & Docs Hardening | **DONE** | 2026-10-21T06:18:00Z | 2026-10-21T06:24:00Z | `01d683e` | `reports/run2/r10-phone-tooling.log` |
 | **R11** | Contract Tests & Mobile Journey | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:28Z | `58a3df4` | `reports/run2/r11-contract-journey.log` |
-| **R12** | Final Proof, Clean Dist & Tripwires | **DONE** | 2026-10-21T07:27:00Z | 2026-10-21T08:12:00Z | Pending | `reports/run2/r12-final-proof.log` |
+| **R12** | Final Proof, Clean Dist & Tripwires | **DONE** | 2026-10-21T07:27:00Z | 2026-10-21T08:12:00Z | `97c4d91` | `reports/run2/r12-final-proof.log` |
 | **B1** | Dependency Audit & Vulnerability Fixes | **TODO** | | | | `reports/run2/b1-audit.log` |
 | **B2** | Bundle-Size Analysis & Reductions | **TODO** | | | | `reports/run2/b2-bundle-size.log` |
 | **B3** | Deep-Link / Scheme Config Check | **TODO** | | | | `reports/run2/b3-deep-link.log` |
