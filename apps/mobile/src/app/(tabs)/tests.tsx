@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,20 @@ import {
   TouchableOpacity,
   RefreshControl,
   StyleSheet,
+  TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { Clock, FileText, CheckCircle2, ChevronRight, Award, Sparkles } from "lucide-react-native";
+import {
+  Clock,
+  ChevronRight,
+  Sparkles,
+  Search,
+  BookOpen,
+  Award,
+  Layers,
+  CheckCircle2,
+} from "lucide-react-native";
 import { AppShell } from "../../components/shell/AppShell";
 import { Card } from "../../../src/components/primitives/Card";
 import { Chip } from "../../../src/components/primitives/Chip";
@@ -20,26 +30,32 @@ import { ErrorState } from "../../../src/components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useGoal } from "../../context/GoalContext";
 import { api } from "../../lib/api";
+import { ExamSeriesPackageDto } from "@aspirantbook/shared";
 
-type TestsPill = "explore" | "my-tests" | "pyq" | "ca";
+type NavPill = "series" | "my-tests" | "pyq" | "ca";
 
 export default function TestsTabScreen() {
   const router = useRouter();
   const { colors, tokens } = useTheme();
   const { selectedGoal, openGoalModal } = useGoal();
-  const [activePill, setActivePill] = useState<TestsPill>("explore");
+  const [activePill, setActivePill] = useState<NavPill>("series");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // 1. Tests Series List Query
-  const testsQuery = useQuery({
-    queryKey: ["tests-list", selectedGoal.id],
+  // Query Exam Series packages
+  const seriesQuery = useQuery({
+    queryKey: ["exam-series-list", selectedGoal?.id, selectedCategory],
     queryFn: async () => {
-      const res = await api.getTests();
-      if (!res.ok) throw new Error(res.error?.message || "Failed to load tests");
-      return res.data?.items || [];
+      const res = await api.getExamSeries({
+        goal: selectedGoal?.id !== "all" ? selectedGoal?.id : undefined,
+        category: selectedCategory !== "All" ? selectedCategory : undefined,
+      });
+      if (!res.ok) throw new Error(res.error?.message || "Failed to load test series");
+      return res.data || [];
     },
   });
 
-  // 2. PYQ Query
+  // Query PYQ
   const pyqQuery = useQuery({
     queryKey: ["tests-pyq"],
     queryFn: async () => {
@@ -49,7 +65,7 @@ export default function TestsTabScreen() {
     },
   });
 
-  // 3. Current Affairs Query
+  // Query Current Affairs
   const caQuery = useQuery({
     queryKey: ["tests-ca"],
     queryFn: async () => {
@@ -60,8 +76,8 @@ export default function TestsTabScreen() {
   });
 
   const isLoading =
-    activePill === "explore"
-      ? testsQuery.isLoading
+    activePill === "series"
+      ? seriesQuery.isLoading
       : activePill === "pyq"
       ? pyqQuery.isLoading
       : activePill === "ca"
@@ -69,8 +85,8 @@ export default function TestsTabScreen() {
       : false;
 
   const isError =
-    activePill === "explore"
-      ? testsQuery.isError
+    activePill === "series"
+      ? seriesQuery.isError
       : activePill === "pyq"
       ? pyqQuery.isError
       : activePill === "ca"
@@ -78,17 +94,33 @@ export default function TestsTabScreen() {
       : false;
 
   const errorMessage =
-    activePill === "explore"
-      ? testsQuery.error?.message
+    activePill === "series"
+      ? seriesQuery.error?.message
       : activePill === "pyq"
       ? pyqQuery.error?.message
       : caQuery.error?.message;
 
   const handleRefresh = () => {
-    if (activePill === "explore") testsQuery.refetch();
+    if (activePill === "series") seriesQuery.refetch();
     else if (activePill === "pyq") pyqQuery.refetch();
     else if (activePill === "ca") caQuery.refetch();
   };
+
+  const filteredSeries = useMemo(() => {
+    let list = seriesQuery.data || [];
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        (s) =>
+          s.title.toLowerCase().includes(q) ||
+          s.category.toLowerCase().includes(q) ||
+          (s.examName && s.examName.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [seriesQuery.data, searchQuery]);
+
+  const categories = ["All", "BPSC", "UPSC", "UPPCS", "SSC", "Banking", "Railways"];
 
   return (
     <AppShell testID="tests-tab-screen">
@@ -98,13 +130,13 @@ export default function TestsTabScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
-            refreshing={Boolean(testsQuery.isRefetching || pyqQuery.isRefetching || caQuery.isRefetching)}
+            refreshing={Boolean(seriesQuery.isRefetching || pyqQuery.isRefetching || caQuery.isRefetching)}
             onRefresh={handleRefresh}
             tintColor={colors.primary}
           />
         }
       >
-        {/* Goal Banner */}
+        {/* Active Goal Banner (web match: test-series/page.tsx#L396-L450) */}
         <TouchableOpacity
           onPress={openGoalModal}
           activeOpacity={0.85}
@@ -123,7 +155,7 @@ export default function TestsTabScreen() {
               Targeting: <Text style={{ fontWeight: "800", color: colors.primary }}>{selectedGoal.name}</Text>
             </Text>
           </View>
-          <Text style={[styles.switchGoalText, { color: colors.primary }]}>Switch →</Text>
+          <Text style={[styles.switchGoalText, { color: colors.primary }]}>Change Exam →</Text>
         </TouchableOpacity>
 
         {/* Section Title */}
@@ -132,20 +164,20 @@ export default function TestsTabScreen() {
             Test Series & Practice
           </Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            All India Mock Tests, Previous Year Papers & Quizzes
+            All India Mock Tests, Previous Year Papers & Sectional Tests
           </Text>
         </View>
 
-        {/* Filter Pills */}
+        {/* Navigation Pills (web match: test-series/page.tsx#L363-L388) */}
         <View style={styles.pillRow}>
           <Chip
-            label="Explore Mocks"
-            selected={activePill === "explore"}
-            onPress={() => setActivePill("explore")}
+            label="Explore Series"
+            selected={activePill === "series"}
+            onPress={() => setActivePill("series")}
           />
           <Chip
             label="My Tests"
-            selected={activePill === "my-tests"}
+            selected={false}
             onPress={() => router.push("/my-tests" as any)}
           />
           <Chip
@@ -160,61 +192,128 @@ export default function TestsTabScreen() {
           />
         </View>
 
+        {/* Search Bar & Category Chips when in series mode */}
+        {activePill === "series" && (
+          <View style={styles.filterSection}>
+            <View
+              style={[
+                styles.searchBox,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.lg,
+                },
+              ]}
+            >
+              <Search size={18} color={colors.textMuted} style={styles.searchIcon} />
+              <TextInput
+                style={[styles.searchInput, { color: colors.textPrimary }]}
+                placeholder="Search test packages..."
+                placeholderTextColor={colors.textMuted}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                clearButtonMode="while-editing"
+              />
+            </View>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoryScroll}
+            >
+              {categories.map((cat) => (
+                <Chip
+                  key={cat}
+                  label={cat}
+                  selected={selectedCategory === cat}
+                  onPress={() => setSelectedCategory(cat)}
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
         {/* Loading state */}
         {isLoading && (
           <View style={styles.loadingContainer}>
-            <Skeleton height={90} borderRadius={12} />
-            <Skeleton height={90} borderRadius={12} />
-            <Skeleton height={90} borderRadius={12} />
+            <Skeleton height={140} borderRadius={16} />
+            <Skeleton height={140} borderRadius={16} />
+            <Skeleton height={140} borderRadius={16} />
           </View>
         )}
 
         {/* Error state */}
         {isError && (
           <ErrorState
-            message={errorMessage || "Failed to load tests. Please check connection."}
+            message={errorMessage || "Failed to load test series. Please check connection."}
             onRetry={handleRefresh}
           />
         )}
 
-        {/* Content: Explore Mocks */}
-        {!isLoading && !isError && activePill === "explore" && (
+        {/* Content: Series Packages */}
+        {!isLoading && !isError && activePill === "series" && (
           <View style={styles.cardsList}>
-            {(testsQuery.data || []).length === 0 ? (
+            {filteredSeries.length === 0 ? (
               <EmptyState
-                title="No Tests Available"
-                description={`There are currently no mock tests listed for ${selectedGoal.name}.`}
-                actionTitle="Switch Target Goal"
-                onAction={openGoalModal}
+                title="No Test Series Found"
+                description={`There are currently no mock test series matching your criteria.`}
+                actionTitle="Reset Filters"
+                onAction={() => {
+                  setSelectedCategory("All");
+                  setSearchQuery("");
+                }}
               />
             ) : (
-              (testsQuery.data || []).map((test) => (
+              filteredSeries.map((pkg: ExamSeriesPackageDto) => (
                 <Card
-                  key={test.id}
-                  onPress={() => router.push(`/tests/${test.id}` as any)}
-                  style={styles.testCard}
+                  key={pkg.id}
+                  onPress={() => router.push(`/tests/series/${pkg.id}` as any)}
+                  style={styles.packageCard}
                 >
                   <View style={styles.cardHeader}>
                     <Badge
-                      label={test.isFree ? "FREE MOCK" : "PRO"}
-                      variant={test.isFree ? "success" : "pass"}
+                      label={pkg.isFree ? "FREE PACKAGE" : "PRO SERIES"}
+                      variant={pkg.isFree ? "success" : "pass"}
                       size="sm"
                     />
-                    <View style={styles.timeTag}>
-                      <Clock size={12} color={colors.textMuted} />
-                      <Text style={[styles.timeText, { color: colors.textMuted }]}>
-                        {test.durationMinutes} mins
+                    <Badge label={pkg.category} variant="neutral" size="sm" />
+                  </View>
+
+                  <Text style={[styles.cardTitle, { color: colors.textPrimary }]} numberOfLines={2}>
+                    {pkg.title}
+                  </Text>
+
+                  {pkg.description ? (
+                    <Text style={[styles.cardDesc, { color: colors.textSecondary }]} numberOfLines={2}>
+                      {pkg.description}
+                    </Text>
+                  ) : null}
+
+                  <View style={styles.statsRow}>
+                    <View style={styles.statTag}>
+                      <Layers size={13} color={colors.primary} />
+                      <Text style={[styles.statTagText, { color: colors.textSecondary }]}>
+                        {pkg.totalTests} Total Tests
+                      </Text>
+                    </View>
+                    {pkg.freeTests > 0 && (
+                      <View style={styles.statTag}>
+                        <CheckCircle2 size={13} color={colors.success} />
+                        <Text style={[styles.statTagText, { color: colors.success }]}>
+                          {pkg.freeTests} Free Mocks
+                        </Text>
+                      </View>
+                    )}
+                    <View style={styles.statTag}>
+                      <Text style={[styles.statTagText, { color: colors.textMuted }]}>
+                        {pkg.languages?.join(", ") || "English, Hindi"}
                       </Text>
                     </View>
                   </View>
 
-                  <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                    {test.title}
-                  </Text>
-
-                  <View style={styles.cardFooter}>
-                    <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-                      {test.totalQuestions} Questions • {test.totalMarks} Marks
+                  <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+                    <Text style={[styles.actionPrompt, { color: colors.primary }]}>
+                      View Tests & Schedule
                     </Text>
                     <ChevronRight size={16} color={colors.primary} />
                   </View>
@@ -230,28 +329,26 @@ export default function TestsTabScreen() {
             {(pyqQuery.data || []).length === 0 ? (
               <EmptyState
                 title="No PYQ Papers Found"
-                description="Previous year papers will appear here."
+                description="Previous year question papers will appear here."
               />
             ) : (
               (pyqQuery.data || []).map((exam: any) => (
                 <Card
                   key={exam.id || exam.title}
                   onPress={() => router.push("/pyqs" as any)}
-                  style={styles.testCard}
+                  style={styles.packageCard}
                 >
                   <View style={styles.cardHeader}>
-                    <Badge label="PYQ" variant="neutral" size="sm" />
+                    <Badge label="PYQ ARCHIVE" variant="neutral" size="sm" />
                     <Text style={[styles.timeText, { color: colors.textMuted }]}>
-                      {exam.year || "Archive"}
+                      {exam.year || "All Years"}
                     </Text>
                   </View>
                   <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
                     {exam.title || exam.name}
                   </Text>
-                  <View style={styles.cardFooter}>
-                    <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-                      Full paper PDF & CBT Practice
-                    </Text>
+                  <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+                    <Text style={[styles.actionPrompt, { color: colors.primary }]}>Browse Papers</Text>
                     <ChevronRight size={16} color={colors.primary} />
                   </View>
                 </Card>
@@ -260,34 +357,32 @@ export default function TestsTabScreen() {
           </View>
         )}
 
-        {/* Content: Current Affairs & Quizzes */}
+        {/* Content: Quizzes */}
         {!isLoading && !isError && activePill === "ca" && (
           <View style={styles.cardsList}>
             {(caQuery.data || []).length === 0 ? (
               <EmptyState
-                title="No Quizzes Found"
-                description="Daily quizzes and monthly digests will appear here."
+                title="No Current Affairs Quizzes"
+                description="Daily and monthly current affairs quizzes will appear here."
               />
             ) : (
-              (caQuery.data || []).map((ca: any) => (
+              (caQuery.data || []).map((item: any) => (
                 <Card
-                  key={ca.id || ca.title}
+                  key={item.id || item.slug}
                   onPress={() => router.push("/current-affairs" as any)}
-                  style={styles.testCard}
+                  style={styles.packageCard}
                 >
                   <View style={styles.cardHeader}>
-                    <Badge label="DAILY QUIZ" variant="success" size="sm" />
+                    <Badge label="CURRENT AFFAIRS" variant="primary" size="sm" />
                     <Text style={[styles.timeText, { color: colors.textMuted }]}>
-                      {ca.category || "Current Affairs"}
+                      {item.month || "Daily"}
                     </Text>
                   </View>
                   <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                    {ca.title}
+                    {item.title}
                   </Text>
-                  <View style={styles.cardFooter}>
-                    <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-                      {ca.description || "Practice 10 Daily MCQs"}
-                    </Text>
+                  <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+                    <Text style={[styles.actionPrompt, { color: colors.primary }]}>Attempt Quiz</Text>
                     <ChevronRight size={16} color={colors.primary} />
                   </View>
                 </Card>
@@ -306,46 +401,70 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 40,
   },
   goalBanner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderWidth: 1,
     marginBottom: 16,
   },
   goalBannerLeft: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
   },
   goalBannerText: {
-    fontSize: 13,
-    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: "500",
   },
   switchGoalText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "700",
   },
   titleRow: {
     marginBottom: 16,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "900",
-    letterSpacing: -0.5,
-    marginBottom: 4,
+    fontSize: 22,
+    fontWeight: "800",
+    letterSpacing: -0.3,
   },
   subtitle: {
     fontSize: 13,
+    marginTop: 4,
     lineHeight: 18,
   },
   pillRow: {
     flexDirection: "row",
+    gap: 8,
     marginBottom: 16,
-    flexWrap: "wrap",
+  },
+  filterSection: {
+    marginBottom: 16,
+    gap: 12,
+  },
+  searchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    height: 44,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    height: "100%",
+  },
+  categoryScroll: {
+    gap: 8,
+    paddingRight: 16,
   },
   loadingContainer: {
     gap: 12,
@@ -353,37 +472,53 @@ const styles = StyleSheet.create({
   cardsList: {
     gap: 12,
   },
-  testCard: {
-    marginBottom: 12,
+  packageCard: {
+    padding: 16,
   },
   cardHeader: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  timeTag: {
-    flexDirection: "row",
     alignItems: "center",
-  },
-  timeText: {
-    fontSize: 11,
-    fontWeight: "600",
-    marginLeft: 4,
+    marginBottom: 10,
   },
   cardTitle: {
-    fontSize: 15,
-    fontWeight: "800",
-    lineHeight: 20,
+    fontSize: 16,
+    fontWeight: "700",
+    lineHeight: 22,
+    marginBottom: 6,
+  },
+  cardDesc: {
+    fontSize: 13,
+    lineHeight: 18,
     marginBottom: 12,
+  },
+  statsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 12,
+  },
+  statTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  statTagText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  timeText: {
+    fontSize: 12,
   },
   cardFooter: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
-  metaText: {
-    fontSize: 12,
-    fontWeight: "500",
+  actionPrompt: {
+    fontSize: 13,
+    fontWeight: "700",
   },
 });

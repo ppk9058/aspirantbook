@@ -248,6 +248,16 @@ export class CbtSyncQueueManager {
     void this.saveAnswer(attemptId, questionId, selectedOption);
   }
 
+  public async enqueueAnswer(
+    attemptId: string,
+    questionId: string,
+    selectedOption: string | null,
+    isMarked: boolean = false,
+    timeSpentSecs: number = 0
+  ) {
+    return this.saveAnswer(attemptId, questionId, selectedOption, isMarked, timeSpentSecs);
+  }
+
   /**
    * Immediately persists answer locally (O(1)) and triggers cloud synchronization.
    */

@@ -56,10 +56,10 @@ describe("Phase 3: CBT Durable Persistence & Process Kill Resilience", () => {
 
     assert.ok(q1Record);
     assert.ok(q2Record);
-    assert.equal(q1Record.selectedOption, "opt_C", "Latest answer opt_C survived");
-    assert.equal(q1Record.sequenceNumber, 3, "Sequence number 3 preserved");
-    assert.equal(q2Record.selectedOption, "opt_B", "Answer opt_B preserved");
-    assert.equal(q2Record.isMarked, true, "isMarked flag preserved");
+    assert.equal(q1Record!.selectedOption, "opt_C", "Latest answer opt_C survived");
+    assert.equal(q1Record!.sequenceNumber, 3, "Sequence number 3 preserved");
+    assert.equal(q2Record!.selectedOption, "opt_B", "Answer opt_B preserved");
+    assert.equal(q2Record!.isMarked, true, "isMarked flag preserved");
 
     // 4. Process 2 flushes to cloud now that network is back
     const flushRes = await process2Queue.flush("att_alpha");

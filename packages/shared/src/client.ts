@@ -20,6 +20,10 @@ import {
   SubmitAttemptRequest,
   AttemptResultDto,
   AttemptSolutionsDto,
+  ExamSeriesPackageDto,
+  ExamSeriesDetailDto,
+  MyTestsDto,
+  TestLeaderboardDto,
 } from "./dto/tests.dto";
 import {
   DashboardSummaryDto,
@@ -192,6 +196,24 @@ export function createApiClient(options: ApiClientOptions) {
       request<AttemptResultDto>(`/api/v1/attempts/${attemptId}/result`),
     getAttemptSolutions: (attemptId: string) =>
       request<AttemptSolutionsDto>(`/api/v1/attempts/${attemptId}/solutions`),
+    getExamSeries: (query?: { goal?: string; category?: string; cursor?: string; limit?: number }) => {
+      const q = new URLSearchParams();
+      if (query?.goal) q.set("goal", query.goal);
+      if (query?.category) q.set("category", query.category);
+      if (query?.cursor) q.set("cursor", query.cursor);
+      if (query?.limit) q.set("limit", String(query.limit));
+      const qs = q.toString();
+      return request<ExamSeriesPackageDto[]>(`/api/v1/exam-series${qs ? `?${qs}` : ""}`);
+    },
+    getExamSeriesDetail: (seriesIdOrSlug: string) =>
+      request<ExamSeriesDetailDto>(`/api/v1/exam-series/${seriesIdOrSlug}`),
+    getMyTests: () => request<MyTestsDto>("/api/v1/my-tests"),
+    getTestLeaderboard: (testId: string, query?: { search?: string }) => {
+      const q = new URLSearchParams();
+      if (query?.search) q.set("search", query.search);
+      const qs = q.toString();
+      return request<TestLeaderboardDto>(`/api/v1/tests/${testId}/leaderboard${qs ? `?${qs}` : ""}`);
+    },
 
     // Content: PYQ, Current Affairs, Tutorials, Library
     getPyqExams: () => request<PyqExamDto[]>("/api/v1/pyq/exams"),
