@@ -6,7 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,6 +20,7 @@ import {
   Sparkles,
   Eye,
   EyeOff,
+  AlertCircle,
 } from "lucide-react-native";
 import { Button } from "../../components/primitives/Button";
 import { useTheme } from "../../theme/ThemeProvider";
@@ -38,18 +38,17 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleRegister = async () => {
+    setErrorMessage(null);
     if (!name.trim() || !email.trim() || !password) {
-      Alert.alert("Missing Fields", "Please fill in your name, email, and password.");
+      setErrorMessage("Please fill in your name, email, and password.");
       return;
     }
 
     if (!consent) {
-      Alert.alert(
-        "Consent Required",
-        "You must confirm you are 13+ and agree to the Terms of Service and Privacy Policy."
-      );
+      setErrorMessage("You must confirm you are 13+ and agree to the Terms of Service and Privacy Policy.");
       return;
     }
 
@@ -67,8 +66,7 @@ export default function RegisterScreen() {
       });
 
       if (!res.ok || !res.data) {
-        Alert.alert(
-          "Registration Failed",
+        setErrorMessage(
           res.error?.message || "Could not complete registration. Please try again."
         );
         return;
@@ -81,7 +79,7 @@ export default function RegisterScreen() {
       registerForPushNotificationsAsync().catch(() => {});
       router.replace("/(tabs)/home");
     } catch {
-      Alert.alert("Error", "Network connection error. Please try again.");
+      setErrorMessage("Network connection error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -125,6 +123,14 @@ export default function RegisterScreen() {
             },
           ]}
         >
+          {/* Error Banner */}
+          {errorMessage ? (
+            <View style={styles.errorBanner}>
+              <AlertCircle size={16} color="#ef4444" style={styles.errorIcon} />
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+          ) : null}
+
           {/* Full Name */}
           <View style={styles.inputGroup}>
             <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
@@ -397,5 +403,23 @@ const styles = StyleSheet.create({
   },
   loginHighlight: {
     fontWeight: "700",
+  },
+  errorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fef2f2",
+    borderColor: "#fecaca",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 14,
+  },
+  errorIcon: {
+    marginRight: 8,
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: 13,
+    flex: 1,
   },
 });

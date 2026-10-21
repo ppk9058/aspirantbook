@@ -18,6 +18,7 @@ import {
   RotateCcw,
   BarChart2,
   AlertTriangle,
+  AlertCircle,
 } from "lucide-react-native";
 import { Card } from "../../../components/primitives/Card";
 import { Button } from "../../../components/primitives/Button";
@@ -34,6 +35,7 @@ export default function TestInstructionsScreen() {
   const { colors, tokens } = useTheme();
   const { isAuthenticated } = useAuth();
   const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
 
   const testQuery = useQuery({
     queryKey: ["test-detail", id],
@@ -63,6 +65,7 @@ export default function TestInstructionsScreen() {
 
     try {
       setStarting(true);
+      setStartError(null);
       const res = await api.startAttempt(id!);
       if (res.ok && res.data) {
         router.replace({
@@ -70,10 +73,10 @@ export default function TestInstructionsScreen() {
           params: { id: id!, attemptId: res.data.attemptId },
         });
       } else {
-        Alert.alert("Unable to Start", res.error?.message || "Could not initialize test attempt.");
+        setStartError(res.error?.message || "Could not initialize test attempt.");
       }
     } catch {
-      Alert.alert("Error", "Network connection failed. Please retry.");
+      setStartError("Network connection failed. Please retry.");
     } finally {
       setStarting(false);
     }
@@ -256,6 +259,12 @@ export default function TestInstructionsScreen() {
           },
         ]}
       >
+        {startError ? (
+          <View style={styles.startErrorBanner}>
+            <AlertCircle size={15} color="#ef4444" />
+            <Text style={styles.startErrorText}>{startError}</Text>
+          </View>
+        ) : null}
         <Button
           title={starting ? "Initializing..." : "Start Mock Exam"}
           variant="primary"
@@ -403,5 +412,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: 1,
+  },
+  startErrorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#fef2f2",
+    borderColor: "#fecaca",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+  },
+  startErrorText: {
+    color: "#dc2626",
+    fontSize: 13,
+    flex: 1,
   },
 });

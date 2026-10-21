@@ -6,11 +6,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Mail, ArrowLeft, CheckCircle2, Sparkles } from "lucide-react-native";
+import { Mail, ArrowLeft, CheckCircle2, Sparkles, AlertCircle } from "lucide-react-native";
 import { Button } from "../../components/primitives/Button";
 import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
@@ -21,10 +20,12 @@ export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async () => {
+    setErrorMessage(null);
     if (!email.trim()) {
-      Alert.alert("Missing Email", "Please enter your account email address.");
+      setErrorMessage("Please enter your account email address.");
       return;
     }
 
@@ -96,6 +97,13 @@ export default function ForgotPasswordScreen() {
               },
             ]}
           >
+            {errorMessage ? (
+              <View style={styles.errorBanner}>
+                <AlertCircle size={16} color="#ef4444" style={styles.errorIcon} />
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            ) : null}
+
             <Text style={[styles.formDesc, { color: colors.textSecondary }]}>
               Enter your registered email address below. We'll send you instructions to safely reset your password.
             </Text>
@@ -212,5 +220,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     textAlign: "center",
+  },
+  errorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fef2f2",
+    borderColor: "#fecaca",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 14,
+  },
+  errorIcon: {
+    marginRight: 8,
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: 13,
+    flex: 1,
   },
 });

@@ -95,6 +95,8 @@ export default function ProfileScreen() {
     );
   };
 
+  const [actionError, setActionError] = useState<string | null>(null);
+
   const handleDeleteAccount = async () => {
     Alert.alert(
       "Delete Account Permanently",
@@ -106,17 +108,17 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             try {
+              setActionError(null);
               const res = await api.deleteMe({});
               if (!res.ok) {
-                Alert.alert("Re-Authentication Required", res.error?.message || "Please re-authenticate to confirm deletion.");
+                setActionError(res.error?.message || "Please re-authenticate to confirm deletion.");
                 return;
               }
               await Storage.clearAllAuthTokens();
               await clearPersistedQueryCache(queryClient);
-              Alert.alert("Account Deleted", "Your account and data have been anonymized.");
               router.replace("/(auth)/login" as any);
             } catch (err: any) {
-              Alert.alert("Error", err?.message || "An unexpected error occurred");
+              setActionError(err?.message || "An unexpected error occurred");
             }
           },
         },

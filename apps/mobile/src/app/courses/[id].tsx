@@ -6,7 +6,6 @@ import {
   RefreshControl,
   TouchableOpacity,
   StyleSheet,
-  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,6 +21,7 @@ import {
   Award,
   ChevronDown,
   ChevronUp,
+  AlertCircle,
 } from "lucide-react-native";
 import { AppShell } from "../../components/shell/AppShell";
 import { Card } from "../../components/primitives/Card";
@@ -41,6 +41,7 @@ export default function CourseDetailScreen() {
   const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   const courseQuery = useQuery({
     queryKey: ["course-detail", id],
@@ -61,11 +62,12 @@ export default function CourseDetailScreen() {
       return res.data;
     },
     onSuccess: () => {
+      setActionMessage(null);
       queryClient.invalidateQueries({ queryKey: ["course-detail", id] });
       queryClient.invalidateQueries({ queryKey: ["my-learning"] });
     },
     onError: (err: any) => {
-      Alert.alert("Enrollment Error", err.message || "Failed to enroll");
+      setActionMessage(err.message || "Failed to enroll in free course");
     },
   });
 
@@ -140,6 +142,16 @@ export default function CourseDetailScreen() {
 
         {Boolean(course) && (
           <>
+            {actionMessage ? (
+              <View style={styles.actionBanner}>
+                <AlertCircle size={16} color="#d97706" />
+                <Text style={styles.actionBannerText}>{actionMessage}</Text>
+                <TouchableOpacity onPress={() => setActionMessage(null)}>
+                  <Text style={styles.actionBannerDismiss}>Dismiss</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+
             {/* Hero Card */}
             <View
               style={[
@@ -307,10 +319,9 @@ export default function CourseDetailScreen() {
                                   if (canPlay) {
                                     router.push(`/courses/${course!.id}/lesson/${lesson.id}` as any);
                                   } else {
-                                    Alert.alert(
-                                      "Lesson Locked",
+                                    setActionMessage(
                                       course!.isFree
-                                        ? "Enroll in this free course to unlock all lessons."
+                                        ? "Enroll in this free course below to unlock all lessons."
                                         : "Enroll in this course on the website to access locked lessons."
                                     );
                                   }
@@ -515,5 +526,26 @@ const styles = StyleSheet.create({
   lessonDuration: {
     fontSize: 12,
     marginTop: 2,
+  },
+  actionBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fef3c7",
+    borderColor: "#fde68a",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 14,
+    gap: 8,
+  },
+  actionBannerText: {
+    color: "#92400e",
+    fontSize: 13,
+    flex: 1,
+  },
+  actionBannerDismiss: {
+    color: "#b45309",
+    fontSize: 12,
+    fontWeight: "700",
   },
 });

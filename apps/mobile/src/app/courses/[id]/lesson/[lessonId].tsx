@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,6 +21,7 @@ import {
   Lock,
   Clock,
   Sparkles,
+  AlertCircle,
 } from "lucide-react-native";
 import { AppShell } from "../../../../components/shell/AppShell";
 import { Badge } from "../../../../components/primitives/Badge";
@@ -65,6 +65,8 @@ export default function CourseLessonPlayerScreen() {
   });
 
   // Progress Mutation
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+
   const progressMutation = useMutation({
     mutationFn: async (completed: boolean) => {
       if (!id || !lessonId) throw new Error("Missing parameters");
@@ -73,12 +75,13 @@ export default function CourseLessonPlayerScreen() {
       return res.data;
     },
     onSuccess: () => {
+      setActionMessage(null);
       queryClient.invalidateQueries({ queryKey: ["course-lesson", id, lessonId] });
       queryClient.invalidateQueries({ queryKey: ["course-detail", id] });
       queryClient.invalidateQueries({ queryKey: ["my-learning"] });
     },
     onError: (err: any) => {
-      Alert.alert("Progress Update", err.message || "Failed to update lesson status");
+      setActionMessage(err.message || "Failed to update lesson status");
     },
   });
 
@@ -87,14 +90,15 @@ export default function CourseLessonPlayerScreen() {
   const isCompleted = Boolean(lesson?.isCompleted);
 
   const handlePlayVideo = async () => {
+    setActionMessage(null);
     if (lesson?.videoUrl) {
       try {
         await WebBrowser.openBrowserAsync(lesson.videoUrl);
       } catch {
-        Alert.alert("Video Player", "Unable to launch video player.");
+        setActionMessage("Unable to launch video player.");
       }
     } else {
-      Alert.alert("Video Unavailable", "No external video stream configured for this lesson.");
+      setActionMessage("No external video stream configured for this lesson.");
     }
   };
 
@@ -157,6 +161,17 @@ export default function CourseLessonPlayerScreen() {
           </TouchableOpacity>
         )}
       </View>
+
+      {/* Action Message Banner */}
+      {actionMessage && (
+        <View style={styles.actionBanner}>
+          <AlertCircle size={15} color="#d97706" />
+          <Text style={styles.actionBannerText}>{actionMessage}</Text>
+          <TouchableOpacity onPress={() => setActionMessage(null)}>
+            <Text style={styles.actionBannerDismiss}>Dismiss</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Body Content */}
       <ScrollView
@@ -325,7 +340,7 @@ export default function CourseLessonPlayerScreen() {
                         setShowCurriculumSheet(false);
                         router.push(`/courses/${id}/lesson/${item.id}` as any);
                       } else {
-                        Alert.alert("Lesson Locked", "Enroll in the course to unlock.");
+                        setActionMessage("Lesson is locked. Enroll in the course to unlock.");
                       }
                     }}
                     style={[
@@ -564,5 +579,25 @@ const styles = StyleSheet.create({
   },
   sheetLessonDuration: {
     fontSize: 12,
+  },
+  actionBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fef3c7",
+    borderColor: "#fde68a",
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  actionBannerText: {
+    color: "#92400e",
+    fontSize: 13,
+    flex: 1,
+  },
+  actionBannerDismiss: {
+    color: "#b45309",
+    fontSize: 12,
+    fontWeight: "700",
   },
 });

@@ -42,6 +42,7 @@ export default function PyqPdfViewScreen() {
   const { isAuthenticated } = useAuth();
   const [downloaded, setDownloaded] = useState(false);
   const [lastPage, setLastPage] = useState(1);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const paperQuery = useQuery({
     queryKey: ["pyq-paper-detail", paperId],
@@ -64,15 +65,17 @@ export default function PyqPdfViewScreen() {
   }, [paperId]);
 
   const handleOpenPdf = async () => {
+    setStatusMessage(null);
     const url = paper?.fileUrl || `https://trillionskill.com/pyqs/${paperId}?utm_source=mobile_app`;
     try {
       await WebBrowser.openBrowserAsync(url);
     } catch {
-      Alert.alert("Error", "Could not open document viewer.");
+      setStatusMessage("Could not open document viewer.");
     }
   };
 
   const handleDownloadOffline = async () => {
+    setStatusMessage(null);
     if (!isAuthenticated) {
       Alert.alert("Sign In Required", "Please sign in to save papers for offline reading.", [
         { text: "Cancel", style: "cancel" },
@@ -81,7 +84,7 @@ export default function PyqPdfViewScreen() {
       return;
     }
     setDownloaded(true);
-    Alert.alert("Saved for Offline", "Paper has been cached locally in your secure library.");
+    setStatusMessage("Paper has been cached locally in your secure library.");
   };
 
   if (isLoading) {
@@ -170,6 +173,15 @@ export default function PyqPdfViewScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {statusMessage ? (
+          <View style={styles.statusBanner}>
+            <Text style={styles.statusBannerText}>{statusMessage}</Text>
+            <TouchableOpacity onPress={() => setStatusMessage(null)}>
+              <Text style={styles.statusBannerDismiss}>Dismiss</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
         {/* Paper Info Banner */}
         <Card style={styles.infoCard}>
           <View style={styles.badgeRow}>
@@ -373,5 +385,27 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: "center",
     marginBottom: 8,
+  },
+  statusBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#eff6ff",
+    borderColor: "#bfdbfe",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+  },
+  statusBannerText: {
+    color: "#1d4ed8",
+    fontSize: 13,
+    flex: 1,
+  },
+  statusBannerDismiss: {
+    color: "#2563eb",
+    fontSize: 12,
+    fontWeight: "700",
+    marginLeft: 8,
   },
 });

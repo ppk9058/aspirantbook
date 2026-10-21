@@ -76,6 +76,9 @@ export default function CbtRunnerScreen() {
   const [submitModalVisible, setSubmitModalVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(3600);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [integrityNotice, setIntegrityNotice] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const targetEndRef = useRef<number>(0);
   const appStateRef = useRef(AppState.currentState);
@@ -87,8 +90,9 @@ export default function CbtRunnerScreen() {
     async function loadAttempt() {
       try {
         setLoading(true);
+        setLoadError(null);
         if (!attemptId) {
-          Alert.alert("Error", "Missing attempt ID", [{ text: "Go Back", onPress: () => router.back() }]);
+          if (mounted) setLoadError("Missing attempt ID");
           return;
         }
 
@@ -154,14 +158,10 @@ export default function CbtRunnerScreen() {
           // Initialize sync queue
           await cbtSyncQueue.init();
         } else {
-          Alert.alert("Error", res.error?.message || "Failed to load attempt", [
-            { text: "Go Back", onPress: () => router.back() },
-          ]);
+          if (mounted) setLoadError(res.error?.message || "Failed to load attempt");
         }
       } catch (err: any) {
-        Alert.alert("Error", err?.message || "Failed to connect", [
-          { text: "Go Back", onPress: () => router.back() },
-        ]);
+        if (mounted) setLoadError(err?.message || "Failed to connect to test environment");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -194,9 +194,8 @@ export default function CbtRunnerScreen() {
         if (backgroundTimestampRef.current) {
           const awaySeconds = Math.floor((Date.now() - backgroundTimestampRef.current) / 1000);
           if (awaySeconds > 5) {
-            Alert.alert(
-              "Integrity Notice",
-              `You were away from the test window for ${awaySeconds} seconds. Please stay on the exam screen.`
+            setIntegrityNotice(
+              `Integrity Notice: You were away from the test window for ${awaySeconds} seconds. Please stay on the exam screen.`
             );
           }
           backgroundTimestampRef.current = null;
@@ -318,37 +317,37 @@ export default function CbtRunnerScreen() {
           pathname: "/tests/[id]/result",
           params: { id: testId!, attemptId: attemptId! },
         });
+      } else {
+        router.replace({
+          pathname: "/tests/[id]/result",
+          params: { id: testId!, attemptId: attemptId! },
+        });
       }
     } catch {
-      Alert.alert("Time Expired", "Submitting your exam responses...", [
-        {
-          text: "OK",
-          onPress: () =>
-            router.replace({
-              pathname: "/tests/[id]/result",
-              params: { id: testId!, attemptId: attemptId! },
-            }),
-        },
-      ]);
+      router.replace({
+        pathname: "/tests/[id]/result",
+        params: { id: testId!, attemptId: attemptId! },
+      });
     }
   };
 
   const handleConfirmSubmit = async () => {
     setSubmitting(true);
-    setSubmitModalVisible(false);
+    setSubmitError(null);
     try {
       await cbtSyncQueue.flush();
       const res = await api.submitAttempt(attemptId!);
       if (res.ok) {
+        setSubmitModalVisible(false);
         router.replace({
           pathname: "/tests/[id]/result",
           params: { id: testId!, attemptId: attemptId! },
         });
       } else {
-        Alert.alert("Submission Error", res.error?.message || "Failed to finalize test submission.");
+        setSubmitError(res.error?.message || "Failed to finalize test submission.");
       }
     } catch {
-      Alert.alert("Error", "Network connection failed during submission. Retrying...");
+      setSubmitError("Network connection failed during submission. Retrying...");
     } finally {
       setSubmitting(false);
     }
@@ -359,6 +358,26 @@ export default function CbtRunnerScreen() {
   const answeredCount = Object.keys(answers).length;
   const markedCount = Object.values(markedForReview).filter(Boolean).length;
   const unansweredCount = Math.max(0, totalCount - answeredCount);
+
+  if (loadError) {
+    return (
+      <View style={[styles.loadingScreen, { backgroundColor: colors.background }]}>
+        <AlertCircle size={44} color="#ef4444" style={{ marginBottom: 12 }} />
+        <Text style={[styles.loadingText, { color: colors.textPrimary, fontWeight: "700", marginBottom: 6 }]}>
+          Unable to Load Test
+        </Text>
+        <Text style={[styles.loadingText, { color: colors.textSecondary, marginBottom: 16 }]}>
+          {loadError}
+        </Text>
+        <Button
+          title="Go Back"
+          variant="secondary"
+          size="md"
+          onPress={() => router.back()}
+        />
+      </View>
+    );
+  }
 
   if (loading || !currentQ) {
     return (
@@ -460,6 +479,17 @@ export default function CbtRunnerScreen() {
           <Text style={styles.durabilityBannerText}>
             Offline durability disabled: SQLite database unavailable. Answers are kept in memory for this session only.
           </Text>
+        </View>
+      )}
+
+      {/* Integrity Monitoring Warning Banner */}
+      {integrityNotice && (
+        <View style={styles.integrityBanner}>
+          <AlertCircle size={15} color="#dc2626" />
+          <Text style={styles.integrityBannerText}>{integrityNotice}</Text>
+          <TouchableOpacity onPress={() => setIntegrityNotice(null)}>
+            <X size={15} color="#dc2626" />
+          </TouchableOpacity>
         </View>
       )}
 
@@ -765,6 +795,13 @@ export default function CbtRunnerScreen() {
             <Text style={[styles.confirmSubtitle, { color: colors.textSecondary }]}>
               Please verify your responses summary before submitting:
             </Text>
+
+            {submitError && (
+              <View style={styles.submitErrorBanner}>
+                <AlertCircle size={14} color="#dc2626" />
+                <Text style={styles.submitErrorText}>{submitError}</Text>
+              </View>
+            )}
 
             <View style={styles.summaryTable}>
               <View style={styles.summaryRow}>
@@ -1082,6 +1119,36 @@ const styles = StyleSheet.create({
   durabilityBannerText: {
     fontSize: 12,
     color: "#92400e",
+    flex: 1,
+  },
+  integrityBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "#fee2e2",
+    borderBottomWidth: 1,
+    borderBottomColor: "#fecaca",
+  },
+  integrityBannerText: {
+    fontSize: 12,
+    color: "#991b1b",
+    flex: 1,
+  },
+  submitErrorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#fee2e2",
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 12,
+  },
+  submitErrorText: {
+    fontSize: 12,
+    color: "#991b1b",
     flex: 1,
   },
 });

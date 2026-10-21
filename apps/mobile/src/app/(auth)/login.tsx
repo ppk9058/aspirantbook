@@ -6,11 +6,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Mail, Lock, Eye, EyeOff, Sparkles, ArrowRight } from "lucide-react-native";
+import { Mail, Lock, Eye, EyeOff, Sparkles, ArrowRight, AlertCircle } from "lucide-react-native";
 import { Button } from "../../components/primitives/Button";
 import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
@@ -24,10 +23,12 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleLogin = async () => {
+    setErrorMessage(null);
     if (!email.trim() || !password) {
-      Alert.alert("Missing Fields", "Please enter both email and password.");
+      setErrorMessage("Please enter both email and password.");
       return;
     }
 
@@ -41,8 +42,7 @@ export default function LoginScreen() {
       });
 
       if (!res.ok || !res.data) {
-        Alert.alert(
-          "Sign In Failed",
+        setErrorMessage(
           res.error?.message || "Invalid email or password. Please try again."
         );
         return;
@@ -55,7 +55,7 @@ export default function LoginScreen() {
       registerForPushNotificationsAsync().catch(() => {});
       router.replace("/(tabs)/home");
     } catch {
-      Alert.alert("Error", "Network connection error. Please try again.");
+      setErrorMessage("Network connection error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -95,6 +95,14 @@ export default function LoginScreen() {
             },
           ]}
         >
+          {/* Error Banner */}
+          {errorMessage ? (
+            <View style={styles.errorBanner}>
+              <AlertCircle size={16} color="#ef4444" style={styles.errorIcon} />
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+          ) : null}
+
           {/* Email Input */}
           <View style={styles.inputGroup}>
             <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
@@ -306,5 +314,23 @@ const styles = StyleSheet.create({
   guestText: {
     fontSize: 13,
     fontWeight: "600",
+  },
+  errorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fef2f2",
+    borderColor: "#fecaca",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 14,
+  },
+  errorIcon: {
+    marginRight: 8,
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: 13,
+    flex: 1,
   },
 });
