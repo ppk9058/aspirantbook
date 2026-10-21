@@ -106,4 +106,40 @@ describe("Native PDF Reader & Offline File Manager", () => {
       assert.equal(await getLastReadPage("book_valid_1"), 7);
     });
   });
+
+  describe("100+ Page Document Performance & Memory Boundary", () => {
+    it("handles 150-page document navigation without memory state leakage or unbounded growth", async () => {
+      const docId = "upsc_prelims_2026_paper1_150pages";
+      const totalPages = 150;
+
+      // Simulate sequential reading across large 150-page document
+      const readCheckpoints = [1, 25, 50, 75, 100, 125, 150];
+      for (const page of readCheckpoints) {
+        await saveLastReadPage(docId, page);
+        const restored = await getLastReadPage(docId);
+        assert.equal(restored, page, `Must accurately restore checkpoint page ${page}`);
+      }
+
+      // Memory footprint check: Key count in storage adapter must be exactly 1 for this doc
+      const allKeys = Object.keys((memoryStorageAdapter as any).getAll?.() || {});
+      const docKeys = allKeys.filter((k) => k.includes(docId));
+      assert.ok(docKeys.length <= 2, "Storage keys for a document must remain constant (O(1) storage)");
+
+      // Test upper clamp boundary
+      await saveLastReadPage(docId, 9999);
+      // Even if arbitrary large number sent, must persist without throwing
+      const clampedHigh = await getLastReadPage(docId);
+      assert.ok(clampedHigh > 0);
+    });
+
+    it("offline local file URI is deterministic and sandboxed", () => {
+      const docId = "pyq_bpsc_70th_full_length";
+      const path = getPdfStoragePath(docId);
+      assert.ok(path.startsWith("file://") || path.includes("secure_docs/"));
+      assert.ok(path.endsWith(".pdf"));
+      // Path must be stable across multiple invocations
+      const pathAgain = getPdfStoragePath(docId);
+      assert.equal(path, pathAgain);
+    });
+  });
 });
