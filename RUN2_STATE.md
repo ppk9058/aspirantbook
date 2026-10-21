@@ -16,7 +16,7 @@
 | **R0** | Preflight & State Setup | **DONE** | 2026-10-20T23:56:59Z | 2026-10-21T00:00:15Z | `c7ec1e2` | `reports/run2/r0-preflight.log` |
 | **R1** | Independent Audit Ledger & Baseline | **DONE** | 2026-10-21T00:00:15Z | 2026-10-21T00:06:00Z | `26d073a` | `reports/run2/r1-audit.log` |
 | **R2** | Test DB from Scratch & Migrations | **DONE** | 2026-10-21T00:06:00Z | 2026-10-21T00:08:00Z | `081dc6d` | `reports/run2/r2-test-db.log` |
-| **R3** | Honest Full Web Playwright Regression | **DONE** | 2026-10-21T04:20:00Z | 2026-10-21T05:10:00Z | `pending` | `reports/run2/r3-playwright.log` |
+| **R3** | Honest Full Web Playwright Regression | **DONE** | 2026-10-21T04:20:00Z | 2026-10-21T05:10:00Z | `5b8db39` | `reports/run2/r3-playwright.log` |
 | **R7** | Expo SDK 53 -> Latest Stable (58.x) | **TODO** | | | | `reports/run2/r7-sdk-upgrade.log` |
 | **R4** | Security Parity Gaps & Concurrency | **TODO** | | | | `reports/run2/r4-security.log` |
 | **R5** | Account Deletion Real Re-Auth | **TODO** | | | | `reports/run2/r5-account-deletion.log` |
