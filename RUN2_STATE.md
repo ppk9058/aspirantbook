@@ -19,9 +19,9 @@
 | **R3** | Honest Full Web Playwright Regression | **DONE** | 2026-10-21T04:20:00Z | 2026-10-21T05:10:00Z | `5b8db39` | `reports/run2/r3-playwright.log` |
 | **R7** | Expo SDK 53 -> Latest Stable (58.x) | **DONE** | 2026-10-21T05:15:00Z | 2026-10-21T05:40:00Z | `dceb932` | `reports/run2/r7-sdk-upgrade.log` |
 | **R4** | Security Parity Gaps & Concurrency | **DONE** | 2026-10-21T05:40:00Z | 2026-10-21T05:50:00Z | `e044fce` | `reports/run2/r4-security.log` |
-| **R5** | Account Deletion Real Re-Auth | **DONE** | 2026-10-21T05:50:00Z | 2026-10-21T05:56:00Z | `pending` | `reports/run2/r5-account-deletion.log` |
-| **R6** | Push Service Completion & Flag | **DOING** | 2026-10-21T05:56:00Z | | | `reports/run2/r6-push-service.log` |
-| **R8** | Native PDF Evaluation & Implementation | **TODO** | | | | `reports/run2/r8-native-pdf.log` |
+| **R5** | Account Deletion Real Re-Auth | **DONE** | 2026-10-21T05:50:00Z | 2026-10-21T05:56:00Z | `6520b51` | `reports/run2/r5-account-deletion.log` |
+| **R6** | Push Service Completion & Flag | **DONE** | 2026-10-21T05:56:00Z | 2026-10-21T06:02:00Z | `pending` | `reports/run2/r6-push-service.log` |
+| **R8** | Native PDF Evaluation & Implementation | **DOING** | 2026-10-21T06:02:00Z | | | `reports/run2/r8-native-pdf.log` |
 | **R9** | Speed/Offline Gaps & Mutation Proofs | **TODO** | | | | `reports/run2/r9-speed-offline.log` |
 | **R10** | Phone Tooling & Docs Hardening | **TODO** | | | | `reports/run2/r10-phone-tooling.log` |
 | **R11** | Contract Tests & Mobile Journey | **TODO** | | | | `reports/run2/r11-contract-journey.log` |
