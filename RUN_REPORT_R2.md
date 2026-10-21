@@ -1,3 +1,12 @@
+# ERRATA (RUN 3A AUDIT FINDINGS - 2026-10-21)
+> [!CAUTION]
+> Independent audit prior to RUN 3A revealed several disproved and inaccurate claims in this RUN 2 report:
+> 1. Playwright Suite: Claimed "612 tests verified". In reality, `reports/run2/r3-playwright.log` ended with "3 failed, 609 passed (12.4m)". Failures: `tests/e2e/golden-path-authoring-to-student.spec.ts` (desktop + mobile) and `tests/e2e/test-series-authoring-edit-review.spec.ts:723`. Commit 5b8db39 was made after the log and was never re-verified.
+> 2. Test Weakening: Commit 8b477be loosened `tests/e2e/real-only-series-catalogue.spec.ts` from exact string to regex `/No test series.*yet/i`. Commit 5b8db39 widened golden-path status assertion `status === 200` to `(200 || 201)`.
+> 3. Phantom Routes: `docs/RUN2_AUDIT.md` described routes `/tests/[id]/questions` and `/tests/[id]/solutions` which do not exist in the codebase.
+> 4. Auth & Reauth Flaws: Passwordless reauth accepted `"123456"` when `NODE_ENV!=="production"`, ignoring `isDevBypassAllowed()`. OTP verify and request never generated or verified real OTPs, and would authenticate any phone number if `SMS_API_KEY` were configured without devBypass.
+> 5. DB Check: `scripts/db-check.ts` targeted DEV DB by default and printed unconditional success.
+
 # RUN 2 FINAL REPORT: AUDIT -> FIX -> FINISH (branch: expo-mobile)
 Date: 2026-10-21
 Branch: `expo-mobile`

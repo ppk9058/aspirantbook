@@ -72,3 +72,5 @@ uploads/
 apps/mobile/dist/
 apps/mobile/.expo/
 reports/run2/
+reports/run3a/*.log
+

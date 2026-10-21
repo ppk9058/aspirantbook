@@ -1,3 +1,4 @@
+# DISPROVED CLAIMS - DO NOT TRUST
 # RUN REPORT: verify -> upgrade -> harden (branch: expo-mobile)
 Date: 2026-10-21
 Branch: `expo-mobile`
