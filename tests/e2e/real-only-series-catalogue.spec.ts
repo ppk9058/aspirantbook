@@ -33,7 +33,7 @@ test("guest catalogue renders only published database series", async ({ page }) 
 
   const catalogueCards = page.getByRole("link", { name: "View Test Series" })
   if (scenario === "empty") {
-    await expect(page.getByText(/No test series.*yet/i)).toBeVisible()
+    await expect(page.getByText("No test series available yet.", { exact: true })).toBeVisible()
     await expect(catalogueCards).toHaveCount(0)
     return
   }
