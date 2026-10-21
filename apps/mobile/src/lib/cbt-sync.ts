@@ -12,6 +12,7 @@ export interface LocalAnswerRecord {
 }
 
 export interface CbtStorageDriver {
+  isDurable?: boolean;
   saveRecord: (record: LocalAnswerRecord) => Promise<void> | void;
   getRecordsForAttempt: (attemptId: string) => Promise<LocalAnswerRecord[]> | LocalAnswerRecord[];
   getAllUnsyncedAttempts: () => Promise<string[]> | string[];
@@ -20,8 +21,271 @@ export interface CbtStorageDriver {
   resetAll: () => Promise<void> | void;
 }
 
-// 1. In-memory durable driver (for Node.js test runners and non-native runtimes)
+// ---------------------------------------------------------
+// Low-level SQLite Driver Interface
+// ---------------------------------------------------------
+export interface SqliteDriver {
+  isDurable: boolean;
+  exec(sql: string): void;
+  run(sql: string, params?: any[]): void;
+  getAll<T = any>(sql: string, params?: any[]): T[];
+  close?(): void;
+}
+
+/**
+ * Real SQLite Driver for Node.js test runners using built-in node:sqlite (DatabaseSync)
+ */
+export class NodeSqliteDriver implements SqliteDriver {
+  public isDurable = true;
+  private db: any;
+
+  constructor(filePath?: string) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { DatabaseSync } = require("node:sqlite");
+      this.db = new DatabaseSync(filePath || ":memory:");
+    } catch {
+      this.isDurable = false;
+      this.db = null;
+    }
+  }
+
+  exec(sql: string): void {
+    if (!this.db) throw new Error("node:sqlite database not available");
+    this.db.exec(sql);
+  }
+
+  run(sql: string, params?: any[]): void {
+    if (!this.db) throw new Error("node:sqlite database not available");
+    const stmt = this.db.prepare(sql);
+    stmt.run(...(params || []));
+  }
+
+  getAll<T = any>(sql: string, params?: any[]): T[] {
+    if (!this.db) throw new Error("node:sqlite database not available");
+    const stmt = this.db.prepare(sql);
+    return stmt.all(...(params || [])) as T[];
+  }
+
+  close(): void {
+    if (this.db) {
+      this.db.close();
+      this.db = null;
+    }
+  }
+}
+
+/**
+ * Real SQLite Driver for Expo React Native production runtime using expo-sqlite
+ */
+export class ExpoSqliteDriver implements SqliteDriver {
+  public isDurable = false;
+  private db: any = null;
+
+  constructor(dbName = "aspirantbook_cbt.db") {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const SQLite = require("expo-sqlite");
+      this.db = SQLite.openDatabaseSync(dbName);
+      this.isDurable = true;
+    } catch {
+      this.db = null;
+      this.isDurable = false;
+    }
+  }
+
+  exec(sql: string): void {
+    if (!this.db) throw new Error("expo-sqlite database not available");
+    this.db.execSync(sql);
+  }
+
+  run(sql: string, params?: any[]): void {
+    if (!this.db) throw new Error("expo-sqlite database not available");
+    this.db.runSync(sql, params || []);
+  }
+
+  getAll<T = any>(sql: string, params?: any[]): T[] {
+    if (!this.db) throw new Error("expo-sqlite database not available");
+    return this.db.getAllSync(sql, params || []) as T[];
+  }
+
+  close(): void {
+    if (this.db?.closeSync) {
+      this.db.closeSync();
+      this.db = null;
+    }
+  }
+}
+
+/**
+ * Non-durable fallback driver (explicitly exposes isDurable=false so UI knows persistence is ephemeral)
+ */
+export class NonDurableFallbackDriver implements SqliteDriver {
+  public isDurable = false;
+  private store = new Map<string, any[]>();
+
+  exec(_sql: string): void {}
+
+  run(sql: string, params: any[] = []): void {
+    if (sql.startsWith("INSERT OR REPLACE")) {
+      const [attemptId, questionId] = params;
+      this.store.set(`${attemptId}:${questionId}`, params);
+    } else if (sql.startsWith("UPDATE")) {
+      const [attemptId, questionId, sequenceNumber] = params;
+      const key = `${attemptId}:${questionId}`;
+      const rec = this.store.get(key);
+      if (rec && rec[5] <= sequenceNumber) {
+        rec[6] = 1; // synced = 1
+      }
+    } else if (sql.startsWith("DELETE FROM cbt_answer_queue WHERE attemptId")) {
+      const [attemptId] = params;
+      for (const [key, val] of this.store.entries()) {
+        if (val[0] === attemptId) {
+          this.store.delete(key);
+        }
+      }
+    } else if (sql.startsWith("DELETE FROM cbt_answer_queue")) {
+      this.store.clear();
+    }
+  }
+
+  getAll<T = any>(sql: string, params: any[] = []): T[] {
+    if (sql.includes("WHERE attemptId = ?")) {
+      const [attemptId] = params;
+      const result: any[] = [];
+      for (const val of this.store.values()) {
+        if (val[0] === attemptId) {
+          result.push({
+            attemptId: val[0],
+            questionId: val[1],
+            selectedOption: val[2],
+            isMarked: val[3],
+            timeSpentSecs: val[4],
+            sequenceNumber: val[5],
+            synced: val[6],
+            updatedAt: val[7],
+          });
+        }
+      }
+      return result.sort((a, b) => a.sequenceNumber - b.sequenceNumber) as T[];
+    }
+    if (sql.includes("DISTINCT attemptId FROM cbt_answer_queue WHERE synced = 0")) {
+      const set = new Set<string>();
+      for (const val of this.store.values()) {
+        if (val[6] === 0) set.add(val[0]);
+      }
+      return Array.from(set).map((id) => ({ attemptId: id })) as T[];
+    }
+    if (sql.includes("WHERE attemptId = ? AND synced = 1")) {
+      const [attemptId] = params;
+      const result: any[] = [];
+      for (const val of this.store.values()) {
+        if (val[0] === attemptId && val[6] === 1) {
+          result.push({ attemptId: val[0], questionId: val[1] });
+        }
+      }
+      return result as T[];
+    }
+    return [] as T[];
+  }
+}
+
+// ---------------------------------------------------------
+// Storage implementation backed directly by a SqliteDriver
+// ---------------------------------------------------------
+export class SqliteCbtStorage implements CbtStorageDriver {
+  private driver: SqliteDriver;
+
+  constructor(driver: SqliteDriver) {
+    this.driver = driver;
+    this.initSchema();
+  }
+
+  public get isDurable(): boolean {
+    return this.driver.isDurable;
+  }
+
+  private initSchema(): void {
+    try {
+      this.driver.exec(
+        `CREATE TABLE IF NOT EXISTS cbt_answer_queue (
+          attemptId TEXT,
+          questionId TEXT,
+          selectedOption TEXT,
+          isMarked INTEGER,
+          timeSpentSecs INTEGER,
+          sequenceNumber INTEGER,
+          synced INTEGER,
+          updatedAt INTEGER,
+          PRIMARY KEY (attemptId, questionId)
+        );`
+      );
+    } catch {
+      // Driver might be in error state
+    }
+  }
+
+  saveRecord(record: LocalAnswerRecord): void {
+    this.driver.run(
+      `INSERT OR REPLACE INTO cbt_answer_queue
+       (attemptId, questionId, selectedOption, isMarked, timeSpentSecs, sequenceNumber, synced, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        record.attemptId,
+        record.questionId,
+        record.selectedOption,
+        record.isMarked ? 1 : 0,
+        record.timeSpentSecs,
+        record.sequenceNumber,
+        record.synced ? 1 : 0,
+        record.updatedAt,
+      ]
+    );
+  }
+
+  getRecordsForAttempt(attemptId: string): LocalAnswerRecord[] {
+    const rows = this.driver.getAll(
+      `SELECT * FROM cbt_answer_queue WHERE attemptId = ? ORDER BY sequenceNumber ASC`,
+      [attemptId]
+    );
+    return rows.map((r: any) => ({
+      attemptId: r.attemptId,
+      questionId: r.questionId,
+      selectedOption: r.selectedOption,
+      isMarked: Boolean(r.isMarked),
+      timeSpentSecs: Number(r.timeSpentSecs),
+      sequenceNumber: Number(r.sequenceNumber),
+      synced: Boolean(r.synced),
+      updatedAt: Number(r.updatedAt),
+    }));
+  }
+
+  getAllUnsyncedAttempts(): string[] {
+    const rows = this.driver.getAll(
+      `SELECT DISTINCT attemptId FROM cbt_answer_queue WHERE synced = 0`
+    );
+    return rows.map((r: any) => r.attemptId);
+  }
+
+  markSynced(attemptId: string, questionId: string, sequenceNumber: number): void {
+    this.driver.run(
+      `UPDATE cbt_answer_queue SET synced = 1 WHERE attemptId = ? AND questionId = ? AND sequenceNumber <= ?`,
+      [attemptId, questionId, sequenceNumber]
+    );
+  }
+
+  clearAttempt(attemptId: string): void {
+    this.driver.run(`DELETE FROM cbt_answer_queue WHERE attemptId = ?`, [attemptId]);
+  }
+
+  resetAll(): void {
+    this.driver.run(`DELETE FROM cbt_answer_queue`);
+  }
+}
+
+// In-memory driver for backwards compatibility with existing test suites
 export class MemoryCbtDriver implements CbtStorageDriver {
+  public isDurable = false;
   private store = new Map<string, LocalAnswerRecord>();
 
   saveRecord(record: LocalAnswerRecord): void {
@@ -70,151 +334,25 @@ export class MemoryCbtDriver implements CbtStorageDriver {
   }
 }
 
-// 2. SQLite driver for Expo Go / React Native production runtime
-export class SQLiteCbtDriver implements CbtStorageDriver {
-  private db: any = null;
-  private initialized = false;
-  private memoryFallback = new MemoryCbtDriver();
-
-  private async getDb() {
-    if (this.initialized) return this.db;
-    try {
-      const isNative = typeof navigator !== "undefined" && navigator.product === "ReactNative";
-      if (!isNative) {
-        this.initialized = true;
-        return null;
+// Backwards compatibility alias
+export class SQLiteCbtDriver extends SqliteCbtStorage {
+  constructor() {
+    const isNative = typeof navigator !== "undefined" && (navigator as any).product === "ReactNative";
+    if (isNative) {
+      super(new ExpoSqliteDriver());
+    } else {
+      try {
+        super(new NodeSqliteDriver());
+      } catch {
+        super(new NonDurableFallbackDriver());
       }
-      const SQLite = await import("expo-sqlite");
-      this.db = SQLite.openDatabaseSync("aspirantbook_cbt.db");
-      this.db.execSync(
-        `CREATE TABLE IF NOT EXISTS cbt_answer_queue (
-          attemptId TEXT,
-          questionId TEXT,
-          selectedOption TEXT,
-          isMarked INTEGER,
-          timeSpentSecs INTEGER,
-          sequenceNumber INTEGER,
-          synced INTEGER,
-          updatedAt INTEGER,
-          PRIMARY KEY (attemptId, questionId)
-        );`
-      );
-      this.initialized = true;
-      return this.db;
-    } catch {
-      this.initialized = true;
-      this.db = null;
-      return null;
-    }
-  }
-
-  async saveRecord(record: LocalAnswerRecord): Promise<void> {
-    const db = await this.getDb();
-    if (!db) {
-      this.memoryFallback.saveRecord(record);
-      return;
-    }
-    try {
-      db.runSync(
-        `INSERT OR REPLACE INTO cbt_answer_queue
-         (attemptId, questionId, selectedOption, isMarked, timeSpentSecs, sequenceNumber, synced, updatedAt)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          record.attemptId,
-          record.questionId,
-          record.selectedOption,
-          record.isMarked ? 1 : 0,
-          record.timeSpentSecs,
-          record.sequenceNumber,
-          record.synced ? 1 : 0,
-          record.updatedAt,
-        ]
-      );
-    } catch {
-      this.memoryFallback.saveRecord(record);
-    }
-  }
-
-  async getRecordsForAttempt(attemptId: string): Promise<LocalAnswerRecord[]> {
-    const db = await this.getDb();
-    if (!db) return this.memoryFallback.getRecordsForAttempt(attemptId);
-    try {
-      const rows = db.getAllSync(
-        `SELECT * FROM cbt_answer_queue WHERE attemptId = ? ORDER BY sequenceNumber ASC`,
-        [attemptId]
-      );
-      return rows.map((r: any) => ({
-        attemptId: r.attemptId,
-        questionId: r.questionId,
-        selectedOption: r.selectedOption,
-        isMarked: Boolean(r.isMarked),
-        timeSpentSecs: Number(r.timeSpentSecs),
-        sequenceNumber: Number(r.sequenceNumber),
-        synced: Boolean(r.synced),
-        updatedAt: Number(r.updatedAt),
-      }));
-    } catch {
-      return this.memoryFallback.getRecordsForAttempt(attemptId);
-    }
-  }
-
-  async getAllUnsyncedAttempts(): Promise<string[]> {
-    const db = await this.getDb();
-    if (!db) return this.memoryFallback.getAllUnsyncedAttempts();
-    try {
-      const rows = db.getAllSync(
-        `SELECT DISTINCT attemptId FROM cbt_answer_queue WHERE synced = 0`
-      );
-      return rows.map((r: any) => r.attemptId);
-    } catch {
-      return this.memoryFallback.getAllUnsyncedAttempts();
-    }
-  }
-
-  async markSynced(attemptId: string, questionId: string, sequenceNumber: number): Promise<void> {
-    const db = await this.getDb();
-    if (!db) {
-      this.memoryFallback.markSynced(attemptId, questionId, sequenceNumber);
-      return;
-    }
-    try {
-      db.runSync(
-        `UPDATE cbt_answer_queue SET synced = 1 WHERE attemptId = ? AND questionId = ? AND sequenceNumber <= ?`,
-        [attemptId, questionId, sequenceNumber]
-      );
-    } catch {
-      this.memoryFallback.markSynced(attemptId, questionId, sequenceNumber);
-    }
-  }
-
-  async clearAttempt(attemptId: string): Promise<void> {
-    const db = await this.getDb();
-    if (!db) {
-      this.memoryFallback.clearAttempt(attemptId);
-      return;
-    }
-    try {
-      db.runSync(`DELETE FROM cbt_answer_queue WHERE attemptId = ?`, [attemptId]);
-    } catch {
-      this.memoryFallback.clearAttempt(attemptId);
-    }
-  }
-
-  async resetAll(): Promise<void> {
-    const db = await this.getDb();
-    if (!db) {
-      this.memoryFallback.resetAll();
-      return;
-    }
-    try {
-      db.runSync(`DELETE FROM cbt_answer_queue`);
-    } catch {
-      this.memoryFallback.resetAll();
     }
   }
 }
 
-// 3. Queue Manager Class (can be instantiated or used via singleton)
+// ---------------------------------------------------------
+// Queue Manager Class
+// ---------------------------------------------------------
 export class CbtSyncQueueManager {
   private driver: CbtStorageDriver;
   private currentSequence: number = 0;
@@ -223,8 +361,25 @@ export class CbtSyncQueueManager {
   private syncApiFn: (attemptId: string, payload: any) => Promise<{ ok: boolean; error?: any }>;
 
   constructor(driver?: CbtStorageDriver, syncApiFn?: any) {
-    this.driver = driver || new SQLiteCbtDriver();
+    if (driver) {
+      this.driver = driver;
+    } else {
+      const isNative = typeof navigator !== "undefined" && (navigator as any).product === "ReactNative";
+      if (isNative) {
+        this.driver = new SqliteCbtStorage(new ExpoSqliteDriver());
+      } else {
+        try {
+          this.driver = new SqliteCbtStorage(new NodeSqliteDriver());
+        } catch {
+          this.driver = new SqliteCbtStorage(new NonDurableFallbackDriver());
+        }
+      }
+    }
     this.syncApiFn = syncApiFn || ((id, p) => api.syncAnswers(id, p));
+  }
+
+  public get isDurable(): boolean {
+    return this.driver.isDurable ?? false;
   }
 
   public setDriver(driver: CbtStorageDriver) {
@@ -232,7 +387,6 @@ export class CbtSyncQueueManager {
   }
 
   public async init(): Promise<void> {
-    // Determine the highest sequence number from existing records to maintain monotonic order
     const attempts = await this.driver.getAllUnsyncedAttempts();
     for (const attId of attempts) {
       const records = await this.driver.getRecordsForAttempt(attId);
@@ -258,9 +412,6 @@ export class CbtSyncQueueManager {
     return this.saveAnswer(attemptId, questionId, selectedOption, isMarked, timeSpentSecs);
   }
 
-  /**
-   * Immediately persists answer locally (O(1)) and triggers cloud synchronization.
-   */
   public async saveAnswer(
     attemptId: string,
     questionId: string,
@@ -288,16 +439,10 @@ export class CbtSyncQueueManager {
     return record;
   }
 
-  /**
-   * Retrieves all saved answers for an attempt from local storage.
-   */
   public async getAnswersForAttempt(attemptId: string): Promise<LocalAnswerRecord[]> {
     return this.driver.getRecordsForAttempt(attemptId);
   }
 
-  /**
-   * Recovers unsent answers on app startup across all in-progress attempts.
-   */
   public async recoverUnsentAnswers(): Promise<number> {
     const unsyncedAttempts = await this.driver.getAllUnsyncedAttempts();
     let totalRecovered = 0;
@@ -308,10 +453,6 @@ export class CbtSyncQueueManager {
     return totalRecovered;
   }
 
-  /**
-   * Flushes unsynced answers to the server in a single batch.
-   * Queue cleared ONLY after server ACK.
-   */
   public async flush(attemptId?: string): Promise<{ syncedCount: number; pendingCount: number }> {
     if (!attemptId) {
       return { syncedCount: 0, pendingCount: 0 };
@@ -350,15 +491,13 @@ export class CbtSyncQueueManager {
         for (const u of unsynced) {
           await this.driver.markSynced(attemptId, u.questionId, u.sequenceNumber);
         }
-        this.retryCount = 0; // Reset backoff counter on success
+        this.retryCount = 0;
         const remainingPending = await this.getPendingCount(attemptId);
         return { syncedCount: unsynced.length, pendingCount: remainingPending };
       } else {
-        // Server rejected or returned non-ok: increment backoff
         this.retryCount += 1;
       }
     } catch {
-      // Network failure / Offline: changes remain in local queue for retry
       this.retryCount += 1;
     } finally {
       this.isSyncing = false;

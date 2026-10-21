@@ -453,6 +453,16 @@ export default function CbtRunnerScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Non-durable warning banner if SQLite unavailable */}
+      {!cbtSyncQueue.isDurable && (
+        <View style={styles.durabilityBanner}>
+          <AlertCircle size={15} color="#d97706" />
+          <Text style={styles.durabilityBannerText}>
+            Offline durability disabled: SQLite database unavailable. Answers are kept in memory for this session only.
+          </Text>
+        </View>
+      )}
+
       {/* Section Tabs (if multi-section) */}
       {sections.length > 1 && (
         <ScrollView
@@ -1060,5 +1070,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     gap: 12,
+  },
+  durabilityBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "#fef3c7",
+  },
+  durabilityBannerText: {
+    fontSize: 12,
+    color: "#92400e",
+    flex: 1,
   },
 });

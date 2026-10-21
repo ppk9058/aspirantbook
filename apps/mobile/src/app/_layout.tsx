@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { OfflineBanner } from "../components/common/OfflineBanner";
 import { persistQueryClient, restoreQueryClient } from "../lib/query-persistence";
+import { cbtSyncQueue } from "../lib/cbt-sync";
 import { ThemeProvider } from "../theme/ThemeProvider";
 import { AuthProvider } from "../context/AuthContext";
 import { GoalProvider } from "../context/GoalContext";
@@ -31,6 +32,9 @@ export default function RootLayout() {
         persistQueryClient(queryClient);
       }
     });
+
+    // 3. Recover unsent CBT answers from previous sessions on app startup
+    void cbtSyncQueue.recoverUnsentAnswers().catch(() => {});
 
     return () => {
       unsubscribe();
