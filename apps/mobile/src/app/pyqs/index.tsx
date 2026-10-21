@@ -1,33 +1,85 @@
-import React from "react";
-import { View, Text, ScrollView, RefreshControl, StyleSheet } from "react-native";
+import React, { useState, useMemo } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  RefreshControl,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { FileText, ChevronRight, BookOpen } from "lucide-react-native";
+import {
+  FileText,
+  ChevronRight,
+  Search,
+  BookOpen,
+  Sparkles,
+  Download,
+  Play,
+  Calendar,
+} from "lucide-react-native";
 import { AppShell } from "../../components/shell/AppShell";
 import { Card } from "../../../src/components/primitives/Card";
+import { Chip } from "../../../src/components/primitives/Chip";
 import { Badge } from "../../../src/components/primitives/Badge";
+import { Button } from "../../../src/components/primitives/Button";
 import { Skeleton } from "../../../src/components/primitives/Skeleton";
 import { EmptyState } from "../../../src/components/primitives/EmptyState";
 import { ErrorState } from "../../../src/components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
+import { PyqExamDto, PyqPaperDto } from "@aspirantbook/shared";
 
 export default function PyqsScreen() {
   const router = useRouter();
   const { colors, tokens } = useTheme();
+  const [selectedExamId, setSelectedExamId] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const pyqQuery = useQuery({
+  // 1. Fetch Exam Categories
+  const examsQuery = useQuery({
     queryKey: ["pyq-exams-list"],
     queryFn: async () => {
       const res = await api.getPyqExams();
-      if (!res.ok) throw new Error(res.error?.message || "Failed to load PYQs");
+      if (!res.ok) throw new Error(res.error?.message || "Failed to load PYQ exams");
       return res.data || [];
     },
   });
 
-  const isLoading = pyqQuery.isLoading;
-  const isError = pyqQuery.isError;
-  const exams = pyqQuery.data || [];
+  // 2. Fetch Papers
+  const papersQuery = useQuery({
+    queryKey: ["pyq-papers-list", selectedExamId],
+    queryFn: async () => {
+      const res = await api.getPyqPapers({
+        examId: selectedExamId !== "ALL" ? selectedExamId : undefined,
+      });
+      if (!res.ok) throw new Error(res.error?.message || "Failed to load PYQ papers");
+      return res.data || [];
+    },
+  });
+
+  const isLoading = examsQuery.isLoading || papersQuery.isLoading;
+  const isError = examsQuery.isError || papersQuery.isError;
+  const exams = examsQuery.data || [];
+  const rawPapers = papersQuery.data || [];
+
+  const handleRefresh = () => {
+    examsQuery.refetch();
+    papersQuery.refetch();
+  };
+
+  const filteredPapers = useMemo(() => {
+    if (!searchQuery.trim()) return rawPapers;
+    const q = searchQuery.toLowerCase();
+    return rawPapers.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.examName.toLowerCase().includes(q) ||
+        String(p.year).includes(q)
+    );
+  }, [rawPapers, searchQuery]);
 
   return (
     <AppShell testID="pyqs-screen">
@@ -37,8 +89,8 @@ export default function PyqsScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
-            refreshing={Boolean(pyqQuery.isRefetching)}
-            onRefresh={() => pyqQuery.refetch()}
+            refreshing={Boolean(examsQuery.isRefetching || papersQuery.isRefetching)}
+            onRefresh={handleRefresh}
             tintColor={colors.primary}
           />
         }
@@ -48,52 +100,117 @@ export default function PyqsScreen() {
             Previous Year Papers (PYQs)
           </Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Authentic official question papers with solutions & CBT practice
+            Authentic official question papers with verified solutions & CBT mock simulations
           </Text>
         </View>
 
+        {/* Search Bar */}
+        <View
+          style={[
+            styles.searchBar,
+            {
+              backgroundColor: colors.surfaceSecondary,
+              borderColor: colors.border,
+              borderRadius: tokens.radius.lg,
+            },
+          ]}
+        >
+          <Search size={18} color={colors.textMuted} style={styles.searchIcon} />
+          <TextInput
+            style={[styles.searchInput, { color: colors.textPrimary }]}
+            placeholder="Search papers by exam or year..."
+            placeholderTextColor={colors.textMuted}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            clearButtonMode="while-editing"
+          />
+        </View>
+
+        {/* Exam Category Pills */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.examPillsContainer}
+        >
+          <Chip
+            label="All Exams"
+            selected={selectedExamId === "ALL"}
+            onPress={() => setSelectedExamId("ALL")}
+          />
+          {exams.map((e: PyqExamDto) => (
+            <Chip
+              key={e.id}
+              label={`${e.name} (${e.totalPapers})`}
+              selected={selectedExamId === e.id}
+              onPress={() => setSelectedExamId(e.id)}
+            />
+          ))}
+        </ScrollView>
+
+        {/* Content Body */}
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <Skeleton height={100} borderRadius={12} />
-            <Skeleton height={100} borderRadius={12} />
+            <Skeleton height={110} borderRadius={12} />
+            <Skeleton height={110} borderRadius={12} />
+            <Skeleton height={110} borderRadius={12} />
           </View>
         ) : isError ? (
           <ErrorState
-            message={pyqQuery.error?.message || "Failed to load PYQ papers"}
-            onRetry={() => pyqQuery.refetch()}
+            message={papersQuery.error?.message || "Failed to load PYQ papers"}
+            onRetry={handleRefresh}
           />
-        ) : exams.length === 0 ? (
+        ) : filteredPapers.length === 0 ? (
           <EmptyState
-            title="No PYQ Papers Available"
-            description="Official previous year papers will appear here once published."
+            title="No Papers Found"
+            description="There are currently no official papers matching your criteria."
+            actionTitle="Reset Search"
+            onAction={() => {
+              setSelectedExamId("ALL");
+              setSearchQuery("");
+            }}
           />
         ) : (
           <View style={styles.list}>
-            {exams.map((exam: any) => (
-              <Card
-                key={exam.id || exam.title}
-                onPress={() => router.push(`/(tabs)/tests` as any)}
-                style={styles.card}
-              >
+            {filteredPapers.map((paper: PyqPaperDto) => (
+              <Card key={paper.id} style={styles.paperCard}>
                 <View style={styles.cardHeader}>
-                  <Badge label="OFFICIAL PYQ" variant="neutral" size="sm" />
-                  <Text style={[styles.yearText, { color: colors.textMuted }]}>
-                    {exam.year || "All Years"}
-                  </Text>
+                  <Badge label={paper.examName} variant="primary" size="sm" />
+                  <View style={styles.yearBadge}>
+                    <Calendar size={12} color={colors.textMuted} />
+                    <Text style={[styles.yearText, { color: colors.textMuted }]}>
+                      Year {paper.year} {paper.shift ? `(${paper.shift})` : ""}
+                    </Text>
+                  </View>
                 </View>
 
                 <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                  {exam.title || exam.name}
+                  {paper.title}
                 </Text>
 
-                <View style={styles.cardFooter}>
-                  <View style={styles.footerLeft}>
-                    <FileText size={14} color={colors.primary} />
-                    <Text style={[styles.footerText, { color: colors.primary }]}>
-                      Read PDF & Take Mock
-                    </Text>
-                  </View>
-                  <ChevronRight size={16} color={colors.primary} />
+                {paper.totalQuestions && (
+                  <Text style={[styles.cardMeta, { color: colors.textSecondary }]}>
+                    {paper.totalQuestions} Questions • Official Paper
+                  </Text>
+                )}
+
+                <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+                  <Button
+                    title="Read PDF"
+                    variant="secondary"
+                    size="sm"
+                    onPress={() =>
+                      router.push({
+                        pathname: "/pyqs/pdf-view",
+                        params: { paperId: paper.id, title: paper.title },
+                      })
+                    }
+                  />
+                  <Button
+                    title="Attempt as CBT"
+                    variant="primary"
+                    size="sm"
+                    onPress={() => router.push(`/tests/${paper.id}` as any)}
+                  />
                 </View>
               </Card>
             ))}
@@ -110,20 +227,41 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 40,
   },
   header: {
     marginBottom: 16,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "900",
-    letterSpacing: -0.5,
-    marginBottom: 4,
+    fontSize: 22,
+    fontWeight: "800",
+    letterSpacing: -0.3,
   },
   subtitle: {
     fontSize: 13,
+    marginTop: 4,
     lineHeight: 18,
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    height: 44,
+    marginBottom: 14,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    height: "100%",
+  },
+  examPillsContainer: {
+    gap: 8,
+    paddingRight: 16,
+    marginBottom: 16,
   },
   loadingContainer: {
     gap: 12,
@@ -131,37 +269,39 @@ const styles = StyleSheet.create({
   list: {
     gap: 12,
   },
-  card: {
-    marginBottom: 12,
+  paperCard: {
+    padding: 16,
   },
   cardHeader: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 8,
   },
+  yearBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
   yearText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: "600",
   },
   cardTitle: {
-    fontSize: 15,
-    fontWeight: "800",
-    lineHeight: 20,
+    fontSize: 16,
+    fontWeight: "700",
+    lineHeight: 22,
+    marginBottom: 4,
+  },
+  cardMeta: {
+    fontSize: 13,
     marginBottom: 12,
   },
   cardFooter: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  footerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  footerText: {
-    fontSize: 12,
-    fontWeight: "700",
-    marginLeft: 6,
+    justifyContent: "flex-end",
+    gap: 8,
+    paddingTop: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
 });

@@ -21,6 +21,7 @@ export interface PyqPaperDto {
   isLockedForGuest: boolean;
   previewCount: number;
   totalItemsCount: number;
+  fileUrl?: string | null;
 }
 
 // Current Affairs

@@ -217,6 +217,14 @@ export function createApiClient(options: ApiClientOptions) {
 
     // Content: PYQ, Current Affairs, Tutorials, Library
     getPyqExams: () => request<PyqExamDto[]>("/api/v1/pyq/exams"),
+    getPyqPapers: (query?: { examId?: string; year?: number; search?: string }) => {
+      const q = new URLSearchParams();
+      if (query?.examId) q.set("examId", query.examId);
+      if (query?.year) q.set("year", String(query.year));
+      if (query?.search) q.set("search", query.search);
+      const qs = q.toString();
+      return request<PyqPaperDto[]>(`/api/v1/pyq/papers${qs ? `?${qs}` : ""}`);
+    },
     getPyqPaper: (paperId: string) => request<PyqPaperDto>(`/api/v1/pyq/papers/${paperId}`),
     getCurrentAffairs: () => request<CurrentAffairsItemDto[]>("/api/v1/current-affairs"),
     getCurrentAffairsDetail: (slug: string) =>
