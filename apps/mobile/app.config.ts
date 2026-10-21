@@ -48,6 +48,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-sqlite",
     "expo-web-browser",
     "expo-asset",
+    "expo-video",
     // "@config-plugins/react-native-blob-util",
     // "@config-plugins/react-native-pdf",
     [

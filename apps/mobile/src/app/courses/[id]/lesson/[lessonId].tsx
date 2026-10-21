@@ -1,17 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as WebBrowser from "expo-web-browser";
+import { useVideoPlayer, VideoView } from "expo-video";
 import {
   ArrowLeft,
   Play,
+  Pause,
   CheckCircle,
   Circle,
   ChevronLeft,
@@ -22,6 +25,7 @@ import {
   Clock,
   Sparkles,
   AlertCircle,
+  Gauge,
 } from "lucide-react-native";
 import { AppShell } from "../../../../components/shell/AppShell";
 import { Badge } from "../../../../components/primitives/Badge";
@@ -32,6 +36,12 @@ import { ErrorState } from "../../../../components/primitives/ErrorState";
 import { useTheme } from "../../../../theme/ThemeProvider";
 import { api } from "../../../../lib/api";
 import { CourseLessonDetailDto, CourseDetailDto } from "@aspirantbook/shared";
+import {
+  resolveVideoState,
+  ALLOWED_PLAYBACK_SPEEDS,
+  PlaybackSpeed,
+  computeCurriculumNavigation,
+} from "../../../../lib/video-player-helper";
 
 export default function CourseLessonPlayerScreen() {
   const router = useRouter();
@@ -39,6 +49,7 @@ export default function CourseLessonPlayerScreen() {
   const { colors, tokens } = useTheme();
   const queryClient = useQueryClient();
   const [showCurriculumSheet, setShowCurriculumSheet] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState<PlaybackSpeed>(1);
 
   // Lesson Detail Query
   const lessonQuery = useQuery({
@@ -89,21 +100,56 @@ export default function CourseLessonPlayerScreen() {
   const courseData: CourseDetailDto | undefined = courseQuery.data;
   const isCompleted = Boolean(lesson?.isCompleted);
 
-  const handlePlayVideo = async () => {
-    setActionMessage(null);
-    if (lesson?.videoUrl) {
-      try {
-        await WebBrowser.openBrowserAsync(lesson.videoUrl);
-      } catch {
-        setActionMessage("Unable to launch video player.");
+  // Resolve video state through security & provider resolver
+  const videoState = useMemo(() => {
+    return resolveVideoState({
+      videoUrl: lesson?.videoUrl,
+      isLocked: lesson?.isLocked,
+    });
+  }, [lesson?.videoUrl, lesson?.isLocked]);
+
+  // Sequential navigation computed from course chapters if present, falling back to API navigation
+  const nav = useMemo(() => {
+    if (courseData?.chapters && lessonId) {
+      return computeCurriculumNavigation(lessonId, courseData.chapters);
+    }
+    return {
+      prevLessonId: lesson?.navigation?.prevLessonId || null,
+      nextLessonId: lesson?.navigation?.nextLessonId || null,
+    };
+  }, [courseData?.chapters, lessonId, lesson?.navigation]);
+
+  // expo-video player instance for native streaming
+  const nativeStreamUrl = videoState.provider === "native" ? videoState.streamUrl || "" : "";
+  const player = useVideoPlayer(nativeStreamUrl, (p) => {
+    p.loop = false;
+    p.playbackRate = playbackSpeed;
+  });
+
+  // Update speed when state changes
+  const handleSpeedChange = (speed: PlaybackSpeed) => {
+    setPlaybackSpeed(speed);
+    try {
+      if (player) {
+        player.playbackRate = speed;
       }
-    } else {
-      setActionMessage("No external video stream configured for this lesson.");
+    } catch {
+      // In case native player is unmounted
+    }
+  };
+
+  const handleOpenExternal = async () => {
+    if (videoState.externalUrl) {
+      try {
+        await WebBrowser.openBrowserAsync(videoState.externalUrl);
+      } catch {
+        setActionMessage("Unable to launch external browser.");
+      }
     }
   };
 
   return (
-    <AppShell testID="course-lesson-player-screen">
+    <AppShell testID="course-lesson-player-screen" showBottomBar={false}>
       {/* 52px Header */}
       <View style={[styles.headerBar, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity
@@ -134,33 +180,91 @@ export default function CourseLessonPlayerScreen() {
 
       {/* Sticky Video Player Container at Top (16:9 ratio) */}
       <View style={styles.videoPlayerContainer}>
-        {lesson?.isLocked ? (
+        {lessonQuery.isLoading ? (
+          <View style={styles.videoLoading}>
+            <ActivityIndicator size="large" color="#38bdf8" />
+            <Text style={styles.videoLoadingText}>Loading video stream...</Text>
+          </View>
+        ) : videoState.isLocked ? (
           <View style={styles.lockedContainer}>
             <Lock size={36} color="#94a3b8" />
             <Text style={styles.lockedTitle}>Lesson Locked</Text>
             <Text style={styles.lockedSub}>Enroll in the full course to view this lesson</Text>
           </View>
-        ) : (
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={handlePlayVideo}
-            style={styles.videoPlayerTouch}
-          >
-            <View style={styles.playButtonCircle}>
-              <Play size={28} color="#ffffff" fill="#ffffff" style={{ marginLeft: 3 }} />
+        ) : videoState.provider === "native" && videoState.streamUrl ? (
+          <View style={styles.nativePlayerWrap}>
+            <VideoView
+              style={styles.videoView}
+              player={player}
+              nativeControls
+              allowsPictureInPicture
+              contentFit="contain"
+            />
+          </View>
+        ) : videoState.provider === "embed_youtube" || videoState.provider === "embed_vimeo" ? (
+          <View style={styles.embedContainer}>
+            <View style={styles.embedBadge}>
+              <ExternalLink size={14} color="#f59e0b" />
+              <Text style={styles.embedBadgeText}>{videoState.embedLabel}</Text>
             </View>
-            <Text style={styles.playText}>
-              {lesson?.videoUrl ? "Tap to Play Video" : "Video Lesson"}
+            <Text style={styles.embedTitle}>External Video Stream</Text>
+            <Text style={styles.embedSub}>
+              This lesson is hosted externally. Tap below to launch full-resolution playback.
             </Text>
-            {Boolean(lesson?.durationText) && (
-              <View style={styles.durationBadge}>
-                <Clock size={12} color="#ffffff" />
-                <Text style={styles.durationText}>{lesson?.durationText}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleOpenExternal}
+              style={styles.embedButton}
+            >
+              <Play size={16} color="#ffffff" fill="#ffffff" />
+              <Text style={styles.embedButtonText}>Watch on {videoState.embedLabel?.replace("Opens ", "") || "Web"}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.noVideoContainer}>
+            <AlertCircle size={32} color="#94a3b8" />
+            <Text style={styles.noVideoText}>No video stream available for this lesson</Text>
+          </View>
         )}
       </View>
+
+      {/* Playback Speeds Bar (shown when native video is active) */}
+      {videoState.provider === "native" && videoState.streamUrl && !videoState.isLocked ? (
+        <View style={[styles.speedBar, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+          <View style={styles.speedLabelWrap}>
+            <Gauge size={14} color={colors.textMuted} />
+            <Text style={[styles.speedLabel, { color: colors.textMuted }]}>Speed</Text>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.speedPills}>
+            {ALLOWED_PLAYBACK_SPEEDS.map((speed) => {
+              const isActive = playbackSpeed === speed;
+              return (
+                <TouchableOpacity
+                  key={speed}
+                  activeOpacity={0.7}
+                  onPress={() => handleSpeedChange(speed)}
+                  style={[
+                    styles.speedPill,
+                    {
+                      backgroundColor: isActive ? colors.primary : colors.surfaceSecondary,
+                      borderColor: isActive ? colors.primary : colors.border,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.speedPillText,
+                      { color: isActive ? "#ffffff" : colors.textPrimary },
+                    ]}
+                  >
+                    {speed}x
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      ) : null}
 
       {/* Action Message Banner */}
       {actionMessage && (
@@ -263,12 +367,12 @@ export default function CourseLessonPlayerScreen() {
 
             {/* Navigation Footer: Prev / Next Lesson */}
             <View style={[styles.navFooter, { borderTopColor: colors.border }]}>
-              {lesson!.navigation.prevLessonId ? (
+              {nav.prevLessonId ? (
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() =>
                     router.push(
-                      `/courses/${id}/lesson/${lesson!.navigation.prevLessonId}` as any
+                      `/courses/${id}/lesson/${nav.prevLessonId}` as any
                     )
                   }
                   style={[
@@ -288,12 +392,12 @@ export default function CourseLessonPlayerScreen() {
                 <View style={{ flex: 1 }} />
               )}
 
-              {lesson!.navigation.nextLessonId ? (
+              {nav.nextLessonId ? (
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() =>
                     router.push(
-                      `/courses/${id}/lesson/${lesson!.navigation.nextLessonId}` as any
+                      `/courses/${id}/lesson/${nav.nextLessonId}` as any
                     )
                   }
                   style={[
@@ -424,45 +528,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  videoPlayerTouch: {
+  nativePlayerWrap: {
     width: "100%",
     height: "100%",
-    justifyContent: "center",
+  },
+  videoView: {
+    width: "100%",
+    height: "100%",
+  },
+  videoLoading: {
     alignItems: "center",
+    gap: 8,
   },
-  playButtonCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "rgba(14, 165, 233, 0.85)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  playText: {
-    color: "#ffffff",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  durationBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    position: "absolute",
-    bottom: 12,
-    right: 12,
-    gap: 4,
-  },
-  durationText: {
-    color: "#ffffff",
+  videoLoadingText: {
+    color: "#94a3b8",
     fontSize: 12,
-    fontWeight: "600",
   },
   lockedContainer: {
     alignItems: "center",
+    paddingHorizontal: 20,
     gap: 6,
   },
   lockedTitle: {
@@ -473,6 +557,96 @@ const styles = StyleSheet.create({
   lockedSub: {
     color: "#94a3b8",
     fontSize: 13,
+    textAlign: "center",
+  },
+  embedContainer: {
+    alignItems: "center",
+    paddingHorizontal: 20,
+    gap: 8,
+  },
+  embedBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(245, 158, 11, 0.15)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 6,
+  },
+  embedBadgeText: {
+    color: "#fbbf24",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  embedTitle: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  embedSub: {
+    color: "#94a3b8",
+    fontSize: 12,
+    textAlign: "center",
+    lineHeight: 18,
+  },
+  embedButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#dc2626",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 8,
+    marginTop: 4,
+  },
+  embedButtonText: {
+    color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  noVideoContainer: {
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 16,
+  },
+  noVideoText: {
+    color: "#94a3b8",
+    fontSize: 13,
+    textAlign: "center",
+  },
+  speedBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    gap: 8,
+  },
+  speedLabelWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingRight: 4,
+  },
+  speedLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
+  },
+  speedPills: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  speedPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  speedPillText: {
+    fontSize: 12,
+    fontWeight: "600",
   },
   scrollArea: {
     flex: 1,

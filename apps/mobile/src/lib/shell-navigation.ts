@@ -11,7 +11,10 @@ export function isBottomBarHidden(pathname: string | null | undefined): boolean 
     pathname.includes("/attempt") ||
     pathname.includes("/take") ||
     pathname.includes("/test-execution") ||
-    pathname.includes("/learn/")
+    pathname.includes("/runner") ||
+    pathname.includes("/learn/") ||
+    pathname.includes("/lesson/") ||
+    pathname.endsWith("/lesson")
   );
 }
 

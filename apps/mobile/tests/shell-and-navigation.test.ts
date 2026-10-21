@@ -73,6 +73,8 @@ describe("Phase 2: Bottom Bar Route Hiding Invariants & Mutation Check", () => {
     assert.equal(isBottomBarHidden("/tests/123/take"), true);
     assert.equal(isBottomBarHidden("/test-execution/mock-1"), true);
     assert.equal(isBottomBarHidden("/courses/upsc/learn/lesson-5"), true);
+    assert.equal(isBottomBarHidden("/courses/react-101/lesson/lesson-1"), true);
+    assert.equal(isBottomBarHidden("/tests/mock-1/runner"), true);
   });
 
   it("displays bottom bar on standard exploratory routes", () => {
