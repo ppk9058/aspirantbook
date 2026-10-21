@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch, Alert } from "react-native";
 import { User, Moon, Shield, Target, ChevronRight, LogOut } from "lucide-react-native";
 import { AppShell } from "../components/shell/AppShell";
 import { Card } from "../components/primitives/Card";
@@ -8,6 +8,7 @@ import { Button } from "../components/primitives/Button";
 import { useTheme } from "../theme/ThemeProvider";
 import { useGoal } from "../context/GoalContext";
 import { useAuth } from "../context/AuthContext";
+import { api } from "../lib/api";
 
 type SettingsTab = "goal" | "profile" | "appearance" | "security";
 
@@ -170,13 +171,51 @@ export default function SettingsScreen() {
             </Text>
 
             {isAuthenticated ? (
-              <Button
-                title="Log out of this device"
-                onPress={logout}
-                variant="danger"
-                size="md"
-                icon={<LogOut size={16} color="#FFFFFF" />}
-              />
+              <View style={{ gap: 12 }}>
+                <Button
+                  title="Log out of this device"
+                  onPress={logout}
+                  variant="secondary"
+                  size="md"
+                  icon={<LogOut size={16} color={colors.textPrimary} />}
+                />
+
+                <Button
+                  title="Sign out of all other devices"
+                  onPress={async () => {
+                    await api.logoutAll().catch(() => {});
+                    await logout();
+                  }}
+                  variant="outline"
+                  size="md"
+                  icon={<Shield size={16} color={colors.primary} />}
+                />
+
+                <TouchableOpacity
+                  onPress={() => {
+                    Alert.alert(
+                      "Delete Account",
+                      "Are you sure you want to delete your account? This action cannot be undone.",
+                      [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                          text: "Delete",
+                          style: "destructive",
+                          onPress: async () => {
+                            await api.deleteMe({}).catch(() => {});
+                            await logout();
+                          },
+                        },
+                      ]
+                    );
+                  }}
+                  style={{ alignItems: "center", marginTop: 8, padding: 8 }}
+                >
+                  <Text style={{ color: colors.danger, fontWeight: "600", fontSize: 13 }}>
+                    Permanently Delete Account
+                  </Text>
+                </TouchableOpacity>
+              </View>
             ) : (
               <Text style={[styles.helpText, { color: colors.textMuted }]}>
                 Sign in to manage password and authenticated sessions.

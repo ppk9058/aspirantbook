@@ -43,6 +43,7 @@ import {
   MyLearningDto,
   CareerTrackDto,
   CareerTrackDetailDto,
+  SearchResultsDto,
 } from "./dto/content.dto";
 
 export interface ApiResponse<T> {
@@ -290,6 +291,10 @@ export function createApiClient(options: ApiClientOptions) {
     getCareerTracks: () => request<CareerTrackDto[]>("/api/v1/career-tracks"),
     getCareerTrackDetail: (trackIdOrSlug: string) =>
       request<CareerTrackDetailDto>(`/api/v1/career-tracks/${trackIdOrSlug}`),
+
+    // Global Search
+    search: (query: string) =>
+      request<SearchResultsDto>(`/api/v1/search?q=${encodeURIComponent(query)}`),
 
     // Notifications
     getNotifications: () => request<NotificationItemDto[]>("/api/v1/notifications"),

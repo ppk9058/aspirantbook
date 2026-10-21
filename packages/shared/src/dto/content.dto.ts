@@ -258,3 +258,19 @@ export interface CareerTrackDetailDto {
   track: CareerTrackDto;
   courses: CareerTrackCourseDto[];
 }
+
+// Global Search
+export interface SearchResultItemDto {
+  id: string;
+  type: "TEST" | "COURSE" | "SERIES" | "PYQ";
+  title: string;
+  subtitle: string;
+  route: string;
+  badge?: string;
+}
+
+export interface SearchResultsDto {
+  query: string;
+  total: number;
+  results: SearchResultItemDto[];
+}

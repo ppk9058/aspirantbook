@@ -31,7 +31,7 @@ export default function PassTabScreen() {
   const handleOpenPricing = async () => {
     try {
       await WebBrowser.openBrowserAsync(
-        "https://aspirantbook.com/pricing?utm_source=mobile_app"
+        "https://trillionskill.com/pricing?utm_source=mobile_app"
       );
     } catch {}
   };
