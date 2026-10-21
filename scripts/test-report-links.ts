@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma"
 import { setMockSessionProvider } from "../auth"
-import { GET as getAttemptResult } from "../app/api/exam/attempt/[attemptId]/result/route.ts"
+import { GET as getAttemptResult } from "../app/api/exam/attempt/[attemptId]/result/route"
 import { NextRequest } from "next/server"
 import {
   getExamInstructionsUrl,

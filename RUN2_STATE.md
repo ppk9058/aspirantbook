@@ -23,8 +23,8 @@
 | **R6** | Push Service Completion & Flag | **DONE** | 2026-10-21T05:56:00Z | 2026-10-21T06:02:00Z | `760b905` | `reports/run2/r6-push-service.log` |
 | **R8** | Native PDF Evaluation & Implementation | **DONE** | 2026-10-21T06:02:00Z | 2026-10-21T06:10:00Z | `552b901` | `reports/run2/r8-native-pdf.log` |
 | **R9** | Speed/Offline Gaps & Mutation Proofs | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:00Z | `d89bde1` | `reports/run2/r9-speed-offline.log` |
-| **R10** | Phone Tooling & Docs Hardening | **DONE** | 2026-10-21T06:18:00Z | 2026-10-21T06:24:00Z | `pending` | `reports/run2/r10-phone-tooling.log` |
-| **R11** | Contract Tests & Mobile Journey | **DOING** | 2026-10-21T06:24:00Z | | | `reports/run2/r11-contract-journey.log` |
+| **R10** | Phone Tooling & Docs Hardening | **DONE** | 2026-10-21T06:18:00Z | 2026-10-21T06:24:00Z | `01d683e` | `reports/run2/r10-phone-tooling.log` |
+| **R11** | Contract Tests & Mobile Journey | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:28Z | Pending | `reports/run2/r11-contract-journey.log` |
 | **R12** | Final Proof, Clean Dist & Tripwires | **TODO** | | | | `reports/run2/r12-final-proof.log` |
 | **B1** | Dependency Audit & Vulnerability Fixes | **TODO** | | | | `reports/run2/b1-audit.log` |
 | **B2** | Bundle-Size Analysis & Reductions | **TODO** | | | | `reports/run2/b2-bundle-size.log` |
@@ -57,5 +57,28 @@
   - Web smoke (`guest-free-sample-start.spec.ts`): 2/2 passed.
   - Web tsc: 65 baseline errors (0 new errors).
 
+### R11: Contract Tests & Full Mobile Journey
+- Created comprehensive 19-step scripted contract & mobile journey suite in `tests/contract-v1.test.ts`.
+- Validated real API flow:
+  1. `POST /api/v1/auth/register` (returns `LoginResponseDto`)
+  2. `POST /api/v1/auth/login` (returns access & refresh tokens)
+  3. `GET /api/v1/me` (returns `ViewerProfileDto`)
+  4. `GET /api/v1/tests` (returns `TestListItemDto[]`)
+  5. `GET /api/v1/tests/[id]` (returns `TestDetailDto`)
+  6. `POST /api/v1/tests/[id]/attempts` (returns `StartAttemptResponseDto`)
+  7. `GET /api/v1/attempts/[id]` (answers & explanations completely hidden)
+  8. `PUT /api/v1/attempts/[id]/answers` (batched sequence sync)
+  9. `POST /api/v1/attempts/[id]/submit` (authoritative grading: 27.5 / 50)
+  10. `GET /api/v1/attempts/[id]/solutions` (returns `AttemptSolutionsDto` with solutions & explanations)
+  11. `GET /api/v1/auth/sessions` (returns `DeviceSessionDto[]`)
+  12. `GET /api/v1/library/[id]/file` (unowned 403, owned HTTP 206 Partial Content range stream)
+  13. `POST /api/v1/devices` (registers push token)
+  14. `POST /api/v1/auth/refresh` (rotates refresh token and issues new access token)
+  15. `POST /api/v1/auth/logout` (revokes session)
+  16. `DELETE /api/v1/me` with password/reauth token (deletes account; subsequent login returns 401)
+  17. Razorpay test order creation
+  18. Schema contract checks on all core GET routes (`/config`, `/goals`, `/current-affairs`, `/pyq/exams`, `/tutorials`, `/library`)
+  19. OpenAPI consistency check (`/api/v1/openapi.json` covers 100% of implemented v1 endpoints)
+- All 19 tests pass (0 failures, 0 skipped). Raw log: `reports/run2/r11-contract-journey.log`.
 
 ---

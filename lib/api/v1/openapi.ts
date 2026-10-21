@@ -161,12 +161,56 @@ export function generateOpenApiDocument() {
           responses: { "200": { description: "All active sessions terminated" } },
         },
       },
+      "/auth/reauth": {
+        post: {
+          summary: "Generate purpose-bound re-auth token for sensitive operations (e.g. account deletion)",
+          tags: ["Auth"],
+          security: [{ BearerAuth: [] }],
+          responses: { "200": { description: "Re-auth token issued valid for 5 minutes" } },
+        },
+      },
+      "/auth/otp/request": {
+        post: {
+          summary: "Request one-time password for mobile login or registration",
+          tags: ["Auth"],
+          responses: { "200": { description: "OTP sent" } },
+        },
+      },
+      "/auth/otp/verify": {
+        post: {
+          summary: "Verify one-time password and authenticate",
+          tags: ["Auth"],
+          responses: { "200": { description: "OTP verified and session issued" } },
+        },
+      },
+      "/auth/forgot-password": {
+        post: {
+          summary: "Request password reset email",
+          tags: ["Auth"],
+          responses: { "200": { description: "Reset email dispatched" } },
+        },
+      },
+      "/auth/reset-password": {
+        post: {
+          summary: "Reset account password with verification token",
+          tags: ["Auth"],
+          responses: { "200": { description: "Password updated successfully" } },
+        },
+      },
       "/auth/sessions": {
         get: {
           summary: "List all active device sessions for current user",
           tags: ["Auth"],
           security: [{ BearerAuth: [] }],
           responses: { "200": { description: "Active device session list" } },
+        },
+      },
+      "/auth/sessions/{id}": {
+        delete: {
+          summary: "Revoke specific device session",
+          tags: ["Auth"],
+          security: [{ BearerAuth: [] }],
+          responses: { "200": { description: "Device session revoked" } },
         },
       },
       "/me": {
@@ -286,6 +330,13 @@ export function generateOpenApiDocument() {
           responses: { "200": { description: "Monthly digests" } },
         },
       },
+      "/current-affairs/{slug}": {
+        get: {
+          summary: "Get specific current affairs monthly issue with highlights and articles",
+          tags: ["Current Affairs"],
+          responses: { "200": { description: "Monthly issue details" } },
+        },
+      },
       "/tutorials": {
         get: {
           summary: "List read-only tutorial courses",
@@ -293,11 +344,26 @@ export function generateOpenApiDocument() {
           responses: { "200": { description: "Tutorial catalogue" } },
         },
       },
+      "/tutorials/{slug}": {
+        get: {
+          summary: "Get tutorial course curriculum, chapters, and lessons",
+          tags: ["Tutorials"],
+          responses: { "200": { description: "Tutorial course details and syllabus" } },
+        },
+      },
       "/tutorials/{slug}/lessons/{id}": {
         get: {
           summary: "Get lesson content sliced by authwall server rules into Rosera JSON blocks",
           tags: ["Tutorials"],
           responses: { "200": { description: "Structured JSON blocks with preview metadata" } },
+        },
+      },
+      "/tutorials/{slug}/lessons/{id}/progress": {
+        post: {
+          summary: "Record lesson completion progress",
+          tags: ["Tutorials"],
+          security: [{ BearerAuth: [] }],
+          responses: { "200": { description: "Lesson marked complete" } },
         },
       },
       "/library": {
@@ -323,6 +389,14 @@ export function generateOpenApiDocument() {
           tags: ["Notifications"],
           security: [{ BearerAuth: [] }],
           responses: { "200": { description: "Notification items" } },
+        },
+      },
+      "/notifications/read": {
+        post: {
+          summary: "Mark notification(s) as read",
+          tags: ["Notifications"],
+          security: [{ BearerAuth: [] }],
+          responses: { "200": { description: "Notifications marked read" } },
         },
       },
       "/devices": {
