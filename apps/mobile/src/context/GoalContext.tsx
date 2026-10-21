@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { Storage } from "../lib/storage";
+import { api } from "../lib/api";
 import { TOKENS } from "../theme/tokens";
 
 export interface Goal {
@@ -111,6 +112,7 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
   const selectGoal = useCallback((goal: Goal) => {
     setSelectedGoal(goal);
     void Storage.setGoal(goal.id);
+    void api.updateMe({ goal: goal.id }).catch(() => {});
     setIsGoalModalOpen(false);
   }, []);
 

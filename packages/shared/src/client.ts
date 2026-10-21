@@ -154,10 +154,35 @@ export function createApiClient(options: ApiClientOptions) {
         method: "POST",
         body: JSON.stringify({ email }),
       }),
+    resetPassword: (body: { token: string; password: string }) =>
+      request<{ success: boolean; message: string }>("/api/v1/auth/reset-password", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    changePassword: (body: { currentPassword: string; newPassword: string }) =>
+      request<{ success: boolean; message: string }>("/api/v1/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    requestOtp: (body: { phoneNumber: string }) =>
+      request<{ message: string; phoneNumber: string; devBypass?: boolean }>("/api/v1/auth/otp/request", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    verifyOtp: (body: { phoneNumber: string; otp: string }) =>
+      request<LoginResponseDto>("/api/v1/auth/otp/verify", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
 
     // User & Profile
     getMe: () => request<ViewerProfileDto>("/api/v1/me"),
     updateMe: (body: UpdateProfileRequest) =>
+      request<ViewerProfileDto>("/api/v1/me", {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      }),
+    updateProfile: (body: UpdateProfileRequest) =>
       request<ViewerProfileDto>("/api/v1/me", {
         method: "PATCH",
         body: JSON.stringify(body),
@@ -167,6 +192,27 @@ export function createApiClient(options: ApiClientOptions) {
         method: "DELETE",
         body: JSON.stringify(body),
       }),
+    getPurchases: () =>
+      request<{
+        hasActivePass: boolean;
+        activeSubscription: {
+          id: string;
+          plan: string;
+          status: string;
+          startDate: string;
+          endDate: string;
+          daysRemaining: number;
+        } | null;
+        history: Array<{
+          id: string;
+          type: "subscription" | "payment";
+          description: string;
+          amount: number;
+          currency: string;
+          status: string;
+          createdAt: string;
+        }>;
+      }>("/api/v1/subscriptions"),
 
     // Dashboard & Goals
     getHome: () => request<DashboardSummaryDto>("/api/v1/home"),
