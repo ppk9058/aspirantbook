@@ -89,21 +89,14 @@ export async function seedMobileTestAccounts() {
   });
 
   if (!test) {
-    // Create a demo test series package and test if none found
-    const pkg = await prisma.examSeriesPackage.create({
+    // Create a demo test series and test if none found
+    const series = await prisma.examSeries.create({
       data: {
         title: "UPSC Prelims Master Series 2026",
         slug: "upsc-prelims-master-2026",
-        description: "Comprehensive mock test series for Civil Services Aspirants",
-        isPublished: true,
-      },
-    });
-
-    const series = await prisma.examSeries.create({
-      data: {
-        title: "General Studies Paper I",
-        slug: "gs-paper-1-mock",
-        packageId: pkg.id,
+        examName: "UPSC CSE",
+        category: "Civil Services",
+        createdById: admin.id,
         isPublished: true,
       },
     });
@@ -111,15 +104,13 @@ export async function seedMobileTestAccounts() {
     test = await prisma.examTest.create({
       data: {
         title: "All-India Prelims Mock Test 01",
-        slug: "all-india-prelims-mock-01",
         seriesId: series.id,
-        duration: 120, // 120 mins
+        createdById: admin.id,
+        durationMinutes: 120,
         totalMarks: 200,
-        passingMarks: 66,
         isPublished: true,
-        type: "STANDARD",
       },
-      select: { id: true, title: true, duration: true },
+      select: { id: true, title: true, durationMinutes: true },
     });
   }
 
