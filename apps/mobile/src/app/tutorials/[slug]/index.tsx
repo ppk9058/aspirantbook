@@ -160,7 +160,8 @@ export default function TutorialOutlineScreen() {
                           setModalVisible(true);
                         } else {
                           router.push({
-                            pathname: `/tutorials/${slug}/${lesson.id}`,
+                            pathname: '/tutorials/[slug]/[lessonId]',
+                            params: { slug, lessonId: lesson.id },
                           });
                         }
                       }}

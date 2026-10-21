@@ -217,8 +217,8 @@ export default function TestResultScreen() {
           style={[styles.solutionsButton, { backgroundColor: theme.colors.primary }]}
           onPress={() => {
             router.push({
-              pathname: `/tests/${testId}/solutions`,
-              params: { attemptId },
+              pathname: '/tests/[id]/solutions',
+              params: { id: testId, attemptId },
             });
           }}
         >

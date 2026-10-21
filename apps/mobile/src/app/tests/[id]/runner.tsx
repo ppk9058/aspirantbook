@@ -252,8 +252,8 @@ export default function CbtRunnerScreen() {
       if (res.ok) {
         setSubmitModalVisible(false);
         router.replace({
-          pathname: `/tests/${testId}/result`,
-          params: { attemptId },
+          pathname: '/tests/[id]/result',
+          params: { id: testId, attemptId },
         });
       } else {
         Alert.alert('Submit Failed', res.error?.message || 'Could not submit test. Please retry.');
