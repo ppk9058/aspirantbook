@@ -234,7 +234,7 @@ export function TestActionButton({
       className={`inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xs transition-colors ${sizeClasses} ${className}`}
     >
       <Play className="w-3.5 h-3.5 fill-current" />
-      <span>Start Test</span>
+      <span>{isFreeSample ? "Start Free Sample" : "Start Test"}</span>
     </Link>
   )
 }

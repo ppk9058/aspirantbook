@@ -33,7 +33,7 @@ export async function POST(
       return NextResponse.json({ error: result.error || "Failed to duplicate test" }, { status: result.status })
     }
 
-    return NextResponse.json({ success: true, data: result.data })
+    return NextResponse.json({ success: true, data: result.data, test: result.data })
   } catch (error: any) {
     console.error("[TEST_DUPLICATE_ROUTE_ERROR]", error)
     return NextResponse.json({ error: error.message || "Failed to duplicate test" }, { status: 500 })

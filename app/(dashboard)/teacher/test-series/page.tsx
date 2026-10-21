@@ -764,7 +764,7 @@ export default function TeacherTestSeriesManagePage() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search tests by title, package, subject..."
+              placeholder="Search tests or categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#071d33] text-xs text-gray-900 dark:text-white placeholder-gray-500 focus:outline-hidden focus:border-[#00A8FF] min-h-[44px]"
@@ -861,7 +861,7 @@ export default function TeacherTestSeriesManagePage() {
                               {test.category}
                             </span>
                             <span>•</span>
-                            <span>Created {test.createdAt}</span>
+                            <span data-testid="test-created-at">Created {test.createdAt}</span>
                           </div>
                         </div>
                       </td>
@@ -921,13 +921,28 @@ export default function TeacherTestSeriesManagePage() {
 
                       {/* Row Actions */}
                       <td className="py-4 px-4 text-right">
-                        <TestRowActions
-                          test={test}
-                          context="list"
-                          basePath={basePath}
-                          role={effectiveRole}
-                          onChanged={loadAllTests}
-                        />
+                        <div className="flex items-center justify-end gap-2 flex-wrap">
+                          {test.status === "DRAFT" && (
+                            <button
+                              type="button"
+                              onClick={() => setPublishModalTest(test)}
+                              data-testid="publish-row-button"
+                              className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 min-h-[44px] cursor-pointer shadow-xs shrink-0"
+                              title="Publish Test"
+                              aria-label={`Publish ${test.title}`}
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                              <span>Publish</span>
+                            </button>
+                          )}
+                          <TestRowActions
+                            test={test}
+                            context="list"
+                            basePath={basePath}
+                            role={effectiveRole}
+                            onChanged={loadAllTests}
+                          />
+                        </div>
                       </td>
                     </tr>
                   )

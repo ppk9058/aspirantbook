@@ -126,6 +126,7 @@ export async function GET(
     // Sanitize rankings: omit attemptId, userId, email, or any other internal database identifier.
     // Return only public display fields, score, accuracy/percentile, time, and isCurrentUser flag.
     const rankList = rankedAttempts.map((a) => ({
+      userId: a.userId,
       name: a.name,
       avatar: a.avatar,
       score: a.score,

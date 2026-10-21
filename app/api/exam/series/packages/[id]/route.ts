@@ -116,7 +116,11 @@ export async function PATCH(
         )
       }
 
-      return NextResponse.json({ success: true, data: result.data })
+      return NextResponse.json({
+        success: true,
+        data: result.data,
+        package: result.data,
+      })
     }
 
     // Otherwise, handle Authwall Gate settings
@@ -172,7 +176,8 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      action: result.action,
+      action: (result.action || "").toLowerCase(),
+      status: result.action,
       message: result.message,
     })
   } catch (error: any) {

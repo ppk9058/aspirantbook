@@ -289,6 +289,15 @@ export default function PackageDetailView({ packageId, basePath, role }: Package
     }
   }
 
+  // Quick Action: Make First N Tests Free
+  const handleMakeFirstNTestsFree = (n: number) => {
+    if (!pkg || pkg.tests.length === 0) return
+    const firstN = pkg.tests.slice(0, n).map((t) => t.id)
+    if (firstN.length > 0) {
+      handleBulkUpdateTests(firstN, "free", null)
+    }
+  }
+
   // Bulk Actions
   const handleBulkPublish = async () => {
     const ids = Array.from(selectedTestIds)
@@ -970,10 +979,20 @@ export default function PackageDetailView({ packageId, basePath, role }: Package
             testId="metric-guest-attempts"
           />
 
+          {/* Unique Students */}
+          <StatCard
+            label="Unique Students"
+            value={`${pkg.metrics.uniqueStudents} students`}
+            subtext="distinct test takers"
+            icon={<Users className="h-3.5 w-3.5 text-blue-500" />}
+            tooltip={METRIC_DEFINITIONS.uniqueStudents.tooltip}
+            testId="metric-unique-students"
+          />
+
           {/* Class Average */}
           <StatCard
             label="Class Avg"
-            value={pkg.metrics.attempts > 0 ? `${pkg.metrics.avgScore}%` : "-"}
+            value={pkg.metrics.attempts > 0 ? pkg.metrics.avgScore : "-"}
             subtext={pkg.metrics.attempts > 0 ? "first attempt avg %" : "Awaiting attempts"}
             valueColor="text-sky-700 dark:text-sky-400"
             icon={<Award className="h-3.5 w-3.5 text-[#00A8FF]" />}
@@ -1073,7 +1092,7 @@ export default function PackageDetailView({ packageId, basePath, role }: Package
             onBulkSetLocked={() => handleBulkUpdateTests(Array.from(selectedTestIds), "locked", 0)}
             onBulkSetPreview={(pct) => handleBulkUpdateTests(Array.from(selectedTestIds), "preview", pct)}
             onBulkResetInherit={() => handleBulkUpdateTests(Array.from(selectedTestIds), "inherit", null)}
-            onMakeFirstNFree={(n) => setFirstNPreviewCount(n)}
+            onMakeFirstNFree={handleMakeFirstNTestsFree}
             onBulkPublish={handleBulkPublish}
             onBulkUnpublish={handleBulkUnpublish}
             onBulkArchive={handleBulkArchive}

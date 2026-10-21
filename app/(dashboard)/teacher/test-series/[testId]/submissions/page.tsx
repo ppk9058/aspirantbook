@@ -230,7 +230,7 @@ export default function SubmissionsPage() {
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
                                         {filtered.map((cand) => (
-                                            <tr key={cand.attemptId || cand.userId} data-testid="submission-row" className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
+                                            <tr key={cand.attemptId || cand.userId || `${cand.name}-${cand.rank}`} data-testid="submission-row" className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
                                                 <td className="py-3 px-5">
                                                     <div className="flex items-center gap-2.5">
                                                         {cand.avatar ? (
@@ -246,7 +246,7 @@ export default function SubmissionsPage() {
                                                         )}
                                                         <div>
                                                             <p data-testid="candidate-name" className="font-extrabold text-gray-900 dark:text-white">{cand.name}</p>
-                                                            <p className="text-[10px] text-gray-500 font-mono">UID-{cand.userId.slice(-6)}</p>
+                                                            <p className="text-[10px] text-gray-500 font-mono">{cand.userId ? `UID-${cand.userId.slice(-6)}` : `CAND-#${cand.rank}`}</p>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -263,7 +263,7 @@ export default function SubmissionsPage() {
                                                     <span className="text-emerald-600 font-bold">{cand.correct}</span> / <span className="text-red-500 font-bold">{cand.wrong}</span>
                                                 </td>
                                                 <td className="py-3 px-4 text-center text-gray-600 dark:text-gray-400 font-mono">
-                                                    {formatTime(cand.timeSecs)}
+                                                    {formatTime(cand.timeSecs || 0)}
                                                 </td>
                                             </tr>
                                         ))}

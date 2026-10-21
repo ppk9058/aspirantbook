@@ -182,9 +182,9 @@ test.describe("Golden Path: Authoring to Student CBT Journey (UPSC vs BPSC)", ()
       // ─────────────────────────────────────────────────────────────
       await loginThroughUi(page, student.email);
 
-      // Student starts attempt while intercepting start API response
+      // Student starts attempt while intercepting start API response (201 Created or 200 Resumed)
       const startAttemptPromise = page.waitForResponse(
-        (res) => res.url().includes("/api/exam/attempt/start") && res.status() === 200,
+        (res) => res.url().includes("/api/exam/attempt/start") && (res.status() === 200 || res.status() === 201),
         { timeout: 30_000 }
       );
       await page.goto(`/test-series/${series.slug}/attempt?testId=${testRow.id}&lang=English`);

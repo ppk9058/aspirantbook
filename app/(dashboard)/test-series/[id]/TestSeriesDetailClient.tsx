@@ -314,20 +314,13 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
         let isMounted = true
         if (!seriesId || !isLoaded) return
 
-        const goalParam = selectedGoal?.id ? `&goal=${encodeURIComponent(selectedGoal.id)}` : ""
+        const effectiveGoal = customSeriesPackage?.category || selectedGoal?.id || ""
+        const goalParam = effectiveGoal ? `&goal=${encodeURIComponent(effectiveGoal)}` : ""
         fetch(`/api/exam/series/recommendations?seriesId=${encodeURIComponent(seriesId)}${goalParam}`)
             .then((res) => res.json())
             .then((json) => {
                 if (isMounted && json.success && Array.isArray(json.data)) {
-                    const activeGoalId = selectedGoal?.id?.toLowerCase()
-                    const filtered = activeGoalId
-                        ? json.data.filter((item: any) => {
-                            const gid = (item.goalId || item.category || "").toLowerCase()
-                            const tags = Array.isArray(item.tags) ? item.tags.map((t: string) => t.toLowerCase()) : []
-                            return gid === activeGoalId || tags.includes(activeGoalId) || item.category?.toLowerCase() === activeGoalId
-                        })
-                        : json.data
-                    setMoreTestSeries(filtered)
+                    setMoreTestSeries(json.data)
                 }
             })
             .catch(() => {})

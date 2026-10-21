@@ -54,6 +54,8 @@ export default function TestRowActions({
 }: TestRowActionsProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [forceDeleteAttempts, setForceDeleteAttempts] = useState<number | null>(null)
+  const [isForceDeleting, setIsForceDeleting] = useState(false)
 
   const attemptsCount = Number(test.attemptsCount || test.attempts || 0)
   const isArchived = Boolean(test.isArchived)
@@ -161,6 +163,53 @@ export default function TestRowActions({
         <BarChart3 className="h-4 w-4" />
         <span className="hidden sm:inline">Submissions</span>
       </Link>
+
+      {/* 2b. Visible: Student View Button */}
+      <Link
+        href={`/test-series/${targetSeriesSlug}?testId=${test.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Open test "${test.title}" in Student View`}
+        title="Open in Student View"
+        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-sky-800 dark:text-sky-200 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 hover:bg-sky-100 transition-colors min-h-[44px] focus:outline-hidden focus:ring-2 focus:ring-[#00A8FF]"
+      >
+        <ExternalLink className="h-4 w-4 text-sky-500" />
+        <span className="hidden sm:inline">Student View</span>
+      </Link>
+
+      {/* 2c. Direct Delete button (supports direct row delete & confirm tests) */}
+      <button
+        type="button"
+        title="Delete Test"
+        aria-label="Delete Test"
+        disabled={isProcessing}
+        onClick={async () => {
+          if (confirm("Are you sure you want to delete this test?")) {
+            try {
+              setIsProcessing(true);
+              const res = await fetch(`/api/exam/test/${test.id}`, { method: "DELETE" });
+              if (res.ok) {
+                toast.success("Test deleted successfully");
+                onChanged?.();
+              } else {
+                const data = await res.json().catch(() => ({}));
+                if (res.status === 409 && role === "ADMIN") {
+                  setForceDeleteAttempts(data.attemptsCount || 1);
+                } else {
+                  toast.error(data.error || "Failed to delete test");
+                }
+              }
+            } catch {
+              toast.error("Network error while deleting test");
+            } finally {
+              setIsProcessing(false);
+            }
+          }
+        }}
+        className="p-2 rounded-xl text-gray-500 hover:text-red-600 bg-transparent hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors min-h-[44px] min-w-[44px] inline-flex items-center justify-center cursor-pointer"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
 
       {/* 3. Overflow Menu (⋯) */}
       <DropdownMenu>
@@ -288,6 +337,55 @@ export default function TestRowActions({
         onConfirmArchive={handleConfirmArchive}
         onConfirmHardDelete={handleConfirmHardDelete}
       />
+
+      {/* Admin Force Delete Modal */}
+      {forceDeleteAttempts !== null && (
+        <div
+          data-testid="force-delete-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+        >
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Force Delete Test</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              This test has <span className="font-bold text-red-600 dark:text-red-400">{forceDeleteAttempts} student attempt(s)</span>. Force deleting will permanently erase candidate records.
+            </p>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setForceDeleteAttempts(null)}
+                className="px-4 py-2 rounded-xl text-sm font-semibold border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isForceDeleting}
+                onClick={async () => {
+                  try {
+                    setIsForceDeleting(true);
+                    const forceRes = await fetch(`/api/exam/test/${test.id}?force=true`, { method: "DELETE" });
+                    if (forceRes.ok) {
+                      toast.success("Test force deleted successfully");
+                      setForceDeleteAttempts(null);
+                      onChanged?.();
+                    } else {
+                      const errData = await forceRes.json().catch(() => ({}));
+                      toast.error(errData.error || "Failed to force delete test");
+                    }
+                  } catch {
+                    toast.error("Network error while force deleting");
+                  } finally {
+                    setIsForceDeleting(false);
+                  }
+                }}
+                className="px-4 py-2 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-700 text-white cursor-pointer"
+              >
+                Force Delete ({forceDeleteAttempts} attempts)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
