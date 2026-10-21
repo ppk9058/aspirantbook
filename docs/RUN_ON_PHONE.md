@@ -68,7 +68,39 @@ npm run seed:mobile-test
 
 ---
 
-## 5. Switching to Dev Database (Supabase)
+## 5. Canonical API URL Construction Standard
+
+- **Environment Origin**: `EXPO_PUBLIC_API_URL` in `apps/mobile/.env.local` is set to `http://<lan-ip>:3045` (or `http://10.0.2.2:3045` on Android emulator, `http://localhost:3045` on iOS simulator).
+- **Endpoint Prefix**: All mobile API communication is strictly scoped under `/api/v1/*`.
+- **Client Normalization**: `apps/mobile/src/lib/api.ts` automatically strips any accidental trailing slashes or duplicate `/api/v1` suffixes to prevent malformed URLs (`rawApiUrl.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "")`).
+
+---
+
+## 6. Step-by-Step Test Series & Offline Resilience Flow
+
+Follow these steps on your physical phone to verify real-time performance and offline resilience:
+
+### A. Online Test Taking
+1. Launch **AspirantBook** in Expo Go.
+2. Sign in with `student.mobile@aspirantbook.com` / `Student123!`.
+3. Tap **Practice** (or **Home** banner) -> Select an active Test Series -> Tap **Start Test**.
+4. The CBT question runner loads instructions, questions, palette, and server-synchronized countdown timer.
+5. Tap an answer option (e.g. Option B). Notice immediate state update in the question palette.
+
+### B. Offline Resilience (Airplane Mode Test)
+1. While answering question 3, swipe down the phone notification shade and enable **Airplane Mode** (Wi-Fi and mobile data OFF).
+2. Answer the next 3 questions (questions 4, 5, 6) and mark question 5 for review.
+3. Observe:
+   - The countdown timer continues smoothly based on the authoritative server deadline.
+   - All answers are safely buffered in local memory storage.
+4. Disable **Airplane Mode** (reconnect Wi-Fi).
+5. Within seconds, the offline answer queue flushes automatically in monotonic sequence order.
+6. Tap **Submit Test**.
+7. The authoritative server grades the attempt, calculates percentile and rank, and displays the comprehensive breakdown score card.
+
+---
+
+## 7. Switching to Dev Database (Supabase)
 
 > [!CAUTION]
 > **READ-ONLY MANDATE**: The Supabase development database is strictly read-only.
@@ -85,7 +117,7 @@ If you specifically need to view live development catalogue data from Supabase:
 
 ---
 
-## 6. Troubleshooting
+## 8. Troubleshooting
 
 ### Problem 1: "Network response timed out" or "Could not connect to server"
 - **Cause**: Wi-Fi Client Isolation is enabled on your router (common on university, office, or public guest Wi-Fi networks).

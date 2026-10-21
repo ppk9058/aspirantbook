@@ -1,8 +1,10 @@
 import { createApiClient } from "@aspirantbook/shared";
 import { Storage } from "./storage";
 
-export const API_BASE_URL =
+const rawApiUrl =
   process.env.EXPO_PUBLIC_API_URL || "http://10.0.2.2:3045";
+// Canonical normalization: always server origin without trailing slash or duplicate /api/v1
+export const API_BASE_URL = rawApiUrl.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "");
 
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;

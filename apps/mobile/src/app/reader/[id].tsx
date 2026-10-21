@@ -107,7 +107,7 @@ export default function ReaderScreen() {
       setDownloadProgress(0);
 
       // In production, downloads use the signed stream URL with range support
-      const downloadUrl = `${apiClient.baseUrl}/library/${id}/file`;
+      const downloadUrl = `${apiClient.baseUrl}/api/v1/library/${id}/file`;
       const token = await apiClient.getAccessToken();
 
       const downloadResumable = FileSystem.createDownloadResumable(
@@ -272,7 +272,7 @@ export default function ReaderScreen() {
         <View style={[styles.readerViewer, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
           <PdfRenderer
             documentId={id}
-            sourceUri={localFileUri || `${apiClient.baseUrl}/library/${id}/file`}
+            sourceUri={localFileUri || `${apiClient.baseUrl}/api/v1/library/${id}/file`}
             title={metadata?.title || title}
             totalPages={metadata?.pageCount || 12}
           />

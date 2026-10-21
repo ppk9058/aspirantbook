@@ -22,9 +22,9 @@
 | **R5** | Account Deletion Real Re-Auth | **DONE** | 2026-10-21T05:50:00Z | 2026-10-21T05:56:00Z | `6520b51` | `reports/run2/r5-account-deletion.log` |
 | **R6** | Push Service Completion & Flag | **DONE** | 2026-10-21T05:56:00Z | 2026-10-21T06:02:00Z | `760b905` | `reports/run2/r6-push-service.log` |
 | **R8** | Native PDF Evaluation & Implementation | **DONE** | 2026-10-21T06:02:00Z | 2026-10-21T06:10:00Z | `552b901` | `reports/run2/r8-native-pdf.log` |
-| **R9** | Speed/Offline Gaps & Mutation Proofs | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:00Z | `pending` | `reports/run2/r9-speed-offline.log` |
-| **R10** | Phone Tooling & Docs Hardening | **DOING** | 2026-10-21T06:18:00Z | | | `reports/run2/r10-phone-tooling.log` |
-| **R11** | Contract Tests & Mobile Journey | **TODO** | | | | `reports/run2/r11-contract-journey.log` |
+| **R9** | Speed/Offline Gaps & Mutation Proofs | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:00Z | `d89bde1` | `reports/run2/r9-speed-offline.log` |
+| **R10** | Phone Tooling & Docs Hardening | **DONE** | 2026-10-21T06:18:00Z | 2026-10-21T06:24:00Z | `pending` | `reports/run2/r10-phone-tooling.log` |
+| **R11** | Contract Tests & Mobile Journey | **DOING** | 2026-10-21T06:24:00Z | | | `reports/run2/r11-contract-journey.log` |
 | **R12** | Final Proof, Clean Dist & Tripwires | **TODO** | | | | `reports/run2/r12-final-proof.log` |
 | **B1** | Dependency Audit & Vulnerability Fixes | **TODO** | | | | `reports/run2/b1-audit.log` |
 | **B2** | Bundle-Size Analysis & Reductions | **TODO** | | | | `reports/run2/b2-bundle-size.log` |
