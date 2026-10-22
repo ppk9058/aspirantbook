@@ -375,6 +375,8 @@ describe("SEC1: OTP / Reauth / Session Security Hardening", () => {
     assert.equal(delRes.status, 200, "Account deletion must succeed with fresh valid token");
 
     // 2. Registering again with the same phone number via OTP dev bypass:
+    const prevDevMobile = process.env.ALLOW_DEV_MOBILE_LOGIN;
+    process.env.ALLOW_DEV_MOBILE_LOGIN = "true";
     const verifyReq = new NextRequest("http://127.0.0.1:3045/api/v1/auth/otp/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -382,6 +384,8 @@ describe("SEC1: OTP / Reauth / Session Security Hardening", () => {
     });
 
     const verifyRes = await otpVerifyRoute(verifyReq);
+    if (prevDevMobile !== undefined) process.env.ALLOW_DEV_MOBILE_LOGIN = prevDevMobile;
+    else delete process.env.ALLOW_DEV_MOBILE_LOGIN;
     assert.equal(verifyRes.status, 200, "Re-registration with same phone number must succeed");
     const verifyBody = await verifyRes.json();
     assert.equal(verifyBody.ok, true);

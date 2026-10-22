@@ -242,7 +242,7 @@ export function parseMathSegments(text: string): MathSegment[] {
 }
 
 /**
- * Checks whether math has complex environments best suited for KaTeX WebView.
+ * Checks whether math has complex environments (matrices, multiline align) requiring monospace fallback.
  */
 export function isComplexMath(math: string): boolean {
   if (!math) return false;
