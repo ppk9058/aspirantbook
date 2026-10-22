@@ -78,8 +78,15 @@ export default function CbtRunnerScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(3600);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryNonce, setRetryNonce] = useState(0);
   const [integrityNotice, setIntegrityNotice] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleRetry = useCallback(() => {
+    setLoadError(null);
+    setLoading(true);
+    setRetryNonce((prev) => prev + 1);
+  }, []);
   const [syncState, setSyncState] = useState<{ pendingCount: number; lastError: string | null }>({
     pendingCount: 0,
     lastError: cbtSyncQueue.getLastSyncError(),
@@ -182,7 +189,7 @@ export default function CbtRunnerScreen() {
     return () => {
       mounted = false;
     };
-  }, [attemptId]);
+  }, [attemptId, retryNonce]);
 
   // Timer Tick & Background AppState handling
   useEffect(() => {
@@ -376,7 +383,7 @@ export default function CbtRunnerScreen() {
         <ErrorState
           title="Unable to Load Test"
           message={loadError}
-          onRetry={() => router.back()}
+          onRetry={handleRetry}
         />
       </View>
     );

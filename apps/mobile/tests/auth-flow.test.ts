@@ -73,15 +73,20 @@ describe("Phase 8: Login and Register Parity", () => {
       "Hardcoded port 3045 must be removed"
     );
   });
-  it("API client exports normalized API_BASE_URL and fallback for development", () => {
+  it("API client exports normalized API_BASE_URL and logs in development", () => {
     const apiContent = fs.readFileSync(path.join(__dirname, "../src/lib/api.ts"), "utf8");
     assert.equal(
-      apiContent.includes('process.env.EXPO_PUBLIC_API_URL || "http://10.0.2.2:3045"'),
-      true,
-      "API client must fallback to 10.0.2.2:3045 when env unset"
+      apiContent.includes("10.0.2.2"),
+      false,
+      "Hardcoded IP 10.0.2.2 must be removed from api.ts"
     );
     assert.equal(
-      apiContent.includes('export const API_BASE_URL = rawApiUrl.replace'),
+      apiContent.includes("[API] Resolved Base URL"),
+      true,
+      "API client must log resolved base URL in __DEV__"
+    );
+    assert.equal(
+      apiContent.includes("export const API_BASE_URL = rawApiUrl.replace"),
       true,
       "API client must normalize trailing slashes and redundant /api/v1 prefix"
     );

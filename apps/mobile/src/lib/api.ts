@@ -1,8 +1,18 @@
 import { createApiClient } from "@aspirantbook/shared";
 import { Storage } from "./storage";
 
+const envApiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+// Dev logging of resolved base URL
+if (typeof __DEV__ !== "undefined" && __DEV__) {
+  console.log(`[API] Resolved Base URL: ${envApiUrl || "http://localhost:3045"}`);
+}
+
 const rawApiUrl =
-  process.env.EXPO_PUBLIC_API_URL || "http://10.0.2.2:3045";
+  envApiUrl ||
+  (typeof __DEV__ !== "undefined" && __DEV__
+    ? "http://localhost:3045"
+    : "");
 // Canonical normalization: always server origin without trailing slash or duplicate /api/v1
 export const API_BASE_URL = rawApiUrl.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "");
 
@@ -77,6 +87,21 @@ export const api = createApiClient({
     await refreshAccessTokenSingleFlight();
   },
   fetchFn: async (url, init = {}) => {
+    if (!API_BASE_URL) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: {
+            code: "API_UNCONFIGURED",
+            message: "API endpoint is not configured. Please set EXPO_PUBLIC_API_URL.",
+          },
+        }),
+        {
+          status: 503,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
     // Attempt original request
     let response = await fetch(url, init);
 

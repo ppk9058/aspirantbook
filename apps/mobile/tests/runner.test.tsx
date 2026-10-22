@@ -258,4 +258,36 @@ describe("T2: Critical Screen - CBT Runner Mounted Tests", () => {
     // Restore driver
     cbtSyncQueue.setDriver(originalDriver);
   });
+
+  it("(7) onRetry triggers re-fetch of attempt when load fails", async () => {
+    let callCount = 0;
+    global.fetch = jest.fn().mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+          json: async () => ({ ok: false, error: { message: "Internal server error" } }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({ ok: true, data: mockAttemptData }),
+      });
+    });
+
+    render(<CbtRunnerScreen />);
+
+    const tryAgainBtn = await screen.findByText("Try Again");
+    expect(tryAgainBtn).toBeTruthy();
+    expect(callCount).toBe(1);
+
+    fireEvent.press(tryAgainBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("What is the capital of India?")).toBeTruthy();
+    });
+    expect(callCount).toBe(2);
+  });
 });
