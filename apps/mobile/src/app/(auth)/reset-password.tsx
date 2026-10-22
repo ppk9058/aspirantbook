@@ -257,6 +257,7 @@ export default function ResetPasswordScreen() {
             {/* Submit Button */}
             <Button
               title="Update Password"
+              testID="reset-submit-btn"
               onPress={handleResetPassword}
               loading={loading}
               disabled={loading}

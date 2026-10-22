@@ -41,6 +41,22 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Password strength calculation matching reset-password.tsx
+  const getPasswordStrength = (pwd: string) => {
+    if (!pwd) return { label: "", score: 0, color: "#94a3b8" };
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+    if (score <= 1) return { label: "Weak", score: 1, color: "#ef4444" };
+    if (score <= 3) return { label: "Medium", score: 2, color: "#f59e0b" };
+    return { label: "Strong", score: 3, color: "#10b981" };
+  };
+
+  const strength = getPasswordStrength(password);
+
   const handleRegister = async () => {
     setErrorMessage(null);
     if (!name.trim() || !email.trim() || !password) {
@@ -224,6 +240,33 @@ export default function RegisterScreen() {
                 )}
               </TouchableOpacity>
             </View>
+            {password.length > 0 && (
+              <View style={styles.strengthWrap} testID="register-password-strength">
+                <View style={styles.strengthBars}>
+                  <View
+                    style={[
+                      styles.strengthBar,
+                      { backgroundColor: strength.score >= 1 ? strength.color : colors.border },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.strengthBar,
+                      { backgroundColor: strength.score >= 2 ? strength.color : colors.border },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.strengthBar,
+                      { backgroundColor: strength.score >= 3 ? strength.color : colors.border },
+                    ]}
+                  />
+                </View>
+                <Text style={[styles.strengthLabel, { color: strength.color }]}>
+                  {strength.label}
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Optional Phone */}
@@ -290,6 +333,7 @@ export default function RegisterScreen() {
             size="lg"
             loading={loading}
             disabled={!consent}
+            testID="register-submit-btn"
             onPress={handleRegister}
             style={styles.submitBtn}
           />
@@ -422,5 +466,26 @@ const styles = StyleSheet.create({
     color: "#dc2626",
     fontSize: 13,
     flex: 1,
+  },
+  strengthWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 6,
+  },
+  strengthBars: {
+    flexDirection: "row",
+    gap: 4,
+    flex: 1,
+    marginRight: 12,
+  },
+  strengthBar: {
+    height: 4,
+    flex: 1,
+    borderRadius: 2,
+  },
+  strengthLabel: {
+    fontSize: 12,
+    fontWeight: "700",
   },
 });

@@ -5,8 +5,8 @@ import { Button } from "../src/components/primitives/Button";
 
 describe("T1 Smoke Test: Mounted Primitives", () => {
   it("mounts Text primitive and asserts rendered content", () => {
-    render(<Text>Something Else</Text>);
-    expect(screen.getByText("Something Else")).toBeTruthy();
+    render(<Text>TrillionSkill Mobile</Text>);
+    expect(screen.getByText("TrillionSkill Mobile")).toBeTruthy();
   });
 
   it("mounts Button primitive and triggers onPress", () => {
@@ -21,7 +21,7 @@ describe("T1 Smoke Test: Mounted Primitives", () => {
     );
     const button = screen.getByText("Start Practice");
     expect(button).toBeTruthy();
-    // removed
+    fireEvent.press(button);
     expect(pressed).toBe(true);
   });
 });

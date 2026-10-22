@@ -305,6 +305,7 @@ export default function LoginScreen() {
                 variant="primary"
                 size="lg"
                 loading={loading}
+                testID="login-submit-btn"
                 onPress={handlePasswordLogin}
                 style={styles.submitBtn}
               />

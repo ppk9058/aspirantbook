@@ -31,10 +31,14 @@ export default function ForgotPasswordScreen() {
 
     setLoading(true);
     try {
-      await api.forgotPassword(email.trim()).catch(() => {});
-      setSent(true);
+      const res = await api.forgotPassword(email.trim());
+      if (!res.ok && res.error?.message) {
+        setErrorMessage(res.error.message);
+      } else {
+        setSent(true);
+      }
     } catch {
-      setSent(true);
+      setErrorMessage("Network connection error. Please try again.");
     } finally {
       setLoading(false);
     }
