@@ -17,6 +17,7 @@ export interface CbtStorageDriver {
   getRecordsForAttempt: (attemptId: string) => Promise<LocalAnswerRecord[]> | LocalAnswerRecord[];
   getAllUnsyncedAttempts: () => Promise<string[]> | string[];
   markSynced: (attemptId: string, questionId: string, sequenceNumber: number) => Promise<void> | void;
+  pruneOldAttempts?: (maxAgeMs?: number) => Promise<void> | void;
   clearAttempt: (attemptId: string) => Promise<void> | void;
   resetAll: () => Promise<void> | void;
 }
@@ -82,10 +83,10 @@ export class ExpoSqliteDriver implements SqliteDriver {
   public isDurable = false;
   private db: any = null;
 
-  constructor(dbName = "aspirantbook_cbt.db") {
+  constructor(dbName = "aspirantbook_cbt.db", customSqliteModule?: any) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const SQLite = require("expo-sqlite");
+      const SQLite = customSqliteModule || require("expo-sqlite");
       this.db = SQLite.openDatabaseSync(dbName);
       this.isDurable = true;
     } catch {
@@ -274,6 +275,14 @@ export class SqliteCbtStorage implements CbtStorageDriver {
     );
   }
 
+  pruneOldAttempts(maxAgeMs: number = 7 * 24 * 60 * 60 * 1000): void {
+    const cutoff = Date.now() - maxAgeMs;
+    this.driver.run(
+      `DELETE FROM cbt_answer_queue WHERE synced = 1 AND updatedAt < ?`,
+      [cutoff]
+    );
+  }
+
   clearAttempt(attemptId: string): void {
     this.driver.run(`DELETE FROM cbt_answer_queue WHERE attemptId = ?`, [attemptId]);
   }
@@ -321,6 +330,15 @@ export class MemoryCbtDriver implements CbtStorageDriver {
     }
   }
 
+  pruneOldAttempts(maxAgeMs: number = 7 * 24 * 60 * 60 * 1000): void {
+    const cutoff = Date.now() - maxAgeMs;
+    for (const [key, val] of this.store.entries()) {
+      if (val.synced && val.updatedAt < cutoff) {
+        this.store.delete(key);
+      }
+    }
+  }
+
   clearAttempt(attemptId: string): void {
     for (const [key, val] of this.store.entries()) {
       if (val.attemptId === attemptId) {
@@ -353,12 +371,21 @@ export class SQLiteCbtDriver extends SqliteCbtStorage {
 // ---------------------------------------------------------
 // Queue Manager Class
 // ---------------------------------------------------------
+export type CbtSyncStateListener = (state: {
+  isSyncing: boolean;
+  pendingCount: number;
+  lastError: string | null;
+}) => void;
+
 export class CbtSyncQueueManager {
   private driver: CbtStorageDriver;
   private currentSequence: number = 0;
   private isSyncing: boolean = false;
   private retryCount: number = 0;
   private syncApiFn: (attemptId: string, payload: any) => Promise<{ ok: boolean; error?: any }>;
+  public lastSyncError: string | null = null;
+  private listeners: Set<CbtSyncStateListener> = new Set();
+  private pendingCountCache: number = 0;
 
   constructor(driver?: CbtStorageDriver, syncApiFn?: any) {
     if (driver) {
@@ -384,6 +411,36 @@ export class CbtSyncQueueManager {
 
   public setDriver(driver: CbtStorageDriver) {
     this.driver = driver;
+  }
+
+  public getLastSyncError(): string | null {
+    return this.lastSyncError;
+  }
+
+  public subscribe(listener: CbtSyncStateListener): () => void {
+    this.listeners.add(listener);
+    try {
+      listener({
+        isSyncing: this.isSyncing,
+        pendingCount: this.pendingCountCache,
+        lastError: this.lastSyncError,
+      });
+    } catch {}
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  private notifyListeners(): void {
+    for (const listener of this.listeners) {
+      try {
+        listener({
+          isSyncing: this.isSyncing,
+          pendingCount: this.pendingCountCache,
+          lastError: this.lastSyncError,
+        });
+      } catch {}
+    }
   }
 
   public async init(): Promise<void> {
@@ -432,9 +489,14 @@ export class CbtSyncQueueManager {
     };
 
     await this.driver.saveRecord(record);
+    this.pendingCountCache += 1;
+    this.notifyListeners();
 
     // Trigger background sync asynchronously without blocking UI thread
-    void this.flush(attemptId).catch(() => {});
+    void this.flush(attemptId).catch((err: any) => {
+      this.lastSyncError = err?.message || "Sync failure";
+      this.notifyListeners();
+    });
 
     return record;
   }
@@ -450,7 +512,25 @@ export class CbtSyncQueueManager {
       const res = await this.flush(attemptId);
       totalRecovered += res.syncedCount;
     }
+    const remainingPending = await this.getTotalPendingCount();
+    this.pendingCountCache = remainingPending;
+    this.notifyListeners();
     return totalRecovered;
+  }
+
+  public async getTotalPendingCount(): Promise<number> {
+    const attempts = await this.driver.getAllUnsyncedAttempts();
+    let total = 0;
+    for (const attId of attempts) {
+      total += await this.getPendingCount(attId);
+    }
+    return total;
+  }
+
+  public async pruneOldAttempts(maxAgeMs?: number): Promise<void> {
+    if (this.driver.pruneOldAttempts) {
+      await this.driver.pruneOldAttempts(maxAgeMs);
+    }
   }
 
   public async flush(attemptId?: string): Promise<{ syncedCount: number; pendingCount: number }> {
@@ -459,6 +539,8 @@ export class CbtSyncQueueManager {
     }
     if (this.isSyncing) {
       const pending = await this.getPendingCount(attemptId);
+      this.pendingCountCache = pending;
+      this.notifyListeners();
       return { syncedCount: 0, pendingCount: pending };
     }
 
@@ -466,10 +548,14 @@ export class CbtSyncQueueManager {
     const unsynced = allRecords.filter((r) => !r.synced);
 
     if (unsynced.length === 0) {
+      this.pendingCountCache = 0;
+      this.lastSyncError = null;
+      this.notifyListeners();
       return { syncedCount: 0, pendingCount: 0 };
     }
 
     this.isSyncing = true;
+    this.notifyListeners();
     try {
       const payload = unsynced.map((u) => ({
         questionId: u.questionId,
@@ -492,18 +578,28 @@ export class CbtSyncQueueManager {
           await this.driver.markSynced(attemptId, u.questionId, u.sequenceNumber);
         }
         this.retryCount = 0;
+        this.lastSyncError = null;
         const remainingPending = await this.getPendingCount(attemptId);
+        this.pendingCountCache = remainingPending;
+        this.notifyListeners();
         return { syncedCount: unsynced.length, pendingCount: remainingPending };
       } else {
         this.retryCount += 1;
+        this.lastSyncError = res.error?.message || "Server rejected answer sync";
+        this.notifyListeners();
       }
-    } catch {
+    } catch (err: any) {
       this.retryCount += 1;
+      this.lastSyncError = err?.message || "Network offline during sync";
+      this.notifyListeners();
     } finally {
       this.isSyncing = false;
+      this.notifyListeners();
     }
 
     const pending = await this.getPendingCount(attemptId);
+    this.pendingCountCache = pending;
+    this.notifyListeners();
     return { syncedCount: 0, pendingCount: pending };
   }
 

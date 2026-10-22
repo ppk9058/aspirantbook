@@ -10,6 +10,7 @@ import { ThemeProvider } from "../theme/ThemeProvider";
 import { AuthProvider } from "../context/AuthContext";
 import { GoalProvider } from "../context/GoalContext";
 import { ContentLanguageProvider } from "../context/ContentLanguageContext";
+import { CbtRecoveryManager } from "../components/cbt/CbtRecoveryManager";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,8 +34,8 @@ export default function RootLayout() {
       }
     });
 
-    // 3. Recover unsent CBT answers from previous sessions on app startup
-    void cbtSyncQueue.recoverUnsentAnswers().catch(() => {});
+    // 3. CBT answer recovery is managed by CbtRecoveryManager inside AuthProvider:
+    // cbtSyncQueue.recoverUnsentAnswers() triggers only after tokens resolve and on AppState resume.
 
     return () => {
       unsubscribe();
@@ -46,6 +47,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <AuthProvider>
+            <CbtRecoveryManager />
             <GoalProvider>
               <ContentLanguageProvider>
                 <StatusBar style="auto" />

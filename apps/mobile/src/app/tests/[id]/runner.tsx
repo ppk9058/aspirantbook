@@ -79,6 +79,16 @@ export default function CbtRunnerScreen() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [integrityNotice, setIntegrityNotice] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [syncState, setSyncState] = useState<{ pendingCount: number; lastError: string | null }>({
+    pendingCount: 0,
+    lastError: cbtSyncQueue.getLastSyncError(),
+  });
+
+  useEffect(() => {
+    return cbtSyncQueue.subscribe((s) => {
+      setSyncState({ pendingCount: s.pendingCount, lastError: s.lastError });
+    });
+  }, []);
 
   const targetEndRef = useRef<number>(0);
   const appStateRef = useRef(AppState.currentState);
@@ -478,6 +488,16 @@ export default function CbtRunnerScreen() {
           <AlertCircle size={15} color="#d97706" />
           <Text style={styles.durabilityBannerText}>
             Offline durability disabled: SQLite database unavailable. Answers are kept in memory for this session only.
+          </Text>
+        </View>
+      )}
+
+      {/* Sync Status Banner if answers are pending sync due to connection issues */}
+      {Boolean(syncState.lastError && syncState.pendingCount > 0) && (
+        <View style={styles.syncErrorBanner}>
+          <AlertCircle size={15} color="#d97706" />
+          <Text style={styles.syncErrorBannerText}>
+            {syncState.pendingCount} answer{syncState.pendingCount > 1 ? "s" : ""} saved offline ({syncState.lastError})
           </Text>
         </View>
       )}
@@ -1117,6 +1137,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#fef3c7",
   },
   durabilityBannerText: {
+    fontSize: 12,
+    color: "#92400e",
+    flex: 1,
+  },
+  syncErrorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "#fef3c7",
+    borderBottomWidth: 1,
+    borderBottomColor: "#fde68a",
+  },
+  syncErrorBannerText: {
     fontSize: 12,
     color: "#92400e",
     flex: 1,
