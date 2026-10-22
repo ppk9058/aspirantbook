@@ -33,15 +33,18 @@ export function PdfRenderer({
     // 2. Feature detection: check if native PDF viewer is linked (dev client / standalone)
     async function detectNativePdf() {
       try {
-        // Attempt dynamic import of react-native-pdf in environments with native binary
-        // @ts-ignore - Dynamic import for dev builds with native module linked
-        const mod = await import("react-native-pdf").catch(() => null);
+        // Dynamic import of react-native-pdf in environments with native binary linked
+        const mod: any = await (import("react-native-pdf") as Promise<any>).catch((_err: unknown) => null);
         if (mod && mod.default && mounted) {
           setNativePdfComponent(() => mod.default);
           setIsNativeAvailable(true);
           return;
         }
-      } catch {}
+      } catch (err: unknown) {
+        if (mounted) {
+          setIsNativeAvailable(false);
+        }
+      }
       if (mounted) {
         setIsNativeAvailable(false);
       }

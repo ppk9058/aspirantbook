@@ -72,5 +72,7 @@ export async function clearPersistedQueryCache(queryClient?: QueryClient): Promi
     if (queryClient) {
       queryClient.clear();
     }
-  } catch {}
+  } catch (err: unknown) {
+    void err;
+  }
 }

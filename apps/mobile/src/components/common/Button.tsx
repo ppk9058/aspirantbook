@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
+  Platform,
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import { COLORS } from "@/lib/theme";
@@ -33,9 +34,9 @@ export function Button({
 }: ButtonProps) {
   const handlePress = () => {
     if (disabled || loading) return;
-    try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    } catch {}
+    if (Platform.OS === "ios" || Platform.OS === "android") {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     onPress();
   };
 

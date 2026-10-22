@@ -3,7 +3,7 @@ import { View, ActivityIndicator, StyleSheet, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { Storage } from "@/lib/storage";
 import { api } from "@/lib/api";
-import { registerForPushNotificationsAsync } from "@/lib/push";
+import { registerForPushNotificationsAsync, setLastPushRegistrationError } from "@/lib/push";
 
 export default function BootstrapScreen() {
   const router = useRouter();
@@ -21,7 +21,13 @@ export default function BootstrapScreen() {
         const meRes = await api.getMe();
         if (meRes.ok && meRes.data) {
           // Sync push notifications token in background
-          registerForPushNotificationsAsync().catch(() => {});
+          void registerForPushNotificationsAsync().then((tok) => {
+            if (!tok) {
+              setLastPushRegistrationError("Push token sync deferred");
+            }
+          }, (err: unknown) => {
+            setLastPushRegistrationError(err instanceof Error ? err.message : "Push token error");
+          });
           router.replace("/(tabs)/home");
         } else {
           // Token expired or invalid, fallback to guest mode

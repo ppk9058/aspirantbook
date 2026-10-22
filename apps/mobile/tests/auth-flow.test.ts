@@ -17,17 +17,17 @@ describe("Phase 8: Login and Register Parity", () => {
     }
   });
 
-  it("R9 compliance: Google sign-in is completely eliminated from login screen", () => {
+  it("Auth compliance: Google sign-in is completely eliminated from login screen", () => {
     const loginContent = fs.readFileSync(path.join(authRoot, "login.tsx"), "utf8");
     assert.equal(
       loginContent.includes("Sign In with Google"),
       false,
-      "R9 violation: Google sign-in stub must not exist"
+      "Violation: Google sign-in stub must not exist"
     );
     assert.equal(
       loginContent.includes("Google Sign-In"),
       false,
-      "R9 violation: Google Sign-In text must not exist"
+      "Violation: Google Sign-In text must not exist"
     );
   });
 

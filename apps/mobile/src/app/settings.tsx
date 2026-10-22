@@ -17,6 +17,7 @@ export default function SettingsScreen() {
   const { selectedGoal, openGoalModal } = useGoal();
   const { user, isAuthenticated, logout } = useAuth();
   const [tab, setTab] = useState<SettingsTab>("goal");
+  const [sessionActionError, setSessionActionError] = useState<string | null>(null);
 
   return (
     <AppShell testID="settings-screen">
@@ -180,10 +181,21 @@ export default function SettingsScreen() {
                   icon={<LogOut size={16} color={colors.textPrimary} />}
                 />
 
+                {sessionActionError ? (
+                  <View style={{ backgroundColor: "#FEE2E2", padding: 10, borderRadius: 8, marginTop: 8 }}>
+                    <Text style={{ color: "#DC2626", fontSize: 13, fontWeight: "600" }}>{sessionActionError}</Text>
+                  </View>
+                ) : null}
+
                 <Button
                   title="Sign out of all other devices"
                   onPress={async () => {
-                    await api.logoutAll().catch(() => {});
+                    setSessionActionError(null);
+                    const res = await api.logoutAll();
+                    if (!res.ok) {
+                      setSessionActionError(res.error?.message || "Failed to sign out of other devices. Please try again.");
+                      return;
+                    }
                     await logout();
                   }}
                   variant="outline"

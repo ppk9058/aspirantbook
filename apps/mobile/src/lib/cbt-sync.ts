@@ -425,7 +425,9 @@ export class CbtSyncQueueManager {
         pendingCount: this.pendingCountCache,
         lastError: this.lastSyncError,
       });
-    } catch {}
+    } catch (err: unknown) {
+      void err;
+    }
     return () => {
       this.listeners.delete(listener);
     };
@@ -439,7 +441,9 @@ export class CbtSyncQueueManager {
           pendingCount: this.pendingCountCache,
           lastError: this.lastSyncError,
         });
-      } catch {}
+      } catch (err: unknown) {
+        void err;
+      }
     }
   }
 

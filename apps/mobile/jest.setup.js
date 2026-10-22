@@ -85,6 +85,36 @@ jest.mock("react-native-webview", () => {
   };
 });
 
+// Expo Notifications native module mock
+jest.mock("expo-notifications", () => ({
+  getPermissionsAsync: jest.fn().mockResolvedValue({ status: "granted" }),
+  requestPermissionsAsync: jest.fn().mockResolvedValue({ status: "granted" }),
+  getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: "ExponentPushToken[mock-token-1234]" }),
+  addPushTokenListener: jest.fn(() => ({ remove: jest.fn() })),
+  removePushTokenSubscription: jest.fn(),
+  setNotificationHandler: jest.fn(),
+}));
+
+// Expo Haptics native module mock
+jest.mock("expo-haptics", () => ({
+  impactAsync: jest.fn().mockResolvedValue(undefined),
+  notificationAsync: jest.fn().mockResolvedValue(undefined),
+  selectionAsync: jest.fn().mockResolvedValue(undefined),
+  performAndroidHapticsAsync: jest.fn().mockResolvedValue(undefined),
+  ImpactFeedbackStyle: {
+    Light: "light",
+    Medium: "medium",
+    Heavy: "heavy",
+    Rigid: "rigid",
+    Soft: "soft",
+  },
+  NotificationFeedbackType: {
+    Success: "success",
+    Warning: "warning",
+    Error: "error",
+  },
+}));
+
 // Expo Router variables prefixed with mock
 const mockPush = jest.fn();
 const mockReplace = jest.fn();

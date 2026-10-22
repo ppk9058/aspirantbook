@@ -3,6 +3,13 @@ import { Storage } from "../lib/storage";
 import { api } from "../lib/api";
 import { TOKENS } from "../theme/tokens";
 
+let AppStateModule: any = null;
+try {
+  AppStateModule = require("react-native").AppState;
+} catch (err: unknown) {
+  void err;
+}
+
 export interface Goal {
   id: string;
   name: string;
@@ -78,9 +85,11 @@ export interface GoalContextValue {
   allGoals: Goal[];
   isLoaded: boolean;
   isGoalModalOpen: boolean;
+  couldNotSyncGoal: boolean;
   selectGoal: (goal: Goal) => void;
   openGoalModal: () => void;
   closeGoalModal: () => void;
+  retrySyncGoal: () => Promise<void>;
 }
 
 const GoalContext = createContext<GoalContextValue | undefined>(undefined);
@@ -89,6 +98,7 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
   const [selectedGoal, setSelectedGoal] = useState<Goal>(DEFAULT_GOAL);
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [couldNotSyncGoal, setCouldNotSyncGoal] = useState<boolean>(false);
 
   useEffect(() => {
     let active = true;
@@ -112,9 +122,51 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
   const selectGoal = useCallback((goal: Goal) => {
     setSelectedGoal(goal);
     void Storage.setGoal(goal.id);
-    void api.updateMe({ goal: goal.id }).catch(() => {});
+    void api.updateMe({ goal: goal.id }).then(
+      (res) => {
+        if (!res.ok) {
+          setCouldNotSyncGoal(true);
+        } else {
+          setCouldNotSyncGoal(false);
+        }
+      },
+      () => {
+        setCouldNotSyncGoal(true);
+      }
+    );
     setIsGoalModalOpen(false);
   }, []);
+
+  const retrySyncGoal = useCallback(async () => {
+    if (!selectedGoal) return;
+    const res = await api.updateMe({ goal: selectedGoal.id });
+    if (res.ok) {
+      setCouldNotSyncGoal(false);
+    } else {
+      setCouldNotSyncGoal(true);
+    }
+  }, [selectedGoal]);
+
+  useEffect(() => {
+    if (!AppStateModule?.addEventListener) return;
+    const subscription = AppStateModule.addEventListener("change", (nextState: string) => {
+      if (nextState === "active" && couldNotSyncGoal && selectedGoal) {
+        void api.updateMe({ goal: selectedGoal.id }).then(
+          (res) => {
+            if (res.ok) {
+              setCouldNotSyncGoal(false);
+            }
+          },
+          () => {
+            // Keep error flag active for subsequent retry
+          }
+        );
+      }
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, [couldNotSyncGoal, selectedGoal]);
 
   const openGoalModal = useCallback(() => setIsGoalModalOpen(true), []);
   const closeGoalModal = useCallback(() => setIsGoalModalOpen(false), []);
@@ -126,11 +178,22 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
       allGoals: POPULAR_GOALS,
       isLoaded,
       isGoalModalOpen,
+      couldNotSyncGoal,
       selectGoal,
       openGoalModal,
       closeGoalModal,
+      retrySyncGoal,
     }),
-    [selectedGoal, isLoaded, isGoalModalOpen, selectGoal, openGoalModal, closeGoalModal]
+    [
+      selectedGoal,
+      isLoaded,
+      isGoalModalOpen,
+      couldNotSyncGoal,
+      selectGoal,
+      openGoalModal,
+      closeGoalModal,
+      retrySyncGoal,
+    ]
   );
 
   return <GoalContext.Provider value={value}>{children}</GoalContext.Provider>;
@@ -145,9 +208,11 @@ export function useGoal(): GoalContextValue {
       allGoals: POPULAR_GOALS,
       isLoaded: true,
       isGoalModalOpen: false,
+      couldNotSyncGoal: false,
       selectGoal: () => {},
       openGoalModal: () => {},
       closeGoalModal: () => {},
+      retrySyncGoal: async () => {},
     };
   }
   return context;

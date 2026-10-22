@@ -85,7 +85,12 @@ export default function ProfileScreen() {
           text: "Revoke All",
           style: "destructive",
           onPress: async () => {
-            await api.logoutAll().catch(() => {});
+            setActionError(null);
+            const res = await api.logoutAll();
+            if (!res.ok) {
+              setActionError(res.error?.message || "Failed to revoke sessions on server. Please try again.");
+              return;
+            }
             await Storage.clearAllAuthTokens();
             await clearPersistedQueryCache(queryClient);
             router.replace("/(auth)/login" as any);
@@ -264,6 +269,12 @@ export default function ProfileScreen() {
             <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>
               Active Device Sessions
             </Text>
+
+            {actionError ? (
+              <View style={{ backgroundColor: "#FEE2E2", padding: 10, borderRadius: 8, marginBottom: 10 }}>
+                <Text style={{ color: "#DC2626", fontSize: 13, fontWeight: "600" }}>{actionError}</Text>
+              </View>
+            ) : null}
 
             <Card style={styles.sessionCard}>
               <View style={styles.sessionTitleRow}>

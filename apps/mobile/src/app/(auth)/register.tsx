@@ -26,7 +26,7 @@ import { Button } from "../../components/primitives/Button";
 import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
 import { Storage } from "../../lib/storage";
-import { registerForPushNotificationsAsync } from "../../lib/push";
+import { registerForPushNotificationsAsync, setLastPushRegistrationError } from "../../lib/push";
 import { openWebUrl } from "../../lib/web-links";
 
 export default function RegisterScreen() {
@@ -93,7 +93,13 @@ export default function RegisterScreen() {
       await Storage.setRefreshToken(res.data.tokens.refreshToken);
       await Storage.setUser(res.data.user);
 
-      registerForPushNotificationsAsync().catch(() => {});
+      void registerForPushNotificationsAsync().then((tok) => {
+        if (!tok) {
+          setLastPushRegistrationError("Push token registration deferred");
+        }
+      }, (err: unknown) => {
+        setLastPushRegistrationError(err instanceof Error ? err.message : "Push token registration failed");
+      });
       router.replace("/(tabs)/home");
     } catch {
       setErrorMessage("Network connection error. Please try again.");

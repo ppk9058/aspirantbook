@@ -19,7 +19,9 @@ export function getPdfStorageDir(): string {
     if (fs?.documentDirectory) {
       baseDir = fs.documentDirectory;
     }
-  } catch {}
+  } catch (err: unknown) {
+    void err;
+  }
   return `${baseDir}${SECURE_DOCS_DIR_NAME}/`;
 }
 
@@ -37,7 +39,9 @@ export async function ensureSecureDocsDir(): Promise<void> {
     if (!info.exists) {
       await fs.makeDirectoryAsync(dir, { intermediates: true });
     }
-  } catch {}
+  } catch (err: unknown) {
+    void err;
+  }
 }
 
 export async function isPdfDownloaded(id: string): Promise<boolean> {
@@ -88,7 +92,9 @@ export async function clearDownloadResumeState(id: string): Promise<void> {
   const adapter = getStorageAdapter();
   try {
     await adapter.removeItem(`${RESUME_PREFIX}${id}`);
-  } catch {}
+  } catch (err: unknown) {
+    void err;
+  }
 }
 
 export async function deleteCachedPdf(id: string): Promise<boolean> {
@@ -131,5 +137,7 @@ export async function clearAllCachedPdfs(): Promise<void> {
         await ensureSecureDocsDir();
       }
     }
-  } catch {}
+  } catch (err: unknown) {
+    void err;
+  }
 }
