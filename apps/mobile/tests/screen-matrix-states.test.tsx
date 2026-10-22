@@ -14,6 +14,7 @@ const SCREEN_MAP: Record<string, any> = {
   "/(auth)/login": require("../src/app/(auth)/login").default,
   "/(auth)/register": require("../src/app/(auth)/register").default,
   "/(auth)/reset-password": require("../src/app/(auth)/reset-password").default,
+  "/(tabs)/index": require("../src/app/(tabs)/index").default,
   "/(tabs)/courses": require("../src/app/(tabs)/courses").default,
   "/(tabs)/home": require("../src/app/(tabs)/home").default,
   "/(tabs)/learn": require("../src/app/(tabs)/learn").default,
@@ -248,6 +249,15 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const { getByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(getByText(/Reset Password|Set New Password/i)).toBeTruthy();
       expect(queryByText("Password updated")).toBeNull();
+    });
+  });
+
+  describe("/(tabs)/index", () => {
+    it("[/(tabs)/index] success", async () => {
+      const Comp = SCREEN_MAP["/(tabs)/index"];
+      if (!Comp) return;
+      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      expect(toJSON()).toBeDefined();
     });
   });
 

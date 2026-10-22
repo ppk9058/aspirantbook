@@ -1,5 +1,9 @@
 import { ExpoConfig, ConfigContext } from "expo/config";
 
+if (typeof __DEV__ !== "undefined" ? __DEV__ : process.env.NODE_ENV !== "production") {
+  console.log(`[API] Resolved Base URL: ${process.env.EXPO_PUBLIC_API_URL || "UNCONFIGURED"}`);
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "aspirantbook",
@@ -64,8 +68,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     typedRoutes: false,
   },
   extra: {
-    EXPO_PUBLIC_API_URL:
-      process.env.EXPO_PUBLIC_API_URL || "http://10.0.2.2:3045",
+    EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL || "",
     eas: {
       projectId: "aspirantbook-mobile",
     },

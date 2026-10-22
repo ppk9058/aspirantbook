@@ -7,7 +7,8 @@ import { GoalProvider } from "../src/context/GoalContext";
 import { Storage } from "../src/lib/storage";
 
 // Components to test
-import CoursesTabScreen from "../src/app/(tabs)/courses";
+import CoursesTabScreen, { cleanDescriptionPreview } from "../src/app/(tabs)/courses";
+import { api } from "../src/lib/api";
 import CourseDetailScreen from "../src/app/courses/[id]";
 import CourseLessonPlayerScreen from "../src/app/courses/[id]/lesson/[lessonId]";
 import MyLearningScreen from "../src/app/my-learning";
@@ -104,6 +105,42 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
         },
         { timeout: 4000 }
       );
+    });
+
+    it("returns 503 unconfigured error when EXPO_PUBLIC_API_URL is missing", async () => {
+      const res = await api.getCourses();
+      expect(res.ok).toBe(false);
+      if (!res.ok) {
+        expect(res.error?.code).toBe("API_UNCONFIGURED");
+        expect(res.error?.message).toContain("API endpoint is not configured");
+      }
+    });
+
+    it("renders sanitized course description preview without raw markdown headings", async () => {
+      const mockCourse = {
+        id: "c-md-1",
+        title: "Markdown Formatted Course",
+        description: "# About this tutorial\n**Key concepts** and ==important==",
+        difficulty: "BEGINNER",
+        price: 0,
+        isFree: true,
+        thumbnailUrl: null,
+        lessonsCount: 5,
+        chaptersCount: 1,
+      };
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({ ok: true, data: [mockCourse] }),
+      } as any);
+
+      render(<CoursesTabScreen />, { wrapper: createWrapper() });
+      await waitFor(() => {
+        expect(screen.getByText(/About this tutorial Key concepts/)).toBeTruthy();
+      });
+      expect(screen.queryByText(/# About this tutorial/)).toBeNull();
+      expect(cleanDescriptionPreview("# Heading 1\n**Bold** and ==Mark==")).toBe("Heading 1 Bold and Mark");
+      expect(cleanDescriptionPreview(null)).toBe("");
     });
 
     it("renders success state with course cards and handles filter selection", async () => {

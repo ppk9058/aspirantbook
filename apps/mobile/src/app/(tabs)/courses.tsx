@@ -36,6 +36,17 @@ import { CourseSummaryDto } from "@aspirantbook/shared";
 
 type DifficultyFilter = "ALL" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
 
+export function cleanDescriptionPreview(desc?: string | null): string {
+  if (!desc) return "";
+  return desc
+    .replace(/^#+\s+/gm, "")
+    .replace(/==([^=]+)==/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/^-\s+\[[ xX]\]\s+/gm, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export default function CoursesTabScreen() {
   const router = useRouter();
   const { colors, tokens } = useTheme();
@@ -273,7 +284,7 @@ export default function CoursesTabScreen() {
 
                 {Boolean(course.description) && (
                   <Text style={[styles.courseDesc, { color: colors.textSecondary }]} numberOfLines={2}>
-                    {course.description}
+                    {cleanDescriptionPreview(course.description)}
                   </Text>
                 )}
 

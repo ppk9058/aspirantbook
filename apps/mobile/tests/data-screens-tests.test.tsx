@@ -94,7 +94,7 @@ describe("T3: Mounted Tests - Tests Domain Screens", () => {
       render(<TestsTabScreen />, { wrapper: createWrapper() });
 
       await waitFor(() => {
-        expect(screen.getByText("Something went wrong")).toBeTruthy();
+        expect(screen.getByText("Connection Unavailable")).toBeTruthy();
       }, { timeout: 4000 });
     });
 

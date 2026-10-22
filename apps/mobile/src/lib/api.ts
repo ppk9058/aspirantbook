@@ -5,16 +5,12 @@ const envApiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 // Dev logging of resolved base URL
 if (typeof __DEV__ !== "undefined" && __DEV__) {
-  console.log(`[API] Resolved Base URL: ${envApiUrl || "http://localhost:3045"}`);
+  console.log(`[API] Resolved Base URL: ${envApiUrl || "UNCONFIGURED"}`);
 }
 
-const rawApiUrl =
-  envApiUrl ||
-  (typeof __DEV__ !== "undefined" && __DEV__
-    ? "http://localhost:3045"
-    : "");
+const rawApiUrl = envApiUrl ? envApiUrl.trim() : "";
 // Canonical normalization: always server origin without trailing slash or duplicate /api/v1
-export const API_BASE_URL = rawApiUrl.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "");
+export const API_BASE_URL = rawApiUrl ? rawApiUrl.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "") : "";
 
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;
@@ -44,6 +40,11 @@ async function refreshAccessTokenSingleFlight(): Promise<string | null> {
     try {
       const refreshToken = await Storage.getRefreshToken();
       if (!refreshToken) {
+        notifyUnauthorized();
+        return null;
+      }
+
+      if (!API_BASE_URL) {
         notifyUnauthorized();
         return null;
       }

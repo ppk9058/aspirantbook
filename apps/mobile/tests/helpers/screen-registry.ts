@@ -51,6 +51,18 @@ export const SCREEN_REGISTRY: ScreenRegistryEntry[] = [
 
   // --- Tab Screens (Data) ---
   {
+    route: "/(tabs)/index",
+    file: "(tabs)/index.tsx",
+    kind: "static",
+    requiredStates: ["success"],
+    naJustifications: {
+      loading: "Tabs index performs route redirect to home without data list states",
+      empty: "Tabs index contains no data list",
+      error500: "Tabs index performs instant redirect",
+      networkFailure: "Tabs index performs instant redirect",
+    },
+  },
+  {
     route: "/(tabs)/courses",
     file: "(tabs)/courses.tsx",
     kind: "data",
