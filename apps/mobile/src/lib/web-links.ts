@@ -1,16 +1,19 @@
 /**
  * Centralized Web Links & External URL Helper
- * Derives the web origin dynamically from EXPO_PUBLIC_WEB_URL or EXPO_PUBLIC_API_URL,
+ * Derives the web origin dynamically from EXPO_PUBLIC_WEB_URL, or in __DEV__ from EXPO_PUBLIC_API_URL,
  * with standard UTM tracking (?utm_source=mobile_app&utm_campaign=...).
  * When origin is not configured in environment, returns null (never a hardcoded domain).
  */
 
 export const DEFAULT_WEB_ORIGIN: string | null = null;
 
+/** Neutral user-facing message when external website link is unconfigured */
+export const WEBLINK_UNAVAILABLE_NOTE = "Website link not available yet";
+
 /**
  * Resolves the base web origin (protocol + host [+ port]).
  * 1. Checks EXPO_PUBLIC_WEB_URL
- * 2. If not set, strips `/api/v1` from EXPO_PUBLIC_API_URL
+ * 2. If not set, checks EXPO_PUBLIC_API_URL ONLY when __DEV__
  * 3. Falls back to null if unconfigured
  */
 export function getWebOrigin(): string | null {
@@ -19,13 +22,16 @@ export function getWebOrigin(): string | null {
     return envWeb.replace(/\/+$/, "");
   }
 
-  const envApi = process.env.EXPO_PUBLIC_API_URL?.trim();
-  if (envApi) {
-    try {
-      const cleaned = envApi.replace(/\/+$/, "").replace(/\/api\/v1\/?$/, "");
-      if (cleaned) return cleaned;
-    } catch {
-      // fallback
+  const isDev = typeof __DEV__ !== "undefined" ? __DEV__ : process.env.NODE_ENV !== "production";
+  if (isDev) {
+    const envApi = process.env.EXPO_PUBLIC_API_URL?.trim();
+    if (envApi) {
+      try {
+        const cleaned = envApi.replace(/\/+$/, "").replace(/\/api\/v1\/?$/, "");
+        if (cleaned) return cleaned;
+      } catch {
+        // fallback
+      }
     }
   }
 
@@ -59,7 +65,7 @@ export function buildWebUrl(path: string, utmCampaign?: string): string | null {
 export async function openWebUrl(
   pathOrUrl: string,
   utmCampaign?: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; message?: string }> {
   let finalUrl: string | null = null;
   if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
     finalUrl = pathOrUrl;
@@ -71,6 +77,7 @@ export async function openWebUrl(
     return {
       success: false,
       error: "Web address not configured.",
+      message: WEBLINK_UNAVAILABLE_NOTE,
     };
   }
 
