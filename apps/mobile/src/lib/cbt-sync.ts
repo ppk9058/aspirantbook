@@ -381,6 +381,7 @@ export class CbtSyncQueueManager {
   private driver: CbtStorageDriver;
   private currentSequence: number = 0;
   private isSyncing: boolean = false;
+  private isRecovering: boolean = false;
   private retryCount: number = 0;
   private syncApiFn: (attemptId: string, payload: any) => Promise<{ ok: boolean; error?: any }>;
   public lastSyncError: string | null = null;
@@ -510,16 +511,25 @@ export class CbtSyncQueueManager {
   }
 
   public async recoverUnsentAnswers(): Promise<number> {
-    const unsyncedAttempts = await this.driver.getAllUnsyncedAttempts();
-    let totalRecovered = 0;
-    for (const attemptId of unsyncedAttempts) {
-      const res = await this.flush(attemptId);
-      totalRecovered += res.syncedCount;
+    if (this.isRecovering || this.isSyncing) {
+      return 0;
     }
-    const remainingPending = await this.getTotalPendingCount();
-    this.pendingCountCache = remainingPending;
-    this.notifyListeners();
-    return totalRecovered;
+    this.isRecovering = true;
+    try {
+      const unsyncedAttempts = await this.driver.getAllUnsyncedAttempts();
+      let totalRecovered = 0;
+      for (const attemptId of unsyncedAttempts) {
+        const res = await this.flush(attemptId);
+        totalRecovered += res.syncedCount;
+      }
+      const remainingPending = await this.getTotalPendingCount();
+      this.pendingCountCache = remainingPending;
+      this.notifyListeners();
+      return totalRecovered;
+    } finally {
+      this.isRecovering = false;
+      this.notifyListeners();
+    }
   }
 
   public async getTotalPendingCount(): Promise<number> {

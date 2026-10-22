@@ -35,7 +35,11 @@ export function CbtRecoveryManager({
       (async () => {
         try {
           const recovered = await cbtSyncQueue.recoverUnsentAnswers();
-          onRecoveryComplete?.(recovered);
+          if (cbtSyncQueue.lastSyncError) {
+            onRecoveryError?.(cbtSyncQueue.lastSyncError);
+          } else {
+            onRecoveryComplete?.(recovered);
+          }
         } catch (err: any) {
           const errMsg = err?.message || "CBT answer recovery failed";
           cbtSyncQueue.lastSyncError = errMsg;
@@ -54,7 +58,11 @@ export function CbtRecoveryManager({
         void (async () => {
           try {
             const recovered = await cbtSyncQueue.recoverUnsentAnswers();
-            onRecoveryComplete?.(recovered);
+            if (cbtSyncQueue.lastSyncError) {
+              onRecoveryError?.(cbtSyncQueue.lastSyncError);
+            } else {
+              onRecoveryComplete?.(recovered);
+            }
           } catch (err: any) {
             const errMsg = err?.message || "CBT answer recovery failed on resume";
             cbtSyncQueue.lastSyncError = errMsg;
