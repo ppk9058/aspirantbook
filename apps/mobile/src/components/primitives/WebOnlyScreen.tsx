@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, ViewStyle } from "react-native";
-import * as WebBrowser from "expo-web-browser";
 import { ExternalLink, Globe } from "lucide-react-native";
 import { useTheme } from "../../theme/ThemeProvider";
 import { Button } from "./Button";
 import { Screen } from "./Screen";
+import { openWebUrl } from "../../lib/web-links";
 
 export interface WebOnlyScreenProps {
   title: string;
@@ -14,8 +14,6 @@ export interface WebOnlyScreenProps {
   testID?: string;
 }
 
-const BASE_WEB_URL = "https://aspirantbook.com";
-
 export function WebOnlyScreen({
   title,
   explanation,
@@ -24,15 +22,13 @@ export function WebOnlyScreen({
   testID,
 }: WebOnlyScreenProps) {
   const { colors, tokens } = useTheme();
+  const [browserError, setBrowserError] = useState<string | null>(null);
 
   const handleOpenWebsite = async () => {
-    const path = webPath.startsWith("/") ? webPath : `/${webPath}`;
-    const separator = path.includes("?") ? "&" : "?";
-    const fullUrl = `${BASE_WEB_URL}${path}${separator}utm_source=mobile_app`;
-    try {
-      await WebBrowser.openBrowserAsync(fullUrl);
-    } catch {
-      // Browser launch fallback
+    setBrowserError(null);
+    const res = await openWebUrl(webPath || "/", "web_only_screen");
+    if (!res.success && res.error) {
+      setBrowserError(res.error);
     }
   };
 
@@ -48,27 +44,47 @@ export function WebOnlyScreen({
             },
           ]}
         >
-          <Globe size={36} color={colors.primary} />
+          <Globe size={40} color={colors.primary} />
         </View>
 
-        <Text style={[styles.title, { color: colors.textPrimary }]}>
+        <Text
+          style={[
+            styles.title,
+            {
+              color: colors.textPrimary,
+              fontWeight: tokens.typography.fontWeights.semibold,
+            },
+          ]}
+        >
           {title}
         </Text>
 
-        <Text style={[styles.explanation, { color: colors.textSecondary }]}>
+        <Text
+          style={[
+            styles.explanation,
+            {
+              color: colors.textSecondary,
+              fontWeight: tokens.typography.fontWeights.normal,
+            },
+          ]}
+        >
           {explanation}
         </Text>
 
-        <View style={styles.buttonWrapper}>
-          <Button
-            title="Open on website"
-            onPress={handleOpenWebsite}
-            variant="primary"
-            size="md"
-            iconRight={<ExternalLink size={16} color="#FFFFFF" />}
-            testID={`${testID || "web-only"}-btn`}
-          />
-        </View>
+        <Button
+          title="Open on Website"
+          variant="primary"
+          size="lg"
+          iconRight={<ExternalLink size={18} color="#FFFFFF" />}
+          style={styles.actionButton}
+          onPress={handleOpenWebsite}
+        />
+
+        {browserError && (
+          <Text style={{ color: colors.danger, marginTop: 12, textAlign: "center", fontSize: 13 }}>
+            {browserError}
+          </Text>
+        )}
       </View>
     </Screen>
   );
@@ -82,29 +98,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   iconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
     marginBottom: 20,
   },
   title: {
     fontSize: 20,
-    fontWeight: "800",
     textAlign: "center",
     marginBottom: 8,
   },
   explanation: {
     fontSize: 14,
-    textAlign: "center",
     lineHeight: 20,
-    maxWidth: 320,
+    textAlign: "center",
     marginBottom: 24,
+    maxWidth: 320,
   },
-  buttonWrapper: {
-    width: "100%",
-    maxWidth: 240,
+  actionButton: {
+    minWidth: 200,
   },
 });

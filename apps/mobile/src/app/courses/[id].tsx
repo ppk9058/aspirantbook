@@ -32,7 +32,7 @@ import { ErrorState } from "../../components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
-import { buildWebUrl } from "../../lib/web-links";
+import { openWebUrl } from "../../lib/web-links";
 import { CourseDetailDto, CourseChapterDto } from "@aspirantbook/shared";
 
 export default function CourseDetailScreen() {
@@ -43,6 +43,7 @@ export default function CourseDetailScreen() {
   const queryClient = useQueryClient();
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [enrollError, setEnrollError] = useState<string | null>(null);
 
   const courseQuery = useQuery({
     queryKey: ["course-detail", id],
@@ -80,12 +81,11 @@ export default function CourseDetailScreen() {
   };
 
   const handleOpenWebsite = async (slug: string) => {
-    // Reader model web checkout with utm_source=mobile_app
-    const websiteUrl = buildWebUrl(`/courses/${slug}`, "course_enroll");
-    try {
-      await WebBrowser.openBrowserAsync(websiteUrl);
-    } catch {
-      // fallback
+    setEnrollError(null);
+    // CourseDetail must use WebBrowser.openBrowserAsync for web-only checkout (Reader model) with utm_source=mobile_app
+    const res = await openWebUrl(`/courses/${slug}`, "course_enroll");
+    if (!res.success && res.error) {
+      setEnrollError(res.error);
     }
   };
 
@@ -262,6 +262,11 @@ export default function CourseDetailScreen() {
                   <Text style={styles.webButtonText}>Enroll on Website (₹{course!.price})</Text>
                   <ExternalLink size={18} color="#fff" style={{ marginLeft: 8 }} />
                 </TouchableOpacity>
+              )}
+              {enrollError && (
+                <Text style={{ color: colors.danger, marginTop: 8, textAlign: "center", fontSize: 13 }}>
+                  {enrollError}
+                </Text>
               )}
             </View>
 

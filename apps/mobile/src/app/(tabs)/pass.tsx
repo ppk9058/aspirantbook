@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import * as WebBrowser from "expo-web-browser";
 import { Zap, CheckCircle2, ExternalLink, ShieldCheck, Sparkles } from "lucide-react-native";
 import { AppShell } from "../../components/shell/AppShell";
 import { Card } from "../../../src/components/primitives/Card";
@@ -14,7 +13,7 @@ import { Badge } from "../../../src/components/primitives/Badge";
 import { Button } from "../../../src/components/primitives/Button";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
-import { buildWebUrl } from "../../lib/web-links";
+import { openWebUrl } from "../../lib/web-links";
 
 const PASS_BENEFITS = [
   "Unlimited Access to 500+ All India Mock Tests & Test Series",
@@ -28,14 +27,15 @@ const PASS_BENEFITS = [
 export default function PassTabScreen() {
   const { colors, tokens } = useTheme();
   const { user, hasActivePass } = useAuth();
+  const [browserError, setBrowserError] = useState<string | null>(null);
 
   const handleOpenPricing = async () => {
-    try {
-      // Reader model web checkout with utm_source=mobile_app
-      await WebBrowser.openBrowserAsync(
-        buildWebUrl("/pricing", "pass_tab")
-      );
-    } catch {}
+    setBrowserError(null);
+    // Reader model web checkout with utm_source=mobile_app via WebBrowser.openBrowserAsync
+    const res = await openWebUrl("/pricing", "pass_tab");
+    if (!res.success && res.error) {
+      setBrowserError(res.error);
+    }
   };
 
   return (
@@ -45,6 +45,11 @@ export default function PassTabScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
+        {browserError && (
+          <View style={{ backgroundColor: colors.surface, padding: 12, borderRadius: 8, marginBottom: 12 }}>
+            <Text style={{ color: colors.danger, fontSize: 13 }}>{browserError}</Text>
+          </View>
+        )}
         {/* Pass Hero Card */}
         <Card
           variant="elevated"

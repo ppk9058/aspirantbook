@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Modal, StyleSheet, TouchableOpacity } from "react-native";
-import * as WebBrowser from "expo-web-browser";
 import { Globe, X } from "lucide-react-native";
 import { Button } from "./Button";
 import { COLORS } from "@/lib/theme";
+import { openWebUrl } from "@/lib/web-links";
 
 interface AvailableOnWebsiteModalProps {
   visible: boolean;
@@ -19,14 +19,20 @@ export function AvailableOnWebsiteModal({
   onClose,
   itemTitle,
   title,
-  webUrl = "https://aspirantbook.com",
+  webUrl,
   reason,
 }: AvailableOnWebsiteModalProps) {
   const displayTitle = itemTitle || title || "Item";
+  const [browserError, setBrowserError] = useState<string | null>(null);
+
   const handleOpenWebsite = async () => {
-    try {
-      await WebBrowser.openBrowserAsync(webUrl);
-    } catch {}
+    setBrowserError(null);
+    const target = webUrl || "/";
+    const res = await openWebUrl(target, "website_modal");
+    if (!res.success && res.error) {
+      setBrowserError(res.error);
+      return;
+    }
     onClose();
   };
 
@@ -43,23 +49,35 @@ export function AvailableOnWebsiteModal({
             <X size={20} color="#64748B" />
           </TouchableOpacity>
 
-          <View style={styles.iconCircle}>
-            <Globe size={26} color={COLORS.primary} />
+          <View style={styles.iconWrap}>
+            <Globe size={32} color={COLORS.primary} />
           </View>
 
-          <Text style={styles.title}>Available on our website</Text>
-          <Text style={styles.subtitle}>
-            {reason || `"${displayTitle}" can be enrolled or unlocked on the AspirantBook website. Once enrolled, it will automatically sync to your mobile library.`}
+          <Text style={styles.title}>Available on Web</Text>
+          <Text style={styles.description}>
+            {reason ||
+              `"${displayTitle}" provides an optimal learning experience on a larger screen and is available directly on our website.`}
           </Text>
 
-          <Button
-            title="Open in Browser"
-            onPress={handleOpenWebsite}
-            style={styles.actionBtn}
-          />
-          <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
-            <Text style={styles.cancelText}>Dismiss</Text>
-          </TouchableOpacity>
+          {browserError && (
+            <Text style={{ color: "#EF4444", fontSize: 13, marginBottom: 12, textAlign: "center" }}>
+              {browserError}
+            </Text>
+          )}
+
+          <View style={styles.actions}>
+            <Button
+              title="Open Website"
+              onPress={handleOpenWebsite}
+              variant="primary"
+            />
+            <Button
+              title="Maybe Later"
+              onPress={onClose}
+              variant="outline"
+              style={styles.cancelBtn}
+            />
+          </View>
         </View>
       </View>
     </Modal>
@@ -72,29 +90,30 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 24,
   },
   modal: {
-    width: "100%",
-    maxWidth: 360,
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 24,
     alignItems: "center",
+    width: "100%",
+    maxWidth: 360,
+    position: "relative",
   },
   closeBtn: {
     position: "absolute",
-    top: 16,
     right: 16,
+    top: 16,
     padding: 4,
   },
-  iconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  iconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: "#EEF2FF",
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
     marginBottom: 16,
   },
   title: {
@@ -102,25 +121,19 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#0F172A",
     marginBottom: 8,
-    textAlign: "center",
   },
-  subtitle: {
-    fontSize: 13,
+  description: {
+    fontSize: 14,
     color: "#64748B",
     textAlign: "center",
+    lineHeight: 20,
     marginBottom: 20,
-    lineHeight: 18,
   },
-  actionBtn: {
+  actions: {
     width: "100%",
-    marginBottom: 10,
+    gap: 8,
   },
   cancelBtn: {
-    padding: 8,
-  },
-  cancelText: {
-    fontSize: 13,
-    color: "#64748B",
-    fontWeight: "600",
+    marginTop: 4,
   },
 });

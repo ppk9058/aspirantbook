@@ -27,7 +27,7 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
 import { Storage } from "../../lib/storage";
 import { registerForPushNotificationsAsync } from "../../lib/push";
-import { buildWebUrl } from "../../lib/web-links";
+import { openWebUrl } from "../../lib/web-links";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -103,9 +103,11 @@ export default function RegisterScreen() {
   };
 
   const openLegal = async (path: string) => {
-    try {
-      await WebBrowser.openBrowserAsync(buildWebUrl(`/${path}`, "legal"));
-    } catch {}
+    setErrorMessage(null);
+    const res = await openWebUrl(`/${path}`, "legal");
+    if (!res.success && res.error) {
+      setErrorMessage(res.error);
+    }
   };
 
   return (

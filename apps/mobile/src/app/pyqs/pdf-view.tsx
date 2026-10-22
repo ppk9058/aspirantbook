@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import * as WebBrowser from "expo-web-browser";
 import {
   ChevronLeft,
   FileText,
@@ -24,7 +23,7 @@ import {
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
-import { buildWebUrl } from "../../lib/web-links";
+import { openWebUrl } from "../../lib/web-links";
 import { Card } from "../../../src/components/primitives/Card";
 import { Button } from "../../../src/components/primitives/Button";
 import { Badge } from "../../../src/components/primitives/Badge";
@@ -67,11 +66,10 @@ export default function PyqPdfViewScreen() {
 
   const handleOpenPdf = async () => {
     setStatusMessage(null);
-    const url = paper?.fileUrl || buildWebUrl(`/pyqs/${paperId}`, "pyq_view");
-    try {
-      await WebBrowser.openBrowserAsync(url);
-    } catch {
-      setStatusMessage("Could not open document viewer.");
+    const target = paper?.fileUrl || `/pyqs/${paperId}`;
+    const res = await openWebUrl(target, "pyq_view");
+    if (!res.success && res.error) {
+      setStatusMessage(res.error);
     }
   };
 

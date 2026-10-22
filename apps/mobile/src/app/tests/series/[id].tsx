@@ -28,7 +28,7 @@ import { Badge } from "../../../components/primitives/Badge";
 import { Button } from "../../../components/primitives/Button";
 import { Skeleton } from "../../../components/primitives/Skeleton";
 import { EmptyState } from "../../../components/primitives/EmptyState";
-import { buildWebUrl } from "../../../lib/web-links";
+import { openWebUrl } from "../../../lib/web-links";
 import { ErrorState } from "../../../components/primitives/ErrorState";
 import { useTheme } from "../../../theme/ThemeProvider";
 import { api } from "../../../lib/api";
@@ -62,10 +62,15 @@ export default function ExamSeriesDetailScreen() {
     return data.tests.filter((t) => t.testType === activeFilter);
   }, [data?.tests, activeFilter]);
 
+  const [unlockError, setUnlockError] = useState<string | null>(null);
+
   const handleUnlockOnWeb = async () => {
+    setUnlockError(null);
     const slug = data?.series?.slug || id;
-    const url = buildWebUrl(`/test-series/${slug}`, "series_unlock");
-    await WebBrowser.openBrowserAsync(url);
+    const res = await openWebUrl(`/test-series/${slug}`, "series_unlock");
+    if (!res.success && res.error) {
+      setUnlockError(res.error);
+    }
   };
 
   if (isLoading) {
@@ -334,6 +339,11 @@ export default function ExamSeriesDetailScreen() {
             <Text style={[styles.stickySubtitle, { color: colors.textSecondary }]}>
               Enroll on website to access full series
             </Text>
+            {unlockError && (
+              <Text style={{ color: colors.danger, fontSize: 12, marginTop: 4 }}>
+                {unlockError}
+              </Text>
+            )}
           </View>
           <Button
             title="Enroll on Web"

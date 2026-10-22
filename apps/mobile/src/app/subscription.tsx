@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
-import * as WebBrowser from "expo-web-browser";
 import { CreditCard, ExternalLink, ShieldCheck, Zap } from "lucide-react-native";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "../components/shell/AppShell";
@@ -11,7 +10,7 @@ import { Skeleton } from "../components/primitives/Skeleton";
 import { useTheme } from "../theme/ThemeProvider";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
-import { buildWebUrl } from "../lib/web-links";
+import { openWebUrl } from "../lib/web-links";
 
 export default function SubscriptionScreen() {
   const { colors, tokens } = useTheme();
@@ -30,14 +29,15 @@ export default function SubscriptionScreen() {
   const purchasesData = purchasesQuery.data;
   const historyList = purchasesData?.history || [];
   const daysRemaining = purchasesData?.activeSubscription?.daysRemaining;
+  const [browserError, setBrowserError] = useState<string | null>(null);
 
   const handleOpenPricing = async () => {
-    try {
-      // Reader model web checkout with utm_source=mobile_app
-      await WebBrowser.openBrowserAsync(
-        buildWebUrl("/pricing", "subscription_screen")
-      );
-    } catch {}
+    setBrowserError(null);
+    // Reader model web checkout with utm_source=mobile_app via WebBrowser.openBrowserAsync
+    const res = await openWebUrl("/pricing", "subscription_screen");
+    if (!res.success && res.error) {
+      setBrowserError(res.error);
+    }
   };
 
   return (
@@ -54,6 +54,11 @@ export default function SubscriptionScreen() {
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Manage your Aspirantbook Pass access and payment history
           </Text>
+          {browserError && (
+            <Text style={{ color: colors.danger, marginTop: 8, fontSize: 13 }}>
+              {browserError}
+            </Text>
+          )}
         </View>
 
         {/* Current Plan Card */}

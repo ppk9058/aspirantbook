@@ -29,7 +29,7 @@ import { EmptyState } from "../../../src/components/primitives/EmptyState";
 import { ErrorState } from "../../../src/components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
-import { buildWebUrl } from "../../lib/web-links";
+import { openWebUrl } from "../../lib/web-links";
 import { CurrentAffairsItemDto } from "@aspirantbook/shared";
 
 type ModeTab = "quizzes" | "monthlyPdfs";
@@ -38,6 +38,7 @@ export default function CurrentAffairsScreen() {
   const router = useRouter();
   const { colors, tokens } = useTheme();
   const [activeTab, setActiveTab] = useState<ModeTab>("quizzes");
+  const [openError, setOpenError] = useState<string | null>(null);
 
   const caQuery = useQuery({
     queryKey: ["current-affairs-list"],
@@ -57,8 +58,11 @@ export default function CurrentAffairsScreen() {
   };
 
   const handleOpenPdf = async (item: CurrentAffairsItemDto) => {
-    const url = buildWebUrl(`/current-affairs/${item.slug}`, "current_affairs_pdf");
-    await WebBrowser.openBrowserAsync(url);
+    setOpenError(null);
+    const res = await openWebUrl(`/current-affairs/${item.slug}`, "current_affairs_pdf");
+    if (!res.success && res.error) {
+      setOpenError(res.error);
+    }
   };
 
   return (
@@ -75,6 +79,11 @@ export default function CurrentAffairsScreen() {
           />
         }
       >
+        {openError && (
+          <View style={{ backgroundColor: colors.surface, padding: 12, borderRadius: 8, marginBottom: 12 }}>
+            <Text style={{ color: colors.danger, fontSize: 13 }}>{openError}</Text>
+          </View>
+        )}
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.textPrimary }]}>
             Current Affairs & Quizzes
