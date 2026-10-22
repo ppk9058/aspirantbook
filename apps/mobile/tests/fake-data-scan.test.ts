@@ -113,4 +113,11 @@ describe("T9 Fake Data Scan & Real API Integration Audit", () => {
     assert.ok(content.includes("api.getPurchases()"), "subscription.tsx must call api.getPurchases()");
     assert.ok(content.includes("historyList"), "subscription.tsx must render real subscription/payment history");
   });
+
+  test("app.config.ts has no hardcoded IP or localhost fallbacks", () => {
+    const configPath = path.resolve(__dirname, "../app.config.ts");
+    const content = fs.readFileSync(configPath, "utf8");
+    assert.ok(!content.includes("10.0.2.2"), "app.config.ts must not contain 10.0.2.2 fallback");
+    assert.ok(!content.includes("localhost"), "app.config.ts must not contain localhost fallback");
+  });
 });
