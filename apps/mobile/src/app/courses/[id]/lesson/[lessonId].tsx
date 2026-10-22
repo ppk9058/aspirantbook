@@ -102,10 +102,14 @@ export default function CourseLessonPlayerScreen() {
 
   // Resolve video state through security & provider resolver
   const videoState = useMemo(() => {
-    return resolveVideoState({
+    const resolved = resolveVideoState({
       videoUrl: lesson?.videoUrl,
-      isLocked: lesson?.isLocked,
+      isLocked: false,
     });
+    return {
+      ...resolved,
+      isLocked: Boolean(lesson?.isLocked),
+    };
   }, [lesson?.videoUrl, lesson?.isLocked]);
 
   // Sequential navigation computed from course chapters if present, falling back to API navigation
@@ -120,7 +124,7 @@ export default function CourseLessonPlayerScreen() {
   }, [courseData?.chapters, lessonId, lesson?.navigation]);
 
   // expo-video player instance for native streaming
-  const nativeStreamUrl = videoState.provider === "native" ? videoState.streamUrl || "" : "";
+  const nativeStreamUrl = !videoState.isLocked && videoState.provider === "native" ? videoState.streamUrl || "" : "";
   const player = useVideoPlayer(nativeStreamUrl, (p) => {
     p.loop = false;
     p.playbackRate = playbackSpeed;

@@ -15,6 +15,7 @@ import CareerTracksIndexScreen from "../src/app/career-tracks/index";
 import CareerTrackDetailScreen from "../src/app/career-tracks/[id]";
 
 const { __mockPush, __mockReplace, __setMockParams } = require("expo-router");
+const { useVideoPlayer } = require("expo-video");
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -356,12 +357,16 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
     it("asserts locked lesson never exposes streamUrl and displays lock overlay", async () => {
       __setMockParams({ id: "course-123", lessonId: "les-locked-1" });
 
-      global.fetch = jest.fn(async (url: any) => {
-        const urlStr = String(url);
+      const streamUrl = "https://secure-stream.example.com/hls/secret.m3u8";
+      const externalUrl = "https://youtube.com/watch?v=secret-video";
+
+      global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+        const urlStr = String(input);
         if (urlStr.includes("/lessons/")) {
           return {
             ok: true,
             status: 200,
+            headers: new Headers({ "content-type": "application/json" }),
             json: async () => ({
               ok: true,
               data: {
@@ -369,16 +374,19 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
                 title: "Advanced Constitutional Framework",
                 courseTitle: "Indian Polity",
                 isLocked: true,
-                videoUrl: "https://secure-stream.example.com/hls/secret.m3u8",
+                videoUrl: streamUrl,
+                streamUrl: streamUrl,
+                externalUrl: externalUrl,
                 isCompleted: false,
               },
             }),
-          } as any;
+          } as Response;
         }
 
         return {
           ok: true,
           status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
           json: async () => ({
             ok: true,
             data: {
@@ -386,7 +394,7 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
               chapters: [],
             },
           }),
-        } as any;
+        } as Response;
       });
 
       render(<CourseLessonPlayerScreen />, { wrapper: createWrapper() });
@@ -395,9 +403,24 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
         () => {
           expect(screen.getByText("Lesson Locked")).toBeTruthy();
           expect(screen.getByText("Enroll in the full course to view this lesson")).toBeTruthy();
+          // Speed bar ("Speed" text) must be absent
+          expect(screen.queryByText("Speed")).toBeNull();
+          // No VideoView rendered
+          expect(screen.queryByTestId("expo-video-view")).toBeNull();
         },
         { timeout: 4000 }
       );
+
+      // (a) JSON.stringify(screen.toJSON()) does not contain the stream URL or external URL
+      const treeJson = JSON.stringify(screen.toJSON());
+      expect(treeJson).not.toContain(streamUrl);
+      expect(treeJson).not.toContain(externalUrl);
+
+      // (b) the video source passed to useVideoPlayer is "" for a locked lesson
+      const lastPlayerCall = (useVideoPlayer as jest.Mock).mock.calls[
+        (useVideoPlayer as jest.Mock).mock.calls.length - 1
+      ];
+      expect(lastPlayerCall[0]).toBe("");
     });
 
     it("renders playable native stream when isLocked is false", async () => {
