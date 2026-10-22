@@ -70,6 +70,7 @@ describe("T3: Mounted Tests - Core & Shell Domain Screens", () => {
           expect(screen.getByText("Test Series")).toBeTruthy();
           expect(screen.getByText("Video Classes")).toBeTruthy();
           expect(screen.getByText("PYQ Papers")).toBeTruthy();
+          expect(screen.getByText("Change →")).toBeTruthy();
         },
         { timeout: 4000 }
       );
@@ -373,6 +374,7 @@ describe("T3: Mounted Tests - Core & Shell Domain Screens", () => {
       await waitFor(
         () => {
           expect(screen.getByText("Subscription & Payments")).toBeTruthy();
+          expect(screen.getByText("Upgrade on website")).toBeTruthy();
         },
         { timeout: 4000 }
       );

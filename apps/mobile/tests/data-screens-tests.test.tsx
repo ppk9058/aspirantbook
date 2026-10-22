@@ -469,6 +469,46 @@ describe("T3: Mounted Tests - Tests Domain Screens", () => {
       }, { timeout: 4000 });
     });
 
+    it("[/tests/[id]] unauthenticated prompts guest with Sign In Required alert", async () => {
+      __setMockParams({ id: "test-instructions-guest" });
+      await Storage.clearAllAuthTokens();
+
+      const alertSpy = jest.spyOn(require("react-native").Alert, "alert");
+
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          data: {
+            id: "test-instructions-guest",
+            title: "Guest Mock Exam",
+            durationMinutes: 60,
+            totalMarks: 200,
+            totalQuestions: 100,
+            instructions: "Please read instructions carefully.",
+          },
+        }),
+      } as any);
+
+      render(<TestInstructionsScreen />, { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(screen.getAllByText("Guest Mock Exam").length).toBeGreaterThan(0);
+      }, { timeout: 4000 });
+
+      const startExamBtn = screen.getByText("Start Mock Exam");
+      fireEvent.press(startExamBtn);
+
+      expect(alertSpy).toHaveBeenCalledWith(
+        "Sign In Required",
+        expect.stringContaining("Please sign in to attempt this mock exam"),
+        expect.any(Array)
+      );
+
+      alertSpy.mockRestore();
+    });
+
     it("[/tests/[id]] 401 refresh", async () => {
       __setMockParams({ id: "test-inst-401" });
       await Storage.setAccessToken("expired-inst-token");

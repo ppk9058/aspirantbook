@@ -196,6 +196,7 @@ describe("T2: Critical Screens - Auth Mounted Tests", () => {
       // Verify button is disabled when consent is false
       const submitBtn = screen.getByTestId("register-submit-btn");
       expect(submitBtn).toBeTruthy();
+      expect(submitBtn.props.accessibilityState.disabled).toBe(true);
 
       // Attempting to press should not trigger api.register
       const registerSpy = jest.spyOn(api, "register");
