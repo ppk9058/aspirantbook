@@ -19,21 +19,24 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 export function ThemeProvider({
   children,
   initialTheme = "light",
+  skipStorage = false,
 }: {
   children: React.ReactNode;
   initialTheme?: ThemeMode;
+  skipStorage?: boolean;
 }) {
   const [theme, setThemeState] = useState<ThemeMode>(initialTheme);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(skipStorage);
 
   useEffect(() => {
+    if (skipStorage) return;
     let active = true;
     void Storage.getTheme().then((saved) => {
       if (!active) return;
       if (saved === "dark" || saved === "light") {
         setThemeState(saved);
       }
-      setIsLoaded(true);
+      if (active) setIsLoaded(true);
     });
     return () => {
       active = false;

@@ -13,15 +13,53 @@ export interface ErrorStateProps {
   testID?: string;
 }
 
+const NETWORK_ERROR_REGEX = /fetch failed|ConnectException|java\.net|Network request failed|NetworkError|timeout|ECONNREFUSED|ECONNRESET/i;
+
+export function sanitizeErrorMessage(rawMessage?: string): { displayTitle: string; displayMessage: string; isNetwork: boolean } {
+  const msg = rawMessage || "Failed to complete request. Please try again.";
+  const isNetwork = NETWORK_ERROR_REGEX.test(msg);
+
+  if (isNetwork) {
+    const userMsg = "Could not reach the server. Check your connection and try again.";
+    const isDev = typeof __DEV__ !== "undefined" && Boolean(__DEV__);
+    const displayMsg = isDev ? `${userMsg} (${msg})` : userMsg;
+    return {
+      displayTitle: "Connection Unavailable",
+      displayMessage: displayMsg,
+      isNetwork: true,
+    };
+  }
+
+  // Also sanitize any accidental leakage of backend/network exception strings in non-dev mode
+  const isDev = typeof __DEV__ !== "undefined" && Boolean(__DEV__);
+  if (!isDev && /java\.net|ConnectException|fetch failed/i.test(msg)) {
+    return {
+      displayTitle: "Connection Unavailable",
+      displayMessage: "Could not reach the server. Check your connection and try again.",
+      isNetwork: true,
+    };
+  }
+
+  return {
+    displayTitle: "Something went wrong",
+    displayMessage: msg,
+    isNetwork: false,
+  };
+}
+
 export function ErrorState({
   title = "Something went wrong",
   message,
   onRetry,
-  isNetworkError = false,
+  isNetworkError: explicitNetworkError = false,
   style,
   testID,
 }: ErrorStateProps) {
   const { colors } = useTheme();
+  const sanitized = sanitizeErrorMessage(message);
+  const isNetwork = explicitNetworkError || sanitized.isNetwork;
+  const resolvedTitle = isNetwork ? (title === "Something went wrong" ? "Connection Unavailable" : title) : title;
+  const resolvedMessage = sanitized.displayMessage;
 
   return (
     <View style={[styles.container, style]} testID={testID}>
@@ -29,24 +67,24 @@ export function ErrorState({
         style={[
           styles.iconCircle,
           {
-            backgroundColor: isNetworkError
+            backgroundColor: isNetwork
               ? colors.surfaceSecondary
               : "rgba(239, 68, 68, 0.1)",
-            borderColor: isNetworkError ? colors.border : "rgba(239, 68, 68, 0.25)",
+            borderColor: isNetwork ? colors.border : "rgba(239, 68, 68, 0.25)",
           },
         ]}
       >
-        {isNetworkError ? (
+        {isNetwork ? (
           <WifiOff size={32} color={colors.textSecondary} />
         ) : (
           <AlertCircle size={32} color={colors.danger} />
         )}
       </View>
       <Text style={[styles.title, { color: colors.textPrimary }]}>
-        {isNetworkError ? "Connection Unavailable" : title}
+        {resolvedTitle}
       </Text>
       <Text style={[styles.message, { color: colors.textSecondary }]}>
-        {message}
+        {resolvedMessage}
       </Text>
       {onRetry ? (
         <View style={styles.actionContainer}>

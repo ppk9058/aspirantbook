@@ -94,13 +94,22 @@ export interface GoalContextValue {
 
 const GoalContext = createContext<GoalContextValue | undefined>(undefined);
 
-export function GoalProvider({ children }: { children: React.ReactNode }) {
-  const [selectedGoal, setSelectedGoal] = useState<Goal>(DEFAULT_GOAL);
+export function GoalProvider({
+  children,
+  initialGoal,
+  skipStorage = false,
+}: {
+  children: React.ReactNode;
+  initialGoal?: Goal;
+  skipStorage?: boolean;
+}) {
+  const [selectedGoal, setSelectedGoal] = useState<Goal>(initialGoal || DEFAULT_GOAL);
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(skipStorage);
   const [couldNotSyncGoal, setCouldNotSyncGoal] = useState<boolean>(false);
 
   useEffect(() => {
+    if (skipStorage) return;
     let active = true;
     void Storage.getGoal().then((savedId) => {
       if (!active) return;
@@ -112,7 +121,7 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
           setSelectedGoal(found);
         }
       }
-      setIsLoaded(true);
+      if (active) setIsLoaded(true);
     });
     return () => {
       active = false;

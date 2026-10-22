@@ -36,6 +36,7 @@ export default function TutorialOutlineScreen() {
   useEffect(() => {
     let mounted = true;
     async function loadTutorial() {
+      if (mounted) setLoading(true);
       if (!slug) {
         if (mounted) setLoading(false);
         return;

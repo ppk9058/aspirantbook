@@ -56,9 +56,9 @@ function createWrapper() {
   return function Wrapper({ children }: { children: React.ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AuthProvider>
-            <GoalProvider>{children}</GoalProvider>
+        <ThemeProvider skipStorage>
+          <AuthProvider skipStorage initialUser={null}>
+            <GoalProvider skipStorage>{children}</GoalProvider>
           </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>
@@ -69,6 +69,7 @@ function createWrapper() {
 describe("T3: Screen State Matrix Mounted Suite", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (global as any).__DEV__ = false;
     __setMockParams({ id: "mock-id-1", slug: "mock-slug-1", lessonId: "mock-les-1", attemptId: "mock-att-1", paperId: "mock-paper-1" });
   });
 
@@ -716,15 +717,19 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/courses/[id]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({ ok: false, error: { message: "Internal server error" } }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Internal server error")).toBeTruthy();
+      expect(queryByText("Enroll in this course")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/courses/[id]] networkFailure", async () => {
       const Comp = SCREEN_MAP["/courses/[id]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockRejectedValue(new Error("Network connection failed"));
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(await findByText("Network connection failed")).toBeTruthy();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText(/Network connection failed|Could not reach the server/i)).toBeTruthy();
+      expect(queryByText("Enroll in this course")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/courses/[id]] success", async () => {
       const Comp = SCREEN_MAP["/courses/[id]"];
@@ -759,15 +764,19 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/courses/[id]/lesson/[lessonId]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({ ok: false, error: { message: "Internal server error" } }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Internal server error")).toBeTruthy();
+      expect(queryByText("Previous Lesson")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/courses/[id]/lesson/[lessonId]] networkFailure", async () => {
       const Comp = SCREEN_MAP["/courses/[id]/lesson/[lessonId]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockRejectedValue(new Error("Network connection failed"));
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(await findByText("Network connection failed")).toBeTruthy();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText(/Network connection failed|Could not reach the server/i)).toBeTruthy();
+      expect(queryByText("Previous Lesson")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/courses/[id]/lesson/[lessonId]] success", async () => {
       const Comp = SCREEN_MAP["/courses/[id]/lesson/[lessonId]"];
@@ -830,9 +839,10 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
     it("[/index] success", async () => {
       const Comp = SCREEN_MAP["/index"];
       if (!Comp) return;
-      const { toJSON, UNSAFE_getByType } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, UNSAFE_getByType, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
       expect(UNSAFE_getByType(require("react-native").ActivityIndicator)).toBeTruthy();
+      expect(queryByText("Something went wrong")).toBeNull();
     });
   });
 
@@ -970,9 +980,10 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
     it("[/practice] success", async () => {
       const Comp = SCREEN_MAP["/practice"];
       if (!Comp) return;
-      const { getByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { getByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(getByText("Coding Practice")).toBeTruthy();
       expect(getByText(/Interactive code editor/i)).toBeTruthy();
+      expect(queryByText("No Practice Tests Available")).toBeNull();
     });
   });
 
@@ -1079,22 +1090,27 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/pyqs/pdf-view"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: null }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("This paper is currently unavailable")).toBeTruthy();
+      expect(queryByText("Save for Offline Reading")).toBeNull();
     });
     it("[/pyqs/pdf-view] error500", async () => {
       const Comp = SCREEN_MAP["/pyqs/pdf-view"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({ ok: false, error: { message: "Internal server error" } }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Internal server error")).toBeTruthy();
+      expect(queryByText("Save for Offline Reading")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/pyqs/pdf-view] networkFailure", async () => {
       const Comp = SCREEN_MAP["/pyqs/pdf-view"];
       if (!Comp) return;
       global.fetch = jest.fn().mockRejectedValue(new Error("Network connection failed"));
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(await findByText("Network connection failed")).toBeTruthy();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText(/Network connection failed|Could not reach the server/i)).toBeTruthy();
+      expect(queryByText("Save for Offline Reading")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/pyqs/pdf-view] success", async () => {
       const Comp = SCREEN_MAP["/pyqs/pdf-view"];
@@ -1255,30 +1271,36 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/subscription"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: [] }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Sign in to view your payment history and subscription records.")).toBeTruthy();
+      expect(queryByText("Active Subscription Plan")).toBeNull();
     });
     it("[/subscription] error500", async () => {
       const Comp = SCREEN_MAP["/subscription"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({ ok: false, error: { message: "Internal server error" } }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Sign in to view your payment history and subscription records.")).toBeTruthy();
+      expect(queryByText("Active Subscription Plan")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/subscription] networkFailure", async () => {
       const Comp = SCREEN_MAP["/subscription"];
       if (!Comp) return;
       global.fetch = jest.fn().mockRejectedValue(new Error("Network connection failed"));
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Sign in to view your payment history and subscription records.")).toBeTruthy();
+      expect(queryByText("Active Subscription Plan")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/subscription] success", async () => {
       const Comp = SCREEN_MAP["/subscription"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: { id: "mock-id-1", items: [] } }) } as any);
-      const { getByText, getAllByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { getByText, getAllByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(getByText("Subscription & Payments")).toBeTruthy();
       expect(getAllByText(/Free Learner Tier|Aspirantbook Pass/i).length).toBeGreaterThan(0);
+      expect(queryByText("No Subscription History")).toBeNull();
     });
   });
 
@@ -1295,22 +1317,27 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/tests/[id]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: null }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Failed to load test instructions")).toBeTruthy();
+      expect(queryByText("Start Test")).toBeNull();
     });
     it("[/tests/[id]] error500", async () => {
       const Comp = SCREEN_MAP["/tests/[id]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({ ok: false, error: { message: "Internal server error" } }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Internal server error")).toBeTruthy();
+      expect(queryByText("Start Exam")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/tests/[id]] networkFailure", async () => {
       const Comp = SCREEN_MAP["/tests/[id]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockRejectedValue(new Error("Network connection failed"));
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(await findByText("Network connection failed")).toBeTruthy();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText(/Network connection failed|Could not reach the server/i)).toBeTruthy();
+      expect(queryByText("Start Exam")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/tests/[id]] success", async () => {
       const Comp = SCREEN_MAP["/tests/[id]"];
@@ -1383,22 +1410,27 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/tests/[id]/result"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: null }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Failed to load examination result")).toBeTruthy();
+      expect(queryByText("Detailed Solutions")).toBeNull();
     });
     it("[/tests/[id]/result] error500", async () => {
       const Comp = SCREEN_MAP["/tests/[id]/result"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({ ok: false, error: { message: "Internal server error" } }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Internal server error")).toBeTruthy();
+      expect(queryByText("Score Analysis")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/tests/[id]/result] networkFailure", async () => {
       const Comp = SCREEN_MAP["/tests/[id]/result"];
       if (!Comp) return;
       global.fetch = jest.fn().mockRejectedValue(new Error("Network connection failed"));
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(await findByText("Network connection failed")).toBeTruthy();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText(/Network connection failed|Could not reach the server/i)).toBeTruthy();
+      expect(queryByText("Score Analysis")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/tests/[id]/result] success", async () => {
       const Comp = SCREEN_MAP["/tests/[id]/result"];
@@ -1424,22 +1456,27 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/tests/[id]/runner"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: null }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Unable to Load Test")).toBeTruthy();
+      expect(queryByText("Loading examination environment...")).toBeNull();
     });
     it("[/tests/[id]/runner] error500", async () => {
       const Comp = SCREEN_MAP["/tests/[id]/runner"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({ ok: false, error: { message: "Internal server error" } }) } as any);
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(await findByText("Internal server error")).toBeTruthy();
+      expect(queryByText("Question Palette")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/tests/[id]/runner] networkFailure", async () => {
       const Comp = SCREEN_MAP["/tests/[id]/runner"];
       if (!Comp) return;
       global.fetch = jest.fn().mockRejectedValue(new Error("Network connection failed"));
-      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(await findByText("Network connection failed")).toBeTruthy();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText(/Network connection failed|Could not reach the server/i)).toBeTruthy();
+      expect(queryByText("Question Palette")).toBeNull();
+      expect(queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
     });
     it("[/tests/[id]/runner] success", async () => {
       const Comp = SCREEN_MAP["/tests/[id]/runner"];

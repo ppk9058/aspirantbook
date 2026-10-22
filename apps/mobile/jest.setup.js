@@ -133,6 +133,12 @@ jest.mock("expo-router", () => ({
   useLocalSearchParams: () => mockParams,
   usePathname: () => mockPathname,
   useSegments: () => [],
+  Redirect: ({ href }: any) => {
+    mockReplace(href);
+    return null;
+  },
+  Tabs: Object.assign(({ children }: any) => children, { Screen: () => null }),
+  Stack: Object.assign(({ children }: any) => children, { Screen: () => null }),
   Link: ({ children, href, onPress, ...props }: any) => {
     const React = require("react");
     const { TouchableOpacity } = require("react-native");

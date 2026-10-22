@@ -24,16 +24,26 @@ export interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function AuthProvider({
+  children,
+  initialUser,
+  skipStorage = false,
+}: {
+  children: React.ReactNode;
+  initialUser?: UserProfile | null;
+  skipStorage?: boolean;
+}) {
+  const mountedRef = React.useRef(true);
+  const [user, setUser] = useState<UserProfile | null>(initialUser ?? null);
+  const [isLoading, setIsLoading] = useState(!skipStorage);
 
   const refreshProfile = useCallback(async () => {
+    if (skipStorage) return;
     try {
       const token = await Storage.getAccessToken();
       if (!token) {
         setUser(null);
-        setIsLoading(false);
+        if (mountedRef.current) setIsLoading(false);
         return;
       }
 
@@ -72,7 +82,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (skipStorage) return;
+    mountedRef.current = true;
     void refreshProfile();
+    return () => {
+      mountedRef.current = false;
+    };
   }, [refreshProfile]);
 
   const login = useCallback(

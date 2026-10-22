@@ -16,6 +16,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="pass" options={{ title: "Pass" }} />
 
       {/* Retained / Reparented Routes (Hidden from default tabbar to prevent loss of content) */}
+      <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="practice" options={{ href: null, title: "Practice" }} />
       <Tabs.Screen name="learn" options={{ href: null, title: "Learn" }} />
       <Tabs.Screen name="library" options={{ href: null, title: "Library" }} />
