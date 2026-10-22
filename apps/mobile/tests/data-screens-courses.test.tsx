@@ -61,9 +61,32 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
       await waitFor(
         () => {
           expect(screen.getByText("No Courses Found")).toBeTruthy();
+          expect(screen.getByText("Switch →")).toBeTruthy();
         },
         { timeout: 4000 }
       );
+    });
+
+    it("sanitizes network error messages and suppresses raw java.net exceptions when __DEV__ is false", async () => {
+      const origDev = (global as any).__DEV__;
+      (global as any).__DEV__ = false;
+      try {
+        global.fetch = jest.fn().mockRejectedValue(
+          new Error("fetch failed: java.net.ConnectException: Failed to connect to /192.168.0.101:3045")
+        );
+
+        render(<CoursesTabScreen />, { wrapper: createWrapper() });
+
+        await waitFor(
+          () => {
+            expect(screen.getByText("Could not reach the server. Check your connection and try again.")).toBeTruthy();
+          },
+          { timeout: 4000 }
+        );
+        expect(screen.queryByText(/java\.net|ConnectException|fetch failed/i)).toBeNull();
+      } finally {
+        (global as any).__DEV__ = origDev;
+      }
     });
 
     it("renders error state on API 500", async () => {
