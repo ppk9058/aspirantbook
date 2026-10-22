@@ -44,7 +44,7 @@ async function refreshAccessTokenSingleFlight(): Promise<string | null> {
         return null;
       }
 
-      if (!API_BASE_URL) {
+      if (!API_BASE_URL || !process.env.EXPO_PUBLIC_API_URL) {
         notifyUnauthorized();
         return null;
       }
@@ -88,7 +88,7 @@ export const api = createApiClient({
     await refreshAccessTokenSingleFlight();
   },
   fetchFn: async (url, init = {}) => {
-    if (!API_BASE_URL) {
+    if (!API_BASE_URL || !process.env.EXPO_PUBLIC_API_URL) {
       return new Response(
         JSON.stringify({
           ok: false,

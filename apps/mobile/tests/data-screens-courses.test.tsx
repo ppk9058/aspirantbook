@@ -108,11 +108,17 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
     });
 
     it("returns 503 unconfigured error when EXPO_PUBLIC_API_URL is missing", async () => {
-      const res = await api.getCourses();
-      expect(res.ok).toBe(false);
-      if (!res.ok) {
-        expect(res.error?.code).toBe("API_UNCONFIGURED");
-        expect(res.error?.message).toContain("API endpoint is not configured");
+      const origUrl = process.env.EXPO_PUBLIC_API_URL;
+      delete process.env.EXPO_PUBLIC_API_URL;
+      try {
+        const res = await api.getCourses();
+        expect(res.ok).toBe(false);
+        if (!res.ok) {
+          expect(res.error?.code).toBe("API_UNCONFIGURED");
+          expect(res.error?.message).toContain("API endpoint is not configured");
+        }
+      } finally {
+        process.env.EXPO_PUBLIC_API_URL = origUrl;
       }
     });
 
