@@ -483,6 +483,42 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
       );
     });
 
+    it("renders empty state when learner has zero enrollments", async () => {
+      await Storage.setAccessToken("valid-user-token");
+      await Storage.setUser({ id: "u-1", name: "Student", email: "student@test.com" });
+
+      global.fetch = jest.fn(async (url: any) => {
+        const urlStr = String(url);
+        if (urlStr.includes("/api/v1/me")) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              ok: true,
+              data: { id: "u-1", name: "Student", email: "student@test.com", role: "STUDENT" },
+            }),
+          } as any;
+        }
+
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            data: {
+              enrolledCourses: [],
+            },
+          }),
+        } as any;
+      });
+
+      render(<MyLearningScreen />, { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(screen.getByText("No Enrollments Found")).toBeTruthy();
+      });
+    });
+
     it("renders enrolled courses and handles continue learning tap", async () => {
       await Storage.setAccessToken("valid-user-token");
       await Storage.setUser({ id: "u-1", name: "Student", email: "student@test.com" });
@@ -608,6 +644,23 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
   });
 
   describe("5. career-tracks", () => {
+    it("renders empty state when no career tracks are available", async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          data: [],
+        }),
+      } as any);
+
+      render(<CareerTracksIndexScreen />, { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(screen.getByText("No Tracks Available")).toBeTruthy();
+      });
+    });
+
     it("renders career tracks index list", async () => {
       global.fetch = jest.fn().mockResolvedValue({
         ok: true,

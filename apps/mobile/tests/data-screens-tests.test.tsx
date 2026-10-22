@@ -736,6 +736,15 @@ describe("T3: Mounted Tests - Tests Domain Screens", () => {
   // 6. my-tests
   // ==========================================
   describe("6. my-tests", () => {
+    it("[/my-tests] unauth renders sign in required state", async () => {
+      await Storage.clearAllAuthTokens();
+      render(<MyTestsScreen />, { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(screen.getByText("Sign In to Access Tests")).toBeTruthy();
+      });
+    });
+
     it("[/my-tests] loading", async () => {
       await Storage.setAccessToken("valid-token");
       await Storage.setUser({ id: "u-1", name: "Learner", email: "learner@test.com" });
