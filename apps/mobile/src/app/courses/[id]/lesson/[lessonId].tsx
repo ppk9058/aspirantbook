@@ -428,7 +428,7 @@ export default function CourseLessonPlayerScreen() {
         title="Course Curriculum"
       >
         <ScrollView style={styles.sheetScroll} showsVerticalScrollIndicator={false}>
-          {courseData?.chapters.map((ch, chIdx) => (
+          {courseData?.chapters?.map((ch, chIdx) => (
             <View key={ch.id} style={styles.sheetChapter}>
               <Text style={[styles.sheetChapterTitle, { color: colors.primary }]}>
                 Chapter {chIdx + 1}: {ch.title}

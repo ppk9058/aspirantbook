@@ -14,6 +14,17 @@ jest.mock("react-native-safe-area-context", () => {
   };
 });
 
+// Expo File System
+jest.mock("expo-file-system", () => ({
+  documentDirectory: "/tmp/mock-docs/",
+  getInfoAsync: jest.fn().mockResolvedValue({ exists: false, isDirectory: false }),
+  makeDirectoryAsync: jest.fn().mockResolvedValue(undefined),
+  deleteAsync: jest.fn().mockResolvedValue(undefined),
+  createDownloadResumable: jest.fn(() => ({
+    downloadAsync: jest.fn().mockResolvedValue({ uri: "/tmp/mock-docs/doc_1.pdf", status: 200 }),
+  })),
+}));
+
 // Expo Keep Awake
 jest.mock("expo-keep-awake", () => ({
   useKeepAwake: jest.fn(),
@@ -25,6 +36,54 @@ jest.mock("expo-keep-awake", () => ({
 jest.mock("expo-web-browser", () => ({
   openBrowserAsync: jest.fn().mockResolvedValue({ type: "dismiss" }),
 }));
+
+// Expo Video native module mock
+jest.mock("expo-video", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+  return {
+    useVideoPlayer: jest.fn(() => ({
+      play: jest.fn(),
+      pause: jest.fn(),
+      loop: false,
+      playbackRate: 1,
+    })),
+    VideoView: ({ testID, style, ...props }: any) =>
+      React.createElement(View, { testID: testID || "expo-video-view", style, ...props }),
+  };
+});
+
+// React Native PDF & Blob Util native modules
+jest.mock("react-native-pdf", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+  return {
+    __esModule: true,
+    default: ({ testID, style, ...props }: any) =>
+      React.createElement(View, { testID: testID || "react-native-pdf-view", style, ...props }),
+  };
+});
+
+jest.mock("react-native-blob-util", () => ({
+  fs: {
+    dirs: {
+      CacheDir: "/tmp",
+      DocumentDir: "/tmp",
+    },
+    exists: jest.fn().mockResolvedValue(true),
+    writeFile: jest.fn().mockResolvedValue(true),
+  },
+}));
+
+// React Native WebView
+jest.mock("react-native-webview", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+  return {
+    WebView: ({ testID, style, source, ...props }: any) =>
+      React.createElement(View, { testID: testID || "react-native-webview", style, source, ...props }),
+  };
+});
 
 // Expo Router variables prefixed with mock
 const mockPush = jest.fn();
