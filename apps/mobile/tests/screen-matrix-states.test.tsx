@@ -567,7 +567,8 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/(tabs)/tests"];
       if (!Comp) return;
       global.fetch = jest.fn(() => new Promise(() => {})) as any;
-      const { queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { getByPlaceholderText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(getByPlaceholderText("Search test packages...")).toBeTruthy();
       expect(queryByText("No Test Series Found")).toBeNull();
     });
     it("[/(tabs)/tests] empty", async () => {
@@ -742,14 +743,16 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/courses/[id]/lesson/[lessonId]"];
       if (!Comp) return;
       global.fetch = jest.fn(() => new Promise(() => {})) as any;
-      const { queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { getByTestId, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(getByTestId("course-lesson-player-screen")).toBeTruthy();
       expect(queryByText("Connection Unavailable")).toBeNull();
     });
     it("[/courses/[id]/lesson/[lessonId]] empty", async () => {
       const Comp = SCREEN_MAP["/courses/[id]/lesson/[lessonId]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: null }) } as any);
-      const { queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { getByTestId, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(getByTestId("course-lesson-player-screen")).toBeTruthy();
       expect(queryByText("Completed")).toBeNull();
     });
     it("[/courses/[id]/lesson/[lessonId]] error500", async () => {
@@ -827,8 +830,9 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
     it("[/index] success", async () => {
       const Comp = SCREEN_MAP["/index"];
       if (!Comp) return;
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, UNSAFE_getByType } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      expect(UNSAFE_getByType(require("react-native").ActivityIndicator)).toBeTruthy();
     });
   });
 
@@ -1023,7 +1027,8 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/pyqs"];
       if (!Comp) return;
       global.fetch = jest.fn(() => new Promise(() => {})) as any;
-      const { queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { getByTestId, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(getByTestId("pyqs-screen")).toBeTruthy();
       expect(queryByText("No Papers Found")).toBeNull();
     });
     it("[/pyqs] empty", async () => {
@@ -1066,7 +1071,8 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/pyqs/pdf-view"];
       if (!Comp) return;
       global.fetch = jest.fn(() => new Promise(() => {})) as any;
-      const { queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { getByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(getByText("Official Examination Paper")).toBeTruthy();
       expect(queryByText("Connection Unavailable")).toBeNull();
     });
     it("[/pyqs/pdf-view] empty", async () => {
@@ -1095,7 +1101,8 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       if (!Comp) return;
       const mockPaper = { id: "mock-paper-1", title: "General Studies Paper 1", fileUrl: "https://example.com/paper.pdf", isFree: true };
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: mockPaper }) } as any);
-      const { queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { findAllByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect((await findAllByText("General Studies Paper 1")).length).toBeGreaterThan(0);
       expect(queryByText("Connection Unavailable")).toBeNull();
     });
   });
@@ -1409,7 +1416,8 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/tests/[id]/runner"];
       if (!Comp) return;
       global.fetch = jest.fn(() => new Promise(() => {})) as any;
-      const { queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { getByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(getByText("Loading examination environment...")).toBeTruthy();
       expect(queryByText("Unable to Load Test")).toBeNull();
     });
     it("[/tests/[id]/runner] empty", async () => {
@@ -1449,7 +1457,8 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/tests/[id]/solutions"];
       if (!Comp) return;
       global.fetch = jest.fn(() => new Promise(() => {})) as any;
-      const { queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      const { getByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(getByText("Solutions")).toBeTruthy();
       expect(queryByText("No Questions Match Filter")).toBeNull();
     });
     it("[/tests/[id]/solutions] empty", async () => {
