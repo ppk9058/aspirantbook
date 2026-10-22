@@ -18,12 +18,24 @@ describe("API v1: Lesson Lock and Video Stream Security", () => {
   before(async () => {
     // 1. Setup users
     const email1 = `lock_unenrolled_${Date.now()}@example.com`;
-    const res1 = await registerUser({ email: email1, password: "Secret123#", name: "Unenrolled User" });
-    unenrolledUser = { id: res1.user.id, email: res1.user.email, token: res1.tokens.accessToken };
+    const res1 = await registerUser({
+      email: email1,
+      password: "Secret123#",
+      name: "Unenrolled User",
+      consent: true,
+      platform: "android",
+    });
+    unenrolledUser = { id: res1.user.id, email: res1.user.email || email1, token: res1.tokens.accessToken };
 
     const email2 = `lock_enrolled_${Date.now()}@example.com`;
-    const res2 = await registerUser({ email: email2, password: "Secret123#", name: "Enrolled User" });
-    enrolledUser = { id: res2.user.id, email: res2.user.email, token: res2.tokens.accessToken };
+    const res2 = await registerUser({
+      email: email2,
+      password: "Secret123#",
+      name: "Enrolled User",
+      consent: true,
+      platform: "android",
+    });
+    enrolledUser = { id: res2.user.id, email: res2.user.email || email2, token: res2.tokens.accessToken };
 
     // 2. Setup paid premium course with a chapter, trial lesson, and locked lesson
     const course = await prisma.course.create({
