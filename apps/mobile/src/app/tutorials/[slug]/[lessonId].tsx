@@ -58,10 +58,11 @@ export default function TutorialLessonScreen() {
   useEffect(() => {
     let mounted = true;
     async function loadLesson() {
+      if (!slug || !lessonId) {
+        if (mounted) setLoading(false);
+        return;
+      }
       try {
-        setLoading(true);
-        if (!slug || !lessonId) return;
-
         const res = await apiClient.getTutorialLesson(slug, lessonId);
         if (!mounted) return;
 
@@ -71,9 +72,13 @@ export default function TutorialLessonScreen() {
           setErrorMessage(res.error?.message || 'Could not load lesson');
         }
       } catch (err: any) {
-        setErrorMessage(err?.message || 'Failed to fetch lesson');
+        if (mounted) {
+          setErrorMessage(err?.message || 'Failed to fetch lesson');
+        }
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
 

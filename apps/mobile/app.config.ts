@@ -6,6 +6,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "aspirantbook",
   scheme: "aspirantbook",
   version: "1.0.0",
+  platforms: ["ios", "android"],
   orientation: "portrait",
   icon: "../../assets/brand/icon-512.png",
   userInterfaceStyle: "automatic",

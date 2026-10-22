@@ -36,9 +36,11 @@ export default function TutorialOutlineScreen() {
   useEffect(() => {
     let mounted = true;
     async function loadTutorial() {
+      if (!slug) {
+        if (mounted) setLoading(false);
+        return;
+      }
       try {
-        setLoading(true);
-        if (!slug) return;
         const res = await apiClient.getTutorial(slug);
         if (!mounted) return;
         if (res.ok && res.data) {
@@ -47,9 +49,13 @@ export default function TutorialOutlineScreen() {
           setErrorMessage(res.error?.message || 'Could not load tutorial');
         }
       } catch (err: any) {
-        setErrorMessage(err?.message || 'Failed to fetch tutorial');
+        if (mounted) {
+          setErrorMessage(err?.message || 'Failed to fetch tutorial');
+        }
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
 
