@@ -95,4 +95,10 @@ describe("T6: Alert.alert Cleanup & Allow-List Enforcement", () => {
     );
     assert.equal(totalAlertCount, 8, `Expected exactly 8 approved 2-button confirmations, found ${totalAlertCount}`);
   });
+
+  it("enforces that all Alert.alert occurrences have a literal array of >=2 buttons", () => {
+    const { execSync } = require("child_process");
+    const out = execSync("node /Users/praveenkumar/trillionskill-mobile-spec/run4/gates/alert-check.js", { encoding: "utf8" });
+    assert.ok(out.includes('"total":8'));
+  });
 });

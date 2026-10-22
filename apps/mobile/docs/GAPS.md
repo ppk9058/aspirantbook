@@ -1,5 +1,7 @@
 # Specification Gap Audit: Web Responsive Parity vs Expo Mobile App
 
+> **SUPERSEDED:** This Run 3 document is superseded by Run 4 specification audit in `/Users/praveenkumar/trillionskill-mobile-spec/run4/GAPS.md`.
+
 **Date:** Thu Oct 22 06:50:00 IST 2026  
 **Auditor:** Remediation Run 3 Autonomous Agent  
 **Branch:** `expo-mobile-parity-fix2` (Commit: `46da8e6`)  
@@ -123,7 +125,7 @@ $$\text{Full Catalog Parity (including designed web-only reader deferrals)} = \f
 | RD-7 | Code-Along Interactive Sandbox (`/code-along`) | Web itself has coming-soon placeholder | Omitted from mobile navigation |
 | RD-8 | Projects Portfolio System (`/projects`) | Web itself has coming-soon placeholder | Omitted from mobile navigation |
 | RD-9 | Global XP Leaderboard (`/leaderboard`) | Web itself has coming-soon placeholder | Exam-specific leaderboard implemented |
-| RD-10 | Google OAuth Client SDK Integration | Rule R8 & F-Mini: Requires third-party cloud setup | Eliminated per Rule R9 |
+| RD-10 | Google OAuth Client SDK Integration | Rule R8 & F-Mini: Requires third-party cloud setup | Eliminated per scope invariant |
 | RD-11 | Production SMS Gateway Integration | Rule R8: Zero cost invariant (no paid SMS APIs) | Dynamic `features.otpAuthEnabled` disables tab |
 
 ---

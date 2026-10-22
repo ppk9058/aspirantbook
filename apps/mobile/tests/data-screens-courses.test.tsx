@@ -292,10 +292,68 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
         { timeout: 4000 }
       );
     });
+
+    it("[/courses/[id]] 401 refresh retry flow", async () => {
+      __setMockParams({ id: "course-ref-1" });
+      await Storage.setAccessToken("expired-course-detail-token");
+      await Storage.setRefreshToken("valid-course-detail-refresh");
+
+      let fetchCount = 0;
+      global.fetch = jest.fn(async (url: any) => {
+        const urlStr = String(url);
+        if (urlStr.includes("/api/v1/auth/refresh")) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              ok: true,
+              data: { tokens: { accessToken: "refreshed-course-detail-token", refreshToken: "new-course-ref" } },
+            }),
+          } as any;
+        }
+
+        fetchCount++;
+        if (fetchCount === 1) {
+          return {
+            ok: false,
+            status: 401,
+            json: async () => ({ ok: false, error: { message: "Token expired" } }),
+          } as any;
+        }
+
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            data: {
+              course: {
+                id: "course-ref-1",
+                title: "Refreshed Course Detail",
+                slug: "refreshed-course-detail",
+                description: "Description",
+                difficulty: "BEGINNER",
+                isFree: true,
+                totalLessons: 1,
+              },
+              chapters: [],
+            },
+          }),
+        } as any;
+      });
+
+      render(<CourseDetailScreen />, { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(screen.getAllByText("Refreshed Course Detail").length).toBeGreaterThan(0);
+      }, { timeout: 4000 });
+
+      expect(await Storage.getAccessToken()).toBe("refreshed-course-detail-token");
+    });
   });
 
   describe("3. courses/[id]/lesson/[lessonId] (Video Player Screen)", () => {
-    it("renders locked lesson state when isLocked is true", async () => {
+    it("asserts locked lesson never exposes streamUrl and displays lock overlay", async () => {
       __setMockParams({ id: "course-123", lessonId: "les-locked-1" });
 
       global.fetch = jest.fn(async (url: any) => {
@@ -324,7 +382,7 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
           json: async () => ({
             ok: true,
             data: {
-              course: { id: "course-123", title: "Indian Polity" },
+              course: { id: "course-123", title: "Indian Polity", price: 1999 },
               chapters: [],
             },
           }),
@@ -454,6 +512,75 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
       // Press card to continue lesson
       fireEvent.press(screen.getByText("Geography Comprehensive Batch"));
       expect(__mockPush).toHaveBeenCalledWith("/courses/course-enrolled-1/lesson/les-geo-10");
+    });
+
+    it("[/my-learning] 401 refresh retry flow", async () => {
+      await Storage.setAccessToken("expired-mylearn-token");
+      await Storage.setRefreshToken("valid-mylearn-refresh");
+      await Storage.setUser({ id: "u-1", name: "Student", email: "student@test.com" });
+
+      let fetchCount = 0;
+      global.fetch = jest.fn(async (url: any) => {
+        const urlStr = String(url);
+        if (urlStr.includes("/api/v1/auth/refresh")) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              ok: true,
+              data: { tokens: { accessToken: "refreshed-mylearn-token", refreshToken: "new-mylearn-refresh" } },
+            }),
+          } as any;
+        }
+
+        if (urlStr.includes("/api/v1/me")) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              ok: true,
+              data: { id: "u-1", name: "Student", email: "student@test.com", role: "STUDENT" },
+            }),
+          } as any;
+        }
+
+        fetchCount++;
+        if (fetchCount === 1) {
+          return {
+            ok: false,
+            status: 401,
+            json: async () => ({ ok: false, error: { message: "Token expired" } }),
+          } as any;
+        }
+
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            data: {
+              enrolledCourses: [
+                {
+                  courseId: "course-refreshed-1",
+                  title: "Refreshed My Learning Course",
+                  progressPercent: 50,
+                  completedLessons: 5,
+                  totalLessons: 10,
+                  lastLessonId: "les-ref-5",
+                },
+              ],
+            },
+          }),
+        } as any;
+      });
+
+      render(<MyLearningScreen />, { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(screen.getByText("Refreshed My Learning Course")).toBeTruthy();
+      }, { timeout: 4000 });
+
+      expect(await Storage.getAccessToken()).toBe("refreshed-mylearn-token");
     });
   });
 

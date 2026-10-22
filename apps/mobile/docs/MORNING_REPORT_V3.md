@@ -1,5 +1,7 @@
 # Remediation Run 3: Autonomous Overnight Parity & Durability Report
 
+> **SUPERSEDED:** This Run 3 report is superseded by Run 4 remediation in `/Users/praveenkumar/trillionskill-mobile-spec/run4/MORNING_REPORT_V4.md`.
+
 **Timestamp**: Thu Oct 22 06:57:00 IST 2026  
 **Repository**: `/Users/praveenkumar/TrillionSkill`  
 **Branch**: `expo-mobile-parity-fix2` (branched from `af9eec0`)  

@@ -271,6 +271,62 @@ describe("T3: Mounted Tests - Learning & Aux Domain Screens", () => {
       fireEvent.press(bpscChip);
       expect(bpscChip).toBeTruthy();
     });
+
+    it("[/pyqs] 401 refresh retry flow", async () => {
+      await Storage.setAccessToken("expired-pyq-token");
+      await Storage.setRefreshToken("valid-pyq-refresh");
+
+      let fetchCount = 0;
+      global.fetch = jest.fn(async (url: any) => {
+        const urlStr = String(url);
+        if (urlStr.includes("/api/v1/auth/refresh")) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              ok: true,
+              data: { tokens: { accessToken: "refreshed-pyq-token", refreshToken: "new-pyq-refresh" } },
+            }),
+          } as any;
+        }
+
+        fetchCount++;
+        if (fetchCount === 1) {
+          return {
+            ok: false,
+            status: 401,
+            json: async () => ({ ok: false, error: { message: "Token expired" } }),
+          } as any;
+        }
+
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            data: [
+              {
+                id: "paper-refreshed",
+                title: "Refreshed UPSC Prelims 2024",
+                year: 2024,
+                examId: "exam-upsc",
+                examName: "UPSC CSE",
+                totalMarks: 200,
+                durationMinutes: 120,
+              },
+            ],
+          }),
+        } as any;
+      });
+
+      render(<PyqsScreen />, { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(screen.getByText("Refreshed UPSC Prelims 2024")).toBeTruthy();
+      }, { timeout: 4000 });
+
+      expect(await Storage.getAccessToken()).toBe("refreshed-pyq-token");
+    });
   });
 
   describe("3. pyqs/pdf-view", () => {
