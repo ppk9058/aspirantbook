@@ -33,6 +33,7 @@ import { formatTimeRemaining } from "../../../lib/cbt-timer";
 import { MathRenderer } from "../../../components/exam/MathRenderer";
 import { Button } from "../../../components/primitives/Button";
 import { Badge } from "../../../components/primitives/Badge";
+import { ErrorState } from "../../../components/primitives/ErrorState";
 import { Card } from "../../../components/primitives/Card";
 
 interface QuestionOption {
@@ -372,18 +373,10 @@ export default function CbtRunnerScreen() {
   if (loadError) {
     return (
       <View style={[styles.loadingScreen, { backgroundColor: colors.background }]}>
-        <AlertCircle size={44} color="#ef4444" style={{ marginBottom: 12 }} />
-        <Text style={[styles.loadingText, { color: colors.textPrimary, fontWeight: "700", marginBottom: 6 }]}>
-          Unable to Load Test
-        </Text>
-        <Text style={[styles.loadingText, { color: colors.textSecondary, marginBottom: 16 }]}>
-          {loadError}
-        </Text>
-        <Button
-          title="Go Back"
-          variant="secondary"
-          size="md"
-          onPress={() => router.back()}
+        <ErrorState
+          title="Unable to Load Test"
+          message={loadError}
+          onRetry={() => router.back()}
         />
       </View>
     );

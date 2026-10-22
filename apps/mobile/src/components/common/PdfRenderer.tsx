@@ -41,12 +41,7 @@ export function PdfRenderer({
           return;
         }
       } catch (err: unknown) {
-        if (mounted) {
-          setIsNativeAvailable(false);
-        }
-      }
-      if (mounted) {
-        setIsNativeAvailable(false);
+        // Feature detection failure fallback to false (default)
       }
     }
 

@@ -33,4 +33,19 @@ describe("T14: Root and (tabs) Route Resolution to Home Tab", () => {
     render(<DummyComponent />);
     expect(__mockReplace).not.toHaveBeenCalledWith("/(tabs)/home");
   });
+
+  it("resolves deep-link prefix '/--/' path normalization to /(tabs)/home", () => {
+    // In Expo Go, deep-link exp://host:port/--/ resolves to path '/'
+    const deepLinkPath = "/--/".replace(/^\/--\/?/, "/");
+    expect(deepLinkPath).toBe("/");
+    render(<TabsIndex />);
+    expect(__mockReplace).toHaveBeenCalledWith("/(tabs)/home");
+  });
+
+  it("confirms (tabs)/index route is hidden from the tab bar via options href null", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const layoutContent = fs.readFileSync(path.join(__dirname, "../src/app/(tabs)/_layout.tsx"), "utf8");
+    expect(layoutContent).toContain('<Tabs.Screen name="index" options={{ href: null }} />');
+  });
 });

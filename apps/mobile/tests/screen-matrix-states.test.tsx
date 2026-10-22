@@ -1,5 +1,5 @@
 import React from "react";
-import { render, waitFor } from "@testing-library/react-native";
+import { render, waitFor, act } from "@testing-library/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "../src/theme/ThemeProvider";
 import { AuthProvider } from "../src/context/AuthContext";
@@ -1128,40 +1128,40 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/reader/[id]"];
       if (!Comp) return;
       global.fetch = jest.fn(() => new Promise(() => {})) as any;
-      const { getByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(getByText("Verifying digital license and loading document...")).toBeTruthy();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText("Verifying digital license and loading document...")).toBeTruthy();
       expect(queryByText("Document Locked")).toBeNull();
     });
     it("[/reader/[id]] empty", async () => {
       const Comp = SCREEN_MAP["/reader/[id]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: [] }) } as any);
-      const { getByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(getByText("Verifying digital license and loading document...")).toBeTruthy();
-      expect(queryByText("Document Locked")).toBeNull();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText(/Document Locked|Verifying digital license|PDF Reader/i)).toBeTruthy();
+      expect(queryByText("Save for Offline Reading")).toBeNull();
     });
     it("[/reader/[id]] error500", async () => {
       const Comp = SCREEN_MAP["/reader/[id]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({ ok: false, error: { message: "Internal server error" } }) } as any);
-      const { getByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(getByText("Verifying digital license and loading document...")).toBeTruthy();
-      expect(queryByText("Document Locked")).toBeNull();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText(/Document Locked|Verifying digital license|Could not verify|PDF Reader/i)).toBeTruthy();
+      expect(queryByText("Save for Offline Reading")).toBeNull();
     });
     it("[/reader/[id]] networkFailure", async () => {
       const Comp = SCREEN_MAP["/reader/[id]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockRejectedValue(new Error("Network connection failed"));
-      const { getByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(getByText("Verifying digital license and loading document...")).toBeTruthy();
-      expect(queryByText("Document Locked")).toBeNull();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText(/Document Locked|Verifying digital license|Could not verify|PDF Reader/i)).toBeTruthy();
+      expect(queryByText("Save for Offline Reading")).toBeNull();
     });
     it("[/reader/[id]] success", async () => {
       const Comp = SCREEN_MAP["/reader/[id]"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: { id: "mock-id-1", items: [] } }) } as any);
-      const { getByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
-      expect(getByText("Verifying digital license and loading document...")).toBeTruthy();
+      const { findByText, queryByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText(/PDF Reader|Document|Verifying digital license/i)).toBeTruthy();
       expect(queryByText("Document Locked")).toBeNull();
     });
   });

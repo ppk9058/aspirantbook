@@ -53,17 +53,20 @@ export default function ReaderScreen() {
     let mounted = true;
     async function checkFileStatus() {
       try {
+        if (!mounted) return;
         setLoading(true);
 
         // Ensure private directory exists
         const dir = `${FileSystem.documentDirectory || ''}secure_docs`;
         const dirInfo = await FileSystem.getInfoAsync(dir);
+        if (!mounted) return;
         if (!dirInfo.exists) {
           await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
         }
 
         // Check if cached locally in app-private storage
         const fileInfo = await FileSystem.getInfoAsync(targetPath);
+        if (!mounted) return;
         if (fileInfo.exists) {
           setLocalFileUri(targetPath);
         }
@@ -83,11 +86,12 @@ export default function ReaderScreen() {
           }
         } else {
           // PYQ or generic
+          if (!mounted) return;
           setMetadata({ title, type: 'PYQ Paper' });
           setIsLocked(false);
         }
       } catch (err: any) {
-        setStatusMessage(err?.message || 'Could not verify document access');
+        if (mounted) setStatusMessage(err?.message || 'Could not verify document access');
       } finally {
         if (mounted) setLoading(false);
       }
