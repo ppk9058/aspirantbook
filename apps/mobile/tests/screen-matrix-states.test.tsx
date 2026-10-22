@@ -1,5 +1,5 @@
 import React from "react";
-import { render } from "@testing-library/react-native";
+import { render, waitFor } from "@testing-library/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "../src/theme/ThemeProvider";
 import { AuthProvider } from "../src/context/AuthContext";
@@ -129,8 +129,9 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/(auth)/login"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({ ok: false, error: { message: "Internal server error" } }) } as any);
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, getByPlaceholderText } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      expect(getByPlaceholderText("name@example.com")).toBeTruthy();
     });
     it("[/(auth)/login] networkFailure", async () => {
       const Comp = SCREEN_MAP["/(auth)/login"];
@@ -205,8 +206,9 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/(auth)/reset-password"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({ ok: false, error: { message: "Internal server error" } }) } as any);
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, getByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      expect(getByText("Reset Password")).toBeTruthy();
     });
     it("[/(auth)/reset-password] networkFailure", async () => {
       const Comp = SCREEN_MAP["/(auth)/reset-password"];
@@ -236,8 +238,11 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/(tabs)/courses"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: [] }) } as any);
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, getByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      await waitFor(() => {
+        expect(getByText("No Courses Found")).toBeTruthy();
+      });
     });
     it("[/(tabs)/courses] error500", async () => {
       const Comp = SCREEN_MAP["/(tabs)/courses"];
@@ -267,8 +272,9 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/(tabs)/home"];
       if (!Comp) return;
       global.fetch = jest.fn(() => new Promise(() => {})) as any;
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, getByTestId } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      expect(getByTestId("home-screen")).toBeTruthy();
     });
     it("[/(tabs)/home] empty", async () => {
       const Comp = SCREEN_MAP["/(tabs)/home"];
@@ -312,8 +318,9 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/(tabs)/learn"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: [] }) } as any);
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, getByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      expect(getByText("Tutorials & Courses")).toBeTruthy();
     });
     it("[/(tabs)/learn] error500", async () => {
       const Comp = SCREEN_MAP["/(tabs)/learn"];
@@ -692,8 +699,11 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/current-affairs"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: [] }) } as any);
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, getByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      await waitFor(() => {
+        expect(getByText("No Current Affairs Listed")).toBeTruthy();
+      });
     });
     it("[/current-affairs] error500", async () => {
       const Comp = SCREEN_MAP["/current-affairs"];
@@ -809,8 +819,9 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/my-tests"];
       if (!Comp) return;
       global.fetch = jest.fn(() => new Promise(() => {})) as any;
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, getByTestId } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      expect(getByTestId("my-tests-screen")).toBeTruthy();
     });
     it("[/my-tests] empty", async () => {
       const Comp = SCREEN_MAP["/my-tests"];
@@ -830,8 +841,9 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/my-tests"];
       if (!Comp) return;
       global.fetch = jest.fn().mockRejectedValue(new Error("Network connection failed"));
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, getByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      expect(getByText("Sign In to Access Tests")).toBeTruthy();
     });
     it("[/my-tests] success", async () => {
       const Comp = SCREEN_MAP["/my-tests"];
@@ -885,8 +897,9 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/profile"];
       if (!Comp) return;
       global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: { id: "mock-id-1", items: [] } }) } as any);
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, getByTestId } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      expect(getByTestId("profile-screen")).toBeTruthy();
     });
   });
 
@@ -1161,8 +1174,9 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       const Comp = SCREEN_MAP["/tests/[id]/leaderboard"];
       if (!Comp) return;
       global.fetch = jest.fn(() => new Promise(() => {})) as any;
-      const { toJSON } = render(<Comp />, { wrapper: createWrapper() });
+      const { toJSON, getAllByText } = render(<Comp />, { wrapper: createWrapper() });
       expect(toJSON()).toBeDefined();
+      expect(getAllByText("Live Leaderboard").length).toBeGreaterThan(0);
     });
     it("[/tests/[id]/leaderboard] empty", async () => {
       const Comp = SCREEN_MAP["/tests/[id]/leaderboard"];
