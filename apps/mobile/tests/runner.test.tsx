@@ -207,9 +207,13 @@ describe("T2: Critical Screen - CBT Runner Mounted Tests", () => {
     });
 
     unmount();
-    expect(clearIntervalSpy).toHaveBeenCalled();
-    clearIntervalSpy.mockRestore();
-    jest.useRealTimers();
+    try {
+      expect(clearIntervalSpy).toHaveBeenCalled();
+    } finally {
+      clearIntervalSpy.mockRestore();
+      jest.clearAllTimers();
+      jest.useRealTimers();
+    }
   });
 
   it("(5) hardware-back confirmation triggers confirmation alert", async () => {
