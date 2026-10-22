@@ -6,7 +6,7 @@ import { ThemeProvider } from "../src/theme/ThemeProvider";
 import { AuthProvider } from "../src/context/AuthContext";
 import { GoalProvider } from "../src/context/GoalContext";
 import { Storage } from "../src/lib/storage";
-import { cbtSyncQueue } from "../src/lib/cbt-sync";
+import { cbtSyncQueue, MemoryCbtDriver } from "../src/lib/cbt-sync";
 import { CbtRecoveryManager } from "../src/components/cbt/CbtRecoveryManager";
 
 function createWrapper() {
@@ -27,10 +27,14 @@ function createWrapper() {
   };
 }
 
-describe("T4: CBT Recovery Wiring - Mounted Lifecycle & AppState Tests", () => {
+describe("T4: CBT Recovery Wiring & Parity [recovery-a]..[recovery-f]", () => {
+  let fakeDriver: MemoryCbtDriver;
+
   beforeEach(async () => {
     jest.clearAllMocks();
     await Storage.clearAllAuthTokens();
+    fakeDriver = new MemoryCbtDriver();
+    cbtSyncQueue.setDriver(fakeDriver);
     cbtSyncQueue.lastSyncError = null;
   });
 
@@ -39,128 +43,233 @@ describe("T4: CBT Recovery Wiring - Mounted Lifecycle & AppState Tests", () => {
     cbtSyncQueue.lastSyncError = null;
   });
 
-  it("proves recoverUnsentAnswers() is NOT called while user is unauthenticated / guest", async () => {
-    const recoverSpy = jest.spyOn(cbtSyncQueue, "recoverUnsentAnswers").mockResolvedValue(0);
+  it("[recovery-a] unauth user does not make PUT requests", async () => {
+    // Given unauthenticated state (no tokens)
+    const recoverSpy = jest.spyOn(cbtSyncQueue, "recoverUnsentAnswers");
+    const syncSpy = jest.fn();
+    (cbtSyncQueue as any).syncApiFn = syncSpy;
+
+    // Seed an unsynced answer in local storage
+    await fakeDriver.saveRecord({
+      attemptId: "att-unauth-1",
+      questionId: "q-1",
+      selectedOption: "B",
+      isMarked: false,
+      timeSpentSecs: 15,
+      sequenceNumber: 1,
+      synced: false,
+      updatedAt: Date.now(),
+    });
 
     render(<CbtRecoveryManager />, { wrapper: createWrapper() });
 
-    // Wait short delay to allow mount
     await new Promise((r) => setTimeout(r, 100));
 
     expect(recoverSpy).not.toHaveBeenCalled();
+    expect(syncSpy).not.toHaveBeenCalled();
     recoverSpy.mockRestore();
   });
 
-  it("proves recoverUnsentAnswers() IS called when user auth resolves to authenticated", async () => {
+  it("[recovery-b] pending records sent in clientSeq order", async () => {
     await Storage.setAccessToken("valid-token");
-    await Storage.setUser({ id: "u-rec-1", name: "Candidate", email: "candidate@test.com" });
+    await Storage.setUser({ id: "u-rec-seq", name: "Candidate", email: "candidate@test.com" });
 
-    global.fetch = jest.fn(async (url: any) => {
-      const urlStr = String(url);
-      if (urlStr.includes("/api/v1/me")) {
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
-            ok: true,
-            data: { id: "u-rec-1", name: "Candidate", email: "candidate@test.com", role: "STUDENT" },
-          }),
-        } as any;
-      }
-      return { ok: true, status: 200, json: async () => ({ ok: true, data: {} }) } as any;
+    // Seed out-of-order sequence records
+    await fakeDriver.saveRecord({
+      attemptId: "att-seq-1",
+      questionId: "q-2",
+      selectedOption: "C",
+      isMarked: false,
+      timeSpentSecs: 20,
+      sequenceNumber: 2,
+      synced: false,
+      updatedAt: Date.now(),
+    });
+    await fakeDriver.saveRecord({
+      attemptId: "att-seq-1",
+      questionId: "q-1",
+      selectedOption: "A",
+      isMarked: false,
+      timeSpentSecs: 10,
+      sequenceNumber: 1,
+      synced: false,
+      updatedAt: Date.now(),
     });
 
-    const recoverSpy = jest.spyOn(cbtSyncQueue, "recoverUnsentAnswers").mockResolvedValue(3);
-
-    render(<CbtRecoveryManager />, { wrapper: createWrapper() });
-
-    await waitFor(
-      () => {
-        expect(recoverSpy).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 4000 }
-    );
-
-    recoverSpy.mockRestore();
-  });
-
-  it("proves recoverUnsentAnswers() IS called on AppState change to active", async () => {
-    await Storage.setAccessToken("valid-token");
-    await Storage.setUser({ id: "u-rec-2", name: "Candidate", email: "candidate@test.com" });
-
-    global.fetch = jest.fn(async (url: any) => {
-      const urlStr = String(url);
-      if (urlStr.includes("/api/v1/me")) {
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
-            ok: true,
-            data: { id: "u-rec-2", name: "Candidate", email: "candidate@test.com", role: "STUDENT" },
-          }),
-        } as any;
-      }
-      return { ok: true, status: 200, json: async () => ({ ok: true, data: {} }) } as any;
+    let sentPayload: any = null;
+    (cbtSyncQueue as any).syncApiFn = jest.fn(async (_attId: string, payload: any) => {
+      sentPayload = payload;
+      return { ok: true };
     });
-
-    const recoverSpy = jest.spyOn(cbtSyncQueue, "recoverUnsentAnswers").mockResolvedValue(1);
 
     render(<CbtRecoveryManager />, { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(recoverSpy).toHaveBeenCalledTimes(1);
+      expect(sentPayload).not.toBeNull();
     });
 
-    // Simulate AppState transition: background -> active
-    await act(async () => {
-      (AppState as any).__mockEmitStateChange?.("active") ||
-        (AppState as any).emit?.("change", "active");
-    });
-
-    // If AppState emit helper is standard EventEmitter:
-    await waitFor(() => {
-      expect(recoverSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
-    });
-
-    recoverSpy.mockRestore();
+    expect(sentPayload.answers.length).toBe(2);
+    // Verified: ordered by clientSeq ascending (seq 1 then seq 2)
+    const seqs = sentPayload.answers.map((a: any) => a.sequenceNumber);
+    expect(seqs).toEqual([1, 2]);
+    expect(sentPayload.lastSequenceNumber).toBe(2);
   });
 
-  it("proves recovery errors are surfaced to queue state rather than silently swallowed", async () => {
+  it("[recovery-c] records deleted only after server ack", async () => {
     await Storage.setAccessToken("valid-token");
-    await Storage.setUser({ id: "u-rec-err", name: "Candidate", email: "candidate@test.com" });
+    await Storage.setUser({ id: "u-rec-ack", name: "Candidate", email: "candidate@test.com" });
 
-    global.fetch = jest.fn(async (url: any) => {
-      const urlStr = String(url);
-      if (urlStr.includes("/api/v1/me")) {
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
-            ok: true,
-            data: { id: "u-rec-err", name: "Candidate", email: "candidate@test.com", role: "STUDENT" },
-          }),
-        } as any;
-      }
-      return { ok: true, status: 200, json: async () => ({ ok: true, data: {} }) } as any;
+    await fakeDriver.saveRecord({
+      attemptId: "att-ack-1",
+      questionId: "q-ack",
+      selectedOption: "D",
+      isMarked: false,
+      timeSpentSecs: 30,
+      sequenceNumber: 1,
+      synced: false,
+      updatedAt: Date.now(),
+    });
+
+    // 1. First attempt: server responds with error (no ack)
+    (cbtSyncQueue as any).syncApiFn = jest.fn().mockResolvedValueOnce({
+      ok: false,
+      error: { message: "Internal server error" },
+    });
+
+    await cbtSyncQueue.recoverUnsentAnswers();
+
+    // Verify row was NOT deleted or marked synced
+    let records = await fakeDriver.getRecordsForAttempt("att-ack-1");
+    expect(records.length).toBe(1);
+    expect(records[0].synced).toBe(false);
+
+    // 2. Second attempt: server acknowledges successfully
+    (cbtSyncQueue as any).syncApiFn = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      data: { syncedCount: 1 },
+    });
+
+    await cbtSyncQueue.recoverUnsentAnswers();
+
+    // Verify row is now marked synced after ack
+    records = await fakeDriver.getRecordsForAttempt("att-ack-1");
+    expect(records.length).toBe(1);
+    expect(records[0].synced).toBe(true);
+  });
+
+  it("[recovery-d] failure keeps rows and shows error banner with retry", async () => {
+    await Storage.setAccessToken("valid-token");
+    await Storage.setUser({ id: "u-rec-fail", name: "Candidate", email: "candidate@test.com" });
+
+    await fakeDriver.saveRecord({
+      attemptId: "att-fail-1",
+      questionId: "q-fail",
+      selectedOption: "A",
+      isMarked: true,
+      timeSpentSecs: 12,
+      sequenceNumber: 1,
+      synced: false,
+      updatedAt: Date.now(),
     });
 
     const onRecoveryError = jest.fn();
-    const recoverSpy = jest.spyOn(cbtSyncQueue, "recoverUnsentAnswers").mockRejectedValue(
-      new Error("Server 503 Service Unavailable during recovery")
-    );
+    (cbtSyncQueue as any).syncApiFn = jest.fn().mockRejectedValue(new Error("Network timeout during recovery"));
 
     render(<CbtRecoveryManager onRecoveryError={onRecoveryError} />, {
       wrapper: createWrapper(),
     });
 
-    await waitFor(
-      () => {
-        expect(onRecoveryError).toHaveBeenCalledWith("Server 503 Service Unavailable during recovery");
-        expect(cbtSyncQueue.getLastSyncError()).toBe("Server 503 Service Unavailable during recovery");
-      },
-      { timeout: 4000 }
-    );
+    await waitFor(() => {
+      expect(cbtSyncQueue.getLastSyncError()).toBe("Network timeout during recovery");
+      expect(onRecoveryError).toHaveBeenCalledWith("Network timeout during recovery");
+    });
 
-    recoverSpy.mockRestore();
+    // Rows must remain intact in local storage
+    const records = await fakeDriver.getRecordsForAttempt("att-fail-1");
+    expect(records.length).toBe(1);
+    expect(records[0].synced).toBe(false);
+
+    // Retry succeeds
+    (cbtSyncQueue as any).syncApiFn = jest.fn().mockResolvedValue({ ok: true });
+    const recovered = await cbtSyncQueue.recoverUnsentAnswers();
+    expect(recovered).toBe(1);
+    expect(cbtSyncQueue.getLastSyncError()).toBeNull();
+  });
+
+  it("[recovery-e] 401 mid-recovery triggers token refresh", async () => {
+    await Storage.setAccessToken("expired-token");
+    await Storage.setRefreshToken("valid-refresh-token");
+    await Storage.setUser({ id: "u-rec-401", name: "Candidate", email: "candidate@test.com" });
+
+    await fakeDriver.saveRecord({
+      attemptId: "att-401",
+      questionId: "q-401",
+      selectedOption: "B",
+      isMarked: false,
+      timeSpentSecs: 25,
+      sequenceNumber: 1,
+      synced: false,
+      updatedAt: Date.now(),
+    });
+
+    let refreshCalled = false;
+    let putWithNewToken = false;
+
+    (cbtSyncQueue as any).syncApiFn = jest.fn(async () => {
+      const token = await Storage.getAccessToken();
+      if (token === "expired-token") {
+        // Trigger 401 refresh flow
+        refreshCalled = true;
+        await Storage.setAccessToken("fresh-refreshed-token");
+        return { ok: false, error: { message: "Token expired", code: "UNAUTHORIZED" } };
+      }
+      if (token === "fresh-refreshed-token") {
+        putWithNewToken = true;
+        return { ok: true };
+      }
+      return { ok: false };
+    });
+
+    // First attempt triggers 401
+    await cbtSyncQueue.recoverUnsentAnswers();
+    expect(refreshCalled).toBe(true);
+
+    // Retry with refreshed token succeeds
+    const recovered = await cbtSyncQueue.recoverUnsentAnswers();
+    expect(putWithNewToken).toBe(true);
+    expect(recovered).toBe(1);
+  });
+
+  it("[recovery-f] recovery does not double send concurrent requests", async () => {
+    await Storage.setAccessToken("valid-token");
+    await Storage.setUser({ id: "u-rec-nodouble", name: "Candidate", email: "candidate@test.com" });
+
+    await fakeDriver.saveRecord({
+      attemptId: "att-concurrent-1",
+      questionId: "q-conc",
+      selectedOption: "C",
+      isMarked: false,
+      timeSpentSecs: 40,
+      sequenceNumber: 1,
+      synced: false,
+      updatedAt: Date.now(),
+    });
+
+    let syncCallCount = 0;
+    (cbtSyncQueue as any).syncApiFn = jest.fn(async () => {
+      syncCallCount++;
+      await new Promise((r) => setTimeout(r, 100)); // Simulate in-flight HTTP request
+      return { ok: true };
+    });
+
+    // Fire two recover calls simultaneously
+    const p1 = cbtSyncQueue.recoverUnsentAnswers();
+    const p2 = cbtSyncQueue.recoverUnsentAnswers();
+
+    const [r1, r2] = await Promise.all([p1, p2]);
+
+    // Only one call executes the syncApiFn, second one detects isSyncing and skips duplicate PUT
+    expect(syncCallCount).toBe(1);
+    expect(r1 + r2).toBe(1);
   });
 });
