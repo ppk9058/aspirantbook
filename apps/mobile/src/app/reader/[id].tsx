@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   ScrollView,
   Platform,
 } from 'react-native';
@@ -44,6 +43,7 @@ export default function ReaderScreen() {
   const [metadata, setMetadata] = useState<any>(null);
   const [isLocked, setIsLocked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // Private app storage path (Never in public Downloads)
   const localFileName = `doc_${id}.pdf`;
@@ -87,7 +87,7 @@ export default function ReaderScreen() {
           setIsLocked(false);
         }
       } catch (err: any) {
-        Alert.alert('Error', err?.message || 'Could not verify document access');
+        setStatusMessage(err?.message || 'Could not verify document access');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -125,10 +125,10 @@ export default function ReaderScreen() {
       const downloadResult = await downloadResumable.downloadAsync();
       if (downloadResult && downloadResult.uri) {
         setLocalFileUri(downloadResult.uri);
-        Alert.alert('Success', 'Document downloaded securely to offline storage.');
+        setStatusMessage('Document downloaded securely to offline storage.');
       }
     } catch (err: any) {
-      Alert.alert('Notice', 'Document cached in memory. Full download available when connection permits.');
+      setStatusMessage('Document cached in memory. Full download available when connection permits.');
       setLocalFileUri(targetPath); // simulated offline state
     } finally {
       setDownloading(false);
@@ -195,7 +195,7 @@ export default function ReaderScreen() {
         </Text>
         <TouchableOpacity
           onPress={() => {
-            Alert.alert('Digital Rights Management', 'This document is protected and licensed for personal use only.');
+            setStatusMessage('Digital Rights Management: This document is protected and licensed for personal use only.');
           }}
         >
           <ShieldAlert size={20} color={theme.colors.textMuted} />
@@ -203,6 +203,11 @@ export default function ReaderScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        {statusMessage && (
+          <View style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.border, borderWidth: 1, padding: 12, borderRadius: 8, marginBottom: 16 }}>
+            <Text style={{ color: theme.colors.text, fontSize: 13, textAlign: 'center' }}>{statusMessage}</Text>
+          </View>
+        )}
         {/* Document Info Card */}
         <View style={[styles.docCard, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
           <View style={styles.docIconWrapper}>

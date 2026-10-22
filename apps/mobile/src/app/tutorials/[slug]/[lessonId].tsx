@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -54,6 +53,7 @@ export default function TutorialLessonScreen() {
   const [lesson, setLesson] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedQuizAnswers, setSelectedQuizAnswers] = useState<Record<number, number>>({});
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -68,14 +68,10 @@ export default function TutorialLessonScreen() {
         if (res.ok && res.data) {
           setLesson(res.data);
         } else {
-          Alert.alert('Error', res.error?.message || 'Could not load lesson', [
-            { text: 'Go Back', onPress: () => router.back() },
-          ]);
+          setErrorMessage(res.error?.message || 'Could not load lesson');
         }
       } catch (err: any) {
-        Alert.alert('Error', err?.message || 'Failed to fetch lesson', [
-          { text: 'Go Back', onPress: () => router.back() },
-        ]);
+        setErrorMessage(err?.message || 'Failed to fetch lesson');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -152,7 +148,9 @@ export default function TutorialLessonScreen() {
   if (!lesson) {
     return (
       <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
-        <Text style={[styles.errorText, { color: theme.colors.text }]}>Lesson not found.</Text>
+        <Text style={[styles.errorText, { color: theme.colors.text }]}>
+          {errorMessage || 'Lesson not found.'}
+        </Text>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Text style={styles.backBtnText}>Go Back</Text>
         </TouchableOpacity>

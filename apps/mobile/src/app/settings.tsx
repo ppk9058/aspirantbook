@@ -202,8 +202,11 @@ export default function SettingsScreen() {
                           text: "Delete",
                           style: "destructive",
                           onPress: async () => {
-                            await api.deleteMe({}).catch(() => {});
-                            await logout();
+                            try {
+                              await api.deleteMe({});
+                            } finally {
+                              await logout();
+                            }
                           },
                         },
                       ]

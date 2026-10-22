@@ -6,83 +6,65 @@ import * as path from "node:path";
 interface AllowedAlert {
   file: string;
   purpose: string;
-  isPreExisting?: boolean;
 }
 
-// Explicit allow-list of allowed Alert.alert calls across the mobile application
+// Strict allow-list of approved confirmation dialogs across mobile application
+// Only irreversible/destructive actions with 2+ buttons are allowed
 const ALERT_ALLOWLIST: AllowedAlert[] = [
-  // Confirmation / Destructive Dialogs (2+ buttons)
   {
     file: "src/app/settings.tsx",
-    purpose: "destructive: account deletion confirmation dialog",
+    purpose: "destructive: account deletion confirmation dialog (Cancel, Delete)",
   },
   {
     file: "src/app/(tabs)/profile.tsx",
-    purpose: "confirmation: sign out confirmation dialog",
+    purpose: "confirmation: sign out confirmation dialog (Cancel, Sign Out)",
   },
   {
     file: "src/app/(tabs)/profile.tsx",
-    purpose: "destructive: revoke all sessions confirmation dialog",
+    purpose: "destructive: revoke all sessions confirmation dialog (Cancel, Revoke)",
   },
   {
     file: "src/app/(tabs)/profile.tsx",
-    purpose: "destructive: account deletion confirmation dialog",
+    purpose: "destructive: account deletion confirmation dialog (Cancel, Delete)",
   },
   {
     file: "src/app/tests/[id]/index.tsx",
-    purpose: "confirmation: guest sign-in required to attempt exam",
+    purpose: "confirmation: guest sign-in required to attempt exam (Cancel, Sign In)",
   },
   {
     file: "src/app/tests/[id]/runner.tsx",
-    purpose: "destructive: hardware back exit exam confirmation dialog",
+    purpose: "destructive: exit exam confirmation dialog (Cancel, Exit Test)",
   },
   {
     file: "src/app/tests/[id]/runner.tsx",
-    purpose: "destructive: header exit exam confirmation dialog",
+    purpose: "confirmation: submit exam confirmation dialog (Review, Submit)",
   },
   {
     file: "src/app/pyqs/pdf-view.tsx",
-    purpose: "confirmation: guest sign-in required to download offline paper",
-  },
-
-  // Pre-existing files not in branch diff (logged as pre-existing)
-  {
-    file: "src/app/reader/[id].tsx",
-    purpose: "pre-existing: legacy reader alerts",
-    isPreExisting: true,
-  },
-  {
-    file: "src/app/tutorials/[slug]/index.tsx",
-    purpose: "pre-existing: legacy tutorial loader alert",
-    isPreExisting: true,
-  },
-  {
-    file: "src/app/tutorials/[slug]/[lessonId].tsx",
-    purpose: "pre-existing: legacy tutorial lesson alert",
-    isPreExisting: true,
+    purpose: "confirmation: guest sign-in required to download offline paper (Cancel, Sign In)",
   },
 ];
 
-describe("T4: Alert.alert Cleanup & Allow-List Enforcement", () => {
-  it("enforces that all Alert.alert occurrences match the explicit allow-list", () => {
-    const srcDir = path.join(__dirname, "../src");
-
-    function findFiles(dir: string): string[] {
-      const results: string[] = [];
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          results.push(...findFiles(fullPath));
-        } else if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) {
-          results.push(fullPath);
-        }
+describe("T6: Alert.alert Cleanup & Allow-List Enforcement", () => {
+  function findFiles(dir: string): string[] {
+    const results: string[] = [];
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        results.push(...findFiles(fullPath));
+      } else if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) {
+        results.push(fullPath);
       }
-      return results;
     }
+    return results;
+  }
 
+  it("enforces that all Alert.alert occurrences match the explicit allow-list and count is <= 12", () => {
+    const srcDir = path.join(__dirname, "../src");
     const allFiles = findFiles(srcDir);
     const violations: string[] = [];
+    let totalAlertCount = 0;
 
     for (const filePath of allFiles) {
       const relPath = path.relative(path.join(__dirname, ".."), filePath);
@@ -91,6 +73,7 @@ describe("T4: Alert.alert Cleanup & Allow-List Enforcement", () => {
 
       lines.forEach((line, idx) => {
         if (line.includes("Alert.alert(")) {
+          totalAlertCount++;
           const isAllowed = ALERT_ALLOWLIST.some((allowed) => relPath.includes(allowed.file));
           if (!isAllowed) {
             violations.push(`${relPath}:${idx + 1}: ${line.trim()}`);
@@ -104,5 +87,12 @@ describe("T4: Alert.alert Cleanup & Allow-List Enforcement", () => {
       0,
       `Found unauthorized Alert.alert calls outside allow-list:\n${violations.join("\n")}`
     );
+
+    // Rule T6 requirement: total count must be strictly <= 12
+    assert.ok(
+      totalAlertCount <= 12,
+      `Expected total Alert.alert count <= 12, but found ${totalAlertCount}`
+    );
+    assert.equal(totalAlertCount, 8, `Expected exactly 8 approved 2-button confirmations, found ${totalAlertCount}`);
   });
 });

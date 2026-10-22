@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
@@ -32,6 +31,7 @@ export default function TutorialOutlineScreen() {
   const [loading, setLoading] = useState(true);
   const [tutorial, setTutorial] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -44,14 +44,10 @@ export default function TutorialOutlineScreen() {
         if (res.ok && res.data) {
           setTutorial(res.data);
         } else {
-          Alert.alert('Error', res.error?.message || 'Could not load tutorial', [
-            { text: 'Go Back', onPress: () => router.back() },
-          ]);
+          setErrorMessage(res.error?.message || 'Could not load tutorial');
         }
       } catch (err: any) {
-        Alert.alert('Error', err?.message || 'Failed to fetch tutorial', [
-          { text: 'Go Back', onPress: () => router.back() },
-        ]);
+        setErrorMessage(err?.message || 'Failed to fetch tutorial');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -77,7 +73,9 @@ export default function TutorialOutlineScreen() {
   if (!tutorial) {
     return (
       <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
-        <Text style={[styles.errorText, { color: theme.colors.text }]}>Tutorial not found.</Text>
+        <Text style={[styles.errorText, { color: theme.colors.text }]}>
+          {errorMessage || 'Tutorial not found.'}
+        </Text>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Text style={styles.backBtnText}>Go Back</Text>
         </TouchableOpacity>
