@@ -10,7 +10,7 @@ if (typeof __DEV__ !== "undefined" && __DEV__) {
 
 const rawApiUrl = envApiUrl ? envApiUrl.trim() : "";
 // Canonical normalization: always server origin without trailing slash or duplicate /api/v1
-export const API_BASE_URL = rawApiUrl ? rawApiUrl.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "") : "";
+export const API_BASE_URL = rawApiUrl.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "");
 
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;
