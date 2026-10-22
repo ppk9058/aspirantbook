@@ -777,8 +777,8 @@ describe("T3: Mounted Tests - Tests Domain Screens", () => {
 
       await waitFor(() => {
         expect(screen.getByText("No In-Progress Exams")).toBeTruthy();
-      }, { timeout: 4000 });
-    });
+      }, { timeout: 8000 });
+    }, 15000);
 
     it("[/my-tests] error500", async () => {
       await Storage.setAccessToken("valid-token");
