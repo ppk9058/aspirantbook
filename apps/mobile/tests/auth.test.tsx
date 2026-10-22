@@ -126,21 +126,38 @@ describe("T2: Critical Screens - Auth Mounted Tests", () => {
       loginSpy.mockRestore();
     });
 
-    it("displays unavailable notice and disables submit when otpAuthEnabled is false", async () => {
-      const configSpy = jest.spyOn(api, "getConfig").mockResolvedValue({
-        ok: true,
-        data: {
-          minSupportedVersion: "1.0.0",
-          latestVersion: "1.0.0",
-          isMaintenance: false,
-          maintenanceMessage: null,
-          allowPurchases: false,
-          googleAuthEnabled: false,
-          otpAuthEnabled: false,
-          supportEmail: "support@example.com",
-          websiteUrl: "https://example.com",
-        },
-      } as any);
+    it("omits Phone OTP toggle tab when otpAuthEnabled is false", async () => {
+      const originalFetch = global.fetch;
+      global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.includes("/config")) {
+          return {
+            ok: true,
+            status: 200,
+            headers: new Headers({ "content-type": "application/json" }),
+            json: async () => ({
+              ok: true,
+              data: {
+                minSupportedVersion: "1.0.0",
+                latestVersion: "1.0.0",
+                isMaintenance: false,
+                maintenanceMessage: null,
+                allowPurchases: false,
+                googleAuthEnabled: false,
+                otpAuthEnabled: false,
+                supportEmail: "support@example.com",
+                websiteUrl: "https://example.com",
+              },
+            }),
+          } as Response;
+        }
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({ ok: true, data: {} }),
+        } as Response;
+      });
 
       render(
         <ThemeProvider>
@@ -150,18 +167,14 @@ describe("T2: Critical Screens - Auth Mounted Tests", () => {
         </ThemeProvider>
       );
 
-      // Switch to Phone (OTP) tab
-      const phoneTab = screen.getByText("Phone (OTP)");
-      fireEvent.press(phoneTab);
-
       await waitFor(() => {
-        expect(
-          screen.getByText("Phone login is currently unavailable; please use email.")
-        ).toBeTruthy();
-        expect(screen.getByText("Phone Login Unavailable")).toBeTruthy();
+        expect(screen.getByPlaceholderText("name@example.com")).toBeTruthy();
       });
 
-      configSpy.mockRestore();
+      // Phone (OTP) toggle must be absent when flag is false
+      expect(screen.queryByText("Phone (OTP)")).toBeNull();
+
+      global.fetch = originalFetch;
     });
   });
 

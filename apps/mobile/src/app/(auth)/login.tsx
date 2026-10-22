@@ -39,7 +39,12 @@ export default function LoginScreen() {
     let mounted = true;
     void api.getConfig().then((res) => {
       if (mounted && res.ok && res.data) {
-        setOtpAuthEnabled(Boolean(res.data.otpAuthEnabled));
+        const enabled = Boolean(res.data.otpAuthEnabled);
+        setOtpAuthEnabled(enabled);
+        if (!enabled) setAuthMode("password");
+      } else if (mounted) {
+        setOtpAuthEnabled(false);
+        setAuthMode("password");
       }
     });
     return () => {
@@ -185,42 +190,44 @@ export default function LoginScreen() {
           </Text>
         </View>
 
-        {/* Tab Toggle: Email/Password vs Phone OTP */}
-        <View style={[styles.toggleContainer, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => {
-              setAuthMode("password");
-              setErrorMessage(null);
-            }}
-            style={[
-              styles.toggleTab,
-              authMode === "password" && { backgroundColor: colors.surface, borderColor: colors.border },
-            ]}
-          >
-            <Mail size={16} color={authMode === "password" ? colors.primary : colors.textMuted} />
-            <Text style={[styles.toggleTabText, { color: authMode === "password" ? colors.textPrimary : colors.textMuted }]}>
-              Email & Password
-            </Text>
-          </TouchableOpacity>
+        {/* Tab Toggle: Email/Password vs Phone OTP (omitted when OTP auth disabled) */}
+        {otpAuthEnabled && (
+          <View style={[styles.toggleContainer, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                setAuthMode("password");
+                setErrorMessage(null);
+              }}
+              style={[
+                styles.toggleTab,
+                authMode === "password" && { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
+            >
+              <Mail size={16} color={authMode === "password" ? colors.primary : colors.textMuted} />
+              <Text style={[styles.toggleTabText, { color: authMode === "password" ? colors.textPrimary : colors.textMuted }]}>
+                Email & Password
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => {
-              setAuthMode("otp");
-              setErrorMessage(null);
-            }}
-            style={[
-              styles.toggleTab,
-              authMode === "otp" && { backgroundColor: colors.surface, borderColor: colors.border },
-            ]}
-          >
-            <Phone size={16} color={authMode === "otp" ? colors.primary : colors.textMuted} />
-            <Text style={[styles.toggleTabText, { color: authMode === "otp" ? colors.textPrimary : colors.textMuted }]}>
-              Phone (OTP)
-            </Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                setAuthMode("otp");
+                setErrorMessage(null);
+              }}
+              style={[
+                styles.toggleTab,
+                authMode === "otp" && { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
+            >
+              <Phone size={16} color={authMode === "otp" ? colors.primary : colors.textMuted} />
+              <Text style={[styles.toggleTabText, { color: authMode === "otp" ? colors.textPrimary : colors.textMuted }]}>
+                Phone (OTP)
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Login Form Card */}
         <View
@@ -411,40 +418,20 @@ export default function LoginScreen() {
               )}
 
               {/* OTP Submit Button */}
-              {!otpAuthEnabled ? (
-                <>
-                  <View style={styles.noticeBanner} testID="otp-unavailable-banner">
-                    <AlertCircle size={16} color="#d97706" style={styles.errorIcon} />
-                    <Text style={[styles.noticeText, { color: colors.textSecondary }]}>
-                      Phone login is currently unavailable; please use email.
-                    </Text>
-                  </View>
-                  <Button
-                    title="Phone Login Unavailable"
-                    variant="primary"
-                    size="lg"
-                    disabled={true}
-                    onPress={() => {}}
-                    testID="otp-disabled-btn"
-                    style={{ ...styles.submitBtn, opacity: 0.6 }}
-                  />
-                </>
-              ) : (
-                <Button
-                  title={
-                    loading
-                      ? "Please wait..."
-                      : otpSent
-                      ? "Verify & Sign In"
-                      : "Send Verification Code"
-                  }
-                  variant="primary"
-                  size="lg"
-                  loading={loading}
-                  onPress={otpSent ? handleVerifyOtp : handleRequestOtp}
-                  style={styles.submitBtn}
-                />
-              )}
+              <Button
+                title={
+                  loading
+                    ? "Please wait..."
+                    : otpSent
+                    ? "Verify & Sign In"
+                    : "Send Verification Code"
+                }
+                variant="primary"
+                size="lg"
+                loading={loading}
+                onPress={otpSent ? handleVerifyOtp : handleRequestOtp}
+                style={styles.submitBtn}
+              />
             </>
           )}
 

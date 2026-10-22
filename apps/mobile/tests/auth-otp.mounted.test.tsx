@@ -5,7 +5,6 @@ import { ThemeProvider } from "../src/theme/ThemeProvider";
 import { AuthProvider } from "../src/context/AuthContext";
 import { GoalProvider } from "../src/context/GoalContext";
 import LoginScreen from "../src/app/(auth)/login";
-import { api } from "../src/lib/api";
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -26,75 +25,127 @@ function createWrapper() {
 }
 
 describe("G7: OTP Auth Specification Tests [otp:flag-*]", () => {
-  beforeEach(() => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
     jest.clearAllMocks();
   });
 
-  it("[otp:flag-false] OTP toggle absent or notice shown when flag is false", async () => {
-    jest.spyOn(api, "getConfig").mockResolvedValue({
-      ok: true,
-      data: { otpAuthEnabled: false },
-    } as any);
+  it("[otp:flag-false] OTP toggle omitted when config flag is false", async () => {
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/config")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: true,
+            data: { otpAuthEnabled: false },
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({ ok: true, data: {} }),
+      } as Response;
+    });
 
     render(<LoginScreen />, { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(screen.getByText("Phone (OTP)")).toBeTruthy();
+      expect(screen.getByPlaceholderText("name@example.com")).toBeTruthy();
     });
 
-    fireEvent.press(screen.getByText("Phone (OTP)"));
-
-    await waitFor(() => {
-      expect(screen.getByText("Phone login is currently unavailable; please use email.")).toBeTruthy();
-      expect(screen.getByTestId("otp-disabled-btn")).toBeTruthy();
-    });
+    expect(screen.queryByText("Phone (OTP)")).toBeNull();
   });
 
-  it("[otp:flag-missing] OTP toggle absent or notice shown when flag is missing", async () => {
-    jest.spyOn(api, "getConfig").mockResolvedValue({
-      ok: true,
-      data: {} as any,
-    } as any);
+  it("[otp:flag-missing] OTP toggle omitted when config flag is missing", async () => {
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/config")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: true,
+            data: {},
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({ ok: true, data: {} }),
+      } as Response;
+    });
 
     render(<LoginScreen />, { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(screen.getByText("Phone (OTP)")).toBeTruthy();
+      expect(screen.getByPlaceholderText("name@example.com")).toBeTruthy();
     });
 
-    fireEvent.press(screen.getByText("Phone (OTP)"));
-
-    await waitFor(() => {
-      expect(screen.getByText("Phone login is currently unavailable; please use email.")).toBeTruthy();
-      expect(screen.getByTestId("otp-disabled-btn")).toBeTruthy();
-    });
+    expect(screen.queryByText("Phone (OTP)")).toBeNull();
   });
 
-  it("[otp:config-500] OTP toggle absent or notice shown when config returns 500", async () => {
-    jest.spyOn(api, "getConfig").mockResolvedValue({
-      ok: false,
-      error: { message: "Internal server error" },
-    } as any);
+  it("[otp:config-500] OTP toggle omitted when config returns 500 error", async () => {
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/config")) {
+        return {
+          ok: false,
+          status: 500,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: false,
+            error: { message: "Internal server error" },
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({ ok: true, data: {} }),
+      } as Response;
+    });
 
     render(<LoginScreen />, { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(screen.getByText("Phone (OTP)")).toBeTruthy();
+      expect(screen.getByPlaceholderText("name@example.com")).toBeTruthy();
     });
 
-    fireEvent.press(screen.getByText("Phone (OTP)"));
-
-    await waitFor(() => {
-      expect(screen.getByText("Phone login is currently unavailable; please use email.")).toBeTruthy();
-      expect(screen.getByTestId("otp-disabled-btn")).toBeTruthy();
-    });
+    expect(screen.queryByText("Phone (OTP)")).toBeNull();
   });
 
   it("[otp:flag-true] OTP toggle present and interactive when flag is true", async () => {
-    jest.spyOn(api, "getConfig").mockResolvedValue({
-      ok: true,
-      data: { otpAuthEnabled: true },
-    } as any);
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/config")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: true,
+            data: { otpAuthEnabled: true },
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({ ok: true, data: {} }),
+      } as Response;
+    });
 
     render(<LoginScreen />, { wrapper: createWrapper() });
 
@@ -105,21 +156,42 @@ describe("G7: OTP Auth Specification Tests [otp:flag-*]", () => {
     fireEvent.press(screen.getByText("Phone (OTP)"));
 
     await waitFor(() => {
-      expect(screen.queryByTestId("otp-disabled-btn")).toBeNull();
       expect(screen.getByText("Send Verification Code")).toBeTruthy();
     });
   });
 
   it("[otp:two-step] two-step phone->code flow operates correctly", async () => {
-    jest.spyOn(api, "getConfig").mockResolvedValue({
-      ok: true,
-      data: { otpAuthEnabled: true },
-    } as any);
-
-    jest.spyOn(api, "requestOtp").mockResolvedValue({
-      ok: true,
-      data: { message: "Verification code sent successfully" },
-    } as any);
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/config")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: true,
+            data: { otpAuthEnabled: true },
+          }),
+        } as Response;
+      }
+      if (url.includes("/auth/otp/request") || url.includes("/auth/otp")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: true,
+            data: { message: "Verification code sent successfully" },
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({ ok: true, data: {} }),
+      } as Response;
+    });
 
     render(<LoginScreen />, { wrapper: createWrapper() });
 
@@ -143,23 +215,52 @@ describe("G7: OTP Auth Specification Tests [otp:flag-*]", () => {
   });
 
   it("[otp:wrong-code] wrong-code returns visible error banner", async () => {
-    jest.spyOn(api, "getConfig").mockResolvedValue({
-      ok: true,
-      data: { otpAuthEnabled: true },
-    } as any);
-
-    jest.spyOn(api, "requestOtp").mockResolvedValue({
-      ok: true,
-      data: { message: "Code sent" },
-    } as any);
-
-    jest.spyOn(api, "verifyOtp").mockResolvedValue({
-      ok: false,
-      error: { message: "Invalid or expired verification code." },
-    } as any);
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/config")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: true,
+            data: { otpAuthEnabled: true },
+          }),
+        } as Response;
+      }
+      if (url.includes("/auth/otp/verify") || url.includes("/verify")) {
+        return {
+          ok: false,
+          status: 400,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: false,
+            error: { message: "Invalid or expired verification code." },
+          }),
+        } as Response;
+      }
+      if (url.includes("/auth/otp/request") || url.includes("/auth/otp")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: true,
+            data: { message: "Code sent" },
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({ ok: true, data: {} }),
+      } as Response;
+    });
 
     render(<LoginScreen />, { wrapper: createWrapper() });
 
+    await waitFor(() => expect(screen.getByText("Phone (OTP)")).toBeTruthy());
     fireEvent.press(screen.getByText("Phone (OTP)"));
     await waitFor(() => expect(screen.getByPlaceholderText("+91 9876543210")).toBeTruthy());
 
@@ -177,18 +278,41 @@ describe("G7: OTP Auth Specification Tests [otp:flag-*]", () => {
   });
 
   it("[otp:501] 501 returns friendly message without crash", async () => {
-    jest.spyOn(api, "getConfig").mockResolvedValue({
-      ok: true,
-      data: { otpAuthEnabled: true },
-    } as any);
-
-    jest.spyOn(api, "requestOtp").mockResolvedValue({
-      ok: false,
-      error: { message: "SMS gateway not configured in this environment" },
-    } as any);
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/config")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: true,
+            data: { otpAuthEnabled: true },
+          }),
+        } as Response;
+      }
+      if (url.includes("/auth/otp/request") || url.includes("/auth/otp")) {
+        return {
+          ok: false,
+          status: 501,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: false,
+            error: { message: "SMS gateway not configured in this environment" },
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({ ok: true, data: {} }),
+      } as Response;
+    });
 
     render(<LoginScreen />, { wrapper: createWrapper() });
 
+    await waitFor(() => expect(screen.getByText("Phone (OTP)")).toBeTruthy());
     fireEvent.press(screen.getByText("Phone (OTP)"));
     await waitFor(() => expect(screen.getByPlaceholderText("+91 9876543210")).toBeTruthy());
 
@@ -201,13 +325,40 @@ describe("G7: OTP Auth Specification Tests [otp:flag-*]", () => {
   });
 
   it("[otp:lockout] lockout displays explicit account lockout message", async () => {
-    jest.spyOn(api, "login").mockResolvedValue({
-      ok: false,
-      error: {
-        code: "ACCOUNT_LOCKED",
-        message: "Account locked due to 5 consecutive failed login attempts. Try again in 15 minutes.",
-      },
-    } as any);
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/config")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: true,
+            data: { otpAuthEnabled: true },
+          }),
+        } as Response;
+      }
+      if (url.includes("/auth/login") || url.includes("/login")) {
+        return {
+          ok: false,
+          status: 403,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: false,
+            error: {
+              code: "ACCOUNT_LOCKED",
+              message: "Account locked due to 5 consecutive failed login attempts. Try again in 15 minutes.",
+            },
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({ ok: true, data: {} }),
+      } as Response;
+    });
 
     render(<LoginScreen />, { wrapper: createWrapper() });
 
@@ -225,13 +376,40 @@ describe("G7: OTP Auth Specification Tests [otp:flag-*]", () => {
   });
 
   it("[otp:deactivated] deactivated displays explicit account deactivation message", async () => {
-    jest.spyOn(api, "login").mockResolvedValue({
-      ok: false,
-      error: {
-        code: "ACCOUNT_DEACTIVATED",
-        message: "Your account has been deactivated. Please contact support@aspirantbook.com for assistance.",
-      },
-    } as any);
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/config")) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: true,
+            data: { otpAuthEnabled: true },
+          }),
+        } as Response;
+      }
+      if (url.includes("/auth/login") || url.includes("/login")) {
+        return {
+          ok: false,
+          status: 403,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({
+            ok: false,
+            error: {
+              code: "ACCOUNT_DEACTIVATED",
+              message: "Your account has been deactivated. Please contact support@aspirantbook.com for assistance.",
+            },
+          }),
+        } as Response;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        json: async () => ({ ok: true, data: {} }),
+      } as Response;
+    });
 
     render(<LoginScreen />, { wrapper: createWrapper() });
 
