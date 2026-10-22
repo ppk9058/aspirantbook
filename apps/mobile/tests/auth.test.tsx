@@ -125,6 +125,44 @@ describe("T2: Critical Screens - Auth Mounted Tests", () => {
 
       loginSpy.mockRestore();
     });
+
+    it("displays unavailable notice and disables submit when otpAuthEnabled is false", async () => {
+      const configSpy = jest.spyOn(api, "getConfig").mockResolvedValue({
+        ok: true,
+        data: {
+          minSupportedVersion: "1.0.0",
+          latestVersion: "1.0.0",
+          isMaintenance: false,
+          maintenanceMessage: null,
+          allowPurchases: false,
+          googleAuthEnabled: false,
+          otpAuthEnabled: false,
+          supportEmail: "support@example.com",
+          websiteUrl: "https://example.com",
+        },
+      } as any);
+
+      render(
+        <ThemeProvider>
+          <AuthProvider>
+            <LoginScreen />
+          </AuthProvider>
+        </ThemeProvider>
+      );
+
+      // Switch to Phone (OTP) tab
+      const phoneTab = screen.getByText("Phone (OTP)");
+      fireEvent.press(phoneTab);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("Phone login is currently unavailable; please use email.")
+        ).toBeTruthy();
+        expect(screen.getByText("Phone Login Unavailable")).toBeTruthy();
+      });
+
+      configSpy.mockRestore();
+    });
   });
 
   describe("2. Register Screen (13+ Consent Blocks Submit, Strength Meter)", () => {

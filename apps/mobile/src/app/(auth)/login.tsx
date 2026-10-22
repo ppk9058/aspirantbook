@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -33,6 +33,19 @@ export default function LoginScreen() {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpNotice, setOtpNotice] = useState<string | null>(null);
+  const [otpAuthEnabled, setOtpAuthEnabled] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    void api.getConfig().then((res) => {
+      if (mounted && res.ok && res.data) {
+        setOtpAuthEnabled(Boolean(res.data.otpAuthEnabled));
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -76,6 +89,10 @@ export default function LoginScreen() {
   const handleRequestOtp = async () => {
     setErrorMessage(null);
     setOtpNotice(null);
+    if (!otpAuthEnabled) {
+      setErrorMessage("Phone login is currently unavailable; please use email.");
+      return;
+    }
     const cleanPhone = phoneNumber.trim();
     if (!cleanPhone) {
       setErrorMessage("Please enter your mobile phone number.");
@@ -382,20 +399,40 @@ export default function LoginScreen() {
               )}
 
               {/* OTP Submit Button */}
-              <Button
-                title={
-                  loading
-                    ? "Please wait..."
-                    : otpSent
-                    ? "Verify & Sign In"
-                    : "Send Verification Code"
-                }
-                variant="primary"
-                size="lg"
-                loading={loading}
-                onPress={otpSent ? handleVerifyOtp : handleRequestOtp}
-                style={styles.submitBtn}
-              />
+              {!otpAuthEnabled ? (
+                <>
+                  <View style={styles.noticeBanner} testID="otp-unavailable-banner">
+                    <AlertCircle size={16} color="#d97706" style={styles.errorIcon} />
+                    <Text style={[styles.noticeText, { color: colors.textSecondary }]}>
+                      Phone login is currently unavailable; please use email.
+                    </Text>
+                  </View>
+                  <Button
+                    title="Phone Login Unavailable"
+                    variant="primary"
+                    size="lg"
+                    disabled={true}
+                    onPress={() => {}}
+                    testID="otp-disabled-btn"
+                    style={{ ...styles.submitBtn, opacity: 0.6 }}
+                  />
+                </>
+              ) : (
+                <Button
+                  title={
+                    loading
+                      ? "Please wait..."
+                      : otpSent
+                      ? "Verify & Sign In"
+                      : "Send Verification Code"
+                  }
+                  variant="primary"
+                  size="lg"
+                  loading={loading}
+                  onPress={otpSent ? handleVerifyOtp : handleRequestOtp}
+                  style={styles.submitBtn}
+                />
+              )}
             </>
           )}
 
