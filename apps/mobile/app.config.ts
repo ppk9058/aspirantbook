@@ -1,7 +1,15 @@
 import { ExpoConfig, ConfigContext } from "expo/config";
 
-if (typeof __DEV__ !== "undefined" ? __DEV__ : process.env.NODE_ENV !== "production") {
-  console.log(`[API] Resolved Base URL: ${process.env.EXPO_PUBLIC_API_URL || "UNCONFIGURED"}`);
+const isDevMode = typeof __DEV__ !== "undefined" ? __DEV__ : process.env.NODE_ENV !== "production";
+const configuredApiUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
+const configuredApiPort = process.env.EXPO_PUBLIC_API_PORT || "3045";
+const apiUrlSource = configuredApiUrl
+  ? (process.env.EXPO_PUBLIC_API_URL_SOURCE || "env")
+  : (isDevMode ? "derived" : "unconfigured");
+const startupDisplayUrl = configuredApiUrl || (isDevMode ? `http://<metro-host>:${configuredApiPort}` : "UNCONFIGURED");
+
+if (isDevMode) {
+  console.log(`[API] Resolved Base URL: ${startupDisplayUrl} (source: ${apiUrlSource})`);
 }
 
 export default ({ config }: ConfigContext): ExpoConfig => ({

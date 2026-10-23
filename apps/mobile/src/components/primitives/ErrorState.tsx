@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ViewStyle } from "react-native";
 import { AlertCircle, WifiOff, RefreshCw } from "lucide-react-native";
 import { useTheme } from "../../theme/ThemeProvider";
 import { Button } from "./Button";
+import { classifyError } from "../../lib/error-classifier";
+import { API_BASE_URL } from "../../lib/api";
 
 export interface ErrorStateProps {
   title?: string;
@@ -11,39 +13,15 @@ export interface ErrorStateProps {
   isNetworkError?: boolean;
   style?: ViewStyle;
   testID?: string;
+  baseUrl?: string;
 }
 
-const NETWORK_ERROR_REGEX = /fetch failed|ConnectException|java\.net|Network request failed|NetworkError|timeout|ECONNREFUSED|ECONNRESET/i;
-
-export function sanitizeErrorMessage(rawMessage?: string): { displayTitle: string; displayMessage: string; isNetwork: boolean } {
-  const msg = rawMessage || "Failed to complete request. Please try again.";
-  const isNetwork = NETWORK_ERROR_REGEX.test(msg);
-
-  if (isNetwork) {
-    const userMsg = "Could not reach the server. Check your connection and try again.";
-    const isDev = typeof __DEV__ !== "undefined" && Boolean(__DEV__);
-    const displayMsg = isDev ? `${userMsg} (${msg})` : userMsg;
-    return {
-      displayTitle: "Connection Unavailable",
-      displayMessage: displayMsg,
-      isNetwork: true,
-    };
-  }
-
-  // Also sanitize any accidental leakage of backend/network exception strings in non-dev mode
-  const isDev = typeof __DEV__ !== "undefined" && Boolean(__DEV__);
-  if (!isDev && /java\.net|ConnectException|fetch failed/i.test(msg)) {
-    return {
-      displayTitle: "Connection Unavailable",
-      displayMessage: "Could not reach the server. Check your connection and try again.",
-      isNetwork: true,
-    };
-  }
-
+export function sanitizeErrorMessage(rawMessage?: string, baseUrl?: string): { displayTitle: string; displayMessage: string; isNetwork: boolean } {
+  const classified = classifyError(rawMessage, baseUrl || API_BASE_URL);
   return {
-    displayTitle: "Something went wrong",
-    displayMessage: msg,
-    isNetwork: false,
+    displayTitle: classified.displayTitle,
+    displayMessage: classified.displayMessage,
+    isNetwork: classified.isNetwork,
   };
 }
 
@@ -54,12 +32,15 @@ export function ErrorState({
   isNetworkError: explicitNetworkError = false,
   style,
   testID,
+  baseUrl,
 }: ErrorStateProps) {
   const { colors } = useTheme();
-  const sanitized = sanitizeErrorMessage(message);
-  const isNetwork = explicitNetworkError || sanitized.isNetwork;
-  const resolvedTitle = isNetwork ? (title === "Something went wrong" ? "Connection Unavailable" : title) : title;
-  const resolvedMessage = sanitized.displayMessage;
+  const classified = classifyError(message, baseUrl || API_BASE_URL);
+  const isNetwork = explicitNetworkError || classified.isNetwork;
+  const resolvedTitle = isNetwork
+    ? (title === "Something went wrong" ? "Connection Unavailable" : title)
+    : title;
+  const resolvedMessage = classified.displayMessage;
 
   return (
     <View style={[styles.container, style]} testID={testID}>
@@ -103,33 +84,33 @@ export function ErrorState({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 32,
+    padding: 24,
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 220,
   },
   iconCircle: {
     width: 64,
     height: 64,
     borderRadius: 32,
+    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
-    borderWidth: 1,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
+    marginBottom: 8,
     textAlign: "center",
-    marginBottom: 6,
   },
   message: {
-    fontSize: 13,
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: "center",
-    lineHeight: 18,
-    maxWidth: 280,
+    marginBottom: 16,
+    paddingHorizontal: 12,
   },
   actionContainer: {
-    marginTop: 16,
+    marginTop: 8,
   },
 });

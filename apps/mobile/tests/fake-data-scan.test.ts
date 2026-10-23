@@ -119,5 +119,26 @@ describe("T9 Fake Data Scan & Real API Integration Audit", () => {
     const content = fs.readFileSync(configPath, "utf8");
     assert.ok(!content.includes("10.0.2.2"), "app.config.ts must not contain 10.0.2.2 fallback");
     assert.ok(!content.includes("localhost"), "app.config.ts must not contain localhost fallback");
+    assert.ok(!/\b(?:\d{1,3}\.){3}\d{1,3}\b/.test(content), "app.config.ts must not contain literal IP addresses");
+  });
+
+  test("apps/mobile/src has zero hardcoded IP literals and zero localhost fallbacks", () => {
+    const srcDir = path.resolve(__dirname, "../src");
+    const allSrcFiles = getFilesRecursively(srcDir);
+    const ipRegex = /\b(?:\d{1,3}\.){3}\d{1,3}\b/;
+    const violations: { file: string; line: string }[] = [];
+
+    for (const file of allSrcFiles) {
+      const content = fs.readFileSync(file, "utf8");
+      const lines = content.split("\n");
+      for (const line of lines) {
+        if (line.includes("localhost") || ipRegex.test(line)) {
+          // Ignore comments or type definitions if any, but enforce zero literals in code
+          violations.push({ file: path.relative(srcDir, file), line: line.trim() });
+        }
+      }
+    }
+
+    assert.deepEqual(violations, [], `Discovered hardcoded IP or localhost in apps/mobile/src: ${JSON.stringify(violations)}`);
   });
 });

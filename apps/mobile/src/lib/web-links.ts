@@ -5,6 +5,8 @@
  * When origin is not configured in environment, returns null (never a hardcoded domain).
  */
 
+import { resolveApiBaseUrl } from "./api-url";
+
 export const DEFAULT_WEB_ORIGIN: string | null = null;
 
 /** Neutral user-facing message when external website link is unconfigured */
@@ -13,7 +15,7 @@ export const WEBLINK_UNAVAILABLE_NOTE = "Website link not available yet";
 /**
  * Resolves the base web origin (protocol + host [+ port]).
  * 1. Checks EXPO_PUBLIC_WEB_URL
- * 2. If not set, checks EXPO_PUBLIC_API_URL ONLY when __DEV__
+ * 2. If not set, checks EXPO_PUBLIC_API_URL or dev-derived Metro host ONLY when __DEV__
  * 3. Falls back to null if unconfigured
  */
 export function getWebOrigin(): string | null {
@@ -24,7 +26,7 @@ export function getWebOrigin(): string | null {
 
   const isDev = typeof __DEV__ !== "undefined" ? __DEV__ : process.env.NODE_ENV !== "production";
   if (isDev) {
-    const envApi = process.env.EXPO_PUBLIC_API_URL?.trim();
+    const envApi = process.env.EXPO_PUBLIC_API_URL?.trim() || resolveApiBaseUrl().baseUrl;
     if (envApi) {
       try {
         const cleaned = envApi.replace(/\/+$/, "").replace(/\/api\/v1\/?$/, "");

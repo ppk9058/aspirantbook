@@ -1,16 +1,16 @@
 import { createApiClient } from "@aspirantbook/shared";
 import { Storage } from "./storage";
+import { resolveApiBaseUrl } from "./api-url";
 
-const envApiUrl = process.env.EXPO_PUBLIC_API_URL;
+export const resolvedApi = resolveApiBaseUrl();
+const rawApiUrl = resolvedApi.baseUrl;
+// Canonical normalization: always server origin without trailing slash or duplicate /api/v1
+export const API_BASE_URL = rawApiUrl.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "");
 
 // Dev logging of resolved base URL
 if (typeof __DEV__ !== "undefined" && __DEV__) {
-  console.log(`[API] Resolved Base URL: ${envApiUrl || "UNCONFIGURED"}`);
+  console.log(`[API] Resolved Base URL: ${API_BASE_URL || "UNCONFIGURED"} (source: ${resolvedApi.source})`);
 }
-
-const rawApiUrl = envApiUrl ? envApiUrl.trim() : "";
-// Canonical normalization: always server origin without trailing slash or duplicate /api/v1
-export const API_BASE_URL = rawApiUrl.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "");
 
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;
@@ -44,7 +44,7 @@ async function refreshAccessTokenSingleFlight(): Promise<string | null> {
         return null;
       }
 
-      if (!API_BASE_URL || !process.env.EXPO_PUBLIC_API_URL) {
+      if (!API_BASE_URL) {
         notifyUnauthorized();
         return null;
       }
@@ -88,7 +88,7 @@ export const api = createApiClient({
     await refreshAccessTokenSingleFlight();
   },
   fetchFn: async (url, init = {}) => {
-    if (!API_BASE_URL || !process.env.EXPO_PUBLIC_API_URL) {
+    if (!API_BASE_URL) {
       return new Response(
         JSON.stringify({
           ok: false,
