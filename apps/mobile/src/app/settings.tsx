@@ -116,7 +116,7 @@ export default function SettingsScreen() {
             <View style={styles.cardHeaderLeft}>
               <Target size={20} color={colors.primary} />
               <Text style={[styles.cardSectionTitle, { color: colors.textPrimary }]}>
-                Primary Exam Target
+                Current Target Goal
               </Text>
             </View>
 
