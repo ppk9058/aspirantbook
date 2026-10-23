@@ -82,6 +82,8 @@ async function refreshAccessTokenSingleFlight(): Promise<string | null> {
 
 export const api = createApiClient({
   baseUrl: API_BASE_URL,
+  timeoutMs: 10000,
+  maxGetRetries: 1,
   getAccessToken: async () => {
     return Storage.getAccessToken();
   },

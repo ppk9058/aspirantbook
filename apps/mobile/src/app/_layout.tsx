@@ -1,10 +1,14 @@
 import React, { useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { OfflineBanner } from "../components/common/OfflineBanner";
-import { persistQueryClient, restoreQueryClient } from "../lib/query-persistence";
+import {
+  persistQueryClient,
+  restoreQueryClient,
+  createDefaultQueryClient,
+} from "../lib/query-persistence";
 import { cbtSyncQueue } from "../lib/cbt-sync";
 import { ThemeProvider } from "../theme/ThemeProvider";
 import { AuthProvider } from "../context/AuthContext";
@@ -12,15 +16,7 @@ import { GoalProvider } from "../context/GoalContext";
 import { ContentLanguageProvider } from "../context/ContentLanguageContext";
 import { CbtRecoveryManager } from "../components/cbt/CbtRecoveryManager";
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes default
-      gcTime: 1000 * 60 * 60 * 24, // 24 hours
-      retry: 2,
-    },
-  },
-});
+export const queryClient = createDefaultQueryClient();
 
 export default function RootLayout() {
   useEffect(() => {

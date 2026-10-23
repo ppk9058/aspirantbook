@@ -61,6 +61,8 @@ export interface ApiClientOptions {
   getAccessToken?: () => Promise<string | null> | string | null;
   onUnauthorized?: () => void;
   fetchFn?: typeof fetch;
+  timeoutMs?: number;
+  maxGetRetries?: number;
 }
 
 export function createApiClient(options: ApiClientOptions) {
@@ -84,35 +86,70 @@ export function createApiClient(options: ApiClientOptions) {
       }
     }
 
-    try {
-      const res = await fetchFn(url, { ...init, headers });
+    const isGet = !init.method || init.method.toUpperCase() === "GET";
+    const maxAttempts = isGet ? 1 + (options.maxGetRetries ?? 1) : 1;
+    const timeout = options.timeoutMs ?? 10000;
 
-      if (res.status === 401 && onUnauthorized) {
-        onUnauthorized();
-      }
+    let lastError: any = null;
 
-      const json: any = await res.json().catch(() => null);
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => {
+        controller.abort(new Error(`Request timed out after ${timeout}ms`));
+      }, timeout);
 
-      if (!res.ok) {
+      try {
+        const signal = init.signal || controller.signal;
+        const res = await fetchFn(url, { ...init, headers, signal });
+        clearTimeout(timer);
+
+        if (res.status === 401 && onUnauthorized) {
+          onUnauthorized();
+        }
+
+        const json: any = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          return {
+            ok: false,
+            error: json?.error || {
+              code: `HTTP_${res.status}`,
+              message: res.statusText || "Request failed",
+            },
+          };
+        }
+
+        return json as ApiResponse<T>;
+      } catch (err: any) {
+        clearTimeout(timer);
+        lastError = err;
+        const isTimeout =
+          err?.name === "AbortError" ||
+          (typeof err?.message === "string" && err.message.toLowerCase().includes("timed out"));
+
+        if (attempt < maxAttempts) {
+          continue;
+        }
+
         return {
           ok: false,
-          error: json?.error || {
-            code: `HTTP_${res.status}`,
-            message: res.statusText || "Request failed",
+          error: {
+            code: isTimeout ? "TIMEOUT" : "NETWORK_ERROR",
+            message: isTimeout
+              ? "Request timed out. Please check your connection and try again."
+              : err?.message || "Network request failed",
           },
         };
       }
-
-      return json as ApiResponse<T>;
-    } catch (err: any) {
-      return {
-        ok: false,
-        error: {
-          code: "NETWORK_ERROR",
-          message: err?.message || "Network request failed",
-        },
-      };
     }
+
+    return {
+      ok: false,
+      error: {
+        code: "NETWORK_ERROR",
+        message: lastError?.message || "Network request failed",
+      },
+    };
   }
 
   return {
