@@ -30,6 +30,7 @@ import { ErrorState } from "../../../src/components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useGoal } from "../../context/GoalContext";
 import { api } from "../../lib/api";
+import { useDebounce } from "../../lib/use-debounce";
 import { ExamSeriesPackageDto } from "@aspirantbook/shared";
 
 type NavPill = "series" | "my-tests" | "pyq" | "ca";
@@ -41,6 +42,7 @@ export default function TestsTabScreen() {
   const [activePill, setActivePill] = useState<NavPill>("series");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   // Query Exam Series packages
   const seriesQuery = useQuery({
@@ -108,8 +110,8 @@ export default function TestsTabScreen() {
 
   const filteredSeries = useMemo(() => {
     let list = seriesQuery.data || [];
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase();
       list = list.filter(
         (s) =>
           s.title.toLowerCase().includes(q) ||
@@ -118,7 +120,7 @@ export default function TestsTabScreen() {
       );
     }
     return list;
-  }, [seriesQuery.data, searchQuery]);
+  }, [seriesQuery.data, debouncedSearch]);
 
   const categories = ["All", "BPSC", "UPSC", "UPPCS", "SSC", "Banking", "Railways"];
 
@@ -244,10 +246,27 @@ export default function TestsTabScreen() {
 
         {/* Error state */}
         {isError && (
-          <ErrorState
-            message={errorMessage || "Failed to load test series. Please check connection."}
-            onRetry={handleRefresh}
-          />
+          <View style={{ marginVertical: 8 }}>
+            <ErrorState
+              message={
+                selectedCategory !== "All" || debouncedSearch
+                  ? `Failed to load tests for current filter (${selectedCategory !== "All" ? selectedCategory : ""}${debouncedSearch ? ` "${debouncedSearch}"` : ""}).`
+                  : errorMessage || "Failed to load test series. Please check connection."
+              }
+              onRetry={handleRefresh}
+            />
+            {(selectedCategory !== "All" || debouncedSearch.length > 0) && (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedCategory("All");
+                  setSearchQuery("");
+                }}
+                style={{ marginTop: 8, alignSelf: "center", paddingVertical: 6, paddingHorizontal: 12 }}
+              >
+                <Text style={{ color: colors.primary, fontWeight: "600", fontSize: 14 }}>Reset Filters</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         )}
 
         {/* Content: Series Packages */}
@@ -256,7 +275,13 @@ export default function TestsTabScreen() {
             {filteredSeries.length === 0 ? (
               <EmptyState
                 title="No Test Series Found"
-                description={`There are currently no mock test series matching your criteria.`}
+                description={
+                  debouncedSearch
+                    ? `No test series matching "${debouncedSearch}"${selectedCategory !== "All" ? ` in ${selectedCategory}` : ""}.`
+                    : selectedCategory !== "All"
+                    ? `No test series found under ${selectedCategory}.`
+                    : "There are currently no mock test series published."
+                }
                 actionTitle="Reset Filters"
                 onAction={() => {
                   setSelectedCategory("All");

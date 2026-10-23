@@ -29,6 +29,7 @@ import { Skeleton } from "../components/primitives/Skeleton";
 import { EmptyState } from "../components/primitives/EmptyState";
 import { ErrorState } from "../components/primitives/ErrorState";
 import { useTheme } from "../theme/ThemeProvider";
+import { useDebounce } from "../lib/use-debounce";
 import { api } from "../lib/api";
 import { SearchResultItemDto } from "@aspirantbook/shared";
 
@@ -41,20 +42,21 @@ export default function SearchScreen() {
   const { colors, tokens } = useTheme();
   const [query, setQuery] = useState("");
   const [filterType, setFilterType] = useState<SearchFilterType>("ALL");
+  const debouncedQuery = useDebounce(query, 300);
 
   const searchQuery = useQuery({
-    queryKey: ["global-search", query],
+    queryKey: ["global-search", debouncedQuery],
     queryFn: async () => {
-      const q = query.trim();
+      const q = debouncedQuery.trim();
       if (!q || q.length < 2) return { query: q, total: 0, results: [] };
       const res = await api.search(q);
       if (!res.ok) throw new Error(res.error?.message || "Search failed");
       return res.data;
     },
-    enabled: query.trim().length >= 2,
+    enabled: debouncedQuery.trim().length >= 2,
   });
 
-  const isLoading = searchQuery.isLoading && query.trim().length >= 2;
+  const isLoading = searchQuery.isLoading && debouncedQuery.trim().length >= 2;
   const isError = searchQuery.isError;
   const rawResults: SearchResultItemDto[] = searchQuery.data?.results || [];
 
@@ -199,19 +201,43 @@ export default function SearchScreen() {
 
           {/* Error State */}
           {isError && (
-            <ErrorState
-              message={searchQuery.error?.message || "Search request failed"}
-              onRetry={() => searchQuery.refetch()}
-            />
+            <View style={{ marginVertical: 8 }}>
+              <ErrorState
+                message={
+                  filterType !== "ALL" || debouncedQuery
+                    ? `Search request failed for "${debouncedQuery}" in filter ${filterType}`
+                    : searchQuery.error?.message || "Search request failed"
+                }
+                onRetry={() => searchQuery.refetch()}
+              />
+              {(filterType !== "ALL" || debouncedQuery) && (
+                <TouchableOpacity
+                  onPress={() => {
+                    setQuery("");
+                    setFilterType("ALL");
+                  }}
+                  style={{ marginTop: 8, alignSelf: "center", paddingVertical: 6, paddingHorizontal: 12 }}
+                >
+                  <Text style={{ color: colors.primary, fontWeight: "600", fontSize: 14 }}>Reset Search & Filters</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
 
           {/* Empty Results */}
-          {!isLoading && !isError && query.trim().length >= 2 && filteredResults.length === 0 && (
+          {!isLoading && !isError && debouncedQuery.trim().length >= 2 && filteredResults.length === 0 && (
             <EmptyState
               title="No Results Found"
-              description={`We couldn't find any results matching "${query}".`}
-              actionTitle="Clear Search"
-              onAction={() => setQuery("")}
+              description={
+                filterType !== "ALL"
+                  ? `No ${filterType} results matching "${debouncedQuery}".`
+                  : `We couldn't find any results matching "${debouncedQuery}".`
+              }
+              actionTitle="Clear Filters"
+              onAction={() => {
+                setQuery("");
+                setFilterType("ALL");
+              }}
             />
           )}
 

@@ -34,6 +34,7 @@ import { useGoal } from "../../context/GoalContext";
 import { api } from "../../lib/api";
 import { CourseSummaryDto } from "@aspirantbook/shared";
 import { cleanDescriptionPreview } from "../../lib/course-progress";
+import { useDebounce } from "../../lib/use-debounce";
 
 export { cleanDescriptionPreview };
 
@@ -45,13 +46,14 @@ export default function CoursesTabScreen() {
   const { selectedGoal, openGoalModal } = useGoal();
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyFilter>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
   const coursesQuery = useQuery({
-    queryKey: ["courses-list", selectedDifficulty, searchQuery],
+    queryKey: ["courses-list", selectedDifficulty, debouncedSearch],
     queryFn: async () => {
       const res = await api.getCourses({
         difficulty: selectedDifficulty !== "ALL" ? selectedDifficulty : undefined,
-        search: searchQuery.trim().length > 0 ? searchQuery.trim() : undefined,
+        search: debouncedSearch.trim().length > 0 ? debouncedSearch.trim() : undefined,
       });
       if (!res.ok) throw new Error(res.error?.message || "Failed to load courses");
       return res.data || [];
@@ -216,10 +218,27 @@ export default function CoursesTabScreen() {
 
         {/* Error State */}
         {isError && (
-          <ErrorState
-            message={errorMessage || "Failed to load courses. Please check connection."}
-            onRetry={handleRefresh}
-          />
+          <View style={{ marginVertical: 8 }}>
+            <ErrorState
+              message={
+                selectedDifficulty !== "ALL" || debouncedSearch
+                  ? `Failed to load courses for current filter (${selectedDifficulty !== "ALL" ? selectedDifficulty : ""}${debouncedSearch ? ` "${debouncedSearch}"` : ""}).`
+                  : errorMessage || "Failed to load courses. Please check connection."
+              }
+              onRetry={handleRefresh}
+            />
+            {(selectedDifficulty !== "ALL" || debouncedSearch.length > 0) && (
+              <TouchableOpacity
+                onPress={() => {
+                  setSearchQuery("");
+                  setSelectedDifficulty("ALL");
+                }}
+                style={{ marginTop: 8, alignSelf: "center", paddingVertical: 6, paddingHorizontal: 12 }}
+              >
+                <Text style={{ color: colors.primary, fontWeight: "600", fontSize: 14 }}>Reset Filters</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         )}
 
         {/* Empty State */}
@@ -227,9 +246,11 @@ export default function CoursesTabScreen() {
           <EmptyState
             title="No Courses Found"
             description={
-              searchQuery
-                ? `No courses matching "${searchQuery}".`
-                : "No courses published under this filter yet."
+              debouncedSearch
+                ? `No courses matching "${debouncedSearch}"${selectedDifficulty !== "ALL" ? ` under ${selectedDifficulty}` : ""}.`
+                : selectedDifficulty !== "ALL"
+                ? `No courses published under ${selectedDifficulty} level.`
+                : "No courses published yet."
             }
             actionTitle="Clear Filters"
             onAction={() => {
