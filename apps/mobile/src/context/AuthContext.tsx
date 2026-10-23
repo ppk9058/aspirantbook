@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { Storage } from "../lib/storage";
 import { api } from "../lib/api";
+import { clearPersistedQueryCache } from "../lib/query-persistence";
 
 export interface UserProfile {
   id: string;
@@ -28,10 +29,12 @@ export function AuthProvider({
   children,
   initialUser,
   skipStorage = false,
+  queryClient,
 }: {
   children: React.ReactNode;
   initialUser?: UserProfile | null;
   skipStorage?: boolean;
+  queryClient?: import("@tanstack/react-query").QueryClient;
 }) {
   const mountedRef = React.useRef(true);
   const [user, setUser] = useState<UserProfile | null>(initialUser ?? null);
@@ -110,9 +113,10 @@ export function AuthProvider({
       // Best effort network call
     } finally {
       await Storage.clearAllAuthTokens();
+      await clearPersistedQueryCache(queryClient);
       setUser(null);
     }
-  }, []);
+  }, [queryClient]);
 
   const hasActivePass = Boolean(user?.hasActivePass);
   const isAuthenticated = Boolean(user && user.id);

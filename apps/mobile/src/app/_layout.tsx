@@ -42,7 +42,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <AuthProvider>
+          <AuthProvider queryClient={queryClient}>
             <CbtRecoveryManager />
             <GoalProvider>
               <ContentLanguageProvider>
