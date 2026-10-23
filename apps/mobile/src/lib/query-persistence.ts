@@ -69,11 +69,12 @@ export async function clearPersistedQueryCache(queryClient?: QueryClient): Promi
   const adapter = getStorageAdapter();
   try {
     await adapter.removeItem(CACHE_STORAGE_KEY);
-    if (queryClient) {
-      queryClient.clear();
-    }
   } catch (err: unknown) {
+    // Storage removal can fail (permissions/IO); the in-memory cache must still
+    // be wiped so the next user never sees the previous account's data.
     void err;
+  } finally {
+    queryClient?.clear();
   }
 }
 

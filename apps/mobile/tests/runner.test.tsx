@@ -1,11 +1,27 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react-native";
-import { BackHandler, Alert } from "react-native";
+import { BackHandler, Alert, StyleSheet } from "react-native";
 import CbtRunnerScreen from "../src/app/tests/[id]/runner";
 import { cbtSyncQueue, MemoryCbtDriver } from "../src/lib/cbt-sync";
 
 // Access expo-router mocks from jest.setup.js
 const { __setMockParams, __mockPush, __mockReplace } = require("expo-router");
+
+// Per-file override of the global safe-area mock so the notch behaviour can be
+// asserted with a realistic inset. `mockInsets` is reset to 0 for other tests.
+let mockInsets = { top: 0, right: 0, bottom: 0, left: 0 };
+
+jest.mock("react-native-safe-area-context", () => ({
+  SafeAreaProvider: ({ children }: any) => children,
+  SafeAreaConsumer: ({ children }: any) => children(mockInsets),
+  SafeAreaView: ({ children, ...props }: any) => {
+    const React = require("react");
+    const { View } = require("react-native");
+    return React.createElement(View, props, children);
+  },
+  useSafeAreaInsets: () => mockInsets,
+  useSafeAreaFrame: () => ({ x: 0, y: 0, width: 390, height: 844 }),
+}));
 
 describe("T2: Critical Screen - CBT Runner Mounted Tests", () => {
   const mockAttemptData = {
@@ -289,5 +305,27 @@ describe("T2: Critical Screen - CBT Runner Mounted Tests", () => {
       expect(screen.getByText("What is the capital of India?")).toBeTruthy();
     });
     expect(callCount).toBe(2);
+  });
+
+  it("(8) exam header is pushed below the top safe-area inset (notch/punch-hole)", async () => {
+    mockInsets = { top: 47, right: 0, bottom: 34, left: 0 };
+    try {
+      render(<CbtRunnerScreen />);
+
+      await waitFor(
+        () => {
+          expect(screen.getByText("What is the capital of India?")).toBeTruthy();
+        },
+        { timeout: 4000 }
+      );
+
+      const headerStyle = StyleSheet.flatten(
+        screen.getByTestId("cbt-header").props.style
+      );
+      expect(headerStyle.paddingTop).toBe(47);
+      expect(headerStyle.height).toBe(99);
+    } finally {
+      mockInsets = { top: 0, right: 0, bottom: 0, left: 0 };
+    }
   });
 });

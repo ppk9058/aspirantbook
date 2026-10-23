@@ -26,6 +26,7 @@ import { apiClient } from '../../lib/api';
 import { AvailableOnWebsiteModal } from '../../components/common/AvailableOnWebsiteModal';
 import { PdfRenderer } from '../../components/common/PdfRenderer';
 import { getPdfStoragePath, isPdfDownloaded, verifyOwnershipOrDelete } from '../../lib/pdf-manager';
+import { resolveDownloadedFileUri, resolveReaderStorageTarget } from '../../lib/reader-storage';
 
 export default function ReaderScreen() {
   const { id, type = 'library', title = 'Document' } = useLocalSearchParams<{
@@ -45,10 +46,9 @@ export default function ReaderScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  // Private app storage path (Never in public Downloads)
-  const localFileName = `doc_${id}.pdf`;
-  const targetPath = `${FileSystem.documentDirectory || ''}secure_docs/${localFileName}`;
-
+  // Private app storage path (never in public Downloads). `documentDirectory`
+  // can be null on some Android devices/emulators; the helper returns null
+  // paths in that case instead of building an invalid relative path.
   useEffect(() => {
     let mounted = true;
     async function checkFileStatus() {
@@ -56,19 +56,27 @@ export default function ReaderScreen() {
         if (!mounted) return;
         setLoading(true);
 
+        const { directory, filePath } = resolveReaderStorageTarget(
+          FileSystem.documentDirectory,
+          id
+        );
+        if (!directory || !filePath) {
+          setStatusMessage('Storage unavailable');
+          return;
+        }
+
         // Ensure private directory exists
-        const dir = `${FileSystem.documentDirectory || ''}secure_docs`;
-        const dirInfo = await FileSystem.getInfoAsync(dir);
+        const dirInfo = await FileSystem.getInfoAsync(directory);
         if (!mounted) return;
         if (!dirInfo.exists) {
-          await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
+          await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
         }
 
         // Check if cached locally in app-private storage
-        const fileInfo = await FileSystem.getInfoAsync(targetPath);
+        const fileInfo = await FileSystem.getInfoAsync(filePath);
         if (!mounted) return;
         if (fileInfo.exists) {
-          setLocalFileUri(targetPath);
+          setLocalFileUri(filePath);
         }
 
         // Fetch stream metadata / entitlement check from API
@@ -106,6 +114,11 @@ export default function ReaderScreen() {
   // Download for offline reading
   const handleDownload = async () => {
     if (downloading) return;
+    const { filePath } = resolveReaderStorageTarget(FileSystem.documentDirectory, id);
+    if (!filePath) {
+      setStatusMessage('Storage unavailable');
+      return;
+    }
     try {
       setDownloading(true);
       setDownloadProgress(0);
@@ -116,7 +129,7 @@ export default function ReaderScreen() {
 
       const downloadResumable = FileSystem.createDownloadResumable(
         downloadUrl,
-        targetPath,
+        filePath,
         {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         },
@@ -127,13 +140,17 @@ export default function ReaderScreen() {
       );
 
       const downloadResult = await downloadResumable.downloadAsync();
-      if (downloadResult && downloadResult.uri) {
-        setLocalFileUri(downloadResult.uri);
+      const downloadedUri = resolveDownloadedFileUri(downloadResult?.uri);
+      if (downloadedUri) {
+        setLocalFileUri(downloadedUri);
         setStatusMessage('Document downloaded securely to offline storage.');
+      } else {
+        setStatusMessage('Download failed. Please check your connection and try again.');
       }
-    } catch (err: any) {
-      setStatusMessage('Document cached in memory. Full download available when connection permits.');
-      setLocalFileUri(targetPath); // simulated offline state
+    } catch {
+      // Do NOT point the renderer at a file that was never written — that would
+      // show a false "Saved Offline" badge and break the native PDF viewer.
+      setStatusMessage('Download failed. Please check your connection and try again.');
     } finally {
       setDownloading(false);
     }

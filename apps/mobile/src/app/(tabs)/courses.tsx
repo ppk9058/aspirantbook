@@ -32,6 +32,7 @@ import { ErrorState } from "../../components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useGoal } from "../../context/GoalContext";
 import { api } from "../../lib/api";
+import { buildCoursesQueryKey } from "../../lib/query-keys";
 import { CourseSummaryDto } from "@aspirantbook/shared";
 import { cleanDescriptionPreview } from "../../lib/course-progress";
 import { useDebounce } from "../../lib/use-debounce";
@@ -49,7 +50,7 @@ export default function CoursesTabScreen() {
   const debouncedSearch = useDebounce(searchQuery, 300);
 
   const coursesQuery = useQuery({
-    queryKey: ["courses-list", selectedDifficulty, debouncedSearch],
+    queryKey: buildCoursesQueryKey(selectedGoal.id, selectedDifficulty, debouncedSearch),
     queryFn: async () => {
       const res = await api.getCourses({
         difficulty: selectedDifficulty !== "ALL" ? selectedDifficulty : undefined,

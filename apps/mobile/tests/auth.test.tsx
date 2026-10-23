@@ -1,14 +1,28 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react-native";
+import { Text, TouchableOpacity } from "react-native";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react-native";
 import LoginScreen from "../src/app/(auth)/login";
 import RegisterScreen from "../src/app/(auth)/register";
 import ForgotPasswordScreen from "../src/app/(auth)/forgot-password";
 import ResetPasswordScreen from "../src/app/(auth)/reset-password";
 import { ThemeProvider } from "../src/theme/ThemeProvider";
-import { AuthProvider } from "../src/context/AuthContext";
+import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { api } from "../src/lib/api";
+import { Storage } from "../src/lib/storage";
 
 const { __setMockParams, __mockPush, __mockReplace } = require("expo-router");
+
+function RefreshProfileHarness() {
+  const { user, refreshProfile } = useAuth();
+  return (
+    <>
+      <Text testID="profile-user-id">{user?.id ?? "none"}</Text>
+      <TouchableOpacity testID="refresh-profile" onPress={() => void refreshProfile()}>
+        <Text>Refresh</Text>
+      </TouchableOpacity>
+    </>
+  );
+}
 
 describe("T2: Critical Screens - Auth Mounted Tests", () => {
   beforeEach(() => {
@@ -372,6 +386,64 @@ describe("T2: Critical Screens - Auth Mounted Tests", () => {
       });
 
       resetSpy.mockRestore();
+    });
+  });
+
+  describe("5. AuthProvider profile refresh race", () => {
+    it("ignores a stale refreshProfile response that resolves after a newer one", async () => {
+      await Storage.clearAllAuthTokens();
+      await Storage.setAccessToken("access-token-a");
+
+      let resolveFirst!: (value: any) => void;
+      let resolveSecond!: (value: any) => void;
+      const first = new Promise((resolve) => {
+        resolveFirst = resolve;
+      });
+      const second = new Promise((resolve) => {
+        resolveSecond = resolve;
+      });
+
+      const meSpy = jest
+        .spyOn(api, "getMe")
+        .mockReturnValueOnce(first as any)
+        .mockReturnValueOnce(second as any);
+
+      render(
+        <ThemeProvider>
+          <AuthProvider>
+            <RefreshProfileHarness />
+          </AuthProvider>
+        </ThemeProvider>
+      );
+
+      // Mount-triggered refresh #1 is in flight.
+      await waitFor(() => expect(meSpy).toHaveBeenCalledTimes(1));
+
+      fireEvent.press(screen.getByTestId("refresh-profile"));
+      await waitFor(() => expect(meSpy).toHaveBeenCalledTimes(2));
+
+      // Newest request resolves first.
+      resolveSecond({
+        ok: true,
+        data: { id: "user-new", name: "New", email: "new@example.com", role: "STUDENT" },
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId("profile-user-id").props.children).toBe("user-new");
+      });
+
+      // Stale request resolves later and must be discarded, not overwrite the user.
+      resolveFirst({
+        ok: true,
+        data: { id: "user-old", name: "Old", email: "old@example.com", role: "STUDENT" },
+      });
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(screen.getByTestId("profile-user-id").props.children).toBe("user-new");
+
+      meSpy.mockRestore();
+      await Storage.clearAllAuthTokens();
     });
   });
 });

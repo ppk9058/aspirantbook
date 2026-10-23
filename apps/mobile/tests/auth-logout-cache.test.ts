@@ -53,6 +53,28 @@ describe("Bug #3: logout must clear TanStack Query cache and persisted cache", (
     assert.equal(persistedAfter, null, "Persisted cache must be removed from storage");
   });
 
+  it("clears the in-memory cache even when persisted-storage removal fails", async () => {
+    setStorageAdapter({
+      ...memoryStorageAdapter,
+      removeItem: async () => {
+        throw new Error("storage IO failure");
+      },
+    });
+
+    queryClient.setQueryData(["user-scoped-data"], { id: "user-a" });
+    assert.ok(queryClient.getQueryData(["user-scoped-data"]));
+
+    await clearPersistedQueryCache(queryClient);
+
+    assert.equal(
+      queryClient.getQueryData(["user-scoped-data"]),
+      undefined,
+      "In-memory cache must clear even if persisting storage removal throws"
+    );
+
+    setStorageAdapter(memoryStorageAdapter);
+  });
+
   it("without clearPersistedQueryCache, stale data survives into next session (proving the bug)", async () => {
     // 1. User A session: populate and persist
     queryClient.setQueryData(["courses-list", "ALL", ""], [{ id: "c1", title: "User A Course" }]);

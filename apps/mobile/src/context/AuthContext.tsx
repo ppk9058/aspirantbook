@@ -37,27 +37,37 @@ export function AuthProvider({
   queryClient?: import("@tanstack/react-query").QueryClient;
 }) {
   const mountedRef = React.useRef(true);
+  // Monotonic nonce: only the newest refreshProfile call may write state. An
+  // in-flight api.getMe() from an older call (or a previous mount) must never
+  // overwrite the current user after a fast unmount/remount cycle.
+  const refreshRequestRef = React.useRef(0);
   const [user, setUser] = useState<UserProfile | null>(initialUser ?? null);
   const [isLoading, setIsLoading] = useState(!skipStorage);
 
   const refreshProfile = useCallback(async () => {
     if (skipStorage) return;
+    const requestId = ++refreshRequestRef.current;
+    const isCurrent = () => mountedRef.current && requestId === refreshRequestRef.current;
+
     try {
       const token = await Storage.getAccessToken();
+      if (!isCurrent()) return;
       if (!token) {
         setUser(null);
-        if (mountedRef.current) setIsLoading(false);
+        setIsLoading(false);
         return;
       }
 
       // Check stored user cache first
       const cached = await Storage.getUser();
+      if (!isCurrent()) return;
       if (cached) {
         setUser(cached);
       }
 
       // Fetch fresh viewer profile via API
       const res = await api.getMe();
+      if (!isCurrent()) return;
       if (res.ok && res.data) {
         const u = res.data;
         const profile: UserProfile = {
@@ -73,16 +83,18 @@ export function AuthProvider({
         await Storage.setUser(profile);
       } else if (res.error?.code === "UNAUTHORIZED") {
         await Storage.clearAllAuthTokens();
+        if (!isCurrent()) return;
         setUser(null);
       }
     } catch {
       // Offline fallback: keep cached user if present
+      if (!isCurrent()) return;
       const cached = await Storage.getUser();
-      if (cached) setUser(cached);
+      if (cached && isCurrent()) setUser(cached);
     } finally {
-      setIsLoading(false);
+      if (isCurrent()) setIsLoading(false);
     }
-  }, []);
+  }, [skipStorage]);
 
   useEffect(() => {
     if (skipStorage) return;
@@ -90,8 +102,10 @@ export function AuthProvider({
     void refreshProfile();
     return () => {
       mountedRef.current = false;
+      // Invalidate any in-flight refresh so it cannot write after unmount.
+      refreshRequestRef.current += 1;
     };
-  }, [refreshProfile]);
+  }, [refreshProfile, skipStorage]);
 
   const login = useCallback(
     async (tokens: { accessToken: string; refreshToken: string }, userProfile: UserProfile) => {

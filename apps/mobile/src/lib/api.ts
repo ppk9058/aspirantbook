@@ -1,6 +1,6 @@
 import { createApiClient } from "@aspirantbook/shared";
 import { Storage } from "./storage";
-import { resolveApiBaseUrl } from "./api-url";
+import { resolveApiBaseUrl, rewriteApiRequestUrl } from "./api-url";
 
 export const resolvedApi = resolveApiBaseUrl();
 const rawApiUrl = resolvedApi.baseUrl;
@@ -107,17 +107,23 @@ export const api = createApiClient({
         }
       );
     }
+    // The client was built with API_BASE_URL, resolved once at module load.
+    // If the host has changed since (Wi-Fi switch / Metro re-bind), re-target
+    // the request onto the freshly resolved base so we never hit the stale IP.
+    const requestUrl =
+      typeof url === "string" ? rewriteApiRequestUrl(url, activeBaseUrl, API_BASE_URL) : url;
+
     // Attempt original request
-    let response = await fetch(url, init);
+    let response = await fetch(requestUrl, init);
 
     // If 401 Unauthorized, perform single-flight refresh and retry once
-    const urlStr = typeof url === "string" ? url : (url as any).url || "";
+    const urlStr = typeof requestUrl === "string" ? requestUrl : (requestUrl as any).url || "";
     if (response.status === 401 && !urlStr.includes("/api/v1/auth/")) {
       const newAccessToken = await refreshAccessTokenSingleFlight();
       if (newAccessToken) {
         const retryHeaders = new Headers(init.headers || {});
         retryHeaders.set("Authorization", `Bearer ${newAccessToken}`);
-        response = await fetch(url, { ...init, headers: retryHeaders });
+        response = await fetch(requestUrl, { ...init, headers: retryHeaders });
       }
     }
 
@@ -127,6 +133,10 @@ export const api = createApiClient({
 
 export const apiClient = {
   ...api,
-  baseUrl: API_BASE_URL,
+  // Always expose the currently resolved origin (downloads/PDF streaming rely
+  // on this), not the value frozen when the module first loaded.
+  get baseUrl() {
+    return resolveApiBaseUrl().baseUrl || API_BASE_URL;
+  },
   getAccessToken: async () => Storage.getAccessToken(),
 };

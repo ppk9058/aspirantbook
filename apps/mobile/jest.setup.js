@@ -27,6 +27,17 @@ jest.mock("expo-file-system", () => ({
   })),
 }));
 
+// The reader (and other newer screens) import the SDK 54+ "legacy" entry point.
+jest.mock("expo-file-system/legacy", () => ({
+  documentDirectory: "/tmp/mock-docs/",
+  getInfoAsync: jest.fn().mockResolvedValue({ exists: false, isDirectory: false }),
+  makeDirectoryAsync: jest.fn().mockResolvedValue(undefined),
+  deleteAsync: jest.fn().mockResolvedValue(undefined),
+  createDownloadResumable: jest.fn(() => ({
+    downloadAsync: jest.fn().mockResolvedValue({ uri: "/tmp/mock-docs/doc_1.pdf", status: 200 }),
+  })),
+}));
+
 // Expo Keep Awake
 jest.mock("expo-keep-awake", () => ({
   useKeepAwake: jest.fn(),

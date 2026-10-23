@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useKeepAwake } from "expo-keep-awake";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Clock,
   ChevronLeft,
@@ -30,6 +31,7 @@ import { useTheme } from "../../../theme/ThemeProvider";
 import { api } from "../../../lib/api";
 import { cbtSyncQueue } from "../../../lib/cbt-sync";
 import { formatTimeRemaining } from "../../../lib/cbt-timer";
+import { selectQuestionAtIndex } from "../../../lib/cbt-selection";
 import { MathRenderer } from "../../../components/exam/MathRenderer";
 import { Button } from "../../../components/primitives/Button";
 import { Badge } from "../../../components/primitives/Badge";
@@ -58,6 +60,7 @@ export default function CbtRunnerScreen() {
   const { id: testId, attemptId } = useLocalSearchParams<{ id: string; attemptId: string }>();
   const router = useRouter();
   const { colors, tokens } = useTheme();
+  const insets = useSafeAreaInsets();
 
   // Screen keep-awake during exam
   useKeepAwake();
@@ -261,7 +264,9 @@ export default function CbtRunnerScreen() {
     return questions.filter((q) => q.sectionId === activeSectionId);
   }, [questions, activeSectionId]);
 
-  const currentQ = visibleQuestions[currentIndex] || questions[0];
+  // Never fall back to another section's question: an out-of-range index
+  // renders the empty state below instead of silently targeting the wrong one.
+  const currentQ = selectQuestionAtIndex(visibleQuestions, currentIndex);
 
   const handleSelectOption = useCallback(
     (optionId: string) => {
@@ -394,13 +399,29 @@ export default function CbtRunnerScreen() {
     );
   }
 
-  if (loading || !currentQ) {
+  if (loading) {
     return (
       <View style={[styles.loadingScreen, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
           Loading examination environment...
         </Text>
+      </View>
+    );
+  }
+
+  if (!currentQ) {
+    return (
+      <View style={[styles.loadingScreen, { backgroundColor: colors.background }]}>
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+          No questions available in this section.
+        </Text>
+        <Button
+          title="Back to Tests"
+          variant="primary"
+          size="md"
+          onPress={() => router.replace("/(tabs)/tests" as any)}
+        />
       </View>
     );
   }
@@ -412,8 +433,19 @@ export default function CbtRunnerScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* 52px Sticky Top Header */}
-      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+      {/* Sticky Top Header — height + paddingTop keep controls below the notch */}
+      <View
+        testID="cbt-header"
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.surface,
+            borderBottomColor: colors.border,
+            paddingTop: insets.top,
+            height: 52 + insets.top,
+          },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => {
             Alert.alert(

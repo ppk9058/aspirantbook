@@ -26,6 +26,46 @@ export function extractHost(uri?: string | null): string | null {
   return host || null;
 }
 
+/** Normalizes a base URL to a server origin (no trailing slash, no /api/v1). */
+export function normalizeApiBaseUrl(url?: string | null): string {
+  return (url || "").trim().replace(/\/+$/, "").replace(/\/api\/v1\/?$/, "");
+}
+
+/**
+ * Re-targets an absolute request URL built from a stale base onto the active
+ * base. The API client is constructed with the base resolved at module load,
+ * but the Metro-derived host can change later (e.g. Wi-Fi switch). Without
+ * this, requests keep hitting the old IP even though the guard resolved the
+ * new one.
+ */
+export function rewriteApiRequestUrl(
+  requestUrl: string,
+  activeBaseUrl: string,
+  staleBaseUrl: string
+): string {
+  if (!requestUrl) return requestUrl;
+  const active = normalizeApiBaseUrl(activeBaseUrl);
+  if (!active) return requestUrl;
+
+  const stale = normalizeApiBaseUrl(staleBaseUrl);
+  const matchesStale =
+    Boolean(stale) &&
+    (requestUrl === stale ||
+      requestUrl.startsWith(`${stale}/`) ||
+      requestUrl.startsWith(`${stale}?`));
+  if (matchesStale) {
+    return `${active}${requestUrl.slice(stale.length)}`;
+  }
+
+  // Relative path (client built before any base was configured): attach the
+  // freshly resolved host instead of sending a path-only request.
+  if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(requestUrl)) {
+    return `${active}${requestUrl.startsWith("/") ? requestUrl : `/${requestUrl}`}`;
+  }
+
+  return requestUrl;
+}
+
 /**
  * Resolves the API Base URL with strict precedence:
  * 1. Explicit Shell Env / process.env.EXPO_PUBLIC_API_URL (source: "env")
@@ -52,7 +92,7 @@ export function resolveApiBaseUrl(options?: {
 
   // 1. Explicit environment variable (.env.local or shell export)
   if (trimmedEnv) {
-    const cleaned = trimmedEnv.replace(/\/+$/, "").replace(/\/api\/v1\/?$/, "");
+    const cleaned = normalizeApiBaseUrl(trimmedEnv);
     const source: ApiUrlSource =
       options?.sourceOverride ||
       (process.env.EXPO_PUBLIC_API_URL_SOURCE as ApiUrlSource) ||
