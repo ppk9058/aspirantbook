@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -35,6 +34,10 @@ import { Skeleton } from "../../../../components/primitives/Skeleton";
 import { ErrorState } from "../../../../components/primitives/ErrorState";
 import { useTheme } from "../../../../theme/ThemeProvider";
 import { api } from "../../../../lib/api";
+import {
+  saveLocalLessonProgress,
+  getLocalCourseProgress,
+} from "../../../../lib/course-progress";
 import { CourseLessonDetailDto, CourseDetailDto } from "@aspirantbook/shared";
 import {
   resolveVideoState,
@@ -77,10 +80,25 @@ export default function CourseLessonPlayerScreen() {
 
   // Progress Mutation
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [localCompleted, setLocalCompleted] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (id && lessonId) {
+      getLocalCourseProgress(id)
+        .then((map) => {
+          if (map[lessonId]?.completed !== undefined) {
+            setLocalCompleted(map[lessonId].completed);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [id, lessonId]);
 
   const progressMutation = useMutation({
     mutationFn: async (completed: boolean) => {
       if (!id || !lessonId) throw new Error("Missing parameters");
+      setLocalCompleted(completed);
+      await saveLocalLessonProgress(id, lessonId, completed);
       const res = await api.updateCourseLessonProgress(id, lessonId, { completed });
       if (!res.ok) throw new Error(res.error?.message || "Failed to update progress");
       return res.data;
@@ -98,7 +116,7 @@ export default function CourseLessonPlayerScreen() {
 
   const lesson: CourseLessonDetailDto | undefined = lessonQuery.data;
   const courseData: CourseDetailDto | undefined = courseQuery.data;
-  const isCompleted = Boolean(lesson?.isCompleted);
+  const isCompleted = localCompleted !== null ? localCompleted : Boolean(lesson?.isCompleted);
 
   // Resolve video state through security & provider resolver
   const videoState = useMemo(() => {
@@ -186,8 +204,7 @@ export default function CourseLessonPlayerScreen() {
       <View style={styles.videoPlayerContainer}>
         {lessonQuery.isLoading ? (
           <View style={styles.videoLoading}>
-            <ActivityIndicator size="large" color="#38bdf8" />
-            <Text style={styles.videoLoadingText}>Loading video stream...</Text>
+            <Skeleton height={220} width="100%" borderRadius={0} />
           </View>
         ) : videoState.isLocked ? (
           <View style={styles.lockedContainer}>

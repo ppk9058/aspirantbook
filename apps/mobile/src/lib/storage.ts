@@ -109,6 +109,7 @@ export const Storage = {
   getItem: (key: string) => getItem(key),
   setItem: (key: string, value: string) => setItem(key, value),
   deleteItem: (key: string) => deleteItem(key),
+  removeItem: (key: string) => deleteItem(key),
 
   getTheme: () => getItem("ts_theme"),
   setTheme: (theme: string) => setItem("ts_theme", theme),

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -28,11 +28,13 @@ import { Card } from "../../components/primitives/Card";
 import { Badge } from "../../components/primitives/Badge";
 import { Button } from "../../components/primitives/Button";
 import { Skeleton } from "../../components/primitives/Skeleton";
+import { EmptyState } from "../../components/primitives/EmptyState";
 import { ErrorState } from "../../components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
 import { openWebUrl } from "../../lib/web-links";
+import { getLocalCourseProgress, CourseProgressMap } from "../../lib/course-progress";
 import { CourseDetailDto, CourseChapterDto } from "@aspirantbook/shared";
 
 export default function CourseDetailScreen() {
@@ -44,6 +46,13 @@ export default function CourseDetailScreen() {
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [enrollError, setEnrollError] = useState<string | null>(null);
+  const [localProgress, setLocalProgress] = useState<CourseProgressMap>({});
+
+  useEffect(() => {
+    if (id) {
+      getLocalCourseProgress(id).then(setLocalProgress).catch(() => {});
+    }
+  }, [id, courseQuery.dataUpdatedAt]);
 
   const courseQuery = useQuery({
     queryKey: ["course-detail", id],
@@ -318,6 +327,7 @@ export default function CourseDetailScreen() {
                         <View style={[styles.lessonsList, { borderTopColor: colors.border }]}>
                           {chapter.lessons.map((lesson) => {
                             const canPlay = !lesson.isLocked;
+                            const isLessonDone = lesson.isCompleted || Boolean(localProgress[lesson.id]?.completed);
                             return (
                               <TouchableOpacity
                                 key={lesson.id}
@@ -339,7 +349,7 @@ export default function CourseDetailScreen() {
                                 ]}
                               >
                                 <View style={styles.lessonLeft}>
-                                  {lesson.isCompleted ? (
+                                  {isLessonDone ? (
                                     <CheckCircle size={18} color={colors.success} />
                                   ) : canPlay ? (
                                     <PlayCircle size={18} color={colors.primary} />
@@ -377,6 +387,12 @@ export default function CourseDetailScreen() {
                     </View>
                   );
                 })}
+                {chapters.length === 0 && (
+                  <EmptyState
+                    title="Curriculum Coming Soon"
+                    description="The syllabus and lessons for this course are being prepared."
+                  />
+                )}
               </View>
             </View>
           </>

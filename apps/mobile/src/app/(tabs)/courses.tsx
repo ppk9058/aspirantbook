@@ -33,19 +33,11 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { useGoal } from "../../context/GoalContext";
 import { api } from "../../lib/api";
 import { CourseSummaryDto } from "@aspirantbook/shared";
+import { cleanDescriptionPreview } from "../../lib/course-progress";
+
+export { cleanDescriptionPreview };
 
 type DifficultyFilter = "ALL" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-
-export function cleanDescriptionPreview(desc?: string | null): string {
-  if (!desc) return "";
-  return desc
-    .replace(/^#+\s+/gm, "")
-    .replace(/==([^=]+)==/g, "$1")
-    .replace(/\*\*([^*]+)\*\*/g, "$1")
-    .replace(/^-\s+\[[ xX]\]\s+/gm, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 export default function CoursesTabScreen() {
   const router = useRouter();
