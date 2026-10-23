@@ -1,9 +1,8 @@
 import React, { useEffect } from "react";
-import { View, ActivityIndicator, StyleSheet, Image } from "react-native";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { Storage } from "@/lib/storage";
 import { api } from "@/lib/api";
-import { registerForPushNotificationsAsync, setLastPushRegistrationError } from "@/lib/push";
 
 export default function BootstrapScreen() {
   const router = useRouter();
@@ -20,14 +19,7 @@ export default function BootstrapScreen() {
 
         const meRes = await api.getMe();
         if (meRes.ok && meRes.data) {
-          // Sync push notifications token in background
-          void registerForPushNotificationsAsync().then((tok) => {
-            if (!tok) {
-              setLastPushRegistrationError("Push token sync deferred");
-            }
-          }, (err: unknown) => {
-            setLastPushRegistrationError(err instanceof Error ? err.message : "Push token error");
-          });
+          // Push notifications permissions are requested contextually (e.g. at enrollment or via Preferences), not on cold launch
           router.replace("/(tabs)/home");
         } else {
           // Token expired or invalid, fallback to guest mode

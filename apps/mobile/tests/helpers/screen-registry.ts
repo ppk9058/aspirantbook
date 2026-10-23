@@ -215,6 +215,18 @@ export const SCREEN_REGISTRY: ScreenRegistryEntry[] = [
     requiredStates: ALL_SCREEN_STATES,
   },
   {
+    route: "/notifications/preferences",
+    file: "notifications/preferences.tsx",
+    kind: "data",
+    requiredStates: ["success"],
+    naJustifications: {
+      loading: "Notifications preferences reads local synchronous/persisted settings directly",
+      empty: "Preferences form has fixed control rows",
+      error500: "Preferences operate offline against local storage",
+      networkFailure: "Preferences operate offline against local storage",
+    },
+  },
+  {
     route: "/settings",
     file: "settings.tsx",
     kind: "data",

@@ -29,7 +29,7 @@ export function MobileAppHeader({
   };
 
   const handleNotificationsPress = () => {
-    router.push("/" as any);
+    router.push("/notifications/preferences" as any);
   };
 
   const handleLoginPress = () => {
