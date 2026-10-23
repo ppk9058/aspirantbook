@@ -71,7 +71,11 @@ describe("F6: Reliability, Request Timeout, Automatic Retry & Offline Mode", () 
       fetchFn: failingPostFetch,
     });
 
-    const res = await client.login({ email: "user@test.com", password: "password123" });
+    const res = await client.login({
+      email: "user@test.com",
+      password: "password123",
+      platform: "android",
+    });
     assert.strictEqual(postAttempts, 1);
     assert.strictEqual(res.ok, false);
   });
@@ -166,7 +170,7 @@ describe("F6: Mutation Proofs (4 Required Invariants)", () => {
     assert.strictEqual(activeNetworkMode, "offlineFirst");
 
     // Mutated config using 'online' mode
-    const brokenMode = "online";
+    const brokenMode: string = "online";
     assert.throws(() => {
       if (brokenMode !== "offlineFirst") {
         throw new Error("TanStack Query not configured for offlineFirst mode");

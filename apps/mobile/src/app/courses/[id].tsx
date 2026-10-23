@@ -48,12 +48,6 @@ export default function CourseDetailScreen() {
   const [enrollError, setEnrollError] = useState<string | null>(null);
   const [localProgress, setLocalProgress] = useState<CourseProgressMap>({});
 
-  useEffect(() => {
-    if (id) {
-      getLocalCourseProgress(id).then(setLocalProgress).catch(() => {});
-    }
-  }, [id, courseQuery.dataUpdatedAt]);
-
   const courseQuery = useQuery({
     queryKey: ["course-detail", id],
     queryFn: async () => {
@@ -64,6 +58,12 @@ export default function CourseDetailScreen() {
     },
     enabled: Boolean(id),
   });
+
+  useEffect(() => {
+    if (id) {
+      getLocalCourseProgress(id).then(setLocalProgress).catch(() => {});
+    }
+  }, [id, courseQuery.dataUpdatedAt]);
 
   const enrollMutation = useMutation({
     mutationFn: async () => {
