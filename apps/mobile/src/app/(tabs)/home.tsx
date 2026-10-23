@@ -28,12 +28,14 @@ import { Badge } from "../../components/primitives/Badge";
 import { Skeleton } from "../../components/primitives/Skeleton";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useGoal } from "../../context/GoalContext";
+import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { colors, tokens } = useTheme();
   const { selectedGoal, openGoalModal } = useGoal();
+  const { isAuthenticated } = useAuth();
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["home-dashboard", selectedGoal.id],
@@ -121,7 +123,7 @@ export default function HomeScreen() {
               Goal: <Text style={{ fontWeight: "800", color: colors.primary }}>{selectedGoal.name}</Text>
             </Text>
           </View>
-          <Text style={[styles.switchGoalText, { color: colors.primary }]}>Change →</Text>
+          <Text style={[styles.switchGoalText, { color: colors.primary }]}>Change</Text>
         </TouchableOpacity>
 
         {/* Greeting Banner */}
@@ -132,20 +134,23 @@ export default function HomeScreen() {
               Master syllabus for {selectedGoal.name}
             </Text>
           </View>
-          <View
-            style={[
-              styles.streakBadge,
-              {
-                backgroundColor: "rgba(234, 88, 12, 0.1)",
-                borderColor: "rgba(234, 88, 12, 0.3)",
-              },
-            ]}
-          >
-            <Flame size={16} color="#EA580C" />
-            <Text style={styles.streakText}>
-              {data?.streakDays || 1} Day Streak
-            </Text>
-          </View>
+          {isAuthenticated && Boolean(data?.streakDays) && (data?.streakDays || 0) > 0 ? (
+            <View
+              testID="home-streak-badge"
+              style={[
+                styles.streakBadge,
+                {
+                  backgroundColor: "rgba(234, 88, 12, 0.1)",
+                  borderColor: "rgba(234, 88, 12, 0.3)",
+                },
+              ]}
+            >
+              <Flame size={16} color="#EA580C" />
+              <Text style={styles.streakText}>
+                {data?.streakDays} Day Streak
+              </Text>
+            </View>
+          ) : null}
         </View>
 
         {/* Quick Access 3x2 Grid */}

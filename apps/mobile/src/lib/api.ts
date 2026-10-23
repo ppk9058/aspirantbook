@@ -44,12 +44,13 @@ async function refreshAccessTokenSingleFlight(): Promise<string | null> {
         return null;
       }
 
-      if (!API_BASE_URL) {
+      const activeBaseUrl = resolveApiBaseUrl().baseUrl || API_BASE_URL;
+      if (!activeBaseUrl) {
         notifyUnauthorized();
         return null;
       }
 
-      const res = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
+      const res = await fetch(`${activeBaseUrl}/api/v1/auth/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
@@ -88,7 +89,8 @@ export const api = createApiClient({
     await refreshAccessTokenSingleFlight();
   },
   fetchFn: async (url, init = {}) => {
-    if (!API_BASE_URL) {
+    const activeBaseUrl = resolveApiBaseUrl().baseUrl;
+    if (!activeBaseUrl) {
       return new Response(
         JSON.stringify({
           ok: false,

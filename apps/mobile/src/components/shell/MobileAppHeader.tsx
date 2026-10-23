@@ -105,7 +105,7 @@ export function MobileAppHeader({
           <Search size={20} color={colors.textSecondary} />
         </TouchableOpacity>
 
-        {/* Bell with rose dot */}
+        {/* Bell with rose dot (shown only for authenticated users) */}
         <TouchableOpacity
           onPress={handleNotificationsPress}
           accessibilityLabel="Notifications"
@@ -114,15 +114,18 @@ export function MobileAppHeader({
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Bell size={20} color={colors.textSecondary} />
-          <View
-            style={[
-              styles.notificationDot,
-              {
-                backgroundColor: colors.notificationDot,
-                borderColor: colors.surface,
-              },
-            ]}
-          />
+          {isAuthenticated ? (
+            <View
+              testID="mobile-header-notification-dot"
+              style={[
+                styles.notificationDot,
+                {
+                  backgroundColor: colors.notificationDot,
+                  borderColor: colors.surface,
+                },
+              ]}
+            />
+          ) : null}
         </TouchableOpacity>
 
         {/* Profile Avatar if logged-in, Login CTA if guest */}

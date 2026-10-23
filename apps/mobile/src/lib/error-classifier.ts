@@ -18,7 +18,7 @@ export interface ClassifiedError {
   statusCode?: number;
 }
 
-const PRODUCTION_NETWORK_MESSAGE = "Can't reach the server. Check your connection and try again.";
+export const PRODUCTION_NETWORK_MESSAGE = "Could not reach the server. Check your connection and try again.";
 
 export function extractHostPort(url: string): string {
   try {
@@ -100,7 +100,7 @@ export function classifyError(
     /HTTP (?:4\d\d|5\d\d)/i.test(rawMessage)
   ) {
     category = "HTTP_STATUS";
-    isNetwork = statusCode >= 500;
+    isNetwork = false;
     devReason = `HTTP ${statusCode || "status"} error from ${baseUrl}`;
   } else if (
     /JSON Parse error/i.test(rawMessage) ||
@@ -124,7 +124,7 @@ export function classifyError(
 
   const userMessage = isNetwork
     ? PRODUCTION_NETWORK_MESSAGE
-    : (error as any)?.message || rawMessage || "Failed to complete request. Please try again.";
+    : rawMessage || "Failed to complete request. Please try again.";
 
   const displayTitle = isNetwork ? "Connection Unavailable" : "Something went wrong";
 
@@ -134,7 +134,11 @@ export function classifyError(
     displayMessage = userMessage;
   } else {
     // Dev: friendly text + classified reason + base URL used
-    displayMessage = `${userMessage}\n\n[Dev Reason]: ${devReason || rawMessage}\n[Base URL]: ${baseUrl || "UNCONFIGURED"}`;
+    if (isNetwork) {
+      displayMessage = `${userMessage}\n\n[Dev Reason]: ${devReason || rawMessage}\n[Base URL]: ${baseUrl || "UNCONFIGURED"}`;
+    } else {
+      displayMessage = userMessage;
+    }
   }
 
   return {

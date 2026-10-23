@@ -152,10 +152,10 @@ export default function TestsTabScreen() {
           <View style={styles.goalBannerLeft}>
             <Sparkles size={16} color={colors.primary} />
             <Text style={[styles.goalBannerText, { color: colors.textPrimary }]}>
-              Targeting: <Text style={{ fontWeight: "800", color: colors.primary }}>{selectedGoal.name}</Text>
+              Goal: <Text style={{ fontWeight: "800", color: colors.primary }}>{selectedGoal.name}</Text>
             </Text>
           </View>
-          <Text style={[styles.switchGoalText, { color: colors.primary }]}>Change Exam →</Text>
+          <Text style={[styles.switchGoalText, { color: colors.primary }]}>Change</Text>
         </TouchableOpacity>
 
         {/* Section Title */}

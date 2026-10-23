@@ -119,7 +119,7 @@ export default function CoursesTabScreen() {
               Goal: <Text style={{ fontWeight: "800", color: colors.primary }}>{selectedGoal.name}</Text>
             </Text>
           </View>
-          <Text style={[styles.switchGoalText, { color: colors.primary }]}>Switch →</Text>
+          <Text style={[styles.switchGoalText, { color: colors.primary }]}>Change</Text>
         </TouchableOpacity>
 
         {/* Section Heading */}

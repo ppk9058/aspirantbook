@@ -62,7 +62,7 @@ describe("T3: Mounted Tests - Courses Domain Screens", () => {
       await waitFor(
         () => {
           expect(screen.getByText("No Courses Found")).toBeTruthy();
-          expect(screen.getByText("Switch →")).toBeTruthy();
+          expect(screen.getByText("Change")).toBeTruthy();
         },
         { timeout: 4000 }
       );

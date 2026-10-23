@@ -813,6 +813,20 @@ describe("R11 - Full Student Journey & Contract Validation", () => {
     const configParsed = AppConfigSchema.safeParse(configBody.data);
     assert.ok(configParsed.success, `Config schema mismatch: ${JSON.stringify(configParsed.error?.format())}`);
 
+    // KI-5 Contract Test: websiteUrl dynamic LAN derivation and WEBSITE_URL override
+    const lanConfigReq = new NextRequest("http://192.168.0.100:3045/api/v1/config", {
+      headers: { host: "192.168.0.100:3045" },
+    });
+    const lanRes = await getConfigRoute(lanConfigReq);
+    const lanBody = await lanRes.json();
+    assert.equal(lanBody.data.websiteUrl, "http://192.168.0.100:3000");
+
+    process.env.WEBSITE_URL = "https://custom.aspirantbook.com";
+    const envConfigRes = await getConfigRoute(lanConfigReq);
+    const envBody = await envConfigRes.json();
+    assert.equal(envBody.data.websiteUrl, "https://custom.aspirantbook.com");
+    delete process.env.WEBSITE_URL;
+
     // 18b: Goals
     const goalsReq = new NextRequest("http://127.0.0.1:3045/api/v1/goals");
     const goalsRes = await getGoalsRoute(goalsReq);
