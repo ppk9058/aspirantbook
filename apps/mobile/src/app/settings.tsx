@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch, Alert } from "react-native";
-import { User, Moon, Shield, Target, ChevronRight, LogOut } from "lucide-react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch, Modal, TextInput, Alert } from "react-native";
+import { useRouter } from "expo-router";
+import { User, Moon, Shield, Target, ChevronRight, LogOut, AlertTriangle, X } from "lucide-react-native";
 import { AppShell } from "../components/shell/AppShell";
 import { Card } from "../components/primitives/Card";
 import { Chip } from "../components/primitives/Chip";
@@ -9,15 +10,57 @@ import { useTheme } from "../theme/ThemeProvider";
 import { useGoal } from "../context/GoalContext";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
+import { Storage } from "../lib/storage";
+import { clearAllCachedPdfs } from "../lib/pdf-manager";
 
 type SettingsTab = "goal" | "profile" | "appearance" | "security";
 
 export default function SettingsScreen() {
+  const router = useRouter();
   const { colors, tokens, isDark, toggleTheme } = useTheme();
   const { selectedGoal, openGoalModal } = useGoal();
   const { user, isAuthenticated, logout } = useAuth();
   const [tab, setTab] = useState<SettingsTab>("goal");
   const [sessionActionError, setSessionActionError] = useState<string | null>(null);
+
+  // Deletion modal state
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletePassword, setDeletePassword] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText.trim() !== "DELETE") {
+      setDeleteError("Please type DELETE to confirm account deletion.");
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await api.deleteMe({
+        confirmation: deleteConfirmText.trim(),
+        password: deletePassword.trim() || undefined,
+      });
+
+      if (!res.ok) {
+        setDeleteError(res.error?.message || "Failed to delete account. Please verify your credentials.");
+        return;
+      }
+
+      // Successful deletion: wipe storage and local session, redirect to guest
+      await Storage.clearAllAuthTokens();
+      await clearAllCachedPdfs();
+      await logout();
+      setDeleteModalVisible(false);
+      router.replace("/(tabs)/home");
+    } catch (err: any) {
+      setDeleteError(err?.message || "An unexpected error occurred during account deletion.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <AppShell testID="settings-screen">
@@ -35,65 +78,75 @@ export default function SettingsScreen() {
           </Text>
         </View>
 
-        {/* Tab Switcher */}
-        <View style={styles.chipRow}>
+        {/* Tab Pills */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabBar}
+        >
           <Chip
-            label="Target Goal"
+            label="Exam Goal"
             selected={tab === "goal"}
             onPress={() => setTab("goal")}
+            testID="settings-tab-goal"
           />
           <Chip
             label="Appearance"
             selected={tab === "appearance"}
             onPress={() => setTab("appearance")}
+            testID="settings-tab-appearance"
           />
           <Chip
             label="Profile"
             selected={tab === "profile"}
             onPress={() => setTab("profile")}
+            testID="settings-tab-profile"
           />
           <Chip
             label="Security"
             selected={tab === "security"}
             onPress={() => setTab("security")}
+            testID="settings-tab-security"
           />
-        </View>
+        </ScrollView>
 
         {/* Tab 1: Goal */}
         {tab === "goal" && (
           <Card style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <View style={styles.cardHeaderLeft}>
-                <Target size={20} color={colors.primary} />
-                <Text style={[styles.cardSectionTitle, { color: colors.textPrimary }]}>
-                  Current Target Goal
-                </Text>
-              </View>
+            <View style={styles.cardHeaderLeft}>
+              <Target size={20} color={colors.primary} />
+              <Text style={[styles.cardSectionTitle, { color: colors.textPrimary }]}>
+                Primary Exam Target
+              </Text>
             </View>
 
-            <TouchableOpacity
-              onPress={openGoalModal}
+            <View
               style={[
-                styles.goalSelectorBox,
+                styles.currentGoalBox,
                 {
                   backgroundColor: colors.surfaceSecondary,
                   borderColor: colors.border,
                 },
               ]}
             >
-              <View>
-                <Text style={[styles.goalSelectedName, { color: colors.primary }]}>
+              <View style={styles.goalInfo}>
+                <Text style={[styles.goalName, { color: colors.textPrimary }]}>
                   {selectedGoal.name}
                 </Text>
-                <Text style={[styles.goalSelectedFull, { color: colors.textSecondary }]}>
-                  {selectedGoal.fullName}
+                <Text style={[styles.goalCategory, { color: colors.textSecondary }]}>
+                  {selectedGoal.category} • Category ID: {selectedGoal.id}
                 </Text>
               </View>
-              <ChevronRight size={18} color={colors.primary} />
-            </TouchableOpacity>
+              <Button
+                title="Change Goal"
+                onPress={openGoalModal}
+                size="sm"
+                variant="outline"
+              />
+            </View>
 
             <Text style={[styles.helpText, { color: colors.textMuted }]}>
-              Your target goal tailors recommended mock tests, practice papers, and syllabus updates.
+              Switching your exam goal dynamically updates recommended tests, daily current affairs, and syllabus tracks.
             </Text>
           </Card>
         )}
@@ -204,6 +257,7 @@ export default function SettingsScreen() {
                 />
 
                 <TouchableOpacity
+                  testID="settings-delete-account-button"
                   onPress={() => {
                     Alert.alert(
                       "Delete Account",
@@ -213,12 +267,11 @@ export default function SettingsScreen() {
                         {
                           text: "Delete",
                           style: "destructive",
-                          onPress: async () => {
-                            try {
-                              await api.deleteMe({});
-                            } finally {
-                              await logout();
-                            }
+                          onPress: () => {
+                            setDeleteConfirmText("");
+                            setDeletePassword("");
+                            setDeleteError(null);
+                            setDeleteModalVisible(true);
                           },
                         },
                       ]
@@ -239,6 +292,104 @@ export default function SettingsScreen() {
           </Card>
         )}
       </ScrollView>
+
+      {/* Typed Confirmation Deletion Modal */}
+      <Modal
+        visible={deleteModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setDeleteModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <View style={styles.modalHeader}>
+              <View style={styles.modalHeaderLeft}>
+                <AlertTriangle size={20} color={colors.danger} />
+                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>
+                  Delete Account
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setDeleteModalVisible(false)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                testID="delete-account-close-button"
+              >
+                <X size={20} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={[styles.modalWarningText, { color: colors.textSecondary }]}>
+              This action is permanent and cannot be undone. All course enrollments, test history, bookmarks, and account data will be permanently wiped.
+            </Text>
+
+            <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
+              To confirm, type <Text style={{ fontWeight: "700", color: colors.danger }}>DELETE</Text> below:
+            </Text>
+            <TextInput
+              testID="delete-account-confirm-input"
+              value={deleteConfirmText}
+              onChangeText={setDeleteConfirmText}
+              placeholder="DELETE"
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="characters"
+              style={[
+                styles.modalInput,
+                {
+                  borderColor: deleteConfirmText === "DELETE" ? colors.danger : colors.border,
+                  color: colors.textPrimary,
+                  backgroundColor: colors.surfaceSecondary,
+                },
+              ]}
+            />
+
+            <Text style={[styles.inputLabel, { color: colors.textPrimary, marginTop: 12 }]}>
+              Password (if account is password protected):
+            </Text>
+            <TextInput
+              testID="delete-account-password-input"
+              value={deletePassword}
+              onChangeText={setDeletePassword}
+              placeholder="Your password"
+              placeholderTextColor={colors.textMuted}
+              secureTextEntry
+              style={[
+                styles.modalInput,
+                {
+                  borderColor: colors.border,
+                  color: colors.textPrimary,
+                  backgroundColor: colors.surfaceSecondary,
+                },
+              ]}
+            />
+
+            {deleteError ? (
+              <View style={styles.modalErrorBanner} testID="delete-account-error-banner">
+                <Text style={styles.modalErrorText}>{deleteError}</Text>
+              </View>
+            ) : null}
+
+            <View style={styles.modalActions}>
+              <Button
+                title="Cancel"
+                variant="outline"
+                size="md"
+                onPress={() => setDeleteModalVisible(false)}
+                testID="delete-account-cancel-button"
+                style={{ flex: 1 }}
+              />
+              <Button
+                title={isDeleting ? "Deleting..." : "Permanently Delete"}
+                variant="danger"
+                size="md"
+                onPress={handleDeleteAccount}
+                disabled={deleteConfirmText.trim() !== "DELETE" || isDeleting}
+                testID="delete-account-confirm-button"
+                style={{ flex: 1 }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </AppShell>
   );
 }
@@ -258,95 +409,156 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "900",
     letterSpacing: -0.5,
-    marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
+    marginTop: 4,
     lineHeight: 18,
   },
-  chipRow: {
-    flexDirection: "row",
-    marginBottom: 16,
-    flexWrap: "wrap",
+  tabBar: {
+    gap: 8,
+    paddingBottom: 16,
   },
   card: {
     padding: 16,
-    marginBottom: 16,
-  },
-  cardHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
   },
   cardHeaderLeft: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
     marginBottom: 12,
   },
   cardSectionTitle: {
     fontSize: 15,
-    fontWeight: "800",
-    marginLeft: 8,
+    fontWeight: "700",
   },
-  goalSelectorBox: {
+  currentGoalBox: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  goalSelectedName: {
-    fontSize: 16,
-    fontWeight: "800",
-    marginBottom: 2,
+  goalInfo: {
+    flex: 1,
   },
-  goalSelectedFull: {
+  goalName: {
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  goalCategory: {
     fontSize: 12,
+    marginTop: 2,
   },
   helpText: {
     fontSize: 12,
-    lineHeight: 18,
+    lineHeight: 16,
   },
   settingRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 8,
   },
   settingLeft: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 12,
     flex: 1,
   },
   settingTextGroup: {
-    marginLeft: 12,
     flex: 1,
   },
   settingLabel: {
     fontSize: 14,
-    fontWeight: "700",
-    marginBottom: 2,
+    fontWeight: "600",
   },
   settingDesc: {
     fontSize: 12,
+    marginTop: 2,
   },
   profileFields: {
-    marginTop: 4,
+    gap: 12,
   },
   fieldRow: {
-    marginVertical: 6,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(150, 150, 150, 0.2)",
+    paddingBottom: 8,
   },
   fieldLabel: {
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "700",
     letterSpacing: 0.5,
     marginBottom: 2,
   },
   fieldValue: {
     fontSize: 14,
+    fontWeight: "500",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  modalContent: {
+    width: "100%",
+    maxWidth: 420,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  modalHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  modalWarningText: {
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 12,
     fontWeight: "600",
+    marginBottom: 6,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+  },
+  modalErrorBanner: {
+    backgroundColor: "#FEE2E2",
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 12,
+  },
+  modalErrorText: {
+    color: "#DC2626",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  modalActions: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 20,
   },
 });
