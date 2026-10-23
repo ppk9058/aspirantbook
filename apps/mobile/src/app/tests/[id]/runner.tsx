@@ -76,6 +76,7 @@ export default function CbtRunnerScreen() {
   const [paletteVisible, setPaletteVisible] = useState(false);
   const [submitModalVisible, setSubmitModalVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(3600);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retryNonce, setRetryNonce] = useState(0);
@@ -325,10 +326,11 @@ export default function CbtRunnerScreen() {
   };
 
   const handleAutoSubmit = async () => {
-    if (submitting) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setSubmitting(true);
     try {
-      await cbtSyncQueue.flush();
+      await cbtSyncQueue.flush(attemptId!);
       const res = await api.submitAttempt(attemptId!);
       if (res.ok) {
         router.replace({
@@ -350,10 +352,12 @@ export default function CbtRunnerScreen() {
   };
 
   const handleConfirmSubmit = async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setSubmitting(true);
     setSubmitError(null);
     try {
-      await cbtSyncQueue.flush();
+      await cbtSyncQueue.flush(attemptId!);
       const res = await api.submitAttempt(attemptId!);
       if (res.ok) {
         setSubmitModalVisible(false);
@@ -367,6 +371,7 @@ export default function CbtRunnerScreen() {
     } catch {
       setSubmitError("Network connection failed during submission. Retrying...");
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   };
