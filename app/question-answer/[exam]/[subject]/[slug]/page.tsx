@@ -1,5 +1,5 @@
 import { getPublicQuestionBySlug } from "@/lib/modules/content-engine/db-service"
-import { notFound, redirect } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import { buildSeoModel, SeoQuestionInput } from "@/lib/modules/content-engine/seo-model"
 import { slugify, qaPath } from "@/lib/modules/content-engine/paths"
 import { PublicQuestionView } from "@/components/content-engine-public/PublicQuestionView"
@@ -81,7 +81,7 @@ export default async function PublicQuestionPage({
   const canonicalSubSlug = slugify(q.sub || "uncategorized")
 
   if (examSlug !== canonicalExamSlug || subSlug !== canonicalSubSlug || slug !== q.slug) {
-    redirect(qaPath("en", q.exam, q.sub, q.slug))
+    permanentRedirect(qaPath("en", q.exam, q.sub, q.slug))
   }
 
   const hiTr = q.translations?.find((t: any) => t.isReviewed)

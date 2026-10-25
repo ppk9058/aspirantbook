@@ -43,3 +43,11 @@ This document records all architectural decisions, safety choices, and conflict 
 ### Decision 7: `exportMode` Mirror vs Primary
 - **Choice**: Default `Setting.exportMode` to `"mirror"` where canonical URLs point to `NEXT_PUBLIC_SITE_URL`.
 - **Reason**: Prevents duplicate content penalties between the Next.js production site and secondary Cloudflare Pages static exports.
+
+### Decision 8: Retention of `/q/[shortId]` with 308 Permanent Redirect
+- **Choice**: Retain `app/q/[shortId]/route.ts` as an accepted route exception, returning a `308 Permanent Redirect` to the canonical slug `/question-answer/{exam}/{subject}/{slug}`.
+- **Reason**: Competitive exam aspirants frequently share questions on Telegram, WhatsApp, and social media. Short URLs (`/q/abcd1234`) are essential for shareability and low character counts. Using HTTP 308 ensures search engines and social scrapers preserve the request method and permanently index the canonical destination URL.
+
+### Decision 9: Placement of Unit & Integration Tests in `tests/content-engine/`
+- **Choice**: Retain pure-logic, database persistence, and mutation test suites in `tests/content-engine/*.test.ts`, invoked via `npm run test:content-engine` (`tsx --test --test-concurrency=1`), while placing end-to-end browser and HTTP tests in `tests/e2e/content-engine.spec.ts`.
+- **Reason**: Node.js native test runner (`node:test` via `tsx`) executes unit and service checks in milliseconds (< 2s) without the overhead of spinning up browser binaries for all 53 logic checks. Playwright E2E tests in `tests/e2e/` then verify full browser rendering, authentication middleware, and real HTTP requests against the running test server on port 3045.

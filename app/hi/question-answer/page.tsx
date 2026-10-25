@@ -8,16 +8,18 @@ import { Metadata } from "next"
 
 export const revalidate = 3600 // 1 hour cache
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+
 export const metadata: Metadata = {
   title: "प्रतियोगी परीक्षा पिछले वर्ष के प्रश्नोत्तर (PYQs) | TrillionSkill हिन्दी",
   description:
     "यूपीएससी, बीपीएससी, यूपीपीसीएस, आरएएस और एसएससी परीक्षाओं के प्रामाणिक पिछले वर्षों के प्रश्नोत्तर और विस्तृत हिन्दी समाधान।",
   alternates: {
-    canonical: "https://aspirantbook.com/hi/question-answer",
+    canonical: `${BASE_URL}/hi/question-answer`,
     languages: {
-      en: "https://aspirantbook.com/question-answer",
-      hi: "https://aspirantbook.com/hi/question-answer",
-      "x-default": "https://aspirantbook.com/question-answer",
+      en: `${BASE_URL}/question-answer`,
+      hi: `${BASE_URL}/hi/question-answer`,
+      "x-default": `${BASE_URL}/question-answer`,
     },
   },
 }

@@ -11,6 +11,7 @@ export async function GET() {
     if (response) return response
 
     const exportMode = await getSetting<"mirror" | "primary">("exportMode", "mirror")
+    const exportBaseUrl = await getSetting<string>("exportBaseUrl", "")
 
     const questions = await prisma.contentEngineQuestion.findMany({
       where: {
@@ -48,7 +49,7 @@ export async function GET() {
       })),
     }))
 
-    const files = generateStaticSiteFiles(exportRecords, exportMode)
+    const files = generateStaticSiteFiles(exportRecords, exportMode, exportBaseUrl || undefined)
     const zipBytes = createZipBuffer(files)
 
     return new Response(Buffer.from(zipBytes), {

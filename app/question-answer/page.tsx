@@ -7,16 +7,18 @@ import { Metadata } from "next"
 
 export const revalidate = 3600 // 1 hour cache
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+
 export const metadata: Metadata = {
   title: "Competitive Exam Previous Year Questions (PYQs) | TrillionSkill",
   description:
     "Explore authentic previous year questions, answer keys, and detailed solutions for UPSC CSE, BPSC, UPPCS, RAS, and SSC CGL.",
   alternates: {
-    canonical: "https://aspirantbook.com/question-answer",
+    canonical: `${BASE_URL}/question-answer`,
     languages: {
-      en: "https://aspirantbook.com/question-answer",
-      hi: "https://aspirantbook.com/hi/question-answer",
-      "x-default": "https://aspirantbook.com/question-answer",
+      en: `${BASE_URL}/question-answer`,
+      hi: `${BASE_URL}/hi/question-answer`,
+      "x-default": `${BASE_URL}/question-answer`,
     },
   },
 }

@@ -218,13 +218,16 @@ function escapeHtml(str: string): string {
  */
 export function generateStaticSiteFiles(
   questions: ExportQuestionRecord[],
-  exportMode: "mirror" | "primary" = "mirror"
+  exportMode: "mirror" | "primary" = "mirror",
+  customBaseUrl?: string
 ): ZipFileInput[] {
   const files: ZipFileInput[] = []
+  const defaultMirror =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+  const defaultPrimary =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://questions.aspirantbook.com"
   const baseUrl =
-    exportMode === "primary"
-      ? "https://questions.aspirantbook.com"
-      : "https://aspirantbook.com"
+    customBaseUrl || (exportMode === "primary" ? defaultPrimary : defaultMirror)
 
   const published = questions.filter((q) => q.isPublished && q.slug)
 

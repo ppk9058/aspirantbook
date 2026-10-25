@@ -1,0 +1,14 @@
+=== Phase B File Budget Audit ===
+Merge base: 1b48ec917101cf90112d7983c6d240b29eba5025
+
+Raw list of files outside strictly allowed paths:
+ADDED_OUTSIDE: app/q/[shortId]/route.ts
+ADDED_OUTSIDE: tests/content-engine/admin-ui.test.ts
+ADDED_OUTSIDE: tests/content-engine/db-service.test.ts
+ADDED_OUTSIDE: tests/content-engine/mutations.test.ts
+ADDED_OUTSIDE: tests/content-engine/public-pages.test.ts
+ADDED_OUTSIDE: tests/content-engine/pure-logic.test.ts
+
+Analysis:
+- ADDED_OUTSIDE: app/q/[shortId]/route.ts (Short URL redirect endpoint; retained and converted to 308 redirect per Decision 8 in DECISIONS.md)
+- ADDED_OUTSIDE: tests/content-engine/*.test.ts (Unit, DB service, and mutation test suites; retained per Decision 9 in DECISIONS.md alongside tests/e2e/content-engine.spec.ts)

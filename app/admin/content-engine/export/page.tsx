@@ -119,6 +119,15 @@ export default function ContentEngineExportPage() {
             </p>
           </div>
         </div>
+
+        {exportMode === "primary" && (
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300 space-y-1">
+            <span className="font-semibold block">⚠️ Duplicate Content Notice</span>
+            <p className="leading-relaxed">
+              Primary Host Mode points all canonical tags and Schema.org Quiz JSON-LD directly to the static export domain instead of the main application. If both sites are published to the web simultaneously without domain redirection, search crawlers may detect duplicate content.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Package Contents Breakdown */}

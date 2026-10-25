@@ -14,5 +14,5 @@ export async function GET(
   }
 
   const targetPath = qaPath("en", q.exam, q.sub, q.slug)
-  return NextResponse.redirect(new URL(targetPath, req.url), 301)
+  return NextResponse.redirect(new URL(targetPath, req.url), 308)
 }

@@ -1,0 +1,46 @@
+=== Phase A Fact-Check of Old Integration Report ===
+Date: 2026-10-26
+Database: Docker test DB (127.0.0.1:54329/trillionskill_test)
+
+A1. Real Test Counts from `npm run test:content-engine`:
+Command: tsx --test --test-concurrency=1 tests/content-engine/**/*.test.ts
+Breakdown by file:
+- tests/content-engine/pure-logic.test.ts: 17 tests (2 in Classifier, 5 in Exam/Year, 6 in Cross-Ref, 2 in inferRuns, 1 in Escaping, 1 in 20-Question Paste)
+- tests/content-engine/db-service.test.ts: 10 tests
+- tests/content-engine/admin-ui.test.ts: 2 tests
+- tests/content-engine/public-pages.test.ts: 4 tests
+- tests/content-engine/mutations.test.ts: 20 tests
+Total: 53 tests (pass: 53, fail: 0).
+Old Report Discrepancy: The old INTEGRATION_REPORT.md claimed:
+"17 Phase 1 pure logic + 8 Phase 2 DB service + 8 Phase 3 Admin UI + 8 Phase 4 Public pages + 20 Phase 6 Mutation tests = 53"
+which mathematically sums to 61, not 53. The actual counts per file are 17, 10, 2, 4, and 20.
+
+A2. Real Quality Gates in `lib/modules/content-engine/quality-gates.ts`:
+Source file: lib/modules/content-engine/quality-gates.ts:19-26
+Real Gate Failure Reasons (7 total, NOT 10):
+1. "missing-answer": line 78 (item.a < 0)
+2. "few-options": line 82 (item.o.length < 4)
+3. "thin-explanation": line 88 (effectiveExp.length < 80)
+4. "no-source": line 92 (!item.src || !item.src.trim())
+5. "uncategorized": line 96 (!item.top || item.top === "General" || !item.sub || item.sub === "Uncategorized")
+6. "duplicate": line 105 (Jaccard similarity >= 0.8 over 3-word trigrams)
+7. "unverified": line 114 (options.strict && !item.isVerified)
+Duplicate Detection Mechanism:
+Lines 31-43 implement wordTrigrams (3-word shingles Set<string>), and lines 48-55 compute jaccardSimilarity.
+
+A3. Assessment of Unit Test Depth (public-pages.test.ts & admin-ui.test.ts):
+- admin-ui.test.ts:
+  - Test 1 reads components/admin/AdminNav.tsx and components/layout/LeftSidebar.tsx using readFileSync (file string substring checks). NO React render, NO HTTP call.
+  - Test 2 calls generateStaticSiteFiles() and createZipBuffer() (pure memory helper functions).
+  - Verdict: WEAK for Admin UI coverage (does not render admin pages or call admin API route handlers).
+- public-pages.test.ts:
+  - Test 1 calls robots() route helper function.
+  - Test 2 calls path builders (qaPath, examHubPath, yearHubPath, topicHubPath).
+  - Test 3 calls sitemapEn() and sitemapHi() async helper functions against DB.
+  - Test 4 calls buildSeoModel() pure helper function.
+  - Verdict: WEAK for Public Page coverage (does not render page.tsx components or perform HTTP GET requests to public routes).
+
+A4. Assessment of "20 Mutations":
+- tests/content-engine/mutations.test.ts contains 20 standard assertion test cases asserting edge/error conditions on helper functions (e.g. evaluateQualityGates with a: -1).
+- They were NOT true mutations (deliberately broken application code verified RED, then restored to GREEN).
+- True mutation testing is performed in Phase E.

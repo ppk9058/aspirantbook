@@ -15,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { exam: examSlug, subject: yearOrSubject } = await params
   const examName = unslugify(examSlug)
-  const isYear = /^\d{4}$/.test(yearOrSubject)
+  const isYear = /^(19[89]\d|20[0-3]\d)$/.test(yearOrSubject)
   const label = isYear ? yearOrSubject : unslugify(yearOrSubject)
 
   return {
@@ -31,7 +31,7 @@ export default async function ExamYearOrSubjectPage({
 }) {
   const { exam: examSlug, subject: yearOrSubject } = await params
   const examName = unslugify(examSlug)
-  const isYear = /^\d{4}$/.test(yearOrSubject)
+  const isYear = /^(19[89]\d|20[0-3]\d)$/.test(yearOrSubject)
 
   if (isYear) {
     // Year Hub
