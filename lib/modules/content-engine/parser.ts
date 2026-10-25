@@ -340,7 +340,7 @@ export function parseWithDiagnostics(
     top: string
   }
 
-  let cur: CurrentItem | null = null
+  let cur: any = null
   let mode = ""
   let blank = false
 
