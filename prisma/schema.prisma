@@ -1396,3 +1396,115 @@ model AuditLog {
   @@index([createdAt])
 }
 
+
+// ==========================================
+// CONTENT ENGINE MODULE (ADMIN-ONLY PIPELINE)
+// ==========================================
+
+model ContentEngineBatch {
+  id             String                  @id @default(cuid())
+  createdById    String?
+  pastedText     String                  @db.Text
+  defaultSubject String?
+  defaultTopic   String?
+  defaultExam    String?
+  defaultYear    String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  questions      ContentEngineQuestion[]
+
+  @@index([createdById])
+  @@index([createdAt])
+}
+
+model ContentEngineQuestion {
+  id             String                          @id @default(cuid())
+  shortId        String                          @unique
+  textHash       String                          @unique
+  q              String                          @db.Text
+  options        Json
+  answer         String
+  answerIndex    Int                             @default(-1)
+  explanation    String?                         @db.Text
+  sub            String?
+  top            String?
+  exam           String?
+  year           String?
+  sourceTag      String?
+  sourceNo       Int?
+  batchId        String?
+  status         String                          @default("DRAFT") // DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED
+  isPublished    Boolean                         @default(false)
+  isInferred     Boolean                         @default(false)
+  isVerified     Boolean                         @default(false)
+  slug           String?
+  publishedAt    DateTime?
+  createdAt      DateTime                        @default(now())
+  updatedAt      DateTime                        @updatedAt
+  batch          ContentEngineBatch?             @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  translations   ContentEngineTranslation[]
+  override       ContentEngineCategoryOverride?
+
+  @@index([batchId])
+  @@index([isPublished])
+  @@index([sub, top])
+  @@index([exam, year])
+  @@index([createdAt])
+}
+
+model ContentEngineTranslation {
+  id           String                @id @default(cuid())
+  questionId   String
+  lang         String                // "hi" | "en"
+  q            String                @db.Text
+  options      Json
+  answer       String?
+  explanation  String?               @db.Text
+  top          String?
+  isReviewed   Boolean               @default(false)
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  question     ContentEngineQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, lang])
+  @@index([questionId])
+  @@index([lang, isReviewed])
+}
+
+model ContentEngineCategoryOverride {
+  id         String                @id @default(cuid())
+  questionId String                @unique
+  sub        String
+  top        String
+  subHi      String?
+  topHi      String?
+  exam       String?
+  year       String?
+  isManual   Boolean               @default(true)
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+  question   ContentEngineQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model ContentEngineExamAlias {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  pattern   String?
+  isEnabled Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isEnabled])
+}
+
+model ContentEngineSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

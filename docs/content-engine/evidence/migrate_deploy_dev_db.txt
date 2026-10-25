@@ -1,0 +1,15 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "postgres", schema "public" at "aws-1-ap-south-1.pooler.supabase.com:5432"
+
+17 migrations found in prisma/migrations
+
+Applying migration `20261025220000_add_content_engine_tables`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261025220000_add_content_engine_tables/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
