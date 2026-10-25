@@ -59,6 +59,10 @@ export default function ContentEngineAddBatchPage() {
     totalParsed: number
     addedCount: number
     duplicateCount: number
+    skipped?: {
+      count: number
+      snippets: string[]
+    }
   } | null>(null)
 
   // Subject list from taxonomy
@@ -254,6 +258,11 @@ export default function ContentEngineAddBatchPage() {
                 <Badge variant="outline" className="border-amber-500/50 text-amber-600 bg-amber-500/10 gap-1 py-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   Skipped Duplicates: {lastResult.duplicateCount}
+                </Badge>
+              )}
+              {lastResult.skipped && lastResult.skipped.count > 0 && (
+                <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground bg-muted/40 gap-1 py-1" title={lastResult.skipped.snippets.join(" | ")}>
+                  Dropped/Skipped: {lastResult.skipped.count}
                 </Badge>
               )}
               <Link

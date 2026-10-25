@@ -1,0 +1,71 @@
+TAP version 13
+# Subtest: Phase C — Parser Bug Fixes (Real Exam Paper Text)
+    # Subtest: C1 & C2(a): Lowercase a.-d. statements inside question stem with (A)-(D) options
+    ok 1 - C1 & C2(a): Lowercase a.-d. statements inside question stem with (A)-(D) options
+      ---
+      duration_ms: 8.028041
+      type: 'test'
+      ...
+    # Subtest: C1 & C2(b): Roman numeral i.-iv. statements inside question stem with (A)-(D) options
+    ok 2 - C1 & C2(b): Roman numeral i.-iv. statements inside question stem with (A)-(D) options
+      ---
+      duration_ms: 1.060208
+      type: 'test'
+      ...
+    # Subtest: C1 & C2(c): Numbered 1.-4. statements inside question stem with (A)-(D) options
+    ok 3 - C1 & C2(c): Numbered 1.-4. statements inside question stem with (A)-(D) options
+      ---
+      duration_ms: 0.377542
+      type: 'test'
+      ...
+    # Subtest: C2(d): Match-the-following with List-I and List-II on separate lines
+    ok 4 - C2(d): Match-the-following with List-I and List-II on separate lines
+      ---
+      duration_ms: 0.341041
+      type: 'test'
+      ...
+    # Subtest: C2(e): 4-option question whose option lines are 1. 2. 3. 4. with no (A)-(D)
+    ok 5 - C2(e): 4-option question whose option lines are 1. 2. 3. 4. with no (A)-(D)
+      ---
+      duration_ms: 0.31325
+      type: 'test'
+      ...
+    # Subtest: C3: Strip OCR junk lines but preserve real content lines
+    ok 6 - C3: Strip OCR junk lines but preserve real content lines
+      ---
+      duration_ms: 0.886458
+      type: 'test'
+      ...
+    # Subtest: C4: Decimal-led lines (1.5 kg, 2.0 m/s) must not start new questions
+    ok 7 - C4: Decimal-led lines (1.5 kg, 2.0 m/s) must not start new questions
+      ---
+      duration_ms: 0.379417
+      type: 'test'
+      ...
+    # Subtest: C5: Blank lines inside question stem before options do not split question
+    ok 8 - C5: Blank lines inside question stem before options do not split question
+      ---
+      duration_ms: 0.472208
+      type: 'test'
+      ...
+    # Subtest: C6: parseWithDiagnostics returns skipped count and snippets
+    ok 9 - C6: parseWithDiagnostics returns skipped count and snippets
+      ---
+      duration_ms: 0.713125
+      type: 'test'
+      ...
+    1..9
+ok 1 - Phase C — Parser Bug Fixes (Real Exam Paper Text)
+  ---
+  duration_ms: 15.026417
+  type: 'suite'
+  ...
+1..1
+# tests 9
+# suites 1
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 290.784667

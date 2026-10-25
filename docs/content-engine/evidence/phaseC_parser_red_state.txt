@@ -1,0 +1,207 @@
+TAP version 13
+# Subtest: Phase C — Parser Bug Fixes (Real Exam Paper Text)
+    # Subtest: C1 & C2(a): Lowercase a.-d. statements inside question stem with (A)-(D) options
+    not ok 1 - C1 & C2(a): Lowercase a.-d. statements inside question stem with (A)-(D) options
+      ---
+      duration_ms: 5.982667
+      type: 'test'
+      location: '/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:2:1041'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected exactly 1 question, got 2
+        
+        2 !== 1
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 1
+      actual: 2
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:21:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Test.start (node:internal/test_runner/test:944:17)
+        node:internal/test_runner/test:1440:71
+        node:internal/per_context/primordials:466:82
+        new Promise (<anonymous>)
+        new SafePromise (node:internal/per_context/primordials:435:3)
+        node:internal/per_context/primordials:466:9
+        Array.map (<anonymous>)
+      ...
+    # Subtest: C1 & C2(b): Roman numeral i.-iv. statements inside question stem with (A)-(D) options
+    ok 2 - C1 & C2(b): Roman numeral i.-iv. statements inside question stem with (A)-(D) options
+      ---
+      duration_ms: 0.459792
+      type: 'test'
+      ...
+    # Subtest: C1 & C2(c): Numbered 1.-4. statements inside question stem with (A)-(D) options
+    not ok 3 - C1 & C2(c): Numbered 1.-4. statements inside question stem with (A)-(D) options
+      ---
+      duration_ms: 0.449375
+      type: 'test'
+      location: '/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:26:482'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected exactly 1 question, got 2
+        
+        2 !== 1
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 1
+      actual: 2
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:68:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: C2(d): Match-the-following with List-I and List-II on separate lines
+    not ok 4 - C2(d): Match-the-following with List-I and List-II on separate lines
+      ---
+      duration_ms: 0.360458
+      type: 'test'
+      location: '/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:38:456'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected exactly 1 question, got 2
+        
+        2 !== 1
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 1
+      actual: 2
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:93:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: C2(e): 4-option question whose option lines are 1. 2. 3. 4. with no (A)-(D)
+    ok 5 - C2(e): 4-option question whose option lines are 1. 2. 3. 4. with no (A)-(D)
+      ---
+      duration_ms: 0.214166
+      type: 'test'
+      ...
+    # Subtest: C3: Strip OCR junk lines but preserve real content lines
+    not ok 6 - C3: Strip OCR junk lines but preserve real content lines
+      ---
+      duration_ms: 0.274375
+      type: 'test'
+      location: '/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:59:413'
+      failureType: 'testCodeFailure'
+      error: 'Must strip P.T.O.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:135:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: C4: Decimal-led lines (1.5 kg, 2.0 m/s) must not start new questions
+    not ok 7 - C4: Decimal-led lines (1.5 kg, 2.0 m/s) must not start new questions
+      ---
+      duration_ms: 4.619125
+      type: 'test'
+      location: '/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:72:648'
+      failureType: 'testCodeFailure'
+      error: |-
+        The expression evaluated to a falsy value:
+        
+          assert.ok(res[0].q.includes("1.5 m/s"))
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:158:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: C5: Blank lines inside question stem before options do not split question
+    not ok 8 - C5: Blank lines inside question stem before options do not split question
+      ---
+      duration_ms: 0.618542
+      type: 'test'
+      location: '/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:82:308'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected 1 question, got 2
+        
+        2 !== 1
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 1
+      actual: 2
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:178:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: C6: parseWithDiagnostics returns skipped count and snippets
+    not ok 9 - C6: parseWithDiagnostics returns skipped count and snippets
+      ---
+      duration_ms: 0.451958
+      type: 'test'
+      location: '/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:95:367'
+      failureType: 'testCodeFailure'
+      error: '(0 , import_parser.parseWithDiagnostics) is not a function'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TypeError'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:197:36)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..9
+not ok 1 - Phase C — Parser Bug Fixes (Real Exam Paper Text)
+  ---
+  duration_ms: 14.971959
+  type: 'suite'
+  location: '/Users/praveenkumar/TrillionSkill/tests/content-engine/parser-bugs.test.ts:2:955'
+  failureType: 'subtestsFailed'
+  error: '7 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 9
+# suites 1
+# pass 2
+# fail 7
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 242.848166

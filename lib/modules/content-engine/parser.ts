@@ -274,15 +274,58 @@ export function shortQ(q: string): string {
 }
 
 /**
- * Main parse function porting prototype behavior faithfully.
+ * Strips whole OCR junk lines, e.g. [P.T.O., page numbers, paper code lines, 7+ digit roll numbers.
+ * Keeps real content lines like "1.5 kg of salt", "2024 budget", "Article 102".
  */
-export function parse(txt: string, customAliases?: string[]): ParsedQuestion[] {
+export function isOcrJunkLine(line: string): boolean {
+  const t = line.trim()
+  if (!t) return false
+  if (/^\[?\s*P\.?\s*T\.?\s*O\.?\s*\]?$/i.test(t)) return true
+  if (/^\d{7,}$/.test(t)) return true
+  if (/^(?:[-–—]\s*)?\d{1,3}(?:\s*[-–—])?$/.test(t)) return true
+  if (
+    /^\d{2}\/[A-Z0-9\/_()\-.\s]{5,}$/i.test(t) &&
+    !/\b(?:of|the|is|in|at|and|with|for|was|were|salt|budget|article)\b/i.test(t)
+  ) {
+    return true
+  }
+  return false
+}
+
+/**
+ * Checks if parenthesized options (A)-(D), [A]-[D], or A) exist ahead in upcoming lines of the current question.
+ */
+function hasParenOptionsAhead(lines: string[], startIndex: number): boolean {
+  const limit = Math.min(lines.length, startIndex + 30)
+  for (let i = startIndex; i < limit; i++) {
+    const l = lines[i].trim()
+    if (!l) continue
+    if (/^Q(?:uestion)?\.?\s*\d+/i.test(l)) break
+    if (/^(?:correct\s+)?(?:ans(?:wer)?|key)\s*[:\-.)]/i.test(l)) break
+    if (/^\s*(?:\([A-Da-d]\)|\[[A-Da-d]\]|[A-D]\))\s+\S/.test(l)) {
+      return true
+    }
+    if (/\([A-Da-d]\)\s+.*\([Bb]\)/.test(l)) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Diagnostic parse function returning both parsed questions and dropped/skipped snippets.
+ */
+export function parseWithDiagnostics(
+  txt: string,
+  customAliases?: string[]
+): { questions: ParsedQuestion[]; skipped: string[] } {
   let normalized = hiNorm(txt)
   if (isFlat(normalized)) {
     normalized = flat(normalized)
   }
 
   const out: ParsedQuestion[] = []
+  const skipped: string[] = []
   const keys: Record<string, string> = {}
   const ctx = { sub: "", top: "", src: "" }
 
@@ -320,6 +363,8 @@ export function parse(txt: string, customAliases?: string[]): ParsedQuestion[] {
         top: cur.top,
         type,
       })
+    } else if (q.length > 0) {
+      skipped.push(q.slice(0, 120))
     }
     cur = null
     mode = ""
@@ -347,13 +392,27 @@ export function parse(txt: string, customAliases?: string[]): ParsedQuestion[] {
     }
   }
 
-  normalized.replace(/\r/g, "").split("\n").forEach((raw) => {
+  const lines = normalized.replace(/\r/g, "").split("\n")
+
+  for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+    const raw = lines[lineIdx]
     const l = raw.trim()
+
     if (!l) {
       blank = true
-      return
+      continue
     }
-    const wb = blank
+
+    // C3: OCR junk lines stripping
+    if (isOcrJunkLine(l)) {
+      skipped.push(l)
+      continue
+    }
+
+    const parenAhead = cur && mode === "q" && hasParenOptionsAhead(lines, lineIdx)
+
+    // C5: Blank lines inside stem before parenthesized options do NOT split the question
+    const wb = blank && !parenAhead
     blank = false
     let m: RegExpMatchArray | null
 
@@ -365,7 +424,7 @@ export function parse(txt: string, customAliases?: string[]): ParsedQuestion[] {
         keys[x[1]] = x[2].toLowerCase()
       }
       mode = "key"
-      return
+      continue
     }
 
     if ((m = l.match(/^(?:#{1,4}|={2,}|\*{2,})\s*(.+?)[\s=*#]*$/))) {
@@ -378,7 +437,7 @@ export function parse(txt: string, customAliases?: string[]): ParsedQuestion[] {
         ctx.top = h
       }
       blank = true
-      return
+      continue
     }
 
     if ((m = l.match(/^(subject|topic|chapter|section)\s*[:\-]\s*(.+)/i))) {
@@ -386,7 +445,7 @@ export function parse(txt: string, customAliases?: string[]): ParsedQuestion[] {
       if (/subj/i.test(m[1])) t.sub = m[2].trim()
       else t.top = m[2].trim()
       if (t === ctx) blank = true
-      return
+      continue
     }
 
     if ((m = l.match(/^(source|asked in|previously asked in|previous year|exam|paper|year|shift)\s*[:\-]\s*(.+)/i))) {
@@ -394,78 +453,129 @@ export function parse(txt: string, customAliases?: string[]): ParsedQuestion[] {
       const v = m[2].trim()
       t.src = /year|shift/i.test(m[1]) && t.src ? t.src + " " + v : v
       if (t === ctx) blank = true
-      return
+      continue
     }
 
     if (cur && (m = l.match(/^(?:correct\s+)?(?:ans(?:wer)?|key)\s*[:\-.)]\s*(.+)/i))) {
       cur.ans = m[1].trim()
       mode = "a"
-      return
+      continue
     }
 
     if (cur && (m = l.match(/^(?:explanation|solution|rationale|sol|hint)\s*(?:[:\-.]\s*(.*))?$/i))) {
       cur.exp = (m[1] || "").trim()
       mode = "e"
-      return
+      continue
     }
 
     if ((m = l.match(/^Q(?:uestion)?\.?\s*(\d+)\s*[.):\-]?\s*(.*)/i))) {
       start(m[2], +m[1])
-      return
+      continue
     }
 
+    // Split multiple options on same line: (A) ... (B) ...
     const ip = l.split(/\s+(?=\(?[A-Da-d1-4][.)]\s)/)
     if (cur && cur.q && mode !== "a" && mode !== "e" && ip.length >= 3 && ip.every((x) => OPT.test(x))) {
       ip.forEach((x) => {
         const optMatch = x.match(OPT)
         if (optMatch) addOpt(optMatch[2])
       })
-      return
+      continue
     }
 
+    // C1 & C2: If parenthesized options (A)-(D) exist ahead, statement lines stay in question stem
+    if (parenAhead) {
+      // If it's a parenthesized option line, parse as option!
+      const parenOptMatch = l.match(/^\s*(?:\(([A-Ea-e])\)|\[([A-Ea-e])\]|([A-E])\))\s*(.+)/)
+      if (parenOptMatch) {
+        addOpt(parenOptMatch[4])
+        continue
+      }
+      // Otherwise (statement line: a., 1., i., List-I, Which is correct?, etc.), append to question stem!
+      cur.q += (cur.q ? "\n" : "") + l
+      continue
+    }
+
+    // C4: Decimal-led lines such as "1.5 kg ..." or "2.0 m/s ..." must not start a new numbered question
+    if (/^\d{1,3}\.\d/.test(l)) {
+      if (cur) {
+        cur.q += (cur.q ? " " : "") + l
+        continue
+      }
+    }
+
+    // Standard Parenthesized option line: (A), (a), [A], A)
+    const parenOptMatch = l.match(/^\s*(?:\(([A-Ea-e])\)|\[([A-Ea-e])\]|([A-E])\))\s*(.+)/)
+    if (parenOptMatch && cur && cur.q && mode !== "a" && mode !== "e") {
+      addOpt(parenOptMatch[4])
+      continue
+    }
+
+    // Lettered options A. / B. / C. / D. (uppercase)
+    const upperOptMatch = l.match(/^([A-E])\.\s*(.+)/)
+    if (upperOptMatch && cur && cur.q && mode !== "a" && mode !== "e") {
+      const idx = upperOptMatch[1].charCodeAt(0) - 65
+      if (idx === cur.o.length) {
+        addOpt(upperOptMatch[2])
+        continue
+      }
+    }
+
+    // Numbered options 1. 2. 3. 4. when NO parenthesized options exist ahead
+    const numOptMatch = l.match(/^([1-5])[.)]\s*(.+)/)
+    if (numOptMatch && cur && cur.q && mode !== "a" && mode !== "e") {
+      const idx = +numOptMatch[1] - 1
+      if (idx === cur.o.length && cur.o.length < 5) {
+        addOpt(numOptMatch[2])
+        continue
+      }
+    }
+
+    // Standard OPT regex fallback
     if ((m = l.match(OPT))) {
       const lab = m[1].toLowerCase()
       const idx = /\d/.test(lab) ? +lab - 1 : lab.charCodeAt(0) - 97
       if (cur && cur.q && mode !== "a" && mode !== "e" && idx === cur.o.length && (cur.o.length < 4 || lab === "e")) {
         addOpt(m[2])
-        return
+        continue
       }
       if (/\d/.test(lab)) {
         start(m[2], +lab)
-        return
+        continue
       }
     }
 
-    if ((m = l.match(/^(\d{1,3})\s*[.)]\s+(.+)/))) {
+    // Numbered question start: 1. 2. 12. (dot not followed by digit to avoid decimals)
+    if ((m = l.match(/^(\d{1,3})\s*(?:\.(?!\d)|\))\s+(.+)/))) {
       start(m[2], +m[1])
-      return
+      continue
     }
 
     if (!cur) {
       start(l, 0)
-      return
+      continue
     }
 
     if (mode === "e" || mode === "a") {
       if (wb) start(l, 0)
       else cur.exp += (cur.exp ? "\n" : "") + l
-      return
+      continue
     }
 
     if (mode === "key") {
       start(l, 0)
-      return
+      continue
     }
 
     if (mode === "o") {
       if (wb || cur.o.length >= 4) start(l, 0)
       else cur.o[cur.o.length - 1] += " " + l
-      return
+      continue
     }
 
     if (wb) start(l, 0)
     else cur.q += " " + l
-  })
+  }
 
   fin()
 
@@ -491,5 +601,12 @@ export function parse(txt: string, customAliases?: string[]): ParsedQuestion[] {
     i.top = i.top || c[1]
   })
 
-  return out
+  return { questions: out, skipped }
+}
+
+/**
+ * Main parse function porting prototype behavior faithfully.
+ */
+export function parse(txt: string, customAliases?: string[]): ParsedQuestion[] {
+  return parseWithDiagnostics(txt, customAliases).questions
 }

@@ -5,7 +5,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { createHash } from "node:crypto"
-import { parse, ParsedQuestion } from "./parser"
+import { parse, parseWithDiagnostics, ParsedQuestion } from "./parser"
 import { nz, classify, inferRuns } from "./classifier"
 import { DEFAULT_EXAM_LIST } from "./exam-detector"
 import { evaluateQualityGates, GateResult } from "./quality-gates"
@@ -90,6 +90,10 @@ export interface AddBatchResult {
   totalParsed: number
   addedCount: number
   duplicateCount: number
+  skipped?: {
+    count: number
+    snippets: string[]
+  }
 }
 
 /**
@@ -99,7 +103,7 @@ export async function addBatch(params: AddBatchParams): Promise<AddBatchResult> 
   await ensureDefaultExamAliases()
   const aliases = await getActiveExamAliases()
 
-  const parsedItems = parse(params.pastedText, aliases)
+  const { questions: parsedItems, skipped } = parseWithDiagnostics(params.pastedText, aliases)
   const mcqs = parsedItems.filter((i) => i.type === "MCQ")
 
   // Create Batch record
@@ -120,6 +124,10 @@ export async function addBatch(params: AddBatchParams): Promise<AddBatchResult> 
       totalParsed: 0,
       addedCount: 0,
       duplicateCount: 0,
+      skipped: {
+        count: skipped.length,
+        snippets: skipped.slice(0, 5),
+      },
     }
   }
 
@@ -210,6 +218,10 @@ export async function addBatch(params: AddBatchParams): Promise<AddBatchResult> 
     totalParsed: mcqs.length,
     addedCount: toInsert.length,
     duplicateCount,
+    skipped: {
+      count: skipped.length,
+      snippets: skipped.slice(0, 5),
+    },
   }
 }
 
