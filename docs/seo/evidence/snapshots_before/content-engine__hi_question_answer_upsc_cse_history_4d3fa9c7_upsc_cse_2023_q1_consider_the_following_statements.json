@@ -1,0 +1,61 @@
+{
+  "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+  "path": "/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+  "module": "content-engine",
+  "statusCode": 200,
+  "title": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: | सिंधु घाटी सभ्यता UPSC CSE 2023 MCQ | aspirantbook",
+  "metaDescription": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: उत्तर: 1 और 2 दोनों — मुख्य बिंदु और व्याख्या सहित। सिंधु घाटी सभ्यता, UPSC CSE 2023.",
+  "canonical": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "hi": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "x-default": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"
+  },
+  "jsonLd": [
+    {
+      "raw": "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"होम\",\"item\":\"http://127.0.0.1:3045/hi/question-answer\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"UPSC CSE\",\"item\":\"http://127.0.0.1:3045/hi/question-answer/upsc-cse\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"इतिहास\",\"item\":\"http://127.0.0.1:3045/hi/question-answer/upsc-cse/history\"},{\"@type\":\"ListItem\",\"position\":4,\"name\":\"सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार\",\"item\":\"http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements\"}]}"
+    },
+    {
+      "@context": "https://schema.org/",
+      "@type": "Quiz",
+      "name": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए:",
+      "about": {
+        "@type": "Thing",
+        "name": "सिंधु घाटी सभ्यता"
+      },
+      "educationalLevel": "Competitive exam",
+      "assesses": "सिंधु घाटी सभ्यता",
+      "inLanguage": "hi",
+      "hasPart": [
+        {
+          "@type": "Question",
+          "eduQuestionType": "Multiple choice",
+          "text": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए:",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "1 और 2 दोनों",
+            "answerExplanation": {
+              "@type": "Comment",
+              "text": "Harappa was excavated in 1921 by Daya Ram Sahni. Mohenjo-daro was excavated in 1922 by R.D. Banerji. The Great Bath was discovered at Mohenjo-daro. Both statements are correct."
+            }
+          },
+          "suggestedAnswer": [
+            {
+              "@type": "Answer",
+              "text": "केवल 1"
+            },
+            {
+              "@type": "Answer",
+              "text": "केवल 2"
+            },
+            {
+              "@type": "Answer",
+              "text": "न तो 1, न ही 2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -27,6 +27,7 @@ import {
     PencilRuler,
     Sparkles,
     Book,
+    Globe,
 } from "lucide-react"
 
 interface AdminNavProps {
@@ -47,6 +48,7 @@ const adminNavigation = [
     { icon: PencilRuler, name: "Test Series Studio", href: "/admin/test-series", matchPrefix: "/admin/test-series" },
     { icon: FileText, name: "PYQ Studio", href: "/admin/pyqs", matchPrefix: "/admin/pyqs" },
     { icon: Sparkles, name: "Content Engine", href: "/admin/content-engine", matchPrefix: "/admin/content-engine", adminOnly: true },
+    { icon: Globe, name: "SEO Audit", href: "/admin/seo", matchPrefix: "/admin/seo", adminOnly: true },
     { icon: BookOpen, name: "Book Studio", href: "/admin/book-studio", matchPrefix: "/admin/book-studio" },
     { icon: Book, name: "Online Bookstore", href: "/admin/books", matchPrefix: "/admin/books", adminOnly: true },
     { icon: GraduationCap, name: "Batches & Prep", href: "/admin/batches", matchPrefix: "/admin/batches" },

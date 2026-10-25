@@ -45,6 +45,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.8,
         },
         {
+            url: `${baseUrl}/pyqs`,
+            lastModified: new Date(),
+            changeFrequency: "daily",
+            priority: 0.8,
+        },
+        {
             url: `${baseUrl}/practice`,
             lastModified: new Date(),
             changeFrequency: "weekly",
@@ -53,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]
 
     try {
-        const [publishedCourses, allBooks, publishedSeries, publishedQuizzes] = await Promise.all([
+        const [publishedCourses, allBooks, publishedSeries, publishedQuizzes, publishedPyqs] = await Promise.all([
             prisma.course.findMany({
                 where: { status: "PUBLISHED" },
                 select: { slug: true, updatedAt: true },
@@ -73,6 +79,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     isPublished: true,
                 },
                 select: { id: true, title: true, updatedAt: true },
+            }).catch(() => []),
+            prisma.pyqCategory.findMany({
+                where: { isPublished: true },
+                select: { slug: true, updatedAt: true },
             }).catch(() => []),
         ])
 
@@ -124,7 +134,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 priority: 0.7,
             }))
 
-        return [...staticRoutes, ...courseUrls, ...bookUrls, ...seriesUrls, ...quizUrls, ...tutorialUrls]
+        const pyqUrls: MetadataRoute.Sitemap = publishedPyqs
+            .filter((p) => !!p.slug)
+            .map((p) => ({
+                url: `${baseUrl}/pyqs/${p.slug}`,
+                lastModified: p.updatedAt || new Date(),
+                changeFrequency: "weekly" as const,
+                priority: 0.8,
+            }))
+
+        return [...staticRoutes, ...courseUrls, ...bookUrls, ...seriesUrls, ...quizUrls, ...tutorialUrls, ...pyqUrls]
     } catch {
         return staticRoutes
     }

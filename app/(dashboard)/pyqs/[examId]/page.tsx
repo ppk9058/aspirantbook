@@ -4,7 +4,36 @@ import { PyqStudentListingClient } from "@/components/pyqs/PyqStudentListingClie
 import Link from "next/link"
 import { ArrowLeft, BookOpen, AlertCircle, Sparkles } from "lucide-react"
 
+import { Metadata } from "next"
+import { adaptPyqCategorySeo } from "@/lib/seo/adapters/pyqs"
+
 export const revalidate = 60
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ examId: string }>
+}): Promise<Metadata> {
+  const { examId } = await params
+  const category = await prisma.pyqCategory.findFirst({
+    where: {
+      OR: [
+        { slug: examId.toLowerCase() },
+        { id: examId },
+        { name: { equals: examId, mode: "insensitive" } },
+      ],
+    },
+    select: { name: true, slug: true, description: true, isPublished: true },
+  })
+
+  if (!category) {
+    return {
+      title: "Exam Category Not Found | TrillionSkill",
+    }
+  }
+
+  return adaptPyqCategorySeo(category).metadata
+}
 
 export default async function ExamCategoryDetailPage({
   params,

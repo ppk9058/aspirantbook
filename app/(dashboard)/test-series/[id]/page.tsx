@@ -1,13 +1,48 @@
 import { notFound, permanentRedirect } from "next/navigation"
+import { Metadata } from "next"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import TestSeriesDetailClient from "./TestSeriesDetailClient"
+import { adaptTestSeriesDetailSeo } from "@/lib/seo/adapters/test-series"
 
 interface TestSeriesDetailPageProps {
     params: Promise<{
         id: string
     }>
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ id: string }>
+}): Promise<Metadata> {
+    const { id: seriesId } = await params
+    if (seriesId === "current-affairs-system-series" || seriesId === "pyq-system-series") {
+        return { title: "Test Series | TrillionSkill" }
+    }
+
+    const series = await prisma.examSeries.findFirst({
+        where: {
+            OR: [
+                { id: seriesId },
+                { slug: seriesId },
+            ],
+        },
+        select: {
+            id: true,
+            title: true,
+            slug: true,
+            description: true,
+            isPublished: true,
+        },
+    })
+
+    if (!series) {
+        return { title: "Test Series Not Found | TrillionSkill" }
+    }
+
+    return adaptTestSeriesDetailSeo(series).metadata
 }
 
 export default async function TestSeriesDetailPage({ params, searchParams }: TestSeriesDetailPageProps) {

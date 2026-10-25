@@ -8,6 +8,8 @@ import { toSafeCourseDto } from "@/lib/courses/course-dto"
 
 export const dynamic = "force-dynamic"
 
+import { adaptTutorialDetailSeo } from "@/lib/seo/adapters/tutorials"
+
 export async function generateMetadata({
     params,
 }: {
@@ -20,17 +22,14 @@ export async function generateMetadata({
 
     const course = await prisma.course.findFirst({
         where: { OR: [{ slug }, { id: slug }] },
-        select: { id: true, title: true, description: true, status: true, isPublished: true },
+        select: { id: true, slug: true, title: true, description: true, status: true, isPublished: true, updatedAt: true },
     })
 
     if (!course || !isCourseVisibleToUser(course, userRole, userId)) {
         notFound()
     }
 
-    return {
-        title: course.title,
-        description: course.description,
-    }
+    return adaptTutorialDetailSeo(course).metadata
 }
 
 import { headers } from "next/headers"
