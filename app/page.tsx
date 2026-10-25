@@ -6,6 +6,7 @@ import HomeHeaderUserCTA from "@/components/home/HomeHeaderUserCTA"
 import { auth } from "@/auth"
 import { getDashboardHref } from "@/lib/auth/roles"
 import { LANDING_NAV_ITEMS } from "@/lib/navigation/landing-nav"
+import { getBaseUrl } from "@/lib/seo/core"
 
 export const revalidate = 60
 
@@ -62,42 +63,47 @@ export default async function LandingHomePage() {
     const session = await auth()
     const logoHref = getDashboardHref(session?.user?.role, !!session?.user)
 
-    const homeJsonLd = {
-        "@context": "https://schema.org",
-        "@graph": [
-            {
-                "@type": "Organization",
-                "@id": "https://aspirantbook.com/#organization",
-                "name": "aspirantbook",
-                "url": "https://aspirantbook.com",
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": "https://aspirantbook.com/aspirant-logo.jpg"
-                }
-            },
-            {
-                "@type": "WebSite",
-                "@id": "https://aspirantbook.com/#website",
-                "url": "https://aspirantbook.com",
-                "name": "aspirantbook",
-                "publisher": {
-                    "@id": "https://aspirantbook.com/#organization"
-                },
-                "potentialAction": {
-                    "@type": "SearchAction",
-                    "target": "https://aspirantbook.com/courses?search={search_term_string}",
-                    "query-input": "required name=search_term_string"
-                }
-            }
-        ]
-    }
+    const baseUrl = getBaseUrl()
+    const homeJsonLd = baseUrl
+        ? {
+              "@context": "https://schema.org",
+              "@graph": [
+                  {
+                      "@type": "Organization",
+                      "@id": `${baseUrl}/#organization`,
+                      "name": "aspirantbook",
+                      "url": baseUrl,
+                      "logo": {
+                          "@type": "ImageObject",
+                          "url": `${baseUrl}/aspirant-logo.jpg`,
+                      },
+                  },
+                  {
+                      "@type": "WebSite",
+                      "@id": `${baseUrl}/#website`,
+                      "url": baseUrl,
+                      "name": "aspirantbook",
+                      "publisher": {
+                          "@id": `${baseUrl}/#organization`,
+                      },
+                      "potentialAction": {
+                          "@type": "SearchAction",
+                          "target": `${baseUrl}/courses?search={search_term_string}`,
+                          "query-input": "required name=search_term_string",
+                      },
+                  },
+              ],
+          }
+        : null
 
     return (
         <div className="min-h-dvh bg-white text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900 dark:bg-gray-950 dark:text-gray-50">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
-            />
+            {homeJsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
+                />
+            )}
 
             {/* Top Navigation Bar — sticky, compact on phones */}
             <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-lg dark:border-white/10 dark:bg-gray-950/85">

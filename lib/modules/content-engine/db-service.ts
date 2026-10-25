@@ -32,13 +32,35 @@ export function safeRevalidateTag(tag: string) {
   }
 }
 
-export function safeRevalidatePath(path: string) {
+export function safeRevalidatePath(path: string, type?: "page" | "layout") {
   clearQuestionCache()
   try {
-    revalidatePath(path)
+    if (type) {
+      revalidatePath(path, type)
+    } else {
+      revalidatePath(path)
+    }
   } catch {
     // Outside Next.js request lifecycle (e.g. background job, CLI or tests)
   }
+}
+
+/**
+ * Revalidates all Content Engine public and hub routes across English and Hindi.
+ * Uses exact route pattern + "page" type for Next.js App Router ISR invalidation.
+ */
+export function revalidateContentEngineRoutes() {
+  safeRevalidateTag("content-engine")
+  safeRevalidatePath("/question-answer", "page")
+  safeRevalidatePath("/hi/question-answer", "page")
+  safeRevalidatePath("/question-answer/[exam]", "page")
+  safeRevalidatePath("/question-answer/[exam]/[subject]", "page")
+  safeRevalidatePath("/question-answer/[exam]/[subject]/[slug]", "page")
+  safeRevalidatePath("/hi/question-answer/[exam]", "page")
+  safeRevalidatePath("/hi/question-answer/[exam]/[subject]", "page")
+  safeRevalidatePath("/hi/question-answer/[exam]/[subject]/[slug]", "page")
+  safeRevalidatePath("/question-answer/sitemap.xml")
+  safeRevalidatePath("/hi/question-answer/sitemap.xml")
 }
 
 /**
@@ -381,9 +403,7 @@ export async function bulkAssignQuestions(params: BulkAssignParams): Promise<num
     })
   }
 
-  safeRevalidateTag("content-engine")
-  safeRevalidatePath("/question-answer")
-  safeRevalidatePath("/hi/question-answer")
+  revalidateContentEngineRoutes()
   return questionIds.length
 }
 
@@ -529,7 +549,7 @@ export async function importHindiTranslations(params: ImportHindiParams) {
     matched++
   }
 
-  safeRevalidateTag("content-engine")
+  revalidateContentEngineRoutes()
   return { matched, skipped }
 }
 
@@ -550,7 +570,7 @@ export async function toggleTranslationReview(
     },
   })
 
-  safeRevalidateTag("content-engine")
+  revalidateContentEngineRoutes()
   return updated
 }
 
@@ -571,7 +591,7 @@ export async function setQuestionPublishStatus(
         status: "DRAFT",
       },
     })
-    safeRevalidateTag("content-engine")
+    revalidateContentEngineRoutes()
     return { successCount: questionIds.length, rejectedCount: 0, errors: {} }
   }
 
@@ -625,7 +645,7 @@ export async function setQuestionPublishStatus(
     successCount++
   }
 
-  safeRevalidateTag("content-engine")
+  revalidateContentEngineRoutes()
   return { successCount, rejectedCount, errors }
 }
 
@@ -708,9 +728,14 @@ export async function getPublicQuestionBySlug(slugOrShortId: string) {
   if (!m) return null
   const shortId = m[1].toLowerCase()
 
-  const cached = questionQueryCache.get(shortId)
-  if (cached && Date.now() < cached.expiresAt) {
-    return cached.data
+  const isProd = process.env.NODE_ENV === "production"
+
+  // In test/dev only: in-memory fallback cache for when running outside Next.js runtime
+  if (!isProd) {
+    const cached = questionQueryCache.get(shortId)
+    if (cached && Date.now() < cached.expiresAt) {
+      return cached.data
+    }
   }
 
   let result: any = null
@@ -724,7 +749,7 @@ export async function getPublicQuestionBySlug(slugOrShortId: string) {
     }
   }
 
-  if (result) {
+  if (result && !isProd) {
     questionQueryCache.set(shortId, { data: result, expiresAt: Date.now() + 3600 * 1000 })
   }
   return result

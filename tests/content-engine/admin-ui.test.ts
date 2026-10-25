@@ -118,9 +118,10 @@ describe("Phase 3 — Admin UI and Navigation Registration", () => {
       f.path.includes("q-abcd1234-harappa-excavation/index.html")
     )
     assert.ok(enPage, "English page must exist in export")
+    const expectedMirrorBase = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://127.0.0.1:3045"
     assert.ok(
-      String(enPage.content).includes('canonical" href="https://aspirantbook.com/question-answer/'),
-      "Mirror mode must have aspirantbook.com canonical"
+      String(enPage.content).includes(`canonical" href="${expectedMirrorBase}/question-answer/`),
+      "Mirror mode must have configured base canonical"
     )
 
     // Check Reviewed Hindi page exists
@@ -143,16 +144,22 @@ describe("Phase 3 — Admin UI and Navigation Registration", () => {
     )
     assert.equal(draftPage, undefined, "Draft question must NOT be exported")
 
-    // Check Primary Mode
-    const primaryFiles = generateStaticSiteFiles(sampleQuestions, "primary")
+    // Check Primary Mode without exportBaseUrl blocks with error
+    assert.throws(
+      () => generateStaticSiteFiles(sampleQuestions, "primary"),
+      /Primary export mode requires Setting\.exportBaseUrl to be configured\./
+    )
+
+    // Check Primary Mode with exportBaseUrl
+    const primaryFiles = generateStaticSiteFiles(sampleQuestions, "primary", "https://questions.example.com")
     const primaryEnPage = primaryFiles.find((f) =>
       f.path.includes("q-abcd1234-harappa-excavation/index.html")
     )
     assert.ok(
       String(primaryEnPage?.content).includes(
-        'canonical" href="https://questions.aspirantbook.com/question-answer/'
+        'canonical" href="https://questions.example.com/question-answer/'
       ),
-      "Primary mode must have questions.aspirantbook.com canonical"
+      "Primary mode must have configured exportBaseUrl canonical"
     )
 
     // Test ZIP archive generation

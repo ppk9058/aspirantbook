@@ -102,7 +102,7 @@ const mutations: MutationDefinition[] = [
   {
     id: 12,
     description: "SEO Model: Disable unreviewed Hindi noindex robot tag",
-    filePath: "lib/modules/content-engine/seo-model.ts",
+    filePath: "lib/seo/adapters/content-engine.ts",
     targetStr: 'const robots = isIndexable ? "index, follow" : "noindex, follow"',
     replacement: 'const robots = "index, follow"',
     testCommand: "npx tsx --test tests/content-engine/mutations.test.ts",
@@ -180,7 +180,7 @@ function stripAnsi(str: string): string {
 function extractFailureSummary(output: string): { failedTestName: string; failureMessage: string } {
   const clean = stripAnsi(output)
   const lines = clean.split("\n")
-  let failedTestName = "Unknown Test"
+  let failedTestName = ""
   let failureMessage = ""
 
   for (let i = 0; i < lines.length; i++) {
@@ -188,12 +188,14 @@ function extractFailureSummary(output: string): { failedTestName: string; failur
     const tapMatch = line.match(/^not ok\s+\d+\s*-\s*(.+)$/)
     if (tapMatch && !line.includes("subtestsFailed") && !line.includes("ERR_TEST_FAILURE") && !line.includes("suite")) {
       // Don't overwrite with a suite name
-      if (!failedTestName || failedTestName === "Unknown Test" || !tapMatch[1].startsWith("Phase")) {
+      if (!failedTestName && !tapMatch[1].startsWith("Phase")) {
         failedTestName = tapMatch[1].trim()
       }
     }
-    if (line.startsWith("✖") || line.startsWith("×")) {
-      failedTestName = line.replace(/^[✖×]\s*/, "").trim()
+    if ((line.startsWith("✖") || line.startsWith("×")) && !line.includes("failing tests") && !line.includes("Phase")) {
+      if (!failedTestName) {
+        failedTestName = line.replace(/^[✖×]\s*/, "").trim()
+      }
     }
     if (line.includes("error: |-") && i + 1 < lines.length) {
       failureMessage = lines[i + 1].trim()
@@ -219,7 +221,7 @@ function extractFailureSummary(output: string): { failedTestName: string; failur
     failureMessage = errorLine ? errorLine.trim() : "Non-zero exit code on mutated assertion"
   }
 
-  return { failedTestName, failureMessage }
+  return { failedTestName: failedTestName || "Unknown Test", failureMessage }
 }
 
 async function runMutations() {
@@ -305,7 +307,8 @@ async function runMutations() {
 
   log += `\nTotal Real Mutations Verified: ${passedCount} / ${mutations.length} PASSED\n`
   fs.writeFileSync("docs/content-engine/evidence/phaseE_real_mutations.txt", log, "utf8")
-  console.log(`\nMutation testing complete! ${passedCount} / ${mutations.length} mutations passed. Output saved to docs/content-engine/evidence/phaseE_real_mutations.txt`)
+  fs.writeFileSync("docs/proof/evidence/phase1_8_content_engine_mutations.txt", log, "utf8")
+  console.log(`\nMutation testing complete! ${passedCount} / ${mutations.length} mutations passed. Output saved to docs/proof/evidence/phase1_8_content_engine_mutations.txt`)
 }
 
 runMutations().catch(console.error)

@@ -1,10 +1,15 @@
 import { MetadataRoute } from "next"
 import { prisma } from "@/lib/prisma"
 import { qaPath, examHubPath, yearHubPath } from "@/lib/modules/content-engine/paths"
+import { getBaseUrl } from "@/lib/seo/core"
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
+export const dynamic = "force-dynamic"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const BASE_URL = getBaseUrl()
+  if (!BASE_URL) {
+    return []
+  }
   const [questions, exams, years] = await Promise.all([
     prisma.contentEngineQuestion.findMany({
       where: {

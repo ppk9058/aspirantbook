@@ -67,8 +67,9 @@ export function PublicQuestionView({
   return (
     <article className="container mx-auto px-4 py-8 max-w-3xl space-y-6">
       {/* Safe JSON-LD Structured Data */}
-      <script
-        type="application/ld+json"
+      <section
+        style={{ display: "none" }}
+        aria-hidden="true"
         dangerouslySetInnerHTML={{ __html: jsonLdScript }}
       />
 

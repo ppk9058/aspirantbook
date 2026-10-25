@@ -13,6 +13,16 @@ export async function GET() {
     const exportMode = await getSetting<"mirror" | "primary">("exportMode", "mirror")
     const exportBaseUrl = await getSetting<string>("exportBaseUrl", "")
 
+    if (exportMode === "primary" && (!exportBaseUrl || !exportBaseUrl.trim())) {
+      return NextResponse.json(
+        {
+          error:
+            "Primary export mode requires Setting.exportBaseUrl to be configured before export.",
+        },
+        { status: 400 }
+      )
+    }
+
     const questions = await prisma.contentEngineQuestion.findMany({
       where: {
         isPublished: true,

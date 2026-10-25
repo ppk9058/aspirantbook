@@ -5,6 +5,7 @@ import { slugify, qaPath } from "@/lib/modules/content-engine/paths"
 import { getHindiSubject, getHindiTopic } from "@/lib/modules/content-engine/taxonomy"
 import { PublicQuestionView } from "@/components/content-engine-public/PublicQuestionView"
 import { Metadata } from "next"
+import { getBaseUrl } from "@/lib/seo/core"
 
 export const dynamic = "force-static"
 export const revalidate = 3600
@@ -13,7 +14,7 @@ export async function generateStaticParams() {
   return []
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
+const BASE_URL = getBaseUrl()
 
 export async function generateMetadata({
   params,

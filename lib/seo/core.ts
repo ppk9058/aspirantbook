@@ -7,20 +7,36 @@ import type {
   SitemapEntry,
 } from "./types"
 
+let hasLoggedMissingSiteUrlWarning = false
+
 /**
- * Returns canonical site origin dynamically from environment variables,
- * strictly falling back to https://aspirantbook.com when unset.
- * Never hardcodes dev or test hostnames in logic.
+ * Returns canonical site origin dynamically from environment variables:
+ * - Reads NEXT_PUBLIC_SITE_URL, then NEXT_PUBLIC_APP_URL.
+ * - In development or test: falls back to http://127.0.0.1:3045.
+ * - In production: logs one console.error and returns "" (never emits a hardcoded domain).
  */
 export function getBaseUrl(overrideBaseUrl?: string): string {
   if (overrideBaseUrl) {
     return overrideBaseUrl.replace(/\/+$/, "")
   }
-  const raw =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "https://aspirantbook.com"
-  return raw.replace(/\/+$/, "")
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL
+  if (envUrl && envUrl.trim()) {
+    return envUrl.trim().replace(/\/+$/, "")
+  }
+
+  const isProd = process.env.NODE_ENV === "production"
+  if (isProd) {
+    if (!hasLoggedMissingSiteUrlWarning) {
+      console.error(
+        "[SEO] Neither NEXT_PUBLIC_SITE_URL nor NEXT_PUBLIC_APP_URL is set in production. Canonical and absolute URLs omitted."
+      )
+      hasLoggedMissingSiteUrlWarning = true
+    }
+    return ""
+  }
+
+  // Development / Test fallback
+  return "http://127.0.0.1:3045"
 }
 
 /**
@@ -28,6 +44,9 @@ export function getBaseUrl(overrideBaseUrl?: string): string {
  */
 export function canonicalUrl(canonicalPath: string, baseUrl?: string): string {
   const base = getBaseUrl(baseUrl)
+  if (!base) {
+    return ""
+  }
   const normalizedPath = canonicalPath.startsWith("/")
     ? canonicalPath
     : `/${canonicalPath}`
@@ -196,7 +215,7 @@ export function buildArticleJsonLd(opts: {
     ...(opts.dateModified ? { dateModified: opts.dateModified } : {}),
     author: {
       "@type": "Organization",
-      name: opts.authorName || "aspirantbook",
+      name: opts.authorName || "TrillionSkill",
     },
   }
 }
@@ -259,10 +278,12 @@ export function buildMetadata(
       : input.hindiTwin?.isReviewed && input.hindiTwin?.isPublished !== false
   )
 
-  const alternates: Metadata["alternates"] = {
-    canonical: fullCanonical,
-    languages: hreflangAlternates({ en: enPath, hi: hiPath }, hasReviewedHindi, base),
-  }
+  const alternates: Metadata["alternates"] = fullCanonical
+    ? {
+        canonical: fullCanonical,
+        languages: hreflangAlternates({ en: enPath, hi: hiPath }, hasReviewedHindi, base),
+      }
+    : undefined
 
   const metadata: Metadata = {
     title: input.title,

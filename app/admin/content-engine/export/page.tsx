@@ -9,6 +9,7 @@ import { toast } from "sonner"
 
 export default function ContentEngineExportPage() {
   const [exportMode, setExportMode] = useState<"mirror" | "primary">("mirror")
+  const [exportBaseUrl, setExportBaseUrl] = useState<string>("")
   const [isSavingSetting, setIsSavingSetting] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [publishedCount, setPublishedCount] = useState<number | null>(null)
@@ -19,6 +20,13 @@ export default function ContentEngineExportPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.value) setExportMode(data.value)
+      })
+      .catch(() => {})
+
+    fetch("/api/admin/content-engine/settings?key=exportBaseUrl")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.value) setExportBaseUrl(data.value)
       })
       .catch(() => {})
 
@@ -96,7 +104,7 @@ export default function ContentEngineExportPage() {
               )}
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Canonical tags point to <strong className="text-foreground">https://aspirantbook.com</strong>. Prevents duplicate content penalties while providing high-speed edge distribution.
+              Canonical tags point to the main site domain. Prevents duplicate content penalties while providing high-speed edge distribution.
             </p>
           </div>
 
@@ -115,10 +123,19 @@ export default function ContentEngineExportPage() {
               )}
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Canonical tags point directly to <strong className="text-foreground">https://questions.aspirantbook.com</strong>. The Cloudflare Pages site serves as the primary search engine landing domain.
+              Canonical tags point directly to the configured Setting.exportBaseUrl domain ({exportBaseUrl || "not configured"}). The static site serves as the primary search engine landing domain.
             </p>
           </div>
         </div>
+
+        {exportMode === "primary" && !exportBaseUrl?.trim() && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive space-y-1">
+            <span className="font-semibold block">⚠️ Missing Export Base URL</span>
+            <p className="leading-relaxed">
+              Primary export mode host is not configured. Please set exportBaseUrl in settings before exporting.
+            </p>
+          </div>
+        )}
 
         {exportMode === "primary" && (
           <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300 space-y-1">
@@ -173,7 +190,7 @@ export default function ContentEngineExportPage() {
 
         <Button
           onClick={handleDownloadZip}
-          disabled={isDownloading || publishedCount === 0}
+          disabled={isDownloading || publishedCount === 0 || (exportMode === "primary" && !exportBaseUrl.trim())}
           className="min-h-[44px] px-6 text-sm font-semibold gap-2 shrink-0"
         >
           <Download className="w-4 h-4" />

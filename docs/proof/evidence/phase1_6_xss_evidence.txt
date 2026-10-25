@@ -1,0 +1,37 @@
+=== PHASE 1.6: XSS AT HTTP LEVEL AND BROWSER E2E ===
+
+Step 1: Inserting XSS payloads into Docker test DB (shortId: xssnne8w)...
+
+Step 2: Fetching English page over HTTP (HTTP Integration assertion)...
+Checking English page HTML for unescaped scripts / injection...
+- [HTTP Integration] English page has foreign/injected <script>: false (expected false)
+- [HTTP Integration] English page has raw HTML tag with onerror: false (expected false)
+- [HTTP Integration] English JSON-LD blocks found: 2
+  ✓ [HTTP Integration] JSON-LD block 0 parsed successfully as valid JSON
+  ✓ [HTTP Integration] JSON-LD block 1 parsed successfully as valid JSON
+
+Step 3: Fetching Hindi page over HTTP (HTTP Integration assertion)...
+- [HTTP Integration] Hindi page has foreign/injected <script>: false (expected false)
+- [HTTP Integration] Hindi page has raw HTML tag with onerror: false (expected false)
+  ✓ [HTTP Integration] Hindi JSON-LD blocks parsed cleanly
+
+Step 4: Fetching Sitemaps over HTTP (HTTP Integration assertion)...
+- [HTTP Integration] Sitemaps contain raw script/onerror tags: false (expected false)
+
+Step 5: Testing Static Export ZIP files (Unit/DB assertion)...
+- [Unit/DB] Checked 3 exported HTML files
+- [Unit/DB] ZIP HTML has executable script alert: false (expected false)
+- [Unit/DB] ZIP HTML has raw onerror tag: false (expected false)
+
+Step 6: Real Browser E2E Assertion with Playwright (Browser E2E)...
+- [Browser E2E] Navigating to English question URL: http://127.0.0.1:3045/question-answer/bpsc/ancient-india/q-xssnne8w-xss-test-capital-payload
+- [Browser E2E] Page title: "What happens here? <script>alert(1)</script> | Magadha Empire BPSC 2024 MCQ | aspirantbook"
+- [Browser E2E] Dialog fired on English page: false
+- [Browser E2E] Navigating to Hindi question URL: http://127.0.0.1:3045/hi/question-answer/bpsc/ancient-india/q-xssnne8w-xss-test-capital-payload
+- [Browser E2E] Hindi page title: "क्या होता है यहाँ? <script>alert(11)</script> | Magadha Empire BPSC 2024 MCQ | aspirantbook"
+- [Browser E2E] Dialog fired on Hindi page: false
+✓ [Browser E2E] Real browser rendered pages cleanly with 0 dialogs fired!
+
+=======================================================
+PHASE 1.6 VERIFICATION: ALL XSS GATES PASSED CLEANLY!
+=======================================================

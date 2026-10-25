@@ -166,6 +166,17 @@ function run() {
     "docs/seo/evidence/mutations_evidence.json",
     JSON.stringify(results, null, 2)
   )
+  fs.writeFileSync(
+    "docs/proof/evidence/phase1_8_seo_mutations.json",
+    JSON.stringify(results, null, 2)
+  )
+
+  let table = "| # | Description | Mutated File | Failed Test Caught | Clean Revert? | Restored Green? |\n"
+  table += "|:---|:---|:---|:---|:---:|:---:|\n"
+  for (const r of results) {
+    table += `| ${r.id} | ${r.description} | \`${r.file}\` | \`${r.failedTestName}\` | ${r.isCleanRevert ? "YES" : "NO"} | ${r.passGreen ? "YES" : "NO"} |\n`
+  }
+  fs.writeFileSync("docs/proof/evidence/phase1_8_seo_mutations.txt", table, "utf8")
 
   console.log(`All 10 Real SEO Mutations executed successfully (10/10 caught, 10/10 restored).`)
 }

@@ -21,6 +21,40 @@ describe("SEO Core Pure Functions", () => {
     assert.equal(getBaseUrl("https://example.com///"), "https://example.com")
   })
 
+  it("getBaseUrl handles env set, unset in dev, and unset in production strictly", () => {
+    const origEnv = { ...process.env }
+    try {
+      // 1. Env set
+      process.env.NEXT_PUBLIC_SITE_URL = "https://my-domain.org"
+      ;(process.env as Record<string, string | undefined>).NODE_ENV = "production"
+      assert.equal(getBaseUrl(), "https://my-domain.org")
+
+      // 2. Env unset in development
+      delete process.env.NEXT_PUBLIC_SITE_URL
+      delete process.env.NEXT_PUBLIC_APP_URL
+      ;(process.env as Record<string, string | undefined>).NODE_ENV = "development"
+      assert.equal(getBaseUrl(), "http://127.0.0.1:3045")
+
+      // 3. Env unset in production -> returns "" (no hardcoded domain)
+      ;(process.env as Record<string, string | undefined>).NODE_ENV = "production"
+      let errorLogged = false
+      const origError = console.error
+      console.error = (...args: any[]) => {
+        errorLogged = true
+      }
+      try {
+        const prodBase = getBaseUrl()
+        assert.equal(prodBase, "")
+        assert.equal(canonicalUrl("/exam/test"), "")
+        assert.ok(errorLogged, "Must log console.error when site URL is unset in production")
+      } finally {
+        console.error = origError
+      }
+    } finally {
+      process.env = origEnv
+    }
+  })
+
   it("canonicalUrl normalizes path and appends to base URL", () => {
     const url1 = canonicalUrl("/tutorials/sample-course", "https://aspirantbook.com")
     assert.equal(url1, "https://aspirantbook.com/tutorials/sample-course")

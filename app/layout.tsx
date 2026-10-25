@@ -3,11 +3,12 @@ import "@/lib/boot-guard";
 import "./globals.css";
 import { Providers } from "./providers"
 import { auth } from "@/auth"
+import { getBaseUrl } from "@/lib/seo/core"
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+const siteUrl = getBaseUrl()
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
   title: {
     default: "aspirantbook - Interactive Learning Platform & Test Series",
     template: "%s | aspirantbook",

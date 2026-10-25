@@ -4,7 +4,7 @@
     "description": "robotsPolicy makes unreviewed/unindexed pages indexable (index, follow)",
     "file": "lib/seo/core.ts",
     "failedAsExpected": true,
-    "failedTestName": "adaptTestSeriesDetailSeo returns detail metadata and JSON-LD",
+    "failedTestName": "adaptTutorialDetailSeo sets noindex for unpublished course",
     "isCleanRevert": true,
     "passGreen": true
   },

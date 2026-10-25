@@ -4,24 +4,27 @@ import { slugify, examHubPath, subjectHubPath, qaPath } from "@/lib/modules/cont
 import { Badge } from "@/components/ui/badge"
 import { BookOpen, GraduationCap, ArrowRight, Layers } from "lucide-react"
 import { Metadata } from "next"
+import { getBaseUrl } from "@/lib/seo/core"
 
 export const dynamic = "force-static"
 export const revalidate = 3600 // 1 hour cache
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+const BASE_URL = getBaseUrl()
 
 export const metadata: Metadata = {
   title: "Competitive Exam Previous Year Questions (PYQs) | TrillionSkill",
   description:
     "Explore authentic previous year questions, answer keys, and detailed solutions for UPSC CSE, BPSC, UPPCS, RAS, and SSC CGL.",
-  alternates: {
-    canonical: `${BASE_URL}/question-answer`,
-    languages: {
-      en: `${BASE_URL}/question-answer`,
-      hi: `${BASE_URL}/hi/question-answer`,
-      "x-default": `${BASE_URL}/question-answer`,
-    },
-  },
+  alternates: BASE_URL
+    ? {
+        canonical: `${BASE_URL}/question-answer`,
+        languages: {
+          en: `${BASE_URL}/question-answer`,
+          hi: `${BASE_URL}/hi/question-answer`,
+          "x-default": `${BASE_URL}/question-answer`,
+        },
+      }
+    : undefined,
 }
 
 export default async function QuestionAnswerHomePage() {

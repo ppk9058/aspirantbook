@@ -262,19 +262,19 @@ describe("Phase 6 — Mutation Proofs (Safety Guards Verification)", () => {
   })
 
   it("Mutation 14: nz normalizer strips nukta", () => {
-    assert.equal(nz("हड़प्पा"), nz("हडप्पा"))
+    assert.equal(nz("हड़प्पा"), "हडप्पा")
   })
 
   it("Mutation 15: nz normalizer normalizes chandrabindu to anusvara", () => {
-    assert.equal(nz("हाँ"), nz("हां"))
+    assert.equal(nz("हाँ"), "हां")
   })
 
   it("Mutation 16: nz normalizer converts nasal halant to anusvara", () => {
-    assert.equal(nz("सम्बन्ध"), nz("संबंध"))
+    assert.equal(nz("सम्बन्ध"), "संबंध")
   })
 
   it("Mutation 17: nz normalizer converts bare nga to da for OCR confusion", () => {
-    assert.equal(nz("हङप्पा"), nz("हड़प्पा"))
+    assert.equal(nz("हङप्पा"), "हडप्पा")
   })
 
   it("Mutation 18: safeJsonLdStringify replaces < with \\u003c", () => {
@@ -303,7 +303,7 @@ describe("Phase 6 — Mutation Proofs (Safety Guards Verification)", () => {
     assert.equal(draftPage, undefined)
   })
 
-  it("Mutation 20: Primary mode static export points canonicals to questions.aspirantbook.com", () => {
+  it("Mutation 20: Primary mode static export points canonicals to configured exportBaseUrl", () => {
     const files = generateStaticSiteFiles(
       [
         {
@@ -321,12 +321,13 @@ describe("Phase 6 — Mutation Proofs (Safety Guards Verification)", () => {
           isVerified: true,
         },
       ],
-      "primary"
+      "primary",
+      "https://questions.example.com"
     )
     const enPage = files.find((f) => f.path.includes("q-99998888-primary-test"))
     assert.ok(enPage)
     assert.ok(
-      String(enPage.content).includes("https://questions.aspirantbook.com/question-answer/")
+      String(enPage.content).includes("https://questions.example.com/question-answer/")
     )
   })
 })

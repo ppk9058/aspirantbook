@@ -1,0 +1,28 @@
+=== PHASE 1.7: HINDI AND YEAR HUB HTTP TESTS ===
+
+Step 1: Inserting test question into Docker test DB (shortId: p17wwmp8)...
+
+Step 2: Testing unreviewed Hindi twin state...
+- [HTTP] English page has hreflang="hi": false (expected false)
+- [HTTP] Hindi page has noindex: true (expected true)
+- [HTTP] Hindi sitemap includes unreviewed question: false (expected false)
+
+Step 3: Toggling Hindi translation to reviewed via PATCH /api/admin/content-engine/hindi/review...
+
+Step 4: Testing reviewed Hindi twin state & bidirectional hreflang...
+- [HTTP] English page has hreflang="hi": true (expected true)
+- [HTTP] Hindi page has hreflang="en": true (expected true)
+- [HTTP] Hindi page has index, follow: true (expected true)
+- [HTTP] Hindi sitemap includes reviewed question: true (expected true)
+
+Step 5: Testing English and Hindi Year and Subject Hubs...
+- [HTTP] /question-answer/bpsc/2024: HTTP 200 (expected 200)
+- [HTTP] /question-answer/bpsc/9999: HTTP 404 (expected 404)
+- [HTTP] /question-answer/bpsc/not-a-year-or-sub: HTTP 404 (expected 404)
+- [HTTP] /hi/question-answer/bpsc/2024: HTTP 200 (expected 200)
+- [HTTP] /hi/question-answer/bpsc/9999: HTTP 404 (expected 404)
+- [HTTP] /hi/question-answer/bpsc/not-a-year-or-sub: HTTP 404 (expected 404)
+
+=======================================================
+PHASE 1.7 VERIFICATION: ALL HINDI & YEAR GATES PASSED!
+=======================================================

@@ -1,0 +1,44 @@
+=== PHASE 1.5: CACHE AND REVALIDATION AT HTTP LEVEL ===
+✓ Admin authenticated via real auth path
+
+Step 1: Inserting test question into Docker test DB (shortId: p15vso44)...
+Initial draft request to /question-answer/bpsc/ancient-india/q-p15vso44-capital-of-magadha-empire-under-bimbisara: HTTP 404 (expected 404)
+
+Step 2: Publishing question via Admin API POST /api/admin/content-engine/publish...
+Publish response: 200 { success: true, successCount: 1, rejectedCount: 0, errors: {} }
+
+Step 3: Immediate request to public URL /question-answer/bpsc/ancient-india/q-p15vso44-capital-of-magadha-empire-under-bimbisara...
+First public request status: HTTP 200 (expected 200)
+
+Step 4: Making second request to test cache & query count...
+Second public request status: HTTP 200 (expected 200)
+Prisma queries logged on second request: 0 (expected 0)
+✓ PROVEN: Second request makes exactly 0 Prisma queries!
+
+Step 5: Unpublishing question via Admin API...
+Unpublish response: 200
+Request to /question-answer/bpsc/ancient-india/q-p15vso44-capital-of-magadha-empire-under-bimbisara after unpublish: HTTP 404 (expected 404)
+✓ PROVEN: Unpublish immediately returns 404 on next request!
+
+Step 6: Re-publishing and verifying 308 redirects...
+Request to /q/p15vso44: HTTP 308 (expected 308)
+Location header: http://localhost:3045/question-answer/bpsc/ancient-india/q-p15vso44-capital-of-magadha-empire-under-bimbisara
+Request to outdated path /question-answer/wrong-exam/wrong-sub/q-p15vso44-capital-of-magadha-empire-under-bimbisara: HTTP 308 (expected 308)
+Location header: /question-answer/bpsc/ancient-india/q-p15vso44-capital-of-magadha-empire-under-bimbisara
+
+Step 7: Testing Hindi review toggle impact on robots, hreflang, and sitemaps...
+Before Hindi review:
+- English page has hreflang="hi": false (expected false)
+- Hindi page has noindex: true (expected true)
+- Hindi sitemap contains question: false (expected false)
+
+Toggling Hindi review to true via PATCH /api/admin/content-engine/hindi/review...
+Toggle response status: 200
+After Hindi review:
+- English page has hreflang="hi": true (expected true)
+- Hindi page has index, follow: true (expected true)
+- Hindi sitemap contains question: true (expected true)
+
+=======================================================
+PHASE 1.5 VERIFICATION: ALL 7 REVALIDATION GATES PASSED!
+=======================================================

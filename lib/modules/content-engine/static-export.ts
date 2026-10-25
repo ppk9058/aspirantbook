@@ -7,6 +7,7 @@ import { buildSeoModel, SeoQuestionInput } from "./seo-model"
 import { createZipBuffer, ZipFileInput } from "./zip"
 import { formatSolutionHtml } from "./solution-formatter"
 import { slugify } from "./paths"
+import { getBaseUrl } from "@/lib/seo/core"
 
 export interface ExportQuestionRecord {
   id: string
@@ -87,9 +88,7 @@ function renderStaticQuestionHtml(
   <link rel="alternate" hreflang="en" href="${seo.hreflang.en}" />
   ${seo.hreflang.hi ? `<link rel="alternate" hreflang="hi" href="${seo.hreflang.hi}" />` : ""}
   <link rel="alternate" hreflang="x-default" href="${seo.hreflang["x-default"]}" />
-  <script type="application/ld+json">
   ${seo.jsonLdScriptString}
-  </script>
   <style>
     :root {
       --bg: #ffffff;
@@ -222,10 +221,11 @@ export function generateStaticSiteFiles(
   customBaseUrl?: string
 ): ZipFileInput[] {
   const files: ZipFileInput[] = []
-  const defaultMirror =
-    process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
-  const defaultPrimary =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://questions.aspirantbook.com"
+  if (exportMode === "primary" && (!customBaseUrl || !customBaseUrl.trim())) {
+    throw new Error("Primary export mode requires Setting.exportBaseUrl to be configured.")
+  }
+  const defaultMirror = getBaseUrl()
+  const defaultPrimary = customBaseUrl?.trim() || ""
   const baseUrl =
     customBaseUrl || (exportMode === "primary" ? defaultPrimary : defaultMirror)
 

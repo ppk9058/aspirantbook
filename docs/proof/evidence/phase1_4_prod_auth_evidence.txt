@@ -1,0 +1,38 @@
+=== PHASE 1.4: PRODUCTION MODE AUTH GUARD VERIFICATION ===
+Target: http://127.0.0.1:3045 (NODE_ENV=production)
+
+Step 1: Authenticating via app real auth path...
+✓ Real ADMIN session cookie obtained: authjs.session-token=eyJhbGciOiJkaX...
+✓ Real TEACHER session cookie obtained: authjs.session-token=eyJhbGciOiJkaX...
+
+=======================================================
+A. TESTING ALL 10 ADMIN PAGES
+=======================================================
+Page /admin/content-engine            | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/add        | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/aliases    | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/assign     | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/categories | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/export     | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/gates      | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/hindi      | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/practice   | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/seo                       | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+
+=======================================================
+B. TESTING ALL 10 API ROUTES
+=======================================================
+API  GET  /api/admin/content-engine/aliases      | Anon: 401 | demo-Admin: 401 | demo-Teach: 403 | real-Teach: 403 | real-ADMIN: 200 | Status: PASS
+API  POST /api/admin/content-engine/assign       | Anon: 401 | demo-Admin: 401 | demo-Teach: 403 | real-Teach: 403 | real-ADMIN: 400 | Status: PASS
+API  POST /api/admin/content-engine/batch        | Anon: 401 | demo-Admin: 401 | demo-Teach: 403 | real-Teach: 403 | real-ADMIN: 400 | Status: PASS
+API  GET  /api/admin/content-engine/export       | Anon: 401 | demo-Admin: 401 | demo-Teach: 403 | real-Teach: 403 | real-ADMIN: 200 | Status: PASS
+API  POST /api/admin/content-engine/hindi/import | Anon: 401 | demo-Admin: 401 | demo-Teach: 403 | real-Teach: 403 | real-ADMIN: 400 | Status: PASS
+API  PATCH /api/admin/content-engine/hindi/review | Anon: 401 | demo-Admin: 401 | demo-Teach: 403 | real-Teach: 403 | real-ADMIN: 500 | Status: PASS
+API  POST /api/admin/content-engine/publish      | Anon: 401 | demo-Admin: 401 | demo-Teach: 403 | real-Teach: 403 | real-ADMIN: 400 | Status: PASS
+API  GET  /api/admin/content-engine/questions    | Anon: 401 | demo-Admin: 401 | demo-Teach: 403 | real-Teach: 403 | real-ADMIN: 200 | Status: PASS
+API  POST /api/admin/content-engine/recategorise | Anon: 401 | demo-Admin: 401 | demo-Teach: 403 | real-Teach: 403 | real-ADMIN: 200 | Status: PASS
+API  GET  /api/admin/content-engine/settings     | Anon: 401 | demo-Admin: 401 | demo-Teach: 403 | real-Teach: 403 | real-ADMIN: 200 | Status: PASS
+
+=======================================================
+SUMMARY: Pages PASS: true (10/10) | APIs PASS: true (10/10)
+=======================================================

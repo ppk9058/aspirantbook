@@ -1,0 +1,95 @@
+TAP version 13
+# Subtest: SEO Core Pure Functions
+    # Subtest: getBaseUrl returns site URL without trailing slashes
+    ok 1 - getBaseUrl returns site URL without trailing slashes
+      ---
+      duration_ms: 1.046167
+      type: 'test'
+      ...
+    # Subtest: getBaseUrl handles env set, unset in dev, and unset in production strictly
+    ok 2 - getBaseUrl handles env set, unset in dev, and unset in production strictly
+      ---
+      duration_ms: 0.577333
+      type: 'test'
+      ...
+    # Subtest: canonicalUrl normalizes path and appends to base URL
+    ok 3 - canonicalUrl normalizes path and appends to base URL
+      ---
+      duration_ms: 0.136167
+      type: 'test'
+      ...
+    # Subtest: robotsPolicy produces index, follow or noindex, follow
+    ok 4 - robotsPolicy produces index, follow or noindex, follow
+      ---
+      duration_ms: 0.135917
+      type: 'test'
+      ...
+    # Subtest: hreflangAlternates produces bilingual links only when Hindi is reviewed
+    ok 5 - hreflangAlternates produces bilingual links only when Hindi is reviewed
+      ---
+      duration_ms: 0.1455
+      type: 'test'
+      ...
+    # Subtest: safeJsonLdStringify neutralizes < into \\u003c to prevent script injection
+    ok 6 - safeJsonLdStringify neutralizes < into \\u003c to prevent script injection
+      ---
+      duration_ms: 0.213333
+      type: 'test'
+      ...
+    # Subtest: buildBreadcrumbListJsonLd generates valid Schema.org BreadcrumbList
+    ok 7 - buildBreadcrumbListJsonLd generates valid Schema.org BreadcrumbList
+      ---
+      duration_ms: 0.143459
+      type: 'test'
+      ...
+    # Subtest: buildQuizJsonLd formats questions and options correctly
+    ok 8 - buildQuizJsonLd formats questions and options correctly
+      ---
+      duration_ms: 0.289167
+      type: 'test'
+      ...
+    # Subtest: buildArticleJsonLd formats Article / TechArticle correctly
+    ok 9 - buildArticleJsonLd formats Article / TechArticle correctly
+      ---
+      duration_ms: 0.256666
+      type: 'test'
+      ...
+    # Subtest: buildFaqJsonLd formats FAQPage schema correctly
+    ok 10 - buildFaqJsonLd formats FAQPage schema correctly
+      ---
+      duration_ms: 0.493208
+      type: 'test'
+      ...
+    # Subtest: buildMetadata outputs full Next.js Metadata object
+    ok 11 - buildMetadata outputs full Next.js Metadata object
+      ---
+      duration_ms: 0.194083
+      type: 'test'
+      ...
+    # Subtest: buildSeoPackage returns JSON-LD script string and complete package
+    ok 12 - buildSeoPackage returns JSON-LD script string and complete package
+      ---
+      duration_ms: 0.220291
+      type: 'test'
+      ...
+    # Subtest: buildSitemapEntry returns valid sitemap shape
+    ok 13 - buildSitemapEntry returns valid sitemap shape
+      ---
+      duration_ms: 0.968959
+      type: 'test'
+      ...
+    1..13
+ok 1 - SEO Core Pure Functions
+  ---
+  duration_ms: 6.662292
+  type: 'suite'
+  ...
+1..1
+# tests 13
+# suites 1
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 226.141083

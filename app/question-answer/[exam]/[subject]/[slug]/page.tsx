@@ -4,6 +4,7 @@ import { buildSeoModel, SeoQuestionInput } from "@/lib/modules/content-engine/se
 import { slugify, qaPath } from "@/lib/modules/content-engine/paths"
 import { PublicQuestionView } from "@/components/content-engine-public/PublicQuestionView"
 import { Metadata } from "next"
+import { getBaseUrl } from "@/lib/seo/core"
 
 export const dynamic = "force-static"
 export const revalidate = 3600
@@ -17,7 +18,7 @@ export async function generateStaticParams() {
   }
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
+const BASE_URL = getBaseUrl()
 
 export async function generateMetadata({
   params,

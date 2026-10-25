@@ -16,6 +16,10 @@ export const dynamic = "force-dynamic"
 export default async function AdminSeoPage() {
   const audit = await runSeoAudit()
   const { summary, modules } = audit
+  const isSiteUrlConfigured = Boolean(
+    (process.env.NEXT_PUBLIC_SITE_URL && process.env.NEXT_PUBLIC_SITE_URL.trim()) ||
+    (process.env.NEXT_PUBLIC_APP_URL && process.env.NEXT_PUBLIC_APP_URL.trim())
+  )
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
@@ -31,6 +35,15 @@ export default async function AdminSeoPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+              isSiteUrlConfigured
+                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                : "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300"
+            }`}
+          >
+            Site URL configured: {isSiteUrlConfigured ? "OK" : "MISSING"}
+          </span>
           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
             <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
             Engine Active

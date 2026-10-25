@@ -20,6 +20,7 @@ import { resolveAccess } from "@/lib/authwall/resolveAccess"
 import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify"
 import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
+import { getBaseUrl } from "@/lib/seo/core"
 
 export const dynamic = "force-dynamic"
 
@@ -54,10 +55,7 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
   }
 
   const canonicalSlug = getQuizSlug(quiz)
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://aspirantbook.com"
+  const baseUrl = getBaseUrl()
 
   const headersList = await headers()
   const isBot = await isVerifiedSearchEngineCrawler(headersList)
