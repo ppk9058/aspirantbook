@@ -174,6 +174,7 @@ export interface MatchQuestion {
 }
 
 export function matchParse(q: string): MatchQuestion | null {
+  if (!q || typeof q !== "string") return null
   let li = q.search(/List\s*[-–]?\s*I\s*List\s*[-–]?\s*II\b/i)
   if (li < 0) li = q.search(/List\s*[-–]?\s*I\b/i)
   if (li < 0) return null
