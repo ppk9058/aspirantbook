@@ -19,7 +19,8 @@
     "test:e2e:real-catalogue": "npx tsx scripts/reset-test-catalogue.ts && CATALOGUE_CASE=empty BASE_URL=http://127.0.0.1:3045 npx playwright test --project=real-catalogue-desktop --project=real-catalogue-mobile",
     "test:e2e:dev-smoke": "DEV_SMOKE=1 BASE_URL=http://127.0.0.1:3045 npx playwright test tests/e2e/dev-smoke.spec.ts",
     "content:chunk": "tsx scripts/content-chunk.ts",
-    "perf:check": "tsx scripts/perf-check.ts"
+    "perf:check": "tsx scripts/perf-check.ts",
+    "test:content-engine": "tsx --test tests/content-engine/**/*.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.940.0",
