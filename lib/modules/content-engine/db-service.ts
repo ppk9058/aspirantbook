@@ -51,6 +51,7 @@ export function safeRevalidatePath(path: string, type?: "page" | "layout") {
  */
 export function revalidateContentEngineRoutes() {
   safeRevalidateTag("content-engine")
+  safeRevalidatePath("/sitemap.xml")
   safeRevalidatePath("/question-answer", "page")
   safeRevalidatePath("/hi/question-answer", "page")
   safeRevalidatePath("/question-answer/[exam]", "page")

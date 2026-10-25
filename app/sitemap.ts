@@ -67,6 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             prisma.course.findMany({
                 where: { status: "PUBLISHED" },
                 select: { slug: true, updatedAt: true },
+                take: 500,
             }).catch(() => []),
             getAllBooks().catch(() => []),
             prisma.examSeries.findMany({
@@ -76,6 +77,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     slug: { notIn: ["current-affairs-system-series", "pyq-system-series", "unassigned-tests-system-series"] },
                 },
                 select: { slug: true },
+                take: 500,
             }).catch(() => []),
             prisma.examTest.findMany({
                 where: {
@@ -83,10 +85,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     isPublished: true,
                 },
                 select: { id: true, title: true, updatedAt: true },
+                take: 500,
             }).catch(() => []),
             prisma.pyqCategory.findMany({
                 where: { isPublished: true },
                 select: { slug: true, updatedAt: true },
+                take: 500,
             }).catch(() => []),
         ])
 
