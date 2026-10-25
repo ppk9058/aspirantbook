@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Exam Content Engine</title>
+<style>
+:root{--bg:#f3f5fb;--sf:#fff;--tx:#161a2e;--mu:#62688a;--bd:#dde1ee;--ac:#4f46e5;--hi:#dcfce7;--hit:#14532d;--bad:#fee2e2;--badt:#7f1d1d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f111c;--sf:#191c2d;--tx:#eceefa;--mu:#9aa0be;--bd:#2a2f4e;--ac:#818cf8;--hi:#12351f;--hit:#bbf7d0;--bad:#3b1518;--badt:#fecaca}}
+:root[data-theme="dark"]{--bg:#0f111c;--sf:#191c2d;--tx:#eceefa;--mu:#9aa0be;--bd:#2a2f4e;--ac:#818cf8;--hi:#12351f;--hit:#bbf7d0;--bad:#3b1518;--badt:#fecaca}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 "Segoe UI",system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sf)}
+a{color:var(--ac);text-decoration:none;cursor:pointer}a:hover{text-decoration:underline}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--sf);border-bottom:1px solid var(--bd)}
+.in{max-width:1120px;margin:0 auto;padding:10px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.brand{font-weight:800;font-size:18px;cursor:pointer;letter-spacing:-.02em}
+.in nav a{margin-right:12px;font-weight:600;color:var(--tx)}
+.in input{flex:1;min-width:150px}
+.w{max-width:1120px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:clamp(22px,4vw,32px);margin:0 0 6px;letter-spacing:-.02em;line-height:1.2}
+h2{font-size:18px;margin:0 0 10px}h3{margin:0 0 8px;font-size:16px}
+.mu{color:var(--mu)}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px}
+textarea{width:100%;min-height:230px;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:12px;font:13px/1.5 ui-monospace,Menlo,monospace;resize:vertical}
+input,select{background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;font:inherit;min-width:0}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--sf);color:var(--tx);border-radius:9px;padding:7px 14px}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:600}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:14px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.st{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px;border-left:5px solid}
+.st b{display:block;font-size:26px;line-height:1.1}.st span{color:var(--mu);font-size:13px}
+.sc{border-radius:14px;padding:16px;color:#fff;min-height:120px}
+.sc b{font-size:18px;display:block}.sc a{color:#fff;background:#ffffff30;border-radius:99px;padding:2px 10px;font-size:12px;display:inline-block;margin:6px 6px 0 0}
+.sc .n{font-size:30px;font-weight:800}
+.tag{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;color:#fff;white-space:nowrap}
+.pill{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;background:var(--bg);border:1px solid var(--bd);color:var(--mu);margin-right:4px}
+.cr{font-size:13px;margin-bottom:12px;color:var(--mu)}
+.hd{border-radius:14px;padding:18px;color:#fff;margin-bottom:14px}.hd h1{margin:6px 0}.hd .cr{color:#ffffffcc}.hd .cr a{color:#fff}
+.lay{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}
+@media(max-width:820px){.lay{grid-template-columns:1fr}}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px;border-radius:10px;background:var(--bg);border:1px solid var(--bd)}
+.opt.ok{background:var(--hi);color:var(--hit);border-color:#22c55e;font-weight:600}
+.opt.bad{background:var(--bad);color:var(--badt);border-color:#ef4444}
+.opt b{color:var(--mu);margin-right:10px}
+.pv{border:1px solid var(--bd);border-radius:10px;padding:12px;margin:12px 0}
+.sol{border-left:5px solid;border-radius:0 12px 12px 0;padding:14px 16px;background:var(--bg);margin:14px 0}
+ol.o{margin:6px 0;padding:0;list-style:none}ol.o li{padding:5px 10px;margin:4px 0;background:var(--bg);border-radius:7px}ol.o li.ok{background:var(--hi);color:var(--hit);font-weight:600}
+.qc{padding:12px 0;border-bottom:1px solid var(--bd)}.qc:last-child{border:0}
+.qc .t{font-weight:600;font-size:16px;display:block;margin:4px 0}
+details summary{cursor:pointer;color:var(--ac);font-size:14px}
+.note{border-left:4px solid;padding:8px 12px;margin:10px 0;background:var(--bg);border-radius:0 8px 8px 0}
+.donut{width:160px;height:160px;border-radius:50%;margin:4px auto 12px;position:relative}
+.donut::after{content:attr(data-c);position:absolute;inset:32px;border-radius:50%;background:var(--sf);display:grid;place-items:center;font-weight:800;font-size:22px}
+.lg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.br{display:grid;grid-template-columns:minmax(80px,140px) 1fr 30px;gap:8px;align-items:center;margin:6px 0;font-size:13px}.br i{display:block;height:14px;border-radius:5px;min-width:3px}
+.sl a{display:block;padding:7px 0;border-bottom:1px solid var(--bd);font-size:14px;color:var(--tx)}
+.sl a:last-child{border:0}
+@media print{.top,.np{display:none!important}body::before{display:none}}
+
+h1{font-size:clamp(20px,3.4vw,28px)}
+.qs{font-size:15px;line-height:1.65;font-weight:600;margin:6px 0}
+.qno{font-weight:700;color:var(--mu);margin-right:6px;font-size:14px}
+.ops{display:grid;gap:2px 28px;margin:8px 0 4px}.ops.two{grid-template-columns:1fr 1fr}
+@media(max-width:560px){.ops.two{grid-template-columns:1fr}}
+.ro{padding:3px 0;font-size:14.5px}.ro b,.opt b{color:var(--mu);margin-right:8px;font-weight:600}
+.opt{margin:3px 0;padding:8px 12px;font-size:14.5px;width:100%}
+.cd{word-spacing:.9em;font-variant-numeric:tabular-nums}
+table.mt{border-collapse:collapse;margin:8px 0;font-size:14px;max-width:100%;display:block;overflow-x:auto}
+.mt th,.mt td{border:1px solid var(--mu);padding:6px 12px;text-align:left}
+.mt th{background:color-mix(in srgb,var(--c,var(--ac)) 20%,transparent)}
+.ds{--c:var(--ac);margin-top:6px}
+.ds hr{border:0;border-top:1px solid var(--bd);margin:10px 0}
+.ds p{margin:6px 0}.ds ul{padding-left:22px;margin:6px 0}.ds li{margin:5px 0}.ds ul ul{list-style:circle}
+.ca{font-size:16px}.sb{font-weight:700;font-size:16px;margin:2px 0 4px}
+.sh{display:flex;align-items:center;gap:10px;margin:20px 0 8px}
+.sh i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:15px;flex:none}
+.sh h3{margin:0;font-size:19px;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:5px;text-decoration-color:var(--c)}
+.vy{color:#16a34a;font-weight:700}.vn{color:#dc2626}
+.pg{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.pg button[aria-current=true]{background:var(--ac);color:#fff;border-color:var(--ac)}.pg button:disabled{opacity:.4;cursor:default}
+.qc{padding:14px 0}
+
+.lg{display:inline-flex;border:1px solid var(--bd);border-radius:999px;overflow:hidden;font-size:12px;float:right}
+.lg button{border:0;border-radius:0;padding:2px 10px;background:transparent;color:var(--tx);cursor:pointer;margin:0}
+.lg button.on{background:#4f46e5;color:#fff}
+.sp{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.sp>div+div{border-left:1px solid var(--bd);padding-left:18px}
+.sp .ops,.sp .ops.two{grid-template-columns:1fr;gap:0;margin:4px 0}
+.sp .ro{padding:1px 0}.sp .opt{margin:2px 0;padding:5px 10px}
+.sp .qs{margin:2px 0}.sp .ds hr{margin:6px 0}.sp .sh{margin:8px 0 2px}.sp ul{margin:2px 0;padding-left:18px}.sp p{margin:4px 0}.sp table.mt{margin:4px 0}
+.hi .w{max-width:none}.hi .qc,.hi .card{padding-left:14px;padding-right:14px}
+.hin{color:#b45309;font-size:13px}
+@media(max-width:820px){.sp{grid-template-columns:1fr}.sp>div+div{border:0;padding:0;border-top:1px dashed var(--bd);margin-top:8px;padding-top:8px}}
+
+.pq{padding:10px 14px;border:1px solid var(--bd);border-radius:10px;margin:8px 0}
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><span class="brand" data-go="home">Exam Content Engine</span><nav><a href="#" data-go="home">Home</a><a href="#" data-go="browse">Browse</a><a href="#" data-go="add">Add content</a><a href="#" data-go="assign">Assign</a></nav><input id="gs" placeholder="Search all questions, press Enter" aria-label="Search"></div></header>
+<main class="w" id="app"></main>
+<script>
+const PAL=["#6366f1","#ec4899","#d97706","#059669","#0891b2","#dc2626","#7c3aed","#65a30d","#ea580c","#0d9488"];
+const T=[
+["Ancient India","Indus Valley Civilization",["indus","harappa","mohenjo","kalibangan","lothal","dholavira","archaeolog","chanhudaro","rakhigarhi","great bath"]],
+["Ancient India","Vedic Age",["vedic","rigveda","aryan","upanishad","brahmana","sabha","samiti"]],
+["Ancient India","Mahajanapadas and Mauryas",["maurya","ashoka","mahajanapada","magadha","buddha","mahavira","bimbisara","kautilya","arthashastra","nanda","jain"]],
+["Ancient India","Gupta and Post-Gupta Age",["gupta","harsha","kalidasa","samudragupta","vakataka","pallava","sangam","satavahana","kushan","kanishka"]],
+["Medieval India","Delhi Sultanate",["sultanate","iltutmish","balban","alauddin","tughlaq","khalji","razia","lodi"]],
+["Medieval India","Mughal Empire",["mughal","akbar","babur","humayun","shah jahan","aurangzeb","jahangir","sher shah","mansabdari"]],
+["Medieval India","Bhakti, Sufi and Regional Kingdoms",["bhakti","sufi","kabir","chola","vijayanagar","bahmani","rajput","nanak","chaitanya","maratha","shivaji"]],
+["Modern India","Revolt of 1857",["1857","revolt","mutiny","kunwar singh","lakshmibai","mangal pandey","nana sahib","tantia","bahadur shah","nasirabad","neemuch"]],
+["Modern India","Socio-Religious Reforms",["samaj","dayanand","ram mohan","vivekananda","ramakrishna","reform","brahmo","sir syed","mission"]],
+["Modern India","Freedom Struggle",["british","congress","gandhi","viceroy","governor-general","plassey","buxar","independence","non-cooperation","swadeshi","quit india","nehru","tilak","east india company"]],
+["Polity","Constitution",["article","constitution","preamble","fundamental","amendment","directive principle"]],
+["Polity","Parliament and Executive",["lok sabha","rajya sabha","parliament","president","prime minister","speaker","governor"]],
+["Polity","Judiciary",["supreme court","high court","judge","writ","judiciary"]],
+["Geography","Indian Geography",["river","himalaya","plateau","monsoon","soil","delta","ghats","national park"]],
+["Geography","World Geography",["continent","ocean","desert","equator","latitude","volcano"]],
+["Economy","Banking and Finance",["rbi","bank","repo","inflation","nabard","sebi","monetary"]],
+["Economy","Economy Basics",["gdp","budget","tax","fiscal","five year plan","niti aayog","economy"]],
+["Science","Physics",["force","velocity","newton","electric","current","lens","wavelength","gravity"]],
+["Science","Chemistry",["acid","atom","molecule","element","reaction","alloy","ph value"]],
+["Science","Biology",["cell","vitamin","disease","plant","blood","enzyme","photosynthesis","bacteria"]],
+["Maths","Arithmetic",["percent","profit","loss","ratio","speed","average","interest","discount","train"]],
+["Maths","Algebra and Geometry",["triangle","circle","equation","polynomial","angle","perimeter"]],
+["Reasoning","Verbal and Non-Verbal",["series","coding","odd one","analogy","venn","direction","blood relation"]],
+["English","Grammar and Vocabulary",["synonym","antonym","idiom","fill in the blank","error","passage","tense"]],
+["Current Affairs","Recent Events",["2026","2025","summit","awarded","appointed","launched"]]];
+const SUBS=[...new Set(T.map(r=>r[0]))];
+const EX=/\b(UPSC|UPPCS|UPRO\/ARO|RAS\/RTS|RAS|UKPSC|CGPSC|UPSSSC|REET|HTET|MPSC|GPSC|APPSC|TSPSC|BSSC|CSAT|BPSC|UPPSC|MPPSC|RPSC|HPSC|JPSC|OPSC|WBCS|TNPSC|KPSC|SSC(?:\s?(?:CGL|CHSL|MTS|GD|CPO|JE))?|RRB(?:\s?(?:NTPC|JE|ALP))?|RRC(?:\s?Group\s?D)?|NTPC|IBPS(?:\s?(?:PO|Clerk|RRB))?|SBI(?:\s?(?:PO|Clerk))?|RBI(?:\s?(?:Grade B|Assistant))?|NDA|CDS|CTET|UPTET|NEET|JEE|DSSSB)\b/i;
+const OPT=/^\(?([A-Ea-e1-5])[.)]\s*(.+)/;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+let items=[],colors={},PG=1,R="home",F={q:"",sub:"",exam:"",year:"",top:""},sel={};
+
+const SAMPLE=`# BPSC 45th Prelims 2002
+Subject: History
+Kunwar Singh held the revolt of 1857 in
+A) Punjab
+B) Bengal
+C) Bihar
+D) Maharashtra
+Answer: C
+Explanation: Kunwar Singh of Jagdispur, aged about 80, led the revolt in Bihar against the British.
+
+Q2. Where did the revolt of 1857 start in Rajasthan? [RPSC 2019]
+(a) Nasirabad Cantonment (b) Neemuch Cantonment (c) Deoli Cantonment (d) Erinpura Cantonment
+Ans: a
+Solution: The revolt in Rajasthan began at Nasirabad on 28 May 1857.
+
+## RRC Group D Previous Paper 1 (Held On: 17 Sep 2018 Shift 1)
+3. Dayanand Saraswati was the founder of which of the following missions?
+1. Brahmo Samaj
+2. Chinmaya Mission
+3. Arya Samaj
+4. Prarthana Samaj
+Correct Answer: Arya Samaj
+Explanation: Dayanand Saraswati founded the Arya Samaj in Bombay in 1875. The Chinmaya Mission was founded much later by Swami Chinmayananda.
+
+Subject: Polity
+## SSC CGL 2021
+Who presides over the joint sitting of Lok Sabha and Rajya Sabha?
+A) President
+B) Vice President
+C) Speaker of Lok Sabha
+D) Prime Minister
+Answer: C
+Source: SSC CGL 2021 Tier 1
+Explanation: Under Article 118 the Speaker presides over a joint sitting.
+
+Which article of the Constitution deals with equality before law?
+A) Article 12
+B) Article 14
+C) Article 19
+D) Article 21
+Answer: B
+
+Subject: Science
+## RRB NTPC 2021
+Q6. Deficiency of which vitamin causes night blindness?
+A) Vitamin A
+B) Vitamin B
+C) Vitamin C
+D) Vitamin D
+
+Subject: Geography
+Q7. Which river is known as the Sorrow of Bihar?
+A) Ganga
+B) Gandak
+C) Kosi
+D) Son
+
+Subject: Economy
+Q8. The repo rate is set by which institution?
+A) SEBI
+B) NABARD
+C) RBI
+D) Finance Ministry
+
+Answer Key: 6-A 7-C 8-C
+
+Subject: History
+Source: NCERT
+The socio-religious reform movements of the 19th century challenged sati, child marriage and caste rigidity, and laid the base of modern Indian nationalism.`;
+
+const HDR=/\b[A-Z]\s?[–-]\s?\d+\s+General Studies(?:\s+(?:Indian|World)\s+\w+)?|(?:(?:Indian|World)\s+\w+\s+)?General Studies\s+[A-Z]\s?[–-]\s?\d+/g;
+const ABBR=/(?:\b\d{1,2}(?:st|nd|rd|th)\s+)?\b(?:[A-Z]\s?\.\s?){2,}/;
+function examOf(src){const m0=src.match(EX);if(m0)return m0[1].toUpperCase().replace(/\s+/g," ");
+ const s=src.replace(/\b\d{1,2}(?:st|nd|rd|th)\s+/gi,"").replace(/\.\s+(?=[A-Z]\.)/g,".");
+ const m=s.match(/^\s*((?:[A-Z]\.?){2,}(?:[\/-](?:[A-Z]\.?){2,})?)/);return m?m[1].replace(/\./g,""):""}
+function isFlat(t){const n=(t.match(/\(\s*a\s*\)/gi)||[]).length,l=t.split("\n").filter(x=>x.trim()).length;return n>=2&&l<n/2}
+function flat(t){
+ t=t.replace(/@\w+/g," ").replace(/Join Telegram:?/gi," ").replace(HDR," ").replace(/\s+/g," ").trim();
+ const re=/(?:^|\s)(\d{1,3})[.)]\s+(?=\S)/g,b=[];let m,exp=null;
+ while(m=re.exec(t)){const n=+m[1];if(exp===null){if(m.index>30)continue;exp=n}
+  const prev=b.length?t.slice(b[b.length-1].e,m.index):"(b)";
+  if(n>=exp&&n<exp+80&&/\(\s*[bB]\s*\)/.test(prev)){b.push({n,s:m.index+(/^\s/.test(m[0])?1:0),e:m.index+m[0].length});exp=n+1}}
+ if(!b.length)return t;
+ return b.map((x,k)=>{
+  const seg=t.slice(x.e,k+1<b.length?b[k+1].s:t.length).trim(),ai=seg.search(/\(\s*[aA]\s*\)/);
+  if(ai<1)return "Q"+x.n+". "+seg;
+  const q=seg.slice(0,ai).trim(),rest=seg.slice(ai),am=rest.match(/\bAns(?:wer)?\.?\s*[:.]?\s*\(?([a-eA-E])\)?(?![A-Za-z])/);
+  const pre=am?rest.slice(0,am.index):rest,ex=am?rest.slice(am.index+am[0].length).trim():"",tk=pre.split(/\(\s*([a-eA-E])\s*\)\s*/),o=[];let nx=0;
+  for(let i=1;i<tk.length;i+=2){if(tk[i].toLowerCase()==="abcde"[nx]){o.push(tk[i+1].trim());nx++}else if(o.length)o[o.length-1]+=" ("+tk[i]+") "+tk[i+1]}
+  let src="";
+  if(o.length){const L=o[o.length-1];let cut=L.search(ABBR);if(cut<0){const em=EX.exec(L);if(em)cut=em.index}
+   if(cut>0&&/\b(19|20)\d\d\b/.test(L.slice(cut))){src=L.slice(cut).trim();o[o.length-1]=L.slice(0,cut).trim()}}
+  return ["Q"+x.n+". "+q].concat(o.map((v,k)=>"ABCDE"[k]+") "+v),src?["Source: "+src]:[],am?["Answer: "+am[1]]:[],ex?["Explanation: "+ex]:[]).join("\n")}).join("\n\n")}
+function ansIdx(a,o){if(!a)return -1;let m=a.match(/^\(?([A-Ea-e1-5])\)?(?:[.\s:\-]|$)/);
+ if(m){const c=m[1].toLowerCase(),i=/\d/.test(c)?+c-1:c.charCodeAt(0)-97;if(i<o.length)return i}
+ const t=a.toLowerCase().replace(/^\(?[a-e1-5][.)]\s*/,"");return o.findIndex(x=>{x=x.toLowerCase();return x===t||(t.length>2&&x.includes(t))})}
+
+function parse(txt){
+ if(isFlat(txt))txt=flat(txt);
+ const out=[],keys={},ctx={sub:"",top:"",src:""};let cur=null,mode="",blank=false;
+ const fin=()=>{if(!cur)return;const q=cur.q.trim();if(q.length>=3&&(cur.o.length>=2||q.length>25)){cur.q=q;cur.type=cur.o.length>=2?"MCQ":"Note";out.push(cur)}cur=null;mode=""};
+ const start=(q,no)=>{fin();cur={no,q,o:[],ans:"",exp:"",src:ctx.src,sub:ctx.sub,top:ctx.top};mode="q"};
+ const addOpt=t=>{cur.o.push(t.trim());mode="o"};
+ txt.replace(/\r/g,"").split("\n").forEach(raw=>{
+  const l=raw.trim();if(!l){blank=true;return}
+  const wb=blank;blank=false;let m;
+  const pairs=l.match(/\d+\s*[-:.)]\s*\(?[A-Da-d]\)?(?=[\s,;]|$)/g);
+  if(/^answers?\s*key/i.test(l)||(pairs&&pairs.length>=3&&!/^(Q\d|expl|sol)/i.test(l))){const re=/(\d+)\s*[-:.)]\s*\(?([A-Da-d])\)?(?=[\s,;]|$)/g;let x;while(x=re.exec(l))keys[x[1]]=x[2].toLowerCase();mode="key";return}
+  if(m=l.match(/^(?:#{1,4}|={2,}|\*{2,})\s*(.+?)[\s=*#]*$/)){const h=m[1];if(EX.test(h)||/\b(19|20)\d\d\b/.test(h))ctx.src=h;else if(SUBS.includes(h))ctx.sub=h;else ctx.top=h;blank=true;return}
+  if(m=l.match(/^(subject|topic|chapter|section)\s*[:\-]\s*(.+)/i)){const t=(cur&&cur.o.length&&!wb)?cur:ctx;if(/subj/i.test(m[1]))t.sub=m[2].trim();else t.top=m[2].trim();if(t===ctx)blank=true;return}
+  if(m=l.match(/^(source|asked in|previously asked in|previous year|exam|paper|year|shift)\s*[:\-]\s*(.+)/i)){const t=(cur&&cur.o.length&&!wb)?cur:ctx,v=m[2].trim();t.src=(/year|shift/i.test(m[1])&&t.src)?t.src+" "+v:v;if(t===ctx)blank=true;return}
+  if(cur&&(m=l.match(/^(?:correct\s+)?(?:ans(?:wer)?|key)\s*[:\-.)]\s*(.+)/i))){cur.ans=m[1].trim();mode="a";return}
+  if(cur&&(m=l.match(/^(?:explanation|solution|rationale|sol|hint)\s*(?:[:\-.]\s*(.*))?$/i))){cur.exp=(m[1]||"").trim();mode="e";return}
+  if(m=l.match(/^Q(?:uestion)?\.?\s*(\d+)\s*[.):\-]?\s*(.*)/i)){start(m[2],+m[1]);return}
+  const ip=l.split(/\s+(?=\(?[A-Da-d1-4][.)]\s)/);
+  if(cur&&cur.q&&mode!=="a"&&mode!=="e"&&ip.length>=3&&ip.every(x=>OPT.test(x))){ip.forEach(x=>addOpt(x.match(OPT)[2]));return}
+  if(m=l.match(OPT)){const lab=m[1].toLowerCase(),idx=/\d/.test(lab)?+lab-1:lab.charCodeAt(0)-97;
+   if(cur&&cur.q&&mode!=="a"&&mode!=="e"&&idx===cur.o.length&&(cur.o.length<4||lab==="e")){addOpt(m[2]);return}
+   if(/\d/.test(lab)){start(m[2],+lab);return}}
+  if(m=l.match(/^(\d{1,3})\s*[.)]\s+(.+)/)){start(m[2],+m[1]);return}
+  if(!cur){start(l,0);return}
+  if(mode==="e"||mode==="a"){if(wb)start(l,0);else cur.exp+=(cur.exp?"\n":"")+l;return}
+  if(mode==="key"){start(l,0);return}
+  if(mode==="o"){if(wb||cur.o.length>=4)start(l,0);else cur.o[cur.o.length-1]+=" "+l;return}
+  if(wb)start(l,0);else cur.q+=" "+l;
+ });
+ fin();
+ out.forEach((i,k)=>{i.id=k+1;if(!i.ans&&keys[i.no])i.ans=keys[i.no];
+  const tg=i.q.match(/\s*[\[(]([^\[\]()]*\b(?:19|20)\d\d\b[^\[\]()]*)[\])]\s*$/);
+  if(tg&&(EX.test(tg[1])||/^\s*(19|20)\d\d\s*$/.test(tg[1]))){i.src=tg[1].trim();i.q=i.q.slice(0,tg.index).trim()}
+  i.a=ansIdx(i.ans,i.o);
+  const ym=i.src.match(/\b(19[89]\d|20[0-3]\d)\b/);
+  i.exam=examOf(i.src);i.year=ym?ym[1]:"";
+  const c=classify(i.q+" "+i.o.join(" ")+" "+i.exp,i.sub);
+  i.sub=(!i.sub||(i.sub==="History"&&HS.includes(c[0])))?c[0]:i.sub;i.top=i.top||c[1];
+  if(!colors[i.sub])colors[i.sub]=PAL[Object.keys(colors).length%PAL.length]});
+ return out}
+const HS=["Ancient India","Medieval India","Modern India"];
+const nz=t=>t.normalize("NFD").replace(/[\u093C\u200c\u200d\u0951-\u0954]/g,"").replace(/\u0901/g,"\u0902").replace(/[ङञणनम]\u094D(?=[क-ह])/g,"\u0902").normalize("NFC");
+const kn=r=>(r.kn&&r.kn.n===r[2].length)?r.kn.a:(r.kn={n:r[2].length,a:r[2].map(k=>nz(k.toLowerCase()))}).a;
+function classify(t,sub){t=nz(t.toLowerCase());let best=null,bs=0;T.forEach(r=>{if(sub&&r[0]!==sub&&!(sub==="History"&&HS.includes(r[0])))return;const s=kn(r).reduce((a,k)=>a+(t.includes(k)?(k.length>=7?2:1):0),0);if(s>bs){bs=s;best=r}});return best?[best[0],best[1]]:[sub||"Uncategorized","General"]}
+
+const count=(a,f)=>{const m={};a.forEach(x=>{const k=f(x);if(k)m[k]=(m[k]||0)+1});return Object.keys(m).map(k=>[k,m[k]]).sort((a,b)=>b[1]-a[1])};
+const bars=(rows,col)=>{const mx=Math.max(1,...rows.map(r=>r[1]));return rows.map(r=>`<div class="br"><span>${esc(r[0])}</span><i style="width:${Math.max(3,r[1]/mx*100)}%;background:${col(r[0])}"></i><b>${r[1]}</b></div>`).join("")||'<p class="mu">No data in your content yet.</p>'};
+const donut=rows=>{const tot=rows.reduce((a,r)=>a+r[1],0);let acc=0;const st=rows.map(r=>{const s=acc/tot*100;acc+=r[1];return `${colors[r[0]]} ${s}% ${acc/tot*100}%`});
+ return `<div class="donut" data-c="${tot}" style="background:conic-gradient(${st.join(",")})"></div><div class="lg">${rows.map(r=>`<span><i class="dot" style="background:${colors[r[0]]}"></i>${esc(r[0])} ${r[1]}</span>`).join("")}</div>`};
+const tag=s=>`<span class="tag" style="background:${colors[s]||"#64748b"}">${esc(s)}</span>`;
+const go=(t,x,f)=>`<a href="#" data-go="${t}"${f?` data-f="${f}"`:""}>${x}</a>`;
+const crumbs=a=>`<nav class="cr">${a.map(([t,g])=>g?go(g,esc(t)):`<span>${esc(t)}</span>`).join(" › ")}</nav>`;
+const qUrl=i=>"q-"+i.id+"-"+slug(i.q).slice(0,40);
+const meta=i=>`${tag(i.sub)} ${go("t-"+slug(i.top),esc(i.top),"")}${i.exam?` <span class="pill">${go("e-"+slug(i.exam),esc(i.exam))}</span>`:""}${i.year?`<span class="pill">${i.year}</span>`:""}${i.type==="MCQ"&&i.a<0?'<span class="pill">answer missing</span>':""}`;
+const PER=5,slicePg=a=>a.slice((PG-1)*PER,PG*PER);
+function pager(n){const p=Math.ceil(n/PER);if(p<2)return"";const ks=[];for(let k=1;k<=p;k++)if(k===1||k===p||Math.abs(k-PG)<=2)ks.push(k);
+ let h='<div class="pg np"><button data-pg="'+Math.max(1,PG-1)+'"'+(PG===1?" disabled":"")+'>‹ Prev</button>',l=0;
+ ks.forEach(k=>{if(k-l>1)h+="<span>…</span>";h+='<button data-pg="'+k+'" aria-current="'+(k===PG)+'">'+k+"</button>";l=k});
+ return h+'<button data-pg="'+Math.min(p,PG+1)+'"'+(PG===p?" disabled":"")+'>Next ›</button><span class="mu">Page '+PG+" of "+p+"</span></div>"}
+const isNum=t=>/^[\d\s]+$/.test(t||"");
+function matchParse(q){let li=q.search(/List\s*[-–]?\s*I\s*List\s*[-–]?\s*II\b/i);if(li<0)li=q.search(/List\s*[-–]?\s*I\b/i);if(li<0)return null;
+ const ci=q.search(/\bCodes?\s*:/i),body=q.slice(li,ci>0?ci:undefined),ai=body.search(/\bA\.\s/);if(ai<0)return null;
+ const re=/([A-E])\.\s+(.+?)\s+(\d)\.\s+(.+?)(?=\s+[A-E]\.\s+\S|$)/g,rows=[],rest=body.slice(ai);let m;
+ while(m=re.exec(rest))rows.push([m[1],m[2].trim(),m[3],m[4].trim()]);
+ if(rows.length<2)return null;
+ return{stem:q.slice(0,li).trim(),head:body.slice(0,ai),rows,codes:ci>0?q.slice(ci).replace(/^Codes?\s*:\s*/i,"").trim():""}}
+const KW=t=>new Set((t.toLowerCase().match(/[a-z0-9]{4,}/g)||[]).filter(w=>!/^(which|following|about|their|there|these|those|would|where|when|what|with|from|that|this|have|were|been|into|than|then|also|only|both|each|other|such|given|below|above|correct|statement|statements|answer|select|using|code|codes)$/.test(w)));
+function relSib(i,pool){pool=pool||items;const m=KW(i.q+" "+i.o.join(" ")+" "+(i.exp||"")),sc=x=>{let n=0;KW(x.q+" "+x.o.join(" ")+" "+(x.exp||"")).forEach(w=>{if(m.has(w))n++});return n*10+(x.top===i.top?5:0)-Math.min(4,Math.abs(x.id-i.id)/50)};
+ return pool.filter(x=>x!==i&&x.type==="MCQ"&&x.sub===i.sub).sort((a,b)=>sc(b)-sc(a)).slice(0,6)}
+function stmtParse(q){q=q.replace(/\s+/g," ").trim();const m=q.match(/^(.+?)\s+1\s*[.)]\s+(.+)$/);if(!m||/List\s*[-–]?\s*I\b/i.test(q))return null;
+ let rest=m[2],pos=[0],n=2;for(;n<=6;n++){const r=new RegExp("\\s"+n+"\\s*[.)]\\s+").exec(rest.slice(pos[pos.length-1]));if(!r)break;pos.push(pos[pos.length-1]+r.index+r[0].length)}
+ if(pos.length<2)return null;const raw=pos.map((p,k)=>{const e=k+1<pos.length?rest.lastIndexOf(" "+(k+2),pos[k+1]):rest.length;return rest.slice(p,e<p?rest.length:e).trim()});
+ let last=raw[raw.length-1],tail="";const t=last.search(/(?:[.;]\s+|\s)(?=(?:Select|Choose|Which of the (?:above|statements|following)|Which one|How many|Use the code|Codes?:|Identify)\b)/);
+ if(t>0){tail=last.slice(t).replace(/^[.;]\s*/,"").replace(/\s*Codes?\s*:?\s*$/i,"").trim();raw[raw.length-1]=last.slice(0,t).trim()+(last[t]==="."?".":"")}
+ return{stem:m[1].trim(),sts:raw.map(x=>x.replace(/[;,]?\s*(and|or)?\s*$/,"").trim()),tail}}
+function shortQ(q){const st=stmtParse(q);let t=(st?st.stem:q).replace(/\s+/g," ").trim().replace(/^(?:which|what|who|where|when)\s+(?:one\s+)?of\s+the\s+(?:following|given)\s+/i,"").replace(/^(?:statements?\s+)?(?:is|are)(?:\/(?:is|are))?\s+(?:correct|true|incorrect|false|not correct)\s+(?:regarding|about|with respect to|for)\s+/i,"").replace(/^(?:consider|read)\s+the\s+following\s+(?:statements?\s*)?[:.]?\s*/i,"").replace(/[?.:;,\s]+$/,"");
+ if(t.length>60){let c=t.slice(0,60);const sp=c.lastIndexOf(" ");if(t[60]!==" "&&sp>20)c=c.slice(0,sp);t=c}
+ t=t.replace(/(?:[\s,:;]+(?:the|a|an|of|in|on|at|to|for|by|as|and|or|is|was|are|were|with|from|that|which|who|where|whose))+[\s,:;]*$/i,"").replace(/[\s,:;]+$/,"");return t.charAt(0).toUpperCase()+t.slice(1)}
+function stemHtml(i){const m=matchParse(i.q);if(!m){const s=stmtParse(i.q);if(s)return `<div class="qs">${esc(s.stem)}</div><ol class="stm" style="list-style:none;padding:0;margin:8px 0">${s.sts.map((x,k)=>`<li style="margin:6px 0"><b>${k+1}.</b> ${esc(x)}</li>`).join("")}</ol>${s.tail?`<div class="qs">${esc(s.tail)}</div>`:""}`;return `<div class="qs">${esc(i.q)}</div>`}
+ const d=m.head.match(/\(([^)]+)\)/g)||[];
+ return `${m.stem?`<div class="qs">${esc(m.stem)}</div>`:""}<table class="mt"><tr><th>List-I${d[0]?" "+esc(d[0]):""}</th><th>List-II${d[1]?" "+esc(d[1]):""}</th></tr>${m.rows.map(r=>`<tr><td>${r[0]}. ${esc(r[1])}</td><td>${r[2]}. ${esc(r[3])}</td></tr>`).join("")}</table>${m.codes?`<div class="qs">Codes: <span class="cd">${esc(m.codes)}</span></div>`:""}`}
+function optGrid(i,live){const two=i.o.every(o=>o.length<=26);
+ return `<div class="ops${two?" two":""}">`+i.o.map((o,k)=>{const t=isNum(o)?`<span class="cd">${esc(o)}</span>`:esc(o),lab="("+"abcde"[k]+")";
+  if(live){const s=sel[i.id];return `<button class="opt${s!=null?(k===i.a?" ok":k===s?" bad":""):""}" data-opt="${i.id}:${k}"><b>${lab}</b>${t}${s!=null&&k===i.a?" ✓":""}</button>`}
+  return `<div class="ro"><b>${lab}</b> ${t}</div>`}).join("")+"</div>"}
+const H=(t,ic,col)=>`<div class="sh"><i style="background:${col}33">${ic}</i><h3 style="--c:${col}">${t}</h3></div>`;
+const ul=a=>"<ul>"+a.map(x=>"<li>"+x+"</li>").join("")+"</ul>";
+const tbl=rows=>`<table class="mt">${rows.map((r,k)=>"<tr>"+r.map(c=>k?"<td>"+hl(c)+"</td>":"<th>"+esc(c)+"</th>").join("")+"</tr>").join("")}</table>`;
+function sents(t){const o=[];t.replace(/\s+/g," ").split(/(?<=[.!?])\s+(?=[A-Z(])/).forEach(x=>{const l=o[o.length-1];if(l&&(l.length<25||/(?:\b[A-Z]|\bDr|\bMr|\bSt|\bvs)\.$/.test(l)))o[o.length-1]=l+" "+x;else o.push(x)});return o}
+function hl(s,ans){const SK="The|This|These|That|In|It|He|She|His|Her|Under|Since|Although|Whereas|However|But|And|Also|Along|There|Some|Many|Most|During|As|On|At|By|For|From|With";
+ const a=(ans&&ans.length>2&&!isNum(ans))?ans.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"|":"";
+ const re=new RegExp("(?:"+a+"\\b(?:1[0-9]{3}|20\\d\\d)\\b|(?!(?:"+SK+")\\b)[A-Z][a-z]+(?:\\s[A-Z][a-z]+){1,3})","g");
+ let o="",l=0,m;while(m=re.exec(s)){o+=esc(s.slice(l,m.index))+"<b>"+esc(m[0])+"</b>";l=m.index+m[0].length}return o+esc(s.slice(l))}
+function rich(ex){const L=ex.split("\n").map(x=>x.trim()).filter(Boolean),col={key:"#16a34a",imp:"#dc2626",add:"#2563eb"},ic={key:"🔑",imp:"📌",add:"ℹ️"};let h="",u=[],tb=[];
+ const fl=()=>{if(u.length){h+=ul(u);u=[]}if(tb.length){h+=tbl(tb);tb=[]}};
+ L.forEach(l=>{let m;
+  if(/^[-•*]\s+/.test(l)){if(tb.length)fl();u.push(hl(l.replace(/^[-•*]\s+/,"")))}
+  else if(l.includes("|")){if(u.length)fl();const r=l.split("|").map(x=>x.trim());if(r[0]==="")r.shift();if(r[r.length-1]==="")r.pop();if(!r.every(x=>/^:?-{2,}:?$/.test(x)))tb.push(r)}
+  else if(m=l.match(/^(.{3,40}?)\s*:$/)){fl();const k=/^key/i.test(m[1])?"key":/^important/i.test(m[1])?"imp":/^(additional|more|extra)/i.test(m[1])?"add":"";h+=H(esc(m[1]),ic[k]||"▸",col[k]||"#7c3aed")}
+  else{fl();h+="<p>"+hl(l)+"</p>"}});
+ fl();return h}
+function matchTbl(i){const m=matchParse(i.q);if(!m||i.a<0||!isNum(i.o[i.a]))return"";const d=i.o[i.a].trim().split(/\s+/),by={};m.rows.forEach(r=>by[r[2]]=r[3]);
+ return H("Correct Matching","🧩","#7c3aed")+`<table class="mt"><tr><th>List-I</th><th>Matched with (List-II)</th></tr>${m.rows.map((r,k)=>`<tr><td>${r[0]}. ${esc(r[1])}</td><td>${d[k]||""}. ${esc(by[d[k]]||"")}</td></tr>`).join("")}</table>`}
+function fmtSol(i){const c=colors[i.sub],at=i.a>-1?i.o[i.a]:"";
+ let h=`<div class="ds" style="--c:${c}"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Detailed Solution</h2><span class="row np"><button data-share="1">Share</button><button class="p" data-pr="1">Download Solution PDF</button></span></div><hr>`;
+ h+=i.a>-1?`<p class="ca">The correct answer is <u><b>${esc(at)}</b></u> <span class="mu">(option ${"abcde"[i.a]})</span></p>`:'<p class="mu">No answer found in the pasted text. Add a line like <b>Answer: B</b>.</p>';
+ const ex=(i.exp||"").trim();
+ if(/\n/.test(ex)||/^(key|important) points/i.test(ex))h+=rich(ex);
+ else{const S=ex?sents(ex):[];
+  h+=H("Key Points","🔑","#16a34a")+`<p class="sb">${esc(!at||isNum(at)?i.top:at)}</p>`+(S.length?ul(S.slice(0,4).map(x=>hl(x,at))):'<ul><li>No explanation in the pasted text. Add a line starting with <b>Explanation:</b>.</li></ul>');
+  if(S.length>4)h+=H("Additional Information","ℹ️","#2563eb")+ul(S.slice(4).map(x=>hl(x,at)))}
+ h+=matchTbl(i);
+ h+=H("Option Analysis","🔍","#d97706")+`<table class="mt"><tr><th>Option</th><th>Statement</th><th>Verdict</th></tr>${i.o.map((o,k)=>`<tr><td>(${"abcde"[k]})</td><td>${isNum(o)?`<span class="cd">${esc(o)}</span>`:esc(o)}</td><td>${i.a<0?"–":k===i.a?'<span class="vy">✓ Correct</span>':'<span class="vn">✗ Incorrect</span>'}</td></tr>`).join("")}</table>`;
+ const SW=new Set("which following about their there these those would where when what with from that this have were been into than then also only both each other such given below above correct statement statements answer select using code".split(" ")),kw=t=>new Set((t.toLowerCase().match(/[a-z0-9\u0900-\u097F]{4,}/g)||[]).filter(w=>!SW.has(w))),mine=kw(i.q+" "+i.o.join(" ")+" "+i.exp),rel=[];
+ items.forEach(x=>{if(x===i||x.type!=="MCQ"||!x.exp)return;sents(x.exp.replace(/\n/g," ")).forEach(sn=>{if(i.exp.includes(sn))return;let n=0;kw(sn).forEach(w=>{if(mine.has(w))n++});if(n>=2)rel.push([n,sn,x])})});
+ rel.sort((a,b)=>b[0]-a[0]);const seen=new Set(),pick=rel.filter(r=>!seen.has(r[2])&&seen.add(r[2])).slice(0,3);
+ if(pick.length)h+=H("Related Points","📌","#dc2626")+`<ul>${pick.map(r=>`<li>${hl(r[1])}</li>`).join("")}</ul>`;
+ return h+"</div>"}
+
+
+function qcard(i){if(i.type==="Note")return `<div class="note" style="border-color:${colors[i.sub]}">${esc(i.q)}<div style="margin-top:6px">${meta(i)}</div></div>`;
+ return `<div class="qc"><div>${meta(i)} <a href="#" data-go="${qUrl(i)}">Open page</a></div><div style="margin-top:6px"><span class="qno">Q.${i.id}</span></div>${stemHtml(i)}${optGrid(i,false)}<details><summary>View solution</summary>${fmtSol(i)}</details></div>`}
+
+function home(){const m=items.filter(i=>i.type==="MCQ"),subs=count(items,i=>i.sub),exs=count(items,i=>i.exam),yrs=count(items,i=>i.year).sort((a,b)=>a[0]-b[0]),tops=count(items,i=>i.top);
+ const ans=m.filter(i=>i.a>-1).length,ex=m.filter(i=>i.exp).length;
+ return `<h1>Your question bank</h1><p class="mu">Every question has its own page with options, answer, solution, exam and year.</p>
+<div class="g">${[["Questions",m.length,"#6366f1"],["Study notes",items.length-m.length,"#ec4899"],["Subjects",subs.length,"#059669"],["Topics",tops.length,"#d97706"],["Exams",exs.length,"#0891b2"],["With answer",ans+"/"+m.length,"#7c3aed"],["With solution",ex+"/"+m.length,"#dc2626"]].map(s=>`<div class="st" style="border-left-color:${s[2]}"><b>${s[1]}</b><span>${s[0]}</span></div>`).join("")}</div>
+<h2>Browse by subject</h2><div class="g">${subs.map(s=>`<div class="sc" style="background:linear-gradient(130deg,${colors[s[0]]},${colors[s[0]]}99)"><span class="n">${s[1]}</span><b>${go("s-"+slug(s[0]),esc(s[0]))}</b>${count(items.filter(i=>i.sub===s[0]),i=>i.top).map(t=>go("t-"+slug(t[0]),esc(t[0])+" "+t[1])).join("")}</div>`).join("")}</div>
+<h2>Browse by exam</h2>${exs.length?`<div class="g">${exs.map(e=>`<div class="card" style="margin:0"><h3>${go("e-"+slug(e[0]),esc(e[0]))} <span class="pill">${e[1]}</span></h3>${count(items.filter(i=>i.exam===e[0]),i=>i.year).sort((a,b)=>b[0]-a[0]).map(y=>go("browse",y[0]+" ("+y[1]+")","exam="+encodeURIComponent(e[0])+"&year="+y[0])).join(" · ")||'<span class="mu">Year not found</span>'}</div>`).join("")}</div>`:'<p class="mu">No exam names found. Add lines like <b>Source: SSC CGL 2021</b>.</p>'}
+<div class="g2"><div class="card"><h2>Questions by subject</h2>${donut(subs)}</div><div class="card"><h2>Questions by year</h2>${bars(yrs,()=>"#ea580c")}</div><div class="card"><h2>Top topics</h2>${bars(tops.slice(0,8),t=>colors[items.find(i=>i.top===t).sub])}</div></div>
+<div class="card"><h2>Latest questions</h2>${items.slice(-5).reverse().map(i=>qcard(i)).join("")}</div>`}
+
+function subjectPg(s){const g=items.filter(i=>i.sub===s),c=colors[s];
+ return `<div class="hd" style="background:linear-gradient(120deg,${c},${c}aa)">${crumbs([["Home","home"],[s]])}<h1>${esc(s)} MCQs with Solutions</h1>${g.length} items</div>
+<div class="g">${count(g,i=>i.top).map(t=>`<div class="card" style="margin:0;border-top:4px solid ${c}"><h3>${go("t-"+slug(t[0]),esc(t[0]))}</h3><span class="mu">${t[1]} items</span></div>`).join("")}</div><div class="card">${slicePg(g).map(qcard).join("")}${pager(g.length)}</div>`}
+
+function topicPg(t){const g=items.filter(i=>slug(i.top)===t),n=g[0],c=colors[n.sub];
+ return `<div class="hd" style="background:linear-gradient(120deg,${c},${c}aa)">${crumbs([["Home","home"],[n.sub,"s-"+slug(n.sub)],[n.top]])}<h1>${esc(n.top)} MCQ Quiz: Objective Questions with Answers</h1>${g.length} items · Last updated ${new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}
+<div class="row np" style="margin-top:10px"><button data-pr="1">Download PDF</button></div></div><div class="card">${slicePg(g).map(qcard).join("")}${pager(g.length)}</div>`}
+
+function examPg(e){const g=items.filter(i=>slug(i.exam)===e).sort((a,b)=>(b.year||0)-(a.year||0)),n=g[0].exam;
+ return `<div class="hd" style="background:linear-gradient(120deg,#ea580c,#ea580ccc)">${crumbs([["Home","home"],[n]])}<h1>${esc(n)} Previous Year Questions</h1>${g.length} questions · newest year first</div><div class="card">${slicePg(g).map(qcard).join("")}${pager(g.length)}</div>`}
+
+function qPage(i){const c=colors[i.sub],sib=relSib(i),pv=items[i.id-2],nx=items[i.id],s=sel[i.id];
+ if(i.type==="Note")return `<div class="hd" style="background:${c}">${crumbs([["Home","home"],[i.sub,"s-"+slug(i.sub)],[i.top,"t-"+slug(i.top)],["Note"]])}<h1>Study note</h1></div><div class="card">${esc(i.q)}</div>`;
+ return `${crumbs([["Home","home"],[i.sub,"s-"+slug(i.sub)],[i.top,"t-"+slug(i.top)],[shortQ(i.q)]])}
+<div class="lay"><div><div class="card"><div class="row" style="justify-content:space-between"><b>Question</b><span class="np"><button data-share="1">Share</button></span></div>
+<div style="margin-top:10px"><span class="qno">Q.${i.id}</span></div>${stemHtml(i)}
+<div class="pv"><span class="mu">This question was previously asked in</span><br><b>${i.src?esc(i.src):"Source not given"}</b>${i.exam?`<div style="margin-top:6px">${go("e-"+slug(i.exam),"More "+esc(i.exam)+" questions")}</div>`:""}</div>
+${optGrid(i,true)}<p class="mu">${s==null?"Tap an option to check your answer.":(s===i.a?"Correct.":"Not quite. The correct option is highlighted.")}</p></div>
+<div class="card">${meta(i)}${fmtSol(i)}</div>
+<div class="row np" style="justify-content:space-between">${pv?go(qUrl(pv),"← Previous"):"<span></span>"}${nx?go(qUrl(nx),"Next →"):""}</div></div>
+<aside><div class="card sl"><h3>More from ${esc(i.top)}</h3>${sib.map(x=>go(qUrl(x),esc((stmtParse(x.q)||{stem:x.q}).stem.slice(0,80)))).join("")||'<span class="mu">No other questions yet.</span>'}</div>
+<div class="card sl"><h3>Explore</h3>${go("s-"+slug(i.sub),esc(i.sub)+" subject index")}${go("t-"+slug(i.top),esc(i.top)+" topic quiz")}${i.exam?go("e-"+slug(i.exam),esc(i.exam)+" paper index"):""}${go("browse","Browse all questions")}</div></aside></div>`}
+
+const filt=()=>items.filter(i=>(!F.sub||i.sub===F.sub)&&(!F.exam||i.exam===F.exam)&&(!F.year||i.year===F.year)&&(!F.top||i.top===F.top)&&(!F.q||(i.q+" "+i.o.join(" ")+" "+i.exp).toLowerCase().includes(F.q.toLowerCase())));
+const sels=(id,lab,arr,v)=>`<select id="${id}" aria-label="${lab}"><option value="">${lab}</option>${arr.map(a=>`<option${a===v?" selected":""}>${esc(a)}</option>`).join("")}</select>`;
+const res=()=>{const r=filt();return `<p class="mu">${r.length} result${r.length===1?"":"s"} · 5 per page</p>${slicePg(r).map(qcard).join("")||'<p class="mu">Nothing matches. Clear a filter.</p>'}${pager(r.length)}`};
+function browse(){return `<h1>Browse questions</h1><div class="card"><div class="row"><input id="fq" placeholder="Search text" value="${esc(F.q)}" aria-label="Search text">${sels("fs","Subject",count(items,i=>i.sub).map(x=>x[0]),F.sub)}${sels("ft","Topic",count(items,i=>i.top).map(x=>x[0]),F.top)}${sels("fe","Exam",count(items,i=>i.exam).map(x=>x[0]),F.exam)}${sels("fy","Year",count(items,i=>i.year).map(x=>x[0]).sort().reverse(),F.year)}<button id="fx">Clear</button></div></div><div class="card" id="res">${res()}</div>`}
+
+function add(){return `<h1>Add content</h1><p class="mu">Paste questions in almost any layout. The engine finds questions, options, answers, explanations, exams, years, subjects and topics.</p>
+<div class="card"><textarea id="inp" aria-label="Paste content" placeholder="Paste questions here">${esc(localStorage_get()||"")}</textarea><div class="row" style="margin-top:10px"><button class="p" id="build">Build question bank</button><button id="smp">Load sample</button><button id="clr">Clear</button></div><p id="rep" class="mu"></p></div>
+<div class="card"><h3>What it understands</h3><ul class="mu"><li>Text copied from a PDF where everything runs together on one line, including page headers and Telegram handles (they are removed)</li><li>Numbering like <b>Q1.</b>, <b>1.</b>, <b>1)</b> or none at all, with blank lines between questions</li><li>Options on separate lines or in one line: <b>(a) x (b) y (c) z (d) w</b>, labelled A/B/C/D or 1/2/3/4</li><li>Answers: <b>Answer: C</b>, <b>Ans: (c)</b>, <b>Correct Answer: Bihar</b>, or a key like <b>Answer Key: 1-A 2-C 3-B</b></li><li><b>Explanation:</b> or <b>Solution:</b>. For a rich solution add lines under it: <b>Key Points:</b> or <b>Important Points:</b> as titles, <b>- text</b> for bullets, and <b>Place | Leader</b> rows for tables (no blank lines inside). Plain explanations are split into key points automatically</li><li>Exam and year from <b>Source: SSC CGL 2021</b>, a tag like <b>[RPSC 2019]</b>, or a heading like <b>## BPSC 2002</b></li><li><b>Subject:</b> and <b>Topic:</b> lines. Without them, subject and topic are guessed from keywords</li></ul></div>`}
+function localStorage_get(){try{return localStorage.getItem("ece_txt")}catch(e){return""}}
+
+function render(){const A=$("#app");if(!items.length&&R!=="add")R="add";let h;
+ try{const k=R.slice(2);
+  if(R==="home")h=home();else if(R==="add")h=add();else if(R==="browse")h=browse();
+  else if(R.startsWith("s-")&&SUBSET(k))h=subjectPg(SUBSET(k));
+  else if(R.startsWith("t-")&&items.some(i=>slug(i.top)===k))h=topicPg(k);
+  else if(R.startsWith("e-")&&items.some(i=>slug(i.exam)===k))h=examPg(k);
+  else if(R.startsWith("q-")&&items[parseInt(k)-1])h=qPage(items[parseInt(k)-1]);
+  else{R="home";h=home()}}catch(e){h='<p class="mu">Could not draw this page.</p>'}
+ A.innerHTML=h}
+const SUBSET=k=>items.map(i=>i.sub).find(s=>slug(s)===k);
+function nav(t,keep){R=t;PG=1;try{location.hash=t}catch(e){}render();if(!keep)window.scrollTo(0,0)}
+function build(){const t=$("#inp").value;try{localStorage.setItem("ece_txt",t)}catch(e){}
+ items=parse(t);colors={};items.forEach(i=>{if(!colors[i.sub])colors[i.sub]=PAL[Object.keys(colors).length%PAL.length]});
+ if(!items.length){$("#rep").textContent="No questions found. Put a blank line between items.";return}
+ nav("home")}
+function load(){const t=localStorage_get();if(t){items=parse(t);colors={};items.forEach(i=>{if(!colors[i.sub])colors[i.sub]=PAL[Object.keys(colors).length%PAL.length]})}}
+
+document.addEventListener("click",e=>{const t=e.target.closest("[data-go],[data-opt],button,[data-share]");if(!t)return;
+ if(t.dataset.pg){PG=+t.dataset.pg;render();window.scrollTo(0,0);return}
+ if(t.dataset.go){e.preventDefault();if(t.dataset.f){F={q:"",sub:"",exam:"",year:"",top:""};t.dataset.f.split("&").forEach(p=>{const[a,b]=p.split("=");F[a]=decodeURIComponent(b)})}nav(t.dataset.go);return}
+ if(t.dataset.opt){const[a,b]=t.dataset.opt.split(":");sel[a]=+b;render();return}
+ if(t.dataset.pr){try{window.print()}catch(x){}return}
+ if(t.dataset.share){try{navigator.clipboard.writeText(location.href).then(()=>t.textContent="Link copied",()=>t.textContent="Copy blocked")}catch(x){t.textContent="Copy blocked"}return}
+ if(t.id==="build")build();
+ if(t.id==="smp"){$("#inp").value=SAMPLE;build()}
+ if(t.id==="clr"){$("#inp").value="";items=[];try{localStorage.removeItem("ece_txt")}catch(x){}}
+ if(t.id==="fx"){F={q:"",sub:"",exam:"",year:"",top:""};render()}});
+document.addEventListener("input",e=>{const m={fq:"q",fs:"sub",ft:"top",fe:"exam",fy:"year"}[e.target.id];if(m){F[m]=e.target.value;PG=1;$("#res").innerHTML=res()}});
+$("#gs").addEventListener("keydown",e=>{if(e.key==="Enter"&&items.length){F={q:e.target.value,sub:"",exam:"",year:"",top:""};nav("browse")}});
+addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(h&&h!==R){R=h;render()}});
+
+/* ===== Hindi split view + Practice (added) ===== */
+var LANG="en",HI={},TRB=new Set(),TRERR="",QZ=null;
+try{HI=JSON.parse(localStorage.getItem("ece_hi")||"{}")}catch(e){}
+const hk=i=>{let h=5381;const s=i.q;for(let k=0;k<s.length;k++)h=(h*33^s.charCodeAt(k))>>>0;return "h"+h};
+const hiOf=i=>{const h=HI[hk(i)];return h&&h.q&&Array.isArray(h.o)&&h.o.length===i.o.length?Object.assign({},i,{q:h.q,o:h.o,exp:h.exp||"",top:h.top||topH(i.top)}):null};
+
+/* ===== Hindi-aware categories (added) ===== */
+const SUBHI={"Ancient India":"प्राचीन भारत","Medieval India":"मध्यकालीन भारत","Modern India":"आधुनिक भारत",History:"इतिहास",Polity:"राजव्यवस्था",Geography:"भूगोल",Economy:"अर्थव्यवस्था",Science:"विज्ञान",Maths:"गणित",Reasoning:"तर्कशक्ति",English:"अंग्रेज़ी","Current Affairs":"समसामयिकी",Sociology:"समाजशास्त्र",Education:"शिक्षा",Environment:"पर्यावरण","Art & Culture":"कला एवं संस्कृति",Computer:"कंप्यूटर",Hindi:"हिन्दी",Uncategorized:"अवर्गीकृत"};
+const TOPHI={"Indus Valley Civilization":"सिंधु घाटी सभ्यता","Vedic Age":"वैदिक काल","Mahajanapadas and Mauryas":"महाजनपद एवं मौर्य","Gupta and Post-Gupta Age":"गुप्त एवं गुप्तोत्तर काल","Delhi Sultanate":"दिल्ली सल्तनत","Mughal Empire":"मुग़ल साम्राज्य","Bhakti, Sufi and Regional Kingdoms":"भक्ति, सूफ़ी एवं क्षेत्रीय राज्य","Revolt of 1857":"1857 का विद्रोह","Socio-Religious Reforms":"सामाजिक-धार्मिक सुधार","Freedom Struggle":"स्वतंत्रता संग्राम","Constitution":"संविधान","Parliament and Executive":"संसद एवं कार्यपालिका","Judiciary":"न्यायपालिका","Indian Geography":"भारत का भूगोल","World Geography":"विश्व भूगोल","Banking and Finance":"बैंकिंग एवं वित्त","Economy Basics":"अर्थव्यवस्था की मूल बातें",Physics:"भौतिक विज्ञान",Chemistry:"रसायन विज्ञान",Biology:"जीव विज्ञान",Arithmetic:"अंकगणित","Algebra and Geometry":"बीजगणित एवं ज्यामिति","Verbal and Non-Verbal":"शाब्दिक एवं अशाब्दिक","Grammar and Vocabulary":"व्याकरण एवं शब्दावली","Recent Events":"हाल की घटनाएँ","Society and Social Institutions":"समाज एवं सामाजिक संस्थाएँ","Teaching and Pedagogy":"शिक्षण एवं शिक्षाशास्त्र","Ecology and Biodiversity":"पारिस्थितिकी एवं जैव विविधता","Indian Art and Culture":"भारतीय कला एवं संस्कृति","Computer Awareness":"कंप्यूटर जागरूकता","Hindi Grammar and Literature":"हिन्दी व्याकरण एवं साहित्य",General:"सामान्य"};
+var SUBH={},TOPH={};
+const subH=v=>SUBH[v]||SUBHI[v]||v,topH=v=>TOPH[v]||TOPHI[v]||v;
+const HK={"Indus Valley Civilization":["सिंधु","हड़प्पा","मोहनजोदड़ो","लोथल","कालीबंगा","धौलावीरा"],"Vedic Age":["वैदिक","ऋग्वेद","आर्य","उपनिषद","ब्राह्मण","सभा","समिति"],"Mahajanapadas and Mauryas":["मौर्य","अशोक","महाजनपद","मगध","बुद्ध","महावीर","बिम्बिसार","चाणक्य","कौटिल्य","अर्थशास्त्र","नंद"],"Gupta and Post-Gupta Age":["गुप्त","हर्ष","कालिदास","समुद्रगुप्त","वाकाटक","पल्लव","संगम","सातवाहन","कुषाण","कनिष्क"],"Delhi Sultanate":["सल्तनत","इल्तुतमिश","बलबन","अलाउद्दीन","तुगलक","खिलजी","रज़िया","लोदी"],"Mughal Empire":["मुग़ल","मुगल","अकबर","बाबर","हुमायूँ","शाहजहाँ","औरंगज़ेब","औरंगजेब","जहाँगीर","शेरशाह","मनसबदारी"],"Bhakti, Sufi and Regional Kingdoms":["भक्ति","सूफ़ी","सूफी","कबीर","चोल","विजयनगर","बहमनी","राजपूत","नानक","चैतन्य","मराठा","शिवाजी"],"Revolt of 1857":["1857","विद्रोह","क्रांति","मंगल पांडे","लक्ष्मीबाई","नाना साहेब","तात्या","कुँवर सिंह","बहादुरशाह"],"Socio-Religious Reforms":["समाज सुधार","आर्य समाज","दयानंद","राममोहन","विवेकानंद","रामकृष्ण","ब्रह्म समाज","सर सैयद","सुधार आंदोलन"],"Freedom Struggle":["ब्रिटिश","अंग्रेज","कांग्रेस","गांधी","वायसराय","गवर्नर जनरल","प्लासी","बक्सर","स्वतंत्रता","असहयोग","स्वदेशी","भारत छोड़ो","नेहरू","तिलक","ईस्ट इंडिया"],"Constitution":["अनुच्छेद","संविधान","प्रस्तावना","मौलिक","संशोधन","नीति निर्देशक"],"Parliament and Executive":["लोकसभा","राज्यसभा","संसद","राष्ट्रपति","प्रधानमंत्री","अध्यक्ष","राज्यपाल"],"Judiciary":["उच्चतम न्यायालय","सर्वोच्च न्यायालय","उच्च न्यायालय","न्यायाधीश","रिट","न्यायपालिका"],"Indian Geography":["नदी","हिमालय","पठार","मानसून","मृदा","मिट्टी","डेल्टा","घाट","राष्ट्रीय उद्यान"],"World Geography":["महाद्वीप","महासागर","मरुस्थल","रेगिस्तान","विषुवत","अक्षांश","ज्वालामुखी"],"Banking and Finance":["आरबीआई","रिज़र्व बैंक","बैंक","रेपो","मुद्रास्फीति","नाबार्ड","सेबी","मौद्रिक"],"Economy Basics":["जीडीपी","बजट","कर","राजकोषीय","पंचवर्षीय","नीति आयोग","अर्थव्यवस्था"],"Physics":["बल","वेग","न्यूटन","विद्युत","धारा","लेंस","तरंग"],"Chemistry":["अम्ल","परमाणु","अणु","तत्व","अभिक्रिया","मिश्र धातु"],"Biology":["कोशिका","विटामिन","रोग","पादप","पौधे","रक्त","एंजाइम","प्रकाश संश्लेषण"],"Arithmetic":["प्रतिशत","लाभ","हानि","अनुपात","चाल","औसत","ब्याज","छूट"],"Algebra and Geometry":["त्रिभुज","वृत्त","समीकरण","बहुपद","कोण","परिमाप"],"Verbal and Non-Verbal":["श्रृंखला","शृंखला","कोडिंग","विषम","सादृश्य","वेन","दिशा","रक्त संबंध"],"Grammar and Vocabulary":["पर्यायवाची","विलोम","मुहावरे","रिक्त स्थान","अनुच्छेद"],"Recent Events":["शिखर सम्मेलन","पुरस्कार","नियुक्त","शुभारंभ","2025","2026"]};
+T.forEach(r=>{const k=HK[r[1]];if(k)r[2].push(...k)});
+[["Sociology","Society and Social Institutions",["society","social","culture","family","caste","community","civilization","समाज","सामाजिक","संस्कृति","परिवार","जाति","समुदाय","मानव","सभ्यता","संस्था"]],["Education","Teaching and Pedagogy",["teaching","pedagogy","learning","curriculum","child development","शिक्षण","शिक्षा","अधिगम","पाठ्यक्रम","बाल विकास","शिक्षक","विद्यार्थी"]],["Environment","Ecology and Biodiversity",["ecosystem","biodiversity","pollution","climate","wildlife","पर्यावरण","पारिस्थितिक","जैव विविधता","प्रदूषण","जलवायु","वन्यजीव"]],["Art & Culture","Indian Art and Culture",["temple","dance","painting","architecture","festival","मंदिर","नृत्य","चित्रकला","स्थापत्य","त्योहार","साहित्य","लोक कला"]],["Computer","Computer Awareness",["computer","software","internet","hardware","कंप्यूटर","सॉफ्टवेयर","इंटरनेट"]],["Hindi","Hindi Grammar and Literature",["संधि","समास","अलंकार","कारक","छंद","काव्य","रस "]]].forEach(r=>T.push(r));
+const _cl=classify;classify=function(t,sub){return _cl(String(t).normalize("NFC"),sub)};
+var RECAT=false;try{RECAT=localStorage.getItem("ece_recat")==="1"}catch(e){}
+var CAT={},CATMSG="";try{CAT=JSON.parse(localStorage.getItem("ece_cat")||"{}")}catch(e){}
+const svCAT=()=>{try{localStorage.setItem("ece_cat",JSON.stringify(CAT))}catch(e){}};
+(function(){const add=(top,ks)=>{const r=T.find(x=>x[1]===top);if(r)r[2].push(...ks)};
+add("Indus Valley Civilization",["सैन्धव","सैंधव","सिन्धु","हड़प्पाई","हड़प्पीय","चन्हूदड़ो","बनावली","सुरकोटदा","राखीगढ़ी","मेहरगढ़","रोपड़","रंगपुर","आलमगीरपुर","स्नानागार","अन्नागार","नगर नियोजन","मृद्भांड","मृदभांड","पुरातात्त्विक","पुरातात्विक","उत्खनन","पुरातत्व","पुरातत्त्व","चित्रित मृद्","मुहरें","मातृदेवी","पशुपति","दुर्ग","granary","citadel","painted pottery","pottery","seal","mother goddess","pashupati","bronze","terracotta","ropar","banawali","surkotada","rangpur","alamgirpur","sindhu","saindhava"])})();
+const unc=()=>items.filter(i=>i.type==="MCQ"&&(i.top==="General"||i.sub==="Uncategorized"));
+const _parse=parse;parse=function(t){const o=_parse(hiNorm(t));o.forEach(i=>{if(i.type!=="MCQ")return;if(RECAT&&!CAT[hk(i)]){const k=classify(i.q+" "+i.o.join(" ")+" "+(i.exp||""),"");i.sub=k[0];i.top=k[1]}const c=CAT[hk(i)];if(c){if(c.ex&&!i.exam)i.exam=c.ex;if(c.yr&&!i.year)i.year=c.yr}if(c&&c.sub){i.sub=c.sub;i.top=c.top;if(c.sh)SUBH[c.sub]=c.sh;if(c.th)TOPH[c.top]=c.th}const g=GENS[hk(i)];if(g){if(i.a<0&&g.a>=0&&g.a<i.o.length){i.a=g.a;i.ai=true}if(!(i.exp||"").trim()&&g.exp){i.exp=g.exp;i.ai=true}}});inferRuns(o);return o};
+function inferRuns(o){const M=o.map((i,k)=>i.type==="MCQ"?k:-1).filter(k=>k>=0),ok=k=>o[k].top!=="General"&&o[k].sub!=="Uncategorized"&&!o[k].inf;
+ M.forEach((k,p)=>{if(ok(k)||o[k].inf)return;let a=null,b=null,da=0,db=0;for(let q=p-1;q>=0;q--)if(ok(M[q])){a=o[M[q]];da=p-q;break}for(let q=p+1;q<M.length;q++)if(ok(M[q])){b=o[M[q]];db=q-p;break}
+  let c=null;if(a&&b&&a.sub===b.sub&&a.top===b.top)c=a;else if(a&&!b&&da<=5)c=a;else if(b&&!a&&db<=5)c=b;if(c){o[k].sub=c.sub;o[k].top=c.top;o[k].inf=true}})}
+async function autoCat(){const list=unc();if(!list.length)return;let sm=null;try{sm=await claude.use("sample")}catch(e){}
+ if(!sm){CATMSG="Claude is not available in this view.";render();return}
+ const known=[...new Set(T.map(r=>r[0]+" > "+r[1]))].join("; ");
+ for(let a=0;a<list.length;a+=6){const b=list.slice(a,a+6);CATMSG="Categorising "+(a+1)+"-"+(a+b.length)+" of "+list.length+"…";render();
+  try{const r=await sm.json("Classify these Indian competitive-exam questions (English or Hindi) into subject and chapter/topic. Prefer these existing subject > topic pairs when they fit: "+known+". Otherwise invent a short sensible English subject and topic. Also give Hindi names (subHi, topHi). Return ONLY a JSON array [{\"id\":\"..\",\"sub\":\"..\",\"top\":\"..\",\"subHi\":\"..\",\"topHi\":\"..\"}] with one object per id.\n"+JSON.stringify(b.map(i=>({id:hk(i),q:i.q.slice(0,300),o:i.o.map(x=>x.slice(0,80))}))),{modelTier:"quick"});
+   (Array.isArray(r)?r:[]).forEach(x=>{if(x&&x.id&&x.sub&&x.top)CAT[x.id]={sub:String(x.sub).slice(0,40),top:String(x.top).slice(0,60),sh:x.subHi||"",th:x.topHi||""}});svCAT()}
+  catch(e){CATMSG="Stopped: "+(e&&e.code==="not_granted"?"permission not given":"failed, try again");break}}
+ if(!CATMSG.startsWith("Stopped"))CATMSG="Done.";load();render()}
+const _home=home;home=function(){const n=unc().length;return(n?`<div class="card"><b>${n} question${n>1?"s":""} still Uncategorized / General.</b> <button class="p" data-cat="run">Categorise with Claude</button> <span class="mu">${esc(CATMSG)}</span></div>`:"")+_home()};
+const _home3=home;home=function(){const m=items.filter(i=>i.type==="MCQ"),tp=[...new Set(m.map(i=>i.top))];
+ return(m.length>3&&tp.length<=1?`<div class="card"><b>सभी ${m.length} प्रश्न एक ही topic में हैं${tp[0]?" ("+esc(tp[0])+")":""}.</b> पेस्ट किए गए Subject/Topic/heading लेबल को छोड़कर हर प्रश्न को उसके अपने Hindi/English शब्दों से दोबारा वर्गीकृत करें। जो न मिले वे Uncategorized होंगे, फिर "Categorise with Claude" चलाएँ. <button class="p" data-cat="reset">सभी दोबारा वर्गीकृत करें</button></div>`:"")+_home3()};
+const hiTop=i=>(HI[hk(i)]||{}).top||topH(i.top);
+const hMeta=i=>meta(i).split(esc(i.top)).join(esc(hiTop(i)));
+
+var GENS={},SOLMSG="";try{GENS=JSON.parse(localStorage.getItem("ece_gen")||"{}")}catch(e){}
+const svGEN=()=>{try{localStorage.setItem("ece_gen",JSON.stringify(GENS))}catch(e){}};
+const nosol=()=>items.filter(i=>i.type==="MCQ"&&(i.a<0||!(i.exp||"").trim()));
+async function autoSol(id){const list=id?items.filter(i=>i.id===id):nosol();if(!list.length)return;let sm=null;try{sm=await claude.use("sample")}catch(e){}
+ if(!sm){SOLMSG="Claude is not available in this view.";render();return}
+ for(let a=0;a<list.length;a+=4){const b=list.slice(a,a+4);SOLMSG="Writing solutions "+(a+1)+"-"+(a+b.length)+" of "+list.length+"…";render();
+  try{const r=await sm.json("You write exam solutions for Indian competitive exams. For each question return the correct option letter (a-e), or an empty string if you cannot tell reliably, and an explanation of 3-6 short fact lines separated by \\n, written in the SAME language as the question. Keep the known answer if one is given. Use only well-established facts. Return ONLY a JSON array [{\"id\":\"..\",\"answer\":\"a\",\"exp\":\"..\"}].\n"+JSON.stringify(b.map(i=>({id:hk(i),q:i.q.slice(0,400),o:i.o.map(x=>x.slice(0,120)),known:i.a>-1?"abcde"[i.a]:"",source_explanation:(i.exp||"").slice(0,300)}))),{modelTier:"default"});
+   (Array.isArray(r)?r:[]).forEach(x=>{if(!x||!x.id)return;GENS[x.id]={a:"abcde".indexOf(String(x.answer||"").toLowerCase()),exp:String(x.exp||"").slice(0,1200)}});svGEN()}
+  catch(e){SOLMSG="Stopped: "+(e&&e.code==="not_granted"?"permission not given":"failed, try again");break}}
+ if(!SOLMSG.startsWith("Stopped"))SOLMSG="Done. Check AI-suggested solutions before publishing.";load();render()}
+const _fs=fmtSol;fmtSol=function(i){let h=_fs(i);const hd=/[\u0900-\u097F]/.test(i.q),g=(t,hi)=>`${hd?hi:t} <button data-gen="${i.id}">${hd?"Claude से हल बनाएँ":"Generate with Claude"}</button>`;
+ h=h.replace(/<p class="mu">No answer found in the pasted text\.[\s\S]*?<\/p>/,`<p class="mu">${g("No answer in the source.","स्रोत में उत्तर नहीं मिला।")}</p>`).replace(/<li>No explanation in the pasted text\.[\s\S]*?<\/li>/,`<li>${g("No explanation in the source.","स्रोत में व्याख्या नहीं मिली।")}</li>`);
+ if(i.ai)h=h.replace("<hr>",`<hr><p class="hin">${hd?"⚠ AI द्वारा सुझाया गया हल: प्रकाशित करने से पहले जाँचें।":"⚠ AI-suggested solution: check it before publishing."}</p>`);return h};
+const _home2=home;home=function(){const m=nosol().length;return(m?`<div class="card"><b>${m} question${m>1?"s have":" has"} no answer or explanation.</b> <button class="p" data-gen="all">Write solutions with Claude</button> <span class="mu">${esc(SOLMSG)}</span></div>`:"")+_home2()};
+var LM=null,SPLIT=false,ENX={};try{ENX=JSON.parse(localStorage.getItem("ece_en")||"{}")}catch(e){}
+const isHi=i=>/[\u0900-\u097F]/.test(i.q);
+const enOf=i=>{const h=ENX[hk(i)];return h&&h.q&&Array.isArray(h.o)&&h.o.length===i.o.length?Object.assign({},i,{q:h.q,o:h.o,exp:h.exp||"",top:h.top||i.top}):null};
+const pendE=i=>`<p class="hin">English translation ${TRERR?"unavailable: "+esc(TRERR):TRB.has(hk(i))?"is being prepared…":"is not available yet."} <button data-tr="${i.id}">Translate</button></p>`;
+const TG=i=>{const sr=isHi(i)?"hi":"en",on=LM||sr;return `<span class="lg np">${[["en","En"],["hi","हिन्दी"],["both","En ‖ हिं"]].map(x=>`<button data-lang="${x[0]}" class="${on===x[0]?"on":""}">${x[1]}</button>`).join("")}</span>`};
+const MD=i=>{const sr=isHi(i)?"hi":"en";return LM&&LM!==sr?LM:null};const PM=i=>{const m=MD(i);return m==="both"?null:m};
+const lack=i=>{const t=isHi(i)?enOf(i):hiOf(i);return !t||(!!(i.exp)&&!t.exp)};
+const pair=(i,f,m)=>{let en,hi;if(isHi(i)){hi=hiLab(f(i));const e=enOf(i);en=e?f(e):pendE(i)}else{en=f(i);const h=hiOf(i);hi=h?hiLab(f(h)):pend(i)}
+ if(f===fmtSol&&i.exp&&!(isHi(i)?(enOf(i)||{exp:1}).exp:(hiOf(i)||{exp:1}).exp)){const note=`<p class="hin">${isHi(i)?"English":"हिन्दी"} व्याख्या/explanation missing. <button data-tr="${i.id}">Translate</button></p>`;if(isHi(i))en+=note;else hi+=note}
+ if(m==="en")return `<div>${en}</div>`;if(m==="hi")return `<div>${hi}</div>`;return `<div class="sp hs"><div>${en}</div><div>${hi}</div></div>`};
+const HLT={"क":"a","ख":"b","ग":"c","घ":"d","ङ":"e"};
+function hiNorm(t){if(!/[\u0900-\u097F]/.test(t))return t;return t.normalize("NFC").split("\n").map(l=>{
+ let x=l.replace(/^\s*प्रश्न\s*(\d+)\s*[.):\-]?\s*/,"Q$1. ");
+ x=x.replace(/^(\s*)(?:सही\s+)?उत्तर\s*[:\-.)]\s*/,"$1Answer: ").replace(/^(\s*)(?:व्याख्या|स्पष्टीकरण|समाधान)\s*[:\-.]\s*/,"$1Explanation: ").replace(/^(\s*)(?:परीक्षा|स्रोत|पूर्व में पूछा गया|पूछा गया)\s*[:\-]\s*/,"$1Exam: ").replace(/^(\s*)वर्ष\s*[:\-]\s*/,"$1Year: ").replace(/^(\s*)विषय\s*[:\-]\s*/,"$1Subject: ").replace(/^(\s*)(?:अध्याय|टॉपिक)\s*[:\-]\s*/,"$1Topic: ");
+ x=x.replace(/^(\s*)\(?([कखगघङ])[.)]\s*/,(m,a,b)=>a+"("+HLT[b]+") ");
+ x=x.replace(/^(\s*Answer:\s*)\(?([कखगघङ])\)?/,(m,a,b)=>a+HLT[b]);return x}).join("\n")}
+const HL={"Detailed Solution":"विस्तृत समाधान","Key Points":"मुख्य बिंदु","Additional Information":"अतिरिक्त जानकारी","Option Analysis":"विकल्प विश्लेषण","Related Points":"संबंधित बिंदु","Correct Matching":"सही मिलान","Option":"विकल्प","Statement":"कथन","Verdict":"निर्णय","✓ Correct":"✓ सही","✗ Incorrect":"✗ गलत","Share":"शेयर","Download Solution PDF":"समाधान PDF"};
+const hiLab=h=>h.replace(/>(Detailed Solution|Key Points|Additional Information|Option Analysis|Related Points|Correct Matching|Option|Statement|Verdict|✓ Correct|✗ Incorrect|Share|Download Solution PDF)</g,(m,a)=>">"+HL[a]+"<").replace("The correct answer is","सही उत्तर है").replace("(option ","(विकल्प ");
+const pend=i=>`<p class="hin">हिन्दी अनुवाद ${TRERR?"उपलब्ध नहीं: "+esc(TRERR):TRB.has(hk(i))?"बन रहा है…":"अभी नहीं है."} <button data-tr="${i.id}">Translate</button></p>`;
+const qBody=(i,live)=>`<div><span class="qno">Q.${i.id}</span></div>${stemHtml(i)}${optGrid(i,live)}`;
+const _sents=sents;sents=function(t){if(/[\u0900-\u097F]/.test(t))return t.replace(/\s+/g," ").split(/(?<=[।.!?])\s+/).filter(Boolean);return _sents(t)};
+const _qc=qcard;qcard=function(i){if(i.type==="Note")return _qc(i);
+ if(!MD(i))return _qc(i).replace('<div class="qc">','<div class="qc">'+TG(i));
+ return `<div class="qc">${TG(i)}<div>${hMeta(i)} <a href="#" data-go="${qUrl(i)}">Open page</a></div>${pair(i,x=>qBody(x,false),PM(i))}<details><summary>View solution</summary>${pair(i,fmtSol,PM(i))}</details></div>`};
+const _qp=qPage;qPage=function(i){if(i.type==="Note")return _qp(i);
+ if(!MD(i))return _qp(i).replace('<div class="row" style="justify-content:space-between"><b>Question</b>','<div class="row" style="justify-content:space-between"><b>Question</b>'+TG(i)).replace('<div class="card">${meta(i)}','<div class="card">').replace(/(<div class="card">)(<div class="ds")/,'$1'+TG(i)+'$2');
+ const pv=items[i.id-2],nx=items[i.id],s=sel[i.id],h=isHi(i)?i:hiOf(i);
+ return `${crumbs([["Home","home"],[i.sub,"s-"+slug(i.sub)],[hiTop(i),"t-"+slug(i.top)],[shortQ(h?h.q:i.q)]])}
+<div class="card"><div class="row" style="justify-content:space-between"><b>प्रश्न</b>${TG(i)}</div>${pair(i,x=>qBody(x,true),PM(i))}<p class="mu">${s==null?"उत्तर जाँचने के लिए विकल्प चुनें।":(s===i.a?"सही उत्तर।":"गलत। सही विकल्प चिह्नित है।")}</p></div>
+<div class="card">${hMeta(i)}${pair(i,fmtSol,PM(i))}</div>
+<div class="row np" style="justify-content:space-between">${pv?go(qUrl(pv),"← पिछला"):"<span></span>"}${nx?go(qUrl(nx),"अगला →"):""}</div>`};
+async function trRun(){if(!(window.claude&&claude.use))return;const need=[];
+ document.querySelectorAll("[data-tr]").forEach(b=>{const i=items[+b.dataset.tr-1];if(i&&lack(i)&&!TRB.has(hk(i)))need.push(i)});
+ if(!need.length)return;let smp=null;try{smp=await claude.use("sample")}catch(e){}
+ if(!smp){TRERR="translation not available here";render();return}
+ for(const toEn of[true,false]){const grp=need.filter(i=>isHi(i)===toEn);
+  for(let a=0;a<grp.length;a+=4){const b=grp.slice(a,a+4);b.forEach(i=>TRB.add(hk(i)));
+   const inp=b.map(i=>({id:hk(i),q:i.q,o:i.o,exp:i.exp||"",top:i.top}));
+   try{const r=await smp.json("Translate these exam MCQs into "+(toEn?"clear English":"clear Hindi (Devanagari)")+". Return ONLY a JSON array of objects with the same keys id,q,o,exp,top. Keep id unchanged. Keep o as an array with the same number of items in the same order. Keep numbers, years, option codes like '1, 2 and 3', and the line breaks (\\n) and list markers in exp unchanged. "+(toEn?"":"End exp sentences with '।'. ")+"Use the standard exam-textbook form of proper nouns.\n"+JSON.stringify(inp),{modelTier:"quick"});
+    const C=toEn?ENX:HI;(Array.isArray(r)?r:[]).forEach(x=>{if(x&&x.id)C[x.id]=x});try{localStorage.setItem(toEn?"ece_en":"ece_hi",JSON.stringify(C))}catch(e){}TRERR=""}
+   catch(e){TRERR=e&&e.code==="not_granted"?"permission not given":"failed, try again"}
+   b.forEach(i=>TRB.delete(hk(i)));render()}}}
+/* cross-reference: "see explanation of question n" -> pull that question's explanation */
+const REFQ=/(?:प्रश्न|प्र\.?|questions?|ques\.?|\bQ\.?)\s*(?:no\.?|number|संख्या|सं\.?)?\s*(\d+)/i,REFV=/व्याख्या|समाधान|\bहल\b|explanation|solution|देख|\bsee\b|refer/i;
+function refInfo(i){const ex=(i.exp||"").trim();if(!ex||ex.length>400)return null;let n=null;const keep=[];
+ ex.split("\n").forEach(l=>{const ss=l.split(/(?<=[।.!?])\s+/).filter(t=>{const m=t.match(REFQ);if(m&&REFV.test(t)&&n==null){n=+m[1];return false}return true});const r=ss.join(" ").trim();if(r)keep.push(r)});
+ if(n==null)return null;const hi=isHi(i);
+ let cand=items.filter(x=>x.type==="MCQ"&&x.id!==i.id&&+x.no===n);
+ if(!cand.length&&items[n-1]&&items[n-1].id!==i.id&&items[n-1].type==="MCQ")cand=[items[n-1]];
+ const t0=cand.find(x=>x.src===i.src)||cand[0];if(!t0)return null;
+ const t=hi?(isHi(t0)?t0:hiOf(t0)):(isHi(t0)?enOf(t0):t0);
+ if(!t||!(t.exp||"").trim())return null;return{n:n,keep:keep.join("\n"),t:t}}
+const rexp=(i,d)=>{d=d||0;const r=d<3?refInfo(i):null;if(!r)return i.exp||"";return(r.keep?r.keep+"\n":"")+rexp(r.t,d+1)};
+const _fs3=fmtSol;fmtSol=function(i){const r=refInfo(i);if(!r)return _fs3(i);
+ const h=_fs3(Object.assign({},i,{exp:rexp(i)}));
+ return h.replace("<hr>",`<hr><p class="hin">${isHi(i)?"यह व्याख्या प्रश्न "+r.n+" से ली गई है।":"Explanation taken from question "+r.n+"."}</p>`)};
+/* practice */
+function practice(){const subs=count(items.filter(i=>i.type==="MCQ"&&i.a>-1),i=>i.sub);
+ if(QZ&&QZ.done)return qzDone();if(QZ)return qzRun();
+ return `<h1>Practice quiz</h1><p class="mu">Topic-wise practice from your own bank. Then share it to your Telegram channel or download the PDF.</p><div class="card"><div class="row"><select id="pqs"><option value="">All subjects</option>${subs.map(s=>`<option>${esc(s[0])}</option>`).join("")}</select><select id="pqn"><option>5</option><option>10</option><option>20</option></select><label><input type="checkbox" id="pqh"> हिन्दी भी दिखाएँ</label><button class="p" data-pq="start">Start</button></div></div>`}
+function qzPick(){const s=$("#pqs").value,n=+$("#pqn").value,pool=items.filter(i=>i.type==="MCQ"&&i.a>-1&&(!s||i.sub===s));
+ for(let k=pool.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[pool[k],pool[j]]=[pool[j],pool[k]]}
+ QZ={set:pool.slice(0,n),k:0,ans:[],hi:$("#pqh").checked,done:false}}
+function qzRun(){const i=QZ.set[QZ.k],a=QZ.ans[QZ.k],h=QZ.hi?hiOf(i):null;
+ const op=(it)=>`<div class="ops">${it.o.map((o,k)=>`<button class="opt${a!=null?(k===i.a?" ok":k===a?" bad":""):""}" data-pq="ans:${k}"><b>(${"abcde"[k]})</b>${esc(o)}${a!=null&&k===i.a?" ✓":""}</button>`).join("")}</div>`;
+ return `<h1>Practice · ${QZ.k+1}/${QZ.set.length}</h1><div class="card"><div class="${h?"sp":""}"><div><div class="qs">${esc(i.q)}</div>${op(i)}</div>${h?`<div><div class="qs">${esc(h.q)}</div>${op(h)}</div>`:""}</div>${a!=null?`<div class="sp" style="margin-top:8px"><div>${fmtSol(i)}</div><div>${h?hiLab(fmtSol(h)):""}</div></div><div class="row np"><button class="p" data-pq="next">${QZ.k+1<QZ.set.length?"Next →":"See score"}</button></div>`:""}</div>`}
+function qzDone(){const sc=QZ.set.filter((i,k)=>QZ.ans[k]===i.a).length;
+ return `<h1>Score ${sc}/${QZ.set.length}</h1><div class="card"><div class="row np"><button class="p" data-pq="pdf">Download PDF</button><button data-pq="tg">Share on Telegram</button><button data-pq="cp">Copy channel post</button><button data-pq="again">New quiz</button></div><p class="mu" id="pqm"></p>${QZ.set.map((i,k)=>`<div class="pq"><b>Q${k+1}.</b> ${esc(i.q.slice(0,140))}<br><span class="${QZ.ans[k]===i.a?"vy":"vn"}">${QZ.ans[k]===i.a?"✓":"✗"} ${esc(i.o[i.a])}</span></div>`).join("")}</div>`}
+const tgText=()=>"📝 Practice quiz\n\n"+QZ.set.map((i,k)=>`Q${k+1}. ${i.q}\n`+i.o.map((o,j)=>`(${"abcde"[j]}) ${o}`).join("\n")).join("\n\n")+"\n\nAnswers: ||"+QZ.set.map((i,k)=>`${k+1}-${"abcde"[i.a]}`).join(", ")+"||";
+function mkPdf(){const L=[];const w=(t,n)=>{t=String(t).replace(/[^\x20-\x7E]/g," ").replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");while(t.length>n){let c=t.lastIndexOf(" ",n);if(c<20)c=n;L.push(t.slice(0,c));t=t.slice(c).trim()}L.push(t)};
+ w("Practice Quiz - Exam Content Engine",90);L.push("");
+ QZ.set.forEach((i,k)=>{w(`Q${k+1}. ${i.q.replace(/\s+/g," ")}`,90);i.o.forEach((o,j)=>w(`   (${"abcde"[j]}) ${o}`,86));L.push("")});
+ w("Answer key",90);QZ.set.forEach((i,k)=>w(`Q${k+1}: (${"abcde"[i.a]}) ${i.o[i.a]}${i.exp?" - "+i.exp.replace(/\s+/g," ").slice(0,300):""}`,90));
+ const pages=[];for(let k=0;k<L.length;k+=52)pages.push(L.slice(k,k+52));
+ const ob=[];ob[1]="<</Type/Catalog/Pages 2 0 R>>";ob[3]="<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>";
+ const kids=pages.map((p,k)=>{const c=4+k*2,pg=5+k*2;ob[c]=null;ob[pg]=null;return [c,pg,p]});
+ ob[2]=`<</Type/Pages/Kids[${kids.map(x=>x[1]+" 0 R").join(" ")}]/Count ${kids.length}>>`;
+ const body=[];kids.forEach(([c,pg,p])=>{const s="BT/F1 10 Tf 40 800 Td 14 TL "+p.map(t=>`(${t})'`).join(" ")+" ET";ob[c]=`<</Length ${s.length}>>\nstream\n${s}\nendstream`;ob[pg]=`<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Contents ${c} 0 R/Resources<</Font<</F1 3 0 R>>>>>>`});
+ let o="%PDF-1.4\n";const off=[];for(let k=1;k<ob.length;k++){off[k]=o.length;o+=`${k} 0 obj\n${ob[k]}\nendobj\n`}
+ const x=o.length;o+=`xref\n0 ${ob.length}\n0000000000 65535 f \n`+off.slice(1).map(v=>String(v).padStart(10,"0")+" 00000 n \n").join("")+`trailer<</Size ${ob.length}/Root 1 0 R>>\nstartxref\n${x}\n%%EOF`;return o}
+document.addEventListener("click",async e=>{const t=e.target.closest("[data-lang],[data-tr],[data-pq],[data-cat],[data-gen]");if(!t)return;e.stopPropagation();
+ if(t.dataset.lang){LM=t.dataset.lang;SPLIT=true;render();trRun();return}
+ if(t.dataset.tr){render();trRun();return}
+ if(t.dataset.cat==="reset"){RECAT=true;CAT=Object.fromEntries(Object.entries(CAT).filter(e=>e[1]&&e[1].m));svCAT();try{localStorage.setItem("ece_recat","1")}catch(x){}load();render();if(unc().length)autoCat();return}
+ if(t.dataset.cat){autoCat();return}
+ if(t.dataset.gen){autoSol(t.dataset.gen==="all"?0:+t.dataset.gen);return}
+ const a=t.dataset.pq;
+ if(a==="start"){qzPick();if(!QZ.set.length){QZ=null;return}render();if(QZ.hi){trRun()}return}
+ if(a.startsWith("ans:")){if(QZ.ans[QZ.k]==null){QZ.ans[QZ.k]=+a.slice(4);render()}return}
+ if(a==="next"){if(QZ.k+1<QZ.set.length)QZ.k++;else QZ.done=true;render();window.scrollTo(0,0);return}
+ if(a==="again"){QZ=null;render();return}
+ const m=$("#pqm");
+ if(a==="cp"){try{await navigator.clipboard.writeText(tgText());m.textContent="Post copied. Paste it in your Telegram channel."}catch(x){m.textContent="Copy blocked here."}return}
+ if(a==="tg"){const u="https://t.me/share/url?url="+encodeURIComponent("https://claude.ai")+"&text="+encodeURIComponent(tgText());window.open(u,"_blank","noopener");return}
+ if(a==="pdf"){try{const d=await claude.use("downloads");if(!d)throw 0;await d.save({filename:"practice-quiz.pdf",data:new Blob([mkPdf()],{type:"application/pdf"})});m.textContent="PDF saved."}catch(x){m.textContent="Download not available here."}return}
+},true);
+document.addEventListener("change",e=>{});
+const _r2=render;render=function(){if(R==="practice"){$("#app").innerHTML=practice();return}_r2()};
+document.querySelector("header nav").insertAdjacentHTML("beforeend",'<a href="#" data-go="practice">Practice</a>');
+/* ===== SEO Studio add-on ===== */
+(()=>{
+const S={site:"https://yourdomain.com",rev:"Editorial Team",per:200,key:"",strict:true,tab:"q",sel:0,lim:5,enr:{}};
+try{Object.assign(S,JSON.parse(localStorage.getItem("ece_seo")||"{}"))}catch(e){}
+const sv=()=>{try{localStorage.setItem("ece_seo",JSON.stringify(S))}catch(e){}},TODAY=new Date().toISOString().slice(0,10),LT="abcde";
+const hs=s=>{let h=5381;for(const c of s)h=(h*33^c.charCodeAt(0))>>>0;return h.toString(16).padStart(7,"0").slice(0,7)};
+const tri=s=>{const w=s.toLowerCase().replace(/\W+/g," ").trim().split(" "),o=new Set();for(let k=0;k+2<w.length;k++)o.add(w.slice(k,k+3).join(" "));return o};
+const jac=(a,b)=>{let n=0;for(const x of a)if(b.has(x))n++;return n/Math.max(1,a.size+b.size-n)};
+const mcq=()=>items.filter(i=>i.type==="MCQ");
+function prep(){const m=mcq(),sg=m.map(i=>tri(i.q+" "+i.o.join(" ")));
+ m.forEach((i,k)=>{i.h=hs(i.q+i.o.join("|"));i.e=S.enr[i.h];i.fail=[];
+  if(i.a<0)i.fail.push("missing-answer");if(i.ai)i.fail.push("ai-solution-unconfirmed");if(!i.e&&rexp(i).length<80)i.fail.push("thin-explanation");if(i.o.length<4)i.fail.push("few-options");
+  if(!i.src)i.fail.push("no-source");if(i.top==="General"||i.sub==="Uncategorized")i.fail.push("uncategorized");
+  for(let j=0;j<k;j++)if(!m[j].dup&&jac(sg[k],sg[j])>=.8){i.dup=m[j].h;i.fail.push("duplicate");break}
+  if(S.strict){if(!i.e)i.fail.push("unverified");else if(!i.e.agree)i.fail.push("model-disagreement")}
+  i.url=`/${slug(i.sub)}/${slug(i.top)}/${slug(i.q).slice(0,60).replace(/-$/,"")}-${i.h}/`});
+ m.filter(i=>!i.fail.length).forEach((i,k)=>i.live=k<S.per);m.filter(i=>i.fail.length).forEach(i=>i.live=false);return m}
+const status=i=>i.live?"published":i.fail.length?"noindex":"queued";
+const clean=h=>h.replace(/<span class="row np">.*?<\/span><\/div>/s,"</div>").replace(/<a [^>]*data-go[^>]*>(.*?)<\/a>/g,"$1").replace(/<button[^>]*>.*?<\/button>/g,"");
+const sol=i=>{const e=i.e;if(i.a<0)return"";if(e&&e.kp)return`<h2>Detailed solution</h2><p><b>Correct answer: (${LT[i.a]}) ${esc(i.o[i.a])}</b></p><h3>Key points</h3><ul>${e.kp.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>${(e.ip||[]).length?`<h3>Important points</h3><ul>${e.ip.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}${e.why?`<h3>Why other options are wrong</h3><ul>${Object.entries(e.why).map(([k,v])=>`<li><b>${esc(k.toUpperCase())}.</b> ${esc(v)}</li>`).join("")}</ul>`:""}`;return clean(fmtSol(i))};
+const ld=o=>`<script type="application/ld+json">${JSON.stringify(o).replace(/</g,"\\u003c")}<\/script>`;
+const U=p=>S.site.replace(/\/$/,"")+p;
+const crumbs=i=>({"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[["Home","/"],[i.sub,`/${slug(i.sub)}/`],[i.top,`/${slug(i.sub)}/${slug(i.top)}/`],[shortQ(i.q),i.url]].map((c,k)=>({"@type":"ListItem",position:k+1,name:c[0],item:U(c[1])}))});
+const quiz=i=>i.a<0?null:{"@context":"https://schema.org/","@type":"Quiz",name:i.q.slice(0,110),about:{"@type":"Thing",name:i.top},educationalLevel:"Competitive exam",assesses:i.top,hasPart:[{"@type":"Question",eduQuestionType:"Multiple choice",text:i.q,acceptedAnswer:{"@type":"Answer",text:i.o[i.a],answerExplanation:{"@type":"Comment",text:(i.e&&i.e.kp?i.e.kp.join(" "):i.exp).slice(0,500)}},suggestedAnswer:i.o.filter((_,k)=>k!==i.a).map(t=>({"@type":"Answer",text:t}))}]};
+const meta=i=>({title:`${i.q.slice(0,80)} | ${i.top}${i.exam?" "+i.exam+(i.year?" "+i.year:""):""} MCQ`,desc:`${i.q.slice(0,90)} Answer${i.a>-1?": "+i.o[i.a]:""} with key points and explanation. ${i.top}${i.exam?", "+i.exam:""}${i.year?" "+i.year:""}.`.slice(0,158)});
+const CSS="body{font:16px/1.6 system-ui,sans-serif;max-width:820px;margin:auto;padding:12px 16px;color:#1e293b}a{color:#4f46e5}table{border-collapse:collapse}td,th{border:1px solid #e2e8f0;padding:4px 8px}.cd{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;margin:10px 0}.mu{color:#64748b;font-size:14px}";
+const shell=(url,title,desc,body,o={})=>`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(desc.slice(0,158))}"><link rel="canonical" href="${U(url)}"><meta name="robots" content="${o.no?"noindex,follow":"index,follow"}">${(o.ld||[]).filter(Boolean).map(ld).join("")}<style>${CSS}</style></head><body><nav><a href="/">Home</a> · <a href="/trends/">Trends</a> · <a href="/about/">About</a></nav>${body}<p class="mu">Reviewed by ${esc(S.rev)} · <a href="/about/">About</a> · <a href="/contact/">Contact</a></p></body></html>`;
+const ql=a=>`<ol>${a.map(i=>`<li><a href="${i.url}">${esc(i.q.slice(0,120))}</a></li>`).join("")}</ol>`;
+function qHtml(i,pub){const m=meta(i),sib=relSib(i,pub),k=pub.indexOf(i);
+ return shell(i.url,m.title,m.desc,`<p class="mu">${esc(i.sub)} › ${esc(i.top)}</p>${(()=>{const s=stmtParse(i.q);return s?`<h1>${esc(s.stem)}</h1><ol style="list-style:none;padding:0">${s.sts.map((x,k)=>`<li><b>${k+1}.</b> ${esc(x)}</li>`).join("")}</ol>${s.tail?`<p>${esc(s.tail)}</p>`:""}`:`<h1>${esc(i.q)}</h1>`})()}<ol type="A">${i.o.map(o=>`<li>${esc(o)}</li>`).join("")}</ol><p class="mu">Source: ${esc(i.src||"not stated")}${i.e&&i.e.agree?` · Last verified: ${esc(i.e.verified||TODAY)} · Reviewer: ${esc(S.rev)}`:""}</p>${sol(i)}<div class="cd"><a href="/${slug(i.sub)}/">${esc(i.sub)}</a> · <a href="/${slug(i.sub)}/${slug(i.top)}/">${esc(i.top)} MCQs</a>${i.exam?` · <a href="/exam/${slug(i.exam)}/">${esc(i.exam)}</a>`:""}${i.exam&&i.year?` · <a href="/exam/${slug(i.exam)}/${i.year}/">${esc(i.exam)} ${i.year}</a>`:""}</div>${sib.length?`<h2>Related questions</h2>${ql(sib)}`:""}<p>${k>0?`<a href="${pub[k-1].url}">‹ Previous</a> `:""}${k>-1&&k<pub.length-1?`<a href="${pub[k+1].url}">Next ›</a>`:""}</p>`,{no:!i.live,ld:i.live?[crumbs(i),quiz(i)]:[crumbs(i)]})}
+const bar=r=>{const mx=Math.max(1,...r.map(x=>x[1]));return r.map(x=>`<div class="br"><span>${esc(x[0])}</span><i style="width:${Math.max(3,r[1]/mx*100)}%;background:#6366f1"></i><b>${x[1]}</b></div>`).join("")};
+function gen(){const m=prep(),pub=m.filter(i=>i.live),F={},sm=[];
+ const hub=(u,t,d,b,no)=>{F[u.slice(1)+"index.html"]=shell(u,t,d,b,{no});if(!no)sm.push(u)};
+ m.forEach(i=>{if(i.live||i.fail.length){F[i.url.slice(1)+"index.html"]=qHtml(i,pub);if(i.live)sm.push(i.url)}});
+ const gb=(a,f)=>{const o={};a.forEach(x=>{const k=f(x);if(k)(o[k]=o[k]||[]).push(x)});return o};
+ Object.entries(gb(pub,i=>i.sub)).forEach(([s,g])=>{const tp=count(g,i=>i.top);hub(`/${slug(s)}/`,`${s} MCQs for competitive exams`,`${g.length} verified ${s} questions in ${tp.length} topics.`,`<h1>${esc(s)} MCQs</h1><ul>${tp.map(t=>`<li><a href="/${slug(s)}/${slug(t[0])}/">${esc(t[0])}</a> (${t[1]})</li>`).join("")}</ul>${ql(g)}`);
+  Object.entries(gb(g,i=>i.top)).forEach(([t,q])=>hub(`/${slug(s)}/${slug(t)}/`,`${t} MCQs with answers (${s})`,`${q.length} previous-year ${t} questions with key points.`,`<h1>${esc(t)} MCQs</h1><div class="cd"><b>Asked ${q.length} time(s) in our database</b>${bar(count(q,i=>i.exam))}${bar(count(q,i=>i.year))}</div>${ql(q)}`))});
+ const ex=gb(pub,i=>i.exam);
+ Object.entries(ex).forEach(([x,g])=>{const yr=gb(g,i=>i.year);hub(`/exam/${slug(x)}/`,`${x} previous year questions with answers`,`${g.length} ${x} questions with answer keys.`,`<h1>${esc(x)} questions</h1><ul>${Object.keys(yr).sort().reverse().map(y=>`<li><a href="/exam/${slug(x)}/${y}/">${esc(x)} ${y}</a></li>`).join("")}</ul><p><a href="/trends/${slug(x)}/">Most repeated topics</a></p>${ql(g)}`);
+  hub(`/trends/${slug(x)}/`,`Most repeated topics in ${x}`,`Topic frequency computed from ${g.length} ${x} questions.`,`<h1>Most repeated topics in ${esc(x)}</h1>${bar(count(g,i=>i.top))}`,g.length<10);
+  Object.entries(yr).forEach(([y,v])=>hub(`/exam/${slug(x)}/${y}/`,`${x} ${y} Question Paper with Answer Key`,`${v.length} questions from ${x} ${y} with answer key.`,`<h1>${esc(x)} ${y} answer key</h1><table><tr><th>#</th><th>Question</th><th>Ans</th></tr>${v.map((i,k)=>`<tr><td>${k+1}</td><td><a href="${i.url}">${esc(i.q.slice(0,80))}</a></td><td>${LT[i.a]||"-"}</td></tr>`).join("")}</table>`))});
+ hub("/trends/","Most repeated topics in competitive exams","Topic frequency across exams from our own database.",`<h1>Exam trends</h1>${bar(count(pub,i=>i.top).slice(0,20))}<ul>${Object.keys(ex).map(x=>`<li><a href="/trends/${slug(x)}/">${esc(x)}</a></li>`).join("")}</ul>`,pub.length<10);
+ hub("/","Verified previous year MCQs with solutions",`${pub.length} verified exam MCQs.`,`<h1>Exam question bank</h1><ul>${count(pub,i=>i.sub).map(x=>`<li><a href="/${slug(x[0])}/">${esc(x[0])}</a> (${x[1]})</li>`).join("")}</ul><ul>${Object.keys(ex).map(x=>`<li><a href="/exam/${slug(x)}/">${esc(x)}</a></li>`).join("")}</ul>`);
+ hub("/about/","About","How we make solutions.",`<h1>About</h1><p>Answers are checked by two independent models and reviewed by ${esc(S.rev)}.</p>`);
+ hub("/contact/","Contact","Report an error.",`<h1>Contact</h1><p>Report wrong answers to the editors.</p>`);
+ const HX=genHi(F,pub);
+ Object.keys(F).forEach(k=>{if(k.endsWith("index.html"))F[k]=F[k].replace(/<a href="(\/[^"#]*)">(.*?)<\/a>/g,(x,h,t)=>F[h.slice(1)+"index.html"]?x:t)});
+ F["sitemap.xml"]=`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sm.map(u=>`<url><loc>${U(u)}</loc><lastmod>${TODAY}</lastmod></url>`).join("")}</urlset>`;
+ F["robots.txt"]=`User-agent: *\nAllow: /\nSitemap: ${U("/sitemap.xml")}\n${HX.smh.length?"Sitemap: "+U("/sitemap-hi.xml")+"\n":""}`;
+ if(S.key)F[S.key+".txt"]=S.key;
+ F["quality-report.csv"]=csv(m);return{F,m,pub,sm}}
+const csv=m=>"id,status,reasons,url,subject,topic,exam,year\n"+m.map(i=>[i.h,status(i),i.fail.join(" "),i.url,i.sub,i.top,i.exam,i.year].map(v=>`"${v||""}"`).join(",")).join("\n");
+function linkCheck(F){const link={},d={"/":0};Object.entries(F).forEach(([u,h])=>{if(u.endsWith("index.html"))link["/"+u.replace(/index\.html$/,"")]=[...h.matchAll(/href="(\/[^"#]*)"/g)].map(x=>x[1])});
+ const q=["/"];while(q.length){const u=q.shift();(link[u]||[]).forEach(l=>{if(link[l]&&d[l]===undefined){d[l]=d[u]+1;q.push(l)}})}
+ const broken=[];Object.entries(link).forEach(([u,a])=>a.forEach(l=>{if(!link[l])broken.push(u+" → "+l)}));
+ return{depth:Math.max(0,...Object.values(d)),orphans:Object.keys(link).filter(u=>d[u]===undefined&&!/noindex/.test(F[u.slice(1)+"index.html"])).length,broken}}
+const crc=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return b=>{let c=-1;for(const x of b)c=t[(c^x)&255]^(c>>>8);return(c^-1)>>>0}})();
+function zip(F){const en=new TextEncoder(),P=[],C=[];let off=0,n=0;for(const[k,v]of Object.entries(F)){const nb=en.encode(k),d=en.encode(v),cr=crc(d),a=new DataView(new ArrayBuffer(30)),c=new DataView(new ArrayBuffer(46));
+ a.setUint32(0,0x04034b50,true);a.setUint16(4,20,true);a.setUint16(6,0x800,true);a.setUint32(14,cr,true);a.setUint32(18,d.length,true);a.setUint32(22,d.length,true);a.setUint16(26,nb.length,true);
+ c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x800,true);c.setUint32(16,cr,true);c.setUint32(20,d.length,true);c.setUint32(24,d.length,true);c.setUint16(28,nb.length,true);c.setUint32(42,off,true);
+ P.push(new Uint8Array(a.buffer),nb,d);C.push(new Uint8Array(c.buffer),nb);off+=30+nb.length+d.length;n++}
+ const cs=C.reduce((s,x)=>s+x.length,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,n,true);e.setUint16(10,n,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);return new Blob([...P,...C,new Uint8Array(e.buffer)],{type:"application/zip"})}
+const tabs=[["q","Quality gates"],["p","Page preview"],["v","Verify (2 models)"],["t","Trends"],["m","Sitemap & robots"],["h","Hindi (import · review)"],["x","Export site"]];
+const cfgIn=(k,l,t="text")=>`<label class="mu">${l}<br><input data-cfg="${k}" type="${t}" value="${esc(S[k])}" style="width:100%"></label>`;
+let G=null,LOG="";
+function view(){G=gen();const{m,pub}=G,np=m.filter(i=>!i.live&&i.fail.length).length,qd=m.filter(i=>!i.live&&!i.fail.length).length,t=S.tab;let b="";
+ const fc={};m.forEach(i=>i.fail.forEach(f=>fc[f]=(fc[f]||0)+1));
+ if(t==="q")b=`<div class="card"><div class="row"><span class="pill">${m.length} MCQs</span><span class="pill" style="color:#16a34a">${pub.length} published</span><span class="pill" style="color:#dc2626">${np} noindex</span><span class="pill">${qd} queued for next wave</span></div><p class="mu">Failures: ${Object.entries(fc).map(([k,v])=>k+" "+v).join(" · ")||"none"}</p><div class="row"><label class="mu">Publish per wave <input data-cfg="per" type="number" value="${S.per}" style="width:80px"></label><label class="mu"><input type="checkbox" data-cfg="strict" ${S.strict?"checked":""}> Require two-model agreement</label></div></div><div class="card" style="overflow-x:auto"><table><tr><th>Question</th><th>Status</th><th>Reasons</th></tr>${m.map(i=>`<tr><td><a href="#" data-sx="prev" data-i="${m.indexOf(i)}">${esc(i.q.slice(0,70))}</a></td><td>${status(i)}</td><td class="mu">${i.fail.join(", ")}</td></tr>`).join("")}</table></div>`;
+ else if(t==="p"){const i=m[Math.min(S.sel,m.length-1)];if(!i)b="<p>No MCQs.</p>";else{const mt=meta(i);b=`<div class="card"><select data-cfg="sel" style="width:100%">${m.map((x,k)=>`<option value="${k}" ${k===S.sel?"selected":""}>${esc(x.q.slice(0,80))}</option>`).join("")}</select></div><div class="card"><div style="color:#1a0dab;font-size:18px">${esc(mt.title.slice(0,60))}</div><div style="color:#188038;font-size:13px">${esc(U(i.url))}</div><div class="mu">${esc(mt.desc)}</div></div><div class="card mu">Status: <b>${status(i)}</b> · robots: ${i.live?"index,follow":"noindex,follow"} · canonical: ${esc(U(i.url))}<br>Gate failures: ${i.fail.join(", ")||"none"}</div><div class="card"><b>JSON-LD</b><pre style="white-space:pre-wrap;font-size:12px">${esc(JSON.stringify([crumbs(i),i.live?quiz(i):"(Quiz markup withheld: page is not published)"],null,1))}</pre></div><iframe style="width:100%;height:520px;border:1px solid #e2e8f0;border-radius:10px;background:#fff" srcdoc="${esc(qHtml(i,pub))}"></iframe>`}}
+ else if(t==="v")b=`<div class="card"><p class="mu">Model A writes key points, important points and why each wrong option is wrong. Model B answers blind. A page counts as verified only when both match your answer key. Uses Claude via the page; the first call asks for consent.</p><label class="mu">Questions this run <input data-cfg="lim" type="number" value="${S.lim}" style="width:70px"></label> <a href="#" data-sx="verify" class="btn">Generate + verify</a> <a href="#" data-sx="clear" class="btn">Clear results</a><pre id="vlog" class="mu" style="white-space:pre-wrap">${esc(LOG)}</pre></div><div class="card" style="overflow-x:auto"><table><tr><th>Question</th><th>A</th><th>B</th><th>Key</th><th>Agree</th></tr>${m.map(i=>`<tr><td>${esc(i.q.slice(0,60))}</td><td>${i.e?i.e.answerA:""}</td><td>${i.e?i.e.answerB:""}</td><td>${LT[i.a]||"-"}</td><td>${i.e?(i.e.agree?"✅":"❌"):"—"}</td></tr>`).join("")}</table></div>`;
+ else if(t==="t"){const ex=count(pub,i=>i.exam);b=`<div class="card"><h3>Most repeated topics (published pages)</h3>${bar(count(pub,i=>i.top))}</div>${ex.map(([x])=>{const g=pub.filter(i=>i.exam===x),ys=[...new Set(g.map(i=>i.year).filter(Boolean))].sort();return`<div class="card" style="overflow-x:auto"><h3>${esc(x)}</h3><table><tr><th>Topic</th>${ys.map(y=>`<th>${y}</th>`).join("")}<th>Total</th></tr>${count(g,i=>i.top).map(([tp,n])=>`<tr><td>${esc(tp)}</td>${ys.map(y=>`<td>${g.filter(i=>i.top===tp&&i.year===y).length||""}</td>`).join("")}<td>${n}</td></tr>`).join("")}</table></div>`}).join("")||'<p class="mu">Publish questions with an exam name to see trends.</p>'}`}
+ else if(t==="h")b=hTab();
+ else if(t==="m")b=`<div class="card">${cfgIn("site","Site URL")}${cfgIn("rev","Reviewer name")}${cfgIn("key","IndexNow key (8+ letters/digits)")}</div><div class="card"><b>sitemap.xml</b> (${G.sm.length} URLs)<textarea readonly style="width:100%;height:160px">${esc(G.F["sitemap.xml"])}</textarea></div><div class="card"><b>robots.txt</b><textarea readonly style="width:100%;height:70px">${esc(G.F["robots.txt"])}</textarea></div>${S.key?`<div class="card"><b>IndexNow</b> — file <code>/${esc(S.key)}.txt</code> is included in the export. After deploying, POST this body to https://api.indexnow.org/indexnow:<textarea readonly style="width:100%;height:90px">${esc(JSON.stringify({host:(()=>{try{return new URL(S.site).host}catch(e){return""}})(),key:S.key,urlList:G.sm.slice(0,50).map(U)}))}</textarea></div>`:""}`;
+ else{const c=linkCheck(G.F);b=`<div class="card"><p>${Object.keys(G.F).length} files · ${pub.length} published questions · max click depth <b>${c.depth}</b> · orphans <b>${c.orphans}</b> · broken links <b>${c.broken.length}</b></p>${c.broken.slice(0,5).map(x=>`<div class="mu">${esc(x)}</div>`).join("")}<a href="#" data-sx="zip" class="btn">Download static site (.zip)</a> <a href="#" data-sx="csv" class="btn">Quality report (.csv)</a><p class="mu" id="xmsg"></p><p class="mu">Unzip and deploy the folder to Cloudflare Pages. Each question is its own URL with canonical, robots, Breadcrumb and Quiz JSON-LD (published pages only).</p></div>`}
+ return`<style>.btn{display:inline-block;background:#4f46e5;color:#fff!important;padding:6px 12px;border-radius:8px;text-decoration:none;margin:4px 4px 4px 0}.tb a{padding:6px 10px;border-radius:8px;text-decoration:none}.tb a.on{background:#4f46e5;color:#fff}</style><h1>SEO Studio</h1><div class="row tb">${tabs.map(([k,l])=>`<a href="#" data-sx="tab" data-t="${k}" class="${k===t?"on":""}">${l}</a>`).join("")}</div>${b}`}
+
+let HMSG="";const svHI=()=>{try{localStorage.setItem("ece_hi",JSON.stringify(HI))}catch(e){}};
+function himp(txt){let n=0,x=0;const nm=v=>String(v).toLowerCase().replace(/[^a-z0-9]+/g," ").trim(),arr=[];
+ try{const j=JSON.parse(txt);arr.push(...(Array.isArray(j)?j:[j]))}catch(e){txt.split(/^###\s*$/m).forEach(b=>{const o={};b.split("\n").forEach(l=>{const m=l.match(/^(EN|HQ|HA|HE|HT|OK):\s*(.*)$/);if(m)o[m[1]]=m[2].trim()});if(o.EN)arr.push({en:o.EN,q:o.HQ,o:(o.HA||"").split("|").map(v=>v.trim()).filter(Boolean),exp:(o.HE||"").replace(/\\n/g,"\n"),top:o.HT,rev:/^(y|yes|1|true)/i.test(o.OK||"")})})}
+ arr.forEach(r=>{const e=nm(r.en||""),i=mcq().find(v=>nm(v.q)===e)||mcq().find(v=>e.length>25&&nm(v.q).startsWith(e.slice(0,60))),o=r.o||r.options;
+  if(!i||!r.q||!Array.isArray(o)||o.length!==i.o.length){x++;return}HI[hk(i)]={q:r.q,o,exp:r.exp||r.explanation||"",top:r.top||"",rev:!!r.rev};n++});svHI();return[n,x]}
+const hTab=()=>{const m=mcq(),has=m.filter(i=>{const r=HI[hk(i)];return r&&r.q}),rv=has.filter(i=>HI[hk(i)].rev).length;
+ return `<div class="card"><p>${has.length}/${m.length} questions have Hindi · <b>${rv}</b> reviewed. Only reviewed Hindi pages are indexable and listed in sitemap-hi.xml; the rest export as noindex.</p><p class="mu">Paste JSON like [{"en":"English question","q":"हिंदी प्रश्न","o":["..","..",".."],"exp":"व्याख्या","top":"अध्याय","rev":false}], or blocks split by a ### line using EN: / HQ: / HA: opt1 | opt2 | opt3 | opt4 / HE: / HT: / OK: yes. Questions are matched by the English text and the option count must match.</p><textarea id="himp" style="width:100%;height:150px"></textarea><div class="row"><a href="#" data-sx="himp" class="btn">Import Hindi</a><a href="#" data-sx="hall" class="btn">Mark all reviewed</a><a href="#" data-sx="hjson" class="btn">Download Hindi JSON</a></div><p class="mu">${esc(HMSG)}<span id="xmsg"></span></p></div><div class="card" style="max-height:340px;overflow:auto"><b>Tick = reviewed by a person</b>${has.map(i=>`<label class="mu" style="display:block"><input type="checkbox" data-hrev="${hk(i)}" ${HI[hk(i)].rev?"checked":""}> ${esc(i.q.slice(0,90))}</label>`).join("")||'<p class="mu">No Hindi yet.</p>'}</div>`};
+document.addEventListener("click",e=>{const t=e.target.closest("[data-sx]");if(!t)return;const a=t.dataset.sx;if(!["himp","hall","hjson"].includes(a))return;
+ if(a==="himp"){const[n,x]=himp($("#himp").value);HMSG=`Imported ${n}. Not matched or option count differs: ${x}.`;draw()}
+ else if(a==="hall"){Object.values(HI).forEach(r=>{if(r&&r.q)r.rev=true});svHI();draw()}
+ else dl("hindi-translations.json",JSON.stringify(mcq().filter(i=>HI[hk(i)]).map(i=>Object.assign({en:i.q},HI[hk(i)])),null,1))});
+document.addEventListener("change",e=>{const t=e.target.closest("[data-hrev]");if(!t)return;const r=HI[t.dataset.hrev];if(r){r.rev=t.checked;svHI();draw()}});
+const hsub=subH;
+const shellH=(url,title,desc,body,o={})=>`<!doctype html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(desc.slice(0,158))}"><link rel="canonical" href="${U(url)}"><meta name="robots" content="${o.no?"noindex,follow":"index,follow"}"><!--ALT-->${(o.ld||[]).filter(Boolean).map(ld).join("")}<style>${CSS}</style></head><body><nav><a href="/hi/">मुख्य पृष्ठ</a> · <a href="/">English</a></nav>${body}<p class="mu">समीक्षक: ${esc(S.rev)}</p></body></html>`;
+const altL=(e,h)=>`<link rel="alternate" hreflang="en" href="${U(e)}"><link rel="alternate" hreflang="hi" href="${U(h)}"><link rel="alternate" hreflang="x-default" href="${U(e)}">`;
+function genHi(F,pub){const HT={},smh=[],ar=pub.map(i=>{const r=HI[hk(i)];return r&&r.q&&Array.isArray(r.o)&&r.o.length===i.o.length?{i,r,u:"/hi"+i.url,ok:!!r.rev}:null}).filter(Boolean);
+ if(!ar.length)return{HT,smh};
+ const ll=g=>`<ol>${g.map(x=>`<li><a href="${x.u}">${esc(x.r.q.slice(0,120))}</a></li>`).join("")}</ol>`,gb=(a,f)=>{const o={};a.forEach(x=>{const k=f(x);if(k)(o[k]=o[k]||[]).push(x)});return o};
+ const hh=(e,t,d,b,ok)=>{const u="/hi"+e;F[u.slice(1)+"index.html"]=shellH(u,t,d,b,{no:!ok});if(ok){HT[e]=u;smh.push(u)}};
+ ar.forEach(x=>{const{i,r,u}=x,tp=r.top||topH(i.top),hi=Object.assign({},i,{q:r.q,o:r.o,e:null,exp:r.exp||""}),sb=r.exp?sents(r.exp):[],sib=ar.filter(y=>y!==x&&y.i.top===i.top).slice(0,5),qz=quiz(hi);
+  const bc={"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[["Home","/hi/"],[i.sub,`/hi/${slug(i.sub)}/`],[tp,`/hi/${slug(i.sub)}/${slug(i.top)}/`],[r.q.slice(0,60),u]].map((c,k)=>({"@type":"ListItem",position:k+1,name:c[0],item:U(c[1])}))};
+  F[u.slice(1)+"index.html"]=shellH(u,`${r.q.slice(0,70)} | ${tp} MCQ`,`${r.q.slice(0,90)} उत्तर: ${i.a>-1?r.o[i.a]:""} — मुख्य बिंदु और व्याख्या सहित। ${tp}${i.exam?", "+i.exam:""}${i.year?" "+i.year:""}.`,
+  `<p class="mu"><a href="/hi/${slug(i.sub)}/">${esc(i.sub)}</a> › <a href="/hi/${slug(i.sub)}/${slug(i.top)}/">${esc(tp)}</a></p><h1>${esc(r.q)}</h1><ol type="A">${r.o.map(o=>`<li>${esc(o)}</li>`).join("")}</ol><p class="mu">स्रोत: ${esc(i.src||"उल्लेख नहीं")}</p>${i.a>-1?`<div class="cd"><b>सही उत्तर: (${LT[i.a]}) ${esc(r.o[i.a])}</b></div>`:""}${sb.length?`<h2>विस्तृत समाधान</h2><ul>${sb.map(v=>`<li>${esc(v)}</li>`).join("")}</ul>`:""}${sib.length?`<h3>संबंधित प्रश्न</h3>${ll(sib)}`:""}`,{no:!x.ok,ld:[qz&&Object.assign({inLanguage:"hi"},qz),bc]});
+  if(x.ok)HT[i.url]=u,smh.push(u)});
+ const ok=g=>g.some(x=>x.ok),sg=gb(ar,x=>x.i.sub);
+ Object.entries(sg).forEach(([s,g])=>{const tg=gb(g,x=>x.i.top);
+  hh(`/${slug(s)}/`,`${hsub(s)} के MCQ उत्तर सहित`,`${g.length} ${hsub(s)} प्रश्न, उत्तर और व्याख्या सहित।`,`<h1>${esc(hsub(s))} MCQ</h1><ul>${Object.entries(tg).map(([t,q])=>`<li><a href="/hi/${slug(s)}/${slug(t)}/">${esc(q[0].r.top||topH(t))}</a> (${q.length})</li>`).join("")}</ul>${ll(g)}`,ok(g));
+  Object.entries(tg).forEach(([t,q])=>hh(`/${slug(s)}/${slug(t)}/`,`${q[0].r.top||topH(t)} MCQ उत्तर सहित (${hsub(s)})`,`${q.length} पिछले वर्षों के प्रश्न, मुख्य बिंदुओं सहित।`,`<h1>${esc(q[0].r.top||topH(t))} MCQ</h1>${ll(q)}`,ok(q)))});
+ const eg=gb(ar,x=>x.i.exam);
+ Object.entries(eg).forEach(([e,g])=>hh(`/exam/${slug(e)}/`,`${e} पिछले वर्षों के प्रश्न उत्तर सहित`,`${g.length} ${e} प्रश्न, उत्तर कुंजी सहित।`,`<h1>${esc(e)} प्रश्न</h1>${ll(g)}`,ok(g)));
+ hh("/","पिछले वर्षों के सत्यापित MCQ हल सहित",`${ar.length} परीक्षा प्रश्न हिन्दी में।`,`<h1>हिन्दी प्रश्न बैंक</h1><ul>${Object.keys(sg).map(v=>`<li><a href="/hi/${slug(v)}/">${esc(hsub(v))}</a></li>`).join("")}</ul><ul>${Object.keys(eg).map(v=>`<li><a href="/hi/exam/${slug(v)}/">${esc(v)}</a></li>`).join("")}</ul>`,ar.some(x=>x.ok));
+ Object.entries(HT).forEach(([e,h])=>{const fe=e.slice(1)+"index.html",fh=h.slice(1)+"index.html",a=altL(e,h);
+  if(F[fe])F[fe]=F[fe].replace("<style>",a+"<style>").replace("</nav>",`</nav><p><a href="${h}">हिन्दी में पढ़ें</a></p>`);
+  if(F[fh])F[fh]=F[fh].replace("<!--ALT-->",a).replace("</nav>",`</nav><p><a href="${e}">Read in English</a></p>`)});
+ Object.keys(F).forEach(k=>{if(k.endsWith("index.html"))F[k]=F[k].replace("<!--ALT-->","")});
+ F["sitemap-hi.xml"]=`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${smh.map(u=>`<url><loc>${U(u)}</loc><lastmod>${TODAY}</lastmod></url>`).join("")}</urlset>`;
+ return{HT,smh}}
+const draw=()=>{const a=$("#app");if(R==="seo")a.innerHTML=view()};
+const fmt=i=>`Question: ${i.q}\n`+i.o.map((o,k)=>`${LT[k]}) ${o}`).join("\n");
+async function verify(){const m=mcq().filter(i=>i.a>-1&&!S.enr[hs(i.q+i.o.join("|"))]).slice(0,S.lim),L=t=>{LOG+=t+"\n";const e=$("#vlog");if(e)e.textContent=LOG};
+ if(!m.length){LOG="Nothing left to verify.\n";draw();return}
+ let sm;try{sm=await claude.use("sample")}catch(e){}if(!sm){LOG="Claude sampling is not available in this view.\n";draw();return}
+ for(const i of m){const k=LT[i.a];L("Checking: "+i.q.slice(0,50));
+  try{const w=await sm.json(`You write exam solutions. Use only facts from the source explanation or well-established facts.\n${fmt(i)}\nOfficial key: ${k}\nSource explanation: ${i.exp||"(none)"}\nReturn JSON only: {"answer":"a-e","key_points":[4-6 short facts],"important_points":[2-3 facts],"why":{"<letter>":"one-line reason for each WRONG option"},"uncertain":false}`,{modelTier:"default"});
+   const b=await sm.json(`Answer this exam question yourself. Return JSON only: {"answer":"a-e"}\n${fmt(i)}`,{modelTier:"complex"});
+   S.enr[hs(i.q+i.o.join("|"))]={kp:w.key_points,ip:w.important_points,why:w.why,answerA:w.answer,answerB:b.answer,agree:w.answer===k&&b.answer===k&&!w.uncertain,verified:TODAY};sv();L(" → A="+w.answer+" B="+b.answer+" key="+k)}
+  catch(e){L(" failed: "+(e.message||e.code));if(e.code==="not_granted"||e.code==="rate_limited")break}}
+ draw()}
+async function dl(name,data){const msg=$("#xmsg");try{const d=await claude.use("downloads");if(!d)throw{message:"Downloads are not available in this view."};await d.save({filename:name,data});if(msg)msg.textContent="Saved "+name}catch(e){if(msg)msg.textContent="Could not save: "+(e.message||e.code)}}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-sx]");if(!t)return;e.preventDefault();const a=t.dataset.sx;
+ if(a==="tab"){S.tab=t.dataset.t;sv();draw()}else if(a==="prev"){S.sel=+t.dataset.i;S.tab="p";draw()}else if(a==="verify")verify();
+ else if(a==="clear"){S.enr={};LOG="";sv();draw()}else if(a==="zip")dl("static-site.zip",zip(G.F));else if(a==="csv")dl("quality-report.csv",G.F["quality-report.csv"])});
+document.addEventListener("change",e=>{const t=e.target.closest("[data-cfg]");if(!t||R!=="seo")return;const k=t.dataset.cfg;S[k]=t.type==="checkbox"?t.checked:(["per","sel","lim"].includes(k)?+t.value||0:t.value.trim());sv();draw()});
+const _r=render;render=function(){if(R==="seo")draw();else _r()};
+document.querySelector("header nav").insertAdjacentHTML("beforeend",'<a href="#" data-go="seo">SEO Studio</a>');
+})();
+
+/* ===== manual subject/topic at paste time + Assign page ===== */
+var LAST=[],AF="last",ASM="";try{LAST=JSON.parse(localStorage.getItem("ece_last")||"[]")}catch(e){}
+const subList=()=>[...new Set([...T.map(r=>r[0]),...items.map(i=>i.sub),...Object.values(CAT).map(c=>c.sub)].filter(x=>x&&x!=="Uncategorized"))];
+const topList=sb=>[...new Set([...T.filter(r=>r[0]===sb).map(r=>r[1]),...items.filter(i=>i.sub===sb).map(i=>i.top),...Object.values(CAT).filter(c=>c.sub===sb).map(c=>c.top)].filter(x=>x&&x!=="General"))];
+const optS=(a,ph)=>`<option value="">${ph}</option>`+a.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("")+`<option value="__new">Other… (type new)</option>`;
+const picker=p=>`<div class="row" style="gap:10px;flex-wrap:wrap;margin-top:8px"><label>Subject<br><select id="${p}s">${optS(subList(),"Auto-detect")}</select></label><label>Topic<br><select id="${p}t">${optS([],"Auto-detect")}</select></label></div><div class="row" id="${p}n" style="display:none;gap:8px;flex-wrap:wrap;margin-top:8px"><input id="${p}ns" placeholder="New subject (English)"><input id="${p}nt" placeholder="New topic (English)"><input id="${p}hs" placeholder="विषय (Hindi, optional)"><input id="${p}ht" placeholder="टॉपिक (Hindi, optional)"></div>`;
+function readPick(p){const S=$("#"+p+"s"),T2=$("#"+p+"t");let sb=S.value,tp=T2.value,sh="",th="";if(sb==="__new"){sb=$("#"+p+"ns").value.trim();sh=$("#"+p+"hs").value.trim()}if(tp==="__new"||(S.value==="__new"&&!tp)){tp=$("#"+p+"nt").value.trim();th=$("#"+p+"ht").value.trim()}return{sb:sb,tp:tp,sh:sh,th:th}}
+function applyPick(list,pk,ex,yr){list.forEach(i=>{const k=hk(i),txt=i.q+" "+i.o.join(" ")+" "+(i.exp||"");let sub=pk.sb,top=pk.tp;
+ if(!sub&&top){const r=T.find(x=>x[1]===top);sub=r?r[0]:classify(txt,"")[0]}else if(sub&&!top)top=classify(txt,sub)[1];
+ const e=CAT[k]||{};if(sub&&top){e.sub=sub;e.top=top;if(pk.sh)e.sh=pk.sh;if(pk.th)e.th=pk.th}
+ if(ex)e.ex=ex;if(yr)e.yr=yr;if(e.sub||e.ex||e.yr){e.m=1;CAT[k]=e}})}
+function addBatch(){const txt=$("#nb").value.trim(),msg=$("#nbm");if(!txt){msg.textContent="Paste some questions first.";return}
+ const part=parse(txt).filter(i=>i.type==="MCQ");if(!part.length){msg.textContent="No questions found. Put a blank line between items.";return}
+ applyPick(part,readPick("pb"),($("#pbe").value||"").trim(),($("#pby").value||"").trim());svCAT();
+ const old=localStorage_get()||"";try{localStorage.setItem("ece_txt",old?old+"\n\n"+txt:txt)}catch(e){}
+ LAST=part.map(hk);try{localStorage.setItem("ece_last",JSON.stringify(LAST))}catch(e){}
+ ASM=part.length+" question"+(part.length>1?"s":"")+" added. Split them by subject/topic below if needed.";load();nav("assign")}
+const _add2=add;add=function(){return `<h1>Add content</h1><div class="card"><h3>Add a batch with manual subject &amp; topic</h3><p class="mu">Paste a batch, choose its subject and topic (or leave Auto-detect), then add. If one paste has several subjects or topics, add it once and split it on the next screen by ticking questions or typing ranges. Exam and year come from the source tags automatically; the two optional boxes fill them only for questions that have no tag.</p><textarea id="nb" style="width:100%;min-height:160px" placeholder="Paste questions here" aria-label="Paste batch"></textarea>${picker("pb")}<div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px"><input id="pbe" placeholder="Exam if tag missing (e.g. UPPSC)"><input id="pby" placeholder="Year if tag missing" style="max-width:160px"></div><div class="row" style="margin-top:10px"><button class="p" id="addb">Add batch</button><span id="nbm" class="mu"></span></div></div>`+_add2().replace("<h1>Add content</h1>","<h2>Full text (advanced: rebuilds everything)</h2>")};
+function asgRows(){const m=items.filter(i=>i.type==="MCQ");return AF==="unc"?m.filter(i=>i.top==="General"||i.sub==="Uncategorized"):AF==="last"?m.filter(i=>LAST.includes(hk(i))):m}
+function assignPg(){const L=asgRows(),rows=L.slice(0,300).map(i=>`<label class="row" style="gap:8px;align-items:flex-start;border-bottom:1px solid #e5e7eb;padding:6px 0"><input type="checkbox" class="ac" value="${i.id}"><span><b>${i.id}.</b> ${esc((i.q||"").slice(0,110))}<br><span class="mu">${esc(i.sub)} › ${esc(i.top)}${i.exam?" · "+esc(i.exam):""}${i.year?" · "+i.year:""}</span></span></label>`).join("");
+ return `<h1>Assign subject &amp; topic</h1><p class="mu">${esc(ASM)||"Tick questions, choose subject and topic, apply. Manual choices are kept."}</p><div class="card"><div class="row" style="gap:8px;flex-wrap:wrap"><label>Show<br><select id="af"><option value="last">Last added batch</option><option value="unc">Uncategorized only</option><option value="all">All questions</option></select></label><button data-as="all">Select all shown</button><button data-as="none">Clear</button><input id="arg" placeholder="Range e.g. 1-10, 15, 20-25" style="min-width:200px"><button data-as="rng">Select range</button></div><div class="mu" style="margin:6px 0">${L.length} shown${L.length>300?" (first 300; narrow the filter)":""}</div><div style="max-height:380px;overflow:auto">${rows||'<p class="mu">Nothing to show.</p>'}</div></div><div class="card"><h3>Apply to ticked questions</h3>${picker("pa")}<div class="row" style="margin-top:10px"><button class="p" data-as="apply">Apply</button><span id="asm" class="mu"></span></div></div>`}
+const _rd=render;render=function(){if(R==="assign"&&items.length){$("#app").innerHTML=assignPg();const a=$("#af");if(a)a.value=AF;ASM="";return}_rd()};
+document.addEventListener("change",e=>{const t=e.target;if(t.id==="af"){AF=t.value;render();return}const m=/^(pb|pa)([st])$/.exec(t.id||"");if(!m)return;const p=m[1],S=$("#"+p+"s"),T2=$("#"+p+"t");if(m[2]==="s")T2.innerHTML=optS(S.value&&S.value!=="__new"?topList(S.value):[],"Auto-detect");$("#"+p+"n").style.display=(S.value==="__new"||T2.value==="__new")?"flex":"none"});
+document.addEventListener("click",e=>{const t=e.target.closest("#addb,[data-as]");if(!t)return;if(t.id==="addb"){addBatch();return}
+ const a=t.dataset.as,B=[...document.querySelectorAll(".ac")];
+ if(a==="all")B.forEach(x=>x.checked=true);else if(a==="none")B.forEach(x=>x.checked=false);
+ else if(a==="rng"){const set=new Set();($("#arg").value||"").split(/[,\s]+/).forEach(q=>{const m=q.match(/^(\d+)(?:-(\d+))?$/);if(m){const lo=+m[1],hi=+(m[2]||m[1]);for(let k=lo;k<=hi&&k-lo<5000;k++)set.add(k)}});B.forEach(x=>x.checked=set.has(+x.value))}
+ else if(a==="apply"){const ids=new Set(B.filter(x=>x.checked).map(x=>+x.value)),pk=readPick("pa"),msg=$("#asm");if(!ids.size){msg.textContent="Tick some questions first.";return}if(!pk.sb&&!pk.tp){msg.textContent="Choose a subject or topic.";return}
+  applyPick(items.filter(i=>ids.has(i.id)),pk,"","");svCAT();load();render();$("#asm").textContent="Applied to "+ids.size+" question"+(ids.size>1?"s":"")+"."}});
+load();const h0=location.hash.slice(1);R=h0||(items.length?"home":"add");render();
+</script>
+</body>
+</html>
