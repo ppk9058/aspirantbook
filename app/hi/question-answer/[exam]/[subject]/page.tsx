@@ -71,7 +71,7 @@ export default async function HindiExamYearOrSubjectPage({
   }
 
   const realExamName = questions[0].exam || examName
-  const titleLabel = isYear ? `${yearOrSubject}` : getHindiSubject(questions[0].sub)
+  const titleLabel = isYear ? `${yearOrSubject}` : getHindiSubject(questions[0].sub || "Uncategorized")
 
   return (
     <div className="container mx-auto px-4 py-10 max-w-5xl space-y-8">
@@ -109,7 +109,7 @@ export default async function HindiExamYearOrSubjectPage({
             >
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary" className="text-xs">
-                  {getHindiSubject(q.sub)}
+                  {getHindiSubject(q.sub || "Uncategorized")}
                 </Badge>
                 {hiTr.top && (
                   <Badge variant="outline" className="text-xs">

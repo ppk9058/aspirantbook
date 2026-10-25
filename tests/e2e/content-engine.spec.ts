@@ -30,7 +30,7 @@ test.describe("Exam Content Engine E2E Acceptance Suite", () => {
     nonce = newNonce()
     adminUser = await createActor(nonce, UserRole.ADMIN, "ce-admin")
     teacherUser = await createActor(nonce, UserRole.TEACHER, "ce-teacher")
-    studentUser = await createActor(nonce, UserRole.STUDENT, "ce-student")
+    studentUser = await createActor(nonce, UserRole.FREE, "ce-student")
   })
 
   test.afterAll(async () => {

@@ -55,6 +55,7 @@ function renderStaticQuestionHtml(
   const isHi = meta.lang === "hi"
   const optLetters = ["(a)", "(b)", "(c)", "(d)", "(e)", "(f)"]
   const solHtml = formatSolutionHtml({
+    id: meta.shortId,
     q: qText,
     o: options,
     a: answerIndex,

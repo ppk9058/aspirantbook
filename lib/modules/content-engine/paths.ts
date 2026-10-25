@@ -15,6 +15,14 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, "")
 }
 
+export function unslugify(slug: string): string {
+  if (!slug) return ""
+  return slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+}
+
 /**
  * Builds the canonical question URL path.
  *

@@ -139,7 +139,7 @@ export default async function HindiExamHubPage({
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="secondary" className="text-xs">
-                    {getHindiSubject(q.sub)}
+                    {getHindiSubject(q.sub || "Uncategorized")}
                   </Badge>
                   {hiTr.top && (
                     <Badge variant="outline" className="text-xs">

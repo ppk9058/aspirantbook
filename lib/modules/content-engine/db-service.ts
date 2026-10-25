@@ -636,6 +636,7 @@ export async function getPublicQuestionBySlug(slugOrShortId: string) {
       id: true,
       shortId: true,
       slug: true,
+      isPublished: true,
       q: true,
       options: true,
       answer: true,

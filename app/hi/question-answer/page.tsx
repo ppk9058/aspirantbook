@@ -126,7 +126,7 @@ export default async function HindiQuestionAnswerHomePage() {
               className="p-4 rounded-xl border border-border bg-card space-y-1 block"
             >
               <span className="font-semibold text-foreground text-sm block">
-                {getHindiSubject(s.sub)}
+                {getHindiSubject(s.sub || "Uncategorized")}
               </span>
               <span className="text-xs text-muted-foreground block">
                 {s._count.id} प्रश्न
@@ -161,7 +161,7 @@ export default async function HindiQuestionAnswerHomePage() {
                     {q.exam} {q.year || ""}
                   </Badge>
                   <Badge variant="secondary" className="text-xs">
-                    {getHindiSubject(q.sub)}
+                    {getHindiSubject(q.sub || "Uncategorized")}
                   </Badge>
                   {hiTr.top && (
                     <Badge variant="outline" className="text-xs">

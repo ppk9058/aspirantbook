@@ -40,10 +40,12 @@ export default async function ContentEngineLibraryPage() {
     having: { id: { _count: { gte: 3 } } },
   })
 
-  const topicWarnings = uncatByTopic.map((item) => ({
-    topic: item.top,
-    count: item._count.id,
-  }))
+  const topicWarnings = uncatByTopic
+    .filter((item) => Boolean(item.top))
+    .map((item) => ({
+      topic: item.top!,
+      count: item._count.id,
+    }))
 
   const initialItems = questions.map((q) => ({
     id: q.id,

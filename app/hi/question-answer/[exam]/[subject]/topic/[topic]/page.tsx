@@ -111,7 +111,7 @@ export default async function HindiTopicHubPage({
             >
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="secondary" className="text-xs">
-                  {getHindiSubject(q.sub)}
+                  {getHindiSubject(q.sub || "Uncategorized")}
                 </Badge>
                 {q.year && (
                   <Badge variant="outline" className="text-xs">

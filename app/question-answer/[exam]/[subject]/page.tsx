@@ -182,10 +182,10 @@ export default async function ExamYearOrSubjectPage({
             <span>Topics in {realSubjectName}</span>
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
-            {topics.map((t) => (
+            {topics.filter((t) => Boolean(t.top)).map((t) => (
               <Link
-                key={t.top}
-                href={topicHubPath("en", realExamName, realSubjectName, t.top)}
+                key={t.top!}
+                href={topicHubPath("en", realExamName, realSubjectName, t.top!)}
                 className="p-3 rounded-lg border border-border bg-card hover:border-primary/50 text-xs block transition-colors space-y-0.5"
               >
                 <span className="font-semibold text-foreground block truncate">{t.top}</span>

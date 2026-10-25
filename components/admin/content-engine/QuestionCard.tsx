@@ -55,12 +55,12 @@ export function QuestionCard({
   const isHindiReviewed = Boolean(hiTr?.isReviewed)
 
   const publicUrl = item.isPublished && item.slug && item.exam && item.sub
-    ? qaPath({
-        exam: item.exam,
-        subject: item.sub,
-        slug: item.slug,
-        lang: langMode === "hi" ? "hi" : "en",
-      })
+    ? qaPath(
+        langMode === "hi" ? "hi" : "en",
+        item.exam,
+        item.sub,
+        item.slug
+      )
     : null
 
   const optLetters = ["(a)", "(b)", "(c)", "(d)", "(e)", "(f)"]

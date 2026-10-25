@@ -72,6 +72,7 @@ export default function ContentEngineAssignPage() {
 
   useEffect(() => {
     loadQuestions()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uncategorizedOnly])
 
   // Toggle single item

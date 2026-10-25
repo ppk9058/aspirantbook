@@ -271,7 +271,8 @@ export default function ContentEngineHindiReviewPage() {
         ) : (
           <div className="space-y-4">
             {displayQuestions.map((q, idx) => {
-              const hi = q.translations?.find((t) => t.lang === "hi")!
+              const hi = q.translations?.find((t) => t.lang === "hi")
+              if (!hi) return null
               return (
                 <div
                   key={q.id}

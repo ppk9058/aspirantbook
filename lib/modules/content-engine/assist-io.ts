@@ -176,3 +176,6 @@ export function parseHindiImport(rawInput: string): ImportHindiItem[] {
 
   return result
 }
+
+export const exportMissingHindiPrompt = exportMissingHindiBlocks
+
