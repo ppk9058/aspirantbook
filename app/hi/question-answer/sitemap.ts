@@ -2,7 +2,7 @@ import { MetadataRoute } from "next"
 import { prisma } from "@/lib/prisma"
 import { qaPath, examHubPath, yearHubPath } from "@/lib/modules/content-engine/paths"
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [questions, exams] = await Promise.all([

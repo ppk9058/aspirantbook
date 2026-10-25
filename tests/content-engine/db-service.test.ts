@@ -2,9 +2,15 @@ import { describe, it, before, after } from "node:test"
 import assert from "node:assert/strict"
 
 // Point to test database before importing prisma
-process.env.DATABASE_URL =
+const dbUrl =
   process.env.TEST_DATABASE_URL ||
   "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test"
+const resolvedDb = new URL(dbUrl)
+console.log(`[DB Guard] Resolved DB host:port = ${resolvedDb.host}`)
+if (resolvedDb.host !== "127.0.0.1:54329") {
+  throw new Error(`ABORT: Resolved DB is ${resolvedDb.host}, strictly required to be 127.0.0.1:54329`)
+}
+process.env.DATABASE_URL = dbUrl
 
 import { prisma } from "@/lib/prisma"
 import {
@@ -20,6 +26,7 @@ import {
   getPublicQuestionBySlug,
   getSetting,
   setSetting,
+  clearQuestionCache,
 } from "@/lib/modules/content-engine/db-service"
 
 describe("Content Engine Database Persistence Service", () => {
@@ -291,5 +298,67 @@ Q999. Defective Question with no answer?
 
     const defVal = await getSetting("nonExistentKey", "default123")
     assert.equal(defVal, "default123")
+  })
+
+  it("11. Caching & On-Demand Revalidation: publish, unpublish, and zero-query cache hit", async () => {
+    // 1. Create a question in draft state
+    const draftRes = await addBatch({
+      pastedText: `[UPSC 2024] Q1. What is the cache revalidation protocol?
+(A) Tagged
+(B) None
+(C) Polling
+(D) Random
+Answer: A
+Explanation: Comprehensive explanation text exceeding eighty characters for quality gate requirements and revalidation testing.`,
+      defaultSubject: "History",
+      defaultTopic: "Modern History",
+    })
+    const batchQuestions = await prisma.contentEngineQuestion.findMany({
+      where: { batchId: draftRes.batchId },
+    })
+    const q = batchQuestions[0]
+    assert.ok(q)
+    assert.equal(q.isPublished, false)
+
+    // Mark as verified and with source so quality gates allow publishing
+    await prisma.contentEngineQuestion.update({
+      where: { id: q.id },
+      data: { isVerified: true, sourceTag: "UPSC CSE 2024", exam: "UPSC CSE", year: "2024" },
+    })
+
+    // Unpub / draft question -> getPublicQuestionBySlug returns null
+    const beforePub = await getPublicQuestionBySlug(q.shortId)
+    assert.equal(beforePub, null, "Draft question must return null (404)")
+
+    // 2. Publish the question -> triggers safeRevalidateTag & safeRevalidatePath
+    await setQuestionPublishStatus([q.id], true)
+
+    // Next request after publish -> question is retrieved (200)
+    const afterPub = await getPublicQuestionBySlug(q.shortId)
+    assert.ok(afterPub, "Published question must be returned after publish action")
+    assert.equal(afterPub.shortId, q.shortId)
+
+    // 3. Second request to the same question -> returns from cache with 0 Prisma calls
+    let prismaQueryCount = 0
+    const originalFindFirst = prisma.contentEngineQuestion.findFirst
+    // @ts-ignore
+    prisma.contentEngineQuestion.findFirst = async (...args: any[]) => {
+      prismaQueryCount++
+      // @ts-ignore
+      return originalFindFirst.apply(prisma.contentEngineQuestion, args)
+    }
+
+    try {
+      const cachedView = await getPublicQuestionBySlug(q.shortId)
+      assert.ok(cachedView)
+      assert.equal(prismaQueryCount, 0, `Expected 0 Prisma queries on cached read, got ${prismaQueryCount}`)
+    } finally {
+      prisma.contentEngineQuestion.findFirst = originalFindFirst
+    }
+
+    // 4. Unpublish question -> triggers revalidation, cache cleared, next request is null (404)
+    await setQuestionPublishStatus([q.id], false)
+    const afterUnpub = await getPublicQuestionBySlug(q.shortId)
+    assert.equal(afterUnpub, null, "Unpublished question must immediately return null (404) after unpublish")
   })
 })

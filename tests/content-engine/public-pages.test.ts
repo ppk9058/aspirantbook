@@ -126,10 +126,10 @@ describe("Phase 4 — Public SEO Routes & Sitemaps", () => {
     )
   })
 
-  it("5. /q/[shortId] route handler returns redirect status code", async () => {
+  it("5. /q/[shortId] route handler returns 404 for unknown shortId", async () => {
     const { GET } = await import("@/app/q/[shortId]/route")
     const req = new Request("http://127.0.0.1:3045/q/nonexistent-short-id")
     const res = await GET(req, { params: Promise.resolve({ shortId: "nonexistent-short-id" }) })
-    assert.equal(res.status, 302, `Expected 302 redirect for unknown question, got ${res.status}`)
+    assert.equal(res.status, 404, `Expected 404 for unknown question, got ${res.status}`)
   })
 })

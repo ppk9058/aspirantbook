@@ -10,7 +10,7 @@ export async function GET(
   const q = await getPublicQuestionBySlug(shortId)
 
   if (!q || !q.slug || !q.exam || !q.sub) {
-    return NextResponse.redirect(new URL("/question-answer", req.url), 302)
+    return new NextResponse("Question Not Found", { status: 404 })
   }
 
   const targetPath = qaPath("en", q.exam, q.sub, q.slug)

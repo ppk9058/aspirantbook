@@ -1,25 +1,22 @@
-Command exited with code 0.
-
-Command output:
 [db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
 [db:check] Database schema is in sync with Prisma schema. No drift detected.
 [db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
 
 Running 14 tests using 1 worker
 
-      1 … AUTH — Blocks logged-out and TEACHER on EVERY admin page and API route
-  ✓   1 …Blocks logged-out and TEACHER on EVERY admin page and API route (23.4s)      2 …IC — Logged-out access to hubs, questions, and sitemaps; 404 for drafts
-  ✓   2 …gged-out access to hubs, questions, and sitemaps; 404 for drafts (4.6s)      3 …AK AUDIT — Ensures zero administrative or draft fields leaked to public
-  ✓   3 … — Ensures zero administrative or draft fields leaked to public (416ms)      4 …HINDI TWIN & NOINDEX — Reviewed twin indexed, unreviewed twin noindexed
-  ✓   4 …IN & NOINDEX — Reviewed twin indexed, unreviewed twin noindexed (392ms)      5 … & REDIRECT — ShortId and non-canonical slugs 308-redirect to canonical
-  ✓   5 …ECT — ShortId and non-canonical slugs 308-redirect to canonical (310ms)      6 …e › D8: XSS ESCAPING — <script> tags safely escaped in JSON-LD and HTML
-  ✓   6 …XSS ESCAPING — <script> tags safely escaped in JSON-LD and HTML (142ms)      7 …ite › D10: STATIC ZIP EXPORT — Contains all required architecture files
-  ✓   7 …0: STATIC ZIP EXPORT — Contains all required architecture files (172ms)      8 … AUTH — Blocks logged-out and TEACHER on EVERY admin page and API route
-  ✓   8 …Blocks logged-out and TEACHER on EVERY admin page and API route (11.7s)      9 …IC — Logged-out access to hubs, questions, and sitemaps; 404 for drafts
-  ✓   9 …ged-out access to hubs, questions, and sitemaps; 404 for drafts (504ms)     10 …AK AUDIT — Ensures zero administrative or draft fields leaked to public
-  ✓  10 …T — Ensures zero administrative or draft fields leaked to public (77ms)     11 …HINDI TWIN & NOINDEX — Reviewed twin indexed, unreviewed twin noindexed
-  ✓  11 …IN & NOINDEX — Reviewed twin indexed, unreviewed twin noindexed (149ms)     12 … & REDIRECT — ShortId and non-canonical slugs 308-redirect to canonical
-  ✓  12 …ECT — ShortId and non-canonical slugs 308-redirect to canonical (171ms)     13 …e › D8: XSS ESCAPING — <script> tags safely escaped in JSON-LD and HTML
-  ✓  13 … XSS ESCAPING — <script> tags safely escaped in JSON-LD and HTML (90ms)     14 …ite › D10: STATIC ZIP EXPORT — Contains all required architecture files
-  ✓  14 …10: STATIC ZIP EXPORT — Contains all required architecture files (85ms)
-  14 passed (51.3s)
+  ✓   1 [desktop] › D1: AUTH — Blocks logged-out and TEACHER on EVERY admin page and API route (29.3s)
+  ✓   2 [desktop] › D3: PUBLIC — Logged-out access to hubs, questions, and sitemaps; 404 for drafts (8.1s)
+  ✓   3 [desktop] › D4: LEAK AUDIT — Ensures zero administrative or draft fields leaked to public (214ms)
+  ✓   4 [desktop] › D5: HINDI TWIN & NOINDEX — Reviewed twin indexed, unreviewed twin noindexed (1.4s)
+  ✓   5 [desktop] › D6: SLUG & REDIRECT — ShortId and non-canonical slugs 308-redirect to canonical; unknown shortId returns 404 (943ms)
+  ✓   6 [desktop] › D8: XSS ESCAPING — <script> tags safely escaped in JSON-LD and HTML (59ms)
+  ✓   7 [desktop] › D10: STATIC ZIP EXPORT — Contains all required architecture files (839ms)
+  ✓   8 [mobile] › D1: AUTH — Blocks logged-out and TEACHER on EVERY admin page and API route (12.7s)
+  ✓   9 [mobile] › D3: PUBLIC — Logged-out access to hubs, questions, and sitemaps; 404 for drafts (581ms)
+  ✓  10 [mobile] › D4: LEAK AUDIT — Ensures zero administrative or draft fields leaked to public (77ms)
+  ✓  11 [mobile] › D5: HINDI TWIN & NOINDEX — Reviewed twin indexed, unreviewed twin noindexed (231ms)
+  ✓  12 [mobile] › D6: SLUG & REDIRECT — ShortId and non-canonical slugs 308-redirect to canonical; unknown shortId returns 404 (490ms)
+  ✓  13 [mobile] › D8: XSS ESCAPING — <script> tags safely escaped in JSON-LD and HTML (132ms)
+  ✓  14 [mobile] › D10: STATIC ZIP EXPORT — Contains all required architecture files (188ms)
+
+  14 passed (1.2m)

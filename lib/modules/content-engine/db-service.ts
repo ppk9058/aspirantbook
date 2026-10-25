@@ -11,11 +11,31 @@ import { DEFAULT_EXAM_LIST } from "./exam-detector"
 import { evaluateQualityGates, GateResult } from "./quality-gates"
 import { makeQuestionSlug, qaPath } from "./paths"
 import { T } from "./taxonomy"
-import { revalidateTag } from "next/cache"
+import { revalidateTag, revalidatePath, unstable_cache } from "next/cache"
 
-function safeRevalidateTag(tag: string) {
+const questionQueryCache = new Map<string, { data: any; expiresAt: number }>()
+
+export function clearQuestionCache() {
+  questionQueryCache.clear()
+}
+
+export function getQuestionCacheSize(): number {
+  return questionQueryCache.size
+}
+
+export function safeRevalidateTag(tag: string) {
+  clearQuestionCache()
   try {
     revalidateTag(tag)
+  } catch {
+    // Outside Next.js request lifecycle (e.g. background job, CLI or tests)
+  }
+}
+
+export function safeRevalidatePath(path: string) {
+  clearQuestionCache()
+  try {
+    revalidatePath(path)
   } catch {
     // Outside Next.js request lifecycle (e.g. background job, CLI or tests)
   }
@@ -361,6 +381,9 @@ export async function bulkAssignQuestions(params: BulkAssignParams): Promise<num
     })
   }
 
+  safeRevalidateTag("content-engine")
+  safeRevalidatePath("/question-answer")
+  safeRevalidatePath("/hi/question-answer")
   return questionIds.length
 }
 
@@ -628,16 +651,7 @@ export async function setSetting(key: string, value: unknown) {
   })
 }
 
-/**
- * Public read-only query service with strict allow-list.
- * Never selects or exposes pastedText, createdById, reviewedById, batchId, isInferred.
- */
-export async function getPublicQuestionBySlug(slugOrShortId: string) {
-  // Extract 8-char short ID
-  const m = slugOrShortId.match(/(?:^|q-)?([a-z0-9]{8})(?:-.*)?$/i)
-  if (!m) return null
-  const shortId = m[1].toLowerCase()
-
+async function fetchPublicQuestionBySlugDirect(shortId: string) {
   return prisma.contentEngineQuestion.findFirst({
     where: {
       shortId,
@@ -673,4 +687,45 @@ export async function getPublicQuestionBySlug(slugOrShortId: string) {
       },
     },
   })
+}
+
+const cachedPublicQuestionBySlug = unstable_cache(
+  fetchPublicQuestionBySlugDirect,
+  ["content-engine-public-question"],
+  {
+    revalidate: 3600,
+    tags: ["content-engine"],
+  }
+)
+
+/**
+ * Public read-only query service with strict allow-list and on-demand caching.
+ * Never selects or exposes pastedText, createdById, reviewedById, batchId, isInferred.
+ */
+export async function getPublicQuestionBySlug(slugOrShortId: string) {
+  // Extract 8-char short ID
+  const m = slugOrShortId.match(/(?:^|q-)?([a-z0-9]{8})(?:-.*)?$/i)
+  if (!m) return null
+  const shortId = m[1].toLowerCase()
+
+  const cached = questionQueryCache.get(shortId)
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.data
+  }
+
+  let result: any = null
+  try {
+    result = await cachedPublicQuestionBySlug(shortId)
+  } catch (e: any) {
+    if (e.message?.includes("incrementalCache") || e.message?.includes("unstable_cache")) {
+      result = await fetchPublicQuestionBySlugDirect(shortId)
+    } else {
+      throw e
+    }
+  }
+
+  if (result) {
+    questionQueryCache.set(shortId, { data: result, expiresAt: Date.now() + 3600 * 1000 })
+  }
+  return result
 }

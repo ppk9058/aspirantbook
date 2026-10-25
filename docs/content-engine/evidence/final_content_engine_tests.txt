@@ -7,311 +7,318 @@ TAP version 13
     # Subtest: 1. Navigation Registration: AdminNav and LeftSidebar contain Content Engine
     ok 1 - 1. Navigation Registration: AdminNav and LeftSidebar contain Content Engine
       ---
-      duration_ms: 1.180292
+      duration_ms: 1.11925
       type: 'test'
       ...
     # Subtest: 2. Static Site Export: Mirror vs Primary Canonical and File Generation
     ok 2 - 2. Static Site Export: Mirror vs Primary Canonical and File Generation
       ---
-      duration_ms: 10.306417
+      duration_ms: 9.730834
       type: 'test'
       ...
     1..2
 ok 1 - Phase 3 — Admin UI and Navigation Registration
   ---
-  duration_ms: 12.233833
+  duration_ms: 11.619916
   type: 'suite'
   ...
+# [DB Guard] Resolved DB host:port = 127.0.0.1:54329
 # Subtest: Content Engine Database Persistence Service
     # Subtest: 1. Exam Aliases: ensures defaults and retrieves active list
     ok 1 - 1. Exam Aliases: ensures defaults and retrieves active list
       ---
-      duration_ms: 7.38175
+      duration_ms: 6.562125
       type: 'test'
       ...
     # Subtest: 2. Add Batch: parses and inserts questions with text hashing and deduplication
     ok 2 - 2. Add Batch: parses and inserts questions with text hashing and deduplication
       ---
-      duration_ms: 24.440583
+      duration_ms: 21.122625
       type: 'test'
       ...
     # Subtest: 3. Manual picker defaults: subject-only vs topic-only
     ok 3 - 3. Manual picker defaults: subject-only vs topic-only
       ---
-      duration_ms: 34.265542
+      duration_ms: 28.73475
       type: 'test'
       ...
     # Subtest: 4. Bulk Assign: updates subject/topic/exam/year and creates CategoryOverride
     ok 4 - 4. Bulk Assign: updates subject/topic/exam/year and creates CategoryOverride
       ---
-      duration_ms: 13.527583
+      duration_ms: 14.850958
       type: 'test'
       ...
     # Subtest: 5. Re-categorise-all: respects manual overrides and never overwrites them
     ok 5 - 5. Re-categorise-all: respects manual overrides and never overwrites them
       ---
-      duration_ms: 7.021042
+      duration_ms: 7.417542
       type: 'test'
       ...
     # Subtest: 6. Hindi Import: matches English question and creates translation
     ok 6 - 6. Hindi Import: matches English question and creates translation
       ---
-      duration_ms: 11.404125
+      duration_ms: 10.966959
       type: 'test'
       ...
     # Subtest: 7. Translation Review: human toggle updates reviewed status
     ok 7 - 7. Translation Review: human toggle updates reviewed status
       ---
-      duration_ms: 4.764625
+      duration_ms: 5.906333
       type: 'test'
       ...
     # Subtest: 8. Quality Gates & Publishing: gate rejection vs pass, slug generation
     ok 8 - 8. Quality Gates & Publishing: gate rejection vs pass, slug generation
       ---
-      duration_ms: 27.182458
+      duration_ms: 28.498125
       type: 'test'
       ...
     # Subtest: 9. Public Question Retrieval: field isolation & security
     ok 9 - 9. Public Question Retrieval: field isolation & security
       ---
-      duration_ms: 9.357958
+      duration_ms: 10.202459
       type: 'test'
       ...
     # Subtest: 10. Settings service: get and set
     ok 10 - 10. Settings service: get and set
       ---
-      duration_ms: 4.177125
+      duration_ms: 5.636625
       type: 'test'
       ...
-    1..10
+    # Subtest: 11. Caching & On-Demand Revalidation: publish, unpublish, and zero-query cache hit
+    ok 11 - 11. Caching & On-Demand Revalidation: publish, unpublish, and zero-query cache hit
+      ---
+      duration_ms: 20.980708
+      type: 'test'
+      ...
+    1..11
 ok 2 - Content Engine Database Persistence Service
   ---
-  duration_ms: 192.710083
+  duration_ms: 216.577792
   type: 'suite'
   ...
 # Subtest: Phase 6 — Mutation Proofs (Safety Guards Verification)
     # Subtest: Mutation 1: Missing answer fails quality gates
     ok 1 - Mutation 1: Missing answer fails quality gates
       ---
-      duration_ms: 1.155542
+      duration_ms: 1.149583
       type: 'test'
       ...
     # Subtest: Mutation 2: Few options (< 4) fails quality gates
     ok 2 - Mutation 2: Few options (< 4) fails quality gates
       ---
-      duration_ms: 0.237334
+      duration_ms: 0.236417
       type: 'test'
       ...
     # Subtest: Mutation 3: Thin explanation (< 80 chars) fails quality gates
     ok 3 - Mutation 3: Thin explanation (< 80 chars) fails quality gates
       ---
-      duration_ms: 0.101709
+      duration_ms: 0.10325
       type: 'test'
       ...
     # Subtest: Mutation 4: Missing source fails quality gates
     ok 4 - Mutation 4: Missing source fails quality gates
       ---
-      duration_ms: 0.088125
+      duration_ms: 0.09
       type: 'test'
       ...
     # Subtest: Mutation 5: Uncategorized subject fails quality gates
     ok 5 - Mutation 5: Uncategorized subject fails quality gates
       ---
-      duration_ms: 0.083458
+      duration_ms: 0.088833
       type: 'test'
       ...
     # Subtest: Mutation 6: General topic fails quality gates
     ok 6 - Mutation 6: General topic fails quality gates
       ---
-      duration_ms: 0.167459
+      duration_ms: 0.627542
       type: 'test'
       ...
     # Subtest: Mutation 7: Duplicate detection triggers on Jaccard similarity >= 0.8
     ok 7 - Mutation 7: Duplicate detection triggers on Jaccard similarity >= 0.8
       ---
-      duration_ms: 0.152792
+      duration_ms: 0.200583
       type: 'test'
       ...
     # Subtest: Mutation 8: Unverified question fails in strict quality gates mode
     ok 8 - Mutation 8: Unverified question fails in strict quality gates mode
       ---
-      duration_ms: 0.266625
+      duration_ms: 0.29775
       type: 'test'
       ...
     # Subtest: Mutation 9: Unreviewed Hindi twin gets robots noindex
     ok 9 - Mutation 9: Unreviewed Hindi twin gets robots noindex
       ---
-      duration_ms: 2.096875
+      duration_ms: 1.659667
       type: 'test'
       ...
     # Subtest: Mutation 10: Reviewed Hindi twin gets robots index, follow
     ok 10 - Mutation 10: Reviewed Hindi twin gets robots index, follow
       ---
-      duration_ms: 1.078042
+      duration_ms: 1.057
       type: 'test'
       ...
     # Subtest: Mutation 11: Unreviewed Hindi twin excluded from static export
     ok 11 - Mutation 11: Unreviewed Hindi twin excluded from static export
       ---
-      duration_ms: 3.252333
+      duration_ms: 2.875917
       type: 'test'
       ...
     # Subtest: Mutation 12: Cross-reference resolver terminates cycles at max depth 3
     ok 12 - Mutation 12: Cross-reference resolver terminates cycles at max depth 3
       ---
-      duration_ms: 0.61825
+      duration_ms: 0.609042
       type: 'test'
       ...
     # Subtest: Mutation 13: Cross-reference resolver ignores self-references
     ok 13 - Mutation 13: Cross-reference resolver ignores self-references
       ---
-      duration_ms: 0.079583
+      duration_ms: 0.082583
       type: 'test'
       ...
     # Subtest: Mutation 14: nz normalizer strips nukta
     ok 14 - Mutation 14: nz normalizer strips nukta
       ---
-      duration_ms: 0.195417
+      duration_ms: 0.195917
       type: 'test'
       ...
     # Subtest: Mutation 15: nz normalizer normalizes chandrabindu to anusvara
     ok 15 - Mutation 15: nz normalizer normalizes chandrabindu to anusvara
       ---
-      duration_ms: 0.058042
+      duration_ms: 0.057334
       type: 'test'
       ...
     # Subtest: Mutation 16: nz normalizer converts nasal halant to anusvara
     ok 16 - Mutation 16: nz normalizer converts nasal halant to anusvara
       ---
-      duration_ms: 0.060417
+      duration_ms: 0.052375
       type: 'test'
       ...
     # Subtest: Mutation 17: nz normalizer converts bare nga to da for OCR confusion
     ok 17 - Mutation 17: nz normalizer converts bare nga to da for OCR confusion
       ---
-      duration_ms: 0.05325
+      duration_ms: 0.052208
       type: 'test'
       ...
     # Subtest: Mutation 18: safeJsonLdStringify replaces < with \\u003c
     ok 18 - Mutation 18: safeJsonLdStringify replaces < with \\u003c
       ---
-      duration_ms: 0.067708
+      duration_ms: 0.066417
       type: 'test'
       ...
     # Subtest: Mutation 19: Unpublished question excluded from static export
     ok 19 - Mutation 19: Unpublished question excluded from static export
       ---
-      duration_ms: 0.0935
+      duration_ms: 0.085125
       type: 'test'
       ...
     # Subtest: Mutation 20: Primary mode static export points canonicals to questions.aspirantbook.com
     ok 20 - Mutation 20: Primary mode static export points canonicals to questions.aspirantbook.com
       ---
-      duration_ms: 0.418833
+      duration_ms: 0.434792
       type: 'test'
       ...
     1..20
 ok 3 - Phase 6 — Mutation Proofs (Safety Guards Verification)
   ---
-  duration_ms: 11.425459
+  duration_ms: 11.115625
   type: 'suite'
   ...
 # Subtest: Phase C — Parser Bug Fixes (Real Exam Paper Text)
     # Subtest: C1 & C2(a): Lowercase a.-d. statements inside question stem with (A)-(D) options
     ok 1 - C1 & C2(a): Lowercase a.-d. statements inside question stem with (A)-(D) options
       ---
-      duration_ms: 4.35275
+      duration_ms: 4.176333
       type: 'test'
       ...
     # Subtest: C1 & C2(b): Roman numeral i.-iv. statements inside question stem with (A)-(D) options
     ok 2 - C1 & C2(b): Roman numeral i.-iv. statements inside question stem with (A)-(D) options
       ---
-      duration_ms: 0.549375
+      duration_ms: 0.571334
       type: 'test'
       ...
     # Subtest: C1 & C2(c): Numbered 1.-4. statements inside question stem with (A)-(D) options
     ok 3 - C1 & C2(c): Numbered 1.-4. statements inside question stem with (A)-(D) options
       ---
-      duration_ms: 0.225125
+      duration_ms: 0.33025
       type: 'test'
       ...
     # Subtest: C2(d): Match-the-following with List-I and List-II on separate lines
     ok 4 - C2(d): Match-the-following with List-I and List-II on separate lines
       ---
-      duration_ms: 0.2195
+      duration_ms: 0.243042
       type: 'test'
       ...
     # Subtest: C2(e): 4-option question whose option lines are 1. 2. 3. 4. with no (A)-(D)
     ok 5 - C2(e): 4-option question whose option lines are 1. 2. 3. 4. with no (A)-(D)
       ---
-      duration_ms: 0.198666
+      duration_ms: 0.207667
       type: 'test'
       ...
     # Subtest: C3: Strip OCR junk lines but preserve real content lines
     ok 6 - C3: Strip OCR junk lines but preserve real content lines
       ---
-      duration_ms: 0.445167
+      duration_ms: 0.56825
       type: 'test'
       ...
     # Subtest: C4: Decimal-led lines (1.5 kg, 2.0 m/s) must not start new questions
     ok 7 - C4: Decimal-led lines (1.5 kg, 2.0 m/s) must not start new questions
       ---
-      duration_ms: 0.382833
+      duration_ms: 0.412416
       type: 'test'
       ...
     # Subtest: C5: Blank lines inside question stem before options do not split question
     ok 8 - C5: Blank lines inside question stem before options do not split question
       ---
-      duration_ms: 0.407292
+      duration_ms: 0.406
       type: 'test'
       ...
     # Subtest: C6: parseWithDiagnostics returns skipped count and snippets
     ok 9 - C6: parseWithDiagnostics returns skipped count and snippets
       ---
-      duration_ms: 0.292667
+      duration_ms: 0.298375
       type: 'test'
       ...
     1..9
 ok 4 - Phase C — Parser Bug Fixes (Real Exam Paper Text)
   ---
-  duration_ms: 8.305625
+  duration_ms: 8.497375
   type: 'suite'
   ...
 # Subtest: Phase 4 — Public SEO Routes & Sitemaps
     # Subtest: 1. robots.ts: includes both English and Hindi question-answer sitemaps
     ok 1 - 1. robots.ts: includes both English and Hindi question-answer sitemaps
       ---
-      duration_ms: 10.389625
+      duration_ms: 10.514375
       type: 'test'
       ...
     # Subtest: 2. Path Builders: formats canonical URLs correctly for both English and Hindi
     ok 2 - 2. Path Builders: formats canonical URLs correctly for both English and Hindi
       ---
-      duration_ms: 0.512833
+      duration_ms: 0.467875
       type: 'test'
       ...
     # Subtest: 3. Native Sitemaps: generates valid sitemap entries
     ok 3 - 3. Native Sitemaps: generates valid sitemap entries
       ---
-      duration_ms: 57.819042
+      duration_ms: 59.534666
       type: 'test'
       ...
     # Subtest: 4. SEO Model & JSON-LD: canonical, hreflang, breadcrumbs, and XSS safety
     ok 4 - 4. SEO Model & JSON-LD: canonical, hreflang, breadcrumbs, and XSS safety
       ---
-      duration_ms: 2.126375
+      duration_ms: 2.165167
       type: 'test'
       ...
-    # Subtest: 5. /q/[shortId] route handler returns redirect status code
-    ok 5 - 5. /q/[shortId] route handler returns redirect status code
+    # Subtest: 5. /q/[shortId] route handler returns 404 for unknown shortId
+    ok 5 - 5. /q/[shortId] route handler returns 404 for unknown shortId
       ---
-      duration_ms: 94.953125
+      duration_ms: 97.241125
       type: 'test'
       ...
     1..5
 ok 5 - Phase 4 — Public SEO Routes & Sitemaps
   ---
-  duration_ms: 166.811
+  duration_ms: 170.969334
   type: 'suite'
   ...
 # Subtest: Phase 1 — Pure Logic Acceptance Tests
@@ -319,158 +326,158 @@ ok 5 - Phase 4 — Public SEO Routes & Sitemaps
         # Subtest: nz normalizes chandrabindu, nukta, and nasal halants
         ok 1 - nz normalizes chandrabindu, nukta, and nasal halants
           ---
-          duration_ms: 0.845625
+          duration_ms: 0.729
           type: 'test'
           ...
         # Subtest: classify identifies specified key questions
         ok 2 - classify identifies specified key questions
           ---
-          duration_ms: 2.810875
+          duration_ms: 2.283917
           type: 'test'
           ...
         1..2
     ok 1 - 1. Classifier & Normalization
       ---
-      duration_ms: 4.234417
+      duration_ms: 3.506542
       type: 'suite'
       ...
     # Subtest: 2. Exam & Year Detection
         # Subtest: [RAS/RTS 2013] bracket tag detects exam and year
         ok 1 - [RAS/RTS 2013] bracket tag detects exam and year
           ---
-          duration_ms: 1.24375
+          duration_ms: 1.068
           type: 'test'
           ...
         # Subtest: [UPPCS 2017] bracket tag detects UPPCS 2017
         ok 2 - [UPPCS 2017] bracket tag detects UPPCS 2017
           ---
-          duration_ms: 0.232125
+          duration_ms: 0.197667
           type: 'test'
           ...
         # Subtest: Source: UPRO/ARO 2017 line detection
         ok 3 - Source: UPRO/ARO 2017 line detection
           ---
-          duration_ms: 0.08225
+          duration_ms: 0.070542
           type: 'test'
           ...
         # Subtest: [1995] bracket tag detects year only
         ok 4 - [1995] bracket tag detects year only
           ---
-          duration_ms: 0.293958
+          duration_ms: 0.283041
           type: 'test'
           ...
         # Subtest: unknown bracket exam tag stays untagged
         ok 5 - unknown bracket exam tag stays untagged
           ---
-          duration_ms: 0.083
+          duration_ms: 0.111833
           type: 'test'
           ...
         1..5
     ok 2 - 2. Exam & Year Detection
       ---
-      duration_ms: 2.560083
+      duration_ms: 2.418417
       type: 'suite'
       ...
     # Subtest: 3. Cross-Reference Resolver
         # Subtest: resolves reference-only explanation
         ok 1 - resolves reference-only explanation
           ---
-          duration_ms: 0.776292
+          duration_ms: 0.974042
           type: 'test'
           ...
         # Subtest: resolves chained reference (depth 2)
         ok 2 - resolves chained reference (depth 2)
           ---
-          duration_ms: 0.27025
+          duration_ms: 0.259375
           type: 'test'
           ...
         # Subtest: returns original explanation on missing target
         ok 3 - returns original explanation on missing target
           ---
-          duration_ms: 0.289083
+          duration_ms: 0.264375
           type: 'test'
           ...
         # Subtest: ignores self-reference
         ok 4 - ignores self-reference
           ---
-          duration_ms: 0.091334
+          duration_ms: 0.087417
           type: 'test'
           ...
         # Subtest: keeps own sentences before pulled explanation
         ok 5 - keeps own sentences before pulled explanation
           ---
-          duration_ms: 0.104375
+          duration_ms: 0.095375
           type: 'test'
           ...
         # Subtest: explanation > 400 chars is NOT rewritten
         ok 6 - explanation > 400 chars is NOT rewritten
           ---
-          duration_ms: 0.075417
+          duration_ms: 0.068709
           type: 'test'
           ...
         1..6
     ok 3 - 3. Cross-Reference Resolver
       ---
-      duration_ms: 1.8875
+      duration_ms: 2.076292
       type: 'suite'
       ...
     # Subtest: 4. inferRuns
         # Subtest: a 10-item unmatched run between two same-topic matched items inherits
         ok 1 - a 10-item unmatched run between two same-topic matched items inherits
           ---
-          duration_ms: 0.520917
+          duration_ms: 0.39825
           type: 'test'
           ...
         # Subtest: unmatched run between different-topic items does NOT inherit
         ok 2 - unmatched run between different-topic items does NOT inherit
           ---
-          duration_ms: 0.1055
+          duration_ms: 0.07575
           type: 'test'
           ...
         1..2
     ok 4 - 4. inferRuns
       ---
-      duration_ms: 0.702833
+      duration_ms: 0.528791
       type: 'suite'
       ...
     # Subtest: 5. Security & Escaping in JSON-LD and HTML
         # Subtest: a question containing <script> tags is safely escaped in JSON-LD and HTML
         ok 1 - a question containing <script> tags is safely escaped in JSON-LD and HTML
           ---
-          duration_ms: 3.196333
+          duration_ms: 2.396833
           type: 'test'
           ...
         1..1
     ok 5 - 5. Security & Escaping in JSON-LD and HTML
       ---
-      duration_ms: 3.284375
+      duration_ms: 2.460292
       type: 'suite'
       ...
     # Subtest: 6. 20-Question Mixed Hindi/English Paste End-to-End
         # Subtest: parses all 20 questions correctly with proper classifications and options
         ok 1 - parses all 20 questions correctly with proper classifications and options
           ---
-          duration_ms: 7.024625
+          duration_ms: 6.483834
           type: 'test'
           ...
         1..1
     ok 6 - 6. 20-Question Mixed Hindi/English Paste End-to-End
       ---
-      duration_ms: 7.110375
+      duration_ms: 6.542833
       type: 'suite'
       ...
     1..6
 ok 6 - Phase 1 — Pure Logic Acceptance Tests
   ---
-  duration_ms: 20.593292
+  duration_ms: 18.308959
   type: 'suite'
   ...
 1..6
-# tests 63
+# tests 64
 # suites 12
-# pass 63
+# pass 64
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1812.388209
+# duration_ms 1801.821292

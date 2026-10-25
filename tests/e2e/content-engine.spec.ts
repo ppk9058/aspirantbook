@@ -278,12 +278,16 @@ Explanation: Another detailed explanation text exceeding eighty characters for q
     expect(smText).toContain("/hi/question-answer")
   })
 
-  test("D6: SLUG & REDIRECT — ShortId and non-canonical slugs 308-redirect to canonical", async ({ request }) => {
+  test("D6: SLUG & REDIRECT — ShortId and non-canonical slugs 308-redirect to canonical; unknown shortId returns 404", async ({ request }) => {
     // 1. /q/[shortId] -> 308 redirect
     const shortRes = await request.get(`${BASE_URL}/q/${publishedQ.shortId}`, { maxRedirects: 0 })
     expect(shortRes.status()).toBe(308)
     const location = shortRes.headers()["location"]
     expect(location).toContain(publishedQ.slug)
+
+    // Unknown shortId -> 404
+    const unknownRes = await request.get(`${BASE_URL}/q/nonexistent-id`, { maxRedirects: 0 })
+    expect(unknownRes.status()).toBe(404)
 
     // 2. Canonical slug discrepancy -> 308 redirect
     const wrongSlugRes = await request.get(

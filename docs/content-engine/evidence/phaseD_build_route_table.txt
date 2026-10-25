@@ -1,15 +1,11 @@
-=== Phase D11 Next.js Build Route Table Evidence ===
-Generated: 2026-10-26
-Command: npm run build
-
-All /question-answer and /hi/question-answer routes verified as ○ (Static) / ISR:
-
+Route (app)                                             Size     First Load JS
 ├ ○ /hi/question-answer                                 243 B           110 kB
 ├ ○ /hi/question-answer/[exam]                          243 B           110 kB
 ├ ○ /hi/question-answer/[exam]/[subject]                243 B           110 kB
 ├ ○ /hi/question-answer/[exam]/[subject]/[slug]         146 B           132 kB
 ├ ○ /hi/question-answer/[exam]/[subject]/topic/[topic]  243 B           110 kB
 ├ ○ /hi/question-answer/sitemap.xml                     0 B                0 B
+├ ƒ /q/[shortId]                                        498 B           107 kB
 ├ ○ /question-answer                                    243 B           110 kB
 ├ ○ /question-answer/[exam]                             243 B           110 kB
 ├ ○ /question-answer/[exam]/[subject]                   243 B           110 kB
@@ -17,7 +13,6 @@ All /question-answer and /hi/question-answer routes verified as ○ (Static) / I
 ├ ○ /question-answer/[exam]/[subject]/topic/[topic]     243 B           110 kB
 ├ ○ /question-answer/sitemap.xml                        0 B                0 B
 
-Legend:
 ○  (Static)   prerendered as static content
 ●  (SSG)      prerendered as static HTML (uses generateStaticParams)
 ƒ  (Dynamic)  server-rendered on demand

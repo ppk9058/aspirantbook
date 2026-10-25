@@ -223,7 +223,7 @@ export function generateStaticSiteFiles(
 ): ZipFileInput[] {
   const files: ZipFileInput[] = []
   const defaultMirror =
-    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+    process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
   const defaultPrimary =
     process.env.NEXT_PUBLIC_SITE_URL || "https://questions.aspirantbook.com"
   const baseUrl =
@@ -247,7 +247,7 @@ export function generateStaticSiteFiles(
   published.forEach((q) => {
     if (q.exam && q.sub && q.slug) {
       redirectLines.push(
-        `/q/${q.shortId}  /question-answer/${slugify(q.exam)}/${slugify(q.sub)}/${q.slug}/  301`
+        `/q/${q.shortId}  /question-answer/${slugify(q.exam)}/${slugify(q.sub)}/${q.slug}/  308`
       )
     }
   })

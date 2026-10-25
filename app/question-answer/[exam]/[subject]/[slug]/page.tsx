@@ -17,7 +17,7 @@ export async function generateStaticParams() {
   }
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
 
 export async function generateMetadata({
   params,

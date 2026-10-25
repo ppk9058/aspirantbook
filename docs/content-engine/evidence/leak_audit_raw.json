@@ -1,0 +1,19 @@
+{
+  "publicData": null,
+  "sitemapEn": [
+    {
+      "url": "http://localhost:3000/question-answer",
+      "lastModified": "2026-10-25T20:53:10.432Z",
+      "changeFrequency": "daily",
+      "priority": 0.9
+    }
+  ],
+  "sitemapHi": [
+    {
+      "url": "http://localhost:3000/hi/question-answer",
+      "lastModified": "2026-10-25T20:53:10.576Z",
+      "changeFrequency": "daily",
+      "priority": 0.9
+    }
+  ]
+}

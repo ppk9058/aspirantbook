@@ -50,4 +50,24 @@ This document records all architectural decisions, safety choices, and conflict 
 
 ### Decision 9: Placement of Unit & Integration Tests in `tests/content-engine/`
 - **Choice**: Retain pure-logic, database persistence, and mutation test suites in `tests/content-engine/*.test.ts`, invoked via `npm run test:content-engine` (`tsx --test --test-concurrency=1`), while placing end-to-end browser and HTTP tests in `tests/e2e/content-engine.spec.ts`.
-- **Reason**: Node.js native test runner (`node:test` via `tsx`) executes unit and service checks in milliseconds (< 2s) without the overhead of spinning up browser binaries for all 53 logic checks. Playwright E2E tests in `tests/e2e/` then verify full browser rendering, authentication middleware, and real HTTP requests against the running test server on port 3045.
+- **Reason**: Node.js native test runner (`node:test` via `tsx`) executes unit and service checks in milliseconds (< 2s) without the overhead of spinning up browser binaries for all 64 logic checks. Playwright E2E tests in `tests/e2e/` then verify full browser rendering, authentication middleware, and real HTTP requests against the running test server on port 3045.
+
+### Decision 10: Unknown shortId Returns HTTP 404 (Not 302)
+- **Choice**: In `app/q/[shortId]/route.ts`, if a requested shortId does not exist or is unpublished/draft, return `404 Not Found` rather than a temporary 302 redirect.
+- **Reason**: In search engine and social bot semantics, an unknown or nonexistent question identifier is a missing resource (404). Redirecting to `/question-answer` via 302 creates soft 404s and index bloat.
+
+### Decision 11: Route Co-location for Year Hub and Subject Hub
+- **Choice**: Co-locate year hub (`/question-answer/{exam}/{year}`) and subject hub (`/question-answer/{exam}/{subject}`) inside `app/question-answer/[exam]/[subject]/page.tsx` and `app/hi/question-answer/[exam]/[subject]/page.tsx`.
+- **Reason**: Next.js App Router forbids sibling dynamic route folders with different slug names (`[year]` and `[subject]`) at the same directory depth under `[exam]`. Segments matching strict regex `/^(19[89]\d|20[0-3]\d)$/` render the Year Hub; other segments render the Subject Hub, and invalid/nonexistent subjects or years return `404 Not Found`.
+
+### Decision 12: Production-Mode Guard against `ts_demo_role` Cookie
+- **Choice**: Enforce strict production-mode rejection of `ts_demo_role` cookie in `app/admin/content-engine/layout.tsx` (redirecting to `/login`) and `lib/modules/content-engine/auth.ts` (returning 401 Unauthorized for mutations).
+- **Reason**: In development, `ts_demo_role` facilitates rapid role switching and Playwright E2E testing without full OAuth token exchanges. In production (`NODE_ENV === "production"`), demo IDs starting with `demo-` must never be permitted to access admin interfaces or API actions.
+
+### Decision 13: Next.js Cache & In-Memory TTL Revalidation Lifecycle
+- **Choice**: Wrap `getPublicQuestionBySlug` in Next.js `unstable_cache` tagged with `"content-engine"` and `revalidate: 3600`, coupled with an in-memory fallback query cache. Invalidate on-demand via `safeRevalidateTag("content-engine")` and `safeRevalidatePath` upon publishing, unpublishing, bulk assignment, and Hindi translation reviews.
+- **Reason**: Force-static public pages achieve sub-millisecond TTFB and zero database load on repeated visits. Immediate on-demand revalidation ensures published or unpublished updates reflect on the next request.
+
+### Decision 14: Accepted Exceptions for Scope and File Locations
+- **Choice**: Formally document `app/q/[shortId]/route.ts`, `tests/content-engine/*.test.ts`, `tests/e2e/content-engine.spec.ts`, and `scripts/run-mutation-suite.ts` as permitted exceptions.
+- **Reason**: `app/q/[shortId]` provides short URL vanity sharing for Telegram and social channels. Dedicated `tests/content-engine/` maintains fast developer iteration for unit tests without polluting generic root directories. Exactly 5 existing repository files (`app/robots.ts`, `components/admin/AdminNav.tsx`, `components/layout/LeftSidebar.tsx`, `package.json`, `prisma/schema.prisma`) were modified.
