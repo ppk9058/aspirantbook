@@ -6,7 +6,25 @@ import { Badge } from "@/components/ui/badge"
 import { BookOpen, Layers } from "lucide-react"
 import { Metadata } from "next"
 
+export const dynamic = "force-static"
 export const revalidate = 3600
+
+export async function generateStaticParams() {
+  try {
+    const pairs = await prisma.contentEngineQuestion.findMany({
+      where: { isPublished: true, exam: { not: null }, sub: { not: null } },
+      select: { exam: true, sub: true },
+      distinct: ["exam", "sub"],
+      take: 20,
+    })
+    return pairs.map((p) => ({
+      exam: slugify(p.exam!),
+      subject: slugify(p.sub!),
+    }))
+  } catch {
+    return []
+  }
+}
 
 export async function generateMetadata({
   params,

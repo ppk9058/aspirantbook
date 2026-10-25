@@ -1,3 +1,6 @@
+Command exited with code 0.
+
+Command output:
 
 > aspirantbook@0.1.0 build
 > next build
@@ -11,14 +14,10 @@
  ✓ Compiled successfully
    Skipping validation of types
    Skipping linting
-   Collecting page data ...
-   Generating static pages (0/177) ...
-   Generating static pages (44/177) 
-   Generating static pages (88/177) 
-   Generating static pages (132/177) 
+   Collecting page data     ✓ Collecting page data 
  ✓ Generating static pages (177/177)
-   Finalizing page optimization ...
-   Collecting build traces ...
+   Collecting build traces     ✓ Collecting build traces 
+   Finalizing page optimization     ✓ Finalizing page optimization 
 
 Route (app)                                             Size     First Load JS
 ┌ ƒ /                                                   11.2 kB         173 kB
@@ -36,11 +35,11 @@ Route (app)                                             Size     First Load JS
 ├ ƒ /admin/book-studio                                  143 B           125 kB
 ├ ƒ /admin/books                                        12.1 kB         129 kB
 ├ ƒ /admin/content-engine                               7.13 kB         141 kB
-├ ƒ /admin/content-engine/add                           5.83 kB         139 kB
+├ ƒ /admin/content-engine/add                           5.89 kB         139 kB
 ├ ƒ /admin/content-engine/aliases                       6.4 kB          133 kB
 ├ ƒ /admin/content-engine/assign                        5.37 kB         139 kB
 ├ ƒ /admin/content-engine/categories                    2.66 kB         120 kB
-├ ƒ /admin/content-engine/export                        6.21 kB         133 kB
+├ ƒ /admin/content-engine/export                        6.4 kB          133 kB
 ├ ƒ /admin/content-engine/gates                         7.33 kB         134 kB
 ├ ƒ /admin/content-engine/hindi                         12 kB           139 kB
 ├ ƒ /admin/content-engine/practice                      7 kB            134 kB
@@ -230,11 +229,11 @@ Route (app)                                             Size     First Load JS
 ├ ƒ /forgot-password                                    4 kB            121 kB
 ├ ƒ /forms                                              243 B           110 kB
 ├ ƒ /forms/[slug]                                       6.6 kB          117 kB
-├ ƒ /hi/question-answer                                 243 B           110 kB
-├ ƒ /hi/question-answer/[exam]                          243 B           110 kB
-├ ƒ /hi/question-answer/[exam]/[subject]                243 B           110 kB
-├ ƒ /hi/question-answer/[exam]/[subject]/[slug]         146 B           132 kB
-├ ƒ /hi/question-answer/[exam]/[subject]/topic/[topic]  243 B           110 kB
+├ ○ /hi/question-answer                                 243 B           110 kB
+├ ○ /hi/question-answer/[exam]                          243 B           110 kB
+├ ○ /hi/question-answer/[exam]/[subject]                243 B           110 kB
+├ ○ /hi/question-answer/[exam]/[subject]/[slug]         146 B           132 kB
+├ ○ /hi/question-answer/[exam]/[subject]/topic/[topic]  243 B           110 kB
 ├ ○ /hi/question-answer/sitemap.xml                     0 B                0 B
 ├ ƒ /leaderboard                                        494 B           107 kB
 ├ ƒ /learn                                              494 B           107 kB
@@ -254,11 +253,11 @@ Route (app)                                             Size     First Load JS
 ├ ƒ /pyqs/[examId]                                      190 B           114 kB
 ├ ƒ /pyqs/pdf-view                                      5.52 kB         119 kB
 ├ ƒ /q/[shortId]                                        494 B           107 kB
-├ ƒ /question-answer                                    243 B           110 kB
-├ ƒ /question-answer/[exam]                             243 B           110 kB
-├ ƒ /question-answer/[exam]/[subject]                   243 B           110 kB
-├ ƒ /question-answer/[exam]/[subject]/[slug]            145 B           132 kB
-├ ƒ /question-answer/[exam]/[subject]/topic/[topic]     243 B           110 kB
+├ ○ /question-answer                                    243 B           110 kB
+├ ○ /question-answer/[exam]                             243 B           110 kB
+├ ○ /question-answer/[exam]/[subject]                   243 B           110 kB
+├ ○ /question-answer/[exam]/[subject]/[slug]            145 B           132 kB
+├ ○ /question-answer/[exam]/[subject]/topic/[topic]     243 B           110 kB
 ├ ○ /question-answer/sitemap.xml                        0 B                0 B
 ├ ƒ /register                                           5.86 kB         123 kB
 ├ ƒ /reset-password                                     4.68 kB         122 kB

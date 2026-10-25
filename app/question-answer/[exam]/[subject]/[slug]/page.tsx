@@ -5,7 +5,17 @@ import { slugify, qaPath } from "@/lib/modules/content-engine/paths"
 import { PublicQuestionView } from "@/components/content-engine-public/PublicQuestionView"
 import { Metadata } from "next"
 
+export const dynamic = "force-static"
 export const revalidate = 3600
+
+export async function generateStaticParams() {
+  try {
+    const questions = await getPublicQuestionBySlug("") // dummy call to verify import
+    return []
+  } catch {
+    return []
+  }
+}
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
 

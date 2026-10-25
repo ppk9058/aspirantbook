@@ -6,7 +6,12 @@ import { getHindiSubject, getHindiTopic } from "@/lib/modules/content-engine/tax
 import { Badge } from "@/components/ui/badge"
 import { Metadata } from "next"
 
+export const dynamic = "force-static"
 export const revalidate = 3600
+
+export async function generateStaticParams() {
+  return []
+}
 
 export async function generateMetadata({
   params,

@@ -1,0 +1,5 @@
+=== Phase D13 Sample URLs & HTTP Status ===
+
+3. Root Hub: http://127.0.0.1:3045/question-answer -> 200 OK
+4. Exam Hub: http://127.0.0.1:3045/question-answer/upsc-cse -> 200 OK
+5. Year Hub: http://127.0.0.1:3045/question-answer/upsc-cse/2023 -> 200 OK

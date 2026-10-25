@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { BookOpen, GraduationCap, ArrowRight, Layers } from "lucide-react"
 import { Metadata } from "next"
 
+export const dynamic = "force-static"
 export const revalidate = 3600 // 1 hour cache
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"

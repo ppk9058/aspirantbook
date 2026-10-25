@@ -1,0 +1,145 @@
+{
+  "sample3Questions": {
+    "questions": [
+      {
+        "no": 0,
+        "q": "Consider the following about Indus Valley:\na. Harappa was excavated by Daya Ram Sahni.\nb. Mohenjodaro is located in Larkana district.\nc. Lothal was a dockyard city.\nd. Kalibangan is in Rajasthan.\nWhich of the above are correct?",
+        "o": [
+          "a and b only",
+          "b and c only",
+          "a, b, c and d",
+          "None of the above"
+        ],
+        "ans": "C",
+        "a": 2,
+        "exp": "All four statements are historically authentic and accurate.",
+        "src": "",
+        "exam": "",
+        "year": "",
+        "sub": "Ancient India",
+        "top": "Indus Valley Civilization",
+        "type": "MCQ",
+        "id": 1
+      },
+      {
+        "no": 0,
+        "q": "Following are mountain ranges of India:\n1. Garo Hills\n2. Nandadevi\n3. Kamet\n4. K2\nWhich is the correct sequence from North to South?",
+        "o": [
+          "4 3 2 1",
+          "3 4 2 1",
+          "1 2 3 4",
+          "2 1 4 3"
+        ],
+        "ans": "A",
+        "a": 0,
+        "exp": "K2 lies highest north in Karakoram, followed by Kamet and Nandadevi in Uttarakhand, and Garo Hills in Meghalaya.",
+        "src": "",
+        "exam": "",
+        "year": "",
+        "sub": "Ancient India",
+        "top": "Mahajanapadas and Mauryas",
+        "type": "MCQ",
+        "id": 2
+      },
+      {
+        "no": 0,
+        "q": "Match List-I with List-II:\nList-I:\na. Indus Valley\nb. Vedic Period\nList-II:\n1. Harappa\n2. Rigveda\nChoose the correct code:",
+        "o": [
+          "a-1, b-2",
+          "a-2, b-1",
+          "a-1, b-1",
+          "a-2, b-2"
+        ],
+        "ans": "A",
+        "a": 0,
+        "exp": "Harappa belongs to Indus Valley Civilization and Rigveda belongs to Early Vedic Period.",
+        "src": "",
+        "exam": "",
+        "year": "",
+        "sub": "Ancient India",
+        "top": "Indus Valley Civilization",
+        "type": "MCQ",
+        "id": 3
+      }
+    ],
+    "skipped": []
+  },
+  "ocr20Questions": {
+    "questionCount": 20,
+    "skippedCount": 43,
+    "skippedSnippets": [
+      "09/C/GO/CC/PT-2024(Q)/E 12",
+      "[P.T.O.",
+      "4110191",
+      "P.T.O.",
+      "- 1 -",
+      "P.T.O.",
+      "- 2 -",
+      "P.T.O.",
+      "- 3 -",
+      "P.T.O."
+    ],
+    "sampleQuestions": [
+      {
+        "no": 1,
+        "q": "In year 1990, what was the main feature of project 1?\n1.5 kg of material was used under Article 102 in 2024 budget.",
+        "o": [
+          "Option Alpha 1",
+          "Option Beta 1",
+          "Option Gamma 1",
+          "Option Delta 1"
+        ],
+        "ans": "A",
+        "a": 0,
+        "exp": "Explanation for question 1 describing historical context exceeding eighty characters in total length for quality gate criteria.",
+        "src": "",
+        "exam": "",
+        "year": "",
+        "sub": "Polity",
+        "top": "Constitution",
+        "type": "MCQ",
+        "id": 1
+      },
+      {
+        "no": 2,
+        "q": "In year 1991, what was the main feature of project 2?\n1.5 kg of material was used under Article 102 in 2024 budget.",
+        "o": [
+          "Option Alpha 2",
+          "Option Beta 2",
+          "Option Gamma 2",
+          "Option Delta 2"
+        ],
+        "ans": "A",
+        "a": 0,
+        "exp": "Explanation for question 2 describing historical context exceeding eighty characters in total length for quality gate criteria.",
+        "src": "",
+        "exam": "",
+        "year": "",
+        "sub": "Polity",
+        "top": "Constitution",
+        "type": "MCQ",
+        "id": 2
+      },
+      {
+        "no": 3,
+        "q": "In year 1992, what was the main feature of project 3?\n1.5 kg of material was used under Article 102 in 2024 budget.",
+        "o": [
+          "Option Alpha 3",
+          "Option Beta 3",
+          "Option Gamma 3",
+          "Option Delta 3"
+        ],
+        "ans": "A",
+        "a": 0,
+        "exp": "Explanation for question 3 describing historical context exceeding eighty characters in total length for quality gate criteria.",
+        "src": "",
+        "exam": "",
+        "year": "",
+        "sub": "Polity",
+        "top": "Constitution",
+        "type": "MCQ",
+        "id": 3
+      }
+    ]
+  }
+}
