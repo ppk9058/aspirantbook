@@ -90,6 +90,7 @@ export default function ContentEngineExportPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
           <div
+            data-testid="mirror-mode-card"
             onClick={() => handleModeChange("mirror")}
             className={`p-4 rounded-xl border-2 cursor-pointer transition-all space-y-2 ${
               exportMode === "mirror"
@@ -109,6 +110,7 @@ export default function ContentEngineExportPage() {
           </div>
 
           <div
+            data-testid="primary-mode-card"
             onClick={() => handleModeChange("primary")}
             className={`p-4 rounded-xl border-2 cursor-pointer transition-all space-y-2 ${
               exportMode === "primary"

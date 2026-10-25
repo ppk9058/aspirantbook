@@ -141,12 +141,17 @@ export default async function PublicQuestionPage({
     updatedAt: q.updatedAt,
   }
 
+  const alternateLangUrl = hiTr
+    ? qaPath("hi", q.exam, q.sub, q.slug)
+    : undefined
+
   return (
     <PublicQuestionView
       question={questionData}
       lang="en"
       jsonLdScript={seo.jsonLdScriptString}
       breadcrumbs={seo.breadcrumbs}
+      alternateLangUrl={alternateLangUrl}
     />
   )
 }

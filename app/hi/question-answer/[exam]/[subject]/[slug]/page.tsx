@@ -134,12 +134,15 @@ export default async function HindiQuestionPage({
     updatedAt: q.updatedAt,
   }
 
+  const alternateLangUrl = qaPath("en", q.exam, q.sub, q.slug)
+
   return (
     <PublicQuestionView
       question={hindiQuestionData}
       lang="hi"
       jsonLdScript={seo.jsonLdScriptString}
       breadcrumbs={seo.breadcrumbs}
+      alternateLangUrl={alternateLangUrl}
     />
   )
 }

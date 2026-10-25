@@ -30,11 +30,13 @@ export function PublicQuestionView({
   lang = "en",
   jsonLdScript,
   breadcrumbs,
+  alternateLangUrl,
 }: {
   question: PublicQuestionData
   lang?: "en" | "hi"
   jsonLdScript: string
   breadcrumbs: Array<{ name: string; url: string }>
+  alternateLangUrl?: string
 }) {
   const isHi = lang === "hi"
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
@@ -101,14 +103,26 @@ export function PublicQuestionView({
           </Badge>
         </div>
 
-        <button
-          onClick={handleShare}
-          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground p-1.5 rounded-md hover:bg-muted transition-colors min-h-[36px]"
-          title="Share question"
-        >
-          {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
-          <span>{copied ? (isHi ? "कॉपी हुआ" : "Copied") : (isHi ? "शेयर" : "Share")}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {alternateLangUrl && (
+            <Link
+              href={alternateLangUrl}
+              data-testid="lang-toggle-btn"
+              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md border border-border hover:bg-muted transition-colors min-h-[44px]"
+            >
+              {isHi ? "English" : "हिन्दी"}
+            </Link>
+          )}
+
+          <button
+            onClick={handleShare}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground p-1.5 rounded-md hover:bg-muted transition-colors min-h-[36px]"
+            title="Share question"
+          >
+            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
+            <span>{copied ? (isHi ? "कॉपी हुआ" : "Copied") : (isHi ? "शेयर" : "Share")}</span>
+          </button>
+        </div>
       </div>
 
       {/* Question Card */}

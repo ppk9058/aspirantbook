@@ -1,0 +1,16 @@
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 6 tests using 1 worker
+
+  ✓  1 [desktop] › tests/e2e/content-engine-browser.spec.ts:55:7 › Browser E2E — Real Browser Verification Suite › Browser E2E 1: Admin Workflow (Login -> Ingest 3 Questions -> Publish -> Public 200 -> Unpublish -> Public 404) (2.5s)
+  ✓  2 [desktop] › tests/e2e/content-engine-browser.spec.ts:157:7 › Browser E2E — Real Browser Verification Suite › Browser E2E 2: Practice UI (Interactive Answer Feedback, Hindi Translation Toggle, and Mobile 375px Layout) (1.8s)
+
+  ✓  3 [desktop] › tests/e2e/content-engine-browser.spec.ts:271:7 › Browser E2E — Real Browser Verification Suite › Browser E2E 3: Static Export (Download ZIP Integrity and Primary Mode Block Warning) (1.8s)
+  ✓  4 [mobile] › tests/e2e/content-engine-browser.spec.ts:55:7 › Browser E2E — Real Browser Verification Suite › Browser E2E 1: Admin Workflow (Login -> Ingest 3 Questions -> Publish -> Public 200 -> Unpublish -> Public 404) (1.0s)
+  ✓  5 [mobile] › tests/e2e/content-engine-browser.spec.ts:157:7 › Browser E2E — Real Browser Verification Suite › Browser E2E 2: Practice UI (Interactive Answer Feedback, Hindi Translation Toggle, and Mobile 375px Layout) (1.5s)
+
+  ✓  6 [mobile] › tests/e2e/content-engine-browser.spec.ts:271:7 › Browser E2E — Real Browser Verification Suite › Browser E2E 3: Static Export (Download ZIP Integrity and Primary Mode Block Warning) (1.6s)
+
+  6 passed (16.0s)

@@ -1,3 +1,16 @@
+/**
+ * MUTATION SAFETY GUARDS TEST SUITE
+ * 
+ * ARCHITECTURAL RELATIONSHIP WITH scripts/run-mutation-suite.ts:
+ * - This file (tests/content-engine/mutations.test.ts) contains unit assertions verifying that
+ *   the system's safety guards (quality gates, classification normalizers, SEO model rules,
+ *   static export sanitizers, and cross-reference checks) correctly reject malformed, dangerous,
+ *   or invalid inputs under test. It does NOT mutate code files on disk.
+ * - The active mutation test harness is `scripts/run-mutation-suite.ts`. It programmatically mutates
+ *   production code files (e.g. weakening gate thresholds, disabling sanitizers, removing nukta stripping)
+ *   and executes this file (and other suites) to verify red-then-green proof (tests fail when code is broken,
+ *   and pass when restored).
+ */
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
 import { evaluateQualityGates } from "@/lib/modules/content-engine/quality-gates"
