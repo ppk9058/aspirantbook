@@ -26,6 +26,10 @@ export default function robots(): MetadataRoute.Robots {
                 "/test-series/*/solutions",
             ],
         },
-        sitemap: `${siteUrl}/sitemap.xml`,
+        sitemap: [
+            `${siteUrl}/sitemap.xml`,
+            `${siteUrl}/question-answer/sitemap.xml`,
+            `${siteUrl}/hi/question-answer/sitemap.xml`,
+        ],
     }
 }

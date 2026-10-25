@@ -77,27 +77,67 @@ export function homeHubPath(lang: "en" | "hi" = "en"): string {
   return lang === "hi" ? "/hi/question-answer" : "/question-answer"
 }
 
-export function examHubPath(exam: string, lang: "en" | "hi" = "en"): string {
+export function examHubPath(first: string, second?: string): string {
+  let exam = first
+  let lang: "en" | "hi" = "en"
+  if (first === "en" || first === "hi") {
+    lang = first
+    exam = second || ""
+  } else if (second === "en" || second === "hi") {
+    lang = second
+  }
   const base = homeHubPath(lang)
   return `${base}/${slugify(exam) || "general"}`
 }
 
-export function yearHubPath(exam: string, year: string | number, lang: "en" | "hi" = "en"): string {
+export function yearHubPath(first: string, second: string | number, third?: string): string {
+  let lang: "en" | "hi" = "en"
+  let exam = first
+  let year = second
+  if (first === "en" || first === "hi") {
+    lang = first
+    exam = String(second)
+    year = third || ""
+  } else if (third === "en" || third === "hi") {
+    lang = third
+  }
   const base = examHubPath(exam, lang)
   return `${base}/${year}`
 }
 
-export function subjectHubPath(exam: string, subject: string, lang: "en" | "hi" = "en"): string {
+export function subjectHubPath(first: string, second: string, third?: string): string {
+  let lang: "en" | "hi" = "en"
+  let exam = first
+  let subject = second
+  if (first === "en" || first === "hi") {
+    lang = first
+    exam = second
+    subject = third || ""
+  } else if (third === "en" || third === "hi") {
+    lang = third
+  }
   const base = examHubPath(exam, lang)
   return `${base}/${slugify(subject) || "general"}`
 }
 
 export function topicHubPath(
-  exam: string,
-  subject: string,
-  topic: string,
-  lang: "en" | "hi" = "en"
+  first: string,
+  second: string,
+  third: string,
+  fourth?: string
 ): string {
+  let lang: "en" | "hi" = "en"
+  let exam = first
+  let subject = second
+  let topic = third
+  if (first === "en" || first === "hi") {
+    lang = first
+    exam = second
+    subject = third
+    topic = fourth || ""
+  } else if (fourth === "en" || fourth === "hi") {
+    lang = fourth
+  }
   const base = subjectHubPath(exam, subject, lang)
   return `${base}/topic/${slugify(topic) || "general"}`
 }

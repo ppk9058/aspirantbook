@@ -1,0 +1,282 @@
+
+> aspirantbook@0.1.0 test:content-engine
+> tsx --test tests/content-engine/**/*.test.ts
+
+TAP version 13
+# Subtest: Phase 3 — Admin UI and Navigation Registration
+    # Subtest: 1. Navigation Registration: AdminNav and LeftSidebar contain Content Engine
+    ok 1 - 1. Navigation Registration: AdminNav and LeftSidebar contain Content Engine
+      ---
+      duration_ms: 1.95625
+      type: 'test'
+      ...
+    # Subtest: 2. Static Site Export: Mirror vs Primary Canonical and File Generation
+    ok 2 - 2. Static Site Export: Mirror vs Primary Canonical and File Generation
+      ---
+      duration_ms: 31.712208
+      type: 'test'
+      ...
+    1..2
+ok 1 - Phase 3 — Admin UI and Navigation Registration
+  ---
+  duration_ms: 35.8265
+  type: 'suite'
+  ...
+# Subtest: Content Engine Database Persistence Service
+    # Subtest: 1. Exam Aliases: ensures defaults and retrieves active list
+    ok 1 - 1. Exam Aliases: ensures defaults and retrieves active list
+      ---
+      duration_ms: 5.228959
+      type: 'test'
+      ...
+    # Subtest: 2. Add Batch: parses and inserts questions with text hashing and deduplication
+    ok 2 - 2. Add Batch: parses and inserts questions with text hashing and deduplication
+      ---
+      duration_ms: 22.941417
+      type: 'test'
+      ...
+    # Subtest: 3. Manual picker defaults: subject-only vs topic-only
+    ok 3 - 3. Manual picker defaults: subject-only vs topic-only
+      ---
+      duration_ms: 31.029666
+      type: 'test'
+      ...
+    # Subtest: 4. Bulk Assign: updates subject/topic/exam/year and creates CategoryOverride
+    ok 4 - 4. Bulk Assign: updates subject/topic/exam/year and creates CategoryOverride
+      ---
+      duration_ms: 13.008375
+      type: 'test'
+      ...
+    # Subtest: 5. Re-categorise-all: respects manual overrides and never overwrites them
+    ok 5 - 5. Re-categorise-all: respects manual overrides and never overwrites them
+      ---
+      duration_ms: 8.774
+      type: 'test'
+      ...
+    # Subtest: 6. Hindi Import: matches English question and creates translation
+    ok 6 - 6. Hindi Import: matches English question and creates translation
+      ---
+      duration_ms: 14.223917
+      type: 'test'
+      ...
+    # Subtest: 7. Translation Review: human toggle updates reviewed status
+    ok 7 - 7. Translation Review: human toggle updates reviewed status
+      ---
+      duration_ms: 6.40725
+      type: 'test'
+      ...
+    # Subtest: 8. Quality Gates & Publishing: gate rejection vs pass, slug generation
+    ok 8 - 8. Quality Gates & Publishing: gate rejection vs pass, slug generation
+      ---
+      duration_ms: 30.425916
+      type: 'test'
+      ...
+    # Subtest: 9. Public Question Retrieval: field isolation & security
+    ok 9 - 9. Public Question Retrieval: field isolation & security
+      ---
+      duration_ms: 10.75925
+      type: 'test'
+      ...
+    # Subtest: 10. Settings service: get and set
+    ok 10 - 10. Settings service: get and set
+      ---
+      duration_ms: 3.894458
+      type: 'test'
+      ...
+    1..10
+ok 2 - Content Engine Database Persistence Service
+  ---
+  duration_ms: 195.782417
+  type: 'suite'
+  ...
+# Subtest: Phase 4 — Public SEO Routes & Sitemaps
+    # Subtest: 1. robots.ts: includes both English and Hindi question-answer sitemaps
+    ok 1 - 1. robots.ts: includes both English and Hindi question-answer sitemaps
+      ---
+      duration_ms: 19.501834
+      type: 'test'
+      ...
+    # Subtest: 2. Path Builders: formats canonical URLs correctly for both English and Hindi
+    ok 2 - 2. Path Builders: formats canonical URLs correctly for both English and Hindi
+      ---
+      duration_ms: 0.68575
+      type: 'test'
+      ...
+    # Subtest: 3. Native Sitemaps: generates valid sitemap entries
+    ok 3 - 3. Native Sitemaps: generates valid sitemap entries
+      ---
+      duration_ms: 73.14725
+      type: 'test'
+      ...
+    # Subtest: 4. SEO Model & JSON-LD: canonical, hreflang, breadcrumbs, and XSS safety
+    ok 4 - 4. SEO Model & JSON-LD: canonical, hreflang, breadcrumbs, and XSS safety
+      ---
+      duration_ms: 2.895334
+      type: 'test'
+      ...
+    1..4
+ok 3 - Phase 4 — Public SEO Routes & Sitemaps
+  ---
+  duration_ms: 97.680042
+  type: 'suite'
+  ...
+# Subtest: Phase 1 — Pure Logic Acceptance Tests
+    # Subtest: 1. Classifier & Normalization
+        # Subtest: nz normalizes chandrabindu, nukta, and nasal halants
+        ok 1 - nz normalizes chandrabindu, nukta, and nasal halants
+          ---
+          duration_ms: 6.356417
+          type: 'test'
+          ...
+        # Subtest: classify identifies specified key questions
+        ok 2 - classify identifies specified key questions
+          ---
+          duration_ms: 8.058417
+          type: 'test'
+          ...
+        1..2
+    ok 1 - 1. Classifier & Normalization
+      ---
+      duration_ms: 17.100708
+      type: 'suite'
+      ...
+    # Subtest: 2. Exam & Year Detection
+        # Subtest: [RAS/RTS 2013] bracket tag detects exam and year
+        ok 1 - [RAS/RTS 2013] bracket tag detects exam and year
+          ---
+          duration_ms: 4.029625
+          type: 'test'
+          ...
+        # Subtest: [UPPCS 2017] bracket tag detects UPPCS 2017
+        ok 2 - [UPPCS 2017] bracket tag detects UPPCS 2017
+          ---
+          duration_ms: 1.420792
+          type: 'test'
+          ...
+        # Subtest: Source: UPRO/ARO 2017 line detection
+        ok 3 - Source: UPRO/ARO 2017 line detection
+          ---
+          duration_ms: 0.404584
+          type: 'test'
+          ...
+        # Subtest: [1995] bracket tag detects year only
+        ok 4 - [1995] bracket tag detects year only
+          ---
+          duration_ms: 0.809791
+          type: 'test'
+          ...
+        # Subtest: unknown bracket exam tag stays untagged
+        ok 5 - unknown bracket exam tag stays untagged
+          ---
+          duration_ms: 0.223792
+          type: 'test'
+          ...
+        1..5
+    ok 2 - 2. Exam & Year Detection
+      ---
+      duration_ms: 8.673375
+      type: 'suite'
+      ...
+    # Subtest: 3. Cross-Reference Resolver
+        # Subtest: resolves reference-only explanation
+        ok 1 - resolves reference-only explanation
+          ---
+          duration_ms: 2.543
+          type: 'test'
+          ...
+        # Subtest: resolves chained reference (depth 2)
+        ok 2 - resolves chained reference (depth 2)
+          ---
+          duration_ms: 0.608209
+          type: 'test'
+          ...
+        # Subtest: returns original explanation on missing target
+        ok 3 - returns original explanation on missing target
+          ---
+          duration_ms: 0.658417
+          type: 'test'
+          ...
+        # Subtest: ignores self-reference
+        ok 4 - ignores self-reference
+          ---
+          duration_ms: 0.200166
+          type: 'test'
+          ...
+        # Subtest: keeps own sentences before pulled explanation
+        ok 5 - keeps own sentences before pulled explanation
+          ---
+          duration_ms: 0.228584
+          type: 'test'
+          ...
+        # Subtest: explanation > 400 chars is NOT rewritten
+        ok 6 - explanation > 400 chars is NOT rewritten
+          ---
+          duration_ms: 0.165959
+          type: 'test'
+          ...
+        1..6
+    ok 3 - 3. Cross-Reference Resolver
+      ---
+      duration_ms: 5.055417
+      type: 'suite'
+      ...
+    # Subtest: 4. inferRuns
+        # Subtest: a 10-item unmatched run between two same-topic matched items inherits
+        ok 1 - a 10-item unmatched run between two same-topic matched items inherits
+          ---
+          duration_ms: 0.957167
+          type: 'test'
+          ...
+        # Subtest: unmatched run between different-topic items does NOT inherit
+        ok 2 - unmatched run between different-topic items does NOT inherit
+          ---
+          duration_ms: 0.1995
+          type: 'test'
+          ...
+        1..2
+    ok 4 - 4. inferRuns
+      ---
+      duration_ms: 1.288708
+      type: 'suite'
+      ...
+    # Subtest: 5. Security & Escaping in JSON-LD and HTML
+        # Subtest: a question containing <script> tags is safely escaped in JSON-LD and HTML
+        ok 1 - a question containing <script> tags is safely escaped in JSON-LD and HTML
+          ---
+          duration_ms: 11.723125
+          type: 'test'
+          ...
+        1..1
+    ok 5 - 5. Security & Escaping in JSON-LD and HTML
+      ---
+      duration_ms: 11.928917
+      type: 'suite'
+      ...
+    # Subtest: 6. 20-Question Mixed Hindi/English Paste End-to-End
+        # Subtest: parses all 20 questions correctly with proper classifications and options
+        ok 1 - parses all 20 questions correctly with proper classifications and options
+          ---
+          duration_ms: 19.753167
+          type: 'test'
+          ...
+        1..1
+    ok 6 - 6. 20-Question Mixed Hindi/English Paste End-to-End
+      ---
+      duration_ms: 19.964459
+      type: 'suite'
+      ...
+    1..6
+ok 4 - Phase 1 — Pure Logic Acceptance Tests
+  ---
+  duration_ms: 67.00075
+  type: 'suite'
+  ...
+1..4
+# tests 33
+# suites 10
+# pass 33
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 892.396792
