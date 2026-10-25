@@ -1,10 +1,9 @@
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { unslugify, slugify, qaPath, topicHubPath } from "@/lib/modules/content-engine/paths"
+import { unslugify, slugify, qaPath } from "@/lib/modules/content-engine/paths"
 import { getHindiSubject } from "@/lib/modules/content-engine/taxonomy"
 import { Badge } from "@/components/ui/badge"
-import { BookOpen, Layers } from "lucide-react"
 import { Metadata } from "next"
 
 export const revalidate = 3600
@@ -12,9 +11,9 @@ export const revalidate = 3600
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ exam: string; yearOrSubject: string }>
+  params: Promise<{ exam: string; subject: string }>
 }): Promise<Metadata> {
-  const { exam: examSlug, yearOrSubject } = await params
+  const { exam: examSlug, subject: yearOrSubject } = await params
   const examName = unslugify(examSlug)
   const isYear = /^\d{4}$/.test(yearOrSubject)
   const label = isYear ? yearOrSubject : unslugify(yearOrSubject)
@@ -28,9 +27,9 @@ export async function generateMetadata({
 export default async function HindiExamYearOrSubjectPage({
   params,
 }: {
-  params: Promise<{ exam: string; yearOrSubject: string }>
+  params: Promise<{ exam: string; subject: string }>
 }) {
-  const { exam: examSlug, yearOrSubject } = await params
+  const { exam: examSlug, subject: yearOrSubject } = await params
   const examName = unslugify(examSlug)
   const isYear = /^\d{4}$/.test(yearOrSubject)
 
