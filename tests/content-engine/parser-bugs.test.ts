@@ -157,6 +157,23 @@ Answer: A
     assert.equal(res[0].o.length, 4)
     assert.ok(res[0].q.includes("1.5 m/s"))
     assert.ok(res[0].q.includes("2.0 m/s"))
+
+    const letteredText = `
+Q1. A body moves with a speed of
+1.5 m/s in the first interval and
+2.0 m/s in the second interval.
+What is the average velocity?
+A. 1.75 m/s
+B. 1.5 m/s
+C. 2.0 m/s
+D. 3.5 m/s
+Answer: A
+`
+    const res2 = parse(letteredText)
+    assert.equal(res2.length, 1, `Expected 1 question with lettered options, got ${res2.length}`)
+    assert.equal(res2[0].o.length, 4)
+    assert.ok(res2[0].q.includes("1.5 m/s"))
+    assert.ok(res2[0].q.includes("2.0 m/s"))
   })
 
   it("C5: Blank lines inside question stem before options do not split question", () => {

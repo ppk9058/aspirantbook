@@ -1,0 +1,27 @@
+=== Phase E — Real Mutation Testing Suite ===
+Total Mutations Planned: 20
+
+| Mutation # | Description | Target File | Test Turned RED? | Revert Turned GREEN? |
+|:---|:---|:---|:---|:---|
+| 1 | Quality Gates: Disable missing-answer failure check | `lib/modules/content-engine/quality-gates.ts` | **YES (RED)** | **YES (GREEN)** |
+| 2 | Quality Gates: Weaken few-options threshold (< 4 to < 2) | `lib/modules/content-engine/quality-gates.ts` | **YES (RED)** | **YES (GREEN)** |
+| 3 | Quality Gates: Weaken thin-explanation threshold (< 80 to < 10) | `lib/modules/content-engine/quality-gates.ts` | **YES (RED)** | **YES (GREEN)** |
+| 4 | Quality Gates: Disable no-source failure check | `lib/modules/content-engine/quality-gates.ts` | **YES (RED)** | **YES (GREEN)** |
+| 5 | Quality Gates: Disable uncategorized failure check | `lib/modules/content-engine/quality-gates.ts` | **YES (RED)** | **YES (GREEN)** |
+| 6 | Quality Gates: Weaken duplicate similarity threshold from 0.8 to 0.999 | `lib/modules/content-engine/quality-gates.ts` | **YES (RED)** | **YES (GREEN)** |
+| 7 | Quality Gates: Disable strict unverified check | `lib/modules/content-engine/quality-gates.ts` | **YES (RED)** | **YES (GREEN)** |
+| 8 | Classifier: Disable nukta stripping in nz() | `lib/modules/content-engine/classifier.ts` | **YES (RED)** | **YES (GREEN)** |
+| 9 | Classifier: Disable chandrabindu to anusvara conversion in nz() | `lib/modules/content-engine/classifier.ts` | **YES (RED)** | **YES (GREEN)** |
+| 10 | Classifier: Disable nasal halant conversion in nz() | `lib/modules/content-engine/classifier.ts` | **YES (RED)** | **YES (GREEN)** |
+| 11 | Classifier: Disable bare nga to da OCR conversion in nz() | `lib/modules/content-engine/classifier.ts` | **YES (RED)** | **YES (GREEN)** |
+| 12 | SEO Model: Disable unreviewed Hindi noindex robot tag | `lib/modules/content-engine/seo-model.ts` | **YES (RED)** | **YES (GREEN)** |
+| 13 | SEO Model: Disable < tag escaping in safeJsonLdStringify | `lib/modules/content-engine/seo-model.ts` | **YES (RED)** | **YES (GREEN)** |
+| 14 | Static Export: Leak unreviewed Hindi pages into static export | `lib/modules/content-engine/static-export.ts` | **YES (RED)** | **YES (GREEN)** |
+| 15 | Static Export: Leak unpublished draft questions into static export | `lib/modules/content-engine/static-export.ts` | **YES (RED)** | **YES (GREEN)** |
+| 16 | Static Export: Break Primary mode canonical host resolution | `lib/modules/content-engine/static-export.ts` | **YES (RED)** | **YES (GREEN)** |
+| 17 | Cross Reference: Disable self-reference cycle prevention | `lib/modules/content-engine/cross-ref.ts` | **YES (RED)** | **YES (GREEN)** |
+| 18 | Parser: Disable OCR junk line filter | `lib/modules/content-engine/parser.ts` | **YES (RED)** | **YES (GREEN)** |
+| 19 | Parser: Break decimal-led line handling | `lib/modules/content-engine/parser.ts` | **YES (RED)** | **YES (GREEN)** |
+| 20 | Public Redirect: Break /q/[shortId] route handler | `app/q/[shortId]/route.ts` | **YES (RED)** | **YES (GREEN)** |
+
+Total Real Mutations Verified: 20 / 20 PASSED
