@@ -190,7 +190,8 @@ async function run() {
   for (const file of exportFiles) {
     if (file.path.endsWith(".html")) {
       htmlFilesChecked++
-      const content = file.content
+      const content =
+        typeof file.content === "string" ? file.content : Buffer.from(file.content).toString("utf8")
       if (/<script(?!\s+type="application\/ld\+json")\s*>[^<]*alert\(/i.test(content)) {
         zipScriptAlertFound = true
       }

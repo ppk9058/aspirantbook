@@ -35,6 +35,7 @@ export async function generateMetadata({
             slug: true,
             description: true,
             isPublished: true,
+            isFree: true,
         },
     })
 

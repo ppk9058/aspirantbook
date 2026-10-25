@@ -20,8 +20,17 @@
   {
     "file": "content-engine__hi_question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json",
     "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
-    "status": "IDENTICAL",
-    "diffs": {}
+    "status": "DEVIATION",
+    "diffs": {
+      "title": {
+        "before": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: | सिंधु घाटी सभ्यता UPSC CSE 2023 MCQ | aspirantbook",
+        "after": "[UPSC CSE 2023] Q1. सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर | सिंधु घाटी सभ्यता UPSC CSE 2023 MCQ | aspirantbook"
+      },
+      "metaDescription": {
+        "before": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: उत्तर: 1 और 2 दोनों — मुख्य बिंदु और व्याख्या सहित। सिंधु घाटी सभ्यता, UPSC CSE 2023.",
+        "after": "[UPSC CSE 2023] Q1. सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए:\n1. हड़ उत्तर: 1 और 2 दोनों — मुख्य बिंदु और व्याख्या सहित। सिंधु घाटी सभ्य"
+      }
+    }
   },
   {
     "file": "content-engine__question_answer.json",

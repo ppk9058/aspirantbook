@@ -18,29 +18,28 @@ interface SeoSnapshot {
 }
 
 const SAMPLE_ROUTES = [
-  // Module 1: Content Engine
+  // 10 Mandatory Targets for Cross-Module Baseline Snapshot Comparison
+  { module: "home", path: "/" },
+  { module: "courses", path: "/courses" },
+  { module: "books", path: "/books" },
+  { module: "test-series", path: "/test-series" },
+  { module: "tutorials", path: "/tutorials" },
+  { module: "current-affairs", path: "/current-affairs-quizzes" },
+  { module: "pyqs", path: "/pyqs" },
   { module: "content-engine", path: "/question-answer" },
+  { module: "content-engine", path: "/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements" },
+  { module: "test-series", path: "/test-series/e2e-series-e2e-20261021124106098-4akv9" },
+
+  // Additional Sub-routes
   { module: "content-engine", path: "/hi/question-answer" },
   { module: "content-engine", path: "/question-answer/upsc-cse" },
   { module: "content-engine", path: "/hi/question-answer/upsc-cse" },
   { module: "content-engine", path: "/question-answer/upsc-cse/2023" },
   { module: "content-engine", path: "/question-answer/upsc-cse/history" },
   { module: "content-engine", path: "/hi/question-answer/upsc-cse/history" },
-  { module: "content-engine", path: "/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements" },
   { module: "content-engine", path: "/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements" },
-
-  // Module 2: PYQs & Test Series
-  { module: "pyqs-test-series", path: "/pyqs" },
   { module: "pyqs-test-series", path: "/pyqs/bpsc" },
-  { module: "pyqs-test-series", path: "/test-series" },
-  { module: "pyqs-test-series", path: "/test-series/e2e-series-e2e-20261021124106098-4akv9" },
-
-  // Module 3: Current Affairs Quizzes
-  { module: "current-affairs", path: "/current-affairs-quizzes" },
   { module: "current-affairs", path: "/current-affairs-quizzes/upsc-economy-ca" },
-
-  // Module 4: Tutorials
-  { module: "tutorials", path: "/tutorials" },
   { module: "tutorials", path: "/tutorials/e2e-20261021025140619-1frn8-course-studio" },
 ]
 

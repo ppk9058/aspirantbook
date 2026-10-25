@@ -1,0 +1,387 @@
+diff --git a/app/layout.tsx b/app/layout.tsx
+index 88e2338..96f54cc 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -3,11 +3,12 @@ import "@/lib/boot-guard";
+ import "./globals.css";
+ import { Providers } from "./providers"
+ import { auth } from "@/auth"
++import { getBaseUrl } from "@/lib/seo/core"
+ 
+-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
++const siteUrl = getBaseUrl()
+ 
+ export const metadata: Metadata = {
+-  metadataBase: new URL(siteUrl),
++  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
+   title: {
+     default: "aspirantbook - Interactive Learning Platform & Test Series",
+     template: "%s | aspirantbook",
+diff --git a/app/page.tsx b/app/page.tsx
+index 953f556..674a659 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -6,6 +6,7 @@ import HomeHeaderUserCTA from "@/components/home/HomeHeaderUserCTA"
+ import { auth } from "@/auth"
+ import { getDashboardHref } from "@/lib/auth/roles"
+ import { LANDING_NAV_ITEMS } from "@/lib/navigation/landing-nav"
++import { getBaseUrl } from "@/lib/seo/core"
+ 
+ export const revalidate = 60
+ 
+@@ -62,42 +63,47 @@ export default async function LandingHomePage() {
+     const session = await auth()
+     const logoHref = getDashboardHref(session?.user?.role, !!session?.user)
+ 
+-    const homeJsonLd = {
+-        "@context": "https://schema.org",
+-        "@graph": [
+-            {
+-                "@type": "Organization",
+-                "@id": "https://aspirantbook.com/#organization",
+-                "name": "aspirantbook",
+-                "url": "https://aspirantbook.com",
+-                "logo": {
+-                    "@type": "ImageObject",
+-                    "url": "https://aspirantbook.com/aspirant-logo.jpg"
+-                }
+-            },
+-            {
+-                "@type": "WebSite",
+-                "@id": "https://aspirantbook.com/#website",
+-                "url": "https://aspirantbook.com",
+-                "name": "aspirantbook",
+-                "publisher": {
+-                    "@id": "https://aspirantbook.com/#organization"
+-                },
+-                "potentialAction": {
+-                    "@type": "SearchAction",
+-                    "target": "https://aspirantbook.com/courses?search={search_term_string}",
+-                    "query-input": "required name=search_term_string"
+-                }
+-            }
+-        ]
+-    }
++    const baseUrl = getBaseUrl()
++    const homeJsonLd = baseUrl
++        ? {
++              "@context": "https://schema.org",
++              "@graph": [
++                  {
++                      "@type": "Organization",
++                      "@id": `${baseUrl}/#organization`,
++                      "name": "aspirantbook",
++                      "url": baseUrl,
++                      "logo": {
++                          "@type": "ImageObject",
++                          "url": `${baseUrl}/aspirant-logo.jpg`,
++                      },
++                  },
++                  {
++                      "@type": "WebSite",
++                      "@id": `${baseUrl}/#website`,
++                      "url": baseUrl,
++                      "name": "aspirantbook",
++                      "publisher": {
++                          "@id": `${baseUrl}/#organization`,
++                      },
++                      "potentialAction": {
++                          "@type": "SearchAction",
++                          "target": `${baseUrl}/courses?search={search_term_string}`,
++                          "query-input": "required name=search_term_string",
++                      },
++                  },
++              ],
++          }
++        : null
+ 
+     return (
+         <div className="min-h-dvh bg-white text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900 dark:bg-gray-950 dark:text-gray-50">
+-            <script
+-                type="application/ld+json"
+-                dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
+-            />
++            {homeJsonLd && (
++                <script
++                    type="application/ld+json"
++                    dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
++                />
++            )}
+ 
+             {/* Top Navigation Bar — sticky, compact on phones */}
+             <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-lg dark:border-white/10 dark:bg-gray-950/85">
+diff --git a/app/robots.ts b/app/robots.ts
+index 7df0156..f10fbbe 100644
+--- a/app/robots.ts
++++ b/app/robots.ts
+@@ -1,7 +1,8 @@
+ import { MetadataRoute } from "next"
++import { getBaseUrl } from "@/lib/seo/core"
+ 
+ export default function robots(): MetadataRoute.Robots {
+-    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
++    const siteUrl = getBaseUrl()
+     return {
+         rules: {
+             userAgent: "*",
+@@ -26,6 +27,12 @@ export default function robots(): MetadataRoute.Robots {
+                 "/test-series/*/solutions",
+             ],
+         },
+-        sitemap: `${siteUrl}/sitemap.xml`,
++        sitemap: siteUrl
++            ? [
++                  `${siteUrl}/sitemap.xml`,
++                  `${siteUrl}/question-answer/sitemap.xml`,
++                  `${siteUrl}/hi/question-answer/sitemap.xml`,
++              ]
++            : undefined,
+     }
+ }
+diff --git a/app/sitemap.ts b/app/sitemap.ts
+index 039ff1a..8798eb0 100644
+--- a/app/sitemap.ts
++++ b/app/sitemap.ts
+@@ -1,11 +1,15 @@
+ import { MetadataRoute } from "next"
+ import { prisma } from "@/lib/prisma"
+ import { getAllBooks } from "@/lib/books/bookService"
++import { getBaseUrl } from "@/lib/seo/core"
+ 
+ export const revalidate = 3600 // 1 hour
+ 
+ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
++    const baseUrl = getBaseUrl()
++    if (!baseUrl) {
++        return []
++    }
+ 
+     const staticRoutes: MetadataRoute.Sitemap = [
+         {
+@@ -44,6 +48,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+             changeFrequency: "daily",
+             priority: 0.8,
+         },
++        {
++            url: `${baseUrl}/pyqs`,
++            lastModified: new Date(),
++            changeFrequency: "daily",
++            priority: 0.8,
++        },
+         {
+             url: `${baseUrl}/practice`,
+             lastModified: new Date(),
+@@ -53,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+     ]
+ 
+     try {
+-        const [publishedCourses, allBooks, publishedSeries, publishedQuizzes] = await Promise.all([
++        const [publishedCourses, allBooks, publishedSeries, publishedQuizzes, publishedPyqs] = await Promise.all([
+             prisma.course.findMany({
+                 where: { status: "PUBLISHED" },
+                 select: { slug: true, updatedAt: true },
+@@ -74,6 +84,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+                 },
+                 select: { id: true, title: true, updatedAt: true },
+             }).catch(() => []),
++            prisma.pyqCategory.findMany({
++                where: { isPublished: true },
++                select: { slug: true, updatedAt: true },
++            }).catch(() => []),
+         ])
+ 
+         const courseUrls: MetadataRoute.Sitemap = publishedCourses
+@@ -124,7 +138,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+                 priority: 0.7,
+             }))
+ 
+-        return [...staticRoutes, ...courseUrls, ...bookUrls, ...seriesUrls, ...quizUrls, ...tutorialUrls]
++        const pyqUrls: MetadataRoute.Sitemap = publishedPyqs
++            .filter((p) => !!p.slug)
++            .map((p) => ({
++                url: `${baseUrl}/pyqs/${p.slug}`,
++                lastModified: p.updatedAt || new Date(),
++                changeFrequency: "weekly" as const,
++                priority: 0.8,
++            }))
++
++        return [...staticRoutes, ...courseUrls, ...bookUrls, ...seriesUrls, ...quizUrls, ...tutorialUrls, ...pyqUrls]
+     } catch {
+         return staticRoutes
+     }
+diff --git a/components/admin/AdminNav.tsx b/components/admin/AdminNav.tsx
+index 011c60a..1da5173 100644
+--- a/components/admin/AdminNav.tsx
++++ b/components/admin/AdminNav.tsx
+@@ -27,6 +27,7 @@ import {
+     PencilRuler,
+     Sparkles,
+     Book,
++    Globe,
+ } from "lucide-react"
+ 
+ interface AdminNavProps {
+@@ -46,6 +47,8 @@ const adminNavigation = [
+     { icon: Sparkles, name: "HomePage Card Studio", href: "/admin/homepage-cards", matchPrefix: "/admin/homepage-cards" },
+     { icon: PencilRuler, name: "Test Series Studio", href: "/admin/test-series", matchPrefix: "/admin/test-series" },
+     { icon: FileText, name: "PYQ Studio", href: "/admin/pyqs", matchPrefix: "/admin/pyqs" },
++    { icon: Sparkles, name: "Content Engine", href: "/admin/content-engine", matchPrefix: "/admin/content-engine", adminOnly: true },
++    { icon: Globe, name: "SEO Audit", href: "/admin/seo", matchPrefix: "/admin/seo", adminOnly: true },
+     { icon: BookOpen, name: "Book Studio", href: "/admin/book-studio", matchPrefix: "/admin/book-studio" },
+     { icon: Book, name: "Online Bookstore", href: "/admin/books", matchPrefix: "/admin/books", adminOnly: true },
+     { icon: GraduationCap, name: "Batches & Prep", href: "/admin/batches", matchPrefix: "/admin/batches" },
+diff --git a/components/layout/LeftSidebar.tsx b/components/layout/LeftSidebar.tsx
+index 2af48c9..3d9a336 100644
+--- a/components/layout/LeftSidebar.tsx
++++ b/components/layout/LeftSidebar.tsx
+@@ -28,6 +28,7 @@ import {
+     GraduationCap,
+     Newspaper,
+     ClipboardCheck,
++    Sparkles,
+ } from "lucide-react"
+ import { useState, useEffect, useMemo } from "react"
+ import { useSession } from "next-auth/react"
+@@ -53,6 +54,7 @@ const ADMIN_NAV = [
+     { name: "Test Series Studio", href: "/admin/test-series", icon: PencilRuler },
+     { name: "Current Affairs & Quizzes", href: "/current-affairs-quizzes", icon: Newspaper },
+     { name: "PYQ Studio", href: "/admin/pyqs", icon: FileText },
++    { name: "Content Engine", href: "/admin/content-engine", icon: Sparkles },
+     { name: "Tutorial Studio", href: "/admin/tutorials", icon: BookOpen },
+     { name: "Batches & Prep", href: "/admin/batches", icon: Layers },
+     { name: "Online Bookstore", href: "/admin/books", icon: Book },
+diff --git a/package.json b/package.json
+index bb21286..0d124c0 100644
+--- a/package.json
++++ b/package.json
+@@ -19,7 +19,8 @@
+     "test:e2e:real-catalogue": "npx tsx scripts/reset-test-catalogue.ts && CATALOGUE_CASE=empty BASE_URL=http://127.0.0.1:3045 npx playwright test --project=real-catalogue-desktop --project=real-catalogue-mobile",
+     "test:e2e:dev-smoke": "DEV_SMOKE=1 BASE_URL=http://127.0.0.1:3045 npx playwright test tests/e2e/dev-smoke.spec.ts",
+     "content:chunk": "tsx scripts/content-chunk.ts",
+-    "perf:check": "tsx scripts/perf-check.ts"
++    "perf:check": "tsx scripts/perf-check.ts",
++    "test:content-engine": "tsx --test --test-concurrency=1 tests/content-engine/**/*.test.ts"
+   },
+   "dependencies": {
+     "@aws-sdk/client-s3": "^3.940.0",
+diff --git a/prisma/schema.prisma b/prisma/schema.prisma
+index e9e6d21..ae25cd6 100644
+--- a/prisma/schema.prisma
++++ b/prisma/schema.prisma
+@@ -1396,3 +1396,115 @@ model AuditLog {
+   @@index([createdAt])
+ }
+ 
++
++// ==========================================
++// CONTENT ENGINE MODULE (ADMIN-ONLY PIPELINE)
++// ==========================================
++
++model ContentEngineBatch {
++  id             String                  @id @default(cuid())
++  createdById    String?
++  pastedText     String                  @db.Text
++  defaultSubject String?
++  defaultTopic   String?
++  defaultExam    String?
++  defaultYear    String?
++  createdAt      DateTime                @default(now())
++  updatedAt      DateTime                @updatedAt
++  questions      ContentEngineQuestion[]
++
++  @@index([createdById])
++  @@index([createdAt])
++}
++
++model ContentEngineQuestion {
++  id             String                          @id @default(cuid())
++  shortId        String                          @unique
++  textHash       String                          @unique
++  q              String                          @db.Text
++  options        Json
++  answer         String
++  answerIndex    Int                             @default(-1)
++  explanation    String?                         @db.Text
++  sub            String?
++  top            String?
++  exam           String?
++  year           String?
++  sourceTag      String?
++  sourceNo       Int?
++  batchId        String?
++  status         String                          @default("DRAFT") // DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED
++  isPublished    Boolean                         @default(false)
++  isInferred     Boolean                         @default(false)
++  isVerified     Boolean                         @default(false)
++  slug           String?
++  publishedAt    DateTime?
++  createdAt      DateTime                        @default(now())
++  updatedAt      DateTime                        @updatedAt
++  batch          ContentEngineBatch?             @relation(fields: [batchId], references: [id], onDelete: SetNull)
++  translations   ContentEngineTranslation[]
++  override       ContentEngineCategoryOverride?
++
++  @@index([batchId])
++  @@index([isPublished])
++  @@index([sub, top])
++  @@index([exam, year])
++  @@index([createdAt])
++}
++
++model ContentEngineTranslation {
++  id           String                @id @default(cuid())
++  questionId   String
++  lang         String                // "hi" | "en"
++  q            String                @db.Text
++  options      Json
++  answer       String?
++  explanation  String?               @db.Text
++  top          String?
++  isReviewed   Boolean               @default(false)
++  reviewedById String?
++  reviewedAt   DateTime?
++  createdAt    DateTime              @default(now())
++  updatedAt    DateTime              @updatedAt
++  question     ContentEngineQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
++
++  @@unique([questionId, lang])
++  @@index([questionId])
++  @@index([lang, isReviewed])
++}
++
++model ContentEngineCategoryOverride {
++  id         String                @id @default(cuid())
++  questionId String                @unique
++  sub        String
++  top        String
++  subHi      String?
++  topHi      String?
++  exam       String?
++  year       String?
++  isManual   Boolean               @default(true)
++  createdAt  DateTime              @default(now())
++  updatedAt  DateTime              @updatedAt
++  question   ContentEngineQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
++
++  @@index([questionId])
++}
++
++model ContentEngineExamAlias {
++  id        String   @id @default(cuid())
++  name      String   @unique
++  pattern   String?
++  isEnabled Boolean  @default(true)
++  createdAt DateTime @default(now())
++  updatedAt DateTime @updatedAt
++
++  @@index([isEnabled])
++}
++
++model ContentEngineSetting {
++  id        String   @id @default(cuid())
++  key       String   @unique
++  value     Json
++  createdAt DateTime @default(now())
++  updatedAt DateTime @updatedAt
++}

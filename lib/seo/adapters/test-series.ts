@@ -30,6 +30,8 @@ export function adaptTestSeriesDetailSeo(
     description?: string | null
     isPublished?: boolean
     examName?: string | null
+    isFree?: boolean
+    price?: number | null
   },
   baseUrl?: string
 ): SharedSeoOutput {
@@ -39,6 +41,8 @@ export function adaptTestSeriesDetailSeo(
   const description =
     series.description ||
     `Take online mock tests for ${series.title}. Real-time analytics, all-India ranking, and detailed solutions.`
+
+  const priceValue = typeof series.price === "number" ? String(series.price) : (series.isFree ? "0" : "0")
 
   return buildSeoPackage(
     {
@@ -58,6 +62,13 @@ export function adaptTestSeriesDetailSeo(
           name: series.title,
           description,
           url: canonicalUrl(canonicalPath, baseUrl),
+          offers: {
+            "@type": "Offer",
+            price: priceValue,
+            priceCurrency: "INR",
+            availability: "https://schema.org/InStock",
+            url: canonicalUrl(canonicalPath, baseUrl),
+          },
         },
       ],
     },

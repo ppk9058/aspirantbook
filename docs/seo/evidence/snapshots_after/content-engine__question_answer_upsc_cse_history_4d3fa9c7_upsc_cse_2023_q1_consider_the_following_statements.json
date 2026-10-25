@@ -14,7 +14,34 @@
   },
   "jsonLd": [
     {
-      "raw": "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"http://127.0.0.1:3045/question-answer\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"UPSC CSE\",\"item\":\"http://127.0.0.1:3045/question-answer/upsc-cse\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"History\",\"item\":\"http://127.0.0.1:3045/question-answer/upsc-cse/history\"},{\"@type\":\"ListItem\",\"position\":4,\"name\":\"[UPSC CSE 2023] Q1. Consider the following statements\",\"item\":\"http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements\"}]}"
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "http://127.0.0.1:3045/question-answer"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "UPSC CSE",
+          "item": "http://127.0.0.1:3045/question-answer/upsc-cse"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "History",
+          "item": "http://127.0.0.1:3045/question-answer/upsc-cse/history"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "[UPSC CSE 2023] Q1. Consider the following statements",
+          "item": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"
+        }
+      ]
     },
     {
       "@context": "https://schema.org/",

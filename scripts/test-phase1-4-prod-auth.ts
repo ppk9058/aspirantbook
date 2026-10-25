@@ -147,7 +147,7 @@ async function run() {
     const method = r.method
     const path = r.path
     const body = method === "POST" ? JSON.stringify({}) : undefined
-    const headers = method === "POST" ? { "Content-Type": "application/json" } : {}
+    const headers: Record<string, string> = method === "POST" ? { "Content-Type": "application/json" } : {}
 
     // 1. Logged Out
     const resAnon = await fetch(`${BASE_URL}${path}`, {
