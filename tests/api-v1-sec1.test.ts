@@ -97,13 +97,13 @@ describe("SEC1: OTP / Reauth / Session Security Hardening", () => {
 
     try {
       // Production without test mode => ALWAYS FALSE even if ALLOW_DEV_MOBILE_LOGIN is true
-      process.env.NODE_ENV = "production";
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
       process.env.APP_ENV = "production";
       process.env.ALLOW_DEV_MOBILE_LOGIN = "true";
       assert.equal(isDevBypassAllowed(), false, "Must return false in production even if ALLOW_DEV_MOBILE_LOGIN=true");
 
       // Non-production without dev login flag and without test DB => FALSE
-      process.env.NODE_ENV = "development";
+      (process.env as Record<string, string | undefined>).NODE_ENV = "development";
       process.env.APP_ENV = "development";
       delete process.env.ALLOW_DEV_MOBILE_LOGIN;
       process.env.DATABASE_URL = "postgresql://user:pass@remote.supabase.com:5432/postgres";
@@ -119,7 +119,7 @@ describe("SEC1: OTP / Reauth / Session Security Hardening", () => {
       process.env.DATABASE_URL = "postgresql://test:test@127.0.0.1:54329/trillionskill_test";
       assert.equal(isDevBypassAllowed(), true, "Must return true in test mode with local *_test DB");
     } finally {
-      process.env.NODE_ENV = origNodeEnv;
+      (process.env as Record<string, string | undefined>).NODE_ENV = origNodeEnv;
       process.env.APP_ENV = origAppEnv;
       process.env.ALLOW_DEV_MOBILE_LOGIN = origAllowDev;
       process.env.DATABASE_URL = origDbUrl;
@@ -134,14 +134,14 @@ describe("SEC1: OTP / Reauth / Session Security Hardening", () => {
     const origAllowDev = process.env.ALLOW_DEV_MOBILE_LOGIN;
 
     try {
-      process.env.NODE_ENV = "production";
+      (process.env as Record<string, string | undefined>).NODE_ENV = "production";
       process.env.ALLOW_DEV_MOBILE_LOGIN = "true";
       assert.throws(
         () => validateBootSecurity(),
         /ALLOW_DEV_MOBILE_LOGIN is enabled in NODE_ENV=production/
       );
     } finally {
-      process.env.NODE_ENV = origNodeEnv;
+      (process.env as Record<string, string | undefined>).NODE_ENV = origNodeEnv;
       process.env.ALLOW_DEV_MOBILE_LOGIN = origAllowDev;
     }
   });
