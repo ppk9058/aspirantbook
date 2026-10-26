@@ -209,6 +209,46 @@ export default async function AdminSeoPage() {
         </div>
       </div>
 
+      {/* Publish Readiness Audit (Tutorials, PYQs, Current Affairs) */}
+      <div className="p-5 rounded-xl border bg-card text-card-foreground shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-500" />
+            Publish Readiness Audit (Advisory Checks)
+          </h2>
+          <span className="text-xs text-muted-foreground">
+            Non-blocking editorial warnings (missing descriptions, thin content, duplicate titles)
+          </span>
+        </div>
+
+        {audit.publishReadiness && audit.publishReadiness.length > 0 ? (
+          <div className="divide-y text-xs">
+            {audit.publishReadiness.map((item, idx) => (
+              <div key={idx} className="py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-muted text-foreground">
+                    {item.module}
+                  </span>
+                  <span className="font-medium text-foreground">{item.title}</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {item.warnings.map((w, wIdx) => (
+                    <span
+                      key={wIdx}
+                      className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 text-[11px]"
+                    >
+                      {w}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">All checked items meet publish readiness standards.</p>
+        )}
+      </div>
+
       {/* Safeguards Summary */}
       <div className="p-5 rounded-xl border bg-muted/40 text-card-foreground space-y-2">
         <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">

@@ -1,5 +1,12 @@
 import { prisma } from "@/lib/prisma"
 
+export interface PublishReadinessItem {
+  module: "Tutorials" | "PYQs" | "Current Affairs"
+  itemId: string
+  title: string
+  warnings: string[]
+}
+
 export interface SeoAuditReport {
   summary: {
     totalPages: number
@@ -11,6 +18,7 @@ export interface SeoAuditReport {
     unreviewedHindi: number
     sitemapCoverageScore: number
   }
+  publishReadiness: PublishReadinessItem[]
   modules: {
     contentEngine: {
       totalQuestions: number
@@ -122,6 +130,75 @@ export async function runSeoAudit(): Promise<SeoAuditReport> {
   })
   const caPublished = caQuizzes.filter((q) => q.isPublished)
 
+  // 6. Per-Item Publish Readiness Checklist (Tutorials, PYQs, Current Affairs)
+  const publishReadiness: PublishReadinessItem[] = []
+  const tutorialTitleCounts = new Map<string, number>()
+  for (const c of courses) {
+    tutorialTitleCounts.set(c.title, (tutorialTitleCounts.get(c.title) || 0) + 1)
+  }
+
+  // Sample tutorials check
+  for (const c of courses.slice(0, 8)) {
+    const warnings: string[] = []
+    if (!c.description || c.description.trim().length === 0) {
+      warnings.push("Missing description")
+    } else if (c.description.trim().length < 80) {
+      warnings.push(`Thin description under 80 chars (${c.description.trim().length} chars)`)
+    }
+    if ((tutorialTitleCounts.get(c.title) || 0) > 1) {
+      warnings.push("Duplicate title detected")
+    }
+    if (warnings.length > 0) {
+      publishReadiness.push({
+        module: "Tutorials",
+        itemId: c.id,
+        title: c.title,
+        warnings,
+      })
+    }
+  }
+
+  // Sample PYQ Categories check
+  const pyqTitleCounts = new Map<string, number>()
+  for (const p of pyqCategories) {
+    pyqTitleCounts.set(p.name, (pyqTitleCounts.get(p.name) || 0) + 1)
+  }
+  for (const p of pyqCategories.slice(0, 8)) {
+    const warnings: string[] = []
+    if (!p.description || p.description.trim().length === 0) {
+      warnings.push("Missing description")
+    } else if (p.description.trim().length < 80) {
+      warnings.push("Thin description under 80 chars")
+    }
+    if ((pyqTitleCounts.get(p.name) || 0) > 1) {
+      warnings.push("Duplicate title detected")
+    }
+    if (warnings.length > 0) {
+      publishReadiness.push({
+        module: "PYQs",
+        itemId: p.id,
+        title: p.name,
+        warnings,
+      })
+    }
+  }
+
+  // Sample Current Affairs check
+  for (const q of caQuizzes.slice(0, 8)) {
+    const warnings: string[] = []
+    if (!q.title || q.title.trim().length < 15) {
+      warnings.push("Short or generic title (< 15 chars)")
+    }
+    if (warnings.length > 0) {
+      publishReadiness.push({
+        module: "Current Affairs",
+        itemId: q.id,
+        title: q.title,
+        warnings,
+      })
+    }
+  }
+
   // Aggregations
   const totalPages =
     cePublished +
@@ -157,6 +234,7 @@ export async function runSeoAudit(): Promise<SeoAuditReport> {
       unreviewedHindi: ceHindiUnreviewed,
       sitemapCoverageScore,
     },
+    publishReadiness,
     modules: {
       contentEngine: {
         totalQuestions: ceTotal,
