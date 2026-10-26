@@ -48,17 +48,17 @@ export function runDryRun(filePath: string, saveJsonPath?: string): DryRunReport
   const processedQuestions = questions.map((q) => {
     // 1. Check empty stem
     if (!q.q || !q.q.trim()) {
-      emptyStems.push(q.no)
+      emptyStems.push(q.no ?? 0)
     }
 
     // 2. Check merged stem: stem contains internal question number pattern e.g. "2." or "Q2."
     if (/\n\s*(?:Q\.?\s*\d+|\d+[.)])\s+[A-Za-z\u0900-\u097F]/.test(q.q)) {
-      stemsLookMerged.push(q.no)
+      stemsLookMerged.push(q.no ?? 0)
     }
 
     // 3. Check option count != 4
     if (q.o.length !== 4) {
-      optionsNot4.push(q.no)
+      optionsNot4.push(q.no ?? 0)
     }
 
     // 4. Classify if sub/top missing
@@ -83,7 +83,7 @@ export function runDryRun(filePath: string, saveJsonPath?: string): DryRunReport
     }
 
     return {
-      no: q.no,
+      no: q.no ?? 0,
       stemSnippet: q.q.slice(0, 80).replace(/\s+/g, " "),
       optionCount: q.o.length,
       answer: q.ans || "",

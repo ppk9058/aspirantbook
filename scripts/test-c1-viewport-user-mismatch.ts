@@ -110,22 +110,24 @@ async function main() {
     const guestDesktopLogin = await guestPage.locator('header button:has-text("Login / Register")').isVisible();
     const guestAvatar = await guestPage.locator('header button[aria-label="Account profile"]').textContent().catch(() => null);
 
-    const alicePass = aliceRendered.includes("Alice") && !aliceRendered.includes("Bob");
-    const bobPass = bobRendered.includes("Bob") && !bobRendered.includes("Alice");
+    const aliceText = aliceRendered ?? ""
+    const bobText = bobRendered ?? ""
+    const alicePass = aliceText.includes("Alice") && !aliceText.includes("Bob");
+    const bobPass = bobText.includes("Bob") && !bobText.includes("Alice");
     const guestPass = guestDesktopLogin && !guestAvatar;
 
     console.log(
       String(`Round ${i}`).padEnd(12) +
       String("Context Alice").padEnd(16) +
       String("Alice Adams").padEnd(18) +
-      String(aliceRendered.trim()).padEnd(25) +
+      String(aliceText.trim()).padEnd(25) +
       (alicePass ? "PASS (NO LEAK)" : "FAIL")
     );
     console.log(
       String(`Round ${i}`).padEnd(12) +
       String("Context Bob").padEnd(16) +
       String("Bob Builder").padEnd(18) +
-      String(bobRendered.trim()).padEnd(25) +
+      String(bobText.trim()).padEnd(25) +
       (bobPass ? "PASS (NO LEAK)" : "FAIL")
     );
     console.log(

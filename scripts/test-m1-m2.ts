@@ -19,7 +19,7 @@ async function main() {
   }
 
   console.log(`Course Found: "${course.title}" (${course.id})`)
-  console.log(`Demo Settings in DB:`, course.demoSettings)
+  console.log(`Demo Settings in DB:`, (course as any).demoSettings)
   console.log(`Found ${course.demoSlots.length} DemoSlot(s) for course:`)
 
   for (const s of course.demoSlots) {

@@ -181,8 +181,7 @@ async function main() {
 
         const order1 = await createRazorpayOrder({
             courseId: course.id,
-            userId: user1.id,
-            notes: { courseId: course.id, userId: user1.id }
+            userId: user1.id
         })
         const fakePaymentId1 = `pay_wh_only_${Date.now().toString().slice(-8)}`
         const webhookPayload1 = JSON.stringify({
@@ -230,8 +229,7 @@ async function main() {
 
         const order2 = await createRazorpayOrder({
             courseId: course.id,
-            userId: user2.id,
-            notes: { courseId: course.id, userId: user2.id }
+            userId: user2.id
         })
         const fakePaymentId2 = `pay_ver_first_${Date.now().toString().slice(-8)}`
         const verifySig2 = signVerify(order2.orderId, fakePaymentId2, keySecret)
@@ -293,8 +291,7 @@ async function main() {
 
         const order3 = await createRazorpayOrder({
             courseId: course.id,
-            userId: user3.id,
-            notes: { courseId: course.id, userId: user3.id }
+            userId: user3.id
         })
         const fakePaymentId3 = `pay_wh_first_${Date.now().toString().slice(-8)}`
         const webhookPayload3 = JSON.stringify({
@@ -383,8 +380,7 @@ async function main() {
 
         const order4 = await createRazorpayOrder({
             courseId: course.id,
-            userId: user4.id,
-            notes: { courseId: course.id, userId: user4.id }
+            userId: user4.id
         })
         const fakePaymentId4 = `pay_concurrent_${Date.now().toString().slice(-8)}`
         const verifySig4 = signVerify(order4.orderId, fakePaymentId4, keySecret)

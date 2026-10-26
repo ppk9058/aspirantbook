@@ -26,7 +26,9 @@ async function run() {
   console.log(`[db] Locked lesson videoUrl: ${lockedLessonWithVideo.videoUrl}`)
 
   // Extract video ID (e.g. YouTube ID)
-  const ytMatch = lockedLessonWithVideo.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
+  const lockedVideoUrl = lockedLessonWithVideo.videoUrl
+  if (!lockedVideoUrl) throw new Error("Locked lesson fixture has no videoUrl")
+  const ytMatch = lockedVideoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
   const videoId = ytMatch ? ytMatch[1] : null
   console.log(`[db] Locked lesson YouTube video ID: ${videoId}`)
 
@@ -70,7 +72,7 @@ async function run() {
       await page.waitForTimeout(50)
     }
 
-    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 })
+    await page.waitForURL((url: URL) => !url.pathname.includes("/login"), { timeout: 15000 })
     console.log("[auth] Logged in successfully")
 
     // Fetch the locked page URL as logged in user
@@ -81,7 +83,7 @@ async function run() {
     let pageHtmlResponse = ""
     let rscPayload = ""
 
-    page.on("response", async (res) => {
+    page.on("response", async (res: any) => {
       const url = res.url()
       if (url.includes(`/courses/${course.slug}/learn/${lockedLessonWithVideo.id}`)) {
         try {
@@ -102,8 +104,8 @@ async function run() {
     console.log("\n--- LEAKAGE AUDIT RESULTS ---")
     
     // Check 1: videoUrl
-    const urlMatchesHtml = renderedHtml.includes(lockedLessonWithVideo.videoUrl)
-    const rawMatches = pageHtmlResponse.includes(lockedLessonWithVideo.videoUrl)
+    const urlMatchesHtml = renderedHtml.includes(lockedVideoUrl)
+    const rawMatches = pageHtmlResponse.includes(lockedVideoUrl)
     console.log(`1. Exact videoUrl (${lockedLessonWithVideo.videoUrl}) in rendered DOM: ${urlMatchesHtml}`)
     console.log(`   Exact videoUrl in raw SSR HTML: ${rawMatches}`)
 
