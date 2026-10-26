@@ -328,15 +328,13 @@ describe("SEC1: OTP / Reauth / Session Security Hardening", () => {
     assert.match(bodyExp.error.message, /expired/i);
 
     // 4. Token Reuse: valid token used once succeeds, second use MUST be rejected
-    const { markReauthTokenUsed, verifyReauthToken } = await import("../lib/api/v1/tokens");
+    const { verifyReauthToken } = await import("../lib/api/v1/tokens");
     const singleUseToken = await createReauthToken(pwdlessUser.id, "delete_account", "5m", pwdlessUser.sessionId);
     const verify1 = await verifyReauthToken(singleUseToken, pwdlessUser.id, "delete_account", pwdlessUser.sessionId);
     assert.equal(verify1.valid, true, "First token verification must be valid");
     assert.ok(verify1.jti);
 
-    // Mark token used (simulating first deletion / consumption)
-    markReauthTokenUsed(verify1.jti);
-
+    // Verification consumes the token in the database (single atomic insert)
     // Second verification MUST be rejected as reuse
     const verify2 = await verifyReauthToken(singleUseToken, pwdlessUser.id, "delete_account", pwdlessUser.sessionId);
     assert.equal(verify2.valid, false, "Second verification must fail");

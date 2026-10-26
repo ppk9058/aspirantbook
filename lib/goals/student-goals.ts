@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma"
-import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
 import goalsConfig from "@/data/goals-config.json"
 
 export interface UserGoalSelection {
@@ -52,7 +51,9 @@ export function serializeGoalIds(goalIds: string[]): string {
 }
 
 /**
- * Returns student goals from DB (primary source of truth), falling back to in-memory map or cookie.
+ * Returns student goals from the DB (the only server-side source of truth),
+ * falling back to the client's goal cookie when there is no DB row.
+ * B-007: the in-memory fallback map was removed.
  */
 export async function getStudentGoals(
     userId?: string | null,
@@ -73,12 +74,6 @@ export async function getStudentGoals(
             console.warn("Could not fetch user goal from DB:", dbErr)
         }
 
-        if (!rawGoal) {
-            const mem = userGoalsMemoryMap.get(userId)
-            if (mem?.goalId) {
-                rawGoal = mem.goalId
-            }
-        }
     }
 
     if (!rawGoal && cookieGoal) {
@@ -93,7 +88,7 @@ export async function getStudentGoals(
 }
 
 /**
- * Persists student goals to DB and in-memory map.
+ * Persists student goals to the DB. Throws if the write fails (no memory fallback).
  */
 export async function saveStudentGoals(
     userId: string,
@@ -102,23 +97,13 @@ export async function saveStudentGoals(
 ): Promise<{ serialized: string; goalIds: string[] }> {
     const serialized = serializeGoalIds(goalIds)
 
-    userGoalsMemoryMap.set(userId, {
-        goalId: serialized,
-        subGoalId: subGoalId || undefined,
-        updatedAt: new Date().toISOString(),
+    await prisma.user.update({
+        where: { id: userId },
+        data: {
+            selectedGoal: serialized,
+            selectedSubGoal: subGoalId || null,
+        },
     })
-
-    try {
-        await prisma.user.update({
-            where: { id: userId },
-            data: {
-                selectedGoal: serialized,
-                selectedSubGoal: subGoalId || null,
-            },
-        })
-    } catch (dbErr) {
-        console.warn("Failed to persist user goal to DB:", dbErr)
-    }
 
     return { serialized, goalIds: parseGoalIds(serialized) }
 }

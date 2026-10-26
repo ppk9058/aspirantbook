@@ -1619,3 +1619,14 @@ model BookWishlistItem {
   @@unique([userId, bookId])
   @@index([userId])
 }
+
+/// Single-use guard for short-lived re-authentication tokens (account deletion).
+/// The previous in-process Map only worked per serverless instance, so a token
+/// could be replayed once per instance.
+model ReauthTokenUse {
+  jti       String   @id
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}

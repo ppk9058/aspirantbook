@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { verifyReauthToken, markReauthTokenUsed } from "@/lib/api/v1/tokens";
+import { verifyReauthToken } from "@/lib/api/v1/tokens";
 import { logAuditEvent } from "@/lib/api/v1/audit";
 import {
   ViewerProfileDto,
@@ -121,9 +121,6 @@ export async function deleteViewerAccount(
       if (!verifyRes.valid) {
         throw new Error(`UNAUTHORIZED: Invalid, expired, or wrong-purpose re-authentication token: ${verifyRes.reason}`);
       }
-      if (verifyRes.jti) {
-        markReauthTokenUsed(verifyRes.jti);
-      }
       reauthMethod = "REAUTH_TOKEN";
     } else {
       throw new Error("REAUTH_REQUIRED: Password re-authentication required to delete account");
@@ -135,9 +132,6 @@ export async function deleteViewerAccount(
       const verifyRes = await verifyReauthToken(options.reauthToken, user.id, "delete_account", currentSessionId);
       if (!verifyRes.valid) {
         throw new Error(`UNAUTHORIZED: Invalid, expired, or wrong-purpose re-authentication token: ${verifyRes.reason}`);
-      }
-      if (verifyRes.jti) {
-        markReauthTokenUsed(verifyRes.jti);
       }
       reauthMethod = "REAUTH_TOKEN";
     } else {

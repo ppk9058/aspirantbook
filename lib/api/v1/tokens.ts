@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import crypto from "crypto";
+import { prisma } from "@/lib/prisma";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.AUTH_SECRET ||
@@ -80,27 +81,38 @@ export function hashRefreshToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
 
-// In-process tracking for single-use re-auth tokens (prevents token reuse)
-const usedReauthTokens = new Map<string, number>();
+/**
+ * B-007 class fix: single-use re-auth tokens are recorded in the database.
+ *
+ * The old implementation used a module-level Map, which is per serverless
+ * instance: a token could be replayed once per instance inside its 5 minute
+ * lifetime. The database row is now the only record, and consumption is a
+ * single atomic INSERT (unique jti), so two parallel requests cannot both win.
+ */
 
-export function isReauthTokenUsed(jti: string): boolean {
-  const expiry = usedReauthTokens.get(jti);
-  if (!expiry) return false;
-  if (Date.now() > expiry) {
-    usedReauthTokens.delete(jti);
-    return false;
-  }
-  return true;
+/** Throws on database errors so callers fail closed. */
+export async function isReauthTokenUsed(jti: string): Promise<boolean> {
+  const row = await prisma.reauthTokenUse.findUnique({ where: { jti }, select: { jti: true } })
+  return Boolean(row)
 }
 
-export function markReauthTokenUsed(jti: string, ttlMs = 10 * 60 * 1000): void {
-  usedReauthTokens.set(jti, Date.now() + ttlMs);
-  if (usedReauthTokens.size > 2000) {
-    const now = Date.now();
-    for (const [k, exp] of usedReauthTokens.entries()) {
-      if (now > exp) usedReauthTokens.delete(k);
-    }
+/**
+ * Atomically records a token as used. Returns false when it was already used.
+ * Throws on database errors so the caller can fail closed.
+ */
+export async function consumeReauthToken(jti: string, ttlMs = 10 * 60 * 1000): Promise<boolean> {
+  const expiresAt = new Date(Date.now() + ttlMs)
+  try {
+    await prisma.reauthTokenUse.create({ data: { jti, expiresAt } })
+  } catch (error: any) {
+    if (error?.code === "P2002") return false
+    throw error
   }
+  // Opportunistic cleanup of expired rows; never blocks the caller.
+  prisma.reauthTokenUse
+    .deleteMany({ where: { expiresAt: { lt: new Date() } } })
+    .catch((error) => console.warn("[reauth] could not prune expired token uses:", error))
+  return true
 }
 
 /**
@@ -157,8 +169,11 @@ export async function verifyReauthToken(
     }
 
     const jti = payload.jti as string | undefined;
-    if (jti && isReauthTokenUsed(jti)) {
-      return { valid: false, reason: "Token has already been used (reuse rejected)" };
+    if (jti) {
+      const consumed = await consumeReauthToken(jti);
+      if (!consumed) {
+        return { valid: false, reason: "Token has already been used (reuse rejected)" };
+      }
     }
 
     return { valid: true, jti };

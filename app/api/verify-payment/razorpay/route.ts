@@ -4,7 +4,6 @@ import { verifyRazorpaySignature, razorpay } from "@/lib/payments/razorpay"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
-import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
 import { fulfilPaymentOrder } from "@/lib/payments/fulfilment"
 
 const COURSE_ALIASES: Record<string, string> = {
@@ -160,6 +159,7 @@ export async function POST(request: NextRequest) {
 
         // Determine goal if course enrollment
         let goalId: string | null = null
+        let goalPersisted = true
         if (targetCourseId) {
             const course = await prisma.course.findFirst({
                 where: { OR: [{ id: targetCourseId }, { slug: targetCourseId }] },
@@ -167,10 +167,17 @@ export async function POST(request: NextRequest) {
             })
             if (course) {
                 goalId = getGoalForCourse(course)
-                userGoalsMemoryMap.set(currentUserId, {
-                    goalId,
-                    updatedAt: new Date().toISOString(),
-                })
+                // B-007: persist to the DB; payment already succeeded, so a goal
+                // write failure is reported instead of failing the verification.
+                try {
+                    await prisma.user.update({
+                        where: { id: currentUserId },
+                        data: { selectedGoal: goalId },
+                    })
+                } catch (goalErr) {
+                    console.error("[verify-payment/razorpay] failed to persist the goal:", goalErr)
+                    goalPersisted = false
+                }
             }
         }
 
@@ -183,6 +190,7 @@ export async function POST(request: NextRequest) {
             type: targetCourseId ? "course" : "subscription",
             redirectUrl: targetCourseId ? "/my-learning" : "/my-tests",
             goalId,
+            goalPersisted,
         })
 
         if (goalId) {
