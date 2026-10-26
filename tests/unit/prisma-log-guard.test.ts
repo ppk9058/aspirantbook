@@ -6,7 +6,7 @@ describe("PRISMA_LOG_QUERIES Production Guard (O10)", () => {
   it("strictly disables query logging in production even if PRISMA_LOG_QUERIES=1", () => {
     const config = getPrismaLogConfig("production", "1")
     assert.deepEqual(config, [], "Must return empty log array in production")
-    assert.equal(config.includes("query"), false, "Must never include 'query' in production")
+    assert.equal((config as readonly string[]).includes("query"), false, "Must never include 'query' in production")
   })
 
   it("strictly disables query logging in production when PRISMA_LOG_QUERIES is unset or 0", () => {

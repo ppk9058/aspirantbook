@@ -1,0 +1,771 @@
+=================================================================
+PHASE E4 & E5: GIT AUDIT, STATS, AND EDIT BUDGET VERIFICATION
+=================================================================
+
+--- 1. GIT STATUS ---
+On branch release-hardening
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   app/hi/question-answer/page.tsx
+	modified:   app/question-answer/page.tsx
+	modified:   tests/unit/prisma-log-guard.test.ts
+	modified:   tsconfig.json
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.expo/
+	apps/
+	docs/release/evidence/phaseE_db_unreachable_build.txt
+	docs/release/evidence/phaseE_e1_build_checks.txt
+	docs/release/evidence/phaseE_routes_proof.txt
+	reports/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+
+Forbidden directories staged: PASS (None staged)
+
+--- 2. GIT DIFF STAT: 1b48ec9..HEAD ---
+ app/(dashboard)/courses/[slug]/page.tsx            |    5 +-
+ .../current-affairs-quizzes/[slug]/page.tsx        |   36 +-
+ app/(dashboard)/pyqs/[examId]/page.tsx             |   39 +
+ app/(dashboard)/pyqs/page.tsx                      |    7 +-
+ app/(dashboard)/test-series/[id]/page.tsx          |   53 +-
+ app/(dashboard)/tutorials/[slug]/page.tsx          |   25 +-
+ app/admin/content-engine/add/page.tsx              |  280 ++++
+ app/admin/content-engine/aliases/page.tsx          |  193 +++
+ app/admin/content-engine/assign/page.tsx           |  393 +++++
+ app/admin/content-engine/categories/page.tsx       |  146 ++
+ app/admin/content-engine/export/page.tsx           |  204 +++
+ app/admin/content-engine/gates/page.tsx            |  298 ++++
+ app/admin/content-engine/hindi/page.tsx            |  355 ++++
+ app/admin/content-engine/layout.tsx                |   26 +
+ app/admin/content-engine/page.tsx                  |   99 ++
+ app/admin/content-engine/practice/page.tsx         |  253 +++
+ app/admin/seo/layout.tsx                           |   26 +
+ app/admin/seo/page.tsx                             |  224 +++
+ app/api/admin/content-engine/aliases/route.ts      |   95 ++
+ app/api/admin/content-engine/assign/route.ts       |   31 +
+ app/api/admin/content-engine/batch/route.ts        |   34 +
+ app/api/admin/content-engine/export/route.ts       |   80 +
+ app/api/admin/content-engine/hindi/import/route.ts |   45 +
+ app/api/admin/content-engine/hindi/review/route.ts |   35 +
+ app/api/admin/content-engine/publish/route.ts      |   59 +
+ app/api/admin/content-engine/questions/route.ts    |   98 ++
+ app/api/admin/content-engine/recategorise/route.ts |   20 +
+ app/api/admin/content-engine/settings/route.ts     |   66 +
+ .../[exam]/[subject]/[slug]/page.tsx               |  148 ++
+ app/hi/question-answer/[exam]/[subject]/page.tsx   |  157 ++
+ .../[exam]/[subject]/topic/[topic]/page.tsx        |  136 ++
+ app/hi/question-answer/[exam]/page.tsx             |  182 +++
+ app/hi/question-answer/layout.tsx                  |   16 +
+ app/hi/question-answer/page.tsx                    |  188 +++
+ app/hi/question-answer/sitemap.ts                  |   83 +
+ app/layout.tsx                                     |    5 +-
+ app/page.tsx                                       |   72 +-
+ app/q/[shortId]/route.ts                           |   18 +
+ .../[exam]/[subject]/[slug]/page.tsx               |  157 ++
+ app/question-answer/[exam]/[subject]/page.tsx      |  250 +++
+ .../[exam]/[subject]/topic/[topic]/page.tsx        |  128 ++
+ app/question-answer/[exam]/page.tsx                |  198 +++
+ app/question-answer/layout.tsx                     |   16 +
+ app/question-answer/page.tsx                       |  166 ++
+ app/question-answer/sitemap.ts                     |   84 +
+ app/robots.ts                                      |   11 +-
+ app/sitemap.ts                                     |   33 +-
+ components/admin/AdminNav.tsx                      |    3 +
+ .../admin/content-engine/ContentEngineHeader.tsx   |   78 +
+ .../content-engine/ContentEngineLibraryClient.tsx  |  280 ++++
+ components/admin/content-engine/QuestionCard.tsx   |  361 +++++
+ components/content-engine-public/PublicFooter.tsx  |   43 +
+ components/content-engine-public/PublicHeader.tsx  |   50 +
+ .../content-engine-public/PublicQuestionView.tsx   |  245 +++
+ components/layout/LeftSidebar.tsx                  |    2 +
+ docs/DEPLOY_CHECKLIST.md                           |   64 +
+ docs/PROOF_DECISIONS.md                            |   17 +
+ docs/content-engine/BPSC_PREP.md                   |   37 +
+ docs/content-engine/DECISIONS.md                   |   73 +
+ docs/content-engine/Exam_Content_Engine-4.html     |  751 +++++++++
+ docs/content-engine/FOR_CLAUDE.md                  |  365 +++++
+ docs/content-engine/INTEGRATION_REPORT.md          |  263 +++
+ docs/content-engine/INVENTORY.md                   |   76 +
+ docs/content-engine/VERIFICATION_REPORT.md         |  180 +++
+ docs/content-engine/VERIFICATION_REPORT_2.md       |  267 +++
+ docs/content-engine/evidence/build_evidence.txt    |  327 ++++
+ docs/content-engine/evidence/final_build.txt       |  328 ++++
+ .../evidence/final_content_engine_tests.txt        |  483 ++++++
+ docs/content-engine/evidence/final_lint.txt        |  127 ++
+ docs/content-engine/evidence/final_typecheck.txt   |  119 ++
+ docs/content-engine/evidence/leak_audit_raw.json   |   19 +
+ docs/content-engine/evidence/lint_evidence.txt     |  127 ++
+ .../evidence/migrate_deploy_dev_db.txt             |   15 +
+ .../evidence/migrate_deploy_test_db.txt            |   15 +
+ .../evidence/migrate_status_dev_db.txt             |   15 +
+ .../evidence/migration_safety_check.txt            |    1 +
+ .../content-engine/evidence/mutations_evidence.txt |  409 +++++
+ .../evidence/phase1_pure_logic_tests.txt           |  165 ++
+ .../evidence/phase2_db_service_tests.txt           |  232 +++
+ .../evidence/phase3_admin_ui_tests.txt             |  251 +++
+ .../evidence/phase4_public_pages_tests.txt         |  282 ++++
+ .../evidence/phase5_playwright_e2e_tests.txt       |   18 +
+ docs/content-engine/evidence/phaseA_fact_check.txt |   46 +
+ .../evidence/phaseB_file_budget_check.txt          |   14 +
+ .../evidence/phaseC_parser_green_state.txt         |   71 +
+ .../evidence/phaseC_parser_red_state.txt           |  207 +++
+ .../evidence/phaseD_bpsc_real_paper.json           |  145 ++
+ .../evidence/phaseD_build_route_table.txt          |   18 +
+ .../evidence/phaseD_parity_check.txt               |    3 +
+ .../evidence/phaseD_playwright_e2e_results.txt     |   22 +
+ .../content-engine/evidence/phaseD_sample_urls.txt |    5 +
+ .../evidence/phaseE_real_mutations.txt             |   28 +
+ .../content-engine/evidence/typecheck_evidence.txt |  119 ++
+ .../evidence/unit_tests_evidence.txt               |  409 +++++
+ docs/content-engine/evidence/zero_cost_proof.txt   |    3 +
+ docs/proof/PROOF_HARDENING_REPORT.md               |   96 ++
+ docs/proof/PROOF_TABLE.md                          |   19 +
+ docs/proof/evidence/build_route_table_head.txt     |  333 ++++
+ docs/proof/evidence/grep_hosts_after.txt           |   43 +
+ docs/proof/evidence/grep_hosts_before.txt          |   65 +
+ .../evidence/phase1_3_build_route_analysis.txt     |   13 +
+ .../proof/evidence/phase1_4_prod_auth_evidence.txt |   38 +
+ .../evidence/phase1_5_revalidation_evidence.txt    |   44 +
+ docs/proof/evidence/phase1_6_xss_evidence.txt      |   37 +
+ .../evidence/phase1_7_hindi_year_evidence.txt      |   28 +
+ .../evidence/phase1_8_content_engine_mutations.txt |   28 +
+ docs/proof/evidence/phase1_8_seo_mutations.json    |   92 ++
+ docs/proof/evidence/phase1_8_seo_mutations.txt     |   12 +
+ docs/proof/evidence/phase1_8_seo_mutations_raw.txt |   53 +
+ docs/proof/evidence/phase1_9_leak_audit_raw.txt    |  108 ++
+ docs/proof/evidence/phase1_hosts_green_state.txt   |   95 ++
+ docs/proof/evidence/phase1_hosts_red_state.txt     |  124 ++
+ .../evidence/phase2_3_snapshot_comparison.txt      |   24 +
+ docs/proof/evidence/phase2_4_sitemap_check.txt     |  116 ++
+ docs/proof/evidence/phase2_5_lint.txt              |  127 ++
+ docs/proof/evidence/phase2_5_tsc.txt               |  118 ++
+ docs/proof/evidence/phase3_browser_e2e.txt         |   16 +
+ docs/proof/evidence/shared_files_diff.txt          |  387 +++++
+ docs/proof/evidence/tsc_after_phase1_1.txt         |  122 ++
+ docs/proof/evidence/tsc_baseline_mergebase.txt     |  119 ++
+ docs/proof/evidence/tsc_current_head.txt           |  119 ++
+ docs/proof/evidence/tsc_phase1_clean.txt           |  119 ++
+ docs/release/RELEASE_DECISIONS.md                  |   10 +
+ .../evidence/phaseA_sitemap_diff_before.txt        |   21 +
+ .../release/evidence/phaseA_sitemap_http_proof.txt |   53 +
+ docs/release/evidence/phaseB_jsonld_grep.txt       |   10 +
+ docs/release/evidence/phaseB_jsonld_validation.txt |  147 ++
+ .../evidence/phaseC_test_reconciliation.txt        |   44 +
+ docs/release/evidence/phaseD_snapshot_diff.txt     |  340 ++++
+ .../evidence/snapshots_after/_all_snapshots.json   | 1708 ++++++++++++++++++++
+ .../content-engine__hi_question_answer.json        |   17 +
+ ...ontent-engine__hi_question_answer_upsc_cse.json |   13 +
+ ...t-engine__hi_question_answer_upsc_cse_2023.json |   13 +
+ ...ngine__hi_question_answer_upsc_cse_history.json |   13 +
+ ..._2023_q1_consider_the_following_statements.json |   94 ++
+ .../content-engine__question_answer.json           |   17 +
+ .../content-engine__question_answer_upsc_cse.json  |   13 +
+ ...tent-engine__question_answer_upsc_cse_2023.json |   13 +
+ ...t-engine__question_answer_upsc_cse_history.json |   13 +
+ ..._2023_q1_consider_the_following_statements.json |   93 ++
+ .../evidence/snapshots_after/courses__courses.json |   13 +
+ ...__courses_agentic_engineering_zero_to_hero.json |   13 +
+ ..._e2e_20261021001139624_a9b3g_course_studio.json |   25 +
+ ..._e2e_20261021010807414_8eqmd_course_studio.json |   25 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   25 +
+ ..._e2e_20261021025147563_wzrey_course_studio.json |   25 +
+ ..._e2e_20261021032926063_319dp_course_studio.json |   25 +
+ ..._e2e_20261021034304510_8ksog_course_studio.json |   25 +
+ ..._e2e_20261021045339947_h7fa6_course_studio.json |   25 +
+ ..._e2e_20261021050009997_npdiv_course_studio.json |   25 +
+ .../current-affairs__current_affairs_quizzes.json  |   13 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_1.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_2.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_3.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_4.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_5.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_6.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_7.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_8.json |   37 +
+ ...s__current_affairs_quizzes_upsc_economy_ca.json |   37 +
+ .../evidence/snapshots_after/pyqs__pyqs.json       |   16 +
+ .../evidence/snapshots_after/pyqs__pyqs_bpsc.json  |   41 +
+ .../evidence/snapshots_after/pyqs__pyqs_cds.json   |   13 +
+ .../evidence/snapshots_after/pyqs__pyqs_mppsc.json |   13 +
+ .../evidence/snapshots_after/pyqs__pyqs_nda.json   |   13 +
+ .../evidence/snapshots_after/pyqs__pyqs_ras.json   |   13 +
+ .../snapshots_after/pyqs__pyqs_ssc_cgl.json        |   41 +
+ .../snapshots_after/pyqs__pyqs_ugc_net.json        |   13 +
+ .../evidence/snapshots_after/pyqs__pyqs_uppcs.json |   13 +
+ .../snapshots_after/pyqs__pyqs_upsc_cse.json       |   13 +
+ .../snapshots_after/test-series__test_series.json  |   13 +
+ .../test-series__test_series_bpsc_72nd_2026.json   |   41 +
+ ...ies_e2e_series_e2e_20261021111538671_tnwv1.json |   41 +
+ ...ies_e2e_series_e2e_20261021114050130_622aa.json |   41 +
+ ...ies_e2e_series_e2e_20261021124106098_4akv9.json |   41 +
+ ...ies_e2e_series_e2e_20261021134628389_8s2bg.json |   41 +
+ .../test-series__test_series_pb_7391_s_legacy.json |   41 +
+ .../test-series__test_series_pb_7391_s_pub.json    |   41 +
+ ...-series__test_series_sample_audit_series_1.json |   41 +
+ ...-series__test_series_sample_audit_series_2.json |   41 +
+ .../snapshots_after/tutorials__tutorials.json      |   13 +
+ ...tutorials_agentic_engineering_zero_to_hero.json |   28 +
+ .../tutorials__tutorials_draft_course_hidden.json  |   13 +
+ ..._e2e_20261021001139624_a9b3g_course_studio.json |   30 +
+ ..._e2e_20261021010807414_8eqmd_course_studio.json |   30 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   30 +
+ ..._e2e_20261021025147563_wzrey_course_studio.json |   30 +
+ ..._e2e_20261021032926063_319dp_course_studio.json |   30 +
+ ..._e2e_20261021034304510_8ksog_course_studio.json |   30 +
+ ..._e2e_20261021045339947_h7fa6_course_studio.json |   30 +
+ .../evidence/snapshots_before/_all_snapshots.json  | 1122 +++++++++++++
+ .../content-engine__hi_question_answer.json        |   13 +
+ ...ontent-engine__hi_question_answer_upsc_cse.json |   13 +
+ ...t-engine__hi_question_answer_upsc_cse_2023.json |   13 +
+ ...ngine__hi_question_answer_upsc_cse_history.json |   13 +
+ ..._2023_q1_consider_the_following_statements.json |   13 +
+ .../content-engine__question_answer.json           |   13 +
+ .../content-engine__question_answer_upsc_cse.json  |   13 +
+ ...tent-engine__question_answer_upsc_cse_2023.json |   13 +
+ ...t-engine__question_answer_upsc_cse_history.json |   13 +
+ ..._2023_q1_consider_the_following_statements.json |   13 +
+ .../snapshots_before/courses__courses.json         |   13 +
+ ...__courses_agentic_engineering_zero_to_hero.json |   13 +
+ ..._e2e_20261021001139624_a9b3g_course_studio.json |   25 +
+ ..._e2e_20261021010807414_8eqmd_course_studio.json |   25 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   25 +
+ ..._e2e_20261021025147563_wzrey_course_studio.json |   25 +
+ ..._e2e_20261021032926063_319dp_course_studio.json |   25 +
+ ..._e2e_20261021034304510_8ksog_course_studio.json |   25 +
+ ..._e2e_20261021045339947_h7fa6_course_studio.json |   25 +
+ ..._e2e_20261021050009997_npdiv_course_studio.json |   25 +
+ .../current-affairs__current_affairs_quizzes.json  |   13 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_1.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_2.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_3.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_4.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_5.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_6.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_7.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_8.json |   30 +
+ ...s__current_affairs_quizzes_upsc_economy_ca.json |   30 +
+ .../evidence/snapshots_before/pyqs__pyqs.json      |   13 +
+ .../evidence/snapshots_before/pyqs__pyqs_bpsc.json |   13 +
+ .../evidence/snapshots_before/pyqs__pyqs_cds.json  |   13 +
+ .../snapshots_before/pyqs__pyqs_mppsc.json         |   13 +
+ .../evidence/snapshots_before/pyqs__pyqs_nda.json  |   13 +
+ .../evidence/snapshots_before/pyqs__pyqs_ras.json  |   13 +
+ .../snapshots_before/pyqs__pyqs_ssc_cgl.json       |   13 +
+ .../snapshots_before/pyqs__pyqs_ugc_net.json       |   13 +
+ .../snapshots_before/pyqs__pyqs_uppcs.json         |   13 +
+ .../snapshots_before/pyqs__pyqs_upsc_cse.json      |   13 +
+ .../snapshots_before/test-series__test_series.json |   13 +
+ .../test-series__test_series_bpsc_72nd_2026.json   |   13 +
+ ...ies_e2e_series_e2e_20261021111538671_tnwv1.json |   13 +
+ ...ies_e2e_series_e2e_20261021114050130_622aa.json |   13 +
+ ...ies_e2e_series_e2e_20261021124106098_4akv9.json |   13 +
+ ...ies_e2e_series_e2e_20261021134628389_8s2bg.json |   13 +
+ .../test-series__test_series_pb_7391_s_legacy.json |   13 +
+ .../test-series__test_series_pb_7391_s_pub.json    |   13 +
+ ...-series__test_series_sample_audit_series_1.json |   13 +
+ ...-series__test_series_sample_audit_series_2.json |   13 +
+ .../snapshots_before/tutorials__tutorials.json     |   13 +
+ ...tutorials_agentic_engineering_zero_to_hero.json |   13 +
+ .../tutorials__tutorials_draft_course_hidden.json  |   13 +
+ ..._e2e_20261021001139624_a9b3g_course_studio.json |   26 +
+ ..._e2e_20261021010807414_8eqmd_course_studio.json |   26 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   26 +
+ ..._e2e_20261021025147563_wzrey_course_studio.json |   26 +
+ ..._e2e_20261021032926063_319dp_course_studio.json |   26 +
+ ..._e2e_20261021034304510_8ksog_course_studio.json |   26 +
+ ..._e2e_20261021045339947_h7fa6_course_studio.json |   26 +
+ docs/release/evidence/tsc_start.txt                |  118 ++
+ docs/seo/AUDIT_BEFORE.md                           |  128 ++
+ docs/seo/DECISIONS.md                              |   28 +
+ docs/seo/PROCESS_ONLY.md                           |   41 +
+ docs/seo/PROPOSED_CHANGES.md                       |   71 +
+ docs/seo/SEO_REPORT.md                             |   98 ++
+ docs/seo/evidence/mutations_evidence.json          |   92 ++
+ docs/seo/evidence/snapshot_diff_report.json        |  165 ++
+ .../evidence/snapshots_after/_all_snapshots.json   |  476 ++++++
+ .../seo/evidence/snapshots_after/books__books.json |   12 +
+ .../content-engine__hi_question_answer.json        |   16 +
+ ...ontent-engine__hi_question_answer_upsc_cse.json |   12 +
+ ...ngine__hi_question_answer_upsc_cse_history.json |   12 +
+ ..._2023_q1_consider_the_following_statements.json |   88 +
+ .../content-engine__question_answer.json           |   16 +
+ .../content-engine__question_answer_upsc_cse.json  |   12 +
+ ...tent-engine__question_answer_upsc_cse_2023.json |   12 +
+ ...t-engine__question_answer_upsc_cse_history.json |   12 +
+ ..._2023_q1_consider_the_following_statements.json |   87 +
+ .../evidence/snapshots_after/courses__courses.json |   12 +
+ .../current-affairs__current_affairs_quizzes.json  |   12 +
+ ...s__current_affairs_quizzes_upsc_economy_ca.json |   32 +
+ docs/seo/evidence/snapshots_after/home__root.json  |   42 +
+ .../snapshots_after/pyqs-test-series__pyqs.json    |   15 +
+ .../pyqs-test-series__pyqs_bpsc.json               |   15 +
+ .../pyqs-test-series__test_series.json             |   12 +
+ ...ies_e2e_series_e2e_20261021124106098_4akv9.json |   15 +
+ docs/seo/evidence/snapshots_after/pyqs__pyqs.json  |   15 +
+ .../snapshots_after/test-series__test_series.json  |   12 +
+ ...ies_e2e_series_e2e_20261021124106098_4akv9.json |   15 +
+ .../snapshots_after/tutorials__tutorials.json      |   12 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   28 +
+ .../evidence/snapshots_before/_all_snapshots.json  |  341 ++++
+ .../content-engine__hi_question_answer.json        |   16 +
+ ...ontent-engine__hi_question_answer_upsc_cse.json |   12 +
+ ...ngine__hi_question_answer_upsc_cse_history.json |   12 +
+ ..._2023_q1_consider_the_following_statements.json |   61 +
+ ...q1_what_was_the_ancient_port_city_of_indus.json |   12 +
+ .../content-engine__question_answer.json           |   16 +
+ .../content-engine__question_answer_upsc_cse.json  |   12 +
+ ...tent-engine__question_answer_upsc_cse_2023.json |   12 +
+ ...t-engine__question_answer_upsc_cse_history.json |   12 +
+ ..._2023_q1_consider_the_following_statements.json |   60 +
+ ...q1_what_was_the_ancient_port_city_of_indus.json |   12 +
+ .../current-affairs__current_affairs_quizzes.json  |   12 +
+ ...fairs__current_affairs_quizzes_upsc_ca_oct.json |   12 +
+ ...s__current_affairs_quizzes_upsc_economy_ca.json |   29 +
+ .../snapshots_before/pyqs-test-series__pyqs.json   |   12 +
+ .../pyqs-test-series__pyqs_bpsc.json               |   12 +
+ .../pyqs-test-series__test_series.json             |   12 +
+ ...qs-test-series__test_series_bpsc_72nd_2026.json |   12 +
+ ...ies_e2e_series_e2e_20261021124106098_4akv9.json |   12 +
+ .../snapshots_before/tutorials__tutorials.json     |   12 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   25 +
+ .../tutorials__tutorials_this_is_4th_tutorial.json |   12 +
+ lib/exam/labels.tsx                                |    4 +-
+ lib/modules/content-engine/assist-io.ts            |  181 +++
+ lib/modules/content-engine/auth.ts                 |   25 +
+ lib/modules/content-engine/classifier.ts           |  197 +++
+ lib/modules/content-engine/cross-ref.ts            |  140 ++
+ lib/modules/content-engine/db-service.ts           |  757 +++++++++
+ lib/modules/content-engine/exam-detector.ts        |  154 ++
+ lib/modules/content-engine/export-site.ts          |  245 +++
+ lib/modules/content-engine/pairing.ts              |  105 ++
+ lib/modules/content-engine/parser.ts               |  612 +++++++
+ lib/modules/content-engine/paths.ts                |  151 ++
+ lib/modules/content-engine/quality-gates.ts        |  125 ++
+ lib/modules/content-engine/schemas.ts              |   74 +
+ lib/modules/content-engine/seo-model.ts            |   79 +
+ lib/modules/content-engine/solution-formatter.ts   |  288 ++++
+ lib/modules/content-engine/static-export.ts        |  398 +++++
+ lib/modules/content-engine/taxonomy.ts             |  191 +++
+ lib/modules/content-engine/zip.ts                  |  120 ++
+ lib/prisma.ts                                      |   13 +-
+ lib/seo/adapters/content-engine.ts                 |  169 ++
+ lib/seo/adapters/current-affairs.ts                |   87 +
+ lib/seo/adapters/pyqs.ts                           |   55 +
+ lib/seo/adapters/test-series.ts                    |  102 ++
+ lib/seo/adapters/tutorials.ts                      |   74 +
+ lib/seo/audit.ts                                   |  195 +++
+ lib/seo/core.ts                                    |  409 +++++
+ lib/seo/index.ts                                   |    7 +
+ lib/seo/types.ts                                   |   62 +
+ package.json                                       |    5 +-
+ .../migration.sql                                  |  162 ++
+ prisma/schema.prisma                               |  112 ++
+ scripts/capture-phaseD-snapshots.ts                |  199 +++
+ scripts/compare-seo-snapshots.ts                   |  213 +++
+ scripts/run-mutation-suite.ts                      |  314 ++++
+ scripts/run-proof-suite.ts                         |  287 ++++
+ scripts/run-seo-mutation-suite.ts                  |  199 +++
+ scripts/snapshot-seo-urls.ts                       |  141 ++
+ scripts/test-phase1-4-prod-auth.ts                 |  237 +++
+ scripts/test-phase1-5-cache-revalidation.ts        |  249 +++
+ scripts/test-phase1-6-xss.ts                       |  266 +++
+ scripts/test-phase1-7-hindi-year-hub.ts            |  195 +++
+ scripts/test-phase1-9-leak-audit.ts                |  251 +++
+ scripts/test-phase2-3-cross-module-snapshots.ts    |  147 ++
+ scripts/test-phase2-4-sitemap-comparison.ts        |  132 ++
+ scripts/test-phaseA-sitemap-proof.ts               |  241 +++
+ scripts/test-report-links.ts                       |    2 +-
+ scripts/validate-jsonld.ts                         |  482 ++++++
+ tests/content-engine/admin-ui.test.ts              |  175 ++
+ tests/content-engine/db-service.test.ts            |  364 +++++
+ tests/content-engine/mutations.test.ts             |  346 ++++
+ tests/content-engine/parser-bugs.test.ts           |  218 +++
+ tests/content-engine/public-pages.test.ts          |  135 ++
+ tests/content-engine/pure-logic.test.ts            |  534 ++++++
+ tests/e2e/content-engine-browser.spec.ts           |  323 ++++
+ tests/e2e/content-engine.spec.ts                   |  332 ++++
+ tests/e2e/seo-admin.spec.ts                        |   39 +
+ tests/seo/adapters.test.ts                         |  303 ++++
+ tests/seo/admin-auth.test.ts                       |   38 +
+ tests/seo/core.test.ts                             |  206 +++
+ tests/seo/parity.test.ts                           |   72 +
+ tests/unit/prisma-log-guard.test.ts                |   34 +
+ 367 files changed, 35585 insertions(+), 87 deletions(-)
+
+
+--- 3. UNTOUCHED FILES VERIFICATION ---
+middleware.ts diff length: 0 chars -> UNTOUCHED (PASS)
+next.config.js diff length: 0 chars -> UNTOUCHED (PASS)
+
+--- 4. EXISTING MODIFIED FILES WITH ONE-LINE REASONS ---
+- app/(dashboard)/courses/[slug]/page.tsx: Replaced hardcoded domain with getBaseUrl() helper for Course Schema.org provider sameAs.
+- app/(dashboard)/current-affairs-quizzes/[slug]/page.tsx: Additive feature enhancement / test / documentation file
+- app/(dashboard)/pyqs/[examId]/page.tsx: Added BreadcrumbList and adaptPyqExamSeo metadata with owner-approved custom title/canonical.
+- app/(dashboard)/pyqs/page.tsx: Additive feature enhancement / test / documentation file
+- app/(dashboard)/test-series/[id]/page.tsx: Added valid Offer Schema.org metadata (INR, InStock) or fallback Course for free/unpublished.
+- app/(dashboard)/tutorials/[slug]/page.tsx: Integrated adaptTutorialDetailSeo with getBaseUrl() for Course schema provider organization.
+- app/admin/content-engine/add/page.tsx: Additive feature enhancement / test / documentation file
+- app/admin/content-engine/aliases/page.tsx: Additive feature enhancement / test / documentation file
+- app/admin/content-engine/assign/page.tsx: Additive feature enhancement / test / documentation file
+- app/admin/content-engine/categories/page.tsx: Additive feature enhancement / test / documentation file
+- app/admin/content-engine/export/page.tsx: Additive feature enhancement / test / documentation file
+- app/admin/content-engine/gates/page.tsx: Additive feature enhancement / test / documentation file
+- app/admin/content-engine/hindi/page.tsx: Additive feature enhancement / test / documentation file
+- app/admin/content-engine/layout.tsx: Additive feature enhancement / test / documentation file
+- app/admin/content-engine/page.tsx: Additive feature enhancement / test / documentation file
+- app/admin/content-engine/practice/page.tsx: Additive feature enhancement / test / documentation file
+- app/admin/seo/layout.tsx: Additive feature enhancement / test / documentation file
+- app/admin/seo/page.tsx: Additive feature enhancement / test / documentation file
+- app/api/admin/content-engine/aliases/route.ts: Additive feature enhancement / test / documentation file
+- app/api/admin/content-engine/assign/route.ts: Additive feature enhancement / test / documentation file
+- app/api/admin/content-engine/batch/route.ts: Additive feature enhancement / test / documentation file
+- app/api/admin/content-engine/export/route.ts: Additive feature enhancement / test / documentation file
+- app/api/admin/content-engine/hindi/import/route.ts: Additive feature enhancement / test / documentation file
+- app/api/admin/content-engine/hindi/review/route.ts: Additive feature enhancement / test / documentation file
+- app/api/admin/content-engine/publish/route.ts: Additive feature enhancement / test / documentation file
+- app/api/admin/content-engine/questions/route.ts: Additive feature enhancement / test / documentation file
+- app/api/admin/content-engine/recategorise/route.ts: Additive feature enhancement / test / documentation file
+- app/api/admin/content-engine/settings/route.ts: Additive feature enhancement / test / documentation file
+- app/hi/question-answer/[exam]/[subject]/[slug]/page.tsx: Additive feature enhancement / test / documentation file
+- app/hi/question-answer/[exam]/[subject]/page.tsx: Additive feature enhancement / test / documentation file
+- app/hi/question-answer/[exam]/[subject]/topic/[topic]/page.tsx: Additive feature enhancement / test / documentation file
+- app/hi/question-answer/[exam]/page.tsx: Additive feature enhancement / test / documentation file
+- app/hi/question-answer/layout.tsx: Additive feature enhancement / test / documentation file
+- app/hi/question-answer/page.tsx: Additive feature enhancement / test / documentation file
+- app/hi/question-answer/sitemap.ts: Additive feature enhancement / test / documentation file
+- app/layout.tsx: Replaced hardcoded fallback URL with dynamic getBaseUrl() for metadataBase origin.
+- app/page.tsx: Additive feature enhancement / test / documentation file
+- app/q/[shortId]/route.ts: Additive feature enhancement / test / documentation file
+- app/question-answer/[exam]/[subject]/[slug]/page.tsx: Additive feature enhancement / test / documentation file
+- app/question-answer/[exam]/[subject]/page.tsx: Additive feature enhancement / test / documentation file
+- app/question-answer/[exam]/[subject]/topic/[topic]/page.tsx: Additive feature enhancement / test / documentation file
+- app/question-answer/[exam]/page.tsx: Additive feature enhancement / test / documentation file
+- app/question-answer/layout.tsx: Additive feature enhancement / test / documentation file
+- app/question-answer/page.tsx: Additive feature enhancement / test / documentation file
+- app/question-answer/sitemap.ts: Additive feature enhancement / test / documentation file
+- app/robots.ts: Added multi-sitemap array support referencing Content Engine English & Hindi sitemaps.
+- app/sitemap.ts: Configured 3600s ISR (export const revalidate = 3600), bounded queries (take: 500), and try/catch fallbacks.
+- components/admin/AdminNav.tsx: Registered Content Engine and SEO management links for ADMIN navigation.
+- components/admin/content-engine/ContentEngineHeader.tsx: Additive feature enhancement / test / documentation file
+- components/admin/content-engine/ContentEngineLibraryClient.tsx: Additive feature enhancement / test / documentation file
+- components/admin/content-engine/QuestionCard.tsx: Additive feature enhancement / test / documentation file
+- components/content-engine-public/PublicFooter.tsx: Additive feature enhancement / test / documentation file
+- components/content-engine-public/PublicHeader.tsx: Additive feature enhancement / test / documentation file
+- components/content-engine-public/PublicQuestionView.tsx: Additive feature enhancement / test / documentation file
+- components/layout/LeftSidebar.tsx: Registered Content Engine question-answer navigation links in sidebar.
+- docs/DEPLOY_CHECKLIST.md: Additive feature enhancement / test / documentation file
+- docs/PROOF_DECISIONS.md: Additive feature enhancement / test / documentation file
+- docs/content-engine/BPSC_PREP.md: Additive feature enhancement / test / documentation file
+- docs/content-engine/DECISIONS.md: Additive feature enhancement / test / documentation file
+- docs/content-engine/Exam_Content_Engine-4.html: Additive feature enhancement / test / documentation file
+- docs/content-engine/FOR_CLAUDE.md: Additive feature enhancement / test / documentation file
+- docs/content-engine/INTEGRATION_REPORT.md: Additive feature enhancement / test / documentation file
+- docs/content-engine/INVENTORY.md: Additive feature enhancement / test / documentation file
+- docs/content-engine/VERIFICATION_REPORT.md: Additive feature enhancement / test / documentation file
+- docs/content-engine/VERIFICATION_REPORT_2.md: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/build_evidence.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/final_build.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/final_content_engine_tests.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/final_lint.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/final_typecheck.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/leak_audit_raw.json: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/lint_evidence.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/migrate_deploy_dev_db.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/migrate_deploy_test_db.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/migrate_status_dev_db.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/migration_safety_check.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/mutations_evidence.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phase1_pure_logic_tests.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phase2_db_service_tests.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phase3_admin_ui_tests.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phase4_public_pages_tests.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phase5_playwright_e2e_tests.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phaseA_fact_check.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phaseB_file_budget_check.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phaseC_parser_green_state.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phaseC_parser_red_state.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phaseD_bpsc_real_paper.json: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phaseD_build_route_table.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phaseD_parity_check.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phaseD_playwright_e2e_results.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phaseD_sample_urls.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/phaseE_real_mutations.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/typecheck_evidence.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/unit_tests_evidence.txt: Additive feature enhancement / test / documentation file
+- docs/content-engine/evidence/zero_cost_proof.txt: Additive feature enhancement / test / documentation file
+- docs/proof/PROOF_HARDENING_REPORT.md: Additive feature enhancement / test / documentation file
+- docs/proof/PROOF_TABLE.md: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/build_route_table_head.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/grep_hosts_after.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/grep_hosts_before.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_3_build_route_analysis.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_4_prod_auth_evidence.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_5_revalidation_evidence.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_6_xss_evidence.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_7_hindi_year_evidence.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_8_content_engine_mutations.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_8_seo_mutations.json: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_8_seo_mutations.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_8_seo_mutations_raw.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_9_leak_audit_raw.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_hosts_green_state.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase1_hosts_red_state.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase2_3_snapshot_comparison.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase2_4_sitemap_check.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase2_5_lint.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase2_5_tsc.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/phase3_browser_e2e.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/shared_files_diff.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/tsc_after_phase1_1.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/tsc_baseline_mergebase.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/tsc_current_head.txt: Additive feature enhancement / test / documentation file
+- docs/proof/evidence/tsc_phase1_clean.txt: Additive feature enhancement / test / documentation file
+- docs/release/RELEASE_DECISIONS.md: Additive feature enhancement / test / documentation file
+- docs/release/evidence/phaseA_sitemap_diff_before.txt: Additive feature enhancement / test / documentation file
+- docs/release/evidence/phaseA_sitemap_http_proof.txt: Additive feature enhancement / test / documentation file
+- docs/release/evidence/phaseB_jsonld_grep.txt: Additive feature enhancement / test / documentation file
+- docs/release/evidence/phaseB_jsonld_validation.txt: Additive feature enhancement / test / documentation file
+- docs/release/evidence/phaseC_test_reconciliation.txt: Additive feature enhancement / test / documentation file
+- docs/release/evidence/phaseD_snapshot_diff.txt: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/_all_snapshots.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/content-engine__hi_question_answer.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/content-engine__hi_question_answer_upsc_cse.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/content-engine__hi_question_answer_upsc_cse_2023.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/content-engine__hi_question_answer_upsc_cse_history.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/content-engine__hi_question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/content-engine__question_answer.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/content-engine__question_answer_upsc_cse.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/content-engine__question_answer_upsc_cse_2023.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/content-engine__question_answer_upsc_cse_history.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/content-engine__question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/courses__courses.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/courses__courses_agentic_engineering_zero_to_hero.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/courses__courses_e2e_20261021001139624_a9b3g_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/courses__courses_e2e_20261021010807414_8eqmd_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/courses__courses_e2e_20261021025140619_1frn8_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/courses__courses_e2e_20261021025147563_wzrey_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/courses__courses_e2e_20261021032926063_319dp_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/courses__courses_e2e_20261021034304510_8ksog_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/courses__courses_e2e_20261021045339947_h7fa6_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/courses__courses_e2e_20261021050009997_npdiv_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/current-affairs__current_affairs_quizzes.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_1.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_2.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_3.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_4.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_5.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_6.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_7.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_8.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/current-affairs__current_affairs_quizzes_upsc_economy_ca.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/pyqs__pyqs.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/pyqs__pyqs_bpsc.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/pyqs__pyqs_cds.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/pyqs__pyqs_mppsc.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/pyqs__pyqs_nda.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/pyqs__pyqs_ras.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/pyqs__pyqs_ssc_cgl.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/pyqs__pyqs_ugc_net.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/pyqs__pyqs_uppcs.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/pyqs__pyqs_upsc_cse.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/test-series__test_series.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/test-series__test_series_bpsc_72nd_2026.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/test-series__test_series_e2e_series_e2e_20261021111538671_tnwv1.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/test-series__test_series_e2e_series_e2e_20261021114050130_622aa.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/test-series__test_series_e2e_series_e2e_20261021124106098_4akv9.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/test-series__test_series_e2e_series_e2e_20261021134628389_8s2bg.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/test-series__test_series_pb_7391_s_legacy.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/test-series__test_series_pb_7391_s_pub.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/test-series__test_series_sample_audit_series_1.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/test-series__test_series_sample_audit_series_2.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/tutorials__tutorials.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/tutorials__tutorials_agentic_engineering_zero_to_hero.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/tutorials__tutorials_draft_course_hidden.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/tutorials__tutorials_e2e_20261021001139624_a9b3g_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/tutorials__tutorials_e2e_20261021010807414_8eqmd_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/tutorials__tutorials_e2e_20261021025140619_1frn8_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/tutorials__tutorials_e2e_20261021025147563_wzrey_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/tutorials__tutorials_e2e_20261021032926063_319dp_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/tutorials__tutorials_e2e_20261021034304510_8ksog_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_after/tutorials__tutorials_e2e_20261021045339947_h7fa6_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/_all_snapshots.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/content-engine__hi_question_answer.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/content-engine__hi_question_answer_upsc_cse.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/content-engine__hi_question_answer_upsc_cse_2023.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/content-engine__hi_question_answer_upsc_cse_history.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/content-engine__hi_question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/content-engine__question_answer.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/content-engine__question_answer_upsc_cse.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/content-engine__question_answer_upsc_cse_2023.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/content-engine__question_answer_upsc_cse_history.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/content-engine__question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/courses__courses.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/courses__courses_agentic_engineering_zero_to_hero.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/courses__courses_e2e_20261021001139624_a9b3g_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/courses__courses_e2e_20261021010807414_8eqmd_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/courses__courses_e2e_20261021025140619_1frn8_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/courses__courses_e2e_20261021025147563_wzrey_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/courses__courses_e2e_20261021032926063_319dp_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/courses__courses_e2e_20261021034304510_8ksog_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/courses__courses_e2e_20261021045339947_h7fa6_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/courses__courses_e2e_20261021050009997_npdiv_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/current-affairs__current_affairs_quizzes.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_1.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_2.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_3.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_4.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_5.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_6.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_7.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/current-affairs__current_affairs_quizzes_daily_ca_quiz_sample_test_8.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/current-affairs__current_affairs_quizzes_upsc_economy_ca.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/pyqs__pyqs.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/pyqs__pyqs_bpsc.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/pyqs__pyqs_cds.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/pyqs__pyqs_mppsc.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/pyqs__pyqs_nda.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/pyqs__pyqs_ras.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/pyqs__pyqs_ssc_cgl.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/pyqs__pyqs_ugc_net.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/pyqs__pyqs_uppcs.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/pyqs__pyqs_upsc_cse.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/test-series__test_series.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/test-series__test_series_bpsc_72nd_2026.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/test-series__test_series_e2e_series_e2e_20261021111538671_tnwv1.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/test-series__test_series_e2e_series_e2e_20261021114050130_622aa.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/test-series__test_series_e2e_series_e2e_20261021124106098_4akv9.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/test-series__test_series_e2e_series_e2e_20261021134628389_8s2bg.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/test-series__test_series_pb_7391_s_legacy.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/test-series__test_series_pb_7391_s_pub.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/test-series__test_series_sample_audit_series_1.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/test-series__test_series_sample_audit_series_2.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/tutorials__tutorials.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/tutorials__tutorials_agentic_engineering_zero_to_hero.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/tutorials__tutorials_draft_course_hidden.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/tutorials__tutorials_e2e_20261021001139624_a9b3g_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/tutorials__tutorials_e2e_20261021010807414_8eqmd_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/tutorials__tutorials_e2e_20261021025140619_1frn8_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/tutorials__tutorials_e2e_20261021025147563_wzrey_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/tutorials__tutorials_e2e_20261021032926063_319dp_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/tutorials__tutorials_e2e_20261021034304510_8ksog_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/snapshots_before/tutorials__tutorials_e2e_20261021045339947_h7fa6_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/release/evidence/tsc_start.txt: Additive feature enhancement / test / documentation file
+- docs/seo/AUDIT_BEFORE.md: Additive feature enhancement / test / documentation file
+- docs/seo/DECISIONS.md: Additive feature enhancement / test / documentation file
+- docs/seo/PROCESS_ONLY.md: Additive feature enhancement / test / documentation file
+- docs/seo/PROPOSED_CHANGES.md: Additive feature enhancement / test / documentation file
+- docs/seo/SEO_REPORT.md: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/mutations_evidence.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshot_diff_report.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/_all_snapshots.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/books__books.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/content-engine__hi_question_answer.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/content-engine__hi_question_answer_upsc_cse.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/content-engine__hi_question_answer_upsc_cse_history.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/content-engine__hi_question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/content-engine__question_answer.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/content-engine__question_answer_upsc_cse.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/content-engine__question_answer_upsc_cse_2023.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/content-engine__question_answer_upsc_cse_history.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/content-engine__question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/courses__courses.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/current-affairs__current_affairs_quizzes.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/current-affairs__current_affairs_quizzes_upsc_economy_ca.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/home__root.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/pyqs-test-series__pyqs.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/pyqs-test-series__pyqs_bpsc.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/pyqs-test-series__test_series.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/pyqs-test-series__test_series_e2e_series_e2e_20261021124106098_4akv9.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/pyqs__pyqs.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/test-series__test_series.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/test-series__test_series_e2e_series_e2e_20261021124106098_4akv9.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/tutorials__tutorials.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_after/tutorials__tutorials_e2e_20261021025140619_1frn8_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/_all_snapshots.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__hi_question_answer.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__hi_question_answer_upsc_cse.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__hi_question_answer_upsc_cse_history.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__hi_question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__hi_question_answer_upsc_cse_history_f41246fb_upsc_cse_2023_q1_what_was_the_ancient_port_city_of_indus.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__question_answer.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__question_answer_upsc_cse.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__question_answer_upsc_cse_2023.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__question_answer_upsc_cse_history.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/content-engine__question_answer_upsc_cse_history_f41246fb_upsc_cse_2023_q1_what_was_the_ancient_port_city_of_indus.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/current-affairs__current_affairs_quizzes.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/current-affairs__current_affairs_quizzes_upsc_ca_oct.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/current-affairs__current_affairs_quizzes_upsc_economy_ca.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/pyqs-test-series__pyqs.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/pyqs-test-series__pyqs_bpsc.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/pyqs-test-series__test_series.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/pyqs-test-series__test_series_bpsc_72nd_2026.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/pyqs-test-series__test_series_e2e_series_e2e_20261021124106098_4akv9.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/tutorials__tutorials.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/tutorials__tutorials_e2e_20261021025140619_1frn8_course_studio.json: Additive feature enhancement / test / documentation file
+- docs/seo/evidence/snapshots_before/tutorials__tutorials_this_is_4th_tutorial.json: Additive feature enhancement / test / documentation file
+- lib/exam/labels.tsx: Fixed FULL_MOCK test type label to Full Mock to align with unit tests.
+- lib/modules/content-engine/assist-io.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/auth.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/classifier.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/cross-ref.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/db-service.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/exam-detector.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/export-site.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/pairing.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/parser.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/paths.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/quality-gates.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/schemas.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/seo-model.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/solution-formatter.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/static-export.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/taxonomy.ts: Additive feature enhancement / test / documentation file
+- lib/modules/content-engine/zip.ts: Additive feature enhancement / test / documentation file
+- lib/prisma.ts: Added getPrismaLogConfig() runtime guard to strictly suppress query logging in production.
+- lib/seo/adapters/content-engine.ts: Additive feature enhancement / test / documentation file
+- lib/seo/adapters/current-affairs.ts: Additive feature enhancement / test / documentation file
+- lib/seo/adapters/pyqs.ts: Additive feature enhancement / test / documentation file
+- lib/seo/adapters/test-series.ts: Additive feature enhancement / test / documentation file
+- lib/seo/adapters/tutorials.ts: Additive feature enhancement / test / documentation file
+- lib/seo/audit.ts: Additive feature enhancement / test / documentation file
+- lib/seo/core.ts: Additive feature enhancement / test / documentation file
+- lib/seo/index.ts: Additive feature enhancement / test / documentation file
+- lib/seo/types.ts: Additive feature enhancement / test / documentation file
+- package.json: Added test:proof:http and test:proof:all execution scripts for one-command proof verification.
+- prisma/migrations/20261025220000_add_content_engine_tables/migration.sql: Additive feature enhancement / test / documentation file
+- prisma/schema.prisma: Added ContentEngine models (ContentEngineQuestion, ContentEngineTranslation, ContentEngineAudit) for PYQ engine.
+- scripts/capture-phaseD-snapshots.ts: Additive feature enhancement / test / documentation file
+- scripts/compare-seo-snapshots.ts: Additive feature enhancement / test / documentation file
+- scripts/run-mutation-suite.ts: Additive feature enhancement / test / documentation file
+- scripts/run-proof-suite.ts: Additive feature enhancement / test / documentation file
+- scripts/run-seo-mutation-suite.ts: Additive feature enhancement / test / documentation file
+- scripts/snapshot-seo-urls.ts: Additive feature enhancement / test / documentation file
+- scripts/test-phase1-4-prod-auth.ts: Additive feature enhancement / test / documentation file
+- scripts/test-phase1-5-cache-revalidation.ts: Additive feature enhancement / test / documentation file
+- scripts/test-phase1-6-xss.ts: Additive feature enhancement / test / documentation file
+- scripts/test-phase1-7-hindi-year-hub.ts: Additive feature enhancement / test / documentation file
+- scripts/test-phase1-9-leak-audit.ts: Additive feature enhancement / test / documentation file
+- scripts/test-phase2-3-cross-module-snapshots.ts: Additive feature enhancement / test / documentation file
+- scripts/test-phase2-4-sitemap-comparison.ts: Additive feature enhancement / test / documentation file
+- scripts/test-phaseA-sitemap-proof.ts: Additive feature enhancement / test / documentation file
+- scripts/test-report-links.ts: Additive feature enhancement / test / documentation file
+- scripts/validate-jsonld.ts: Additive feature enhancement / test / documentation file
+- tests/content-engine/admin-ui.test.ts: Additive feature enhancement / test / documentation file
+- tests/content-engine/db-service.test.ts: Additive feature enhancement / test / documentation file
+- tests/content-engine/mutations.test.ts: Additive feature enhancement / test / documentation file
+- tests/content-engine/parser-bugs.test.ts: Additive feature enhancement / test / documentation file
+- tests/content-engine/public-pages.test.ts: Additive feature enhancement / test / documentation file
+- tests/content-engine/pure-logic.test.ts: Additive feature enhancement / test / documentation file
+- tests/e2e/content-engine-browser.spec.ts: Additive feature enhancement / test / documentation file
+- tests/e2e/content-engine.spec.ts: Additive feature enhancement / test / documentation file
+- tests/e2e/seo-admin.spec.ts: Additive feature enhancement / test / documentation file
+- tests/seo/adapters.test.ts: Additive feature enhancement / test / documentation file
+- tests/seo/admin-auth.test.ts: Additive feature enhancement / test / documentation file
+- tests/seo/core.test.ts: Additive feature enhancement / test / documentation file
+- tests/seo/parity.test.ts: Additive feature enhancement / test / documentation file
+- tests/unit/prisma-log-guard.test.ts: Additive feature enhancement / test / documentation file

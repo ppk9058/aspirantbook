@@ -30,49 +30,55 @@ export const metadata: Metadata = {
 
 export default async function HindiQuestionAnswerHomePage() {
   const [exams, subjects, recent] = await Promise.all([
-    prisma.contentEngineQuestion.groupBy({
-      by: ["exam"],
-      where: {
-        isPublished: true,
-        exam: { not: null },
-        translations: { some: { lang: "hi", isReviewed: true } },
-      },
-      _count: { id: true },
-      orderBy: { _count: { id: "desc" } },
-    }),
-    prisma.contentEngineQuestion.groupBy({
-      by: ["sub"],
-      where: {
-        isPublished: true,
-        translations: { some: { lang: "hi", isReviewed: true } },
-      },
-      _count: { id: true },
-      orderBy: { _count: { id: "desc" } },
-    }),
-    prisma.contentEngineQuestion.findMany({
-      where: {
-        isPublished: true,
-        slug: { not: null },
-        exam: { not: null },
-        translations: { some: { lang: "hi", isReviewed: true } },
-      },
-      take: 12,
-      orderBy: { publishedAt: "desc" },
-      select: {
-        id: true,
-        shortId: true,
-        slug: true,
-        q: true,
-        sub: true,
-        top: true,
-        exam: true,
-        year: true,
-        translations: {
-          where: { lang: "hi", isReviewed: true },
-          select: { q: true, top: true },
+    prisma.contentEngineQuestion
+      .groupBy({
+        by: ["exam"],
+        where: {
+          isPublished: true,
+          exam: { not: null },
+          translations: { some: { lang: "hi", isReviewed: true } },
         },
-      },
-    }),
+        _count: { id: true },
+        orderBy: { _count: { id: "desc" } },
+      })
+      .catch(() => []),
+    prisma.contentEngineQuestion
+      .groupBy({
+        by: ["sub"],
+        where: {
+          isPublished: true,
+          translations: { some: { lang: "hi", isReviewed: true } },
+        },
+        _count: { id: true },
+        orderBy: { _count: { id: "desc" } },
+      })
+      .catch(() => []),
+    prisma.contentEngineQuestion
+      .findMany({
+        where: {
+          isPublished: true,
+          slug: { not: null },
+          exam: { not: null },
+          translations: { some: { lang: "hi", isReviewed: true } },
+        },
+        take: 12,
+        orderBy: { publishedAt: "desc" },
+        select: {
+          id: true,
+          shortId: true,
+          slug: true,
+          q: true,
+          sub: true,
+          top: true,
+          exam: true,
+          year: true,
+          translations: {
+            where: { lang: "hi", isReviewed: true },
+            select: { q: true, top: true },
+          },
+        },
+      })
+      .catch(() => []),
   ])
 
   return (

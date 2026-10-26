@@ -1,0 +1,57 @@
+=================================================================
+PHASE E1: BUILD & QUALITY GATE VERIFICATION
+=================================================================
+
+--- 1. npx tsc --noEmit ---
+  Overload 1 of 2, '(s: string, salt: string | number): Promise<string>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+  Overload 2 of 2, '(s: string, salt: string | number, callback?: ((err: Error | null, hash: string) => void) | undefined, progressCallback?: ((percent: number) => void) | undefined): void', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+scripts/seed-audit-users.ts(46,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | NullableStringFieldUpdateOperationsInput | null | undefined'.
+scripts/seed-audit-users.ts(52,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | null | undefined'.
+scripts/seed-audit-users.ts(142,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | NullableStringFieldUpdateOperationsInput | null | undefined'.
+scripts/seed-audit-users.ts(148,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | null | undefined'.
+scripts/seed-audit-users.ts(165,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | NullableStringFieldUpdateOperationsInput | null | undefined'.
+scripts/seed-audit-users.ts(171,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | null | undefined'.
+scripts/test-c1-viewport-user-mismatch.ts(113,23): error TS18047: 'aliceRendered' is possibly 'null'.
+scripts/test-c1-viewport-user-mismatch.ts(113,59): error TS18047: 'aliceRendered' is possibly 'null'.
+scripts/test-c1-viewport-user-mismatch.ts(114,21): error TS18047: 'bobRendered' is possibly 'null'.
+scripts/test-c1-viewport-user-mismatch.ts(114,53): error TS18047: 'bobRendered' is possibly 'null'.
+scripts/test-c1-viewport-user-mismatch.ts(121,14): error TS18047: 'aliceRendered' is possibly 'null'.
+scripts/test-c1-viewport-user-mismatch.ts(128,14): error TS18047: 'bobRendered' is possibly 'null'.
+scripts/test-m1-m2.ts(22,46): error TS2339: Property 'demoSettings' does not exist on type '{ demoSlots: { id: string; createdAt: Date; updatedAt: Date; startedAt: Date | null; status: DemoSlotStatus; courseId: string; endedAt: Date | null; ... 15 more ...; totalScreenMinutes: number; }[]; } & { ...; }'.
+scripts/test-pass4-sectionE-progress.ts(61,28): error TS7006: Parameter 'url' implicitly has an 'any' type.
+scripts/test-pass4-sectionF-razorpay-checkout.ts(54,28): error TS7006: Parameter 'url' implicitly has an 'any' type.
+scripts/test-pass5-section1.ts(185,13): error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type 'CreateOrderParams'.
+scripts/test-pass5-section1.ts(234,13): error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type 'CreateOrderParams'.
+scripts/test-pass5-section1.ts(297,13): error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type 'CreateOrderParams'.
+scripts/test-pass5-section1.ts(387,13): error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type 'CreateOrderParams'.
+
+--- 2. npm run lint ---
+npm run lint result: 0 errors, 49 warnings
+
+--- 3. Next.js Build Route Table Lines ---
+├ ƒ /admin/seo                                          503 B           107 kB
+├ ○ /hi/question-answer                                 243 B           110 kB
+├ ● /hi/question-answer/[exam]                          243 B           110 kB
+├   └ /hi/question-answer/upsc-cse
+├ ● /hi/question-answer/[exam]/[subject]                243 B           110 kB
+├   ├ /hi/question-answer/upsc-cse/history
+├   └ /hi/question-answer/upsc-cse/economy
+├ ○ /hi/question-answer/[exam]/[subject]/[slug]         146 B           132 kB
+├ ○ /hi/question-answer/[exam]/[subject]/topic/[topic]  243 B           110 kB
+├ ƒ /hi/question-answer/sitemap.xml                     0 B                0 B
+├ ƒ /q/[shortId]                                        503 B           107 kB
+├ ○ /question-answer                                    243 B           110 kB
+├ ● /question-answer/[exam]                             243 B           110 kB
+├   └ /question-answer/upsc-cse
+├ ● /question-answer/[exam]/[subject]                   243 B           110 kB
+├   ├ /question-answer/upsc-cse/history
+├   └ /question-answer/upsc-cse/economy
+├ ○ /question-answer/[exam]/[subject]/[slug]            145 B           132 kB
+├ ○ /question-answer/[exam]/[subject]/topic/[topic]     243 B           110 kB
+├ ƒ /question-answer/sitemap.xml                        0 B                0 B
+├ ○ /robots.txt                                         0 B                0 B
+├ ○ /sitemap.xml                                        0 B                0 B
