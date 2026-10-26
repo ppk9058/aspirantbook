@@ -1,0 +1,19 @@
+=== SUB-SITEMAPS PERFORMANCE BENCHMARK (2,000 ROWS) ===
+Execution Date: 2026-10-26T13:17:21.696Z
+Database: postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test
+Dataset: 2000 seeded published questions with reviewed Hindi twins
+
+1. English Question Sub-Sitemap (/question-answer/sitemap.xml)
+- Generated entries: 2010
+- Database query count: 3
+- Execution time: 34.15 ms
+
+2. Hindi Question Sub-Sitemap (/hi/question-answer/sitemap.xml)
+- Generated entries: 2004
+- Database query count: 2
+- Execution time: 303.37 ms
+
+3. Cleanup Verification
+- Deleted translations: 2000
+- Deleted questions: 2000
+- Clean status: CONFIRMED

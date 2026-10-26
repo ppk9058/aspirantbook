@@ -1,0 +1,82 @@
+=== PHASE D: SITEMAP ROOT CAUSE & RED REPRODUCTION EVIDENCE ===
+Date: 2026-10-26T18:43:45+05:30
+
+1. SWALLOWED DB ERRORS IDENTIFICATION
+--------------------------------------------------
+File: app/sitemap.ts
+Lines 66-95:
+- Line 71: prisma.course.findMany({ ... }).catch(() => [])
+- Line 72: getAllBooks().catch(() => [])
+- Line 81: prisma.examSeries.findMany({ ... }).catch(() => [])
+- Line 89: prisma.examTest.findMany({ ... }).catch(() => [])
+- Line 94: prisma.pyqCategory.findMany({ ... }).catch(() => [])
+- Lines 155-157:
+  } catch {
+      return staticRoutes
+  }
+
+Sub-sitemaps audit:
+- app/question-answer/sitemap.ts: export const dynamic = "force-dynamic"; no catch; throws on DB failure.
+- app/hi/question-answer/sitemap.ts: export const dynamic = "force-dynamic"; no catch; throws on DB failure.
+
+2. CACHE LOCATIONS
+--------------------------------------------------
+Next.js ISR cache for root sitemap:
+- .next-test/server/app/sitemap.xml.body
+- .next-test/server/app/sitemap.xml.meta
+Configured ISR revalidation interval: export const revalidate = 3600 (1 hour).
+
+3. BEFORE-FIX RAW SITEMAP LOC COUNT
+--------------------------------------------------
+$ curl -s http://127.0.0.1:3045/sitemap.xml | grep -c "<loc>"
+74
+
+(Expected: 132 URLs when DB is up: 8 static routes + 66 books + 23 published courses/series + quiz/pyq routes)
+
+4. RED REPRODUCTION STEPS & RAW OUTPUT
+--------------------------------------------------
+Step 1: Stop DB container:
+$ docker stop trillionskill-test-db
+trillionskill-test-db
+
+Step 2: Clear ISR cache files in .next-test:
+$ rm -f .next-test/server/app/sitemap.xml.body .next-test/server/app/sitemap.xml.meta && ls -la .next-test/server/app/sitemap.xml*
+total 48
+drwxr-xr-x@  4 praveenkumar  staff    128 Oct 26 06:24 .
+drwxr-xr-x@ 31 praveenkumar  staff    992 Oct 26 18:43 ..
+-rw-r--r--@  1 praveenkumar  staff  12382 Oct 26 06:24 route.js
+-rw-r--r--@  1 praveenkumar  staff   4965 Oct 26 06:25 route.js.nft.json
+
+Step 3: Request sitemap with DB stopped:
+$ curl -s http://127.0.0.1:3045/sitemap.xml | grep -c "<loc>"
+74
+
+Step 4: Verify Next.js cached the partial 74-URL sitemap to disk:
+$ ls -la .next-test/server/app/sitemap.xml*
+-rw-r--r--@ 1 praveenkumar  staff  14519 Oct 26 18:43 .next-test/server/app/sitemap.xml.body
+-rw-r--r--@ 1 praveenkumar  staff    244 Oct 26 18:43 .next-test/server/app/sitemap.xml.meta
+
+Step 5: Start DB container and wait until healthy:
+$ docker start trillionskill-test-db
+trillionskill-test-db
+$ docker ps --filter name=trillionskill-test-db
+CONTAINER ID   IMAGE         COMMAND                  CREATED      STATUS                   PORTS                       NAMES
+4ed9a91a5313   postgres:16   "docker-entrypoint.s…"   5 days ago   Up 5 seconds (healthy)   127.0.0.1:54329->5432/tcp   trillionskill-test-db
+
+Step 6: Request sitemap again with DB up:
+$ curl -s http://127.0.0.1:3045/sitemap.xml | grep -c "<loc>"
+74
+
+Step 7: Execute Phase 2.4 check against this server:
+$ npx tsx scripts/test-phase2-4-sitemap-comparison.ts
+=== PHASE 2.4: SITEMAP URL-SET CHECK OVER HTTP ===
+Fetching http://127.0.0.1:3045/sitemap.xml...
+Total URLs in current /sitemap.xml: 74
+Total expected baseline paths: 30
+
+Report saved to docs/proof/evidence/phase2_4_sitemap_check.txt
+FATAL ERROR in Phase 2.4: Error: Sitemap regression detected: 23 URLs were dropped!
+    at run (/Users/praveenkumar/TrillionSkill/scripts/test-phase2-4-sitemap-comparison.ts:119:11)
+
+CONCLUSION:
+Because app/sitemap.ts caught and swallowed DB errors (returning []), a transient DB downtime resulted in Next.js caching an incomplete 74-URL sitemap on disk for 1 hour. Once cached, all DB-backed URLs remained missing even after the DB was fully restored.
