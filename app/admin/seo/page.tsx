@@ -34,7 +34,10 @@ export default async function AdminSeoPage() {
             Real-time multi-module indexing policy, hreflang parity, canonical audit, and sitemap coverage.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border">
+            Revalidation mode: tag + time-based (3600s)
+          </span>
           <span
             className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
               isSiteUrlConfigured

@@ -69,3 +69,28 @@ The following two routes exhibited metadata changes because they previously **la
   1. Parse/extract raw JSON-LD schema blocks from `jsonLdScript` or accept structured `jsonLd` directly.
   2. Emit exactly one `<script type="application/ld+json">` tag safely serialized with `safeJsonLdStringify` (escaping `<` to `\u003c`).
   3. Ensure zero nested `<script>` tags, zero surrounding `<div>` or `<section>` tags, and 100% compliant Schema.org JSON parsing.
+
+---
+
+## 5. Proposed Shared Cache Handler for Multi-Instance Deployments (O8)
+
+If self-hosting across multiple Node.js instances behind a load balancer without Vercel's managed data cache, `revalidateTag` and `revalidatePath` calls will only purge the cache of the single instance that received the HTTP request. Other instances may continue serving stale pages until their local time-based cache expires.
+
+To guarantee atomic cross-instance revalidation across a cluster of self-hosted nodes without modifying `next.config.js` tonight, the following configuration is proposed:
+
+```js
+// next.config.js (Proposed Configuration - NOT applied tonight)
+const nextConfig = {
+  // ... existing configuration
+  cacheHandler: process.env.NODE_ENV === "production" 
+    ? require.resolve("./lib/cache/redis-cache-handler.js") 
+    : undefined,
+  cacheMaxMemorySize: 0, // Disables local in-memory cache to force cluster-wide consistency
+}
+```
+
+### Staleness Bounding Guarantee
+Even without an external shared cache handler:
+- All static question and sitemap routes enforce `export const revalidate = 3600`.
+- In the worst-case scenario where an unpublish or edit request hits Node Instance A and a crawler subsequently hits Node Instance B, staleness is strictly bounded to a maximum of 3600 seconds (1 hour). After 3600 seconds, Node Instance B automatically refetches the latest question state from PostgreSQL.
+

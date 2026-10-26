@@ -1,17 +1,54 @@
 # Production Deployment Checklist & Multi-Instance Architecture
 
-This document details the deployment architecture, cache invalidation guarantees, required environment variables, and pre-release verification steps for TrillionSkill on branch `proof-hardening`.
+This document details the deployment architecture, cache invalidation guarantees, required environment variables, and pre-release verification steps for TrillionSkill on branch `release-hardening`.
 
 ---
 
-## 1. Multi-Instance & Serverless Caching Architecture
+## 1. Hosting Architecture & Cache Invalidation Scenarios (O8)
 
-### 1.1 Serverless Instance Reality
-When deployed to serverless environments (such as Vercel, AWS Lambda, or Cloudflare Workers), multiple compute instances execute concurrently across edge regions.
-- **In-Memory TTL Fallback Bypassed in Production:** In-memory caches (like `Map` caches) do not synchronize across distinct serverless instances. Serving stale content from an un-synchronized in-memory cache across lambdas is prohibited. In `lib/modules/content-engine/db-service.ts`, the in-memory fallback cache is strictly bypassed when `NODE_ENV === "production"`.
-- **Next.js Data Cache & Tag Revalidation:** In production, question caching utilizes Next.js App Router `unstable_cache` tagged with `"content-engine"` and `"content-engine-${shortId}"`. Calling `revalidateTag()` or `revalidatePath()` communicates directly with Vercel's shared Data Cache layer.
-- **Per-Deployment Isolation:** Next.js Data Cache tags are scoped per deployment. When a new deployment is promoted, a clean cache generation is initialized automatically.
-- **Static ZIP Export Edge Reliability:** Deploying the generated static ZIP package to Cloudflare Pages completely eliminates serverless cache synchronization overhead. Static HTML files served from Cloudflare's global edge network have zero runtime dependencies and 100% atomic deploy consistency.
+### 1.1 Repository Deployment Audit
+A structural audit of the repository yielded:
+- `vercel.json`: **NOT FOUND**
+- `Dockerfile` / `docker-compose.yml` (production): **NOT FOUND** (only `docker-compose.test.yml` for isolated test DB)
+- `.github/workflows`: **NOT FOUND**
+- `next.config.js`: Contains no `output: "standalone"` or `cacheHandler`.
+- `README.md` & `AGENTS.md`: Contains warnings: *"Serverless is read-only and multi-instance. Local filesystem persistence is ephemeral on serverless platforms (e.g., Vercel lambdas). Use the database."*
+
+**Verdict**: Production hosting platform is **UNKNOWN**. Therefore, deployment and cache invalidation policies are defined for all three operational hosting models below:
+
+---
+
+### 1.2 Hosting Case 1: Vercel or Managed Next.js Platform
+- **Architecture**: Ephemeral serverless lambdas backed by Vercel's global shared Data Cache.
+- **Cache Invalidation Mechanism**:
+  - `unstable_cache` tags (`"content-engine"`, `"content-engine-${shortId}"`) write to Vercel's centralized data cache.
+  - Calling `revalidateTag()` or `revalidatePath()` upon question publish/unpublish/Hindi review automatically broadcasts across all regional edge instances.
+  - In `lib/modules/content-engine/db-service.ts`, local in-memory fallback caches are strictly disabled in production (`NODE_ENV === "production"`), ensuring no un-synchronized in-memory state lingers across lambda invocations.
+- **Operational Action**: None required. Native platform handles cluster-wide invalidation.
+
+---
+
+### 1.3 Hosting Case 2: Single Self-Hosted Node.js Instance
+- **Architecture**: A single persistent Node.js server (e.g. running via PM2 or Docker on an EC2/VPS).
+- **Cache Invalidation Mechanism**:
+  - `revalidateTag()` and `revalidatePath()` write to the local filesystem cache (`.next/cache`).
+  - Because exactly one Node process handles all traffic, cache purges are immediate and 100% consistent across all visitor requests.
+- **Operational Action**: Run standard build and start (`next build && next start`). Zero external cache dependencies.
+
+---
+
+### 1.4 Hosting Case 3: Multiple Self-Hosted Node.js Instances Behind a Load Balancer
+- **Architecture**: 2+ Node.js containers or VMs behind an AWS ALB, NGINX, or Cloudflare load balancer.
+- **The Stale Page Challenge**:
+  - In default Next.js, calling `revalidateTag()` on Node Instance A only purges the filesystem cache of Instance A.
+  - Subsequent requests routed to Node Instance B may continue serving the previously cached page.
+- **Guaranteed Staleness Bounding (3600s ISR)**:
+  - All Content Engine question pages and root sitemaps enforce `export const revalidate = 3600` (1-hour time-to-live).
+  - Even if Node Instance B never receives an explicit revalidation webhook, staleness is strictly capped at **3600 seconds (1 hour)**. After 1 hour, Instance B automatically queries PostgreSQL and rebuilds the static HTML.
+- **Recommended Solutions**:
+  1. **Option A (Simplest)**: Run a single primary Node instance for web traffic (Case 2), which easily handles high throughput with Next.js static caching.
+  2. **Option B (Zero-Staleness Cluster)**: Configure a shared Redis/Postgres cache handler in `next.config.js` (`cacheHandler: require.resolve("./lib/cache/redis-cache-handler.js")`) as documented in `docs/seo/PROPOSED_CHANGES.md`.
+  3. **Option C (Cloudflare Pages Static Export)**: Download the Content Engine static ZIP export from `/admin/content-engine/export` and host on Cloudflare Pages for 100% atomic edge updates with zero backend dependency.
 
 ---
 
