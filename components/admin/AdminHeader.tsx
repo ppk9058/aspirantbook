@@ -106,7 +106,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={toggleSidebar}
-                        className="p-2 -ml-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 lg:hidden transition-colors"
+                        className="p-2 -ml-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 lg:hidden transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                         aria-label="Toggle navigation menu"
                     >
                         <Menu className="h-5 w-5" />

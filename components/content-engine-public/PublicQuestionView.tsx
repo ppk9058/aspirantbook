@@ -148,7 +148,7 @@ export function PublicQuestionView({
 
           <button
             onClick={handleShare}
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground p-1.5 rounded-md hover:bg-muted transition-colors min-h-[36px]"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2.5 py-2 rounded-md hover:bg-muted transition-colors min-h-[44px] min-w-[44px]"
             title="Share question"
           >
             {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
@@ -214,7 +214,7 @@ export function PublicQuestionView({
               onClick={() => setRevealed(true)}
               variant="outline"
               size="sm"
-              className="text-xs min-h-[38px]"
+              className="text-xs min-h-[44px] px-4"
             >
               {isHi ? "उत्तर और व्याख्या देखें" : "Show Answer & Explanation"}
             </Button>
