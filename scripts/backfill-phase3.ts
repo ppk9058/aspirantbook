@@ -80,7 +80,11 @@ async function backfillBooks() {
   if (!raw) return { section: "books", written: 0 }
 
   let written = 0
-  for (const entry of raw) {
+  // The JSON array is newest-first. The createdAt column is only used for
+  // ordering (the display value lives in `data`), so map the array position to a
+  // descending timestamp to keep the same order in the storefront.
+  const now = Date.now()
+  for (const [index, entry] of raw.entries()) {
     const book = normalizeBook(entry)
     const data = {
       id: book.id,
@@ -89,6 +93,7 @@ async function backfillBooks() {
       status: book.status || "published",
       price: book.price,
       salesCount: book.salesCount || 0,
+      createdAt: new Date(now - index * 1000),
       data: book as any,
     }
     if (dryRun) {
@@ -118,7 +123,23 @@ async function backfillOrders() {
   if (!raw) return { section: "orders", written: 0 }
 
   let written = 0
-  for (const order of raw) {
+  let duplicatePaymentIds = 0
+  // razorpayPaymentId has a unique index: one payment fulfils at most one order.
+  // Legacy test data reuses a handful of ids across hundreds of orders, so only
+  // the first order keeps the column; the original value stays in `data`.
+  const seenPaymentIds = new Set<string>()
+  const now = Date.now()
+  for (const [index, order] of raw.entries()) {
+    const paymentId: string | null = order.razorpayPaymentId ?? null
+    let paymentIdForColumn: string | null = paymentId
+    if (paymentId) {
+      if (seenPaymentIds.has(paymentId)) {
+        paymentIdForColumn = null
+        duplicatePaymentIds += 1
+      } else {
+        seenPaymentIds.add(paymentId)
+      }
+    }
     const data = {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -127,7 +148,8 @@ async function backfillOrders() {
       status: order.status || "pending_payment",
       finalTotal: Number(order.finalTotal) || 0,
       razorpayOrderId: order.razorpayOrderId ?? null,
-      razorpayPaymentId: order.razorpayPaymentId ?? null,
+      razorpayPaymentId: paymentIdForColumn,
+      createdAt: new Date(now - index * 1000),
       data: order as any,
     }
     if (dryRun) {
@@ -141,6 +163,11 @@ async function backfillOrders() {
       await prisma.bookOrder.upsert({ where: { id: order.id }, create: data, update: data })
     }
     written += 1
+  }
+  if (duplicatePaymentIds > 0) {
+    console.log(
+      `[backfill] orders: ${duplicatePaymentIds} legacy duplicate payment id(s) kept in data only (unique index)`
+    )
   }
   console.log(`[backfill] orders: ${written} ${dryRun ? "would be " : ""}upserted`)
   return { section: "orders", written }

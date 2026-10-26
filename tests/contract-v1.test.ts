@@ -657,7 +657,7 @@ describe("R11 - Full Student Journey & Contract Validation", () => {
       paymentMethod: "UPI",
       status: "pending_payment",
     });
-    await markBookOrderCompleted({ orderId: ordId, razorpayPaymentId: "pay_test_contract_123" });
+    await markBookOrderCompleted({ orderId: ordId, razorpayPaymentId: `pay_test_contract_${Date.now()}_${Math.random().toString(36).slice(2, 8)}` });
 
     // 12c: Request byte range
     const rangeReq = new NextRequest("http://127.0.0.1:3045/api/v1/library/indian-polity-notes-2026/file", {

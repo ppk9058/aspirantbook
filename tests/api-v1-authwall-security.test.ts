@@ -107,7 +107,7 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
       paymentMethod: "UPI",
       status: "pending_payment",
     });
-    await markBookOrderCompleted({ orderId: sampleOrd.id, razorpayPaymentId: "pay_sample_123" });
+    await markBookOrderCompleted({ orderId: sampleOrd.id, razorpayPaymentId: `pay_sample_${Date.now()}_${Math.random().toString(36).slice(2, 8)}` });
 
     // 4. Create Course with Gated, Locked, and Corrupt lessons
     const course = await prisma.course.create({

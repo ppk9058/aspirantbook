@@ -1,15 +1,14 @@
-import fs from "fs/promises"
-import path from "path"
 import { Book, Coupon, BookOrder, BookOrderStatus } from "./types"
 import { BOOKS_DATA, AVAILABLE_COUPONS } from "./data"
-import { atomicWriteJson, safeReadJson } from "./storage"
+import { prisma } from "@/lib/prisma"
 
-const DATA_DIR = path.join(process.cwd(), "data")
-const BOOKS_FILE = path.join(DATA_DIR, "books.json")
-const ORDERS_FILE = path.join(DATA_DIR, "book-orders.json")
-const COUPONS_FILE = path.join(DATA_DIR, "book-coupons.json")
+// B-005: books, orders and coupons live in Postgres (tables added in
+// migration 20261026211635_phase3_persistence). This file used to read and write
+// data/*.json, which is per-instance and read-only on serverless, so an order
+// created on one instance was invisible on the next and coupon limits could be
+// bypassed by replaying the write. The JSON files are now only the seed source
+// (scripts/backfill-phase3.ts).
 
-// Initial mock orders to provide immediate rich eCommerce analytics
 const INITIAL_ORDERS: BookOrder[] = [
   {
     id: "ord-1727371900001",
@@ -118,50 +117,9 @@ const INITIAL_ORDERS: BookOrder[] = [
   },
 ]
 
-// Cache management
-let cachedBooks: Book[] | null = null
-let lastBooksCacheTime = 0
-const BOOKS_CACHE_TTL_MS = 10_000 // 10 seconds TTL
-
-export function invalidateBooksCache() {
-  cachedBooks = null
-  lastBooksCacheTime = 0
-}
-
-let cachedOrders: BookOrder[] | null = null
-let lastOrdersCacheTime = 0
-const ORDERS_CACHE_TTL_MS = 10_000 // 10 seconds TTL
-
-export function invalidateOrdersCache() {
-  cachedOrders = null
-  lastOrdersCacheTime = 0
-}
-
-let cachedCoupons: Coupon[] | null = null
-
-async function ensureDataFiles() {
-  await fs.mkdir(DATA_DIR, { recursive: true })
-
-  try {
-    await fs.access(BOOKS_FILE)
-  } catch {
-    await fs.writeFile(BOOKS_FILE, JSON.stringify(BOOKS_DATA, null, 2), "utf-8")
-  }
-
-  try {
-    await fs.access(ORDERS_FILE)
-  } catch {
-    await fs.writeFile(ORDERS_FILE, JSON.stringify(INITIAL_ORDERS, null, 2), "utf-8")
-  }
-
-  try {
-    await fs.access(COUPONS_FILE)
-  } catch {
-    await fs.writeFile(COUPONS_FILE, JSON.stringify(AVAILABLE_COUPONS, null, 2), "utf-8")
-  }
-}
-
-// ----------------- BOOKS -----------------
+// Kept for API compatibility: there is no in-process cache any more.
+export function invalidateBooksCache() {}
+export function invalidateOrdersCache() {}
 
 export function normalizeBook(raw: any): Book {
   const price = Number(raw.price) || 0
@@ -252,39 +210,106 @@ export function normalizeBook(raw: any): Book {
   }
 }
 
-export async function getAllBooks(): Promise<Book[]> {
-  if (cachedBooks && Date.now() - lastBooksCacheTime < BOOKS_CACHE_TTL_MS) {
-    return cachedBooks
-  }
+// ----------------- ROW MAPPERS -----------------
 
-  try {
-    await ensureDataFiles()
-    const content = await fs.readFile(BOOKS_FILE, "utf-8")
-    const books = JSON.parse(content) as any[]
-    const normalized = books.map(normalizeBook)
-    cachedBooks = normalized
-    lastBooksCacheTime = Date.now()
-    return normalized
-  } catch (err) {
-    console.error("Error reading books.json:", err)
-    return (cachedBooks || BOOKS_DATA).map(normalizeBook)
+type BookRow = {
+  id: string
+  slug: string
+  title: string
+  status: string
+  price: number
+  salesCount: number
+  data: unknown
+}
+
+type OrderRow = {
+  id: string
+  orderNumber: string
+  status: string
+  finalTotal: number
+  data: unknown
+}
+
+type CouponRow = {
+  code: string
+  title: string
+  discountType: string
+  value: number
+  minCartValue: number
+  usageLimit: number | null
+  redemptions: number
+  isActive: boolean
+  data: unknown
+}
+
+function isCompletedStatus(status: string | undefined | null): boolean {
+  return status === "completed" || status === "COMPLETED"
+}
+
+function bookRowToBook(row: BookRow): Book {
+  const raw = (row.data && typeof row.data === "object" ? row.data : {}) as Record<string, unknown>
+  return normalizeBook({
+    ...raw,
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    status: row.status,
+    price: row.price,
+    salesCount: row.salesCount,
+  })
+}
+
+function orderRowToOrder(row: OrderRow): BookOrder {
+  const raw = (row.data && typeof row.data === "object" ? row.data : {}) as Record<string, unknown>
+  return {
+    ...(raw as unknown as BookOrder),
+    id: row.id,
+    orderNumber: row.orderNumber,
+    status: row.status as BookOrderStatus,
+    finalTotal: row.finalTotal,
   }
+}
+
+function couponRowToCoupon(row: CouponRow): Coupon {
+  const raw = (row.data && typeof row.data === "object" ? row.data : {}) as Record<string, unknown>
+  return {
+    ...(raw as unknown as Coupon),
+    code: row.code,
+    title: row.title || (raw.title as string) || "",
+    description: (raw.description as string) || "",
+    discountType: (row.discountType as Coupon["discountType"]) || "PERCENT",
+    value: row.value,
+    minCartValue: row.minCartValue,
+    usageLimit: row.usageLimit ?? undefined,
+    redemptions: row.redemptions,
+  }
+}
+
+// ----------------- BOOKS -----------------
+
+export async function getAllBooks(): Promise<Book[]> {
+  const rows = await prisma.book.findMany({ orderBy: [{ createdAt: "desc" }, { id: "asc" }] })
+  if (rows.length === 0) {
+    // Seed source only: an empty catalogue (before the owner runs the backfill)
+    // still renders the built-in books instead of an empty storefront.
+    return BOOKS_DATA.map(normalizeBook)
+  }
+  return rows.map(bookRowToBook)
 }
 
 export async function getBookById(id: string): Promise<Book | null> {
-  const books = await getAllBooks()
-  return books.find((b) => b.id === id) || null
+  if (!id) return null
+  const row = await prisma.book.findUnique({ where: { id } })
+  return row ? bookRowToBook(row) : null
 }
 
 export async function getBookBySlug(slug: string): Promise<Book | null> {
-  const books = await getAllBooks()
-  return books.find((b) => b.slug === slug) || null
+  if (!slug) return null
+  const row = await prisma.book.findUnique({ where: { slug } })
+  return row ? bookRowToBook(row) : null
 }
 
 export async function createBook(bookData: Partial<Book>): Promise<Book> {
-  await ensureDataFiles()
-  const books = await getAllBooks()
-
   const id = bookData.id || `book-${Date.now()}`
   const slug =
     bookData.slug ||
@@ -400,20 +425,32 @@ export async function createBook(bookData: Partial<Book>): Promise<Book> {
   }
 
   const newBook = normalizeBook(rawBook)
-  const updated = [newBook, ...books]
-  await atomicWriteJson(BOOKS_FILE, updated)
-  cachedBooks = updated
-  lastBooksCacheTime = Date.now()
-  return newBook
+  try {
+    const row = await prisma.book.create({
+      data: {
+        id: newBook.id,
+        slug: newBook.slug,
+        title: newBook.title,
+        status: newBook.status || "draft",
+        price: newBook.price,
+        salesCount: newBook.salesCount || 0,
+        data: newBook as any,
+      },
+    })
+    return bookRowToBook(row)
+  } catch (error: any) {
+    if (error?.code === "P2002") {
+      throw new Error(`A book with the same ${Array.isArray(error.meta?.target) ? error.meta.target.join(", ") : "id or slug"} already exists`)
+    }
+    throw error
+  }
 }
 
 export async function updateBook(id: string, updates: Partial<Book>): Promise<Book | null> {
-  await ensureDataFiles()
-  const books = await getAllBooks()
-  const idx = books.findIndex((b) => b.id === id)
-  if (idx === -1) return null
+  const existingRow = await prisma.book.findUnique({ where: { id } })
+  if (!existingRow) return null
 
-  const existing = books[idx]
+  const existing = bookRowToBook(existingRow)
   const price = updates.price !== undefined ? Number(updates.price) : existing.price
   const originalPrice = updates.originalPrice !== undefined
     ? Number(updates.originalPrice)
@@ -435,65 +472,57 @@ export async function updateBook(id: string, updates: Partial<Book>): Promise<Bo
   }
 
   const updatedBook = normalizeBook(merged)
-  books[idx] = updatedBook
-  await atomicWriteJson(BOOKS_FILE, books)
-  cachedBooks = books
-  lastBooksCacheTime = Date.now()
-  return updatedBook
+  const row = await prisma.book.update({
+    where: { id },
+    data: {
+      slug: updatedBook.slug,
+      title: updatedBook.title,
+      status: updatedBook.status || "draft",
+      price: updatedBook.price,
+      salesCount: updatedBook.salesCount || 0,
+      data: updatedBook as any,
+    },
+  })
+  return bookRowToBook(row)
 }
 
 export async function deleteBook(id: string): Promise<boolean> {
-  await ensureDataFiles()
-  const books = await getAllBooks()
-  const filtered = books.filter((b) => b.id !== id)
-  if (filtered.length === books.length) return false
-
-  await atomicWriteJson(BOOKS_FILE, filtered)
-  cachedBooks = filtered
-  lastBooksCacheTime = Date.now()
-  return true
+  const result = await prisma.book.deleteMany({ where: { id } })
+  return result.count > 0
 }
 
 // ----------------- ORDERS -----------------
 
 export async function getAllOrders(): Promise<BookOrder[]> {
-  if (cachedOrders && Date.now() - lastOrdersCacheTime < ORDERS_CACHE_TTL_MS) {
-    return cachedOrders
-  }
-
-  try {
-    await ensureDataFiles()
-    const orders = await safeReadJson<BookOrder[]>(ORDERS_FILE, INITIAL_ORDERS)
-    cachedOrders = orders
-    lastOrdersCacheTime = Date.now()
-    return orders
-  } catch (err) {
-    console.error("Error reading book-orders.json:", err)
-    return cachedOrders || INITIAL_ORDERS
-  }
+  const rows = await prisma.bookOrder.findMany({ orderBy: [{ createdAt: "desc" }, { id: "asc" }] })
+  if (rows.length === 0) return INITIAL_ORDERS
+  return rows.map(orderRowToOrder)
 }
 
 export async function getOrderByOrderId(orderId: string): Promise<BookOrder | null> {
-  const orders = await getAllOrders()
-  return orders.find((o) => o.id === orderId || o.orderNumber === orderId) || null
+  if (!orderId) return null
+  const row = await prisma.bookOrder.findFirst({
+    where: { OR: [{ id: orderId }, { orderNumber: orderId }] },
+  })
+  return row ? orderRowToOrder(row) : null
 }
 
 export async function getOrderByRazorpayId(rzpOrderId: string): Promise<BookOrder | null> {
-  const orders = await getAllOrders()
-  return orders.find((o) => o.razorpayOrderId === rzpOrderId) || null
+  if (!rzpOrderId) return null
+  const row = await prisma.bookOrder.findFirst({ where: { razorpayOrderId: rzpOrderId } })
+  return row ? orderRowToOrder(row) : null
 }
 
 export async function getUserCompletedBooks(userId: string): Promise<string[]> {
   if (!userId) return []
-  const orders = await getAllOrders()
-  const userCompleted = orders.filter(
-    (o) =>
-      o.userId === userId &&
-      (o.status === "completed" || o.status === "COMPLETED")
-  )
+  const rows = await prisma.bookOrder.findMany({
+    where: { userId, status: { in: ["completed", "COMPLETED"] } },
+    select: { data: true },
+  })
   const bookIds = new Set<string>()
-  for (const ord of userCompleted) {
-    for (const item of ord.items || []) {
+  for (const row of rows) {
+    const order = (row.data && typeof row.data === "object" ? row.data : {}) as unknown as BookOrder
+    for (const item of order.items || []) {
       const bId = item.bookId || item.book?.id
       if (bId) bookIds.add(bId)
     }
@@ -508,46 +537,50 @@ export async function hasUserPurchasedBook(userId: string, bookId: string): Prom
 }
 
 export async function incrementBookSales(bookId: string, quantity = 1): Promise<void> {
-  try {
-    const books = await getAllBooks()
-    const bookIndex = books.findIndex((b) => b.id === bookId || b.slug === bookId)
-    if (bookIndex >= 0) {
-      books[bookIndex].salesCount = (books[bookIndex].salesCount || 0) + Math.max(1, quantity)
-      cachedBooks = books
-      lastBooksCacheTime = Date.now()
-
-      // In test mode, keep updates in memory to prevent mutating committed data/books.json
-      const isTest =
-        process.env.NODE_ENV === "test" ||
-        process.env.APP_ENV === "test" ||
-        process.env.ALLOW_DEV_MOBILE_LOGIN === "true" ||
-        Boolean(process.env.JEST_WORKER_ID) ||
-        process.argv.some((a) => a.includes("test")) ||
-        process.execArgv.some((a) => a.includes("test"))
-      if (!isTest) {
-        await atomicWriteJson(BOOKS_FILE, books)
-      }
-    }
-  } catch (err) {
-    console.error(`Failed to increment sales count for book ${bookId}:`, err)
-  }
+  const delta = Math.max(1, quantity)
+  await prisma.book.updateMany({
+    where: { OR: [{ id: bookId }, { slug: bookId }] },
+    data: { salesCount: { increment: delta } },
+  })
 }
 
 export async function createOrder(orderData: BookOrder): Promise<BookOrder> {
-  await ensureDataFiles()
-  const orders = await getAllOrders()
+  // Idempotent: the same order id (or order number) never creates a second row.
+  const existing = await prisma.bookOrder.findFirst({
+    where: { OR: [{ id: orderData.id }, { orderNumber: orderData.orderNumber }] },
+  })
+  if (existing) return orderRowToOrder(existing)
+
   // Ensure orders never start as completed from untrusted client input
   const safeOrder: BookOrder = {
     ...orderData,
-    status: orderData.status === "completed" || orderData.status === "COMPLETED"
-      ? "pending_payment"
-      : (orderData.status || "pending_payment"),
+    status: isCompletedStatus(orderData.status) ? "pending_payment" : (orderData.status || "pending_payment"),
   }
-  const updated = [safeOrder, ...orders]
-  await atomicWriteJson(ORDERS_FILE, updated)
-  cachedOrders = updated
-  lastOrdersCacheTime = Date.now()
-  return safeOrder
+
+  try {
+    const row = await prisma.bookOrder.create({
+      data: {
+        id: safeOrder.id,
+        orderNumber: safeOrder.orderNumber,
+        userId: safeOrder.userId ?? null,
+        userEmail: safeOrder.userEmail ?? null,
+        status: safeOrder.status,
+        finalTotal: safeOrder.finalTotal || 0,
+        razorpayOrderId: safeOrder.razorpayOrderId ?? null,
+        razorpayPaymentId: safeOrder.razorpayPaymentId ?? null,
+        data: safeOrder as any,
+      },
+    })
+    return orderRowToOrder(row)
+  } catch (error: any) {
+    if (error?.code === "P2002") {
+      const row = await prisma.bookOrder.findFirst({
+        where: { OR: [{ id: safeOrder.id }, { orderNumber: safeOrder.orderNumber }] },
+      })
+      if (row) return orderRowToOrder(row)
+    }
+    throw error
+  }
 }
 
 export async function markBookOrderCompleted({
@@ -558,126 +591,179 @@ export async function markBookOrderCompleted({
   orderId: string
   razorpayPaymentId: string
   razorpaySignature?: string
-}): Promise<{ success: boolean; alreadyCompleted?: boolean; order?: BookOrder }> {
-  await ensureDataFiles()
-  const orders = await getAllOrders()
-  const idx = orders.findIndex(
-    (o) => o.id === orderId || o.orderNumber === orderId || o.razorpayOrderId === orderId
-  )
-  if (idx === -1) {
-    return { success: false }
-  }
+}): Promise<{ success: boolean; alreadyCompleted?: boolean; order?: BookOrder; error?: string }> {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const row = await tx.bookOrder.findFirst({
+        where: { OR: [{ id: orderId }, { orderNumber: orderId }, { razorpayOrderId: orderId }] },
+      })
+      if (!row) return { success: false, error: "ORDER_NOT_FOUND" }
 
-  const currentOrder = orders[idx]
-  // Idempotency check: a repeated verify or webhook call must not double-count sales
-  if (currentOrder.status === "completed" || currentOrder.status === "COMPLETED") {
-    return { success: true, alreadyCompleted: true, order: currentOrder }
-  }
+      const current = orderRowToOrder(row)
+      // Idempotency: a repeated verify or webhook call must not double-count sales
+      if (isCompletedStatus(current.status)) {
+        return { success: true, alreadyCompleted: true, order: current }
+      }
 
-  // Mark completed
-  currentOrder.status = "completed"
-  currentOrder.paidAt = new Date().toISOString()
-  currentOrder.razorpayPaymentId = razorpayPaymentId
-  if (razorpaySignature) {
-    currentOrder.razorpaySignature = razorpaySignature
-  }
+      // One payment id fulfils at most one order (also enforced by a unique index).
+      const paymentOwner = await tx.bookOrder.findUnique({ where: { razorpayPaymentId } })
+      if (paymentOwner && paymentOwner.id !== row.id) {
+        return { success: false, error: "PAYMENT_ALREADY_USED" }
+      }
 
-  // Atomically persist orders
-  await atomicWriteJson(ORDERS_FILE, orders)
-  cachedOrders = orders
-  lastOrdersCacheTime = Date.now()
+      const next: BookOrder = {
+        ...current,
+        status: "completed",
+        paidAt: new Date().toISOString(),
+        razorpayPaymentId,
+        ...(razorpaySignature ? { razorpaySignature } : {}),
+      }
 
-  // Increment salesCount once for each book in the order
-  for (const item of currentOrder.items || []) {
-    const bId = item.bookId || item.book?.id
-    if (bId) {
-      await incrementBookSales(bId, item.quantity || 1)
+      // Atomic claim: exactly one caller can move the order out of pending.
+      const claimed = await tx.bookOrder.updateMany({
+        where: { id: row.id, status: { notIn: ["completed", "COMPLETED"] } },
+        data: { status: "completed", razorpayPaymentId, data: next as any },
+      })
+
+      if (claimed.count === 0) {
+        const fresh = await tx.bookOrder.findUnique({ where: { id: row.id } })
+        return { success: true, alreadyCompleted: true, order: fresh ? orderRowToOrder(fresh) : current }
+      }
+
+      for (const item of next.items || []) {
+        const bId = item.bookId || item.book?.id
+        if (bId) {
+          await tx.book.updateMany({
+            where: { OR: [{ id: bId }, { slug: bId }] },
+            data: { salesCount: { increment: Math.max(1, item.quantity || 1) } },
+          })
+        }
+      }
+
+      return { success: true, alreadyCompleted: false, order: next }
+    })
+
+    // Best effort, after the transaction: the payment is already captured, so a
+    // coupon bookkeeping failure must not fail the order.
+    if (result.success && !result.alreadyCompleted && result.order?.couponCode) {
+      try {
+        await redeemCoupon(result.order.couponCode)
+      } catch (couponError) {
+        console.error("Failed to record coupon redemption:", couponError)
+      }
     }
-  }
 
-  return { success: true, alreadyCompleted: false, order: currentOrder }
+    return result
+  } catch (error: any) {
+    if (error?.code === "P2002") {
+      return { success: false, error: "PAYMENT_ALREADY_USED" }
+    }
+    throw error
+  }
 }
 
 export async function markBookOrderFailed(orderId: string): Promise<boolean> {
-  await ensureDataFiles()
-  const orders = await getAllOrders()
-  const idx = orders.findIndex(
-    (o) => o.id === orderId || o.orderNumber === orderId || o.razorpayOrderId === orderId
-  )
-  if (idx === -1) return false
-  if (orders[idx].status === "completed" || orders[idx].status === "COMPLETED") {
-    return false // do not override completed order
-  }
-  orders[idx].status = "failed"
-  await atomicWriteJson(ORDERS_FILE, orders)
-  cachedOrders = orders
-  lastOrdersCacheTime = Date.now()
-  return true
+  const row = await prisma.bookOrder.findFirst({
+    where: { OR: [{ id: orderId }, { orderNumber: orderId }, { razorpayOrderId: orderId }] },
+  })
+  if (!row) return false
+  if (isCompletedStatus(row.status)) return false // do not override completed order
+
+  const next: BookOrder = { ...orderRowToOrder(row), status: "failed" }
+  const result = await prisma.bookOrder.updateMany({
+    where: { id: row.id, status: { notIn: ["completed", "COMPLETED"] } },
+    data: { status: "failed", data: next as any },
+  })
+  return result.count > 0
 }
 
 export async function updateOrderStatus(
   orderId: string,
   status: BookOrderStatus
 ): Promise<BookOrder | null> {
-  await ensureDataFiles()
-  const orders = await getAllOrders()
-  const idx = orders.findIndex((o) => o.id === orderId || o.orderNumber === orderId)
-  if (idx === -1) return null
+  const row = await prisma.bookOrder.findFirst({
+    where: { OR: [{ id: orderId }, { orderNumber: orderId }] },
+  })
+  if (!row) return null
 
-  orders[idx].status = status
-  await atomicWriteJson(ORDERS_FILE, orders)
-  cachedOrders = orders
-  lastOrdersCacheTime = Date.now()
-  return orders[idx]
+  const next: BookOrder = { ...orderRowToOrder(row), status }
+  const updated = await prisma.bookOrder.update({
+    where: { id: row.id },
+    data: { status, data: next as any },
+  })
+  return orderRowToOrder(updated)
 }
 
 // ----------------- COUPONS -----------------
 
 export async function getAllCoupons(): Promise<Coupon[]> {
-  try {
-    await ensureDataFiles()
-    const content = await fs.readFile(COUPONS_FILE, "utf-8")
-    const coupons = JSON.parse(content) as Coupon[]
-    cachedCoupons = coupons
-    return coupons
-  } catch (err) {
-    console.error("Error reading book-coupons.json:", err)
-    return cachedCoupons || AVAILABLE_COUPONS
-  }
+  const rows = await prisma.bookCoupon.findMany({ orderBy: [{ createdAt: "desc" }, { code: "asc" }] })
+  if (rows.length === 0) return AVAILABLE_COUPONS
+  return rows.map(couponRowToCoupon)
 }
 
 export async function createCoupon(coupon: Coupon): Promise<Coupon> {
-  await ensureDataFiles()
-  const coupons = await getAllCoupons()
-  // Replace if exists, else append
-  const idx = coupons.findIndex((c) => c.code.toUpperCase() === coupon.code.toUpperCase())
-  const normalized: Coupon = {
-    ...coupon,
-    code: coupon.code.toUpperCase().trim(),
-  }
-
-  let updated: Coupon[]
-  if (idx >= 0) {
-    coupons[idx] = normalized
-    updated = [...coupons]
-  } else {
-    updated = [normalized, ...coupons]
-  }
-
-  await atomicWriteJson(COUPONS_FILE, updated)
-  cachedCoupons = updated
-  return normalized
+  const code = coupon.code.toUpperCase().trim()
+  const normalized: Coupon = { ...coupon, code }
+  const row = await prisma.bookCoupon.upsert({
+    where: { code },
+    create: {
+      code,
+      title: normalized.title || "",
+      discountType: normalized.discountType || "PERCENT",
+      value: Number(normalized.value) || 0,
+      minCartValue: Number(normalized.minCartValue) || 0,
+      usageLimit: typeof normalized.usageLimit === "number" ? normalized.usageLimit : null,
+      redemptions: Number(normalized.redemptions) || 0,
+      isActive: true,
+      data: normalized as any,
+    },
+    update: {
+      title: normalized.title || "",
+      discountType: normalized.discountType || "PERCENT",
+      value: Number(normalized.value) || 0,
+      minCartValue: Number(normalized.minCartValue) || 0,
+      usageLimit: typeof normalized.usageLimit === "number" ? normalized.usageLimit : null,
+      data: normalized as any,
+    },
+  })
+  return couponRowToCoupon(row)
 }
 
 export async function deleteCoupon(code: string): Promise<boolean> {
-  await ensureDataFiles()
-  const coupons = await getAllCoupons()
-  const filtered = coupons.filter((c) => c.code.toUpperCase() !== code.toUpperCase())
-  if (filtered.length === coupons.length) return false
+  const result = await prisma.bookCoupon.deleteMany({ where: { code: code.toUpperCase().trim() } })
+  return result.count > 0
+}
 
-  await atomicWriteJson(COUPONS_FILE, filtered)
-  cachedCoupons = filtered
-  return true
+/**
+ * Atomically consumes one redemption of a coupon.
+ *
+ * The remaining-usage check and the increment happen in a single UPDATE
+ * (Prisma updateMany -> one SQL statement), so N parallel redemptions of a
+ * coupon with usageLimit N produce exactly N successes and no more.
+ */
+export async function redeemCoupon(
+  code: string
+): Promise<{ success: boolean; coupon?: Coupon; reason?: "COUPON_NOT_FOUND" | "USAGE_LIMIT_REACHED" }> {
+  const normalized = code.trim().toUpperCase()
+  const row = await prisma.bookCoupon.findUnique({ where: { code: normalized } })
+  if (!row || !row.isActive) return { success: false, reason: "COUPON_NOT_FOUND" }
+
+  const result =
+    row.usageLimit === null
+      ? await prisma.bookCoupon.updateMany({
+          where: { code: normalized, isActive: true },
+          data: { redemptions: { increment: 1 } },
+        })
+      : await prisma.bookCoupon.updateMany({
+          where: { code: normalized, isActive: true, redemptions: { lt: row.usageLimit } },
+          data: { redemptions: { increment: 1 } },
+        })
+
+  if (result.count !== 1) return { success: false, reason: "USAGE_LIMIT_REACHED" }
+
+  const fresh = await prisma.bookCoupon.findUnique({ where: { code: normalized } })
+  return { success: true, coupon: fresh ? couponRowToCoupon(fresh) : undefined }
 }
 
 // ----------------- STATS -----------------
