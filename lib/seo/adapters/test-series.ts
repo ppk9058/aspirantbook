@@ -29,12 +29,14 @@ export function adaptTestSeriesDetailSeo(
     slug?: string | null
     description?: string | null
     isPublished?: boolean
+    isArchived?: boolean
     examName?: string | null
     isFree?: boolean
     price?: number | null
   },
   baseUrl?: string
 ): SharedSeoOutput {
+  const isAvailable = (series.isPublished ?? true) && !series.isArchived
   const canonicalSlug = series.slug || series.id
   const canonicalPath = `/test-series/${canonicalSlug}`
   const title = `${series.title} Test Series & Mock Tests | TrillionSkill`
@@ -42,35 +44,62 @@ export function adaptTestSeriesDetailSeo(
     series.description ||
     `Take online mock tests for ${series.title}. Real-time analytics, all-India ranking, and detailed solutions.`
 
-  const priceValue = typeof series.price === "number" ? String(series.price) : (series.isFree ? "0" : "0")
+  let offer: Record<string, unknown> | undefined = undefined
+  if (isAvailable) {
+    if (typeof series.price === "number" && series.price > 0) {
+      offer = {
+        "@type": "Offer",
+        price: String(series.price),
+        priceCurrency: "INR",
+        availability: "https://schema.org/InStock",
+        url: canonicalUrl(canonicalPath, baseUrl),
+      }
+    } else if (series.isFree || series.price === 0) {
+      offer = {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "INR",
+        availability: "https://schema.org/InStock",
+        url: canonicalUrl(canonicalPath, baseUrl),
+      }
+    }
+  }
+
+  const jsonLdItem = isAvailable
+    ? offer
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: series.title,
+          description,
+          url: canonicalUrl(canonicalPath, baseUrl),
+          offers: offer,
+        }
+      : {
+          "@context": "https://schema.org",
+          "@type": "Course",
+          name: series.title,
+          description,
+          provider: {
+            "@type": "Organization",
+            name: "TrillionSkill",
+            url: canonicalUrl("/", baseUrl),
+          },
+        }
+    : null
 
   return buildSeoPackage(
     {
       title,
       description,
       canonicalPath,
-      isPublished: series.isPublished ?? true,
+      isPublished: isAvailable,
       breadcrumbs: [
         { name: "Home", url: canonicalUrl("/", baseUrl) },
         { name: "Test Series", url: canonicalUrl("/test-series", baseUrl) },
         { name: series.title, url: canonicalUrl(canonicalPath, baseUrl) },
       ],
-      jsonLd: [
-        {
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: series.title,
-          description,
-          url: canonicalUrl(canonicalPath, baseUrl),
-          offers: {
-            "@type": "Offer",
-            price: priceValue,
-            priceCurrency: "INR",
-            availability: "https://schema.org/InStock",
-            url: canonicalUrl(canonicalPath, baseUrl),
-          },
-        },
-      ],
+      jsonLd: jsonLdItem ? [jsonLdItem] : [],
     },
     baseUrl
   )

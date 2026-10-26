@@ -97,7 +97,10 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
           isAccessibleForFree: false,
           cssSelector: "[role='region'][aria-label='Content Gate']",
         }
-      : undefined,
+      : {
+          "@type": "WebPageElement",
+          isAccessibleForFree: true,
+        },
     url: `${baseUrl}/current-affairs-quizzes/${canonicalSlug}`,
   }
 

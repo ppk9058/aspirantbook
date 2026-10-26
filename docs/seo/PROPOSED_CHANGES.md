@@ -49,3 +49,23 @@ The following two routes exhibited metadata changes because they previously **la
 - **Before Meta Description**: `Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.`
 - **After Meta Description**: `Take online mock tests for E2E Series E2E-20261021124106098-4akv9. Real-time analytics, all-India ranking, and detailed solutions.`
 - **Justification**: Test series individual landing pages lacked specific metadata. Adding exact series title, canonical URL, and Schema.org Product structured data enables rich snippet display in SERPs.
+
+
+---
+
+## 4. Phase B: Structural JSON-LD & Offer Schema Refinements
+
+### Proposed Change 1: `lib/seo/adapters/test-series.ts` & `app/(dashboard)/test-series/[id]/page.tsx`
+- **Issue (O11)**: Test-series emitted `Product` with hardcoded price `"0"` even when the price was null/missing, and omitted offers for paid series without explicit pricing, violating Google Rich Results specifications.
+- **Resolution**:
+  1. For paid series (`price > 0`), emit complete Offer schema (`price`, `priceCurrency: "INR"`, `availability: "https://schema.org/InStock"`, `url`).
+  2. For free series (`price === 0` or `isFree === true`), emit valid Offer schema (`price: "0"`, `priceCurrency: "INR"`, `availability: "https://schema.org/InStock"`).
+  3. For missing price or not for sale, fall back gracefully to `Course` schema with `provider: Organization` instead of emitting an incomplete Offer.
+  4. For unpublished/archived series, emit `robots: "noindex, nofollow"` and suppress Offer schema completely.
+
+### Proposed Change 2: `components/content-engine-public/PublicQuestionView.tsx`
+- **Issue (O2)**: Structural audit across Content Engine question pages. Prior runs encountered a nested `<script>` wrapping bug when raw HTML strings containing `<script>` tags were wrapped in `<script type="application/ld+json">`.
+- **Resolution**:
+  1. Parse/extract raw JSON-LD schema blocks from `jsonLdScript` or accept structured `jsonLd` directly.
+  2. Emit exactly one `<script type="application/ld+json">` tag safely serialized with `safeJsonLdStringify` (escaping `<` to `\u003c`).
+  3. Ensure zero nested `<script>` tags, zero surrounding `<div>` or `<section>` tags, and 100% compliant Schema.org JSON parsing.

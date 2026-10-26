@@ -179,7 +179,20 @@ export default async function TestSeriesDetailPage({ params, searchParams }: Tes
         gateSubtitle: fullSeries.gateSubtitle,
     }
 
-    const jsonLd = fullSeries.isGated
+    const isUnpublishedOrArchived = !fullSeries.isPublished || Boolean(fullSeries.isArchived)
+    const seoPackage = adaptTestSeriesDetailSeo({
+        id: fullSeries.id,
+        title: fullSeries.title,
+        slug: fullSeries.slug,
+        description: cleanDescription,
+        isPublished: !isUnpublishedOrArchived,
+        isArchived: Boolean(fullSeries.isArchived),
+        isFree: fullSeries.isFree,
+    })
+
+    const jsonLd = isUnpublishedOrArchived
+        ? null
+        : fullSeries.isGated
         ? {
               "@context": "https://schema.org",
               "@type": "Course",
@@ -192,7 +205,7 @@ export default async function TestSeriesDetailPage({ params, searchParams }: Tes
                   cssSelector: "[role='region'][aria-label='Content Gate']",
               },
           }
-        : null
+        : seoPackage.jsonLd?.[0] || null
 
     return (
         <>

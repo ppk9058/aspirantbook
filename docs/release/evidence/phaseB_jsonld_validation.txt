@@ -1,0 +1,163 @@
+=================================================================
+PHASE B: CROSS-MODULE STRUCTURAL JSON-LD AUDIT (6 MODULES, 10+ URLS EACH)
+=================================================================
+DB resolved host:port -> 127.0.0.1:54329
+Base URL: http://127.0.0.1:3045
+Timestamp: 2026-10-26T00:37:31.499Z
+
+
+======================================================
+AUDITING MODULE: TUTORIALS (10 URLs)
+======================================================
+✓ PASS [200] /tutorials/agentic-engineering-zero-to-hero
+       Scripts: 1 | Nested: false | Parse: true | Types: [Course]
+✓ PASS [200] /tutorials/e2e-20261021001139624-a9b3g-course-studio
+       Scripts: 1 | Nested: false | Parse: true | Types: [TechArticle]
+✓ PASS [200] /tutorials/e2e-20261021010807414-8eqmd-course-studio
+       Scripts: 1 | Nested: false | Parse: true | Types: [TechArticle]
+✓ PASS [200] /tutorials/e2e-20261021025140619-1frn8-course-studio
+       Scripts: 1 | Nested: false | Parse: true | Types: [TechArticle]
+✓ PASS [200] /tutorials/e2e-20261021025147563-wzrey-course-studio
+       Scripts: 1 | Nested: false | Parse: true | Types: [TechArticle]
+✓ PASS [200] /tutorials/e2e-20261021032926063-319dp-course-studio
+       Scripts: 1 | Nested: false | Parse: true | Types: [TechArticle]
+✓ PASS [200] /tutorials/e2e-20261021034304510-8ksog-course-studio
+       Scripts: 1 | Nested: false | Parse: true | Types: [TechArticle]
+✓ PASS [200] /tutorials/e2e-20261021045339947-h7fa6-course-studio
+       Scripts: 1 | Nested: false | Parse: true | Types: [TechArticle]
+✓ PASS [200] /tutorials/e2e-20261021050009997-npdiv-course-studio
+       Scripts: 1 | Nested: false | Parse: true | Types: [TechArticle]
+✓ PASS [200] /tutorials/e2e-20261021110326753-wja5m-course-studio
+       Scripts: 1 | Nested: false | Parse: true | Types: [TechArticle]
+
+======================================================
+AUDITING MODULE: CURRENT AFFAIRS (10 URLs)
+======================================================
+✓ PASS [200] /current-affairs-quizzes/upsc-economy-ca
+       Scripts: 1 | Nested: false | Parse: true | Types: [Quiz]
+✓ PASS [200] /current-affairs-quizzes/daily-ca-quiz-sample-test-1
+       Scripts: 1 | Nested: false | Parse: true | Types: [Quiz]
+✓ PASS [200] /current-affairs-quizzes/daily-ca-quiz-sample-test-2
+       Scripts: 1 | Nested: false | Parse: true | Types: [Quiz]
+✓ PASS [200] /current-affairs-quizzes/daily-ca-quiz-sample-test-3
+       Scripts: 1 | Nested: false | Parse: true | Types: [Quiz]
+✓ PASS [200] /current-affairs-quizzes/daily-ca-quiz-sample-test-4
+       Scripts: 1 | Nested: false | Parse: true | Types: [Quiz]
+✓ PASS [200] /current-affairs-quizzes/daily-ca-quiz-sample-test-5
+       Scripts: 1 | Nested: false | Parse: true | Types: [Quiz]
+✓ PASS [200] /current-affairs-quizzes/daily-ca-quiz-sample-test-6
+       Scripts: 1 | Nested: false | Parse: true | Types: [Quiz]
+✓ PASS [200] /current-affairs-quizzes/daily-ca-quiz-sample-test-7
+       Scripts: 1 | Nested: false | Parse: true | Types: [Quiz]
+✓ PASS [200] /current-affairs-quizzes/daily-ca-quiz-sample-test-8
+       Scripts: 1 | Nested: false | Parse: true | Types: [Quiz]
+✓ PASS [200] /current-affairs-quizzes/daily-ca-quiz-sample-test-9
+       Scripts: 1 | Nested: false | Parse: true | Types: [Quiz]
+
+======================================================
+AUDITING MODULE: PYQS (10 URLs)
+======================================================
+✓ PASS [200] /pyqs/bpsc-tre
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /pyqs/bpsc
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /pyqs/upsc
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /pyqs/uppsc
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /pyqs/ncert
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /pyqs/cbse
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /pyqs/bihar-board
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /pyqs/ssc-cgl
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /pyqs/nda-na
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /pyqs/cds-exam
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+
+======================================================
+AUDITING MODULE: TEST SERIES (10 URLs)
+======================================================
+✓ PASS [200] /test-series/pb-7391-s-pub
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /test-series/pb-7391-s-legacy
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /test-series/e2e-series-e2e-20261021111538671-tnwv1
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /test-series/e2e-series-e2e-20261021114050130-622aa
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /test-series/e2e-series-e2e-20261021124106098-4akv9
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /test-series/e2e-series-e2e-20261021134628389-8s2bg
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /test-series/sample-audit-series-1
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /test-series/sample-audit-series-2
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /test-series/bpsc-72nd-2026
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+✓ PASS [200] /test-series/upsc-prelims-2026
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList]
+
+======================================================
+AUDITING MODULE: BOOKS (10 URLs)
+======================================================
+✓ PASS [200] /books/e2e-physics-notes-e2e-20261014200652101-w5iik
+       Scripts: 1 | Nested: false | Parse: true | Types: [Product]
+✓ PASS [200] /books/e2e-physics-notes-e2e-20261014195110234-xlx9e
+       Scripts: 1 | Nested: false | Parse: true | Types: [Product]
+✓ PASS [200] /books/e2e-physics-notes-e2e-20261014000623249-jzg7h
+       Scripts: 1 | Nested: false | Parse: true | Types: [Product]
+✓ PASS [200] /books/e2e-physics-notes-e2e-20261014000532424-2yumr
+       Scripts: 1 | Nested: false | Parse: true | Types: [Product]
+✓ PASS [200] /books/e2e-physics-notes-e2e-20261013223108649-jgsjl
+       Scripts: 1 | Nested: false | Parse: true | Types: [Product]
+✓ PASS [200] /books/e2e-physics-notes-e2e-20261013222929746-pph18
+       Scripts: 1 | Nested: false | Parse: true | Types: [Product]
+✓ PASS [200] /books/e2e-physics-notes-e2e-20261013215414780-liptr
+       Scripts: 1 | Nested: false | Parse: true | Types: [Product]
+✓ PASS [200] /books/e2e-physics-notes-e2e-20261013215137807-lvpz9
+       Scripts: 1 | Nested: false | Parse: true | Types: [Product]
+✓ PASS [200] /books/e2e-physics-notes-e2e-20261013211754469-lwx7s
+       Scripts: 1 | Nested: false | Parse: true | Types: [Product]
+✓ PASS [200] /books/e2e-physics-notes-e2e-20261013211642155-cm7cu
+       Scripts: 1 | Nested: false | Parse: true | Types: [Product]
+
+======================================================
+AUDITING MODULE: CONTENT ENGINE (10 URLs)
+======================================================
+✓ PASS [200] /question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
+✓ PASS [200] /question-answer/upsc-cse/economy/q-prb2dyii-primary-function-reserve-bank-india
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
+✓ PASS [200] /question-answer/upsc-cse/economy/q-prbqpp4d-primary-function-reserve-bank-india
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
+✓ PASS [200] /question-answer/upsc-cse/economy/q-pr23sqls-primary-function-reserve-bank-india
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
+✓ PASS [200] /question-answer/upsc/ancient-india/f3e87398-upsc-cse-2023-q1-what-was-the-ancient-dockyard-city-of-the
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
+✓ PASS [200] /hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
+✓ PASS [200] /hi/question-answer/upsc-cse/economy/q-prb2dyii-primary-function-reserve-bank-india
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
+✓ PASS [200] /hi/question-answer/upsc-cse/economy/q-prbqpp4d-primary-function-reserve-bank-india
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
+✓ PASS [200] /hi/question-answer/upsc-cse/economy/q-pr23sqls-primary-function-reserve-bank-india
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
+✓ PASS [200] /hi/question-answer/upsc-cse/economy/q-prha8mdr-primary-function-reserve-bank-india
+       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
+
+======================================================
+B2 SPECIFIC TEST: TEST-SERIES OFFER SCHEMA EDGE CASES
+======================================================
+1. Paid Series Offer Schema: ✓ PASS (price: 499, currency: INR)
+2. Free Series Offer Schema: ✓ PASS (price: 0, currency: INR)
+3. Unpublished Series Schema: ✓ PASS (offers: none, robots: noindex, follow)
+4. Missing Price Series Fallback: ✓ PASS (schema @type: Course, hasOffer: false)
+
+======================================================
+AUDIT SUMMARY: 60 / 60 URLs PASSED VALIDATION
+======================================================

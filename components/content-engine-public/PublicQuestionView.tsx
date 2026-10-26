@@ -66,14 +66,46 @@ export function PublicQuestionView({
     }
   }
 
+  const schemaContent = (() => {
+    if (!jsonLdScript) return null
+    const scriptMatches = [...jsonLdScript.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)]
+    if (scriptMatches.length > 0) {
+      const parsedObjects: unknown[] = []
+      for (const m of scriptMatches) {
+        try {
+          parsedObjects.push(JSON.parse(m[1].trim()))
+        } catch {
+          // skip malformed snippet
+        }
+      }
+      if (parsedObjects.length === 1) {
+        return JSON.stringify(parsedObjects[0]).replace(/</g, "\\u003c")
+      }
+      if (parsedObjects.length > 1) {
+        const graph = parsedObjects.flatMap((p: any) => p["@graph"] || p)
+        return JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": graph,
+        }).replace(/</g, "\\u003c")
+      }
+    }
+    try {
+      const parsed = JSON.parse(jsonLdScript)
+      return JSON.stringify(parsed).replace(/</g, "\\u003c")
+    } catch {
+      return null
+    }
+  })()
+
   return (
     <article className="container mx-auto px-4 py-8 max-w-3xl space-y-6">
-      {/* Safe JSON-LD Structured Data */}
-      <section
-        style={{ display: "none" }}
-        aria-hidden="true"
-        dangerouslySetInnerHTML={{ __html: jsonLdScript }}
-      />
+      {/* Standard Schema.org JSON-LD (No hidden section wrapping) */}
+      {schemaContent && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: schemaContent }}
+        />
+      )}
 
       {/* Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground flex flex-wrap items-center gap-1.5">

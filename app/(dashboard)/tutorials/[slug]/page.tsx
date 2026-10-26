@@ -9,6 +9,7 @@ import { toSafeCourseDto } from "@/lib/courses/course-dto"
 export const dynamic = "force-dynamic"
 
 import { adaptTutorialDetailSeo } from "@/lib/seo/adapters/tutorials"
+import { getBaseUrl } from "@/lib/seo/core"
 
 export async function generateMetadata({
     params,
@@ -180,11 +181,12 @@ export default async function TutorialSlugPage({
 
     const safeCourse = toSafeCourseDto(course, hasAccess, hasAccess)
 
-    // Paywalled schema.org metadata for search crawlers
+    // Paywalled or public schema.org metadata for search crawlers
     const jsonLd = course.isGated
         ? {
               "@context": "https://schema.org",
               "@type": "TechArticle",
+              name: course.title,
               headline: course.title,
               description: course.description,
               isAccessibleForFree: false,
@@ -194,7 +196,17 @@ export default async function TutorialSlugPage({
                   cssSelector: "[role='region'][aria-label='Content Gate']",
               },
           }
-        : null
+        : {
+              "@context": "https://schema.org",
+              "@type": "Course",
+              name: course.title,
+              description: course.description,
+              provider: {
+                  "@type": "Organization",
+                  name: "TrillionSkill",
+                  url: getBaseUrl() || "http://127.0.0.1:3045",
+              },
+          }
 
     return (
         <>
