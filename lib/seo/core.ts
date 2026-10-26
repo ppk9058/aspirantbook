@@ -10,6 +10,12 @@ import type {
 let hasLoggedMissingSiteUrlWarning = false
 
 /**
+ * Shared site name constant for SEO and JSON-LD schemas.
+ * Defaults to "aspirantbook", overridable via NEXT_PUBLIC_SITE_NAME environment variable.
+ */
+export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "aspirantbook"
+
+/**
  * Returns canonical site origin dynamically from environment variables:
  * - Reads NEXT_PUBLIC_SITE_URL, then NEXT_PUBLIC_APP_URL.
  * - In development or test: falls back to http://127.0.0.1:3045.
@@ -237,6 +243,43 @@ export function buildFaqJsonLd(
         text: f.answer,
       },
     })),
+  }
+}
+
+/**
+ * Generates Schema.org Organization and WebSite schemas for the homepage JSON-LD graph.
+ */
+export function buildHomeJsonLd(baseUrl?: string): Record<string, unknown> | null {
+  const base = getBaseUrl(baseUrl)
+  if (!base) return null
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${base}/#organization`,
+        name: SITE_NAME,
+        url: base,
+        logo: {
+          "@type": "ImageObject",
+          url: `${base}/aspirant-logo.jpg`,
+        },
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${base}/#website`,
+        url: base,
+        name: SITE_NAME,
+        publisher: {
+          "@id": `${base}/#organization`,
+        },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${base}/courses?search={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      },
+    ],
   }
 }
 

@@ -13,7 +13,7 @@ import { toSafeCourseDto } from "@/lib/courses/course-dto"
 import { isCourseVisibleToUser, isCourseDetailReady } from "@/lib/courses/visibility"
 import { ALL_GOAL_COURSES } from "@/lib/goal-courses-data"
 import { AlertCircle } from "lucide-react"
-import { getBaseUrl } from "@/lib/seo/core"
+import { getBaseUrl, SITE_NAME } from "@/lib/seo/core"
 
 export const dynamic = "force-dynamic"
 
@@ -389,7 +389,7 @@ export default async function CourseDetailPage({
         "description": course.description || undefined,
         "provider": {
             "@type": "Organization",
-            "name": "TrillionSkill",
+            "name": SITE_NAME,
             ...(getBaseUrl() ? { "sameAs": getBaseUrl() } : {}),
         },
     }

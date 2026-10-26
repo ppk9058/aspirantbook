@@ -13,6 +13,8 @@ import {
   buildMetadata,
   buildSeoPackage,
   buildSitemapEntry,
+  SITE_NAME,
+  buildHomeJsonLd,
 } from "../../lib/seo/core"
 
 describe("SEO Core Pure Functions", () => {
@@ -202,5 +204,17 @@ describe("SEO Core Pure Functions", () => {
     assert.equal(entry.changeFrequency, "daily")
     assert.equal(entry.priority, 0.9)
     assert.ok(entry.lastModified)
+  })
+
+  it("exports SITE_NAME and buildHomeJsonLd with correct schema graph", () => {
+    assert.equal(SITE_NAME, "aspirantbook")
+    const homeJson = buildHomeJsonLd("https://example.com")
+    assert.ok(homeJson)
+    const graph = (homeJson as any)["@graph"]
+    assert.equal(graph.length, 2)
+    assert.equal(graph[0]["@type"], "Organization")
+    assert.equal(graph[0].name, "aspirantbook")
+    assert.equal(graph[1]["@type"], "WebSite")
+    assert.equal(graph[1].name, "aspirantbook")
   })
 })
