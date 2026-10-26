@@ -1,0 +1,1708 @@
+{
+  "/courses": {
+    "url": "http://127.0.0.1:3045/courses",
+    "path": "/courses",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "All Video Courses &amp; Batches | aspirantbook | aspirantbook",
+    "metaDescription": "Explore all comprehensive video courses, academic foundations, and competitive batches on aspirantbook.",
+    "canonical": "http://localhost:3000/courses",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/courses/agentic-engineering-zero-to-hero": {
+    "url": "http://127.0.0.1:3045/courses/agentic-engineering-zero-to-hero",
+    "path": "/courses/agentic-engineering-zero-to-hero",
+    "module": "courses",
+    "statusCode": 308,
+    "redirectTarget": "/tutorials/agentic-engineering-zero-to-hero",
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/courses/e2e-20261021001139624-a9b3g-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021001139624-a9b3g-course-studio",
+    "path": "/courses/e2e-20261021001139624-a9b3g-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021001139624-a9b3g | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/courses/e2e-20261021001139624-a9b3g-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021001139624-a9b3g",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "TrillionSkill",
+          "sameAs": "http://localhost:3000"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021010807414-8eqmd-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021010807414-8eqmd-course-studio",
+    "path": "/courses/e2e-20261021010807414-8eqmd-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021010807414-8eqmd | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/courses/e2e-20261021010807414-8eqmd-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021010807414-8eqmd",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "TrillionSkill",
+          "sameAs": "http://localhost:3000"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021025140619-1frn8-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021025140619-1frn8-course-studio",
+    "path": "/courses/e2e-20261021025140619-1frn8-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021025140619-1frn8 | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/courses/e2e-20261021025140619-1frn8-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021025140619-1frn8",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "TrillionSkill",
+          "sameAs": "http://localhost:3000"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021025147563-wzrey-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021025147563-wzrey-course-studio",
+    "path": "/courses/e2e-20261021025147563-wzrey-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021025147563-wzrey | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/courses/e2e-20261021025147563-wzrey-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021025147563-wzrey",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "TrillionSkill",
+          "sameAs": "http://localhost:3000"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021032926063-319dp-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021032926063-319dp-course-studio",
+    "path": "/courses/e2e-20261021032926063-319dp-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021032926063-319dp | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/courses/e2e-20261021032926063-319dp-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021032926063-319dp",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "TrillionSkill",
+          "sameAs": "http://localhost:3000"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021034304510-8ksog-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021034304510-8ksog-course-studio",
+    "path": "/courses/e2e-20261021034304510-8ksog-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021034304510-8ksog | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/courses/e2e-20261021034304510-8ksog-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021034304510-8ksog",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "TrillionSkill",
+          "sameAs": "http://localhost:3000"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021045339947-h7fa6-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021045339947-h7fa6-course-studio",
+    "path": "/courses/e2e-20261021045339947-h7fa6-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021045339947-h7fa6 | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/courses/e2e-20261021045339947-h7fa6-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021045339947-h7fa6",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "TrillionSkill",
+          "sameAs": "http://localhost:3000"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021050009997-npdiv-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021050009997-npdiv-course-studio",
+    "path": "/courses/e2e-20261021050009997-npdiv-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021050009997-npdiv | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/courses/e2e-20261021050009997-npdiv-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021050009997-npdiv",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "TrillionSkill",
+          "sameAs": "http://localhost:3000"
+        }
+      }
+    ]
+  },
+  "/tutorials": {
+    "url": "http://127.0.0.1:3045/tutorials",
+    "path": "/tutorials",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Text-Based Tutorials | aspirantbook | aspirantbook",
+    "metaDescription": "In-depth, step-by-step reading tutorials with interactive code blocks, diagrams, and curriculum authored in Tutorial Studio.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/tutorials/agentic-engineering-zero-to-hero": {
+    "url": "http://127.0.0.1:3045/tutorials/agentic-engineering-zero-to-hero",
+    "path": "/tutorials/agentic-engineering-zero-to-hero",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Agentic Engineering: Zero to Hero | aspirantbook",
+    "metaDescription": "The complete 35-chapter masterclass on production agentic AI, tool calling, multi-agent swarms, verification, and automated evaluation.",
+    "canonical": "http://localhost:3000/tutorials/agentic-engineering-zero-to-hero",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/tutorials/agentic-engineering-zero-to-hero",
+      "x-default": "http://localhost:3000/tutorials/agentic-engineering-zero-to-hero"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Agentic Engineering: Zero to Hero",
+        "description": "The complete 35-chapter masterclass on production agentic AI, tool calling, multi-agent swarms, verification, and automated evaluation.",
+        "provider": {
+          "@type": "Organization",
+          "name": "TrillionSkill",
+          "url": "http://localhost:3000"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021001139624-a9b3g-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021001139624-a9b3g-course-studio",
+    "path": "/tutorials/e2e-20261021001139624-a9b3g-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021001139624-a9b3g | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/tutorials/e2e-20261021001139624-a9b3g-course-studio",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/tutorials/e2e-20261021001139624-a9b3g-course-studio",
+      "x-default": "http://localhost:3000/tutorials/e2e-20261021001139624-a9b3g-course-studio"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "name": "Bugfix Course Studio E2E-20261021001139624-a9b3g",
+        "headline": "Bugfix Course Studio E2E-20261021001139624-a9b3g",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021010807414-8eqmd-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021010807414-8eqmd-course-studio",
+    "path": "/tutorials/e2e-20261021010807414-8eqmd-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021010807414-8eqmd | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/tutorials/e2e-20261021010807414-8eqmd-course-studio",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/tutorials/e2e-20261021010807414-8eqmd-course-studio",
+      "x-default": "http://localhost:3000/tutorials/e2e-20261021010807414-8eqmd-course-studio"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "name": "Bugfix Course Studio E2E-20261021010807414-8eqmd",
+        "headline": "Bugfix Course Studio E2E-20261021010807414-8eqmd",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021025140619-1frn8-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021025140619-1frn8-course-studio",
+    "path": "/tutorials/e2e-20261021025140619-1frn8-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021025140619-1frn8 | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/tutorials/e2e-20261021025140619-1frn8-course-studio",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/tutorials/e2e-20261021025140619-1frn8-course-studio",
+      "x-default": "http://localhost:3000/tutorials/e2e-20261021025140619-1frn8-course-studio"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "name": "Bugfix Course Studio E2E-20261021025140619-1frn8",
+        "headline": "Bugfix Course Studio E2E-20261021025140619-1frn8",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021025147563-wzrey-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021025147563-wzrey-course-studio",
+    "path": "/tutorials/e2e-20261021025147563-wzrey-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021025147563-wzrey | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/tutorials/e2e-20261021025147563-wzrey-course-studio",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/tutorials/e2e-20261021025147563-wzrey-course-studio",
+      "x-default": "http://localhost:3000/tutorials/e2e-20261021025147563-wzrey-course-studio"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "name": "Bugfix Course Studio E2E-20261021025147563-wzrey",
+        "headline": "Bugfix Course Studio E2E-20261021025147563-wzrey",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021032926063-319dp-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021032926063-319dp-course-studio",
+    "path": "/tutorials/e2e-20261021032926063-319dp-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021032926063-319dp | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/tutorials/e2e-20261021032926063-319dp-course-studio",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/tutorials/e2e-20261021032926063-319dp-course-studio",
+      "x-default": "http://localhost:3000/tutorials/e2e-20261021032926063-319dp-course-studio"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "name": "Bugfix Course Studio E2E-20261021032926063-319dp",
+        "headline": "Bugfix Course Studio E2E-20261021032926063-319dp",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021034304510-8ksog-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021034304510-8ksog-course-studio",
+    "path": "/tutorials/e2e-20261021034304510-8ksog-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021034304510-8ksog | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/tutorials/e2e-20261021034304510-8ksog-course-studio",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/tutorials/e2e-20261021034304510-8ksog-course-studio",
+      "x-default": "http://localhost:3000/tutorials/e2e-20261021034304510-8ksog-course-studio"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "name": "Bugfix Course Studio E2E-20261021034304510-8ksog",
+        "headline": "Bugfix Course Studio E2E-20261021034304510-8ksog",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021045339947-h7fa6-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021045339947-h7fa6-course-studio",
+    "path": "/tutorials/e2e-20261021045339947-h7fa6-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021045339947-h7fa6 | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://localhost:3000/tutorials/e2e-20261021045339947-h7fa6-course-studio",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/tutorials/e2e-20261021045339947-h7fa6-course-studio",
+      "x-default": "http://localhost:3000/tutorials/e2e-20261021045339947-h7fa6-course-studio"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "name": "Bugfix Course Studio E2E-20261021045339947-h7fa6",
+        "headline": "Bugfix Course Studio E2E-20261021045339947-h7fa6",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/draft-course-hidden": {
+    "url": "http://127.0.0.1:3045/tutorials/draft-course-hidden",
+    "path": "/tutorials/draft-course-hidden",
+    "module": "tutorials",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/current-affairs-quizzes": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes",
+    "path": "/current-affairs-quizzes",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Current Affairs and Quizzes | aspirantbook | aspirantbook",
+    "metaDescription": "Daily speed tests, monthly current affairs roundups, and general awareness quizzes for competitive examinations.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/current-affairs-quizzes/upsc-economy-ca": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/upsc-economy-ca",
+    "path": "/current-affairs-quizzes/upsc-economy-ca",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "UPSC Economy CA - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice UPSC Economy CA with 10 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://localhost:3000/current-affairs-quizzes/upsc-economy-ca",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/current-affairs-quizzes/upsc-economy-ca",
+      "x-default": "http://localhost:3000/current-affairs-quizzes/upsc-economy-ca"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "UPSC Economy CA",
+        "description": "Current affairs speed quiz with 10 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://localhost:3000"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": true,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": true
+        },
+        "url": "http://localhost:3000/current-affairs-quizzes/upsc-economy-ca"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-1": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 1 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 1 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+      "x-default": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-1"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 1",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://localhost:3000"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": true
+        },
+        "url": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-1"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-2": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-2",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-2",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 2 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 2 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-2",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-2",
+      "x-default": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-2"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 2",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://localhost:3000"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": true
+        },
+        "url": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-2"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-3": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-3",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-3",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 3 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 3 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-3",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-3",
+      "x-default": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-3"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 3",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://localhost:3000"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": true
+        },
+        "url": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-3"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-4": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-4",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-4",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 4 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 4 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-4",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-4",
+      "x-default": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-4"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 4",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://localhost:3000"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": true
+        },
+        "url": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-4"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-5": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-5",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-5",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 5 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 5 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-5",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-5",
+      "x-default": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-5"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 5",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://localhost:3000"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": true
+        },
+        "url": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-5"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-6": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-6",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-6",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 6 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 6 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-6",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-6",
+      "x-default": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-6"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 6",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://localhost:3000"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": true
+        },
+        "url": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-6"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-7": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-7",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-7",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 7 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 7 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-7",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-7",
+      "x-default": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-7"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 7",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://localhost:3000"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": true
+        },
+        "url": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-7"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-8": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-8",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-8",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 8 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 8 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-8",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-8",
+      "x-default": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-8"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 8",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://localhost:3000"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": true
+        },
+        "url": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-8"
+      }
+    ]
+  },
+  "/pyqs": {
+    "url": "http://127.0.0.1:3045/pyqs",
+    "path": "/pyqs",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook",
+    "metaDescription": "Download and practice verified previous year examination papers for BPSC, UPSC, NCERT, and State Boards with answer keys and CBT simulations.",
+    "canonical": "http://localhost:3000/pyqs",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/pyqs",
+      "x-default": "http://localhost:3000/pyqs"
+    },
+    "jsonLd": []
+  },
+  "/pyqs/bpsc": {
+    "url": "http://127.0.0.1:3045/pyqs/bpsc",
+    "path": "/pyqs/bpsc",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "BPSC Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook",
+    "metaDescription": "Official Previous Year Papers for 70th, 69th, 68th, 67th CCE, CDPO, AEDO &amp; TRE.",
+    "canonical": "http://localhost:3000/pyqs/bpsc",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/pyqs/bpsc",
+      "x-default": "http://localhost:3000/pyqs/bpsc"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "PYQs",
+            "item": "http://localhost:3000/pyqs"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "BPSC",
+            "item": "http://localhost:3000/pyqs/bpsc"
+          }
+        ]
+      }
+    ]
+  },
+  "/pyqs/upsc-cse": {
+    "url": "http://127.0.0.1:3045/pyqs/upsc-cse",
+    "path": "/pyqs/upsc-cse",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Exam Category Not Found | TrillionSkill | aspirantbook",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/uppcs": {
+    "url": "http://127.0.0.1:3045/pyqs/uppcs",
+    "path": "/pyqs/uppcs",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Exam Category Not Found | TrillionSkill | aspirantbook",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/mppsc": {
+    "url": "http://127.0.0.1:3045/pyqs/mppsc",
+    "path": "/pyqs/mppsc",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Exam Category Not Found | TrillionSkill | aspirantbook",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/ras": {
+    "url": "http://127.0.0.1:3045/pyqs/ras",
+    "path": "/pyqs/ras",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Exam Category Not Found | TrillionSkill | aspirantbook",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/ssc-cgl": {
+    "url": "http://127.0.0.1:3045/pyqs/ssc-cgl",
+    "path": "/pyqs/ssc-cgl",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "SSC CGL Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook",
+    "metaDescription": "Official previous year question papers for SSC CGL",
+    "canonical": "http://localhost:3000/pyqs/ssc-cgl",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/pyqs/ssc-cgl",
+      "x-default": "http://localhost:3000/pyqs/ssc-cgl"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "PYQs",
+            "item": "http://localhost:3000/pyqs"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "SSC CGL",
+            "item": "http://localhost:3000/pyqs/ssc-cgl"
+          }
+        ]
+      }
+    ]
+  },
+  "/pyqs/cds": {
+    "url": "http://127.0.0.1:3045/pyqs/cds",
+    "path": "/pyqs/cds",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Exam Category Not Found | TrillionSkill | aspirantbook",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/nda": {
+    "url": "http://127.0.0.1:3045/pyqs/nda",
+    "path": "/pyqs/nda",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Exam Category Not Found | TrillionSkill | aspirantbook",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/ugc-net": {
+    "url": "http://127.0.0.1:3045/pyqs/ugc-net",
+    "path": "/pyqs/ugc-net",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Exam Category Not Found | TrillionSkill | aspirantbook",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series": {
+    "url": "http://127.0.0.1:3045/test-series",
+    "path": "/test-series",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/pb-7391-s-pub": {
+    "url": "http://127.0.0.1:3045/test-series/pb-7391-s-pub",
+    "path": "/test-series/pb-7391-s-pub",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "PB-7391 S-PUB BPSC Prelims Test Series Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+    "metaDescription": "Take online mock tests for PB-7391 S-PUB BPSC Prelims Test Series. Real-time analytics, all-India ranking, and detailed solutions.",
+    "canonical": "http://localhost:3000/test-series/pb-7391-s-pub",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/test-series/pb-7391-s-pub",
+      "x-default": "http://localhost:3000/test-series/pb-7391-s-pub"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Test Series",
+            "item": "http://localhost:3000/test-series"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "PB-7391 S-PUB BPSC Prelims Test Series",
+            "item": "http://localhost:3000/test-series/pb-7391-s-pub"
+          }
+        ]
+      }
+    ]
+  },
+  "/test-series/pb-7391-s-legacy": {
+    "url": "http://127.0.0.1:3045/test-series/pb-7391-s-legacy",
+    "path": "/test-series/pb-7391-s-legacy",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "PB-7391 S-LEGACY Prelims Series Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+    "metaDescription": "Take online mock tests for PB-7391 S-LEGACY Prelims Series. Real-time analytics, all-India ranking, and detailed solutions.",
+    "canonical": "http://localhost:3000/test-series/pb-7391-s-legacy",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/test-series/pb-7391-s-legacy",
+      "x-default": "http://localhost:3000/test-series/pb-7391-s-legacy"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Test Series",
+            "item": "http://localhost:3000/test-series"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "PB-7391 S-LEGACY Prelims Series",
+            "item": "http://localhost:3000/test-series/pb-7391-s-legacy"
+          }
+        ]
+      }
+    ]
+  },
+  "/test-series/e2e-series-e2e-20261021111538671-tnwv1": {
+    "url": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021111538671-tnwv1",
+    "path": "/test-series/e2e-series-e2e-20261021111538671-tnwv1",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "E2E Series E2E-20261021111538671-tnwv1 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+    "metaDescription": "Take online mock tests for E2E Series E2E-20261021111538671-tnwv1. Real-time analytics, all-India ranking, and detailed solutions.",
+    "canonical": "http://localhost:3000/test-series/e2e-series-e2e-20261021111538671-tnwv1",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/test-series/e2e-series-e2e-20261021111538671-tnwv1",
+      "x-default": "http://localhost:3000/test-series/e2e-series-e2e-20261021111538671-tnwv1"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Test Series",
+            "item": "http://localhost:3000/test-series"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "E2E Series E2E-20261021111538671-tnwv1",
+            "item": "http://localhost:3000/test-series/e2e-series-e2e-20261021111538671-tnwv1"
+          }
+        ]
+      }
+    ]
+  },
+  "/test-series/e2e-series-e2e-20261021114050130-622aa": {
+    "url": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021114050130-622aa",
+    "path": "/test-series/e2e-series-e2e-20261021114050130-622aa",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "E2E Series E2E-20261021114050130-622aa Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+    "metaDescription": "Take online mock tests for E2E Series E2E-20261021114050130-622aa. Real-time analytics, all-India ranking, and detailed solutions.",
+    "canonical": "http://localhost:3000/test-series/e2e-series-e2e-20261021114050130-622aa",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/test-series/e2e-series-e2e-20261021114050130-622aa",
+      "x-default": "http://localhost:3000/test-series/e2e-series-e2e-20261021114050130-622aa"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Test Series",
+            "item": "http://localhost:3000/test-series"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "E2E Series E2E-20261021114050130-622aa",
+            "item": "http://localhost:3000/test-series/e2e-series-e2e-20261021114050130-622aa"
+          }
+        ]
+      }
+    ]
+  },
+  "/test-series/e2e-series-e2e-20261021124106098-4akv9": {
+    "url": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021124106098-4akv9",
+    "path": "/test-series/e2e-series-e2e-20261021124106098-4akv9",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "E2E Series E2E-20261021124106098-4akv9 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+    "metaDescription": "Take online mock tests for E2E Series E2E-20261021124106098-4akv9. Real-time analytics, all-India ranking, and detailed solutions.",
+    "canonical": "http://localhost:3000/test-series/e2e-series-e2e-20261021124106098-4akv9",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/test-series/e2e-series-e2e-20261021124106098-4akv9",
+      "x-default": "http://localhost:3000/test-series/e2e-series-e2e-20261021124106098-4akv9"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Test Series",
+            "item": "http://localhost:3000/test-series"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "E2E Series E2E-20261021124106098-4akv9",
+            "item": "http://localhost:3000/test-series/e2e-series-e2e-20261021124106098-4akv9"
+          }
+        ]
+      }
+    ]
+  },
+  "/test-series/e2e-series-e2e-20261021134628389-8s2bg": {
+    "url": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021134628389-8s2bg",
+    "path": "/test-series/e2e-series-e2e-20261021134628389-8s2bg",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "E2E Series E2E-20261021134628389-8s2bg Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+    "metaDescription": "Take online mock tests for E2E Series E2E-20261021134628389-8s2bg. Real-time analytics, all-India ranking, and detailed solutions.",
+    "canonical": "http://localhost:3000/test-series/e2e-series-e2e-20261021134628389-8s2bg",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/test-series/e2e-series-e2e-20261021134628389-8s2bg",
+      "x-default": "http://localhost:3000/test-series/e2e-series-e2e-20261021134628389-8s2bg"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Test Series",
+            "item": "http://localhost:3000/test-series"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "E2E Series E2E-20261021134628389-8s2bg",
+            "item": "http://localhost:3000/test-series/e2e-series-e2e-20261021134628389-8s2bg"
+          }
+        ]
+      }
+    ]
+  },
+  "/test-series/sample-audit-series-1": {
+    "url": "http://127.0.0.1:3045/test-series/sample-audit-series-1",
+    "path": "/test-series/sample-audit-series-1",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Sample Audit Test Series 1 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+    "metaDescription": "Take online mock tests for Sample Audit Test Series 1. Real-time analytics, all-India ranking, and detailed solutions.",
+    "canonical": "http://localhost:3000/test-series/sample-audit-series-1",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/test-series/sample-audit-series-1",
+      "x-default": "http://localhost:3000/test-series/sample-audit-series-1"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Test Series",
+            "item": "http://localhost:3000/test-series"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Sample Audit Test Series 1",
+            "item": "http://localhost:3000/test-series/sample-audit-series-1"
+          }
+        ]
+      }
+    ]
+  },
+  "/test-series/sample-audit-series-2": {
+    "url": "http://127.0.0.1:3045/test-series/sample-audit-series-2",
+    "path": "/test-series/sample-audit-series-2",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Sample Audit Test Series 2 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+    "metaDescription": "Take online mock tests for Sample Audit Test Series 2. Real-time analytics, all-India ranking, and detailed solutions.",
+    "canonical": "http://localhost:3000/test-series/sample-audit-series-2",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/test-series/sample-audit-series-2",
+      "x-default": "http://localhost:3000/test-series/sample-audit-series-2"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Test Series",
+            "item": "http://localhost:3000/test-series"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Sample Audit Test Series 2",
+            "item": "http://localhost:3000/test-series/sample-audit-series-2"
+          }
+        ]
+      }
+    ]
+  },
+  "/test-series/bpsc-72nd-2026": {
+    "url": "http://127.0.0.1:3045/test-series/bpsc-72nd-2026",
+    "path": "/test-series/bpsc-72nd-2026",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "72nd BPSC Prelims Mock Series 2026 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+    "metaDescription": "Mock test series for BPSC 72nd Prelims",
+    "canonical": "http://localhost:3000/test-series/bpsc-72nd-2026",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/test-series/bpsc-72nd-2026",
+      "x-default": "http://localhost:3000/test-series/bpsc-72nd-2026"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "http://localhost:3000/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Test Series",
+            "item": "http://localhost:3000/test-series"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "72nd BPSC Prelims Mock Series 2026",
+            "item": "http://localhost:3000/test-series/bpsc-72nd-2026"
+          }
+        ]
+      }
+    ]
+  },
+  "/question-answer": {
+    "url": "http://127.0.0.1:3045/question-answer",
+    "path": "/question-answer",
+    "module": "content-engine",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Competitive Exam Previous Year Questions (PYQs) | TrillionSkill | aspirantbook",
+    "metaDescription": "Explore authentic previous year questions, answer keys, and detailed solutions for UPSC CSE, BPSC, UPPCS, RAS, and SSC CGL.",
+    "canonical": "http://localhost:3000/question-answer",
+    "robots": null,
+    "hreflang": {
+      "en": "http://localhost:3000/question-answer",
+      "hi": "http://localhost:3000/hi/question-answer",
+      "x-default": "http://localhost:3000/question-answer"
+    },
+    "jsonLd": []
+  },
+  "/hi/question-answer": {
+    "url": "http://127.0.0.1:3045/hi/question-answer",
+    "path": "/hi/question-answer",
+    "module": "content-engine",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "प्रतियोगी परीक्षा पिछले वर्ष के प्रश्नोत्तर (PYQs) | TrillionSkill हिन्दी | aspirantbook",
+    "metaDescription": "यूपीएससी, बीपीएससी, यूपीपीसीएस, आरएएस और एसएससी परीक्षाओं के प्रामाणिक पिछले वर्षों के प्रश्नोत्तर और विस्तृत हिन्दी समाधान।",
+    "canonical": "http://localhost:3000/hi/question-answer",
+    "robots": null,
+    "hreflang": {
+      "en": "http://localhost:3000/question-answer",
+      "hi": "http://localhost:3000/hi/question-answer",
+      "x-default": "http://localhost:3000/question-answer"
+    },
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse",
+    "path": "/question-answer/upsc-cse",
+    "module": "content-engine",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Upsc Cse Previous Year Questions (PYQs) | TrillionSkill | aspirantbook",
+    "metaDescription": "Complete archive of Upsc Cse previous year exam questions with verified solutions, answer keys, and year-wise breakdown.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/hi/question-answer/upsc-cse": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse",
+    "path": "/hi/question-answer/upsc-cse",
+    "module": "content-engine",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Upsc Cse पिछले वर्षों के प्रश्नोत्तर (हिन्दी) | TrillionSkill | aspirantbook",
+    "metaDescription": "Upsc Cse परीक्षा के प्रामाणिक पिछले वर्षों के प्रश्नोत्तर और विस्तृत हिन्दी व्याख्या।",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse/2023": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/2023",
+    "path": "/question-answer/upsc-cse/2023",
+    "module": "content-engine",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Upsc Cse 2023 Questions | TrillionSkill | aspirantbook",
+    "metaDescription": "Practice Upsc Cse questions for 2023 with verified answer keys and complete explanations.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/hi/question-answer/upsc-cse/2023": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/2023",
+    "path": "/hi/question-answer/upsc-cse/2023",
+    "module": "content-engine",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Upsc Cse 2023 प्रश्नोत्तर (हिन्दी) | TrillionSkill | aspirantbook",
+    "metaDescription": "Upsc Cse परीक्षा के 2023 विषय पर आधारित पिछले वर्षों के प्रश्न और हिन्दी समाधान।",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse/history": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/history",
+    "path": "/question-answer/upsc-cse/history",
+    "module": "content-engine",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Upsc Cse History Questions | TrillionSkill | aspirantbook",
+    "metaDescription": "Practice Upsc Cse questions for History with verified answer keys and complete explanations.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/hi/question-answer/upsc-cse/history": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history",
+    "path": "/hi/question-answer/upsc-cse/history",
+    "module": "content-engine",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Upsc Cse History प्रश्नोत्तर (हिन्दी) | TrillionSkill | aspirantbook",
+    "metaDescription": "Upsc Cse परीक्षा के History विषय पर आधारित पिछले वर्षों के प्रश्न और हिन्दी समाधान।",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "path": "/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "module": "content-engine",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley | Indus Valley Civilization UPSC CSE 2023 MCQ | aspirantbook",
+    "metaDescription": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley Civilizat Answer: Both 1 and 2 with key points and explanation. Indus Valley",
+    "canonical": "http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+      "hi": "http://localhost:3000/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+      "x-default": "http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "http://localhost:3000/question-answer"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "UPSC CSE",
+                "item": "http://localhost:3000/question-answer/upsc-cse"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "History",
+                "item": "http://localhost:3000/question-answer/upsc-cse/history"
+              },
+              {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "[UPSC CSE 2023] Q1. Consider the following statements",
+                "item": "http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"
+              }
+            ]
+          },
+          {
+            "@context": "https://schema.org/",
+            "@type": "Quiz",
+            "name": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley Civilization:\n1. Harappa was ",
+            "about": {
+              "@type": "Thing",
+              "name": "Indus Valley Civilization"
+            },
+            "educationalLevel": "Competitive exam",
+            "assesses": "Indus Valley Civilization",
+            "hasPart": [
+              {
+                "@type": "Question",
+                "eduQuestionType": "Multiple choice",
+                "text": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley Civilization:\n1. Harappa was excavated before Mohenjo-daro.\n2. The Great Bath was discovered at Mohenjo-daro.\nWhich of the statements given above is/are correct?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Both 1 and 2",
+                  "answerExplanation": {
+                    "@type": "Comment",
+                    "text": "Harappa was excavated in 1921 by Daya Ram Sahni. Mohenjo-daro was excavated in 1922 by R.D. Banerji. The Great Bath was discovered at Mohenjo-daro. Both statements are correct."
+                  }
+                },
+                "suggestedAnswer": [
+                  {
+                    "@type": "Answer",
+                    "text": "1 only"
+                  },
+                  {
+                    "@type": "Answer",
+                    "text": "2 only"
+                  },
+                  {
+                    "@type": "Answer",
+                    "text": "Neither 1 nor 2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "path": "/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "module": "content-engine",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: | सिंधु घाटी सभ्यता UPSC CSE 2023 MCQ | aspirantbook",
+    "metaDescription": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: उत्तर: 1 और 2 दोनों — मुख्य बिंदु और व्याख्या सहित। सिंधु घाटी सभ्यता, UPSC CSE 2023.",
+    "canonical": "http://localhost:3000/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+      "hi": "http://localhost:3000/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+      "x-default": "http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"
+    },
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "होम",
+                "item": "http://localhost:3000/hi/question-answer"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "UPSC CSE",
+                "item": "http://localhost:3000/hi/question-answer/upsc-cse"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "इतिहास",
+                "item": "http://localhost:3000/hi/question-answer/upsc-cse/history"
+              },
+              {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार",
+                "item": "http://localhost:3000/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"
+              }
+            ]
+          },
+          {
+            "@context": "https://schema.org/",
+            "@type": "Quiz",
+            "name": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए:",
+            "about": {
+              "@type": "Thing",
+              "name": "सिंधु घाटी सभ्यता"
+            },
+            "educationalLevel": "Competitive exam",
+            "assesses": "सिंधु घाटी सभ्यता",
+            "inLanguage": "hi",
+            "hasPart": [
+              {
+                "@type": "Question",
+                "eduQuestionType": "Multiple choice",
+                "text": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए:",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "1 और 2 दोनों",
+                  "answerExplanation": {
+                    "@type": "Comment",
+                    "text": "Harappa was excavated in 1921 by Daya Ram Sahni. Mohenjo-daro was excavated in 1922 by R.D. Banerji. The Great Bath was discovered at Mohenjo-daro. Both statements are correct."
+                  }
+                },
+                "suggestedAnswer": [
+                  {
+                    "@type": "Answer",
+                    "text": "केवल 1"
+                  },
+                  {
+                    "@type": "Answer",
+                    "text": "केवल 2"
+                  },
+                  {
+                    "@type": "Answer",
+                    "text": "न तो 1, न ही 2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

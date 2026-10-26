@@ -1,0 +1,37 @@
+{
+  "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+  "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+  "module": "current-affairs",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "Daily CA Quiz Sample Test 1 - Current Affairs Quiz | aspirantbook | aspirantbook",
+  "metaDescription": "Practice Daily CA Quiz Sample Test 1 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+  "canonical": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+    "x-default": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-1"
+  },
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Quiz",
+      "name": "Daily CA Quiz Sample Test 1",
+      "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+      "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+      "provider": {
+        "@type": "Organization",
+        "name": "aspirantbook",
+        "url": "http://localhost:3000"
+      },
+      "learningResourceType": "Quiz",
+      "timeRequired": "PT10M",
+      "isAccessibleForFree": false,
+      "hasPart": {
+        "@type": "WebPageElement",
+        "isAccessibleForFree": true
+      },
+      "url": "http://localhost:3000/current-affairs-quizzes/daily-ca-quiz-sample-test-1"
+    }
+  ]
+}

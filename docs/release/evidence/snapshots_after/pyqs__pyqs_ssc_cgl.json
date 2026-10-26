@@ -1,0 +1,41 @@
+{
+  "url": "http://127.0.0.1:3045/pyqs/ssc-cgl",
+  "path": "/pyqs/ssc-cgl",
+  "module": "pyqs",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "SSC CGL Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook",
+  "metaDescription": "Official previous year question papers for SSC CGL",
+  "canonical": "http://localhost:3000/pyqs/ssc-cgl",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://localhost:3000/pyqs/ssc-cgl",
+    "x-default": "http://localhost:3000/pyqs/ssc-cgl"
+  },
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "http://localhost:3000/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "PYQs",
+          "item": "http://localhost:3000/pyqs"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "SSC CGL",
+          "item": "http://localhost:3000/pyqs/ssc-cgl"
+        }
+      ]
+    }
+  ]
+}

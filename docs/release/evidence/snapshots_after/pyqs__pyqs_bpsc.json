@@ -1,0 +1,41 @@
+{
+  "url": "http://127.0.0.1:3045/pyqs/bpsc",
+  "path": "/pyqs/bpsc",
+  "module": "pyqs",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "BPSC Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook",
+  "metaDescription": "Official Previous Year Papers for 70th, 69th, 68th, 67th CCE, CDPO, AEDO &amp; TRE.",
+  "canonical": "http://localhost:3000/pyqs/bpsc",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://localhost:3000/pyqs/bpsc",
+    "x-default": "http://localhost:3000/pyqs/bpsc"
+  },
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "http://localhost:3000/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "PYQs",
+          "item": "http://localhost:3000/pyqs"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "BPSC",
+          "item": "http://localhost:3000/pyqs/bpsc"
+        }
+      ]
+    }
+  ]
+}

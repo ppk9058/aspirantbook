@@ -1,0 +1,41 @@
+{
+  "url": "http://127.0.0.1:3045/test-series/sample-audit-series-2",
+  "path": "/test-series/sample-audit-series-2",
+  "module": "test-series",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "Sample Audit Test Series 2 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+  "metaDescription": "Take online mock tests for Sample Audit Test Series 2. Real-time analytics, all-India ranking, and detailed solutions.",
+  "canonical": "http://localhost:3000/test-series/sample-audit-series-2",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://localhost:3000/test-series/sample-audit-series-2",
+    "x-default": "http://localhost:3000/test-series/sample-audit-series-2"
+  },
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "http://localhost:3000/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Test Series",
+          "item": "http://localhost:3000/test-series"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Sample Audit Test Series 2",
+          "item": "http://localhost:3000/test-series/sample-audit-series-2"
+        }
+      ]
+    }
+  ]
+}

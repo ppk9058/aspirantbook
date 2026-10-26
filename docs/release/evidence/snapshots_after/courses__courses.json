@@ -1,0 +1,13 @@
+{
+  "url": "http://127.0.0.1:3045/courses",
+  "path": "/courses",
+  "module": "courses",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "All Video Courses &amp; Batches | aspirantbook | aspirantbook",
+  "metaDescription": "Explore all comprehensive video courses, academic foundations, and competitive batches on aspirantbook.",
+  "canonical": "http://localhost:3000/courses",
+  "robots": null,
+  "hreflang": {},
+  "jsonLd": []
+}

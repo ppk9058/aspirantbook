@@ -1,0 +1,30 @@
+{
+  "url": "http://127.0.0.1:3045/tutorials/e2e-20261021025140619-1frn8-course-studio",
+  "path": "/tutorials/e2e-20261021025140619-1frn8-course-studio",
+  "module": "tutorials",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "Bugfix Course Studio E2E-20261021025140619-1frn8 | aspirantbook",
+  "metaDescription": "Testing studio persistence and lesson editor guards",
+  "canonical": "http://localhost:3000/tutorials/e2e-20261021025140619-1frn8-course-studio",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://localhost:3000/tutorials/e2e-20261021025140619-1frn8-course-studio",
+    "x-default": "http://localhost:3000/tutorials/e2e-20261021025140619-1frn8-course-studio"
+  },
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "name": "Bugfix Course Studio E2E-20261021025140619-1frn8",
+      "headline": "Bugfix Course Studio E2E-20261021025140619-1frn8",
+      "description": "Testing studio persistence and lesson editor guards",
+      "isAccessibleForFree": false,
+      "hasPart": {
+        "@type": "WebPageElement",
+        "isAccessibleForFree": false,
+        "cssSelector": "[role='region'][aria-label='Content Gate']"
+      }
+    }
+  ]
+}
