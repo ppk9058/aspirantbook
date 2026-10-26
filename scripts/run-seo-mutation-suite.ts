@@ -70,23 +70,8 @@ const MUTATIONS: MutationDef[] = [
     id: 9,
     description: "Test series detail adapter omits Product JSON-LD schema",
     file: "lib/seo/adapters/test-series.ts",
-    target: `      jsonLd: [
-        {
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: series.title,
-          description,
-          url: canonicalUrl(canonicalPath, baseUrl),
-          offers: {
-            "@type": "Offer",
-            price: priceValue,
-            priceCurrency: "INR",
-            availability: "https://schema.org/InStock",
-            url: canonicalUrl(canonicalPath, baseUrl),
-          },
-        },
-      ],`,
-    replacement: "      jsonLd: [],",
+    target: "jsonLd: jsonLdItem ? [jsonLdItem] : [],",
+    replacement: "jsonLd: [],",
   },
   {
     id: 10,

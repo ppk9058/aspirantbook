@@ -1,6 +1,9 @@
 # Production Deployment Checklist & Multi-Instance Architecture
 
-This document details the deployment architecture, cache invalidation guarantees, required environment variables, and pre-release verification steps for TrillionSkill on branch `release-hardening`.
+This document details the deployment architecture, cache invalidation guarantees, required environment variables, pre-release verification steps, and operational runbooks for TrillionSkill on branch `release-hardening`.
+
+> [!NOTE]
+> All domain names referenced in examples (such as `https://trillionskill.com`) are illustrative placeholders. In production, the active domain is determined dynamically from `NEXT_PUBLIC_SITE_URL`.
 
 ---
 
@@ -24,7 +27,7 @@ A structural audit of the repository yielded:
   - `unstable_cache` tags (`"content-engine"`, `"content-engine-${shortId}"`) write to Vercel's centralized data cache.
   - Calling `revalidateTag()` or `revalidatePath()` upon question publish/unpublish/Hindi review automatically broadcasts across all regional edge instances.
   - In `lib/modules/content-engine/db-service.ts`, local in-memory fallback caches are strictly disabled in production (`NODE_ENV === "production"`), ensuring no un-synchronized in-memory state lingers across lambda invocations.
-- **Operational Action**: None required. Native platform handles cluster-wide invalidation.
+- **Purge on Rollback**: Deploying a prior git SHA instantly provisions a clean deployment-scoped cache generation.
 
 ---
 
@@ -33,15 +36,14 @@ A structural audit of the repository yielded:
 - **Cache Invalidation Mechanism**:
   - `revalidateTag()` and `revalidatePath()` write to the local filesystem cache (`.next/cache`).
   - Because exactly one Node process handles all traffic, cache purges are immediate and 100% consistent across all visitor requests.
-- **Operational Action**: Run standard build and start (`next build && next start`). Zero external cache dependencies.
+- **Purge on Rollback**: Stop server, remove `.next/cache`, rebuild and restart.
 
 ---
 
 ### 1.4 Hosting Case 3: Multiple Self-Hosted Node.js Instances Behind a Load Balancer
 - **Architecture**: 2+ Node.js containers or VMs behind an AWS ALB, NGINX, or Cloudflare load balancer.
 - **The Stale Page Challenge**:
-  - In default Next.js, calling `revalidateTag()` on Node Instance A only purges the filesystem cache of Instance A.
-  - Subsequent requests routed to Node Instance B may continue serving the previously cached page.
+  - In default Next.js, calling `revalidateTag()` on Node Instance A only purges the filesystem cache of Instance A. Subsequent requests routed to Node Instance B may continue serving the previously cached page.
 - **Guaranteed Staleness Bounding (3600s ISR)**:
   - All Content Engine question pages and root sitemaps enforce `export const revalidate = 3600` (1-hour time-to-live).
   - Even if Node Instance B never receives an explicit revalidation webhook, staleness is strictly capped at **3600 seconds (1 hour)**. After 1 hour, Instance B automatically queries PostgreSQL and rebuilds the static HTML.
@@ -56,46 +58,103 @@ A structural audit of the repository yielded:
 
 | Variable | Environment | Required | Default / Fallback | Purpose |
 |---|---|:---:|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Production | **YES** | `""` (Suppresses canonical/JSON-LD) | Primary public canonical site base URL (e.g. `https://trillionskill.com`). |
+| `NEXT_PUBLIC_SITE_URL` | Production | **YES** | `""` (Suppresses canonical/JSON-LD) | Primary public canonical site base URL. |
 | `NEXT_PUBLIC_APP_URL` | Production | Optional | Fallback for `NEXT_PUBLIC_SITE_URL` | Secondary site URL definition. |
-| `Setting.exportBaseUrl` | Production | Conditional | `""` (Blocks Primary export) | Configured in DB Settings; required when `exportMode === "primary"`. |
-| `DATABASE_URL` | All | **YES** | Postgres connection string | Main transactional database. |
-| `DIRECT_URL` | All | **YES** | Direct connection string | Direct DB connection for Prisma migrations and bypass pooling. |
-| `NEXTAUTH_SECRET` / `AUTH_SECRET` | Production | **YES** | None | NextAuth JWT encryption secret. |
+| `DATABASE_URL` | All | **YES** | Postgres connection string | Main transactional database with connection pooling. |
+| `DIRECT_URL` | Production | **YES** | Direct connection string | Direct DB connection for Prisma migrations (bypasses pgbouncer). |
+| `NEXTAUTH_SECRET` / `AUTH_SECRET` | Production | **YES** | None | NextAuth JWT encryption secret (min 32 chars). |
 | `NEXTAUTH_URL` / `AUTH_URL` | Production | **YES** | None | Base URL for auth callbacks. |
+| `PRISMA_LOG_QUERIES` | Production | **NO** | Unset | Must be **UNSET** in production. Note: `lib/prisma.ts` enforces `getPrismaLogConfig()`, strictly suppressing query logging in production even if set. |
+| `Setting.exportBaseUrl` | Production | Conditional | `""` | Configured in DB Settings; required when `exportMode === "primary"`. |
 
 ### 2.1 Missing Host Defense
 If `NEXT_PUBLIC_SITE_URL` is inadvertently unset in production:
 1. `getBaseUrl()` returns `""`.
-2. One `console.error("[SEO] NEXT_PUBLIC_SITE_URL is not defined...")` is logged.
+2. A single error is logged: `[SEO] Neither NEXT_PUBLIC_SITE_URL nor NEXT_PUBLIC_APP_URL is set in production. Canonical and absolute URLs omitted.`
 3. Public pages **suppress** canonical tags rather than emitting a poisoned or hardcoded domain (a missing canonical is penalized less than duplicate content pointing to wrong hosts).
 4. Rich JSON-LD snippets omit the top-level `url` attribute.
 5. In development/test (`NODE_ENV !== "production"`), it safely defaults to `http://127.0.0.1:3045`.
 
 ---
 
-## 3. Pre-Merge Verification Checklist (Owner Steps)
+## 3. Database Migration & Rollback Plan
 
-Before merging `proof-hardening` to `main`:
+### 3.1 Migration Execution Order
+1. **Database Backup First**:
+   - Take an explicit snapshot / pg_dump of production Postgres before executing migration.
+2. **Apply Additive Migration**:
+   - Run: `npx prisma migrate deploy`
+   - Migrations deployed:
+     - `prisma/migrations/20261025220000_add_content_engine_tables/migration.sql` (Creates `ContentEngineQuestion`, `ContentEngineTranslation`, `ContentEngineAudit`).
+   - Note: Migration is strictly **additive**; zero columns or tables are deleted or modified. Existing user, course, and exam data remain untouched.
 
-- [ ] **1. Verify Merge Base:** Ensure branch is merged cleanly into `seo-core` / `main`.
-- [ ] **2. Environment Variables Set in Production:**
-  - `NEXT_PUBLIC_SITE_URL` set to live domain (e.g. `https://trillionskill.com`).
-  - `DATABASE_URL` and `DIRECT_URL` point to production Supabase Postgres cluster with connection pooling.
+### 3.2 Rollback Plan
+If deployment must be rolled back:
+1. **Revert Merge Commit**:
+   - Run: `git revert -m 1 <merge-commit-sha>` and push to release branch.
+2. **Database Schema State**:
+   - Because migration `20261025220000_add_content_engine_tables` is purely additive, newly created tables can safely remain in the database without breaking older code. No destructive `DOWN` migration is needed.
+3. **Cache Purge on Rollback**:
+   - *Vercel*: Automatic per-deployment cache generation.
+   - *Single Node*: Remove `.next/cache` and restart (`rm -rf .next/cache && npm run start`).
+   - *Multi-Node*: Purge shared Redis cache / restart cluster instances.
+
+---
+
+## 4. Pre-Merge Verification Checklist (Owner Steps)
+
+- [ ] **1. Verify Merge Base:** Ensure branch merges cleanly into `seo-core` / `main`.
+- [ ] **2. Environment Variables in Production:**
+  - `NEXT_PUBLIC_SITE_URL` set to live domain.
+  - `DATABASE_URL` and `DIRECT_URL` point to production Postgres cluster.
+  - `PRISMA_LOG_QUERIES` is unset.
   - `NEXTAUTH_SECRET` is strong (min 32 alphanumeric chars).
-- [ ] **3. Database Migrations:**
+- [ ] **3. Quality Gates:**
+  - `npx tsc --noEmit` -> 0 new errors against baseline.
+  - `npm run lint` -> 0 errors, <= 49 warnings.
+  - `npm run build` -> Build passes.
+  - Route table check: Verify routes `/question-answer` and `/hi/question-answer` display `○` (Static ISR) or `●` (SSG), and contains **NO dynamic `ƒ` routes**. (Note: Exact page count depends on DB question count at build time).
+- [ ] **4. Database Migrations:**
   - Verify migration status: `npx prisma migrate status`.
-  - Execute deployment: `npx prisma migrate deploy` (NEVER `prisma db push` on production).
-- [ ] **4. Build & Typecheck:**
-  - Run `npm run lint` -> 0 errors.
-  - Run `npx tsc --noEmit` -> 0 new errors against baseline.
-  - Run `npm run build` -> 181 pages generated with 0 dynamic `ƒ` routes in `/question-answer`.
+  - Execute deployment: `npx prisma migrate deploy`.
 - [ ] **5. Ingest Authentic BPSC 70th Prelims Paper:**
-  - Supply authentic `BPSC_70th_2024_ContentEngine_English.txt` under `data/`.
-  - Run `npx tsx scripts/ingest-bpsc-70th.ts` to parse authentic paper.
-  - Review generated `docs/content-engine/BPSC_70th_2024_REVIEW.md`.
-  - Batch import into production database via Admin Add Batch UI.
-- [ ] **6. Static Cloudflare Pages Export (Optional Standalone CDN):**
-  - Configure `Setting.exportBaseUrl` in Admin Content Engine Export page.
-  - Select "Primary Host Mode" or "Mirror CDN Mode".
-  - Click "Download Static Site ZIP" and upload to Cloudflare Pages.
+  - Place authentic file `BPSC_70th_2024_ContentEngine_English.txt` under `docs/content-engine/samples/`.
+  - Run offline dry-run tool:
+    ```bash
+    npx tsx scripts/content-engine-dry-run.ts docs/content-engine/samples/BPSC_70th_2024_ContentEngine_English.txt docs/content-engine/samples/bpsc_70th_dry_run.json
+    ```
+  - Verify output: 150 parsed, 0 skipped, 4 options each, exam "BPSC", year 2024.
+  - Import batch via Admin Content Engine Add Batch UI (`/admin/content-engine/add`).
+- [ ] **6. Human Review & Indexing Policy:**
+  - Content Engine questions remain in `DRAFT` status until editor review.
+  - Hindi translations remain `isReviewed: false` (`noindex`) until verified by a bilingual editor.
+  - Publish only verified questions.
+- [ ] **7. Post-Deploy Snapshot Comparison:**
+  - Run the automated snapshot verification script:
+    ```bash
+    BASE_URL="https://your-domain.com" npx tsx scripts/compare-seo-snapshots.ts
+    ```
+  - Assert FAIL count is 0.
+
+---
+
+## 5. Google Search Console & Rich Results Verification
+
+### 5.1 Submit XML Sitemaps
+In Google Search Console -> **Sitemaps**, submit the three auto-generated sitemaps:
+1. `https://your-domain.com/sitemap.xml` (Root sitemap for courses, books, test-series, tutorials, PYQs)
+2. `https://your-domain.com/question-answer/sitemap.xml` (English Content Engine questions and taxonomy hubs)
+3. `https://your-domain.com/hi/question-answer/sitemap.xml` (Hindi human-reviewed Content Engine questions)
+
+### 5.2 Google Rich Results Test (5 Sample URLs)
+Test the following 5 live URLs in [Google Rich Results Test](https://search.google.com/test/rich-results) using your configured `${BASE_URL}`:
+1. **Public Question Page**: `${BASE_URL}/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements`
+   - *Expected*: Valid `Question` Schema with `acceptedAnswer` and `BreadcrumbList`. Zero schema errors.
+2. **Hindi Question Page**: `${BASE_URL}/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements`
+   - *Expected*: Valid `Question` Schema in Devanagari with alternate hreflang links.
+3. **Test Series Page**: `${BASE_URL}/test-series/bpsc-72nd-2026`
+   - *Expected*: Valid `Product` Schema with compliant `Offer` (`price`, `priceCurrency: "INR"`, `availability: "InStock"`).
+4. **Tutorial Page**: `${BASE_URL}/tutorials/agentic-engineering-zero-to-hero`
+   - *Expected*: Valid `Course` Schema with `provider: Organization`.
+5. **Current Affairs Quiz**: `${BASE_URL}/current-affairs-quizzes/upsc-economy-ca`
+   - *Expected*: Valid `Quiz` Schema with questions and duration.
