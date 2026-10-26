@@ -1,5 +1,7 @@
 import dotenv from "dotenv"
 dotenv.config({ path: ".env.test" })
+// RAZORPAY_KEY_SECRET must come from the (untracked) local env, never from source.
+dotenv.config()
 
 import { test, expect } from "@playwright/test"
 import crypto from "crypto"
@@ -10,7 +12,8 @@ import {
   loginAs,
 } from "./test-series-e2e-helpers"
 
-const TEST_SECRET = process.env.RAZORPAY_KEY_SECRET || "QljFqlEML0mHLqEgKOeztfw8"
+const TEST_SECRET = process.env.RAZORPAY_KEY_SECRET || ""
+const HAS_TEST_SECRET = TEST_SECRET.length > 0
 
 function generateTestHmacSignature(orderId: string, paymentId: string) {
   return crypto
@@ -171,6 +174,7 @@ test.describe("Book Studio Flow & Payment Security E2E", () => {
   test("BF-03: POST /api/books/checkout/verify validates HMAC signature and enforces idempotency", async ({
     page,
   }) => {
+    test.skip(!HAS_TEST_SECRET, "RAZORPAY_KEY_SECRET is not configured")
     await loginAs(page, studentUser.email)
 
     // Create an order using existing catalogue book cbse-10-pyq-bundle-2026
@@ -269,6 +273,7 @@ test.describe("Book Studio Flow & Payment Security E2E", () => {
   test("BF-05: Full guest flow with resume, Razorpay modal, orders list, reader and download", async ({
     page,
   }) => {
+    test.skip(!HAS_TEST_SECRET, "RAZORPAY_KEY_SECRET is not configured")
     // 1. Guest visits /books without login
     await page.context().clearCookies()
     await page.goto("/books", { waitUntil: "domcontentloaded" })
@@ -497,6 +502,7 @@ test.describe("Book Studio Flow & Payment Security E2E", () => {
   test("BF-09: POST /api/razorpay/webhook marks order completed when user closes browser tab", async ({
     page,
   }) => {
+    test.skip(!HAS_TEST_SECRET, "RAZORPAY_KEY_SECRET is not configured")
     await loginAs(page, otherStudentUser.email)
 
     // 1. Create order

@@ -19,7 +19,9 @@ import { spawn, ChildProcess } from "child_process";
 const TEST_PORT = 3047;
 const BASE_URL = `http://127.0.0.1:${TEST_PORT}`;
 const DOCKER_DB_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
-const TEST_RAZORPAY_SECRET = "QljFqlEML0mHLqEgKOeztfw8";
+// A throwaway signing key generated at run time. This script provisions its own
+// spawned server with it, so it must never be a committed credential (B-023).
+const TEST_RAZORPAY_SECRET = crypto.randomBytes(24).toString("hex");
 const WEBHOOK_SECRET = "whsec_test_secret_12345";
 const SECRET = "test-secret-test-secret-test-secret-32-chars!!";
 
