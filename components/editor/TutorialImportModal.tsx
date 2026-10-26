@@ -803,7 +803,10 @@ export function TutorialImportModal({
         }
     }, [courseId])
 
-    const parsedData = rawInput.trim() ? parseTutorialInput(rawInput) : null
+    const parsedData = React.useMemo(
+        () => (rawInput.trim() ? parseTutorialInput(rawInput) : null),
+        [rawInput]
+    )
 
     // Trigger atomic dry-run whenever a valid package is parsed
     React.useEffect(() => {
@@ -829,7 +832,7 @@ export function TutorialImportModal({
         return () => {
             isMounted = false
         }
-    }, [isOpen, rawInput, selectedCourseId, courseId])
+    }, [isOpen, parsedData, selectedCourseId, courseId])
 
     if (!isOpen) return null
 

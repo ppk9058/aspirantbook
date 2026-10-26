@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -73,6 +73,20 @@ export default function LessonViewer({
 
     const isCompleted = progressMap[lesson.id]?.completed || false
 
+    const handleMarkComplete = useCallback(async () => {
+        if (isCompleting) return
+        setIsCompleting(true)
+        try {
+            await markLessonComplete(lesson.id)
+            toast.success("Lesson marked as complete!")
+            router.refresh()
+        } catch (error) {
+            toast.error("Failed to mark lesson as complete")
+        } finally {
+            setIsCompleting(false)
+        }
+    }, [isCompleting, lesson.id, router])
+
     // Scroll tracking for non-video lessons
     useEffect(() => {
         if (lesson.videoUrl) return // Skip scroll tracking if video exists
@@ -113,21 +127,7 @@ export default function LessonViewer({
             element.addEventListener("scroll", handleScroll)
             return () => element.removeEventListener("scroll", handleScroll)
         }
-    }, [lesson.id, lesson.videoUrl, isCompleted])
-
-    const handleMarkComplete = async () => {
-        if (isCompleting) return
-        setIsCompleting(true)
-        try {
-            await markLessonComplete(lesson.id)
-            toast.success("Lesson marked as complete!")
-            router.refresh()
-        } catch (error) {
-            toast.error("Failed to mark lesson as complete")
-        } finally {
-            setIsCompleting(false)
-        }
-    }
+    }, [lesson.id, lesson.videoUrl, isCompleted, handleMarkComplete])
 
     return (
         <div className="flex h-[calc(100vh-4rem)] bg-gray-50">
