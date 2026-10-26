@@ -3,7 +3,7 @@ PHASE A: SITEMAP ISR AND ON-DEMAND REVALIDATION PROOF
 =====================================================
 DB resolved host:port -> 127.0.0.1:54329
 Base URL: http://127.0.0.1:3045
-Timestamp: 2026-10-26T13:35:12.599Z
+Timestamp: 2026-10-26T17:04:11.568Z
 
 --- STEP 1: Main Sitemap GET /sitemap.xml ---
 GET /sitemap.xml Status: 200 (expected 200)
@@ -23,8 +23,8 @@ Body length: 694 bytes
 --- STEP 4: Authenticating as ADMIN ---
 Admin authenticated successfully.
 
---- STEP 5: Creating Draft Question in Docker DB (shortId: smpj7n3q) ---
-Created test question cmvpau01k0000xpt4k57iabgb with slug q-smpj7n3q-ancient-university-bihar-kumaragupta
+--- STEP 5: Creating Draft Question in Docker DB (shortId: smpttiee) ---
+Created test question cmvpiar6m0000xpap12vp14u7 with slug q-smpttiee-ancient-university-bihar-kumaragupta
 Draft in /question-answer/sitemap.xml: false (expected false)
 
 --- STEP 6: Publishing Question via POST /api/admin/content-engine/publish ---

@@ -3,7 +3,7 @@ PHASE B: CROSS-MODULE STRUCTURAL JSON-LD AUDIT (6 MODULES, 10+ URLS EACH)
 =================================================================
 DB resolved host:port -> 127.0.0.1:54329
 Base URL: http://127.0.0.1:3045
-Timestamp: 2026-10-26T13:35:13.673Z
+Timestamp: 2026-10-26T17:04:12.752Z
 
 
 ======================================================

@@ -312,6 +312,7 @@ async function main() {
     if (mode === "all") {
       console.log("--- 5. Browser E2E Suites ---")
       results.push(runPlaywright("Content Engine Browser Workflow", "tests/e2e/content-engine-browser.spec.ts", 6))
+      results.push(runPlaywright("SEO Responsive Audit", "tests/e2e/seo-responsive.spec.ts", 6))
     }
   } finally {
     // Generate Reconciled Output Table
