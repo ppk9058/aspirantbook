@@ -13,25 +13,15 @@ export interface Viewer {
   authMethod: "bearer" | "cookie" | "guest";
 }
 
-interface CachedViewer {
-  viewer: Viewer;
-  expiresAt: number;
-}
-
-// In-process cache for authenticated sessions (max 10s TTL)
-const viewerCache = new Map<string, CachedViewer>();
-
 /**
- * Invalidates cache entry for a session or user.
+ * Kept for API compatibility with existing callers.
+ *
+ * Viewer identity is deliberately NOT cached in-process: a revoked device session
+ * must stop working immediately on every serverless instance. Each request
+ * re-validates the session against the database.
  */
-export function invalidateViewerCache(sessionIdOrUserId: string) {
-  viewerCache.delete(sessionIdOrUserId);
-  // Also scan and purge any matching entries
-  for (const [key, val] of viewerCache.entries()) {
-    if (val.viewer.userId === sessionIdOrUserId || val.viewer.sessionId === sessionIdOrUserId) {
-      viewerCache.delete(key);
-    }
-  }
+export function invalidateViewerCache(_sessionIdOrUserId: string) {
+  // No-op: there is no cache to invalidate.
 }
 
 /**
@@ -48,15 +38,7 @@ export async function getViewer(req: NextRequest): Promise<Viewer> {
     if (token) {
       const payload = await verifyAccessToken(token);
       if (payload?.sub) {
-        // Check in-process cache
-        const cacheKey = `${payload.sessionId}:${token.slice(-12)}`;
-        const cached = viewerCache.get(cacheKey);
-        const now = Date.now();
-        if (cached && cached.expiresAt > now) {
-          return cached.viewer;
-        }
-
-        // Query database (Single indexed lookup)
+        // Query database on every request so a revoked session is rejected immediately.
         const user = await prisma.user.findUnique({
           where: { id: payload.sub },
           select: {
@@ -94,12 +76,6 @@ export async function getViewer(req: NextRequest): Promise<Viewer> {
             sessionId: payload.sessionId,
             authMethod: "bearer",
           };
-
-          // Cache for up to 10 seconds
-          viewerCache.set(cacheKey, {
-            viewer,
-            expiresAt: now + 10_000,
-          });
 
           return viewer;
         }
