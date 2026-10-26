@@ -62,34 +62,6 @@ export const FIVE_STANDARD_QUESTIONS: AssessmentQuestion[] = [
     },
 ]
 
-export interface AssessmentDefinition {
-    id: string
-    title: string
-    description: string
-    duration: number // minutes
-    passingScore: number // percentage
-    technology: string
-    questions: AssessmentQuestion[]
-    _count: {
-        questions: number
-    }
-}
-
-export function getCuratedAssessment(id: string = "test-assessment-1"): AssessmentDefinition {
-    return {
-        id,
-        title: "Programming & Data Science Core Assessment",
-        description: "5 curated questions covering Python data structures, search algorithms, SQL querying, Machine Learning regularization, and JavaScript fundamentals.",
-        duration: 15,
-        passingScore: 60,
-        technology: "General Tech & AI",
-        questions: FIVE_STANDARD_QUESTIONS,
-        _count: {
-            questions: FIVE_STANDARD_QUESTIONS.length,
-        },
-    }
-}
-
 export interface EvaluationResult {
     score: number
     passed: boolean

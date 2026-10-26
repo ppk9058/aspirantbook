@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import AssessmentInterface from "@/components/assessment/AssessmentInterface"
-import { FIVE_STANDARD_QUESTIONS } from "@/lib/assessments-data"
+import ServiceUnavailable from "@/components/system/ServiceUnavailable"
 
 interface TakeAssessmentPageProps {
     params: Promise<{
@@ -15,71 +15,70 @@ interface TakeAssessmentPageProps {
 
 export default async function TakeAssessmentPage({ params, searchParams }: TakeAssessmentPageProps) {
     const { id } = await params
-    const { attemptId: rawAttemptId } = await searchParams
+    const { attemptId } = await searchParams
     const session = await auth()
 
-    if (!session) {
+    if (!session?.user?.id) {
         redirect("/login")
     }
 
-    const effectiveAttemptId = rawAttemptId || `attempt-${Date.now()}`
+    // Attempts are only ever created by /api/assessments/[id]/start
+    if (!attemptId) {
+        redirect(`/assessments/${id}`)
+    }
 
     let attempt: any = null
 
-    if (rawAttemptId && rawAttemptId !== "mock-attempt-id" && !rawAttemptId.startsWith("mock-")) {
-        try {
-            attempt = await prisma.assessmentAttempt.findUnique({
-                where: { id: rawAttemptId },
-                include: {
-                    assessment: {
-                        include: {
-                            questions: {
-                                select: {
-                                    id: true,
-                                    type: true,
-                                    question: true,
-                                    options: true,
-                                    points: true,
-                                    order: true,
-                                },
-                                orderBy: {
-                                    order: "asc",
-                                },
+    try {
+        attempt = await prisma.assessmentAttempt.findUnique({
+            where: { id: attemptId },
+            include: {
+                assessment: {
+                    include: {
+                        questions: {
+                            select: {
+                                id: true,
+                                type: true,
+                                question: true,
+                                options: true,
+                                points: true,
+                                order: true,
+                            },
+                            orderBy: {
+                                order: "asc",
                             },
                         },
                     },
                 },
-            })
-        } catch {
-            console.warn("Database offline on /assessments/[id]/take, using curated questions.")
-        }
-    }
-
-    // Curated 5-question fallback
-    if (!attempt) {
-        attempt = {
-            id: effectiveAttemptId,
-            userId: session.user.id,
-            assessmentId: id,
-            startedAt: new Date(),
-            completedAt: null,
-            assessment: {
-                duration: 15,
-                questions: FIVE_STANDARD_QUESTIONS,
             },
-        }
+        })
+    } catch (error) {
+        // Fail closed: never serve a fabricated exam when the database is unreachable.
+        console.error("[assessments/take] Failed to load attempt", error)
+        return (
+            <ServiceUnavailable
+                title="Assessment temporarily unavailable"
+                description="We could not load this attempt right now. Your answers so far are saved - please try again in a moment."
+                homeHref={`/assessments/${id}`}
+                homeLabel="Back to assessment"
+            />
+        )
     }
 
-    const questionsToServe =
-        attempt.assessment?.questions && attempt.assessment.questions.length > 0
-            ? attempt.assessment.questions
-            : FIVE_STANDARD_QUESTIONS
+    if (!attempt || attempt.userId !== session.user.id) {
+        notFound()
+    }
+
+    const questions = attempt.assessment?.questions || []
+    if (questions.length === 0) {
+        redirect(`/assessments/${id}`)
+    }
 
     return (
         <AssessmentInterface
-            attemptId={effectiveAttemptId}
+            attemptId={attempt.id}
             assessmentId={id}
-            questions={questionsToServe}
+            questions={questions}
             duration={attempt.assessment?.duration || 15}
         />
     )

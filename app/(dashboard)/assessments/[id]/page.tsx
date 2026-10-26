@@ -3,7 +3,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { notFound } from "next/navigation"
 import AssessmentOverview from "@/components/assessment/AssessmentOverview"
-import { getCuratedAssessment } from "@/lib/assessments-data"
+import ServiceUnavailable from "@/components/system/ServiceUnavailable"
 
 interface AssessmentPageProps {
     params: Promise<{
@@ -40,13 +40,17 @@ export default async function AssessmentPage({ params }: AssessmentPageProps) {
                 },
             },
         })
-    } catch {
-        console.warn("Database offline on /assessments/[id], serving curated assessment.")
-    }
-
-    // Curated 5-question fallback
-    if (!assessment) {
-        assessment = getCuratedAssessment(id)
+    } catch (error) {
+        // Fail closed: never render a curated mock assessment when the database is unreachable.
+        console.error("[assessments] Failed to load assessment", error)
+        return (
+            <ServiceUnavailable
+                title="Assessment temporarily unavailable"
+                description="We could not load this assessment right now. Please try again in a moment."
+                homeHref="/assessments"
+                homeLabel="Back to assessments"
+            />
+        )
     }
 
     if (!assessment) {
