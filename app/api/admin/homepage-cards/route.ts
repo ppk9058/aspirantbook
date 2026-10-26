@@ -2,10 +2,11 @@ import { NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { prisma } from "@/lib/prisma"
-import fs from "fs"
-import path from "path"
+import { getPlatformSetting, setPlatformSetting, PLATFORM_SETTING_KEYS } from "@/lib/platform-settings"
 
-const CARDS_FILE_PATH = path.join(process.cwd(), "data", "homepage-cards.json")
+// B-006: homepage card configuration lives in the database (PlatformSetting).
+// It used to be written to data/homepage-cards.json with fs.writeFileSync, which
+// is per-instance and ephemeral on serverless.
 
 export async function GET() {
     try {
@@ -14,11 +15,8 @@ export async function GET() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
         }
 
-        let cards: any = {}
-        if (fs.existsSync(CARDS_FILE_PATH)) {
-            const content = fs.readFileSync(CARDS_FILE_PATH, "utf-8")
-            cards = JSON.parse(content)
-        }
+        const stored = await getPlatformSetting<Record<string, unknown>>(PLATFORM_SETTING_KEYS.homepageCards)
+        const cards = stored ?? {}
 
         // Fetch DB courses to allow easy 1-click linking
         const courses = await prisma.course.findMany({
@@ -56,7 +54,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid cards payload" }, { status: 400 })
         }
 
-        fs.writeFileSync(CARDS_FILE_PATH, JSON.stringify(body.cards, null, 2), "utf-8")
+        await setPlatformSetting(PLATFORM_SETTING_KEYS.homepageCards, body.cards, user.userId)
 
         try {
             revalidatePath("/")

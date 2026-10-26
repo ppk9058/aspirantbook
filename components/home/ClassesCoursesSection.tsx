@@ -4,24 +4,20 @@ import { BookOpen, Calendar, ChevronRight, Phone } from "lucide-react"
 import ClassesTabsClient from "./ClassesTabsClient"
 import { CLASS_TABS, COURSES_DATA, COURSE_SLUG_MAP, BatchCourse } from "./homepage-courses.data"
 import BatchCardItem from "./BatchCardItem"
-import fs from "fs"
-import path from "path"
-
 import { prisma } from "@/lib/prisma"
 import { formatUtcToIst, isSlotExpired } from "@/lib/demo/slot-utils"
+import { getPlatformSetting, PLATFORM_SETTING_KEYS } from "@/lib/platform-settings"
 
 export { COURSE_SLUG_MAP }
 export type { BatchCourse }
 
-function getHomepageCards(): Record<string, { sectionTitle: string; batches: BatchCourse[] }> {
+async function getHomepageCards(): Promise<Record<string, { sectionTitle: string; batches: BatchCourse[] }>> {
     try {
-        const filePath = path.join(process.cwd(), "data", "homepage-cards.json")
-        if (fs.existsSync(filePath)) {
-            const raw = fs.readFileSync(filePath, "utf-8")
-            const parsed = JSON.parse(raw)
-            if (parsed && typeof parsed === "object") {
-                return parsed
-            }
+        const parsed = await getPlatformSetting<Record<string, { sectionTitle: string; batches: BatchCourse[] }>>(
+            PLATFORM_SETTING_KEYS.homepageCards
+        )
+        if (parsed && typeof parsed === "object") {
+            return parsed
         }
     } catch (e) {
         // Fallback to static COURSES_DATA
@@ -30,7 +26,7 @@ function getHomepageCards(): Record<string, { sectionTitle: string; batches: Bat
 }
 
 export default async function ClassesCoursesSection() {
-    const cardsData = getHomepageCards()
+    const cardsData = await getHomepageCards()
 
     // Fetch upcoming demo slots dynamically to show badges only when enabled and slot exists
     let demoBadgeMap: Record<string, string> = {}
