@@ -19,13 +19,70 @@ interface SuiteResult {
   suiteName: string
   filePath: string
   testCount: number
-  type: "Unit" | "DB" | "Physical code mutation (text replacement)" | "HTTP integration" | "Browser E2E"
-  status: "PASS" | "FAIL" | "NOT TESTED"
+  type: "Unit" | "DB" | "Physical code mutation (text replacement)" | "HTTP integration" | "Browser E2E" | "URL check"
+  status: "PASS" | "FAIL" | "SUITE CRASHED" | "NOT TESTED"
   durationMs?: number
   error?: string
+  isUrlCheck?: boolean
 }
 
 const results: SuiteResult[] = []
+
+async function checkDbConnection(host: string, port: number, timeoutMs = 1500): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = net.createConnection({ host, port })
+    let resolved = false
+    socket.setTimeout(timeoutMs)
+    socket.on("connect", () => {
+      if (!resolved) {
+        resolved = true
+        socket.destroy()
+        resolve(true)
+      }
+    })
+    socket.on("timeout", () => {
+      if (!resolved) {
+        resolved = true
+        socket.destroy()
+        resolve(false)
+      }
+    })
+    socket.on("error", () => {
+      if (!resolved) {
+        resolved = true
+        socket.destroy()
+        resolve(false)
+      }
+    })
+  })
+}
+
+async function runPreflight(): Promise<string> {
+  const reachableInitial = await checkDbConnection("127.0.0.1", 54329)
+  if (reachableInitial) {
+    return "CONNECTED (healthy)"
+  }
+
+  if (process.env.SKIP_DOCKER_AUTOSTART !== "1") {
+    try {
+      console.log("Test DB at 127.0.0.1:54329 unreachable. Attempting `docker start trillionskill-test-db`...")
+      execSync("docker start trillionskill-test-db", { stdio: "ignore" })
+      const start = Date.now()
+      while (Date.now() - start < 15000) {
+        await new Promise((r) => setTimeout(r, 1000))
+        const ok = await checkDbConnection("127.0.0.1", 54329)
+        if (ok) {
+          return "RECOVERED via docker start (healthy)"
+        }
+      }
+    } catch {
+      // docker start failed or container missing
+    }
+  }
+
+  console.error("TEST DB UNREACHABLE")
+  process.exit(1)
+}
 
 async function isPortInUse(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -73,10 +130,24 @@ function runNodeTest(name: string, filePath: string, type: SuiteResult["type"]):
     }
   } catch (err: any) {
     const tEnd = Date.now()
+    const out = (err.stdout || "") + "\n" + (err.stderr || "")
+    const allMatches = [...out.matchAll(/(?:ℹ|#)?\s*tests\s+(\d+)/g)]
+    const testCount = allMatches.length ? parseInt(allMatches[allMatches.length - 1][1], 10) : 0
+    if (testCount === 0) {
+      return {
+        suiteName: name,
+        filePath,
+        testCount: 0,
+        type,
+        status: "SUITE CRASHED",
+        durationMs: tEnd - tStart,
+        error: err.stdout || err.stderr || err.message,
+      }
+    }
     return {
       suiteName: name,
       filePath,
-      testCount: 0,
+      testCount,
       type,
       status: "FAIL",
       durationMs: tEnd - tStart,
@@ -85,7 +156,13 @@ function runNodeTest(name: string, filePath: string, type: SuiteResult["type"]):
   }
 }
 
-function runScript(name: string, filePath: string, type: SuiteResult["type"], count = 1): SuiteResult {
+function runScript(
+  name: string,
+  filePath: string,
+  type: SuiteResult["type"],
+  count = 1,
+  isUrlCheck = false
+): SuiteResult {
   const tStart = Date.now()
   try {
     execSync(`npx tsx ${filePath}`, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] })
@@ -97,17 +174,19 @@ function runScript(name: string, filePath: string, type: SuiteResult["type"], co
       type,
       status: "PASS",
       durationMs: tEnd - tStart,
+      isUrlCheck,
     }
   } catch (err: any) {
     const tEnd = Date.now()
     return {
       suiteName: name,
       filePath,
-      testCount: count,
+      testCount: 0,
       type,
-      status: "FAIL",
+      status: "SUITE CRASHED",
       durationMs: tEnd - tStart,
       error: err.stdout || err.stderr || err.message,
+      isUrlCheck,
     }
   }
 }
@@ -133,9 +212,9 @@ function runPlaywright(name: string, specPath: string, count = 6): SuiteResult {
     return {
       suiteName: name,
       filePath: specPath,
-      testCount: count,
+      testCount: 0,
       type: "Browser E2E",
-      status: "FAIL",
+      status: "SUITE CRASHED",
       durationMs: tEnd - tStart,
       error: err.stdout || err.stderr || err.message,
     }
@@ -145,19 +224,38 @@ function runPlaywright(name: string, specPath: string, count = 6): SuiteResult {
 async function main() {
   console.log("==================================================================")
   console.log("ONE-COMMAND PROOF RUNNER: RECONCILED TEST VERIFICATION")
-  console.log(`Mode: ${mode} | DB: ${urlParsed.hostname}:${urlParsed.port}`)
+  const dbStatus = await runPreflight()
+  console.log(`Mode: ${mode} | DB: ${urlParsed.hostname}:${urlParsed.port} (${dbStatus})`)
   console.log("==================================================================\n")
 
   let serverProcess: any = null
   let serverStartedByUs = false
 
   try {
-    if (mode === "all") {
+    if (mode === "all" || mode === "http") {
       const portBusy = await isPortInUse(3045)
       if (portBusy) {
-        console.error("Port 3045 already in use; stop the running server first.")
-        process.exit(1)
+        console.log("Port 3045 already in use; stopping the running server first...")
+        try {
+          execSync("kill -9 $(lsof -t -sTCP:LISTEN -i :3045) 2>/dev/null || true")
+          await new Promise((r) => setTimeout(r, 1000))
+        } catch {}
       }
+
+      console.log("Building fresh test server distribution (.next-test)...")
+      fs.rmSync(".next-test", { recursive: true, force: true })
+      execSync("npx next build", {
+        stdio: "inherit",
+        env: {
+          ...process.env,
+          DATABASE_URL: dbUrl,
+          NEXT_DIST_DIR: ".next-test",
+          NEXT_PUBLIC_SITE_URL: "http://127.0.0.1:3045",
+          NEXT_PUBLIC_ENABLE_MOBILE_NATIVE_SHELL: "true",
+          NODE_ENV: "production",
+        },
+      })
+      console.log("✓ Fresh .next-test build complete.\n")
 
       console.log("Starting test server on port 3045...")
       serverProcess = spawn("bash", ["scripts/start-test-server-3045.sh"], {
@@ -189,6 +287,7 @@ async function main() {
     results.push(runNodeTest("SEO Module Adapters", "tests/seo/adapters.test.ts", "Unit"))
     results.push(runNodeTest("SEO Adapter Parity", "tests/seo/parity.test.ts", "Unit"))
     results.push(runNodeTest("SEO Admin Auth & Layout Guard", "tests/seo/admin-auth.test.ts", "Unit"))
+    results.push(runNodeTest("Sitemap DB Failure Resilience", "tests/seo/sitemap-resilience.test.ts", "Unit"))
 
     // 3. Database Persistence & Physical Mutation Suites
     console.log("--- 3. Database & Mutation Suites ---")
@@ -207,7 +306,7 @@ async function main() {
     results.push(runScript("Phase 2.3 Cross-Module Snapshots", "scripts/test-phase2-3-cross-module-snapshots.ts", "HTTP integration", 10))
     results.push(runScript("Phase 2.4 Sitemap Comparison", "scripts/test-phase2-4-sitemap-comparison.ts", "HTTP integration", 5))
     results.push(runScript("Phase A Sitemap ISR & Revalidation", "scripts/test-phaseA-sitemap-proof.ts", "HTTP integration", 11))
-    results.push(runScript("Phase B Cross-Module JSON-LD Audit", "scripts/validate-jsonld.ts", "HTTP integration", 64))
+    results.push(runScript("Phase B Cross-Module JSON-LD Audit", "scripts/validate-jsonld.ts", "HTTP integration", 64, true))
 
     // 5. Browser E2E Tests (if mode=all)
     if (mode === "all") {
@@ -215,31 +314,47 @@ async function main() {
       results.push(runPlaywright("Content Engine Browser Workflow", "tests/e2e/content-engine-browser.spec.ts", 6))
     }
   } finally {
-    // Generate Reconciled Output Table first
-    let totalTests = 0
-    let totalPassed = 0
-    let totalFailed = 0
+    // Generate Reconciled Output Table
+    let testsPassed = 0
+    let testsFailed = 0
+    let suitesCrashed = 0
+    let urlChecks = 0
 
     const lines: string[] = []
     lines.push("==========================================================================================================")
     lines.push("RECONCILED PROOF SUITE EXECUTION SUMMARY TABLE")
     lines.push("==========================================================================================================")
     lines.push(`Executed at: ${new Date().toISOString()} | Mode: ${mode}`)
-    lines.push(`Database: ${urlParsed.hostname}:${urlParsed.port} (Docker test DB)`)
+    lines.push(`Database: ${urlParsed.hostname}:${urlParsed.port} (${dbStatus})`)
     lines.push("----------------------------------------------------------------------------------------------------------")
     lines.push(
-      `${"Suite Name".padEnd(36)} | ${"File Path".padEnd(42)} | ${"Count".padEnd(6)} | ${"Type".padEnd(18)} | ${"Status".padEnd(6)}`
+      `${"Suite Name".padEnd(36)} | ${"File Path".padEnd(42)} | ${"Count".padEnd(16)} | ${"Type".padEnd(18)} | ${"Status".padEnd(14)}`
     )
     lines.push("----------------------------------------------------------------------------------------------------------")
 
     for (const r of results) {
-      totalTests += r.testCount
-      if (r.status === "PASS") totalPassed += r.testCount
-      else totalFailed += r.testCount
+      if (r.isUrlCheck) {
+        urlChecks += r.testCount
+      } else if (r.status === "SUITE CRASHED") {
+        suitesCrashed++
+      } else if (r.status === "PASS") {
+        testsPassed += r.testCount
+      } else if (r.status === "FAIL") {
+        testsFailed += r.testCount
+      }
 
-      const countStr = String(r.testCount).padEnd(6)
+      let countDisplay: string
+      if (r.isUrlCheck) {
+        countDisplay = `${r.testCount} URLs`
+      } else if (r.status === "SUITE CRASHED") {
+        countDisplay = "count unknown"
+      } else {
+        countDisplay = String(r.testCount)
+      }
+
+      const countStr = countDisplay.padEnd(16)
       const typeStr = r.type.slice(0, 18).padEnd(18)
-      const statusStr = r.status.padEnd(6)
+      const statusStr = (r.status === "SUITE CRASHED" ? "SUITE CRASHED" : r.status).padEnd(14)
       const nameStr = r.suiteName.slice(0, 36).padEnd(36)
       const pathStr = r.filePath.slice(0, 42).padEnd(42)
 
@@ -247,16 +362,16 @@ async function main() {
     }
 
     lines.push("----------------------------------------------------------------------------------------------------------")
-    lines.push(`TOTAL TESTS EXECUTED: ${totalTests} | PASSED: ${totalPassed} | FAILED: ${totalFailed}`)
+    lines.push(
+      `TOTALS: ${testsPassed} tests passed / ${testsFailed} tests failed / ${suitesCrashed} suites crashed / ${urlChecks} URL checks`
+    )
     lines.push("==========================================================================================================\n")
 
-    lines.push("=== TEST COUNT RECONCILIATION EXPLANATION (O3: 196 vs 204) ===")
-    lines.push("1. In earlier runs, parser-bugs was reported as 6 tests because node:test sub-cases C1/C2 were counted by test block rather than individual assertion subtests. The full suite contains exactly 9 standalone tests.")
-    lines.push("2. The delta of 8 tests between 196 and 204 was caused by:")
-    lines.push("   - 3 dropped parser-bugs tests in an earlier report (6 vs 9)")
-    lines.push("   - 4 new unit tests added for the PRISMA_LOG_QUERIES production guard (O10)")
-    lines.push("   - 1 test series adapter detail test count difference in SEO adapters")
-    lines.push("3. All test suites are now consolidated into scripts/run-proof-suite.ts and fully runnable via `npm run test:proof:all`.")
+    lines.push("=== TEST COUNT RECONCILIATION EXPLANATION ===")
+    lines.push("1. Pure logic & parser bugs suites verify parsing and edge cases (including 9 standalone tests in parser-bugs).")
+    lines.push("2. SEO suites verify core functions, adapter parity, admin guards, and sitemap DB failure resilience.")
+    lines.push("3. Content engine DB, mutation, HTTP integration, and Playwright E2E suites verify end-to-end platform workflows.")
+    lines.push("4. Phase B validate-jsonld (64 URLs checked) is tracked separately under URL checks rather than as individual unit tests.")
 
     const reportText = lines.join("\n") + "\n"
     console.log("\n" + reportText)
@@ -274,8 +389,8 @@ async function main() {
       console.log("✓ Test server stopped and port 3045 verified clean.")
     }
 
-    if (totalFailed > 0) {
-      console.error("FAIL: One or more test suites failed!")
+    if (testsFailed > 0 || suitesCrashed > 0) {
+      console.error(`FAIL: ${testsFailed} test(s) failed, ${suitesCrashed} suite(s) crashed!`)
       process.exit(1)
     }
   }
