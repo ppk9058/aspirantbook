@@ -1548,3 +1548,74 @@ model DeviceSession {
   @@index([familyId])
   @@index([expiresAt])
 }
+
+// ---------------------------------------------------------------------------
+// Phase 3 persistence (B-005, B-006, S5). Additive only: new tables, new
+// indexes. These replace the serverless-unsafe data/*.json stores.
+// ---------------------------------------------------------------------------
+
+model Book {
+  id           String   @id
+  slug         String   @unique
+  title        String
+  status       String   @default("published")
+  price        Int      @default(0)
+  salesCount   Int      @default(0)
+  /// Full Book payload (see lib/books/types.ts) so the public API shape is unchanged.
+  data         Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+}
+
+model BookOrder {
+  id                String   @id
+  orderNumber       String   @unique
+  userId            String?
+  userEmail         String?
+  status            String   @default("pending_payment")
+  finalTotal        Int      @default(0)
+  razorpayOrderId   String?  @unique
+  razorpayPaymentId String?  @unique
+  /// Full BookOrder payload (items, totals, coupon, timestamps) as stored before.
+  data              Json
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model BookCoupon {
+  code         String   @id
+  title        String   @default("")
+  discountType String   @default("PERCENT")
+  value        Int      @default(0)
+  minCartValue Int      @default(0)
+  /// null = unlimited redemptions.
+  usageLimit   Int?
+  redemptions  Int      @default(0)
+  isActive     Boolean  @default(true)
+  /// Full Coupon payload (description and any future fields).
+  data         Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model PlatformSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}
+
+model BookWishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, bookId])
+  @@index([userId])
+}
