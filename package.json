@@ -2,6 +2,9 @@
   "name": "aspirantbook",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "predev": "npm run db:check",
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' next dev",
@@ -22,7 +25,10 @@
     "perf:check": "tsx scripts/perf-check.ts",
     "test:content-engine": "tsx --test --test-concurrency=1 tests/content-engine/**/*.test.ts",
     "test:proof:http": "tsx scripts/run-proof-suite.ts --mode=http",
-    "test:proof:all": "tsx scripts/run-proof-suite.ts --mode=all"
+    "test:proof:all": "tsx scripts/run-proof-suite.ts --mode=all",
+    "dev:lan": "node scripts/dev-lan.mjs",
+    "mobile:env": "node scripts/mobile-env.mjs",
+    "seed:mobile-test": "node --env-file=.env.test node_modules/.bin/tsx scripts/seed-mobile-test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.940.0",
@@ -67,6 +73,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "dockerode": "^4.0.9",
+    "dompurify": "^3.4.17",
     "framer-motion": "^12.23.24",
     "ioredis": "^5.8.2",
     "katex": "^0.18.9",

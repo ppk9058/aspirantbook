@@ -25,6 +25,12 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@aspirantbook/shared": [
+        "./packages/shared/src/index.ts"
+      ],
+      "@aspirantbook/shared/*": [
+        "./packages/shared/src/*"
       ]
     }
   },
@@ -38,6 +44,7 @@
     ".next-test/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "apps"
   ]
 }

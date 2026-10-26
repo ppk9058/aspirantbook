@@ -195,7 +195,7 @@ export async function PUT(
       testType,
       accessMode,
       durationMinutes,
-      sections,
+      sections: rawSections,
       isPublished: reqPublishState,
       isLive,
       liveStartAt,
@@ -227,7 +227,54 @@ export async function PUT(
       return NextResponse.json({ error: "Test title is required" }, { status: 400 });
     }
 
-    if (!Array.isArray(sections) || sections.length === 0) {
+    // Normalize sections and question schemas (e.g. textEnglish -> questionEn, options array -> optionAEn..DEn)
+    const sections = Array.isArray(rawSections)
+      ? rawSections.map((sec: any) => ({
+          ...sec,
+          questions: Array.isArray(sec.questions)
+            ? sec.questions.map((q: any) => {
+                const options = Array.isArray(q.options) ? q.options : [];
+                const optAEn = q.optionAEn ?? options[0]?.english ?? options[0]?.text ?? "";
+                const optBEn = q.optionBEn ?? options[1]?.english ?? options[1]?.text ?? "";
+                const optCEn = q.optionCEn ?? options[2]?.english ?? options[2]?.text ?? "";
+                const optDEn = q.optionDEn ?? options[3]?.english ?? options[3]?.text ?? "";
+
+                const optAHi = q.optionAHi ?? options[0]?.hindi ?? null;
+                const optBHi = q.optionBHi ?? options[1]?.hindi ?? null;
+                const optCHi = q.optionCHi ?? options[2]?.hindi ?? null;
+                const optDHi = q.optionDHi ?? options[3]?.hindi ?? null;
+
+                let correct = q.correctOption;
+                if (correct === undefined && q.correctAnswer !== undefined) {
+                  if (typeof q.correctAnswer === "number") {
+                    correct = ["A", "B", "C", "D"][q.correctAnswer] || "A";
+                  } else {
+                    correct = String(q.correctAnswer);
+                  }
+                }
+
+                return {
+                  ...q,
+                  questionEn: q.questionEn ?? q.textEnglish ?? q.question ?? "",
+                  questionHi: q.questionHi ?? q.textHindi ?? null,
+                  optionAEn: optAEn,
+                  optionBEn: optBEn,
+                  optionCEn: optCEn,
+                  optionDEn: optDEn,
+                  optionAHi: optAHi,
+                  optionBHi: optBHi,
+                  optionCHi: optCHi,
+                  optionDHi: optDHi,
+                  correctOption: correct,
+                  explanationEn: q.explanationEn ?? q.explanationEnglish ?? "",
+                  explanationHi: q.explanationHi ?? q.explanationHindi ?? null,
+                };
+              })
+            : [],
+        }))
+      : [];
+
+    if (sections.length === 0) {
       return NextResponse.json({ error: "At least one section is required" }, { status: 400 });
     }
 
@@ -319,20 +366,18 @@ export async function PUT(
     // CASE 1: PUBLISHED TEST — STRUCTURE IS STRICTLY LOCKED
     // ──────────────────────────────────────────────────────────────────────────
     if (isPublishedTest) {
-      // Test-level locked fields if there are student attempts: duration, testType
-      if (existingTest._count.attempts > 0) {
-        if (body.durationMinutes !== undefined && Number(body.durationMinutes) !== existingTest.durationMinutes) {
-          return NextResponse.json(
-            { error: `Structure locked: Cannot alter duration on published test with student attempts (current: ${existingTest.durationMinutes}m, received: ${body.durationMinutes}m).` },
-            { status: 400 }
-          );
-        }
-        if (body.testType !== undefined && body.testType !== existingTest.testType) {
-          return NextResponse.json(
-            { error: `Structure locked: Cannot alter test type on published test with student attempts.` },
-            { status: 400 }
-          );
-        }
+      // Test-level locked fields: duration, testType
+      if (body.durationMinutes !== undefined && Number(body.durationMinutes) !== existingTest.durationMinutes) {
+        return NextResponse.json(
+          { error: `Structure locked: Cannot alter duration on published test (current: ${existingTest.durationMinutes}m, received: ${body.durationMinutes}m).` },
+          { status: 400 }
+        );
+      }
+      if (body.testType !== undefined && body.testType !== existingTest.testType) {
+        return NextResponse.json(
+          { error: `Structure locked: Cannot alter test type on published test.` },
+          { status: 400 }
+        );
       }
 
       // 1. Must have exact same number of sections

@@ -3,6 +3,7 @@ import Image from "next/image"
 import { Video, Headphones, CalendarCheck, Award, ArrowRight, Sparkles, BookOpen } from "lucide-react"
 import ClassesCoursesSection from "@/components/home/ClassesCoursesSection"
 import HomeHeaderUserCTA from "@/components/home/HomeHeaderUserCTA"
+import Footer from "@/components/layout/Footer"
 import { auth } from "@/auth"
 import { getDashboardHref } from "@/lib/auth/roles"
 import { LANDING_NAV_ITEMS } from "@/lib/navigation/landing-nav"
@@ -290,6 +291,9 @@ export default async function LandingHomePage() {
 
             {/* Class 6 to 12 & Skills Batches Section */}
             <ClassesCoursesSection />
+
+            {/* Footer with Legal & Policies */}
+            <Footer />
         </div>
     )
 }

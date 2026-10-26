@@ -9,45 +9,47 @@ datasource db {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  email              String              @unique
-  password           String?
-  name               String?
-  image              String?
-  phoneNumber        String?             @unique
-  role               UserRole            @default(FREE)
-  xp                 Int                 @default(0)
-  level              Int                 @default(1)
-  streak             Int                 @default(0)
-  lastActive         DateTime?
-  selectedGoal       String?
-  selectedSubGoal    String?
-  emailVerified      DateTime?
-  isActive           Boolean             @default(true)
-  sessionVersion     Int                 @default(1)
-  failedLoginAttempts Int                @default(0)
-  lockedUntil        DateTime?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  accounts           Account[]
-  assessmentAttempts AssessmentAttempt[]
-  contentUploads     ContentUpload[]
-  enrollments        Enrollment[]
-  notifications      Notification[]
-  payments           Payment[]
-  progress           Progress[]
-  submissions        Submission[]
-  subscriptions      Subscription[]
-  achievements       UserAchievement[]
-  userAnalytics      UserAnalytics[]
-  examAttempts       ExamAttempt[]
+  id                    String                 @id @default(cuid())
+  email                 String                 @unique
+  password              String?
+  name                  String?
+  image                 String?
+  phoneNumber           String?                @unique
+  role                  UserRole               @default(FREE)
+  xp                    Int                    @default(0)
+  level                 Int                    @default(1)
+  streak                Int                    @default(0)
+  lastActive            DateTime?
+  selectedGoal          String?
+  selectedSubGoal       String?
+  emailVerified         DateTime?
+  isActive              Boolean                @default(true)
+  sessionVersion        Int                    @default(1)
+  failedLoginAttempts   Int                    @default(0)
+  lockedUntil           DateTime?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  accounts              Account[]
+  assessmentAttempts    AssessmentAttempt[]
+  contentUploads        ContentUpload[]
+  enrollments           Enrollment[]
+  notifications         Notification[]
+  payments              Payment[]
+  progress              Progress[]
+  submissions           Submission[]
+  subscriptions         Subscription[]
+  achievements          UserAchievement[]
+  userAnalytics         UserAnalytics[]
+  examAttempts          ExamAttempt[]
   examSeriesEnrollments ExamSeriesEnrollment[]
-  demoBookings       CourseDemoBooking[]
-  demoBookingsV2     DemoBooking[]
-  demoStageSessions  DemoStageSession[]
-  couponRedemptions  CouponRedemption[]
-  createdDemoSlots   DemoSlot[]          @relation("UserCreatedDemoSlots")
-  currentAffairsPdfs CurrentAffairsPdf[] @relation("UserCurrentAffairsPdfs")
+  demoBookings          CourseDemoBooking[]
+  demoBookingsV2        DemoBooking[]
+  demoStageSessions     DemoStageSession[]
+  couponRedemptions     CouponRedemption[]
+  createdDemoSlots      DemoSlot[]             @relation("UserCreatedDemoSlots")
+  currentAffairsPdfs    CurrentAffairsPdf[]    @relation("UserCurrentAffairsPdfs")
+  pushTokens            DevicePushToken[]
+  deviceSessions        DeviceSession[]
 
   @@index([email])
   @@index([role])
@@ -90,49 +92,49 @@ model Track {
 }
 
 model Course {
-  id              String            @id @default(cuid())
-  title           String
-  slug            String            @unique
-  description     String
-  thumbnailUrl    String?
-  difficulty      Difficulty
-  duration        Int               @default(0)
-  rating          Float             @default(0)
-  enrollmentCount Int               @default(0)
-  technology      String            @default("")
-  prerequisites   String[]
-  status          CourseStatus      @default(DRAFT)
-  isPremium       Boolean           @default(false)
-  isPublished     Boolean           @default(false)
-  price           Int?              @default(0)
-  originalPrice   Int?              @default(0)
-  discountPercent Int?              @default(0)
-  couponCode      String?           @default("OFF50")
-  couponDiscount  Int?              @default(50)
-  expiresAt       String?           @default("Oct 30, 2026")
-  hasTrialLesson  Boolean           @default(true)
-  metadataJson    String?
-  externalId      String?           @unique
-  theme           Json?
-  schemaVersion   Int               @default(1)
+  id                String              @id @default(cuid())
+  title             String
+  slug              String              @unique
+  description       String
+  thumbnailUrl      String?
+  difficulty        Difficulty
+  duration          Int                 @default(0)
+  rating            Float               @default(0)
+  enrollmentCount   Int                 @default(0)
+  technology        String              @default("")
+  prerequisites     String[]
+  status            CourseStatus        @default(DRAFT)
+  isPremium         Boolean             @default(false)
+  isPublished       Boolean             @default(false)
+  price             Int?                @default(0)
+  originalPrice     Int?                @default(0)
+  discountPercent   Int?                @default(0)
+  couponCode        String?             @default("OFF50")
+  couponDiscount    Int?                @default(50)
+  expiresAt         String?             @default("Oct 30, 2026")
+  hasTrialLesson    Boolean             @default(true)
+  metadataJson      String?
+  externalId        String?             @unique
+  theme             Json?
+  schemaVersion     Int                 @default(1)
   // Authwall Gate Settings
-  isGated           Boolean           @default(false)
-  previewPercentage Int               @default(20)
-  seoMode           String            @default("preview") // "preview" | "bot-full"
+  isGated           Boolean             @default(false)
+  previewPercentage Int                 @default(20)
+  seoMode           String              @default("preview") // "preview" | "bot-full"
   gateTitle         String?
   gateSubtitle      String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  chapters        Chapter[]
-  contentUploads  ContentUpload[]
-  courseAnalytics CourseAnalytics[]
-  enrollments     Enrollment[]
-  reviews         Review[]
-  tracks          TrackCourse[]
-  demoBookings    CourseDemoBooking[]
-  demoSlots       DemoSlot[]
-  demoBookingsV2  DemoBooking[]
-  coupons         Coupon[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  chapters          Chapter[]
+  contentUploads    ContentUpload[]
+  courseAnalytics   CourseAnalytics[]
+  enrollments       Enrollment[]
+  reviews           Review[]
+  tracks            TrackCourse[]
+  demoBookings      CourseDemoBooking[]
+  demoSlots         DemoSlot[]
+  demoBookingsV2    DemoBooking[]
+  coupons           Coupon[]
   couponRedemptions CouponRedemption[]
 
   @@index([slug])
@@ -157,21 +159,21 @@ model TrackCourse {
 }
 
 model Chapter {
-  id             String          @id @default(cuid())
-  externalId     String?
-  title          String
-  description    String?
-  order          Float           @default(1000)
-  archivedAt     DateTime?
-  locked         Boolean         @default(false)
+  id                String          @id @default(cuid())
+  externalId        String?
+  title             String
+  description       String?
+  order             Float           @default(1000)
+  archivedAt        DateTime?
+  locked            Boolean         @default(false)
   // Authwall Gate Settings
-  gateMode       String          @default("inherit") // "inherit" | "free" | "preview" | "locked"
+  gateMode          String          @default("inherit") // "inherit" | "free" | "preview" | "locked"
   previewPercentage Int?
-  courseId       String
-  createdAt      DateTime        @default(now())
-  course         Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  contentUploads ContentUpload[]
-  lessons        Lesson[]
+  courseId          String
+  createdAt         DateTime        @default(now())
+  course            Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  contentUploads    ContentUpload[]
+  lessons           Lesson[]
 
   @@unique([courseId, externalId])
   @@index([courseId])
@@ -222,20 +224,20 @@ model Lesson {
 }
 
 model LessonVersion {
-  id                      String   @id @default(cuid())
-  lessonId                String
-  status                  String   // "draft" | "published"
-  blocks                  Json
-  schemaVersion           Int      @default(1)
-  contentHash             String?
-  needsReview             Boolean  @default(false)
-  createdBy               String?
-  createdAt               DateTime @default(now())
-  note                    String?
-  source                  String   @default("import") // "import" | "editor" | "restore"
-  lesson                  Lesson   @relation("LessonAllVersions", fields: [lessonId], references: [id], onDelete: Cascade)
-  publishedForLessons     Lesson[] @relation("LessonCurrentPublishedVersion")
-  draftForLessons         Lesson[] @relation("LessonCurrentDraftVersion")
+  id                  String   @id @default(cuid())
+  lessonId            String
+  status              String // "draft" | "published"
+  blocks              Json
+  schemaVersion       Int      @default(1)
+  contentHash         String?
+  needsReview         Boolean  @default(false)
+  createdBy           String?
+  createdAt           DateTime @default(now())
+  note                String?
+  source              String   @default("import") // "import" | "editor" | "restore"
+  lesson              Lesson   @relation("LessonAllVersions", fields: [lessonId], references: [id], onDelete: Cascade)
+  publishedForLessons Lesson[] @relation("LessonCurrentPublishedVersion")
+  draftForLessons     Lesson[] @relation("LessonCurrentDraftVersion")
 
   @@index([lessonId])
   @@index([lessonId, createdAt])
@@ -264,16 +266,16 @@ model CourseDemoBooking {
   userId      String
   courseId    String
   phoneNumber String
-  slotDate    String    // e.g. "Today" or "Tomorrow"
-  slotTime    String    // e.g. "6:00 PM"
+  slotDate    String // e.g. "Today" or "Tomorrow"
+  slotTime    String // e.g. "6:00 PM"
   status      String    @default("SCHEDULED") // SCHEDULED | LIVE | ATTENDED | COMPLETED
   joinedAt    DateTime?
   completedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([courseId])
@@ -302,35 +304,35 @@ enum WhatsAppMessageStatus {
 }
 
 model DemoSlot {
-  id               String            @id @default(cuid())
-  createdById      String?
-  courseId         String
-  startTime        DateTime          // UTC datetime
-  durationMinutes  Int               @default(60)
-  topic            String
-  facultyName      String
-  agoraChannelName String            @unique // ONE channel per slot, shared by all students
-  maxAudience      Int               @default(100)
-  status           DemoSlotStatus    @default(SCHEDULED)
-  stageLayout      String            @default("CORNER") // CORNER | SPLIT
-  maxOnStage       Int               @default(1)
-  startedAt        DateTime?
-  endedAt          DateTime?
-  hostHeartbeatAt  DateTime?
-  teacherLayout       String            @default("FACE_ONLY") // FACE_ONLY | SCREEN_WITH_FACE_CORNER | SCREEN_ONLY
-  screenShareActive   Boolean           @default(false)
-  facePosition        String            @default("top-right") // top-right | top-left | bottom-left | bottom-right
-  screenStartedAt     DateTime?
-  screenEndedAt       DateTime?
-  totalScreenMinutes  Int               @default(0)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  id                 String         @id @default(cuid())
+  createdById        String?
+  courseId           String
+  startTime          DateTime // UTC datetime
+  durationMinutes    Int            @default(60)
+  topic              String
+  facultyName        String
+  agoraChannelName   String         @unique // ONE channel per slot, shared by all students
+  maxAudience        Int            @default(100)
+  status             DemoSlotStatus @default(SCHEDULED)
+  stageLayout        String         @default("CORNER") // CORNER | SPLIT
+  maxOnStage         Int            @default(1)
+  startedAt          DateTime?
+  endedAt            DateTime?
+  hostHeartbeatAt    DateTime?
+  teacherLayout      String         @default("FACE_ONLY") // FACE_ONLY | SCREEN_WITH_FACE_CORNER | SCREEN_ONLY
+  screenShareActive  Boolean        @default(false)
+  facePosition       String         @default("top-right") // top-right | top-left | bottom-left | bottom-right
+  screenStartedAt    DateTime?
+  screenEndedAt      DateTime?
+  totalScreenMinutes Int            @default(0)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 
-  course           Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  createdBy        User?             @relation("UserCreatedDemoSlots", fields: [createdById], references: [id], onDelete: SetNull)
-  bookings         DemoBooking[]
-  chatMessages     DemoChatMessage[]
-  stageSessions    DemoStageSession[]
+  course        Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdBy     User?              @relation("UserCreatedDemoSlots", fields: [createdById], references: [id], onDelete: SetNull)
+  bookings      DemoBooking[]
+  chatMessages  DemoChatMessage[]
+  stageSessions DemoStageSession[]
 
   @@index([courseId])
   @@index([createdById])
@@ -339,25 +341,25 @@ model DemoSlot {
 }
 
 model DemoBooking {
-  id            String             @id @default(cuid())
-  studentId     String
-  mobile        String             // E.164 normalized e.g. +91XXXXXXXXXX
-  slotId        String
-  courseId      String
-  status        DemoBookingStatus  @default(BOOKED)
-  joinedAt      DateTime?
-  leftAt        DateTime?
-  lastSeenAt    DateTime?
-  handRaisedAt  DateTime?
-  watchSeconds  Int                @default(0)
-  utmSource     String?
-  utmCampaign   String?
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id           String            @id @default(cuid())
+  studentId    String
+  mobile       String // E.164 normalized e.g. +91XXXXXXXXXX
+  slotId       String
+  courseId     String
+  status       DemoBookingStatus @default(BOOKED)
+  joinedAt     DateTime?
+  leftAt       DateTime?
+  lastSeenAt   DateTime?
+  handRaisedAt DateTime?
+  watchSeconds Int               @default(0)
+  utmSource    String?
+  utmCampaign  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
-  student       User               @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  slot          DemoSlot           @relation(fields: [slotId], references: [id], onDelete: Cascade)
-  course        Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student       User                 @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  slot          DemoSlot             @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  course        Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
   messageLogs   WhatsAppMessageLog[]
   stageSessions DemoStageSession[]
 
@@ -384,23 +386,23 @@ enum DemoStageStatus {
 }
 
 model DemoStageSession {
-  id         String          @id @default(cuid())
-  slotId     String
-  userId     String
-  bookingId  String
-  mode       DemoStageMode   @default(VIDEO_AUDIO)
-  status     DemoStageStatus @default(INVITED)
-  invitedAt  DateTime        @default(now())
-  startedAt  DateTime?
-  endedAt    DateTime?
-  micMuted   Boolean         @default(false)
-  videoOff   Boolean         @default(false)
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  id        String          @id @default(cuid())
+  slotId    String
+  userId    String
+  bookingId String
+  mode      DemoStageMode   @default(VIDEO_AUDIO)
+  status    DemoStageStatus @default(INVITED)
+  invitedAt DateTime        @default(now())
+  startedAt DateTime?
+  endedAt   DateTime?
+  micMuted  Boolean         @default(false)
+  videoOff  Boolean         @default(false)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
 
-  slot       DemoSlot        @relation(fields: [slotId], references: [id], onDelete: Cascade)
-  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  booking    DemoBooking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  slot    DemoSlot    @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking DemoBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@index([slotId, status])
   @@index([userId])
@@ -421,7 +423,7 @@ model WhatsAppMessageLog {
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @updatedAt
 
-  booking           DemoBooking?          @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  booking DemoBooking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
 
   @@index([bookingId])
   @@index([status])
@@ -435,14 +437,14 @@ model DemoChatMessage {
   id          String   @id @default(cuid())
   slotId      String
   userId      String
-  displayName String   // first name + last 2 digits of phone if name missing
-  role        String   // "STUDENT" | "TEACHER" | "ADMIN"
+  displayName String // first name + last 2 digits of phone if name missing
+  role        String // "STUDENT" | "TEACHER" | "ADMIN"
   message     String   @db.VarChar(300)
   isQuestion  Boolean  @default(false)
   isPinned    Boolean  @default(false)
   createdAt   DateTime @default(now())
 
-  slot        DemoSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  slot DemoSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
 
   @@index([slotId, createdAt])
   @@index([userId])
@@ -647,27 +649,27 @@ model Subscription {
 }
 
 model Payment {
-  id               String            @id @default(cuid())
-  userId           String
-  subscriptionId   String?
-  amount           Float
-  currency         String            @default("USD")
-  status           PaymentStatus
-  paymentMethod    String?
-  paymentProvider  String?
-  externalId       String?           @unique
-  razorpayOrderId  String?           @unique
-  razorpayPaymentId String?          @unique
-  metadata         Json?
-  couponId         String?
-  couponCode       String?
-  originalAmount   Float?
-  discountAmount   Float?
-  createdAt        DateTime          @default(now())
-  subscription     Subscription?     @relation(fields: [subscriptionId], references: [id])
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  coupon           Coupon?           @relation(fields: [couponId], references: [id], onDelete: SetNull)
-  couponRedemption CouponRedemption?
+  id                String            @id @default(cuid())
+  userId            String
+  subscriptionId    String?
+  amount            Float
+  currency          String            @default("USD")
+  status            PaymentStatus
+  paymentMethod     String?
+  paymentProvider   String?
+  externalId        String?           @unique
+  razorpayOrderId   String?           @unique
+  razorpayPaymentId String?           @unique
+  metadata          Json?
+  couponId          String?
+  couponCode        String?
+  originalAmount    Float?
+  discountAmount    Float?
+  createdAt         DateTime          @default(now())
+  subscription      Subscription?     @relation(fields: [subscriptionId], references: [id])
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon            Coupon?           @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  couponRedemption  CouponRedemption?
 
   @@index([userId])
   @@index([subscriptionId])
@@ -680,7 +682,7 @@ model Coupon {
   id                String             @id @default(cuid())
   code              String             @unique
   courseId          String?
-  discountType      String             // "PERCENT" | "FLAT"
+  discountType      String // "PERCENT" | "FLAT"
   discountValue     Float
   maxDiscountAmount Float?
   maxRedemptions    Int?
@@ -691,8 +693,8 @@ model Coupon {
   offerAfterDemo    Boolean            @default(false)
   showOnThumbnail   Boolean            @default(false)
   badgeLabel        String?
-  badgeShape        String?            // STARBURST | RIBBON | CIRCLE | PILL
-  badgeColor        String?            // hex
+  badgeShape        String? // STARBURST | RIBBON | CIRCLE | PILL
+  badgeColor        String? // hex
   createdById       String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
@@ -840,40 +842,40 @@ model RevenueAnalytics {
 // ─── Test Series Engine ───────────────────────────────────────────────────
 
 model ExamSeries {
-  id           String       @id @default(cuid())
-  title        String
-  slug         String       @unique
-  examName     String       // e.g. "BPSC Exam"
-  category     String       // e.g. "Civil Services"
-  description  String?
-  thumbnailUrl String?
-  logoType     String?
-  highlights   String[]     @default([])
-  isFree       Boolean      @default(false)
-  isPublished  Boolean      @default(false)
-  isPro        Boolean      @default(false)
-  totalTests   Int          @default(0)
-  freeTests    Int          @default(0)
-  usersCount   Int          @default(0)
-  languages    String       @default("English, Hindi")
+  id                String                 @id @default(cuid())
+  title             String
+  slug              String                 @unique
+  examName          String // e.g. "BPSC Exam"
+  category          String // e.g. "Civil Services"
+  description       String?
+  thumbnailUrl      String?
+  logoType          String?
+  highlights        String[]               @default([])
+  isFree            Boolean                @default(false)
+  isPublished       Boolean                @default(false)
+  isPro             Boolean                @default(false)
+  totalTests        Int                    @default(0)
+  freeTests         Int                    @default(0)
+  usersCount        Int                    @default(0)
+  languages         String                 @default("English, Hindi")
   // Authwall Gate Settings
-  isGated      Boolean      @default(false)
-  previewPercentage Int      @default(20)
-  seoMode      String       @default("preview") // "preview" | "bot-full"
-  gateTitle    String?
-  gateSubtitle String?
-  bannerUrl    String?
-  syllabus     String?
-  keyFeatures  String[]     @default([])
-  whyThisSeries String?
-  isArchived   Boolean      @default(false)
-  archivedAt   DateTime?
-  createdById  String
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  tests        ExamTest[]
-  enrollments  ExamSeriesEnrollment[]
-  slugHistory  PackageSlugHistory[]
+  isGated           Boolean                @default(false)
+  previewPercentage Int                    @default(20)
+  seoMode           String                 @default("preview") // "preview" | "bot-full"
+  gateTitle         String?
+  gateSubtitle      String?
+  bannerUrl         String?
+  syllabus          String?
+  keyFeatures       String[]               @default([])
+  whyThisSeries     String?
+  isArchived        Boolean                @default(false)
+  archivedAt        DateTime?
+  createdById       String
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  tests             ExamTest[]
+  enrollments       ExamSeriesEnrollment[]
+  slugHistory       PackageSlugHistory[]
 
   @@index([slug])
   @@index([category])
@@ -896,16 +898,16 @@ model PackageSlugHistory {
 
 // Tracks a student's enrollment / pass purchase for a test series
 model ExamSeriesEnrollment {
-  id           String                      @id @default(cuid())
-  userId       String
-  seriesId     String
-  enrollType   ExamSeriesEnrollType        @default(FREE)
-  status       ExamSeriesEnrollStatus      @default(ACTIVE)
-  enrolledAt   DateTime                    @default(now())
-  expiresAt    DateTime?
-  orderId      String?                     // payment order reference
-  user         User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  series       ExamSeries                  @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  id         String                 @id @default(cuid())
+  userId     String
+  seriesId   String
+  enrollType ExamSeriesEnrollType   @default(FREE)
+  status     ExamSeriesEnrollStatus @default(ACTIVE)
+  enrolledAt DateTime               @default(now())
+  expiresAt  DateTime?
+  orderId    String? // payment order reference
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  series     ExamSeries             @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 
   @@unique([userId, seriesId])
   @@index([userId])
@@ -915,8 +917,8 @@ model ExamSeriesEnrollment {
 }
 
 enum ExamSeriesEnrollType {
-  FREE      // enrolled free series
-  PASS      // bought pass
+  FREE // enrolled free series
+  PASS // bought pass
   PURCHASED // bought individual series
 }
 
@@ -927,40 +929,40 @@ enum ExamSeriesEnrollStatus {
 }
 
 model ExamTest {
-  id              String        @id @default(cuid())
-  seriesId        String
-  title           String
-  titleHi         String?       // Hindi title
-  testType        ExamTestType  @default(FULL_MOCK)
-  accessMode      ExamAccess    @default(PRO)
-  durationMinutes Int           @default(120)
-  totalQuestions  Int           @default(150)
-  totalMarks      Int           @default(150)
-  positiveMarks   Float         @default(1.0)
-  negativeMarks   Float         @default(0.33)
-  instructions    String?
-  syllabus        String?
-  syllabusHi      String?       // Hindi syllabus
-  isLive          Boolean       @default(false)
-  liveStartAt     DateTime?
-  liveEndAt       DateTime?
-  order           Int           @default(0)
-  month           Int?
-  year            Int?
-  isPublished     Boolean       @default(false)
-  isArchived      Boolean       @default(false)
-  archivedAt      DateTime?
+  id                String        @id @default(cuid())
+  seriesId          String
+  title             String
+  titleHi           String? // Hindi title
+  testType          ExamTestType  @default(FULL_MOCK)
+  accessMode        ExamAccess    @default(PRO)
+  durationMinutes   Int           @default(120)
+  totalQuestions    Int           @default(150)
+  totalMarks        Int           @default(150)
+  positiveMarks     Float         @default(1.0)
+  negativeMarks     Float         @default(0.33)
+  instructions      String?
+  syllabus          String?
+  syllabusHi        String? // Hindi syllabus
+  isLive            Boolean       @default(false)
+  liveStartAt       DateTime?
+  liveEndAt         DateTime?
+  order             Int           @default(0)
+  month             Int?
+  year              Int?
+  isPublished       Boolean       @default(false)
+  isArchived        Boolean       @default(false)
+  archivedAt        DateTime?
   // Authwall Gate Settings & Pre-chunking
   gateMode          String        @default("inherit") // "inherit" | "free" | "preview" | "locked"
   previewPercentage Int?
   blockCount        Int?
   contentHash       String?
-  createdById     String
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  series          ExamSeries    @relation(fields: [seriesId], references: [id], onDelete: Cascade)
-  sections        ExamSection[]
-  attempts        ExamAttempt[]
+  createdById       String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  series            ExamSeries    @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  sections          ExamSection[]
+  attempts          ExamAttempt[]
 
   @@index([seriesId])
   @@index([testType])
@@ -971,15 +973,15 @@ model ExamTest {
 }
 
 model ExamSection {
-  id            String        @id @default(cuid())
+  id            String         @id @default(cuid())
   testId        String
   title         String
   titleHi       String?
-  order         Int           @default(0)
-  positiveMarks Float         @default(1.0)
-  negativeMarks Float         @default(0.33)
-  timeLimitMins Int?          // null = shared global timer
-  test          ExamTest      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  order         Int            @default(0)
+  positiveMarks Float          @default(1.0)
+  negativeMarks Float          @default(0.33)
+  timeLimitMins Int? // null = shared global timer
+  test          ExamTest       @relation(fields: [testId], references: [id], onDelete: Cascade)
   questions     ExamQuestion[]
 
   @@index([testId])
@@ -987,34 +989,34 @@ model ExamSection {
 }
 
 model ExamQuestion {
-  id             String             @id @default(cuid())
-  sectionId      String
-  questionType   ExamQuestionType   @default(MCQ)
-  questionEn     String             // English text
-  questionHi     String?            // Hindi text
-  optionAEn      String?
-  optionBEn      String?
-  optionCEn      String?
-  optionDEn      String?
-  optionAHi      String?
-  optionBHi      String?
-  optionCHi      String?
-  optionDHi      String?
-  correctOption  String             // "A", "B", "C", "D" or JSON for MSQ
-  explanationEn  String?
-  explanationHi  String?
-  videoUrl       String?
-  difficulty     ExamDifficulty     @default(MODERATE)
-  subject        String?
-  topic          String?
-  subTopic       String?
-  order          Int                @default(0)
-  positiveMarks  Float              @default(1.0)
-  negativeMarks  Float              @default(0.33)
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  section        ExamSection        @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  answers        ExamAttemptAnswer[]
+  id            String              @id @default(cuid())
+  sectionId     String
+  questionType  ExamQuestionType    @default(MCQ)
+  questionEn    String // English text
+  questionHi    String? // Hindi text
+  optionAEn     String?
+  optionBEn     String?
+  optionCEn     String?
+  optionDEn     String?
+  optionAHi     String?
+  optionBHi     String?
+  optionCHi     String?
+  optionDHi     String?
+  correctOption String // "A", "B", "C", "D" or JSON for MSQ
+  explanationEn String?
+  explanationHi String?
+  videoUrl      String?
+  difficulty    ExamDifficulty      @default(MODERATE)
+  subject       String?
+  topic         String?
+  subTopic      String?
+  order         Int                 @default(0)
+  positiveMarks Float               @default(1.0)
+  negativeMarks Float               @default(0.33)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  section       ExamSection         @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  answers       ExamAttemptAnswer[]
 
   @@index([sectionId])
   @@index([sectionId, order])
@@ -1023,26 +1025,26 @@ model ExamQuestion {
 }
 
 model ExamAttempt {
-  id              String             @id @default(cuid())
-  userId          String
-  testId          String
-  language        String             @default("English")
-  status          ExamAttemptStatus  @default(IN_PROGRESS)
-  score           Float              @default(0)
-  totalMarks      Int                @default(0)
-  correctCount    Int                @default(0)
-  wrongCount      Int                @default(0)
-  skippedCount    Int                @default(0)
-  markedCount     Int                @default(0)
-  timeTakenSecs   Int                @default(0)
-  percentile      Float?
-  allIndiaRank    Int?
-  tabSwitchCount  Int                @default(0)
-  startedAt       DateTime           @default(now())
-  submittedAt     DateTime?
-  answers         ExamAttemptAnswer[]
-  test            ExamTest           @relation(fields: [testId], references: [id], onDelete: Cascade)
-  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String              @id @default(cuid())
+  userId         String
+  testId         String
+  language       String              @default("English")
+  status         ExamAttemptStatus   @default(IN_PROGRESS)
+  score          Float               @default(0)
+  totalMarks     Int                 @default(0)
+  correctCount   Int                 @default(0)
+  wrongCount     Int                 @default(0)
+  skippedCount   Int                 @default(0)
+  markedCount    Int                 @default(0)
+  timeTakenSecs  Int                 @default(0)
+  percentile     Float?
+  allIndiaRank   Int?
+  tabSwitchCount Int                 @default(0)
+  startedAt      DateTime            @default(now())
+  submittedAt    DateTime?
+  answers        ExamAttemptAnswer[]
+  test           ExamTest            @relation(fields: [testId], references: [id], onDelete: Cascade)
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([testId])
@@ -1056,17 +1058,17 @@ model ExamAttempt {
 }
 
 model ExamAttemptAnswer {
-  id              String       @id @default(cuid())
-  attemptId       String
-  questionId      String
-  selectedOption  String?      // "A","B","C","D" or null
-  isMarked        Boolean      @default(false)
-  isCorrect       Boolean?
-  marksAwarded    Float        @default(0)
-  timeSpentSecs   Int          @default(0)
-  clientSeq       Int          @default(0)
-  attempt         ExamAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question        ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  id             String       @id @default(cuid())
+  attemptId      String
+  questionId     String
+  selectedOption String? // "A","B","C","D" or null
+  isMarked       Boolean      @default(false)
+  isCorrect      Boolean?
+  marksAwarded   Float        @default(0)
+  timeSpentSecs  Int          @default(0)
+  clientSeq      Int          @default(0)
+  attempt        ExamAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@unique([attemptId, questionId])
   @@index([attemptId])
@@ -1193,97 +1195,97 @@ enum DiscountType {
 // ─── PYQ (Previous Year Questions) Management Models ─────────────────────
 
 model PyqCategory {
-  id          String        @id @default(cuid())
-  name        String        @unique // e.g. "BPSC", "UPSC", "UPPSC"
-  slug        String        @unique // e.g. "bpsc", "uppsc"
-  fullName    String?       // e.g. "Bihar Public Service Commission"
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g. "BPSC", "UPSC", "UPPSC"
+  slug        String   @unique // e.g. "bpsc", "uppsc"
+  fullName    String? // e.g. "Bihar Public Service Commission"
   description String?
   iconUrl     String?
-  badgeColor  String?       @default("#f97316")
-  order       Int           @default(0)
-  isPublished Boolean       @default(true)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  badgeColor  String?  @default("#f97316")
+  order       Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  subExams    PyqSubExam[]
-  papers      PyqPaper[]
+  subExams PyqSubExam[]
+  papers   PyqPaper[]
 
   @@index([slug])
   @@index([isPublished])
 }
 
 model PyqSubExam {
-  id          String       @id @default(cuid())
+  id          String   @id @default(cuid())
   categoryId  String
-  name        String       // e.g. "CCE (Combined Competitive)", "CDPO", "AEDO"
-  slug        String       // e.g. "cce", "cdpo", "aedo"
+  name        String // e.g. "CCE (Combined Competitive)", "CDPO", "AEDO"
+  slug        String // e.g. "cce", "cdpo", "aedo"
   description String?
-  order       Int          @default(0)
-  isPublished Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  order       Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  category    PyqCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  papers      PyqPaper[]
+  category PyqCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  papers   PyqPaper[]
 
   @@unique([categoryId, slug])
   @@index([categoryId])
 }
 
 model PyqPaper {
-  id             String         @id @default(cuid())
-  categoryId     String
-  subExamId      String?
-  creatorId      String?        // User (Admin/Teacher) who uploaded
-  
-  title          String         // e.g. "69th BPSC PYQ Full Length Official Paper"
-  slug           String         @unique
-  year           Int            // e.g. 2024, 2023, 2022
-  stage          String         @default("PRELIMS") // PRELIMS, MAINS, INTERVIEW, THEORY
-  shift          String?        // e.g. "Shift 1", "Morning"
-  examDate       DateTime?
+  id         String  @id @default(cuid())
+  categoryId String
+  subExamId  String?
+  creatorId  String? // User (Admin/Teacher) who uploaded
+
+  title    String // e.g. "69th BPSC PYQ Full Length Official Paper"
+  slug     String    @unique
+  year     Int // e.g. 2024, 2023, 2022
+  stage    String    @default("PRELIMS") // PRELIMS, MAINS, INTERVIEW, THEORY
+  shift    String? // e.g. "Shift 1", "Morning"
+  examDate DateTime?
 
   // Paper Metrics
-  durationMin    Int            @default(120)
-  totalMarks     Int            @default(150)
-  totalQuestions Int            @default(150)
-  languages      String[]       @default(["Hindi", "English"])
+  durationMin    Int      @default(120)
+  totalMarks     Int      @default(150)
+  totalQuestions Int      @default(150)
+  languages      String[] @default(["Hindi", "English"])
 
   // PDF Storage
-  paperPdfUrl    String         // Main question paper PDF
-  solutionPdfUrl String?        // Answer key + solutions PDF
+  paperPdfUrl    String // Main question paper PDF
+  solutionPdfUrl String? // Answer key + solutions PDF
   pdfFileSizeKb  Int?
   pageCount      Int?
 
   // Monetization & Access Control
-  accessType     String         @default("FREE") // FREE, PAID, PASS_ONLY
-  unlockPrice    Int            @default(0)      // In INR, e.g. 49
-  isPassIncluded Boolean        @default(true)   // Included in TrillionPass
+  accessType     String  @default("FREE") // FREE, PAID, PASS_ONLY
+  unlockPrice    Int     @default(0) // In INR, e.g. 49
+  isPassIncluded Boolean @default(true) // Included in TrillionPass
 
   // CBT Integration Link
-  cbtTestId      String?        // Foreign key to ExamTest model
-  hasCbtMode     Boolean        @default(false)
+  cbtTestId  String? // Foreign key to ExamTest model
+  hasCbtMode Boolean @default(false)
 
   // Status & Metrics
-  status         String         @default("PUBLISHED") // DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED
-  subject        String?
+  status            String   @default("PUBLISHED") // DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED
+  subject           String?
   // Authwall Gate Settings & Pre-chunking
-  isGated           Boolean        @default(false)
-  previewPercentage Int            @default(20)
-  seoMode           String         @default("preview") // "preview" | "bot-full"
+  isGated           Boolean  @default(false)
+  previewPercentage Int      @default(20)
+  seoMode           String   @default("preview") // "preview" | "bot-full"
   gateTitle         String?
   gateSubtitle      String?
   blockCount        Int?
   contentHash       String?
-  downloadCount  Int            @default(0)
-  attemptCount   Int            @default(0)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  downloadCount     Int      @default(0)
+  attemptCount      Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  category       PyqCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  subExam        PyqSubExam?    @relation(fields: [subExamId], references: [id], onDelete: SetNull)
-  leads          PyqLeadCapture[]
-  unlocks        PyqUnlock[]
+  category PyqCategory      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subExam  PyqSubExam?      @relation(fields: [subExamId], references: [id], onDelete: SetNull)
+  leads    PyqLeadCapture[]
+  unlocks  PyqUnlock[]
 
   @@index([categoryId, year])
   @@index([subExamId])
@@ -1292,27 +1294,29 @@ model PyqPaper {
 }
 
 model PyqLeadCapture {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   paperId     String
   phoneNumber String
   userId      String?
-  source      String    @default("PDF_DOWNLOAD")
-  createdAt   DateTime  @default(now())
+  source      String   @default("PDF_DOWNLOAD")
+  createdAt   DateTime @default(now())
 
-  paper       PyqPaper  @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  paper PyqPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
   @@index([phoneNumber])
   @@index([paperId])
 }
 
 model PyqUnlock {
-  id          String        @id @default(cuid())
-  userId      String
-  paperId     String
-  paymentId   String?
-  amountPaid  Int           @default(0)
-  unlockedAt  DateTime      @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  paperId    String
+  paymentId  String?
+  amountPaid Int      @default(0)
+  unlockedAt DateTime @default(now())
 
-  paper       PyqPaper      @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  paper PyqPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
   @@unique([userId, paperId])
   @@index([userId])
 }
@@ -1328,30 +1332,30 @@ model RateLimit {
 }
 
 model CurrentAffairsPdf {
-  id            String    @id @default(cuid())
-  title         String
-  titleHi       String?
-  month         Int       // 1-12
-  year          Int       // e.g. 2026
-  pdfUrlEn      String?
-  pdfUrlHi      String?
-  fileSizeKbEn  Int?
-  fileSizeKbHi  Int?
-  status        String    @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
+  id                String   @id @default(cuid())
+  title             String
+  titleHi           String?
+  month             Int // 1-12
+  year              Int // e.g. 2026
+  pdfUrlEn          String?
+  pdfUrlHi          String?
+  fileSizeKbEn      Int?
+  fileSizeKbHi      Int?
+  status            String   @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
   // Authwall Gate Settings & Pre-chunking
-  isGated       Boolean   @default(false)
-  previewPercentage Int   @default(20)
-  seoMode       String    @default("preview") // "preview" | "bot-full"
-  gateTitle     String?
-  gateSubtitle  String?
-  blockCount    Int?
-  contentHash   String?
-  downloadCount Int       @default(0)
-  createdById   String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  isGated           Boolean  @default(false)
+  previewPercentage Int      @default(20)
+  seoMode           String   @default("preview") // "preview" | "bot-full"
+  gateTitle         String?
+  gateSubtitle      String?
+  blockCount        Int?
+  contentHash       String?
+  downloadCount     Int      @default(0)
+  createdById       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  createdBy     User?     @relation("UserCurrentAffairsPdfs", fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy User? @relation("UserCurrentAffairsPdfs", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([year, month])
   @@index([status])
@@ -1396,7 +1400,6 @@ model AuditLog {
   @@index([createdAt])
 }
 
-
 // ==========================================
 // CONTENT ENGINE MODULE (ADMIN-ONLY PIPELINE)
 // ==========================================
@@ -1418,32 +1421,32 @@ model ContentEngineBatch {
 }
 
 model ContentEngineQuestion {
-  id             String                          @id @default(cuid())
-  shortId        String                          @unique
-  textHash       String                          @unique
-  q              String                          @db.Text
-  options        Json
-  answer         String
-  answerIndex    Int                             @default(-1)
-  explanation    String?                         @db.Text
-  sub            String?
-  top            String?
-  exam           String?
-  year           String?
-  sourceTag      String?
-  sourceNo       Int?
-  batchId        String?
-  status         String                          @default("DRAFT") // DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED
-  isPublished    Boolean                         @default(false)
-  isInferred     Boolean                         @default(false)
-  isVerified     Boolean                         @default(false)
-  slug           String?
-  publishedAt    DateTime?
-  createdAt      DateTime                        @default(now())
-  updatedAt      DateTime                        @updatedAt
-  batch          ContentEngineBatch?             @relation(fields: [batchId], references: [id], onDelete: SetNull)
-  translations   ContentEngineTranslation[]
-  override       ContentEngineCategoryOverride?
+  id           String                         @id @default(cuid())
+  shortId      String                         @unique
+  textHash     String                         @unique
+  q            String                         @db.Text
+  options      Json
+  answer       String
+  answerIndex  Int                            @default(-1)
+  explanation  String?                        @db.Text
+  sub          String?
+  top          String?
+  exam         String?
+  year         String?
+  sourceTag    String?
+  sourceNo     Int?
+  batchId      String?
+  status       String                         @default("DRAFT") // DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED
+  isPublished  Boolean                        @default(false)
+  isInferred   Boolean                        @default(false)
+  isVerified   Boolean                        @default(false)
+  slug         String?
+  publishedAt  DateTime?
+  createdAt    DateTime                       @default(now())
+  updatedAt    DateTime                       @updatedAt
+  batch        ContentEngineBatch?            @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  translations ContentEngineTranslation[]
+  override     ContentEngineCategoryOverride?
 
   @@index([batchId])
   @@index([isPublished])
@@ -1455,7 +1458,7 @@ model ContentEngineQuestion {
 model ContentEngineTranslation {
   id           String                @id @default(cuid())
   questionId   String
-  lang         String                // "hi" | "en"
+  lang         String // "hi" | "en"
   q            String                @db.Text
   options      Json
   answer       String?
@@ -1507,4 +1510,41 @@ model ContentEngineSetting {
   value     Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model DevicePushToken {
+  id          String   @id @default(cuid())
+  userId      String
+  token       String   @unique
+  platform    String // "android" | "ios" | "web"
+  deviceModel String?
+  appVersion  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([platform])
+}
+
+model DeviceSession {
+  id               String    @id @default(cuid())
+  userId           String
+  refreshTokenHash String    @unique
+  familyId         String
+  deviceName       String?
+  platform         String // "android" | "ios" | "web"
+  appVersion       String?
+  ip               String?
+  userAgent        String?
+  createdAt        DateTime  @default(now())
+  lastUsedAt       DateTime  @default(now())
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  replacedById     String?
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([expiresAt])
 }

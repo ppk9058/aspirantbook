@@ -35,10 +35,10 @@ export function validateBootSecurity() {
     }
   }
 
-  // 2. Guard: Dev OTP / Mobile Login bypass MUST NEVER run in production unless an SMS provider is configured
-  if (isProduction && allowDevBypass && !otpProviderConfigured) {
+  // 2. Guard: Refuse to start when NODE_ENV==="production" and ALLOW_DEV_MOBILE_LOGIN==="true"
+  if (isProduction && allowDevBypass) {
     const errorMsg =
-      "[CRITICAL SECURITY REFUSAL AT BOOT] ALLOW_DEV_MOBILE_LOGIN is enabled in NODE_ENV=production without an active OTP provider configured! " +
+      "[CRITICAL SECURITY REFUSAL AT BOOT] ALLOW_DEV_MOBILE_LOGIN is enabled in NODE_ENV=production! " +
       "Dev OTP bypass is strictly forbidden in production.";
     console.error(errorMsg);
     throw new Error(errorMsg);

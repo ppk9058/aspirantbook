@@ -59,9 +59,7 @@ export function BulkGateActionBar({
 
   const handleApplyFirstNFree = () => {
     const validN = Math.max(0, Math.min(totalItems, firstNCount))
-    if (confirm(`Make the first ${validN} test(s) free for student preview?`)) {
-      onMakeFirstNFree(validN)
-    }
+    onMakeFirstNFree(validN)
   }
 
   return (

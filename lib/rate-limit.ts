@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import crypto from "crypto";
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -20,6 +21,8 @@ export function getClientIp(req: Request | { headers: Headers }): string {
     hasWarnedProxy = true;
   }
   if (isTrustedProxy) {
+    const cfIp = req.headers.get("cf-connecting-ip");
+    if (cfIp) return cfIp.trim();
     const forwarded = req.headers.get("x-forwarded-for");
     if (forwarded) {
       const firstIp = forwarded.split(",")[0]?.trim();
@@ -63,7 +66,7 @@ export async function checkRateLimit(
       });
     }
 
-    const id = `${key}_${windowStartMs}`;
+    const id = crypto.randomUUID();
 
     const res: any[] = await prisma.$queryRawUnsafe(
       `

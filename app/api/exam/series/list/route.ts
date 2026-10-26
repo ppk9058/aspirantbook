@@ -17,11 +17,13 @@ export async function GET(req: NextRequest) {
     const cookieGoal = cookieStore.get("trillion_selected_goal")?.value || null;
     const { goalIds: userGoalIds } = await getStudentGoals(session?.user?.id, cookieGoal);
 
-    // Query string goal takes explicit priority over cookie/profile goals
+    // Query string goal may filter to a subset of user's active goals, but cannot broaden beyond them
     const queryGoal = searchParams.get("goal");
-    const activeGoalIds = queryGoal
-      ? parseGoalIds(queryGoal)
-      : userGoalIds;
+    const requestedGoals = queryGoal ? parseGoalIds(queryGoal) : [];
+    const hasRequestedUnallowed = userGoalIds.length > 0 && requestedGoals.length > 0 && !requestedGoals.some((g) => userGoalIds.includes(g));
+    const activeGoalIds = userGoalIds.length > 0
+      ? (requestedGoals.length > 0 ? requestedGoals.filter((g) => userGoalIds.includes(g)) : userGoalIds)
+      : requestedGoals;
 
     const where: any = { isPublished: true };
     if (category && category !== "All") {
@@ -95,7 +97,9 @@ export async function GET(req: NextRequest) {
     });
 
     // Server-side strict multi-goal filtering
-    if (!includeAll && activeGoalIds.length > 0 && (!category || category === "All")) {
+    if (hasRequestedUnallowed) {
+      formatted = [];
+    } else if (!includeAll && activeGoalIds.length > 0 && (!category || category === "All")) {
       formatted = applyTestSeriesGoalFilter(formatted, activeGoalIds);
     }
 

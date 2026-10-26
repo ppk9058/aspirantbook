@@ -660,8 +660,8 @@ export default function EditTestPage({
                     </div>
                 </div>
 
-                {/* Desktop Action Buttons */}
-                <div className="hidden sm:flex items-center gap-2.5 flex-wrap">
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2.5 flex-wrap">
                     {lastReplaceUndo && (
                         <button
                             type="button"

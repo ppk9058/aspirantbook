@@ -103,6 +103,9 @@ If deployment must be rolled back:
 
 ## 4. Pre-Merge Verification Checklist (Owner Steps)
 
+- [ ] **0. Dependency Installation & Workspaces:**
+  - **Web Deployments**: Use plain `npm ci --omit=dev`. With decoupled workspaces (`"workspaces": ["packages/*"]`), this installs web & shared packages cleanly (~41s / 1.0GB), avoiding ~726 unused Expo/React-Native packages and dual-React overhead.
+  - **Mobile Client**: Managed independently. Run `cd apps/mobile && npm install` (generates `apps/mobile/package-lock.json` and links `@aspirantbook/shared` via `file:../../packages/shared`).
 - [ ] **1. Verify Merge Base:** Ensure branch merges cleanly into `seo-core` / `main`.
 - [ ] **2. Build-Time Prerequisite (`NEXT_PUBLIC_SITE_URL`):**
   - `NEXT_PUBLIC_SITE_URL` **MUST** be explicitly set on staging and production before running `npm run build` / `next build` (e.g. `NEXT_PUBLIC_SITE_URL=https://aspirantbook.com`).
