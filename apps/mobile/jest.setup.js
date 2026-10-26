@@ -88,15 +88,6 @@ jest.mock("react-native-blob-util", () => ({
   },
 }));
 
-// React Native WebView
-jest.mock("react-native-webview", () => {
-  const React = require("react");
-  const { View } = require("react-native");
-  return {
-    WebView: ({ testID, style, source, ...props }: any) =>
-      React.createElement(View, { testID: testID || "react-native-webview", style, source, ...props }),
-  };
-});
 
 // Expo Notifications native module mock
 jest.mock("expo-notifications", () => ({
