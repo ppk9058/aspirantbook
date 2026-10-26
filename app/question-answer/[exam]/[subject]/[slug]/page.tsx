@@ -10,12 +10,10 @@ export const dynamic = "force-static"
 export const revalidate = 3600
 
 export async function generateStaticParams() {
-  try {
-    const questions = await getPublicQuestionBySlug("") // dummy call to verify import
-    return []
-  } catch {
-    return []
-  }
+  // No static params are pre-rendered: question pages are resolved on demand
+  // from the slug (B-016: the previous dummy getPublicQuestionBySlug("") call
+  // ran an empty DB query on every build/request).
+  return []
 }
 
 const BASE_URL = getBaseUrl()
