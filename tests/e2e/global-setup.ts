@@ -1,10 +1,15 @@
 import { PrismaClient } from "@prisma/client"
 import dotenv from "dotenv"
+import { assertTestDatabase } from "../../lib/test-db-guard"
 
 dotenv.config({ path: ".env.test", override: true })
 
 export default async function globalSetup() {
-  const testDbUrl = process.env.TEST_DATABASE_URL || "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test"
+  const testDbUrl = assertTestDatabase({
+    databaseUrl: process.env.TEST_DATABASE_URL,
+    directUrl: process.env.TEST_DIRECT_URL,
+    context: "tests/e2e/global-setup.ts",
+  })
 
   // 1. Validate Docker test DB connection
   const prisma = new PrismaClient({ datasourceUrl: testDbUrl })

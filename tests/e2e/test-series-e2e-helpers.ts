@@ -7,15 +7,11 @@ import type { BrowserContext, Page, TestInfo } from "@playwright/test";
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.test" });
 
-const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || "";
-if (!TEST_DATABASE_URL) {
-  throw new Error("E2E specs require TEST_DATABASE_URL or DATABASE_URL to be set.");
-}
-const parsedTestDatabaseUrl = new URL(TEST_DATABASE_URL);
-if (!["127.0.0.1", "localhost"].includes(parsedTestDatabaseUrl.hostname) ||
-    !parsedTestDatabaseUrl.pathname.endsWith("/trillionskill_test")) {
-  throw new Error("E2E specs require the Docker trillionskill_test database.");
-}
+import { assertTestDatabase } from "../../lib/test-db-guard";
+
+// Fail closed: this helper is imported by every e2e spec, so a run pointed at
+// any database other than the Docker test DB aborts before Prisma connects.
+const TEST_DATABASE_URL = assertTestDatabase({ context: "tests/e2e/test-series-e2e-helpers.ts" });
 
 import { DEFAULT_TEST_PASSWORD } from "../support/test-credentials";
 
