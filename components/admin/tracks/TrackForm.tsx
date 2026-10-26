@@ -37,7 +37,10 @@ const formSchema = z.object({
         message: "Description must be at least 10 characters.",
     }),
     type: z.enum(["CAREER", "SKILL"]),
-    isPublished: z.boolean().default(false),
+    // B-026: no `.default()` here. A defaulted field makes the resolver's input
+    // type optional while the form value type is required, which broke every
+    // <FormField control> prop. defaultValues below supplies the initial value.
+    isPublished: z.boolean(),
 })
 
 interface TrackFormProps {

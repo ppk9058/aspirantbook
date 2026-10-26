@@ -80,6 +80,10 @@ export interface Batch {
   features: BatchFeature[];
   subjects: string[];
   weeklySchedule: BatchScheduleItem[];
+  // Legacy optional aliases that still appear in data/batches.json (B-027).
+  schedule?: BatchScheduleItem[];
+  coverImage?: string | null;
+  metadataJson?: string | null;
   teachers: BatchTeacher[];
   demoVideos: BatchDemoVideo[];
   faqs: BatchFAQ[];

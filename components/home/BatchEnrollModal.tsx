@@ -19,6 +19,10 @@ export default function BatchEnrollModal({ batch, onClose }: BatchEnrollModalPro
     const [enrollError, setEnrollError] = useState("")
     const [enrollSuccess, setEnrollSuccess] = useState(false)
 
+    // B-020: `batch` is nullable. Every field below is dereferenced, so bail out
+    // before rendering instead of throwing on a slow/failed fetch.
+    if (!batch) return null
+
     const isFree = !batch.price || batch.price.toLowerCase().includes("free") || batch.price === "0"
 
     const handleMobileEnroll = async (e: React.FormEvent) => {

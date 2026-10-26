@@ -30,7 +30,7 @@ import {
   HelpCircle,
   BookOpen,
 } from "lucide-react"
-import type { Batch } from "@/lib/batches-service"
+import type { Batch, BatchScheduleItem } from "@/lib/batches-service"
 import CuriousNavbar from "@/components/common/CuriousNavbar"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
@@ -75,6 +75,9 @@ interface CourseBundleProps {
     expiresAt?: string | null
     hasTrialLesson?: boolean
     isPremium?: boolean
+    // B-027: persisted course metadata (theme, demoSettings, ...) is read by
+    // this view but was missing from the prop type.
+    metadataJson?: string | null
     chapters: ChapterItem[]
   }
   batch?: Batch | null
@@ -144,7 +147,7 @@ export function CourseBundleView({
         id: course.id,
         slug: course.slug,
         title: course.title,
-        price: course.price,
+        price: course.price ?? 0,
         isFree: false,
         image: course.thumbnailUrl || undefined,
       },
@@ -282,7 +285,7 @@ export function CourseBundleView({
       ]
 
   // Weekly Schedule
-  const scheduleItems = (batch?.weeklySchedule && batch.weeklySchedule.length > 0)
+  const scheduleItems: BatchScheduleItem[] = (batch?.weeklySchedule && batch.weeklySchedule.length > 0)
     ? batch.weeklySchedule
     : (batch?.schedule && batch.schedule.length > 0)
     ? batch.schedule
