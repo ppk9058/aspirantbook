@@ -456,7 +456,7 @@ async function run() {
   const noPriceEntity = getEntity(noPriceTest)
   const noPriceType = noPriceEntity?.["@type"]
   const noPriceHasOffer = Boolean(noPriceEntity?.offers)
-  const noPricePass = noPriceType === "Course" && !noPriceHasOffer && Boolean(noPriceEntity?.provider)
+  const noPricePass = noPriceType === "Product" && !noPriceHasOffer
   log(`4. Missing Price Series Fallback: ${noPricePass ? "✓ PASS" : "✗ FAIL"} (schema @type: ${noPriceType}, hasOffer: ${noPriceHasOffer})`)
 
   log(`\n======================================================`)

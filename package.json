@@ -20,7 +20,9 @@
     "test:e2e:dev-smoke": "DEV_SMOKE=1 BASE_URL=http://127.0.0.1:3045 npx playwright test tests/e2e/dev-smoke.spec.ts",
     "content:chunk": "tsx scripts/content-chunk.ts",
     "perf:check": "tsx scripts/perf-check.ts",
-    "test:content-engine": "tsx --test --test-concurrency=1 tests/content-engine/**/*.test.ts"
+    "test:content-engine": "tsx --test --test-concurrency=1 tests/content-engine/**/*.test.ts",
+    "test:proof:http": "tsx scripts/run-proof-suite.ts --mode=http",
+    "test:proof:all": "tsx scripts/run-proof-suite.ts --mode=all"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.940.0",

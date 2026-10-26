@@ -1,20 +1,20 @@
 # Phase 2.3 Cross-Module Snapshot Audit (10 Core Target URLs)
 
-Execution Date: 2026-10-25T22:37:17.186Z
+Execution Date: 2026-10-26T00:49:16.317Z
 Server Base: http://127.0.0.1:3045
 
 | # | Module | Target Route | HTTP | Title | Canonical | Robots | JSON-LD Types | Baseline Comparison Verdict |
 |:--|:---|:---|:---:|:---|:---|:---|:---|:---:|
 | 1 | Home | `/` | 200 | aspirantbook - Interactive Learning Platform &amp; Test Series | `missing` | `default` | none | **ENHANCED (Additive SEO)** |
-| 2 | Courses | `/courses` | 200 | All Video Courses &amp; Batches \| aspirantbook \| aspirantbook | `http://127.0.0.1:3045/courses` | `default` | none | **ENHANCED (Additive SEO)** |
+| 2 | Courses | `/courses` | 200 | All Video Courses &amp; Batches \| aspirantbook \| aspirantbook | `http://localhost:3000/courses` | `default` | none | **ENHANCED (Additive SEO)** |
 | 3 | Books | `/books` | 200 | aspirantbook - Interactive Learning Platform &amp; Test Series | `missing` | `default` | none | **PRESERVED** |
 | 4 | Test Series | `/test-series` | 200 | aspirantbook - Interactive Learning Platform &amp; Test Series | `missing` | `default` | none | **PRESERVED** |
 | 5 | Tutorials | `/tutorials` | 200 | Text-Based Tutorials \| aspirantbook \| aspirantbook | `missing` | `default` | none | **PRESERVED** |
 | 6 | Current Affairs | `/current-affairs-quizzes` | 200 | Current Affairs and Quizzes \| aspirantbook \| aspirantbook | `missing` | `default` | none | **PRESERVED** |
-| 7 | PYQs | `/pyqs` | 200 | Previous Year Question Papers (PYQs) \| TrillionSkill \| aspirantbook | `http://127.0.0.1:3045/pyqs` | `index, follow` | none | **ENHANCED (Additive SEO)** |
-| 8 | Content Engine | `/question-answer` | 200 | Competitive Exam Previous Year Questions (PYQs) \| TrillionSkill \| aspirantbook | `http://127.0.0.1:3045/question-answer` | `default` | none | **ENHANCED (Additive SEO)** |
-| 9 | Content Engine Detail | `/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements` | 200 | [UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley \| Indus Valley Civilization UPSC CSE 2023 MCQ \| aspirantbook | `http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements` | `index, follow` | BreadcrumbList, Quiz | **ENHANCED (Additive SEO)** |
-| 10 | Test Series Detail | `/test-series/e2e-series-e2e-20261021124106098-4akv9` | 200 | E2E Series E2E-20261021124106098-4akv9 Test Series &amp; Mock Tests \| TrillionSkill \| aspirantbook | `http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021124106098-4akv9` | `index, follow` | none | **ENHANCED (Additive SEO)** |
+| 7 | PYQs | `/pyqs` | 200 | Previous Year Question Papers (PYQs) \| TrillionSkill \| aspirantbook | `http://localhost:3000/pyqs` | `index, follow` | none | **ENHANCED (Additive SEO)** |
+| 8 | Content Engine | `/question-answer` | 200 | Competitive Exam Previous Year Questions (PYQs) \| TrillionSkill \| aspirantbook | `http://localhost:3000/question-answer` | `default` | none | **ENHANCED (Additive SEO)** |
+| 9 | Content Engine Detail | `/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements` | 200 | [UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley \| Indus Valley Civilization UPSC CSE 2023 MCQ \| aspirantbook | `http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements` | `index, follow` | none | **ENHANCED (Additive SEO)** |
+| 10 | Test Series Detail | `/test-series/e2e-series-e2e-20261021124106098-4akv9` | 200 | E2E Series E2E-20261021124106098-4akv9 Test Series &amp; Mock Tests \| TrillionSkill \| aspirantbook | `http://localhost:3000/test-series/e2e-series-e2e-20261021124106098-4akv9` | `index, follow` | BreadcrumbList | **ENHANCED (Additive SEO)** |
 
 ## Snapshot Invariants Verified across all 10 URLs:
 1. All 10 URLs return HTTP 200 OK with zero errors or unhandled exceptions.

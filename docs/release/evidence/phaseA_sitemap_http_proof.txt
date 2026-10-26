@@ -3,28 +3,28 @@ PHASE A: SITEMAP ISR AND ON-DEMAND REVALIDATION PROOF
 =====================================================
 DB resolved host:port -> 127.0.0.1:54329
 Base URL: http://127.0.0.1:3045
-Timestamp: 2026-10-25T23:22:07.608Z
+Timestamp: 2026-10-26T00:49:18.117Z
 
 --- STEP 1: Main Sitemap GET /sitemap.xml ---
 GET /sitemap.xml Status: 200 (expected 200)
 Content-Type: application/xml
 Cache-Control: public, max-age=0, must-revalidate
-Body length: 32895 bytes
+Body length: 25385 bytes
 Starts with <?xml: true
 
 --- STEP 2: Content Engine Sitemap GET /question-answer/sitemap.xml ---
 GET /question-answer/sitemap.xml Status: 200 (expected 200)
-Body length: 3856 bytes
+Body length: 863 bytes
 
 --- STEP 3: Hindi Content Engine Sitemap GET /hi/question-answer/sitemap.xml ---
 GET /hi/question-answer/sitemap.xml Status: 200 (expected 200)
-Body length: 2545 bytes
+Body length: 694 bytes
 
 --- STEP 4: Authenticating as ADMIN ---
 Admin authenticated successfully.
 
---- STEP 5: Creating Draft Question in Docker DB (shortId: smpb8qco) ---
-Created test question cmvogcxje0000xp2m36nydiqk with slug q-smpb8qco-ancient-university-bihar-kumaragupta
+--- STEP 5: Creating Draft Question in Docker DB (shortId: smpn4dfn) ---
+Created test question cmvojh1bw0000xpcupd3sggvx with slug q-smpn4dfn-ancient-university-bihar-kumaragupta
 Draft in /question-answer/sitemap.xml: false (expected false)
 
 --- STEP 6: Publishing Question via POST /api/admin/content-engine/publish ---

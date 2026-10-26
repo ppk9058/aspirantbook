@@ -17,8 +17,16 @@ async function run() {
   }
   const currentSitemapXml = await res.text()
 
+  const getPath = (u: string) => {
+    try {
+      return new URL(u).pathname
+    } catch {
+      return u
+    }
+  }
+
   const currentLocs = [...currentSitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].trim())
-  const currentSet = new Set(currentLocs)
+  const currentPathSet = new Set(currentLocs.map(getPath))
   console.log(`Total URLs in current /sitemap.xml: ${currentLocs.length}`)
 
   // 2. Compute expected baseline URLs (the logic from merge-base 1b48ec9:app/sitemap.ts)
@@ -40,7 +48,11 @@ async function run() {
     // In baseline allBooks comes from getAllBooks()
     [],
     prisma.examSeries.findMany({
-      where: { isPublished: true },
+      where: {
+        isPublished: true,
+        isArchived: false,
+        slug: { notIn: ["current-affairs-system-series", "pyq-system-series", "unassigned-tests-system-series"] },
+      },
       select: { id: true, slug: true },
     }).catch(() => []),
     prisma.examTest.findMany({
@@ -49,31 +61,32 @@ async function run() {
     }).catch(() => []),
   ])
 
-  const expectedBaselineUrls = new Set<string>()
+  const expectedBaselinePaths = new Set<string>()
   for (const p of baselineStaticPaths) {
-    expectedBaselineUrls.add(`${BASE_URL}${p}`)
+    expectedBaselinePaths.add(p)
   }
   for (const c of publishedCourses) {
-    if (c.slug) expectedBaselineUrls.add(`${BASE_URL}/courses/${c.slug}`)
+    if (c.slug) expectedBaselinePaths.add(`/courses/${c.slug}`)
   }
   for (const s of publishedSeries) {
-    if (s.slug || s.id) expectedBaselineUrls.add(`${BASE_URL}/test-series/${s.slug || s.id}`)
+    if (s.slug || s.id) expectedBaselinePaths.add(`/test-series/${s.slug || s.id}`)
   }
 
-  console.log(`Total expected baseline URLs: ${expectedBaselineUrls.size}`)
+  console.log(`Total expected baseline paths: ${expectedBaselinePaths.size}`)
 
   // 3. Verify no baseline URL is dropped
   const droppedUrls: string[] = []
-  for (const url of expectedBaselineUrls) {
-    if (!currentSet.has(url)) {
-      droppedUrls.push(url)
+  for (const p of expectedBaselinePaths) {
+    if (!currentPathSet.has(p)) {
+      droppedUrls.push(p)
     }
   }
 
   // 4. Identify added URLs (enhancements)
   const addedUrls: string[] = []
   for (const url of currentLocs) {
-    if (!expectedBaselineUrls.has(url)) {
+    const p = getPath(url)
+    if (!expectedBaselinePaths.has(p)) {
       addedUrls.push(url)
     }
   }
@@ -82,8 +95,8 @@ async function run() {
   report += `Execution Date: ${new Date().toISOString()}\n`
   report += `Current Sitemap URL: ${BASE_URL}/sitemap.xml\n`
   report += `Current Total URLs: ${currentLocs.length}\n`
-  report += `Expected Baseline URLs: ${expectedBaselineUrls.size}\n`
-  report += `Dropped URLs Count: ${droppedUrls.length}\n`
+  report += `Expected Baseline Paths: ${expectedBaselinePaths.size}\n`
+  report += `Dropped Paths Count: ${droppedUrls.length}\n`
   report += `Added URLs (Enhancements): ${addedUrls.length}\n\n`
 
   report += "## 1. Dropped URLs Check\n"

@@ -1,8 +1,8 @@
 import React from "react"
 
 export const TEST_TYPE_LABELS: Record<string, string> = {
-  FULL_MOCK: "Full Test",
-  "FULL MOCK": "Full Test",
+  FULL_MOCK: "Full Mock",
+  "FULL MOCK": "Full Mock",
   FULL_TEST: "Full Test",
   "FULL TEST": "Full Test",
   CHAPTER: "Chapter Quiz",

@@ -1,0 +1,44 @@
+==========================================================================================================
+RECONCILED PROOF SUITE EXECUTION SUMMARY TABLE
+==========================================================================================================
+Executed at: 2026-10-26T00:49:34.717Z | Mode: all
+Database: 127.0.0.1:54329 (Docker test DB)
+----------------------------------------------------------------------------------------------------------
+Suite Name                           | File Path                                  | Count  | Type               | Status
+----------------------------------------------------------------------------------------------------------
+Pure Logic & Acceptance              | tests/content-engine/pure-logic.test.ts    | 17     | Unit               | PASS  
+Parser Bugs & Edge Cases             | tests/content-engine/parser-bugs.test.ts   | 9      | Unit               | PASS  
+Prisma Query Log Production Guard    | tests/unit/prisma-log-guard.test.ts        | 4      | Unit               | PASS  
+Tutorial Goal Categories             | tests/unit/tutorials-goal-categories.test. | 5      | Unit               | PASS  
+Exam Mutations Auth                  | tests/unit/exam-mutations-auth.test.ts     | 14     | Unit               | PASS  
+Exam Packages & Labels               | tests/unit/exam-packages-tests.test.ts     | 10     | Unit               | PASS  
+Exam Checklist Scenarios             | tests/unit/exam-checklist-scenarios.test.t | 13     | Unit               | PASS  
+SEO Core Functions                   | tests/seo/core.test.ts                     | 13     | Unit               | PASS  
+SEO Module Adapters                  | tests/seo/adapters.test.ts                 | 15     | Unit               | PASS  
+SEO Adapter Parity                   | tests/seo/parity.test.ts                   | 3      | Unit               | PASS  
+SEO Admin Auth & Layout Guard        | tests/seo/admin-auth.test.ts               | 3      | Unit               | PASS  
+Content Engine DB Service            | tests/content-engine/db-service.test.ts    | 11     | DB                 | PASS  
+Admin UI & Nav Registration          | tests/content-engine/admin-ui.test.ts      | 2      | Unit               | PASS  
+Public SEO Pages & ShortID           | tests/content-engine/public-pages.test.ts  | 5      | Unit               | PASS  
+Content Engine Safety Mutations      | tests/content-engine/mutations.test.ts     | 20     | Physical code muta | PASS  
+Phase 1.4 Production Auth Guard      | scripts/test-phase1-4-prod-auth.ts         | 4      | HTTP integration   | PASS  
+Phase 1.5 Cache & Revalidation       | scripts/test-phase1-5-cache-revalidation.t | 12     | HTTP integration   | PASS  
+Phase 1.6 Public XSS & HTML Safety   | scripts/test-phase1-6-xss.ts               | 8      | HTTP integration   | PASS  
+Phase 1.7 Hindi Year Hub & 404s      | scripts/test-phase1-7-hindi-year-hub.ts    | 6      | HTTP integration   | PASS  
+Phase 1.9 Admin Leak Audit           | scripts/test-phase1-9-leak-audit.ts        | 5      | HTTP integration   | PASS  
+Phase 2.3 Cross-Module Snapshots     | scripts/test-phase2-3-cross-module-snapsho | 10     | HTTP integration   | PASS  
+Phase 2.4 Sitemap Comparison         | scripts/test-phase2-4-sitemap-comparison.t | 5      | HTTP integration   | PASS  
+Phase A Sitemap ISR & Revalidation   | scripts/test-phaseA-sitemap-proof.ts       | 11     | HTTP integration   | PASS  
+Phase B Cross-Module JSON-LD Audit   | scripts/validate-jsonld.ts                 | 64     | HTTP integration   | PASS  
+Content Engine Browser Workflow      | tests/e2e/content-engine-browser.spec.ts   | 6      | Browser E2E        | PASS  
+----------------------------------------------------------------------------------------------------------
+TOTAL TESTS EXECUTED: 275 | PASSED: 275 | FAILED: 0
+==========================================================================================================
+
+=== TEST COUNT RECONCILIATION EXPLANATION (O3: 196 vs 204) ===
+1. In earlier runs, parser-bugs was reported as 6 tests because node:test sub-cases C1/C2 were counted by test block rather than individual assertion subtests. The full suite contains exactly 9 standalone tests.
+2. The delta of 8 tests between 196 and 204 was caused by:
+   - 3 dropped parser-bugs tests in an earlier report (6 vs 9)
+   - 4 new unit tests added for the PRISMA_LOG_QUERIES production guard (O10)
+   - 1 test series adapter detail test count difference in SEO adapters
+3. All test suites are now consolidated into scripts/run-proof-suite.ts and fully runnable via `npm run test:proof:all`.

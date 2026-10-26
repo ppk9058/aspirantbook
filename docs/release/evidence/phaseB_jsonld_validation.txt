@@ -3,7 +3,7 @@ PHASE B: CROSS-MODULE STRUCTURAL JSON-LD AUDIT (6 MODULES, 10+ URLS EACH)
 =================================================================
 DB resolved host:port -> 127.0.0.1:54329
 Base URL: http://127.0.0.1:3045
-Timestamp: 2026-10-26T00:37:31.499Z
+Timestamp: 2026-10-26T00:49:19.200Z
 
 
 ======================================================
@@ -127,27 +127,11 @@ AUDITING MODULE: BOOKS (10 URLs)
        Scripts: 1 | Nested: false | Parse: true | Types: [Product]
 
 ======================================================
-AUDITING MODULE: CONTENT ENGINE (10 URLs)
+AUDITING MODULE: CONTENT ENGINE (2 URLs)
 ======================================================
 ✓ PASS [200] /question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements
        Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
-✓ PASS [200] /question-answer/upsc-cse/economy/q-prb2dyii-primary-function-reserve-bank-india
-       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
-✓ PASS [200] /question-answer/upsc-cse/economy/q-prbqpp4d-primary-function-reserve-bank-india
-       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
-✓ PASS [200] /question-answer/upsc-cse/economy/q-pr23sqls-primary-function-reserve-bank-india
-       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
-✓ PASS [200] /question-answer/upsc/ancient-india/f3e87398-upsc-cse-2023-q1-what-was-the-ancient-dockyard-city-of-the
-       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
 ✓ PASS [200] /hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements
-       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
-✓ PASS [200] /hi/question-answer/upsc-cse/economy/q-prb2dyii-primary-function-reserve-bank-india
-       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
-✓ PASS [200] /hi/question-answer/upsc-cse/economy/q-prbqpp4d-primary-function-reserve-bank-india
-       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
-✓ PASS [200] /hi/question-answer/upsc-cse/economy/q-pr23sqls-primary-function-reserve-bank-india
-       Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
-✓ PASS [200] /hi/question-answer/upsc-cse/economy/q-prha8mdr-primary-function-reserve-bank-india
        Scripts: 1 | Nested: false | Parse: true | Types: [BreadcrumbList, Quiz]
 
 ======================================================
@@ -156,8 +140,8 @@ B2 SPECIFIC TEST: TEST-SERIES OFFER SCHEMA EDGE CASES
 1. Paid Series Offer Schema: ✓ PASS (price: 499, currency: INR)
 2. Free Series Offer Schema: ✓ PASS (price: 0, currency: INR)
 3. Unpublished Series Schema: ✓ PASS (offers: none, robots: noindex, follow)
-4. Missing Price Series Fallback: ✓ PASS (schema @type: Course, hasOffer: false)
+4. Missing Price Series Fallback: ✓ PASS (schema @type: Product, hasOffer: false)
 
 ======================================================
-AUDIT SUMMARY: 60 / 60 URLs PASSED VALIDATION
+AUDIT SUMMARY: 52 / 52 URLs PASSED VALIDATION
 ======================================================

@@ -77,14 +77,10 @@ export function adaptTestSeriesDetailSeo(
         }
       : {
           "@context": "https://schema.org",
-          "@type": "Course",
+          "@type": "Product",
           name: series.title,
           description,
-          provider: {
-            "@type": "Organization",
-            name: "TrillionSkill",
-            url: canonicalUrl("/", baseUrl),
-          },
+          url: canonicalUrl(canonicalPath, baseUrl),
         }
     : null
 
