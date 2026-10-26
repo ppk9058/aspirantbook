@@ -13,8 +13,7 @@ describe("API v1: Password Change & Subscription Purchases Parity", () => {
   const newPassword = "NewSecurePassword456!";
 
   before(async () => {
-    const hashedPassword = await bcrypt.hash(originalPassword, 10);
-    const user = await prisma.user.create({
+    const hashedPassword = await bcrypt.hash(originalPassword, 10);    const user = await prisma.user.create({
       data: {
         email: testEmail,
         password: hashedPassword,
@@ -32,7 +31,7 @@ describe("API v1: Password Change & Subscription Purchases Parity", () => {
         platform: "android",
         deviceName: "Test Device",
         familyId: crypto.randomUUID(),
-        refreshTokenHash: "hash_placeholder",
+        refreshTokenHash: `hash_${crypto.randomUUID()}`,
         expiresAt: new Date(Date.now() + 30 * 86400 * 1000),
       },
     });
@@ -46,6 +45,33 @@ describe("API v1: Password Change & Subscription Purchases Parity", () => {
       sessionId: session.id,
     });
   });
+
+  // Mirrors a real client signing in again after the password change revoked
+  // every device session and bumped sessionVersion.
+  async function relogin() {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: testUserId },
+      select: { id: true, email: true, role: true, sessionVersion: true },
+    });
+    const session = await prisma.deviceSession.create({
+      data: {
+        userId: user.id,
+        platform: "android",
+        deviceName: "Test Device (relogin)",
+        familyId: crypto.randomUUID(),
+        refreshTokenHash: `hash_${crypto.randomUUID()}`,
+        expiresAt: new Date(Date.now() + 30 * 86400 * 1000),
+      },
+    });
+    userToken = await createAccessToken({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      sessionVersion: user.sessionVersion,
+      familyId: session.familyId,
+      sessionId: session.id,
+    });
+  }
 
   after(async () => {
     if (testUserId) {
@@ -148,6 +174,23 @@ describe("API v1: Password Change & Subscription Purchases Parity", () => {
     assert.equal(updatedUser?.sessionVersion, initialVersion + 1);
     const isNewValid = await bcrypt.compare(newPassword, updatedUser?.password || "");
     assert.equal(isNewValid, true, "New password must match updated hash");
+
+    // B-011: a password change bumps sessionVersion and revokes every device
+    // session. The viewer is no longer cached, so the pre-change token must be
+    // rejected immediately instead of living on in an in-process cache.
+    const staleToken = userToken;
+    const { GET: getMe } = await import("../app/api/v1/me/route");
+    const staleRes = await getMe(
+      new Request("http://localhost:3046/api/v1/me", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${staleToken}` },
+      }) as any
+    );
+    assert.equal(staleRes.status, 401, "Token issued before the password change must be rejected");
+
+    // A real client re-authenticates after a password change; mint the token the
+    // following tests would receive from a fresh login.
+    await relogin();
   });
 
   // 2. Subscriptions & Purchases GET
