@@ -20,6 +20,16 @@ function formatQuestionText(text: string): string {
         .replace(/(\s)(Which of the statements)/gi, "\n\n$2")
 }
 
+/**
+ * B-010: exam-flow failures must never disappear into an empty catch.
+ * A lost autosave, a blocked fullscreen call or a failed local backup has to
+ * leave a diagnosable trail (console) and, when it can cost answers, a visible
+ * state in the UI.
+ */
+function logExamIssue(scope: string, error: unknown) {
+    console.error(`[exam-attempt] ${scope}:`, error)
+}
+
 // ─────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────
@@ -327,6 +337,7 @@ function Arena() {
     const [activeAttemptId, setActiveAttemptId] = useState<string | null>(urlAttemptId)
     const [serverDeadline, setServerDeadline] = useState<string | null>(null)
     const [syncStatus, setSyncStatus] = useState<"synced" | "syncing" | "error">("synced")
+    const [localSaveFailed, setLocalSaveFailed] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -440,8 +451,9 @@ function Arena() {
             if (typeof document !== "undefined" && document.fullscreenElement) {
                 await document.exitFullscreen()
             }
-        } catch {
-            // Ignore (e.g. mobile iOS Safari)
+        } catch (error) {
+            // Expected on iOS Safari and when fullscreen is blocked by policy.
+            logExamIssue("exit fullscreen", error)
         }
     }
 
@@ -484,11 +496,16 @@ function Arena() {
             })
 
             if (!res.ok) {
-                const errData = await res.json().catch(() => ({}))
+                const errData = await res.json().catch((parseError) => {
+                    logExamIssue("submit response was not valid JSON", parseError)
+                    return {}
+                })
                 // If attempt is already submitted or past deadline grace, navigate to result instead of retrying forever
                 if (res.status === 409 || res.status === 410 || errData.error?.includes("already submitted")) {
                     submissionPendingRef.current = false
-                    await clearExamState(attemptKey).catch(() => {})
+                    await clearExamState(attemptKey).catch((error) =>
+                        logExamIssue("clear local exam state after duplicate submit", error)
+                    )
                     await safeExitFullscreen()
                     const returnParam = searchParams.get("returnPath")
                     const q = new URLSearchParams({ attemptId: attId })
@@ -501,7 +518,9 @@ function Arena() {
 
             // Successfully submitted on server
             submissionPendingRef.current = false
-            await clearExamState(attemptKey).catch(() => {})
+            await clearExamState(attemptKey).catch((error) =>
+                logExamIssue("clear local exam state after submit", error)
+            )
             await safeExitFullscreen()
             const returnParam = searchParams.get("returnPath")
             const q = new URLSearchParams({ attemptId: attId })
@@ -519,7 +538,10 @@ function Arena() {
                 currentQ: currentQRef.current,
                 tabSwitchCount: tabSwitchCountRef.current,
                 submissionPending: true,
-            }).catch(() => {})
+            }).catch((error) => {
+                logExamIssue("persist pending submission locally", error)
+                setLocalSaveFailed(true)
+            })
         }
     }, [activeAttemptId, attemptKey, durationMin, router, seriesId])
 
@@ -601,7 +623,10 @@ function Arena() {
                         return true
                     }
                     if (res.status === 409) {
-                        const errData = await res.json().catch(() => null)
+                        const errData = await res.json().catch((parseError) => {
+                            logExamIssue("sync 409 response was not valid JSON", parseError)
+                            return null
+                        })
                         if (errData?.storedSeq) {
                             syncSeqRef.current = Math.max(syncSeqRef.current, errData.storedSeq) + 1
                             pendingSyncRef.current = true
@@ -616,7 +641,8 @@ function Arena() {
                         return doSync(retries - 1, delay * 2)
                     }
                     return false
-                } catch {
+                } catch (error) {
+                    logExamIssue(`sync attempt failed (seq ${currentSeq}, retries left ${retries})`, error)
                     if (retries > 0) {
                         await new Promise((r) => setTimeout(r, delay))
                         return doSync(retries - 1, delay * 2)
@@ -660,7 +686,7 @@ function Arena() {
                     headers: { "Content-Type": "application/json" },
                     body: payload,
                     keepalive: true,
-                }).catch(() => {})
+                }).catch((error) => logExamIssue("flush sync on page hide", error))
 
                 for (const item of changed) {
                     lastSyncedAnswersRef.current.set(item.questionId, {
@@ -668,7 +694,9 @@ function Arena() {
                         isMarked: item.isMarked,
                     })
                 }
-            } catch {}
+            } catch (error) {
+                logExamIssue("build flush payload on page hide", error)
+            }
         }
 
         const handleVisibilityChange = () => {
@@ -709,7 +737,12 @@ function Arena() {
                     timeLeft: tl,
                     currentQ: cq,
                     tabSwitchCount: tsc,
-                }).catch(() => {})
+                })
+                    .then(() => setLocalSaveFailed(false))
+                    .catch((error) => {
+                        logExamIssue("persist exam state locally (IndexedDB)", error)
+                        setLocalSaveFailed(true)
+                    })
             }, 2000)
 
             if (syncTimerRef.current) clearTimeout(syncTimerRef.current)
@@ -758,7 +791,10 @@ function Arena() {
                     })
 
                     if (!startRes.ok) {
-                        const err = await startRes.json().catch(() => ({}))
+                        const err = await startRes.json().catch((parseError) => {
+                            logExamIssue("start attempt error response was not valid JSON", parseError)
+                            return {}
+                        })
                         throw new Error(err.error || `Failed to start or resume exam attempt (HTTP ${startRes.status}).`)
                     }
                     const startJson = await startRes.json()
@@ -782,7 +818,10 @@ function Arena() {
                         `/api/exam/${encodeURIComponent(testId)}/questions?attemptId=${encodeURIComponent(attemptData.attemptId)}`
                     )
                     if (!qRes.ok) {
-                        const err = await qRes.json().catch(() => ({}))
+                        const err = await qRes.json().catch((parseError) => {
+                            logExamIssue("questions error response was not valid JSON", parseError)
+                            return {}
+                        })
                         throw new Error(
                             err.error ||
                                 (qRes.status === 404
@@ -958,7 +997,9 @@ function Arena() {
                             pendingSubmitRecovery = true
                         }
                     }
-                } catch {}
+                } catch (error) {
+                    logExamIssue("restore locally saved exam state", error)
+                }
 
                 setAttempts(initialAttempts)
                 setLoading(false)
@@ -991,8 +1032,9 @@ function Arena() {
                     await document.documentElement.requestFullscreen()
                     setIsFullscreen(true)
                 }
-            } catch {
-                // browser blocked — user must click manually
+            } catch (error) {
+                // Browser blocked automatic fullscreen — the student can still use the button.
+                logExamIssue("automatic fullscreen request blocked", error)
             }
         }
         const t = setTimeout(enterFS, 300)
@@ -1013,8 +1055,9 @@ function Arena() {
                 if ("wakeLock" in navigator && !wakeLockRef.current) {
                     wakeLockRef.current = await (navigator as any).wakeLock.request("screen")
                 }
-            } catch {
+            } catch (error) {
                 // Wake lock may fail if battery saver is on or document not visible
+                logExamIssue("screen wake lock request", error)
             }
         }
         requestWakeLock()
@@ -1029,7 +1072,7 @@ function Arena() {
         return () => {
             document.removeEventListener("visibilitychange", handleVisibilityForWakeLock)
             if (wakeLockRef.current) {
-                wakeLockRef.current.release().catch(() => {})
+                wakeLockRef.current.release().catch((error: unknown) => logExamIssue("screen wake lock release", error))
                 wakeLockRef.current = null
             }
         }
@@ -1120,7 +1163,9 @@ function Arena() {
         if (typeof window !== "undefined") {
             try {
                 window.history.pushState(null, "", window.location.href)
-            } catch {}
+            } catch (error) {
+                logExamIssue("guard against back navigation (initial pushState)", error)
+            }
         }
 
         const handlePopState = () => {
@@ -1128,7 +1173,9 @@ function Arena() {
                 // Keep the student on the exam page
                 try {
                     window.history.pushState(null, "", window.location.href)
-                } catch {}
+                } catch (error) {
+                    logExamIssue("guard against back navigation (popstate pushState)", error)
+                }
                 setShowExitConfirmModal(true)
             }
         }
@@ -1247,9 +1294,15 @@ function Arena() {
 
     const toggleFS = () => {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {})
+            document.documentElement
+                .requestFullscreen()
+                .then(() => setIsFullscreen(true))
+                .catch((error) => logExamIssue("manual fullscreen request", error))
         } else {
-            document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {})
+            document
+                .exitFullscreen()
+                .then(() => setIsFullscreen(false))
+                .catch((error) => logExamIssue("manual fullscreen exit", error))
         }
     }
 
@@ -1465,6 +1518,17 @@ function Arena() {
                     </button>
                 </div>
             </header>
+
+            {localSaveFailed && (
+                <div
+                    role="alert"
+                    data-testid="cbt-local-save-warning"
+                    className="flex-shrink-0 flex items-center gap-2 px-3 py-2 text-[11px] font-semibold text-amber-900 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/50 border-b border-amber-200 dark:border-amber-800"
+                >
+                    <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>Local backup unavailable — answers are still sent to the server. Keep this tab open until you submit.</span>
+                </div>
+            )}
 
             {/* ══ SECTION TABS ══════════════════════════════════════ */}
             <div className="h-10 flex-shrink-0 flex items-center border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-3 overflow-x-auto no-scrollbar">
