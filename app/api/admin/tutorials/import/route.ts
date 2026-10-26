@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import crypto from "node:crypto"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { logContentAudit } from "@/lib/actions/admin/audit"
@@ -129,40 +130,45 @@ export async function POST(req: Request) {
           },
         })
 
-        // Create new chapters and lessons
-        for (const [chIdx, ch] of normalizedChapters.entries()) {
-          const createdCh = await prisma.chapter.create({
-            data: {
-              title: ch.title.trim() || `Chapter ${chIdx + 1}`,
-              order: ch.order || chIdx + 1,
-              description: ch.description ? ch.description.trim() : null,
-              courseId: course.id,
-            },
-          })
+        // B-025: build every row up front and insert in two batched statements
+        // instead of one chapter.create + one lesson.create per row (N+1).
+        const chapterRows = normalizedChapters.map((ch, chIdx) => ({
+          id: crypto.randomUUID(),
+          title: ch.title.trim() || `Chapter ${chIdx + 1}`,
+          order: ch.order || chIdx + 1,
+          description: ch.description ? ch.description.trim() : null,
+          courseId: course.id,
+        }))
 
-          const lessonItems = ch.lessons && ch.lessons.length > 0 ? ch.lessons : [{ title: ch.title, content: description }]
-          for (const [lIdx, l] of lessonItems.entries()) {
+        const lessonRows = chapterRows.flatMap((chapterRow, chIdx) => {
+          const ch = normalizedChapters[chIdx]
+          const lessonItems =
+            ch.lessons && ch.lessons.length > 0
+              ? ch.lessons
+              : [{ title: ch.title, content: description }]
+          return lessonItems.map((l, lIdx) => {
             const lessonContent = l.content || description
             const blocks = chunkContent(lessonContent)
-            const blockCount = blocks.length
-            const contentHash = computeContentHash(blocks)
+            return {
+              id: crypto.randomUUID(),
+              title: l.title.trim() || `Lesson ${lIdx + 1}`,
+              order: l.order || lIdx + 1,
+              type: "READING" as const,
+              content: lessonContent,
+              blockCount: blocks.length,
+              contentHash: computeContentHash(blocks),
+              durationText: l.durationText || "15 min read",
+              duration: l.duration || 15,
+              isTrial: true,
+              chapterId: chapterRow.id,
+            }
+          })
+        })
 
-            await prisma.lesson.create({
-              data: {
-                title: l.title.trim() || `Lesson ${lIdx + 1}`,
-                order: l.order || lIdx + 1,
-                type: "READING",
-                content: lessonContent,
-                blockCount,
-                contentHash,
-                durationText: l.durationText || "15 min read",
-                duration: l.duration || 15,
-                isTrial: true,
-                chapterId: createdCh.id,
-              },
-            })
-          }
-        }
+        await prisma.$transaction([
+          prisma.chapter.createMany({ data: chapterRows }),
+          prisma.lesson.createMany({ data: lessonRows }),
+        ])
       }
     }
 
