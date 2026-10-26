@@ -1,5 +1,5 @@
 # Phase 1.9 Raw Leak Audit Evidence
-Generated: 2026-10-26T00:49:15.028Z
+Generated: 2026-10-26T13:35:09.616Z
 Scope: English/Hindi Public HTML, JSON-LD blocks, RSC flight payloads, Sitemaps, and Static Export ZIP files.
 
 ## 1. db-service.ts Public Query Whitelist (file:line)

@@ -104,20 +104,26 @@ If deployment must be rolled back:
 ## 4. Pre-Merge Verification Checklist (Owner Steps)
 
 - [ ] **1. Verify Merge Base:** Ensure branch merges cleanly into `seo-core` / `main`.
-- [ ] **2. Environment Variables in Production:**
+- [ ] **2. Build-Time Prerequisite (`NEXT_PUBLIC_SITE_URL`):**
+  - `NEXT_PUBLIC_SITE_URL` **MUST** be explicitly set on staging and production before running `npm run build` / `next build` (e.g. `NEXT_PUBLIC_SITE_URL=https://aspirantbook.com`).
+  - If omitted during build, canonical tags, OpenGraph URLs, and absolute sitemap references will be omitted to avoid domain poisoning.
+- [ ] **3. Environment Variables in Production:**
   - `NEXT_PUBLIC_SITE_URL` set to live domain.
   - `DATABASE_URL` and `DIRECT_URL` point to production Postgres cluster.
   - `PRISMA_LOG_QUERIES` is unset.
   - `NEXTAUTH_SECRET` is strong (min 32 alphanumeric chars).
-- [ ] **3. Quality Gates:**
+- [ ] **4. Test Suite Execution (`test:proof:all`):**
+  - Start the Docker test DB container (`docker start trillionskill-test-db` or `npm run test:db:up`) before executing `npm run test:proof:all`.
+  - The proof runner contains an automated TCP preflight check against `127.0.0.1:54329` and will abort with `TEST DB UNREACHABLE` if the test DB cannot be reached.
+- [ ] **5. Quality Gates:**
   - `npx tsc --noEmit` -> 0 new errors against baseline.
   - `npm run lint` -> 0 errors, <= 49 warnings.
   - `npm run build` -> Build passes.
   - Route table check: Verify routes `/question-answer` and `/hi/question-answer` display `○` (Static ISR) or `●` (SSG), and contains **NO dynamic `ƒ` routes**. (Note: Exact page count depends on DB question count at build time).
-- [ ] **4. Database Migrations:**
+- [ ] **6. Database Migrations:**
   - Verify migration status: `npx prisma migrate status`.
   - Execute deployment: `npx prisma migrate deploy`.
-- [ ] **5. Ingest Authentic BPSC 70th Prelims Paper:**
+- [ ] **7. Ingest Authentic BPSC 70th Prelims Paper:**
   - Place authentic file `BPSC_70th_2024_ContentEngine_English.txt` under `docs/content-engine/samples/`.
   - Run offline dry-run tool:
     ```bash

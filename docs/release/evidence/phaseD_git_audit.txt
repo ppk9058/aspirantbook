@@ -1,0 +1,547 @@
+=== 1. GIT STATUS ===
+On branch release-hardening
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   app/(dashboard)/courses/[slug]/page.tsx
+	modified:   app/(dashboard)/teacher/test-series/create/page.tsx
+	modified:   app/sitemap.ts
+	modified:   docs/DEPLOY_CHECKLIST.md
+	modified:   docs/proof/evidence/phase1_9_leak_audit_raw.txt
+	modified:   docs/proof/evidence/phase2_3_snapshot_comparison.txt
+	modified:   docs/proof/evidence/phase2_4_sitemap_check.txt
+	modified:   docs/release/evidence/phaseA_sitemap_http_proof.txt
+	modified:   docs/release/evidence/phaseB_jsonld_validation.txt
+	modified:   docs/release/evidence/phaseC_test_reconciliation.txt
+	modified:   lib/seo/core.ts
+	modified:   scripts/run-proof-suite.ts
+	modified:   tests/seo/core.test.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.expo/
+	apps/
+	docs/release/evidence/phaseD_build.txt
+	docs/release/evidence/phaseD_db_check.txt
+	docs/release/evidence/phaseD_git_audit.txt
+	docs/release/evidence/phaseD_lint.txt
+	docs/release/evidence/phaseD_runner_preflight.txt
+	docs/release/evidence/phaseD_sitemap_rootcause.txt
+	docs/release/evidence/phaseD_sub_sitemap_benchmark.txt
+	docs/release/evidence/phaseD_test_proof_all.txt
+	docs/release/evidence/phaseD_tsc.txt
+	reports/
+	scripts/benchmark-sub-sitemaps.ts
+	tests/seo/sitemap-resilience.test.ts
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+=== 2. GIT DIFF STAT (1b48ec9..HEAD) ===
+ app/(dashboard)/courses/[slug]/page.tsx            |    5 +-
+ .../current-affairs-quizzes/[slug]/page.tsx        |   36 +-
+ app/(dashboard)/pyqs/[examId]/page.tsx             |   39 +
+ app/(dashboard)/pyqs/page.tsx                      |    7 +-
+ app/(dashboard)/test-series/[id]/page.tsx          |   53 +-
+ app/(dashboard)/tutorials/[slug]/page.tsx          |   25 +-
+ app/admin/content-engine/add/page.tsx              |  280 ++++
+ app/admin/content-engine/aliases/page.tsx          |  193 +++
+ app/admin/content-engine/assign/page.tsx           |  393 +++++
+ app/admin/content-engine/categories/page.tsx       |  146 ++
+ app/admin/content-engine/export/page.tsx           |  204 +++
+ app/admin/content-engine/gates/page.tsx            |  298 ++++
+ app/admin/content-engine/hindi/page.tsx            |  355 ++++
+ app/admin/content-engine/layout.tsx                |   26 +
+ app/admin/content-engine/page.tsx                  |   99 ++
+ app/admin/content-engine/practice/page.tsx         |  253 +++
+ app/admin/seo/layout.tsx                           |   26 +
+ app/admin/seo/page.tsx                             |  267 +++
+ app/api/admin/content-engine/aliases/route.ts      |   95 ++
+ app/api/admin/content-engine/assign/route.ts       |   31 +
+ app/api/admin/content-engine/batch/route.ts        |   34 +
+ app/api/admin/content-engine/export/route.ts       |   80 +
+ app/api/admin/content-engine/hindi/import/route.ts |   45 +
+ app/api/admin/content-engine/hindi/review/route.ts |   35 +
+ app/api/admin/content-engine/publish/route.ts      |   59 +
+ app/api/admin/content-engine/questions/route.ts    |   98 ++
+ app/api/admin/content-engine/recategorise/route.ts |   20 +
+ app/api/admin/content-engine/settings/route.ts     |   66 +
+ .../[exam]/[subject]/[slug]/page.tsx               |  148 ++
+ app/hi/question-answer/[exam]/[subject]/page.tsx   |  157 ++
+ .../[exam]/[subject]/topic/[topic]/page.tsx        |  136 ++
+ app/hi/question-answer/[exam]/page.tsx             |  182 +++
+ app/hi/question-answer/layout.tsx                  |   16 +
+ app/hi/question-answer/page.tsx                    |  194 +++
+ app/hi/question-answer/sitemap.ts                  |   83 +
+ app/layout.tsx                                     |    5 +-
+ app/page.tsx                                       |   72 +-
+ app/q/[shortId]/route.ts                           |   18 +
+ .../[exam]/[subject]/[slug]/page.tsx               |  157 ++
+ app/question-answer/[exam]/[subject]/page.tsx      |  250 +++
+ .../[exam]/[subject]/topic/[topic]/page.tsx        |  128 ++
+ app/question-answer/[exam]/page.tsx                |  198 +++
+ app/question-answer/layout.tsx                     |   16 +
+ app/question-answer/page.tsx                       |  172 ++
+ app/question-answer/sitemap.ts                     |   84 +
+ app/robots.ts                                      |   11 +-
+ app/sitemap.ts                                     |   33 +-
+ components/admin/AdminNav.tsx                      |    3 +
+ .../admin/content-engine/ContentEngineHeader.tsx   |   78 +
+ .../content-engine/ContentEngineLibraryClient.tsx  |  280 ++++
+ components/admin/content-engine/QuestionCard.tsx   |  361 +++++
+ components/content-engine-public/PublicFooter.tsx  |   43 +
+ components/content-engine-public/PublicHeader.tsx  |   50 +
+ .../content-engine-public/PublicQuestionView.tsx   |  245 +++
+ components/layout/LeftSidebar.tsx                  |    2 +
+ docs/DEPLOY_CHECKLIST.md                           |  160 ++
+ docs/PROOF_DECISIONS.md                            |   17 +
+ docs/content-engine/BPSC_PREP.md                   |   57 +
+ docs/content-engine/DECISIONS.md                   |   73 +
+ docs/content-engine/Exam_Content_Engine-4.html     |  751 +++++++++
+ docs/content-engine/FOR_CLAUDE.md                  |  365 +++++
+ docs/content-engine/INTEGRATION_REPORT.md          |  263 +++
+ docs/content-engine/INVENTORY.md                   |   76 +
+ docs/content-engine/VERIFICATION_REPORT.md         |  180 +++
+ docs/content-engine/VERIFICATION_REPORT_2.md       |  267 +++
+ docs/content-engine/evidence/build_evidence.txt    |  327 ++++
+ docs/content-engine/evidence/final_build.txt       |  328 ++++
+ .../evidence/final_content_engine_tests.txt        |  483 ++++++
+ docs/content-engine/evidence/final_lint.txt        |  127 ++
+ docs/content-engine/evidence/final_typecheck.txt   |  119 ++
+ docs/content-engine/evidence/leak_audit_raw.json   |   19 +
+ docs/content-engine/evidence/lint_evidence.txt     |  127 ++
+ .../evidence/migrate_deploy_dev_db.txt             |   15 +
+ .../evidence/migrate_deploy_test_db.txt            |   15 +
+ .../evidence/migrate_status_dev_db.txt             |   15 +
+ .../evidence/migration_safety_check.txt            |    1 +
+ .../content-engine/evidence/mutations_evidence.txt |  409 +++++
+ .../evidence/phase1_pure_logic_tests.txt           |  165 ++
+ .../evidence/phase2_db_service_tests.txt           |  232 +++
+ .../evidence/phase3_admin_ui_tests.txt             |  251 +++
+ .../evidence/phase4_public_pages_tests.txt         |  282 ++++
+ .../evidence/phase5_playwright_e2e_tests.txt       |   18 +
+ docs/content-engine/evidence/phaseA_fact_check.txt |   46 +
+ .../evidence/phaseB_file_budget_check.txt          |   14 +
+ .../evidence/phaseC_parser_green_state.txt         |   71 +
+ .../evidence/phaseC_parser_red_state.txt           |  207 +++
+ .../evidence/phaseD_bpsc_real_paper.json           |  145 ++
+ .../evidence/phaseD_build_route_table.txt          |   18 +
+ .../evidence/phaseD_parity_check.txt               |    3 +
+ .../evidence/phaseD_playwright_e2e_results.txt     |   22 +
+ .../content-engine/evidence/phaseD_sample_urls.txt |    5 +
+ .../evidence/phaseE_real_mutations.txt             |   28 +
+ .../content-engine/evidence/typecheck_evidence.txt |  119 ++
+ .../evidence/unit_tests_evidence.txt               |  409 +++++
+ docs/content-engine/evidence/zero_cost_proof.txt   |    3 +
+ docs/content-engine/samples/dry_run_sample.json    |   69 +
+ docs/proof/PROOF_HARDENING_REPORT.md               |   96 ++
+ docs/proof/PROOF_TABLE.md                          |   19 +
+ docs/proof/evidence/build_route_table_head.txt     |  333 ++++
+ docs/proof/evidence/grep_hosts_after.txt           |   43 +
+ docs/proof/evidence/grep_hosts_before.txt          |   65 +
+ .../evidence/phase1_3_build_route_analysis.txt     |   13 +
+ .../proof/evidence/phase1_4_prod_auth_evidence.txt |   38 +
+ .../evidence/phase1_5_revalidation_evidence.txt    |   44 +
+ docs/proof/evidence/phase1_6_xss_evidence.txt      |   37 +
+ .../evidence/phase1_7_hindi_year_evidence.txt      |   28 +
+ .../evidence/phase1_8_content_engine_mutations.txt |   28 +
+ docs/proof/evidence/phase1_8_seo_mutations.json    |   92 ++
+ docs/proof/evidence/phase1_8_seo_mutations.txt     |   12 +
+ docs/proof/evidence/phase1_8_seo_mutations_raw.txt |   53 +
+ docs/proof/evidence/phase1_9_leak_audit_raw.txt    |  108 ++
+ docs/proof/evidence/phase1_hosts_green_state.txt   |   95 ++
+ docs/proof/evidence/phase1_hosts_red_state.txt     |  124 ++
+ .../evidence/phase2_3_snapshot_comparison.txt      |   24 +
+ docs/proof/evidence/phase2_4_sitemap_check.txt     |  116 ++
+ docs/proof/evidence/phase2_5_lint.txt              |  127 ++
+ docs/proof/evidence/phase2_5_tsc.txt               |  118 ++
+ docs/proof/evidence/phase3_browser_e2e.txt         |   16 +
+ docs/proof/evidence/shared_files_diff.txt          |  387 +++++
+ docs/proof/evidence/tsc_after_phase1_1.txt         |  122 ++
+ docs/proof/evidence/tsc_baseline_mergebase.txt     |  119 ++
+ docs/proof/evidence/tsc_current_head.txt           |  119 ++
+ docs/proof/evidence/tsc_phase1_clean.txt           |  119 ++
+ docs/release/RELEASE_DECISIONS.md                  |   15 +
+ docs/release/RELEASE_REPORT.md                     |  128 ++
+ docs/release/RELEASE_TABLE.md                      |   44 +
+ .../evidence/phaseA_sitemap_diff_before.txt        |   21 +
+ .../release/evidence/phaseA_sitemap_http_proof.txt |   53 +
+ docs/release/evidence/phaseB_jsonld_grep.txt       |   10 +
+ docs/release/evidence/phaseB_jsonld_validation.txt |  147 ++
+ .../evidence/phaseC_test_reconciliation.txt        |   44 +
+ docs/release/evidence/phaseD_snapshot_diff.txt     |  340 ++++
+ .../evidence/phaseE_db_unreachable_build.txt       |  324 ++++
+ docs/release/evidence/phaseE_e1_build_checks.txt   |   57 +
+ docs/release/evidence/phaseE_git_audit.txt         |  771 +++++++++
+ docs/release/evidence/phaseE_routes_proof.txt      |  212 +++
+ docs/release/evidence/phaseG_dry_run_test.txt      |   17 +
+ docs/release/evidence/phaseH_seo_automation.txt    |   35 +
+ .../evidence/snapshots_after/_all_snapshots.json   | 1708 ++++++++++++++++++++
+ .../content-engine__hi_question_answer.json        |   17 +
+ ...ontent-engine__hi_question_answer_upsc_cse.json |   13 +
+ ...t-engine__hi_question_answer_upsc_cse_2023.json |   13 +
+ ...ngine__hi_question_answer_upsc_cse_history.json |   13 +
+ ..._2023_q1_consider_the_following_statements.json |   94 ++
+ .../content-engine__question_answer.json           |   17 +
+ .../content-engine__question_answer_upsc_cse.json  |   13 +
+ ...tent-engine__question_answer_upsc_cse_2023.json |   13 +
+ ...t-engine__question_answer_upsc_cse_history.json |   13 +
+ ..._2023_q1_consider_the_following_statements.json |   93 ++
+ .../evidence/snapshots_after/courses__courses.json |   13 +
+ ...__courses_agentic_engineering_zero_to_hero.json |   13 +
+ ..._e2e_20261021001139624_a9b3g_course_studio.json |   25 +
+ ..._e2e_20261021010807414_8eqmd_course_studio.json |   25 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   25 +
+ ..._e2e_20261021025147563_wzrey_course_studio.json |   25 +
+ ..._e2e_20261021032926063_319dp_course_studio.json |   25 +
+ ..._e2e_20261021034304510_8ksog_course_studio.json |   25 +
+ ..._e2e_20261021045339947_h7fa6_course_studio.json |   25 +
+ ..._e2e_20261021050009997_npdiv_course_studio.json |   25 +
+ .../current-affairs__current_affairs_quizzes.json  |   13 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_1.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_2.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_3.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_4.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_5.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_6.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_7.json |   37 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_8.json |   37 +
+ ...s__current_affairs_quizzes_upsc_economy_ca.json |   37 +
+ .../evidence/snapshots_after/pyqs__pyqs.json       |   16 +
+ .../evidence/snapshots_after/pyqs__pyqs_bpsc.json  |   41 +
+ .../evidence/snapshots_after/pyqs__pyqs_cds.json   |   13 +
+ .../evidence/snapshots_after/pyqs__pyqs_mppsc.json |   13 +
+ .../evidence/snapshots_after/pyqs__pyqs_nda.json   |   13 +
+ .../evidence/snapshots_after/pyqs__pyqs_ras.json   |   13 +
+ .../snapshots_after/pyqs__pyqs_ssc_cgl.json        |   41 +
+ .../snapshots_after/pyqs__pyqs_ugc_net.json        |   13 +
+ .../evidence/snapshots_after/pyqs__pyqs_uppcs.json |   13 +
+ .../snapshots_after/pyqs__pyqs_upsc_cse.json       |   13 +
+ .../snapshots_after/test-series__test_series.json  |   13 +
+ .../test-series__test_series_bpsc_72nd_2026.json   |   41 +
+ ...ies_e2e_series_e2e_20261021111538671_tnwv1.json |   41 +
+ ...ies_e2e_series_e2e_20261021114050130_622aa.json |   41 +
+ ...ies_e2e_series_e2e_20261021124106098_4akv9.json |   41 +
+ ...ies_e2e_series_e2e_20261021134628389_8s2bg.json |   41 +
+ .../test-series__test_series_pb_7391_s_legacy.json |   41 +
+ .../test-series__test_series_pb_7391_s_pub.json    |   41 +
+ ...-series__test_series_sample_audit_series_1.json |   41 +
+ ...-series__test_series_sample_audit_series_2.json |   41 +
+ .../snapshots_after/tutorials__tutorials.json      |   13 +
+ ...tutorials_agentic_engineering_zero_to_hero.json |   28 +
+ .../tutorials__tutorials_draft_course_hidden.json  |   13 +
+ ..._e2e_20261021001139624_a9b3g_course_studio.json |   30 +
+ ..._e2e_20261021010807414_8eqmd_course_studio.json |   30 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   30 +
+ ..._e2e_20261021025147563_wzrey_course_studio.json |   30 +
+ ..._e2e_20261021032926063_319dp_course_studio.json |   30 +
+ ..._e2e_20261021034304510_8ksog_course_studio.json |   30 +
+ ..._e2e_20261021045339947_h7fa6_course_studio.json |   30 +
+ .../evidence/snapshots_before/_all_snapshots.json  | 1122 +++++++++++++
+ .../content-engine__hi_question_answer.json        |   13 +
+ ...ontent-engine__hi_question_answer_upsc_cse.json |   13 +
+ ...t-engine__hi_question_answer_upsc_cse_2023.json |   13 +
+ ...ngine__hi_question_answer_upsc_cse_history.json |   13 +
+ ..._2023_q1_consider_the_following_statements.json |   13 +
+ .../content-engine__question_answer.json           |   13 +
+ .../content-engine__question_answer_upsc_cse.json  |   13 +
+ ...tent-engine__question_answer_upsc_cse_2023.json |   13 +
+ ...t-engine__question_answer_upsc_cse_history.json |   13 +
+ ..._2023_q1_consider_the_following_statements.json |   13 +
+ .../snapshots_before/courses__courses.json         |   13 +
+ ...__courses_agentic_engineering_zero_to_hero.json |   13 +
+ ..._e2e_20261021001139624_a9b3g_course_studio.json |   25 +
+ ..._e2e_20261021010807414_8eqmd_course_studio.json |   25 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   25 +
+ ..._e2e_20261021025147563_wzrey_course_studio.json |   25 +
+ ..._e2e_20261021032926063_319dp_course_studio.json |   25 +
+ ..._e2e_20261021034304510_8ksog_course_studio.json |   25 +
+ ..._e2e_20261021045339947_h7fa6_course_studio.json |   25 +
+ ..._e2e_20261021050009997_npdiv_course_studio.json |   25 +
+ .../current-affairs__current_affairs_quizzes.json  |   13 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_1.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_2.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_3.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_4.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_5.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_6.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_7.json |   30 +
+ ...ffairs_quizzes_daily_ca_quiz_sample_test_8.json |   30 +
+ ...s__current_affairs_quizzes_upsc_economy_ca.json |   30 +
+ .../evidence/snapshots_before/pyqs__pyqs.json      |   13 +
+ .../evidence/snapshots_before/pyqs__pyqs_bpsc.json |   13 +
+ .../evidence/snapshots_before/pyqs__pyqs_cds.json  |   13 +
+ .../snapshots_before/pyqs__pyqs_mppsc.json         |   13 +
+ .../evidence/snapshots_before/pyqs__pyqs_nda.json  |   13 +
+ .../evidence/snapshots_before/pyqs__pyqs_ras.json  |   13 +
+ .../snapshots_before/pyqs__pyqs_ssc_cgl.json       |   13 +
+ .../snapshots_before/pyqs__pyqs_ugc_net.json       |   13 +
+ .../snapshots_before/pyqs__pyqs_uppcs.json         |   13 +
+ .../snapshots_before/pyqs__pyqs_upsc_cse.json      |   13 +
+ .../snapshots_before/test-series__test_series.json |   13 +
+ .../test-series__test_series_bpsc_72nd_2026.json   |   13 +
+ ...ies_e2e_series_e2e_20261021111538671_tnwv1.json |   13 +
+ ...ies_e2e_series_e2e_20261021114050130_622aa.json |   13 +
+ ...ies_e2e_series_e2e_20261021124106098_4akv9.json |   13 +
+ ...ies_e2e_series_e2e_20261021134628389_8s2bg.json |   13 +
+ .../test-series__test_series_pb_7391_s_legacy.json |   13 +
+ .../test-series__test_series_pb_7391_s_pub.json    |   13 +
+ ...-series__test_series_sample_audit_series_1.json |   13 +
+ ...-series__test_series_sample_audit_series_2.json |   13 +
+ .../snapshots_before/tutorials__tutorials.json     |   13 +
+ ...tutorials_agentic_engineering_zero_to_hero.json |   13 +
+ .../tutorials__tutorials_draft_course_hidden.json  |   13 +
+ ..._e2e_20261021001139624_a9b3g_course_studio.json |   26 +
+ ..._e2e_20261021010807414_8eqmd_course_studio.json |   26 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   26 +
+ ..._e2e_20261021025147563_wzrey_course_studio.json |   26 +
+ ..._e2e_20261021032926063_319dp_course_studio.json |   26 +
+ ..._e2e_20261021034304510_8ksog_course_studio.json |   26 +
+ ..._e2e_20261021045339947_h7fa6_course_studio.json |   26 +
+ docs/release/evidence/tsc_start.txt                |  118 ++
+ docs/seo/AUDIT_BEFORE.md                           |  128 ++
+ docs/seo/DECISIONS.md                              |   28 +
+ docs/seo/PROCESS_ONLY.md                           |   41 +
+ docs/seo/PROPOSED_CHANGES.md                       |   96 ++
+ docs/seo/SEO_REPORT.md                             |   98 ++
+ docs/seo/TUTORIAL_SEO_FIELDS_DESIGN.md             |  117 ++
+ docs/seo/evidence/mutations_evidence.json          |   92 ++
+ docs/seo/evidence/snapshot_diff_report.json        |  165 ++
+ .../evidence/snapshots_after/_all_snapshots.json   |  476 ++++++
+ .../seo/evidence/snapshots_after/books__books.json |   12 +
+ .../content-engine__hi_question_answer.json        |   16 +
+ ...ontent-engine__hi_question_answer_upsc_cse.json |   12 +
+ ...ngine__hi_question_answer_upsc_cse_history.json |   12 +
+ ..._2023_q1_consider_the_following_statements.json |   88 +
+ .../content-engine__question_answer.json           |   16 +
+ .../content-engine__question_answer_upsc_cse.json  |   12 +
+ ...tent-engine__question_answer_upsc_cse_2023.json |   12 +
+ ...t-engine__question_answer_upsc_cse_history.json |   12 +
+ ..._2023_q1_consider_the_following_statements.json |   87 +
+ .../evidence/snapshots_after/courses__courses.json |   12 +
+ .../current-affairs__current_affairs_quizzes.json  |   12 +
+ ...s__current_affairs_quizzes_upsc_economy_ca.json |   32 +
+ docs/seo/evidence/snapshots_after/home__root.json  |   42 +
+ .../snapshots_after/pyqs-test-series__pyqs.json    |   15 +
+ .../pyqs-test-series__pyqs_bpsc.json               |   15 +
+ .../pyqs-test-series__test_series.json             |   12 +
+ ...ies_e2e_series_e2e_20261021124106098_4akv9.json |   15 +
+ docs/seo/evidence/snapshots_after/pyqs__pyqs.json  |   15 +
+ .../snapshots_after/test-series__test_series.json  |   12 +
+ ...ies_e2e_series_e2e_20261021124106098_4akv9.json |   15 +
+ .../snapshots_after/tutorials__tutorials.json      |   12 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   28 +
+ .../evidence/snapshots_before/_all_snapshots.json  |  341 ++++
+ .../content-engine__hi_question_answer.json        |   16 +
+ ...ontent-engine__hi_question_answer_upsc_cse.json |   12 +
+ ...ngine__hi_question_answer_upsc_cse_history.json |   12 +
+ ..._2023_q1_consider_the_following_statements.json |   61 +
+ ...q1_what_was_the_ancient_port_city_of_indus.json |   12 +
+ .../content-engine__question_answer.json           |   16 +
+ .../content-engine__question_answer_upsc_cse.json  |   12 +
+ ...tent-engine__question_answer_upsc_cse_2023.json |   12 +
+ ...t-engine__question_answer_upsc_cse_history.json |   12 +
+ ..._2023_q1_consider_the_following_statements.json |   60 +
+ ...q1_what_was_the_ancient_port_city_of_indus.json |   12 +
+ .../current-affairs__current_affairs_quizzes.json  |   12 +
+ ...fairs__current_affairs_quizzes_upsc_ca_oct.json |   12 +
+ ...s__current_affairs_quizzes_upsc_economy_ca.json |   29 +
+ .../snapshots_before/pyqs-test-series__pyqs.json   |   12 +
+ .../pyqs-test-series__pyqs_bpsc.json               |   12 +
+ .../pyqs-test-series__test_series.json             |   12 +
+ ...qs-test-series__test_series_bpsc_72nd_2026.json |   12 +
+ ...ies_e2e_series_e2e_20261021124106098_4akv9.json |   12 +
+ .../snapshots_before/tutorials__tutorials.json     |   12 +
+ ..._e2e_20261021025140619_1frn8_course_studio.json |   25 +
+ .../tutorials__tutorials_this_is_4th_tutorial.json |   12 +
+ lib/exam/labels.tsx                                |    4 +-
+ lib/modules/content-engine/assist-io.ts            |  181 +++
+ lib/modules/content-engine/auth.ts                 |   25 +
+ lib/modules/content-engine/classifier.ts           |  197 +++
+ lib/modules/content-engine/cross-ref.ts            |  140 ++
+ lib/modules/content-engine/db-service.ts           |  757 +++++++++
+ lib/modules/content-engine/exam-detector.ts        |  154 ++
+ lib/modules/content-engine/export-site.ts          |  245 +++
+ lib/modules/content-engine/pairing.ts              |  105 ++
+ lib/modules/content-engine/parser.ts               |  612 +++++++
+ lib/modules/content-engine/paths.ts                |  151 ++
+ lib/modules/content-engine/quality-gates.ts        |  125 ++
+ lib/modules/content-engine/schemas.ts              |   74 +
+ lib/modules/content-engine/seo-model.ts            |   79 +
+ lib/modules/content-engine/solution-formatter.ts   |  288 ++++
+ lib/modules/content-engine/static-export.ts        |  398 +++++
+ lib/modules/content-engine/taxonomy.ts             |  191 +++
+ lib/modules/content-engine/zip.ts                  |  120 ++
+ lib/prisma.ts                                      |   13 +-
+ lib/seo/adapters/content-engine.ts                 |  169 ++
+ lib/seo/adapters/current-affairs.ts                |   87 +
+ lib/seo/adapters/pyqs.ts                           |   55 +
+ lib/seo/adapters/test-series.ts                    |  102 ++
+ lib/seo/adapters/tutorials.ts                      |   74 +
+ lib/seo/audit.ts                                   |  273 ++++
+ lib/seo/core.ts                                    |  409 +++++
+ lib/seo/index.ts                                   |    7 +
+ lib/seo/types.ts                                   |   62 +
+ package.json                                       |    5 +-
+ .../migration.sql                                  |  162 ++
+ prisma/schema.prisma                               |  112 ++
+ scripts/capture-phaseD-snapshots.ts                |  199 +++
+ scripts/compare-seo-snapshots.ts                   |  213 +++
+ scripts/content-engine-dry-run.ts                  |  167 ++
+ scripts/run-mutation-suite.ts                      |  314 ++++
+ scripts/run-proof-suite.ts                         |  287 ++++
+ scripts/run-seo-mutation-suite.ts                  |  184 +++
+ scripts/snapshot-seo-urls.ts                       |  141 ++
+ scripts/test-phase1-4-prod-auth.ts                 |  237 +++
+ scripts/test-phase1-5-cache-revalidation.ts        |  249 +++
+ scripts/test-phase1-6-xss.ts                       |  266 +++
+ scripts/test-phase1-7-hindi-year-hub.ts            |  195 +++
+ scripts/test-phase1-9-leak-audit.ts                |  251 +++
+ scripts/test-phase2-3-cross-module-snapshots.ts    |  147 ++
+ scripts/test-phase2-4-sitemap-comparison.ts        |  132 ++
+ scripts/test-phaseA-sitemap-proof.ts               |  241 +++
+ scripts/test-phaseH-seo-automation.ts              |  251 +++
+ scripts/test-report-links.ts                       |    2 +-
+ scripts/validate-jsonld.ts                         |  482 ++++++
+ tests/content-engine/admin-ui.test.ts              |  175 ++
+ tests/content-engine/db-service.test.ts            |  364 +++++
+ tests/content-engine/mutations.test.ts             |  346 ++++
+ tests/content-engine/parser-bugs.test.ts           |  218 +++
+ tests/content-engine/public-pages.test.ts          |  135 ++
+ tests/content-engine/pure-logic.test.ts            |  534 ++++++
+ tests/e2e/content-engine-browser.spec.ts           |  323 ++++
+ tests/e2e/content-engine.spec.ts                   |  332 ++++
+ tests/e2e/seo-admin.spec.ts                        |   39 +
+ tests/fixtures/dry-run-sample.txt                  |   50 +
+ tests/seo/adapters.test.ts                         |  303 ++++
+ tests/seo/admin-auth.test.ts                       |   38 +
+ tests/seo/core.test.ts                             |  206 +++
+ tests/seo/parity.test.ts                           |   72 +
+ tests/unit/prisma-log-guard.test.ts                |   34 +
+ 380 files changed, 38091 insertions(+), 87 deletions(-)
+
+=== 3. GIT DIFF ROBOTS.TS (1b48ec9..HEAD -- app/robots.ts) ===
+diff --git a/app/robots.ts b/app/robots.ts
+index 7df0156..f10fbbe 100644
+--- a/app/robots.ts
++++ b/app/robots.ts
+@@ -1,7 +1,8 @@
+ import { MetadataRoute } from "next"
++import { getBaseUrl } from "@/lib/seo/core"
+ 
+ export default function robots(): MetadataRoute.Robots {
+-    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
++    const siteUrl = getBaseUrl()
+     return {
+         rules: {
+             userAgent: "*",
+@@ -26,6 +27,12 @@ export default function robots(): MetadataRoute.Robots {
+                 "/test-series/*/solutions",
+             ],
+         },
+-        sitemap: `${siteUrl}/sitemap.xml`,
++        sitemap: siteUrl
++            ? [
++                  `${siteUrl}/sitemap.xml`,
++                  `${siteUrl}/question-answer/sitemap.xml`,
++                  `${siteUrl}/hi/question-answer/sitemap.xml`,
++              ]
++            : undefined,
+     }
+ }
+
+=== 4. REMAINING BRAND GREP IN SEO OUTPUT ===
+app/(auth)/login/page.tsx:17:                                    alt="aspirantbook"
+app/(dashboard)/books/[slug]/page.tsx:16:      title: "eBook Not Found | TrillionSkill",
+app/(dashboard)/books/[slug]/page.tsx:21:  const title = `${book.title} - ${book.author} | TrillionSkill eBook Store`
+app/(dashboard)/books/[slug]/page.tsx:25:    "Buy and read authentic digital PDF notes and eBooks instantly on TrillionSkill."
+app/(dashboard)/books/cart/page.tsx:182:                            {item.book.edition} &bull; Seller: aspirantbook Official Store
+app/(dashboard)/books/orders/page.tsx:65:      `aspirantbook Official Tax Invoice / Receipt\nOrder No: ${orderNumber}\nDate: ${new Date().toLocaleDateString()}\nStatus: PAID & DELIVERED\n`
+app/(dashboard)/books/page.tsx:259:                Powered by <strong className="text-gray-800 dark:text-gray-200 font-extrabold">Prepmarket &bull; aspirantbook</strong>
+app/(dashboard)/courses/[slug]/page.tsx:86:        title: `${course.title} | aspirantbook`,
+app/(dashboard)/courses/[slug]/page.tsx:87:        description: course.description || `Enroll in ${course.title} on aspirantbook`,
+app/(dashboard)/courses/[slug]/page.tsx:92:            title: `${course.title} | aspirantbook`,
+app/(dashboard)/courses/[slug]/page.tsx:93:            description: course.description || `Enroll in ${course.title} on aspirantbook`,
+app/(dashboard)/courses/page.tsx:9:    title: "All Video Courses & Batches | aspirantbook",
+app/(dashboard)/courses/page.tsx:10:    description: "Explore all comprehensive video courses, academic foundations, and competitive batches on aspirantbook.",
+app/(dashboard)/courses/page.tsx:15:        title: "All Video Courses & Batches | aspirantbook",
+app/(dashboard)/courses/page.tsx:16:        description: "Explore all comprehensive video courses, academic foundations, and competitive batches on aspirantbook.",
+app/(dashboard)/current-affairs-quizzes/[slug]/instructions/page.tsx:16:  if (!quiz) return { title: "Quiz Not Found | aspirantbook" }
+app/(dashboard)/current-affairs-quizzes/[slug]/instructions/page.tsx:19:    title: `Instructions: ${quiz.title} | aspirantbook`,
+app/(dashboard)/current-affairs-quizzes/[slug]/page.tsx:36:  if (!quiz) return { title: "Quiz Not Found | aspirantbook" }
+app/(dashboard)/current-affairs-quizzes/[slug]/page.tsx:88:      name: "aspirantbook",
+app/(dashboard)/current-affairs-quizzes/page.tsx:10:  title: "Current Affairs and Quizzes | aspirantbook",
+app/(dashboard)/my-tests/page.tsx:21:    title: "My Tests | aspirantbook",
+app/(dashboard)/practice/page.tsx:4:    title: "Coding Practice | aspirantbook",
+app/(dashboard)/purchases/page.tsx:10:  title: "My Purchases & Subscriptions | aspirantbook",
+app/(dashboard)/pyqs/[examId]/page.tsx:31:      title: "Exam Category Not Found | TrillionSkill",
+app/(dashboard)/settings/subscription/page.tsx:102:                                    href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "contact.aspirantbook@gmail.com"}?subject=${encodeURIComponent(`Plan help - ${activeSubscription.plan || "Pass"}`)}`}
+app/(dashboard)/subscription/page.tsx:144:                                    href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "contact.aspirantbook@gmail.com"}?subject=${encodeURIComponent(`Plan help - ${activeSubscription.plan || "Pass"}`)}`}
+app/(dashboard)/teacher/test-series/create/page.tsx:217:    link.download = "aspirantbook_questions_template.csv"
+app/(dashboard)/teacher/test-series/create/page.tsx:265:    link.download = "aspirantbook_questions_template.json"
+app/(dashboard)/teacher/test-series/create/page.tsx:2494:                                    🔒 This test requires an active aspirantbook Pass subscription.
+app/(dashboard)/test-series/[id]/TestSeriesDetailClient.tsx:813:                                <span className="text-lg sm:text-xl font-black tracking-tight text-white">aspirantbook</span>
+app/(dashboard)/test-series/[id]/TestSeriesDetailClient.tsx:974:                                <span className="text-xl font-black text-gray-900 dark:text-white">aspirantbook</span>
+app/(dashboard)/test-series/[id]/page.tsx:22:        return { title: "Test Series | TrillionSkill" }
+app/(dashboard)/test-series/[id]/page.tsx:43:        return { title: "Test Series Not Found | TrillionSkill" }
+app/(dashboard)/test-series/page.tsx:864:                                <span className="text-xl font-black text-gray-900 dark:text-white">aspirantbook</span>
+app/(dashboard)/tracks/career/[slug]/page.tsx:181:                                by <span className="font-semibold">aspirantbook</span>
+app/(dashboard)/tutorials/[slug]/page.tsx:206:                  name: "TrillionSkill",
+app/(dashboard)/tutorials/page.tsx:10:    title: "Text-Based Tutorials | aspirantbook",
+app/(exam)/test-series/[id]/attempt/AttemptClient.tsx:1362:                        <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 13 }}>aspirantbook</span>
+app/(exam)/test-series/[id]/declaration/page.tsx:205:                        <span className="text-teal-600 font-black text-sm hidden xs:inline sm:inline">aspirantbook</span>
+app/(exam)/test-series/[id]/instructions/InstructionsClient.tsx:123:                        <span className="text-teal-600 font-black text-sm hidden xs:inline sm:inline">aspirantbook</span>
+app/(exam)/test-series/[id]/print/page.tsx:116:                    <h2 className="text-xs font-bold uppercase tracking-widest text-gray-600">aspirantbook Online CBT Examination</h2>
+app/(exam)/test-series/[id]/result/page.tsx:792:            <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 14 }}>aspirantbook</span>
+app/admin/book-studio/page.tsx:11:  description: "Create, publish, approve and manage PDF books on TrillionSkill",
+app/admin/content-engine/practice/page.tsx:94:    const text = `🎯 **Exam Question of the Day**\n\n${currentQ.q}\n\n${optionsText}\n\n||✅ Correct Answer: ${optLetters[currentQ.answerIndex]}\n\n📖 Explanation: ${currentQ.explanation || "N/A"} ||\n\n${tagLine}\n👉 Practice more at TrillionSkill`
+app/admin/layout.tsx:32:        email: session?.user?.email || "admin@aspirantbook.com",
+app/admin/settings/SettingsClient.tsx:108:        downloadAnchor.setAttribute("download", `aspirantbook-settings-${new Date().toISOString().split("T")[0]}.json`)
+app/api/auth/mobile-login/route.ts:71:        const syntheticEmail = `mobile_${phoneNumber}@aspirantbook.local`
+app/api/books/[id]/download/route.ts:93:          `aspirantbook Verified eBook Delivery\nBook: ${title}\nEdition: ${book.edition || "2026 Edition"}\nPages: ${book.pages || "N/A"}\n`
+app/api/books/[id]/download/route.ts:100:        `%PDF-1.4\n1 0 obj\n<< /Title (${title}) /Author (${book.author || "aspirantbook Academic Team"}) >>\nendobj\n` +
+app/api/books/[id]/download/route.ts:101:        `aspirantbook Verified eBook Delivery\nBook: ${title}\nEdition: ${book.edition || "2026 Edition"}\nPages: ${book.pages || "N/A"}\n`
+app/api/courses/demo/book/route.ts:107:        const syntheticEmail = `mobile_${raw10Digits}@aspirantbook.local`
+app/api/courses/demo/book/route.ts:195:      `_Team TrillionSkill_`
+app/api/courses/enroll/route.ts:50:            const syntheticEmail = `mobile_${phoneNumber}@aspirantbook.local`
+app/batches/[slug]/page.tsx:20:      title: "Batch Not Found - aspirantbook",
+app/batches/[slug]/page.tsx:24:    title: `${batch.title} - aspirantbook`,
+app/checkout/page.tsx:314:                name: "aspirantbook",
+app/checkout/page.tsx:319:                    email: (activeUser as any)?.email || (phoneNumber ? `mobile_${phoneNumber}@aspirantbook.local` : ""),
+app/checkout/page.tsx:404:                            <span>aspirantbook Secure Checkout</span>
+app/checkout/page.tsx:747:                                                    aspirantbook Premium ({planParam})
+app/checkout/page.tsx:798:                                    <span>Certificate of Completion verified by aspirantbook</span>
+app/hi/question-answer/[exam]/[subject]/[slug]/page.tsx:29:    return { title: "Question Not Found | TrillionSkill" }
+app/hi/question-answer/[exam]/[subject]/page.tsx:45:    title: `${examName} ${label} प्रश्नोत्तर (हिन्दी) | TrillionSkill`,
+app/hi/question-answer/[exam]/[subject]/topic/[topic]/page.tsx:26:    title: `${topic} प्रश्नोत्तरी — ${exam} | TrillionSkill`,
+app/hi/question-answer/[exam]/page.tsx:37:    title: `${examName} पिछले वर्षों के प्रश्नोत्तर (हिन्दी) | TrillionSkill`,
+app/hi/question-answer/page.tsx:16:  title: "प्रतियोगी परीक्षा पिछले वर्ष के प्रश्नोत्तर (PYQs) | TrillionSkill हिन्दी",
+app/layout.tsx:13:    default: "aspirantbook - Interactive Learning Platform & Test Series",
+app/layout.tsx:14:    template: "%s | aspirantbook",
+app/layout.tsx:16:  description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+app/layout.tsx:17:  keywords: ["aspirantbook", "competitive exams", "test series", "eBooks", "interactive courses", "BPSC", "UPSC"],
+app/layout.tsx:23:    siteName: "aspirantbook",
+app/layout.tsx:24:    title: "aspirantbook - Interactive Learning Platform & Test Series",
+app/layout.tsx:25:    description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+app/layout.tsx:31:        alt: "aspirantbook",
+app/layout.tsx:37:    title: "aspirantbook - Interactive Learning Platform & Test Series",
+app/layout.tsx:38:    description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+app/layout.tsx:44:    title: 'aspirantbook',
+app/page.tsx:74:                      "name": "aspirantbook",
+app/page.tsx:85:                      "name": "aspirantbook",
+app/page.tsx:116:                                alt="aspirantbook"
+app/question-answer/[exam]/[subject]/[slug]/page.tsx:32:    return { title: "Question Not Found | TrillionSkill" }
+app/question-answer/[exam]/[subject]/page.tsx:40:    title: `${examName} ${label} Questions | TrillionSkill`,
+app/question-answer/[exam]/[subject]/topic/[topic]/page.tsx:26:    title: `${topic} Questions — ${exam} ${subject} | TrillionSkill`,
+app/question-answer/[exam]/page.tsx:32:    title: `${examName} Previous Year Questions (PYQs) | TrillionSkill`,
+app/question-answer/page.tsx:15:  title: "Competitive Exam Previous Year Questions (PYQs) | TrillionSkill",
+lib/seo/adapters/current-affairs.ts:12:  const title = "Daily Current Affairs Quizzes | aspirantbook"
+lib/seo/adapters/current-affairs.ts:50:  const title = `${quiz.title} - Current Affairs Quiz | aspirantbook`
+lib/seo/adapters/current-affairs.ts:60:      name: "aspirantbook",
+lib/seo/adapters/pyqs.ts:7:  const title = "Previous Year Question Papers (PYQs) | TrillionSkill"
+lib/seo/adapters/pyqs.ts:36:  const title = `${category.name} Previous Year Question Papers (PYQs) | TrillionSkill`
+lib/seo/adapters/test-series.ts:6:  const title = "Online Test Series & Mock Exams | TrillionSkill"
+lib/seo/adapters/test-series.ts:42:  const title = `${series.title} Test Series & Mock Tests | TrillionSkill`
+lib/seo/adapters/tutorials.ts:12:  const title = "Text-Based Tutorials | aspirantbook"
+lib/seo/core.ts:14: * Defaults to "aspirantbook", overridable via NEXT_PUBLIC_SITE_NAME environment variable.
+lib/seo/core.ts:16:export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "aspirantbook"
+lib/seo/core.ts:224:      name: opts.authorName || "TrillionSkill",
