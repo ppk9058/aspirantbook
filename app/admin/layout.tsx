@@ -1,10 +1,10 @@
 import { auth } from "@/auth"
-import { normalizeDemoRole } from "@/lib/auth/demo-role"
 import { redirect } from "next/navigation"
 import { AdminNav } from "@/components/admin/AdminNav"
 import { AdminHeader } from "@/components/admin/AdminHeader"
 import { cookies, headers } from "next/headers"
 import { isTeacherAllowedAdminPath } from "@/lib/auth/roles"
+import { getDemoRole } from "@/lib/auth/demo-role"
 
 export default async function AdminLayout({
     children,
@@ -14,7 +14,7 @@ export default async function AdminLayout({
     const session = await auth()
     const cookieStore = await cookies()
     const headerList = await headers()
-    const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
+    const demoRole = getDemoRole(cookieStore)
     const effectiveRole = session?.user?.role || demoRole
     const pathname = headerList.get("x-pathname") || ""
 

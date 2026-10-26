@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { AppRole, normalizeAppRole } from "./roles"
 import { Permission, hasPermission, ROLE_PERMISSIONS } from "./permissions"
 import { cookies } from "next/headers"
-import { normalizeDemoRole } from "./demo-role"
+import { getDemoRole } from "./demo-role"
 
 export interface UserContext {
   userId?: string
@@ -22,14 +22,14 @@ export async function getCurrentUserContext(): Promise<UserContext> {
   let demoRoleCookie: string | undefined = undefined
   try {
     const cookieStore = await cookies()
-    demoRoleCookie = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
+    demoRoleCookie = getDemoRole(cookieStore)
   } catch {
     // Outside Next.js request scope (e.g. unit tests or background scripts)
   }
 
-  // Authentic session role always takes precedence; fallback to demo cookie for unauthenticated testing
+  // Authentic session role always takes precedence; fallback to demo cookie only when demo mode is enabled
   let rawRole: string | undefined = session?.user?.role
-  if (!rawRole && demoRoleCookie && (demoRoleCookie === "STUDENT" || demoRoleCookie === "TEACHER" || demoRoleCookie === "ADMIN")) {
+  if (!rawRole && demoRoleCookie) {
     rawRole = demoRoleCookie
   }
 

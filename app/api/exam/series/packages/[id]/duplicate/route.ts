@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
-import { normalizeDemoRole } from "@/lib/auth/demo-role"
 import { auth } from "@/auth"
 import { cookies } from "next/headers"
 import { duplicateExamPackage } from "@/lib/exam-packages"
 import { verifyMutationAuth } from "@/lib/exam/audit-helper"
+import { getDemoRole } from "@/lib/auth/demo-role"
 
 export async function POST(
   _req: NextRequest,
@@ -12,7 +12,7 @@ export async function POST(
   try {
     const session = await auth()
     const cookieStore = await cookies()
-    const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
+    const demoRole = getDemoRole(cookieStore)
 
     const authCheck = verifyMutationAuth({ session, demoRole })
     if (!authCheck.authorized || !authCheck.userId || !authCheck.role) {

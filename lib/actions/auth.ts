@@ -147,18 +147,19 @@ export async function authenticate(prevState: string | undefined, formData: Form
     let target = "/dashboard"
     try {
         const { cookies } = await import("next/headers")
+        const { isDemoRoleEnabled } = await import("@/lib/auth/demo-role")
         const cookieStore = await cookies()
         const user = await prisma.user.findUnique({ where: { email }, select: { role: true } })
 
         if (user?.role === "ADMIN") {
             target = "/admin"
-            cookieStore.set("ts_demo_role", "ADMIN", { path: "/", maxAge: 60 * 60 * 24 * 7 })
+            if (isDemoRoleEnabled()) cookieStore.set("ts_demo_role", "ADMIN", { path: "/", maxAge: 60 * 60 * 24 * 7 })
         } else if (user?.role === "TEACHER") {
             target = "/teacher"
-            cookieStore.set("ts_demo_role", "TEACHER", { path: "/", maxAge: 60 * 60 * 24 * 7 })
+            if (isDemoRoleEnabled()) cookieStore.set("ts_demo_role", "TEACHER", { path: "/", maxAge: 60 * 60 * 24 * 7 })
         } else {
             target = "/dashboard"
-            cookieStore.set("ts_demo_role", "STUDENT", { path: "/", maxAge: 60 * 60 * 24 * 7 })
+            if (isDemoRoleEnabled()) cookieStore.set("ts_demo_role", "STUDENT", { path: "/", maxAge: 60 * 60 * 24 * 7 })
         }
     } catch {
         target = "/dashboard"

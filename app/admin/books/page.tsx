@@ -1,9 +1,9 @@
 import { auth } from "@/auth"
-import { normalizeDemoRole } from "@/lib/auth/demo-role"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { getAllBooks, getAllOrders, getAllCoupons, getBookstoreStats } from "@/lib/books/bookService"
 import OnlineBookstoreClient from "@/components/admin/books/OnlineBookstoreClient"
+import { getDemoRole } from "@/lib/auth/demo-role"
 
 export const dynamic = "force-dynamic"
 
@@ -15,7 +15,7 @@ export const metadata = {
 export default async function AdminBookstorePage() {
   const session = await auth()
   const cookieStore = await cookies()
-  const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
+  const demoRole = getDemoRole(cookieStore)
   const effectiveRole = session?.user?.role || demoRole
 
   // STRICT ACCESS: Only ADMIN role can access Online Bookstore admin panel

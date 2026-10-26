@@ -30,7 +30,7 @@ export default function DashboardShell({
 
     useEffect(() => {
         try {
-            // Demo role switching is a non-production affordance only.
+            // Demo role cookie is never trusted in a production build (see lib/auth/demo-role.ts)
             if (process.env.NODE_ENV === "production") return
             const match = document.cookie.match(/(^|;)\s*ts_demo_role\s*=\s*([^;]+)/)
             if (match) setDemoRole(match[2])

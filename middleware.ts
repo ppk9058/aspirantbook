@@ -3,7 +3,7 @@ import { authConfig } from "./auth.config"
 import { NextResponse } from "next/server"
 import { sanitizeReturnPath } from "./lib/utils/return-path"
 import { isTeacherAllowedAdminPath } from "./lib/auth/roles"
-import { normalizeDemoRole } from "./lib/auth/demo-role"
+import { getDemoRole } from "./lib/auth/demo-role"
 import { verifyRequestOrigin } from "./lib/security/csrf"
 
 /**
@@ -21,7 +21,7 @@ export default auth((req) => {
     const { nextUrl } = req
     const isLoggedIn = !!req.auth
     const userRole = req.auth?.user?.role
-    const demoRole = normalizeDemoRole(req.cookies.get("ts_demo_role")?.value)
+    const demoRole = getDemoRole(req)
     const effectiveRole = userRole || (demoRole ? demoRole : undefined)
     const isAuthenticated = isLoggedIn || Boolean(demoRole)
     const subscriptionStatus = req.auth?.user?.subscriptionStatus

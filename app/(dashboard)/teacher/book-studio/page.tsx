@@ -1,9 +1,9 @@
 import { auth } from "@/auth"
-import { normalizeDemoRole } from "@/lib/auth/demo-role"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { getAllBooks } from "@/lib/books/bookService"
 import BookStudioClient from "@/components/admin/books/BookStudioClient"
+import { getDemoRole } from "@/lib/auth/demo-role"
 
 export const dynamic = "force-dynamic"
 
@@ -15,7 +15,7 @@ export const metadata = {
 export default async function TeacherBookStudioPage() {
   const session = await auth()
   const cookieStore = await cookies()
-  const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
+  const demoRole = getDemoRole(cookieStore)
   const effectiveRole = session?.user?.role || demoRole
 
   if (effectiveRole !== "TEACHER" && effectiveRole !== "ADMIN") {

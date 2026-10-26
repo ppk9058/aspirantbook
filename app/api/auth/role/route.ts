@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { AppRole } from "@/lib/auth/roles"
-import { isDemoModeEnabled, normalizeDemoRole } from "@/lib/auth/demo-role"
+import { getDemoRole, isDemoRoleEnabled } from "@/lib/auth/demo-role"
 import { logAuditAction } from "@/lib/audit/audit-logger"
 
 export async function GET() {
-  if (!isDemoModeEnabled()) {
+  if (!isDemoRoleEnabled()) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
   const cookieStore = await cookies()
-  const currentRole = (normalizeDemoRole(cookieStore.get("ts_demo_role")?.value) as AppRole) || "STUDENT"
+  const currentRole = getDemoRole(cookieStore) || "STUDENT"
   return NextResponse.json({ role: currentRole })
 }
 
 export async function POST(req: NextRequest) {
   // Demo role switching must never be reachable in production.
-  if (!isDemoModeEnabled()) {
+  if (!isDemoRoleEnabled()) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
 
@@ -25,8 +25,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid role" }, { status: 400 })
     }
 
+    if (!isDemoRoleEnabled()) {
+      return NextResponse.json(
+        { error: "Demo role switching is disabled in this environment" },
+        { status: 403 }
+      )
+    }
+
     const cookieStore = await cookies()
-    cookieStore.set("ts_demo_role", role, {
+    cookieStore.set("ts_demo_role", role as AppRole, {
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
       sameSite: "lax",
