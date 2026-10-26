@@ -23,11 +23,13 @@ if (
     process.exit(1)
 }
 
-const testPassword = process.env.TEST_USER_PASSWORD
-if (!testPassword) {
+const rawTestPassword = process.env.TEST_USER_PASSWORD
+if (!rawTestPassword) {
     console.error("FATAL: TEST_USER_PASSWORD not found in .env.test")
-    process.exit(1)
+    throw new Error("TEST_USER_PASSWORD not found in .env.test")
 }
+// Explicit string type: narrowing of a module-level env read does not carry into main().
+const testPassword: string = rawTestPassword
 
 const prisma = new PrismaClient()
 
