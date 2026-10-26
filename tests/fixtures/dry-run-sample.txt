@@ -1,0 +1,50 @@
+Subject: General Science
+Topic: Physics
+
+1. Which of the following is the standard SI unit of electrical resistance?
+(A) Ampere
+(B) Volt
+(C) Ohm
+(D) Watt
+Answer: C
+Explanation: Ohm is the SI unit of electrical resistance defined by Ohm's law.
+[Sample Exam 2024]
+
+2. What is the chemical symbol for the element Gold?
+(A) Ag
+(B) Au
+(C) Fe
+(D) Pb
+Answer: B
+Explanation: Au represents gold, derived from the Latin word aurum.
+[Sample Exam 2024]
+
+Subject: General Science
+Topic: Earth Sciences
+
+3. Which layer of Earth's atmosphere contains the majority of atmospheric ozone?
+(A) Troposphere
+(B) Stratosphere
+(C) Mesosphere
+(D) Thermosphere
+Answer: B
+Explanation: The stratosphere contains the ozone layer which absorbs ultraviolet radiation.
+[Sample Exam 2024]
+
+4. What is the primary function of chlorophyll in plant cells?
+(A) Water uptake
+(B) Photosynthetic light absorption
+(C) Structural rigidity
+(D) Nitrogen fixation
+Answer: B
+Explanation: Chlorophyll absorbs sunlight to drive photosynthetic reactions.
+[Sample Exam 2024]
+
+5. Which planet in our solar system exhibits the highest mean density?
+(A) Mars
+(B) Venus
+(C) Earth
+(D) Mercury
+Answer: C
+Explanation: Earth has the highest mean density among solar system planets.
+[Sample Exam 2024]
