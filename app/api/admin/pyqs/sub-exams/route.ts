@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createSubExam } from "@/lib/pyqs-service"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 
 export async function POST(req: Request) {
   try {
@@ -15,6 +16,7 @@ export async function POST(req: Request) {
     }
 
     const created = await createSubExam(body)
+    safeRevalidateTags(CACHE_TAGS.pyqs)
     return NextResponse.json(created, { status: 201 })
   } catch (error: any) {
     console.error("POST /api/admin/pyqs/sub-exams error:", error)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -148,6 +149,7 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    safeRevalidateTags(CACHE_TAGS.currentAffairs)
     return NextResponse.json({ success: true, data: created }, { status: 201 })
   } catch (error: any) {
     console.error("Error creating Current Affairs PDF:", error)

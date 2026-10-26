@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getAllPapers, createPaper } from "@/lib/pyqs-service"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 
 export async function GET(req: Request) {
   try {
@@ -51,6 +52,7 @@ export async function POST(req: Request) {
     }
 
     const created = await createPaper(body)
+    safeRevalidateTags(CACHE_TAGS.pyqs)
     return NextResponse.json(created, { status: 201 })
   } catch (error: any) {
     console.error("POST /api/admin/pyqs/papers error:", error)

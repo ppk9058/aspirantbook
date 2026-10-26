@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getPaperById, updatePaper, deletePaper } from "@/lib/pyqs-service"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -38,6 +39,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     const body = await req.json()
     const updated = await updatePaper({ id, ...body })
+    safeRevalidateTags(CACHE_TAGS.pyqs)
     return NextResponse.json(updated)
   } catch (error: any) {
     console.error("PUT /api/admin/pyqs/papers/[id] error:", error)
@@ -66,6 +68,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     await deletePaper(id)
+    safeRevalidateTags(CACHE_TAGS.pyqs)
     return NextResponse.json({ success: true, message: "Paper deleted successfully" })
   } catch (error: any) {
     console.error("DELETE /api/admin/pyqs/papers/[id] error:", error)

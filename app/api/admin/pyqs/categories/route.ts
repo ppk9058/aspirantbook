@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getAllCategories, createCategory } from "@/lib/pyqs-service"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 
 export async function GET() {
   try {
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
     }
 
     const created = await createCategory(body)
+    safeRevalidateTags(CACHE_TAGS.pyqs)
     return NextResponse.json(created, { status: 201 })
   } catch (error: any) {
     console.error("POST /api/admin/pyqs/categories error:", error)

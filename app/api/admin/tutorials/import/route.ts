@@ -6,6 +6,7 @@ import { logContentAudit } from "@/lib/actions/admin/audit"
 import { importTutorialPackage } from "@/lib/actions/admin/tutorial-import"
 import { validateOrMapCanonicalGoals } from "@/lib/tutorials-goal-categories"
 import { chunkContent, computeContentHash } from "@/lib/authwall/chunker"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 
 interface LessonImport {
   title: string
@@ -250,6 +251,8 @@ export async function POST(req: Request) {
 
     const finalChapters = fullCourse?.chapters || []
     const totalLessonsCount = finalChapters.reduce((sum, ch) => sum + ch.lessons.length, 0)
+
+    safeRevalidateTags(CACHE_TAGS.tutorials, CACHE_TAGS.courses)
 
     await logContentAudit({
       entityId: course.id,

@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma"
 import { TrackType } from "@prisma/client"
 import { revalidatePath } from "next/cache"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 import { z } from "zod"
 
 const TrackSchema = z.object({
@@ -53,6 +54,8 @@ export async function createTrack(data: z.infer<typeof TrackSchema>) {
         })
 
         revalidatePath("/admin/tracks")
+
+        safeRevalidateTags(CACHE_TAGS.tracks)
         return { success: true, track }
     } catch (error) {
         console.error("Failed to create track:", error)
@@ -68,6 +71,8 @@ export async function updateTrack(id: string, data: Partial<z.infer<typeof Track
         })
 
         revalidatePath("/admin/tracks")
+
+        safeRevalidateTags(CACHE_TAGS.tracks)
         return { success: true, track }
     } catch (error) {
         console.error("Failed to update track:", error)
@@ -82,6 +87,8 @@ export async function deleteTrack(id: string) {
         })
 
         revalidatePath("/admin/tracks")
+
+        safeRevalidateTags(CACHE_TAGS.tracks)
         return { success: true }
     } catch (error) {
         console.error("Failed to delete track:", error)
@@ -108,6 +115,8 @@ export async function addCourseToTrack(trackId: string, courseId: string) {
         })
 
         revalidatePath(`/admin/tracks/${trackId}`)
+
+        safeRevalidateTags(CACHE_TAGS.tracks)
         return { success: true }
     } catch (error) {
         console.error("Failed to add course to track:", error)
@@ -127,6 +136,8 @@ export async function removeCourseFromTrack(trackId: string, courseId: string) {
         })
 
         revalidatePath(`/admin/tracks/${trackId}`)
+
+        safeRevalidateTags(CACHE_TAGS.tracks)
         return { success: true }
     } catch (error) {
         console.error("Failed to remove course from track:", error)
@@ -145,6 +156,7 @@ export async function reorderTrackCourses(trackId: string, items: { id: string; 
 
         await prisma.$transaction(transaction)
         revalidatePath(`/admin/tracks/${trackId}`)
+        safeRevalidateTags(CACHE_TAGS.tracks)
         return { success: true }
     } catch (error) {
         console.error("Failed to reorder courses:", error)

@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 export interface BatchTier {
   id: string;
@@ -89,32 +90,50 @@ export interface Batch {
 
 const BATCHES_FILE_PATH = path.join(process.cwd(), "data", "batches.json");
 
-// In-memory cache for fast read performance in dev/serverless
-let cachedBatches: Batch[] | null = null;
-let lastReadTime = 0;
-const CACHE_TTL_MS = 60000; // 60 seconds (in-memory cached)
+export const BATCHES_CACHE_TAG = "batches";
 
-async function readBatchesFile(): Promise<Batch[]> {
-  const now = Date.now();
-  if (cachedBatches && now - lastReadTime < CACHE_TTL_MS) {
-    return cachedBatches;
-  }
+/**
+ * B-019: batches used to sit in a module-level 60s cache, so every serverless
+ * instance served its own copy and a write was invisible to the others until
+ * their TTL expired. Reads now go through Next's tagged data cache and every
+ * mutation invalidates the tag, so all instances agree.
+ */
+async function readBatchesFileUncached(): Promise<Batch[]> {
   try {
     const raw = await fs.readFile(BATCHES_FILE_PATH, "utf-8");
-    cachedBatches = JSON.parse(raw);
-    lastReadTime = now;
-    return cachedBatches || [];
+    return JSON.parse(raw) as Batch[];
   } catch (err) {
     console.error("Error reading batches.json:", err);
-    return cachedBatches || [];
+    return [];
   }
+}
+
+const readBatchesCached = unstable_cache(readBatchesFileUncached, ["batches-json"], {
+  tags: [BATCHES_CACHE_TAG],
+  revalidate: 300,
+});
+
+async function readBatchesFile(): Promise<Batch[]> {
+  return readBatchesCached();
 }
 
 async function writeBatchesFile(batches: Batch[]): Promise<void> {
   await fs.mkdir(path.dirname(BATCHES_FILE_PATH), { recursive: true });
   await fs.writeFile(BATCHES_FILE_PATH, JSON.stringify(batches, null, 2), "utf-8");
-  cachedBatches = batches;
-  lastReadTime = Date.now();
+  invalidateBatchesCache();
+}
+
+/**
+ * Drops the shared batches cache entry after a mutation.
+ * revalidateTag needs a Next request scope; outside one (scripts, unit tests)
+ * the next read simply repopulates the cache, so we log instead of throwing.
+ */
+function invalidateBatchesCache(): void {
+  try {
+    revalidateTag(BATCHES_CACHE_TAG);
+  } catch (error) {
+    console.warn("[batches-service] revalidateTag skipped outside a request scope:", error);
+  }
 }
 
 export async function getAllBatches(): Promise<Batch[]> {
