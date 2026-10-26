@@ -331,7 +331,6 @@ function CheckoutContent() {
                                 signature: response.razorpay_signature,
                                 courseId: course?.id,
                                 plan: course ? undefined : planParam,
-                                userId,
                             }),
                         })
                         const verifyData = await verifyRes.json()

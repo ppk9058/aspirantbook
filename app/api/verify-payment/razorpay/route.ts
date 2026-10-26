@@ -31,13 +31,14 @@ export async function POST(request: NextRequest) {
     try {
         const session = await auth()
         const body = await request.json()
-        const { orderId, paymentId, signature, plan, courseId, userId: explicitUserId, amount, amountPaise: rawAmountPaise } = body
+        const { orderId, paymentId, signature, plan, courseId, amount, amountPaise: rawAmountPaise } = body
         const parsedAmountPaise = rawAmountPaise ? Number(rawAmountPaise) : (amount ? Math.round(Number(amount) * 100) : undefined)
 
-        const currentUserId = session?.user?.id || explicitUserId
-        const currentUserEmail = session?.user?.email
+        // The authenticated session is the only accepted identity. A client-supplied
+        // userId is never trusted: the order owner in the database is the source of truth.
+        const currentUserId = session?.user?.id
 
-        if (!currentUserId && !currentUserEmail) {
+        if (!currentUserId) {
             return NextResponse.json(
                 { error: "Unauthorized: User must be signed in" },
                 { status: 401 }
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        if (currentUserId && dbOrderRecord.userId !== currentUserId) {
+        if (dbOrderRecord.userId !== currentUserId) {
             return NextResponse.json(
                 { error: "Order ownership mismatch" },
                 { status: 403 }
@@ -116,7 +117,7 @@ export async function POST(request: NextRequest) {
                     const orderUserId = rzpOrder.notes.userId
                     const orderCourseId = rzpOrder.notes.courseId
 
-                    if (orderUserId && currentUserId && orderUserId !== currentUserId) {
+                    if (orderUserId && orderUserId !== currentUserId) {
                         return NextResponse.json(
                             { error: "Order ownership mismatch" },
                             { status: 403 }

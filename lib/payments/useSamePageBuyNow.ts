@@ -88,7 +88,6 @@ export function useSamePageBuyNow() {
                   paymentId: rzpRes.razorpay_payment_id,
                   signature: rzpRes.razorpay_signature,
                   courseId: item.id,
-                  userId: user.id,
                 }),
               })
               const verifyData = await verifyRes.json()
@@ -149,7 +148,6 @@ export function useSamePageBuyNow() {
                   paymentId: rzpRes.razorpay_payment_id,
                   signature: rzpRes.razorpay_signature,
                   plan,
-                  userId: user.id,
                 }),
               })
               const verifyData = await verifyRes.json()
@@ -212,7 +210,6 @@ export function useSamePageBuyNow() {
                   orderId: rzpRes.razorpay_order_id,
                   paymentId: rzpRes.razorpay_payment_id,
                   signature: rzpRes.razorpay_signature,
-                  userId: user.id,
                 }),
               })
               const verifyData = await verifyRes.json()
