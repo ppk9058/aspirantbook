@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
-import { canViewSolutions } from "@/lib/exam/access-control";
+import { canViewSolutions, canViewLeaderboard } from "@/lib/exam/access-control";
+import { getTestRankings } from "@/lib/exam-ranking";
 import { Viewer } from "@/lib/api/v1/viewer";
 import {
   TestListItemDto,
@@ -10,6 +11,12 @@ import {
   AttemptResultDto,
   AttemptSolutionsDto,
   AnswerItemSyncSchema,
+  ExamSeriesPackageDto,
+  ExamSeriesDetailDto,
+  ExamSeriesTestItemDto,
+  MyTestsDto,
+  TestLeaderboardDto,
+  TestLeaderboardItemDto,
 } from "@aspirantbook/shared";
 import { z } from "zod";
 
@@ -791,5 +798,364 @@ export async function getAttemptSolutions(
     attemptId: attempt.id,
     testId: attempt.testId,
     questions,
+  };
+}
+
+function formatSeriesPackage(s: any, isEnrolled = false): ExamSeriesPackageDto {
+  const publishedTests = s.tests || [];
+  const totalTestsCount = s.totalTests || publishedTests.length;
+  const freeTestsCount = s.freeTests || publishedTests.filter((t: any) => t.accessMode === "FREE").length;
+  const usersCount = s.usersCount || 0;
+  const usersStr = usersCount >= 1000 ? `${(usersCount / 1000).toFixed(1)}k` : `${usersCount}`;
+
+  return {
+    id: s.id,
+    slug: s.slug || s.id,
+    title: s.title,
+    category: s.category,
+    examName: s.examName,
+    logoType: s.logoType || (s.slug?.includes("upsc") ? "upsc" : s.slug?.includes("bpsc") ? "bpsc" : "general"),
+    users: usersStr,
+    totalTests: totalTestsCount,
+    freeTests: freeTestsCount,
+    languages: typeof s.languages === "string" ? s.languages.split(",").map((l: string) => l.trim()) : (Array.isArray(s.languages) ? s.languages : ["English", "Hindi"]),
+    highlights: Array.isArray(s.highlights) ? s.highlights : [],
+    description: (s.description || "").trim(),
+    bannerUrl: s.bannerUrl || null,
+    syllabus: s.syllabus || null,
+    keyFeatures: Array.isArray(s.keyFeatures) ? s.keyFeatures : [],
+    whyThisSeries: s.whyThisSeries || null,
+    goalId: s.category.toLowerCase().replace(/\s+/g, "-"),
+    tags: [s.category.toLowerCase()],
+    isFree: s.isFree ?? false,
+    isPro: s.isPro ?? false,
+    isEnrolled,
+  };
+}
+
+export async function getExamSeriesPackages(
+  viewer: Viewer,
+  query: { goal?: string; category?: string; cursor?: string; limit?: number }
+): Promise<ExamSeriesPackageDto[]> {
+  const where: any = { isPublished: true, isArchived: false };
+  if (query.category && query.category !== "All") {
+    where.category = { equals: query.category, mode: "insensitive" };
+  }
+  if (query.goal && query.goal !== "All") {
+    where.category = { contains: query.goal, mode: "insensitive" };
+  }
+
+  const seriesList = await prisma.examSeries.findMany({
+    where,
+    include: {
+      tests: {
+        where: { isPublished: true, isArchived: false },
+        select: { accessMode: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: query.limit ? Math.min(query.limit, 50) : 50,
+  });
+
+  let enrolledSet = new Set<string>();
+  if (viewer.userId) {
+    const enrollments = await prisma.examSeriesEnrollment.findMany({
+      where: { userId: viewer.userId, status: "ACTIVE" },
+      select: { seriesId: true },
+    });
+    enrolledSet = new Set(enrollments.map((e) => e.seriesId));
+  }
+
+  return seriesList.map((s) => formatSeriesPackage(s, enrolledSet.has(s.id)));
+}
+
+export async function getExamSeriesDetail(
+  viewer: Viewer,
+  seriesIdOrSlug: string
+): Promise<ExamSeriesDetailDto> {
+  const series = await prisma.examSeries.findFirst({
+    where: {
+      OR: [{ id: seriesIdOrSlug }, { slug: seriesIdOrSlug }],
+      isPublished: true,
+      isArchived: false,
+    },
+    include: {
+      tests: {
+        where: { isPublished: true, isArchived: false },
+        orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+      },
+    },
+  });
+
+  if (!series) {
+    throw new Error("NOT_FOUND: Exam series not found");
+  }
+
+  let isEnrolled = false;
+  const userAttemptsMap = new Map<string, any>();
+
+  if (viewer.userId) {
+    const enrollment = await prisma.examSeriesEnrollment.findUnique({
+      where: {
+        userId_seriesId: {
+          userId: viewer.userId,
+          seriesId: series.id,
+        },
+      },
+      select: { status: true },
+    });
+    isEnrolled = enrollment?.status === "ACTIVE";
+
+    const testIds = series.tests.map((t) => t.id);
+    const attempts = await prisma.examAttempt.findMany({
+      where: {
+        testId: { in: testIds },
+        userId: viewer.userId,
+      },
+      orderBy: { startedAt: "desc" },
+      select: {
+        id: true,
+        testId: true,
+        status: true,
+        score: true,
+        totalMarks: true,
+      },
+    });
+
+    for (const a of attempts) {
+      if (!userAttemptsMap.has(a.testId)) {
+        userAttemptsMap.set(a.testId, a);
+      }
+    }
+  }
+
+  const tests: ExamSeriesTestItemDto[] = series.tests.map((t) => {
+    const attempt = userAttemptsMap.get(t.id);
+    return {
+      id: t.id,
+      title: t.title,
+      titleHi: t.titleHi,
+      slug: t.id,
+      testType: t.testType,
+      durationMinutes: t.durationMinutes,
+      totalMarks: t.totalMarks,
+      totalQuestions: t.totalQuestions,
+      accessMode: t.accessMode,
+      isFree: t.accessMode === "FREE",
+      order: t.order,
+      userStatus: attempt
+        ? {
+            attemptId: attempt.id,
+            status: attempt.status,
+            score: attempt.score,
+            totalMarks: attempt.totalMarks,
+          }
+        : {
+            status: "NOT_STARTED",
+          },
+    };
+  });
+
+  return {
+    series: formatSeriesPackage(series, isEnrolled),
+    tests,
+    isEnrolled,
+  };
+}
+
+export async function getMyTests(viewer: Viewer): Promise<MyTestsDto> {
+  if (!viewer.userId) {
+    throw new Error("UNAUTHORIZED: Must be logged in to view my tests");
+  }
+
+  const [inProgressAttempts, enrollments, recentAttempts] = await Promise.all([
+    prisma.examAttempt.findMany({
+      where: {
+        userId: viewer.userId,
+        status: "IN_PROGRESS",
+      },
+      include: {
+        test: {
+          select: {
+            id: true,
+            title: true,
+            durationMinutes: true,
+            seriesId: true,
+            series: { select: { id: true, title: true } },
+          },
+        },
+      },
+      orderBy: { startedAt: "desc" },
+      take: 10,
+    }),
+    prisma.examSeriesEnrollment.findMany({
+      where: {
+        userId: viewer.userId,
+        status: "ACTIVE",
+      },
+      include: {
+        series: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            category: true,
+            tests: {
+              where: { isPublished: true, isArchived: false },
+              select: { id: true },
+            },
+          },
+        },
+      },
+      orderBy: { enrolledAt: "desc" },
+    }),
+    prisma.examAttempt.findMany({
+      where: {
+        userId: viewer.userId,
+        status: "SUBMITTED",
+      },
+      include: {
+        test: {
+          select: {
+            id: true,
+            title: true,
+            series: { select: { title: true } },
+          },
+        },
+      },
+      orderBy: { submittedAt: "desc" },
+      take: 15,
+    }),
+  ]);
+
+  const inProgress = inProgressAttempts.map((a) => {
+    const elapsedSecs = Math.floor((Date.now() - a.startedAt.getTime()) / 1000);
+    const totalSecs = (a.test?.durationMinutes ?? 60) * 60;
+    return {
+      attemptId: a.id,
+      testId: a.test.id,
+      testTitle: a.test.title,
+      seriesId: a.test.seriesId,
+      seriesTitle: a.test.series?.title || "Test Series",
+      startedAt: a.startedAt.toISOString(),
+      durationMinutes: a.test.durationMinutes,
+      timeRemainingSecs: Math.max(0, totalSecs - elapsedSecs),
+    };
+  });
+
+  const userSubmittedTestIds = new Set(recentAttempts.map((a) => a.testId));
+  const enrolledSeries = enrollments.map((e) => {
+    const totalTests = e.series.tests.length;
+    const completedTests = e.series.tests.filter((t) => userSubmittedTestIds.has(t.id)).length;
+    return {
+      seriesId: e.series.id,
+      title: e.series.title,
+      slug: e.series.slug,
+      category: e.series.category,
+      totalTests,
+      completedTests,
+      enrolledAt: e.enrolledAt.toISOString(),
+    };
+  });
+
+  const formattedRecent = recentAttempts.map((a) => {
+    const totalAttempted = a.correctCount + a.wrongCount;
+    const accuracyPercentage = totalAttempted > 0 ? Math.round((a.correctCount / totalAttempted) * 100) : 0;
+    return {
+      attemptId: a.id,
+      testId: a.test.id,
+      testTitle: a.test.title,
+      seriesTitle: a.test.series?.title || null,
+      score: a.score,
+      totalMarks: a.totalMarks,
+      accuracyPercentage,
+      percentile: a.percentile,
+      rank: a.allIndiaRank,
+      submittedAt: a.submittedAt ? a.submittedAt.toISOString() : a.startedAt.toISOString(),
+    };
+  });
+
+  return {
+    inProgress,
+    enrolledSeries,
+    recentAttempts: formattedRecent,
+  };
+}
+
+export async function getTestLeaderboard(
+  viewer: Viewer,
+  testId: string,
+  query?: { search?: string }
+): Promise<TestLeaderboardDto> {
+  if (!viewer.userId) {
+    throw new Error("UNAUTHORIZED: Must be logged in to view leaderboard");
+  }
+
+  const test = await prisma.examTest.findUnique({
+    where: { id: testId },
+    select: {
+      id: true,
+      title: true,
+      totalMarks: true,
+      isPublished: true,
+      createdById: true,
+      isLive: true,
+      liveStartAt: true,
+      liveEndAt: true,
+    },
+  });
+
+  if (!test) {
+    throw new Error("NOT_FOUND: Test not found");
+  }
+
+  const userSubmitted = await prisma.examAttempt.findFirst({
+    where: {
+      testId,
+      userId: viewer.userId,
+      status: "SUBMITTED",
+    },
+    select: { id: true },
+  });
+
+  const access = canViewLeaderboard(
+    { id: viewer.userId, role: viewer.role },
+    test,
+    Boolean(userSubmitted)
+  );
+
+  if (!access.allowed) {
+    throw new Error(`FORBIDDEN: ${access.reason}`);
+  }
+
+  const { totalCandidates, rankedAttempts } = await getTestRankings(testId);
+
+  const formattedRankings: TestLeaderboardItemDto[] = rankedAttempts.map((a) => ({
+    rank: a.rank,
+    name: a.name,
+    avatar: a.avatar,
+    score: a.score,
+    totalMarks: a.totalMarks,
+    accuracy: a.accuracy,
+    percentile: a.percentile,
+    timeSecs: a.timeTakenSecs,
+    isCurrentUser: a.userId === viewer.userId,
+  }));
+
+  let filtered = formattedRankings;
+  if (query?.search) {
+    const s = query.search.toLowerCase();
+    filtered = filtered.filter((r) => r.name.toLowerCase().includes(s));
+  }
+
+  const currentUserRank = formattedRankings.find((r) => r.isCurrentUser) || null;
+
+  return {
+    testId: test.id,
+    testTitle: test.title,
+    totalMarks: test.totalMarks,
+    totalParticipants: totalCandidates,
+    currentUserRank,
+    rankings: filtered,
   };
 }

@@ -8,14 +8,20 @@
       "../../node_modules/@types"
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@aspirantbook/shared": ["../../packages/shared/src/index.ts"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@aspirantbook/shared": [
+        "../../packages/shared/src/index.ts"
+      ]
+    },
+    "types": [
+      "node",
+      "jest"
+    ]
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "**/*.tsx"
   ]
 }

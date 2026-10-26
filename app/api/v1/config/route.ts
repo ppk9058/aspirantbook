@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   const reqId = getRequestId(req);
   try {
-    const config = getAppConfig();
+    const config = getAppConfig(req);
     return apiCachedSuccess(
       req,
       config,

@@ -152,3 +152,109 @@ export interface AttemptSolutionsDto {
   testId: string;
   questions: QuestionSolutionDto[];
 }
+
+export interface ExamSeriesPackageDto {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  examName?: string | null;
+  logoType?: string | null;
+  users: string;
+  totalTests: number;
+  freeTests: number;
+  languages: string[];
+  highlights: string[];
+  description: string;
+  bannerUrl?: string | null;
+  syllabus?: string | null;
+  keyFeatures: string[];
+  whyThisSeries?: string | null;
+  goalId: string;
+  tags: string[];
+  isFree: boolean;
+  isPro: boolean;
+  isEnrolled?: boolean;
+}
+
+export interface ExamSeriesTestItemDto {
+  id: string;
+  title: string;
+  titleHi?: string | null;
+  slug: string;
+  testType: string;
+  durationMinutes: number;
+  totalMarks: number;
+  totalQuestions: number;
+  accessMode: string;
+  isFree: boolean;
+  order: number;
+  userStatus?: {
+    attemptId?: string | null;
+    status?: "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED";
+    score?: number | null;
+    totalMarks?: number | null;
+  };
+}
+
+export interface ExamSeriesDetailDto {
+  series: ExamSeriesPackageDto;
+  tests: ExamSeriesTestItemDto[];
+  isEnrolled: boolean;
+}
+
+export interface MyTestsDto {
+  inProgress: Array<{
+    attemptId: string;
+    testId: string;
+    testTitle: string;
+    seriesId: string;
+    seriesTitle: string;
+    startedAt: string;
+    durationMinutes: number;
+    timeRemainingSecs: number;
+  }>;
+  enrolledSeries: Array<{
+    seriesId: string;
+    title: string;
+    slug: string;
+    category: string;
+    totalTests: number;
+    completedTests: number;
+    enrolledAt: string;
+  }>;
+  recentAttempts: Array<{
+    attemptId: string;
+    testId: string;
+    testTitle: string;
+    seriesTitle?: string | null;
+    score: number | null;
+    totalMarks: number;
+    accuracyPercentage: number;
+    percentile: number | null;
+    rank: number | null;
+    submittedAt: string;
+  }>;
+}
+
+export interface TestLeaderboardItemDto {
+  rank: number;
+  name: string;
+  avatar?: string | null;
+  score: number;
+  totalMarks: number;
+  accuracy: number;
+  percentile: number;
+  timeSecs: number;
+  isCurrentUser: boolean;
+}
+
+export interface TestLeaderboardDto {
+  testId: string;
+  testTitle: string;
+  totalMarks: number;
+  totalParticipants: number;
+  currentUserRank?: TestLeaderboardItemDto | null;
+  rankings: TestLeaderboardItemDto[];
+}
+

@@ -8,6 +8,7 @@
   "scripts": {
     "predev": "npm run db:check",
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' next dev",
+    "dev:mobile-api": "ALLOW_DEV_MOBILE_LOGIN=true NODE_OPTIONS='--max-old-space-size=4096' next dev -H 0.0.0.0 -p 3045",
     "db:check": "tsx scripts/db-check.ts",
     "build": "next build",
     "start": "next start",

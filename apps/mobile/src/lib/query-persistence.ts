@@ -69,8 +69,29 @@ export async function clearPersistedQueryCache(queryClient?: QueryClient): Promi
   const adapter = getStorageAdapter();
   try {
     await adapter.removeItem(CACHE_STORAGE_KEY);
-    if (queryClient) {
-      queryClient.clear();
-    }
-  } catch {}
+  } catch (err: unknown) {
+    // Storage removal can fail (permissions/IO); the in-memory cache must still
+    // be wiped so the next user never sees the previous account's data.
+    void err;
+  } finally {
+    queryClient?.clear();
+  }
 }
+
+export function createDefaultQueryClient(): QueryClient {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5, // 5 minutes default
+        gcTime: 1000 * 60 * 60 * 24, // 24 hours
+        retry: 2,
+        networkMode: "offlineFirst",
+        refetchOnReconnect: true,
+      },
+      mutations: {
+        networkMode: "offlineFirst",
+      },
+    },
+  });
+}
+

@@ -4,6 +4,9 @@ const PAGE_MEMORY_PREFIX = "pdf_last_page_";
 const RESUME_PREFIX = "pdf_resume_";
 const SECURE_DOCS_DIR_NAME = "secure_docs";
 
+export const MAX_DOCUMENT_SIZE_BYTES = 50 * 1024 * 1024; // 50MB per document guard
+export const TOTAL_CACHE_LIMIT_BYTES = 250 * 1024 * 1024; // 250MB total cache guard
+
 async function getFileSystem() {
   try {
     return await import("expo-file-system");
@@ -19,7 +22,9 @@ export function getPdfStorageDir(): string {
     if (fs?.documentDirectory) {
       baseDir = fs.documentDirectory;
     }
-  } catch {}
+  } catch (err: unknown) {
+    void err;
+  }
   return `${baseDir}${SECURE_DOCS_DIR_NAME}/`;
 }
 
@@ -37,7 +42,9 @@ export async function ensureSecureDocsDir(): Promise<void> {
     if (!info.exists) {
       await fs.makeDirectoryAsync(dir, { intermediates: true });
     }
-  } catch {}
+  } catch (err: unknown) {
+    void err;
+  }
 }
 
 export async function isPdfDownloaded(id: string): Promise<boolean> {
@@ -88,7 +95,9 @@ export async function clearDownloadResumeState(id: string): Promise<void> {
   const adapter = getStorageAdapter();
   try {
     await adapter.removeItem(`${RESUME_PREFIX}${id}`);
-  } catch {}
+  } catch (err: unknown) {
+    void err;
+  }
 }
 
 export async function deleteCachedPdf(id: string): Promise<boolean> {
@@ -102,7 +111,7 @@ export async function deleteCachedPdf(id: string): Promise<boolean> {
         await fs.deleteAsync(path, { idempotent: true });
       }
     }
-    // 2. Clear page memory & resume tokens
+    // Clear page memory & resume tokens
     await adapter.removeItem(`${PAGE_MEMORY_PREFIX}${id}`);
     await adapter.removeItem(`${RESUME_PREFIX}${id}`);
     return true;
@@ -113,7 +122,6 @@ export async function deleteCachedPdf(id: string): Promise<boolean> {
 
 export async function verifyOwnershipOrDelete(id: string, hasOwnership: boolean): Promise<boolean> {
   if (!hasOwnership) {
-    // Ownership revoked or unowned: purge local file immediately
     await deleteCachedPdf(id);
     return false;
   }
@@ -131,5 +139,96 @@ export async function clearAllCachedPdfs(): Promise<void> {
         await ensureSecureDocsDir();
       }
     }
-  } catch {}
+  } catch (err: unknown) {
+    void err;
+  }
+}
+
+/**
+ * Storage-size guard checking document and total cache limits.
+ */
+export function checkDocumentStorageGuard(expectedBytes?: number): void {
+  if (expectedBytes && expectedBytes > MAX_DOCUMENT_SIZE_BYTES) {
+    throw new Error(`Document exceeds maximum allowed offline size of ${MAX_DOCUMENT_SIZE_BYTES / (1024 * 1024)}MB.`);
+  }
+}
+
+/**
+ * Resolves active PDF source URI with graceful fallback to remote streaming
+ * when offline cache is absent or deleted.
+ */
+export async function resolveActivePdfUri(
+  documentId: string,
+  remoteUri: string
+): Promise<{ uri: string; isDownloaded: boolean }> {
+  try {
+    const downloaded = await isPdfDownloaded(documentId);
+    if (downloaded) {
+      return {
+        uri: getPdfStoragePath(documentId),
+        isDownloaded: true,
+      };
+    }
+  } catch {
+    // Graceful fallback to remote stream on error
+  }
+  return {
+    uri: remoteUri,
+    isDownloaded: false,
+  };
+}
+
+/**
+ * Downloads PDF to secure offline cache with resume-on-failure support and progress tracking.
+ */
+export async function downloadPdfWithResume(
+  documentId: string,
+  sourceUri: string,
+  onProgress?: (progressFraction: number) => void
+): Promise<{ uri: string }> {
+  await ensureSecureDocsDir();
+  const fs = await getFileSystem();
+  if (!fs) {
+    throw new Error("File system unavailable for offline downloads");
+  }
+
+  const destinationPath = getPdfStoragePath(documentId);
+  const resumeData = await getDownloadResumeState(documentId);
+
+  const callback = (data: { totalBytesWritten: number; totalBytesExpectedToWrite: number }) => {
+    if (data.totalBytesExpectedToWrite > 0) {
+      checkDocumentStorageGuard(data.totalBytesExpectedToWrite);
+      const fraction = Math.min(1, data.totalBytesWritten / data.totalBytesExpectedToWrite);
+      onProgress?.(fraction);
+    }
+  };
+
+  const downloadResumable = fs.createDownloadResumable(
+    sourceUri,
+    destinationPath,
+    {},
+    callback,
+    resumeData || undefined
+  );
+
+  try {
+    const result = await downloadResumable.downloadAsync();
+    if (!result?.uri) {
+      throw new Error("Download completed without destination URI");
+    }
+    // Successfully downloaded: clear resume token
+    await clearDownloadResumeState(documentId);
+    return { uri: result.uri };
+  } catch (err) {
+    // Save resumable state for later continuation
+    try {
+      const state = downloadResumable.savable();
+      if (state) {
+        await saveDownloadResumeState(documentId, JSON.stringify(state));
+      }
+    } catch {
+      // Ignore save error on hard failure
+    }
+    throw err;
+  }
 }

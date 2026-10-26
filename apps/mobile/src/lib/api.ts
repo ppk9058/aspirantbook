@@ -1,10 +1,16 @@
 import { createApiClient } from "@aspirantbook/shared";
 import { Storage } from "./storage";
+import { resolveApiBaseUrl, rewriteApiRequestUrl } from "./api-url";
 
-const rawApiUrl =
-  process.env.EXPO_PUBLIC_API_URL || "http://10.0.2.2:3045";
+export const resolvedApi = resolveApiBaseUrl();
+const rawApiUrl = resolvedApi.baseUrl;
 // Canonical normalization: always server origin without trailing slash or duplicate /api/v1
 export const API_BASE_URL = rawApiUrl.replace(/\/$/, "").replace(/\/api\/v1\/?$/, "");
+
+// Dev logging of resolved base URL
+if (typeof __DEV__ !== "undefined" && __DEV__) {
+  console.log(`[API] Resolved Base URL: ${API_BASE_URL || "UNCONFIGURED"} (source: ${resolvedApi.source})`);
+}
 
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;
@@ -38,7 +44,13 @@ async function refreshAccessTokenSingleFlight(): Promise<string | null> {
         return null;
       }
 
-      const res = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
+      const activeBaseUrl = resolveApiBaseUrl().baseUrl || API_BASE_URL;
+      if (!activeBaseUrl) {
+        notifyUnauthorized();
+        return null;
+      }
+
+      const res = await fetch(`${activeBaseUrl}/api/v1/auth/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
@@ -70,6 +82,8 @@ async function refreshAccessTokenSingleFlight(): Promise<string | null> {
 
 export const api = createApiClient({
   baseUrl: API_BASE_URL,
+  timeoutMs: 10000,
+  maxGetRetries: 1,
   getAccessToken: async () => {
     return Storage.getAccessToken();
   },
@@ -77,17 +91,39 @@ export const api = createApiClient({
     await refreshAccessTokenSingleFlight();
   },
   fetchFn: async (url, init = {}) => {
+    const activeBaseUrl = resolveApiBaseUrl().baseUrl;
+    if (!activeBaseUrl) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: {
+            code: "API_UNCONFIGURED",
+            message: "API endpoint is not configured. Please set EXPO_PUBLIC_API_URL.",
+          },
+        }),
+        {
+          status: 503,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+    // The client was built with API_BASE_URL, resolved once at module load.
+    // If the host has changed since (Wi-Fi switch / Metro re-bind), re-target
+    // the request onto the freshly resolved base so we never hit the stale IP.
+    const requestUrl =
+      typeof url === "string" ? rewriteApiRequestUrl(url, activeBaseUrl, API_BASE_URL) : url;
+
     // Attempt original request
-    let response = await fetch(url, init);
+    let response = await fetch(requestUrl, init);
 
     // If 401 Unauthorized, perform single-flight refresh and retry once
-    const urlStr = typeof url === "string" ? url : (url as any).url || "";
+    const urlStr = typeof requestUrl === "string" ? requestUrl : (requestUrl as any).url || "";
     if (response.status === 401 && !urlStr.includes("/api/v1/auth/")) {
       const newAccessToken = await refreshAccessTokenSingleFlight();
       if (newAccessToken) {
         const retryHeaders = new Headers(init.headers || {});
         retryHeaders.set("Authorization", `Bearer ${newAccessToken}`);
-        response = await fetch(url, { ...init, headers: retryHeaders });
+        response = await fetch(requestUrl, { ...init, headers: retryHeaders });
       }
     }
 
@@ -97,6 +133,10 @@ export const api = createApiClient({
 
 export const apiClient = {
   ...api,
-  baseUrl: API_BASE_URL,
+  // Always expose the currently resolved origin (downloads/PDF streaming rely
+  // on this), not the value frozen when the module first loaded.
+  get baseUrl() {
+    return resolveApiBaseUrl().baseUrl || API_BASE_URL;
+  },
   getAccessToken: async () => Storage.getAccessToken(),
 };

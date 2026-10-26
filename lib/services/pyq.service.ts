@@ -79,3 +79,61 @@ export async function getPyqPaper(
     fileUrl: access.isLockedForGuest ? null : paper.paperPdfUrl,
   };
 }
+
+export async function getPyqPapers(
+  viewer: Viewer,
+  query?: { examId?: string; year?: number; search?: string; limit?: number }
+): Promise<PyqPaperDto[]> {
+  const where: any = { status: "PUBLISHED" };
+  if (query?.examId) {
+    where.categoryId = query.examId;
+  }
+  if (query?.year) {
+    where.year = query.year;
+  }
+  if (query?.search) {
+    where.title = { contains: query.search, mode: "insensitive" };
+  }
+
+  const papers = await prisma.pyqPaper.findMany({
+    where,
+    include: {
+      category: { select: { name: true } },
+    },
+    orderBy: [{ year: "desc" }, { createdAt: "desc" }],
+    take: query?.limit ? Math.min(query.limit, 50) : 50,
+  });
+
+  return papers.map((paper) => {
+    const access = resolveAccess({
+      viewer: {
+        userId: viewer.userId,
+        role: viewer.role,
+      },
+      content: Array.from({ length: paper.totalQuestions || 100 }, (_, i) => ({
+        questionIndex: i + 1,
+      })),
+      containerGate: {
+        isGated: paper.isGated || paper.accessType !== "FREE",
+        previewPercentage: paper.previewPercentage,
+        gateTitle: paper.gateTitle,
+        gateSubtitle: paper.gateSubtitle,
+      },
+    });
+
+    return {
+      id: paper.id,
+      title: paper.title,
+      year: paper.year,
+      shift: paper.shift,
+      examId: paper.categoryId,
+      examName: paper.category.name,
+      hasFile: Boolean(paper.paperPdfUrl),
+      totalQuestions: paper.totalQuestions,
+      isLockedForGuest: access.isLockedForGuest,
+      previewCount: access.previewCount,
+      totalItemsCount: access.totalItemsCount,
+      fileUrl: access.isLockedForGuest ? null : paper.paperPdfUrl,
+    };
+  });
+}

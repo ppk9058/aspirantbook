@@ -1,7 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
-import { BookOpen, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react-native";
-import { saveLastReadPage, getLastReadPage } from "../../lib/pdf-manager";
+import { BookOpen, AlertCircle, ChevronLeft, ChevronRight, Download, CheckCircle2, Trash2 } from "lucide-react-native";
+import {
+  saveLastReadPage,
+  getLastReadPage,
+  isPdfDownloaded,
+  deleteCachedPdf,
+  downloadPdfWithResume,
+  resolveActivePdfUri,
+} from "../../lib/pdf-manager";
 
 export interface PdfRendererProps {
   documentId: string;
@@ -21,6 +28,22 @@ export function PdfRenderer({
   const [currentPage, setCurrentPage] = useState(1);
   const [isNativeAvailable, setIsNativeAvailable] = useState<boolean | null>(null);
   const [NativePdfComponent, setNativePdfComponent] = useState<any>(null);
+  const [isDownloaded, setIsDownloaded] = useState<boolean>(false);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  const [downloadProgress, setDownloadProgress] = useState<number>(0);
+  const [activeUri, setActiveUri] = useState<string>(sourceUri);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
+  const checkDownloadStatus = useCallback(async () => {
+    try {
+      const downloaded = await isPdfDownloaded(documentId);
+      setIsDownloaded(downloaded);
+      const resolved = await resolveActivePdfUri(documentId, sourceUri);
+      setActiveUri(resolved.uri);
+    } catch {
+      setActiveUri(sourceUri);
+    }
+  }, [documentId, sourceUri]);
 
   useEffect(() => {
     let mounted = true;
@@ -30,34 +53,59 @@ export function PdfRenderer({
       if (mounted) setCurrentPage(page);
     });
 
-    // 2. Feature detection: check if native PDF viewer is linked (dev client / standalone)
+    // 2. Check offline cache status
+    checkDownloadStatus();
+
+    // 3. Feature detection: check if native PDF viewer is linked
     async function detectNativePdf() {
       try {
-        // Attempt dynamic import of react-native-pdf in environments with native binary
-        // @ts-ignore - Dynamic import for dev builds with native module linked
-        const mod = await import("react-native-pdf").catch(() => null);
+        const mod: any = await (import("react-native-pdf") as Promise<any>).catch(() => null);
         if (mod && mod.default && mounted) {
           setNativePdfComponent(() => mod.default);
           setIsNativeAvailable(true);
           return;
         }
-      } catch {}
-      if (mounted) {
-        setIsNativeAvailable(false);
+      } catch {
+        // Fallback
       }
+      if (mounted) setIsNativeAvailable(false);
     }
 
     detectNativePdf();
     return () => {
       mounted = false;
     };
-  }, [documentId]);
+  }, [documentId, checkDownloadStatus]);
 
   const handlePageChange = (page: number) => {
     const clamped = Math.max(1, Math.min(page, totalPages));
     setCurrentPage(clamped);
     saveLastReadPage(documentId, clamped);
     onPageChange?.(clamped);
+  };
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    setDownloadError(null);
+    try {
+      await downloadPdfWithResume(documentId, sourceUri, (fraction) => {
+        setDownloadProgress(fraction);
+      });
+      await checkDownloadStatus();
+    } catch (err: any) {
+      setDownloadError(err?.message || "Failed to download offline copy");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteCachedPdf(documentId);
+      await checkDownloadStatus();
+    } catch (err: any) {
+      setDownloadError(err?.message || "Failed to delete offline copy");
+    }
   };
 
   if (isNativeAvailable === null) {
@@ -69,12 +117,55 @@ export function PdfRenderer({
     );
   }
 
+  const renderOfflineBar = () => (
+    <View style={styles.offlineBar} testID="pdf-offline-bar">
+      {isDownloaded ? (
+        <View style={styles.offlineStatusRow}>
+          <View style={styles.downloadedBadge} testID="pdf-downloaded-badge">
+            <CheckCircle2 size={14} color="#16a34a" />
+            <Text style={styles.downloadedText}>Downloaded</Text>
+          </View>
+          <TouchableOpacity
+            onPress={handleDelete}
+            style={styles.deleteBtn}
+            testID="pdf-delete-action"
+            accessibilityLabel="Delete from device"
+          >
+            <Trash2 size={14} color="#dc2626" />
+            <Text style={styles.deleteBtnText}>Delete from device</Text>
+          </TouchableOpacity>
+        </View>
+      ) : isDownloading ? (
+        <View style={styles.progressContainer} testID="pdf-download-progress">
+          <ActivityIndicator size="small" color="#1448d8" />
+          <Text style={styles.progressText}>Downloading {Math.round(downloadProgress * 100)}%</Text>
+        </View>
+      ) : (
+        <View style={styles.downloadActionRow}>
+          <TouchableOpacity
+            onPress={handleDownload}
+            style={styles.downloadBtn}
+            testID="pdf-download-action"
+            accessibilityLabel="Save Offline"
+          >
+            <Download size={15} color="#1448d8" />
+            <Text style={styles.downloadBtnText}>Save Offline</Text>
+          </TouchableOpacity>
+          {downloadError ? (
+            <Text style={styles.errorText} testID="pdf-download-error">{downloadError}</Text>
+          ) : null}
+        </View>
+      )}
+    </View>
+  );
+
   // Native PDF Component (Dev Client / Standalone Build)
   if (isNativeAvailable && NativePdfComponent) {
     return (
       <View style={styles.container}>
+        {renderOfflineBar()}
         <NativePdfComponent
-          source={{ uri: sourceUri, cache: true }}
+          source={{ uri: activeUri, cache: true }}
           page={currentPage}
           onPageChanged={(page: number) => handlePageChange(page)}
           style={styles.pdfView}
@@ -109,6 +200,7 @@ export function PdfRenderer({
   // Graceful Fallback for Expo Go
   return (
     <View style={styles.expoGoFallbackContainer} testID="pdf-expo-go-fallback">
+      {renderOfflineBar()}
       <View style={styles.badge}>
         <AlertCircle size={16} color="#d97706" />
         <Text style={styles.badgeText}>Expo Go Preview Mode</Text>
@@ -130,8 +222,8 @@ export function PdfRenderer({
         </View>
 
         <Text style={styles.pageExcerpt}>
-          File: {sourceUri.split("/").pop()}
-          {"\n"}Storage: App-Private Sandbox (DRM Protected)
+          File: {activeUri.split("/").pop()}
+          {"\n"}Storage: {isDownloaded ? "Offline Cache (Device Storage)" : "Streaming (Remote Sandbox)"}
           {"\n"}Last Position: Auto-saved to local memory
         </Text>
 
@@ -162,110 +254,188 @@ export function PdfRenderer({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: "100%",
-  },
-  pdfView: {
-    flex: 1,
-    width: "100%",
     backgroundColor: "#f8fafc",
   },
   loadingContainer: {
-    padding: 32,
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    padding: 24,
   },
   loadingText: {
-    marginTop: 8,
-    fontSize: 13,
+    marginTop: 12,
+    fontSize: 14,
     color: "#64748b",
   },
-  expoGoFallbackContainer: {
-    padding: 16,
+  offlineBar: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     backgroundColor: "#ffffff",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    marginVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
   },
-  badge: {
+  offlineStatusRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fef3c7",
+    justifyContent: "space-between",
+  },
+  downloadedBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f0fdf4",
+    borderColor: "#bbf7d0",
+    borderWidth: 1,
+    borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 6,
-    alignSelf: "flex-start",
-    marginBottom: 10,
     gap: 6,
   },
-  badgeText: {
-    color: "#b45309",
+  downloadedText: {
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "600",
+    color: "#16a34a",
   },
-  fallbackTitle: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#0f172a",
-    marginBottom: 6,
+  deleteBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    gap: 4,
   },
-  fallbackNotice: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: "#64748b",
-    marginBottom: 14,
+  deleteBtnText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#dc2626",
   },
-  pageCard: {
-    backgroundColor: "#f8fafc",
-    borderRadius: 8,
-    padding: 14,
+  downloadActionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  downloadBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#eff6ff",
+    borderColor: "#bfdbfe",
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    gap: 6,
   },
-  pageHeader: {
+  downloadBtnText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#1448d8",
+  },
+  progressContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    marginBottom: 8,
   },
-  pageHeaderText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#0f172a",
-  },
-  pageExcerpt: {
+  progressText: {
     fontSize: 12,
-    lineHeight: 18,
-    color: "#475569",
-    marginBottom: 12,
+    color: "#1448d8",
+    fontWeight: "500",
+  },
+  errorText: {
+    fontSize: 11,
+    color: "#ef4444",
+  },
+  pdfView: {
+    flex: 1,
+    backgroundColor: "#f1f5f9",
   },
   pageBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#ffffff",
     borderTopWidth: 1,
     borderTopColor: "#e2e8f0",
   },
   pageBtn: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    backgroundColor: "#ffffff",
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#cbd5e1",
+    padding: 8,
     gap: 4,
-  },
-  btnLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#1e293b",
   },
   pageText: {
     fontSize: 13,
     fontWeight: "600",
     color: "#334155",
+  },
+  btnLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#1e293b",
+  },
+  expoGoFallbackContainer: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f8fafc",
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#fef3c7",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignSelf: "flex-start",
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#92400e",
+  },
+  fallbackTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#0f172a",
+    marginBottom: 8,
+  },
+  fallbackNotice: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#64748b",
+    marginBottom: 16,
+  },
+  pageCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    padding: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  pageHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
+  pageHeaderText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#0f172a",
+  },
+  pageExcerpt: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: "#475569",
+    marginBottom: 16,
+    backgroundColor: "#f8fafc",
+    padding: 12,
+    borderRadius: 8,
+    fontFamily: "monospace",
   },
 });

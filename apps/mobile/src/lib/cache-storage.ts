@@ -89,7 +89,9 @@ export class SQLiteKVAdapter implements StorageAdapter {
     if (!db) return;
     try {
       db.runSync("DELETE FROM kv_cache");
-    } catch {}
+    } catch (err: unknown) {
+      void err;
+    }
   }
 }
 

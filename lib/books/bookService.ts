@@ -513,9 +513,20 @@ export async function incrementBookSales(bookId: string, quantity = 1): Promise<
     const bookIndex = books.findIndex((b) => b.id === bookId || b.slug === bookId)
     if (bookIndex >= 0) {
       books[bookIndex].salesCount = (books[bookIndex].salesCount || 0) + Math.max(1, quantity)
-      await atomicWriteJson(BOOKS_FILE, books)
       cachedBooks = books
       lastBooksCacheTime = Date.now()
+
+      // In test mode, keep updates in memory to prevent mutating committed data/books.json
+      const isTest =
+        process.env.NODE_ENV === "test" ||
+        process.env.APP_ENV === "test" ||
+        process.env.ALLOW_DEV_MOBILE_LOGIN === "true" ||
+        Boolean(process.env.JEST_WORKER_ID) ||
+        process.argv.some((a) => a.includes("test")) ||
+        process.execArgv.some((a) => a.includes("test"))
+      if (!isTest) {
+        await atomicWriteJson(BOOKS_FILE, books)
+      }
     }
   } catch (err) {
     console.error(`Failed to increment sales count for book ${bookId}:`, err)

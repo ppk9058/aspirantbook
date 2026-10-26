@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   ScrollView,
   Platform,
 } from 'react-native';
@@ -27,6 +26,7 @@ import { apiClient } from '../../lib/api';
 import { AvailableOnWebsiteModal } from '../../components/common/AvailableOnWebsiteModal';
 import { PdfRenderer } from '../../components/common/PdfRenderer';
 import { getPdfStoragePath, isPdfDownloaded, verifyOwnershipOrDelete } from '../../lib/pdf-manager';
+import { resolveDownloadedFileUri, resolveReaderStorageTarget } from '../../lib/reader-storage';
 
 export default function ReaderScreen() {
   const { id, type = 'library', title = 'Document' } = useLocalSearchParams<{
@@ -44,28 +44,39 @@ export default function ReaderScreen() {
   const [metadata, setMetadata] = useState<any>(null);
   const [isLocked, setIsLocked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  // Private app storage path (Never in public Downloads)
-  const localFileName = `doc_${id}.pdf`;
-  const targetPath = `${FileSystem.documentDirectory || ''}secure_docs/${localFileName}`;
-
+  // Private app storage path (never in public Downloads). `documentDirectory`
+  // can be null on some Android devices/emulators; the helper returns null
+  // paths in that case instead of building an invalid relative path.
   useEffect(() => {
     let mounted = true;
     async function checkFileStatus() {
       try {
+        if (!mounted) return;
         setLoading(true);
 
+        const { directory, filePath } = resolveReaderStorageTarget(
+          FileSystem.documentDirectory,
+          id
+        );
+        if (!directory || !filePath) {
+          setStatusMessage('Storage unavailable');
+          return;
+        }
+
         // Ensure private directory exists
-        const dir = `${FileSystem.documentDirectory || ''}secure_docs`;
-        const dirInfo = await FileSystem.getInfoAsync(dir);
+        const dirInfo = await FileSystem.getInfoAsync(directory);
+        if (!mounted) return;
         if (!dirInfo.exists) {
-          await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
+          await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
         }
 
         // Check if cached locally in app-private storage
-        const fileInfo = await FileSystem.getInfoAsync(targetPath);
+        const fileInfo = await FileSystem.getInfoAsync(filePath);
+        if (!mounted) return;
         if (fileInfo.exists) {
-          setLocalFileUri(targetPath);
+          setLocalFileUri(filePath);
         }
 
         // Fetch stream metadata / entitlement check from API
@@ -83,11 +94,12 @@ export default function ReaderScreen() {
           }
         } else {
           // PYQ or generic
+          if (!mounted) return;
           setMetadata({ title, type: 'PYQ Paper' });
           setIsLocked(false);
         }
       } catch (err: any) {
-        Alert.alert('Error', err?.message || 'Could not verify document access');
+        if (mounted) setStatusMessage(err?.message || 'Could not verify document access');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -102,6 +114,11 @@ export default function ReaderScreen() {
   // Download for offline reading
   const handleDownload = async () => {
     if (downloading) return;
+    const { filePath } = resolveReaderStorageTarget(FileSystem.documentDirectory, id);
+    if (!filePath) {
+      setStatusMessage('Storage unavailable');
+      return;
+    }
     try {
       setDownloading(true);
       setDownloadProgress(0);
@@ -112,7 +129,7 @@ export default function ReaderScreen() {
 
       const downloadResumable = FileSystem.createDownloadResumable(
         downloadUrl,
-        targetPath,
+        filePath,
         {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         },
@@ -123,13 +140,17 @@ export default function ReaderScreen() {
       );
 
       const downloadResult = await downloadResumable.downloadAsync();
-      if (downloadResult && downloadResult.uri) {
-        setLocalFileUri(downloadResult.uri);
-        Alert.alert('Success', 'Document downloaded securely to offline storage.');
+      const downloadedUri = resolveDownloadedFileUri(downloadResult?.uri);
+      if (downloadedUri) {
+        setLocalFileUri(downloadedUri);
+        setStatusMessage('Document downloaded securely to offline storage.');
+      } else {
+        setStatusMessage('Download failed. Please check your connection and try again.');
       }
-    } catch (err: any) {
-      Alert.alert('Notice', 'Document cached in memory. Full download available when connection permits.');
-      setLocalFileUri(targetPath); // simulated offline state
+    } catch {
+      // Do NOT point the renderer at a file that was never written — that would
+      // show a false "Saved Offline" badge and break the native PDF viewer.
+      setStatusMessage('Download failed. Please check your connection and try again.');
     } finally {
       setDownloading(false);
     }
@@ -195,7 +216,7 @@ export default function ReaderScreen() {
         </Text>
         <TouchableOpacity
           onPress={() => {
-            Alert.alert('Digital Rights Management', 'This document is protected and licensed for personal use only.');
+            setStatusMessage('Digital Rights Management: This document is protected and licensed for personal use only.');
           }}
         >
           <ShieldAlert size={20} color={theme.colors.textMuted} />
@@ -203,6 +224,11 @@ export default function ReaderScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        {statusMessage && (
+          <View style={{ backgroundColor: theme.colors.card, borderColor: theme.colors.border, borderWidth: 1, padding: 12, borderRadius: 8, marginBottom: 16 }}>
+            <Text style={{ color: theme.colors.text, fontSize: 13, textAlign: 'center' }}>{statusMessage}</Text>
+          </View>
+        )}
         {/* Document Info Card */}
         <View style={[styles.docCard, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
           <View style={styles.docIconWrapper}>

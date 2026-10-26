@@ -1,20 +1,37 @@
 import { ExpoConfig, ConfigContext } from "expo/config";
 
+const isDevMode = typeof __DEV__ !== "undefined" ? __DEV__ : process.env.NODE_ENV !== "production";
+const configuredApiUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
+const configuredApiPort = process.env.EXPO_PUBLIC_API_PORT || "3045";
+const apiUrlSource = configuredApiUrl
+  ? (process.env.EXPO_PUBLIC_API_URL_SOURCE || "env")
+  : (isDevMode ? "derived" : "unconfigured");
+const startupDisplayUrl = configuredApiUrl || (isDevMode ? `http://<metro-host>:${configuredApiPort}` : "UNCONFIGURED");
+
+if (isDevMode) {
+  console.log(`[API] Resolved Base URL: ${startupDisplayUrl} (source: ${apiUrlSource})`);
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "aspirantbook",
   slug: "aspirantbook",
   scheme: "aspirantbook",
   version: "1.0.0",
+  platforms: ["ios", "android"],
   orientation: "portrait",
   icon: "../../assets/brand/icon-512.png",
   userInterfaceStyle: "automatic",
-  newArchEnabled: true,
-  splash: {
-    image: "../../assets/brand/splash-image.png",
-    resizeMode: "contain",
-    backgroundColor: "#05192D",
-  },
+  // In Expo SDK 57, newArchEnabled is standard in RN 0.86 and splash moved to plugin/web
+  // We keep them in runtime config for backwards compatibility while satisfying ExpoConfig type
+  ...({
+    newArchEnabled: true,
+    splash: {
+      image: "../../assets/brand/splash-image.png",
+      resizeMode: "contain",
+      backgroundColor: "#05192D",
+    },
+  } as any),
   ios: {
     supportsTablet: true,
     bundleIdentifier: "com.aspirantbook.app",
@@ -44,8 +61,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-sqlite",
     "expo-web-browser",
     "expo-asset",
-    "@config-plugins/react-native-blob-util",
-    "@config-plugins/react-native-pdf",
+    "expo-video",
+    // "@config-plugins/react-native-blob-util",
+    // "@config-plugins/react-native-pdf",
     [
       "expo-notifications",
       {
@@ -55,11 +73,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
   ],
   experiments: {
-    typedRoutes: true,
+    typedRoutes: false,
   },
   extra: {
-    EXPO_PUBLIC_API_URL:
-      process.env.EXPO_PUBLIC_API_URL || "http://10.0.2.2:3045",
+    EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL || "",
     eas: {
       projectId: "aspirantbook-mobile",
     },

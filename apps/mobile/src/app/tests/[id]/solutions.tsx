@@ -1,333 +1,347 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ChevronLeft,
   ChevronRight,
   CheckCircle,
   XCircle,
   MinusCircle,
-  HelpCircle,
   Lightbulb,
   Check,
   X,
-  Menu,
-} from 'lucide-react-native';
-import { useTheme } from '../../../lib/theme';
-import { apiClient } from '../../../lib/api';
+  Languages,
+} from "lucide-react-native";
+import { useTheme } from "../../../theme/ThemeProvider";
+import { api } from "../../../lib/api";
+import { Card } from "../../../components/primitives/Card";
+import { Chip } from "../../../components/primitives/Chip";
+import { Badge } from "../../../components/primitives/Badge";
+import { Button } from "../../../components/primitives/Button";
+import { Skeleton } from "../../../components/primitives/Skeleton";
+import { EmptyState } from "../../../components/primitives/EmptyState";
+import { ErrorState } from "../../../components/primitives/ErrorState";
+import { MathRenderer } from "../../../components/exam/MathRenderer";
+import { AttemptSolutionsDto, QuestionSolutionDto } from "@aspirantbook/shared";
 
-type FilterType = 'all' | 'correct' | 'incorrect' | 'skipped';
+type SolutionFilter = "ALL" | "CORRECT" | "INCORRECT" | "SKIPPED";
 
 export default function SolutionsScreen() {
   const { id: testId, attemptId } = useLocalSearchParams<{ id: string; attemptId: string }>();
   const router = useRouter();
-  const { theme } = useTheme();
+  const { colors, tokens } = useTheme();
 
   const [loading, setLoading] = useState(true);
-  const [solutionsData, setSolutionsData] = useState<any>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [solutionsData, setSolutionsData] = useState<AttemptSolutionsDto | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [filter, setFilter] = useState<FilterType>('all');
+  const [filter, setFilter] = useState<SolutionFilter>("ALL");
+  const [lang, setLang] = useState<"EN" | "HI">("EN");
+
+  const fetchSolutions = async () => {
+    if (!attemptId) {
+      setErrorMsg("Missing attempt identifier");
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      setErrorMsg(null);
+      const res = await api.getAttemptSolutions(attemptId);
+      if (res.ok && res.data) {
+        setSolutionsData(res.data);
+      } else {
+        setErrorMsg(res.error?.message || "Could not retrieve solutions");
+      }
+    } catch {
+      setErrorMsg("Network connection error. Please retry.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let mounted = true;
-    async function loadSolutions() {
-      try {
-        setLoading(true);
-        if (!attemptId) {
-          Alert.alert('Error', 'Missing attempt ID', [{ text: 'Back', onPress: () => router.back() }]);
-          return;
-        }
-
-        const res = await apiClient.getAttemptSolutions(attemptId);
-        if (!mounted) return;
-
-        if (res.ok && res.data) {
-          setSolutionsData(res.data);
-        } else {
-          Alert.alert('Error', res.error?.message || 'Could not load solutions', [
-            { text: 'Go Back', onPress: () => router.back() },
-          ]);
-        }
-      } catch (err: any) {
-        Alert.alert('Error', err?.message || 'Failed to fetch solutions', [
-          { text: 'Go Back', onPress: () => router.back() },
-        ]);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-
-    loadSolutions();
-    return () => {
-      mounted = false;
-    };
+    fetchSolutions();
   }, [attemptId]);
 
   const allQuestions = solutionsData?.questions || [];
 
-  // Filter questions
   const filteredQuestions = useMemo(() => {
-    if (filter === 'all') return allQuestions;
-    return allQuestions.filter((q: any) => {
-      const selected = q.userSelectedOptionId;
-      const correctOpt = q.options?.find((o: any) => o.isCorrect)?.id;
-      if (filter === 'correct') return selected && selected === correctOpt;
-      if (filter === 'incorrect') return selected && selected !== correctOpt;
-      if (filter === 'skipped') return !selected;
-      return true;
-    });
+    if (filter === "ALL") return allQuestions;
+    if (filter === "CORRECT") return allQuestions.filter((q) => q.isCorrect);
+    if (filter === "INCORRECT")
+      return allQuestions.filter((q) => Boolean(q.selectedOption) && !q.isCorrect);
+    if (filter === "SKIPPED") return allQuestions.filter((q) => !q.selectedOption);
+    return allQuestions;
   }, [allQuestions, filter]);
-
-  // Counts for filter pills
-  const counts = useMemo(() => {
-    let correct = 0;
-    let incorrect = 0;
-    let skipped = 0;
-    allQuestions.forEach((q: any) => {
-      const selected = q.userSelectedOptionId;
-      const correctOpt = q.options?.find((o: any) => o.isCorrect)?.id;
-      if (!selected) skipped++;
-      else if (selected === correctOpt) correct++;
-      else incorrect++;
-    });
-    return { all: allQuestions.length, correct, incorrect, skipped };
-  }, [allQuestions]);
 
   const currentQ = filteredQuestions[currentIndex] || filteredQuestions[0];
 
   if (loading) {
     return (
-      <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={[styles.loadingText, { color: theme.colors.textMuted }]}>
-          Loading detailed explanations...
-        </Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+            <ChevronLeft size={24} color={colors.textPrimary} />
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Solutions</Text>
+        </View>
+        <View style={styles.content}>
+          <Skeleton height={60} borderRadius={10} />
+          <Skeleton height={140} borderRadius={16} />
+          <Skeleton height={200} borderRadius={16} />
+        </View>
       </View>
     );
   }
 
-  if (!currentQ) {
+  if (errorMsg || !solutionsData) {
     return (
-      <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
-        <Text style={[styles.errorText, { color: theme.colors.text }]}>No questions match filter.</Text>
-        <TouchableOpacity style={styles.resetFilterBtn} onPress={() => setFilter('all')}>
-          <Text style={styles.resetFilterText}>Reset Filter</Text>
-        </TouchableOpacity>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+            <ChevronLeft size={24} color={colors.textPrimary} />
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Solutions</Text>
+        </View>
+        <ErrorState
+          message={errorMsg || "Solutions are available only after submitting the test"}
+          onRetry={fetchSolutions}
+        />
       </View>
     );
   }
 
-  const correctOption = currentQ.options?.find((o: any) => o.isCorrect);
-  const userOption = currentQ.options?.find((o: any) => o.id === currentQ.userSelectedOptionId);
-  const isCorrect = userOption && correctOption && userOption.id === correctOption.id;
-  const isSkipped = !userOption;
-  const isIncorrect = userOption && (!correctOption || userOption.id !== correctOption.id);
+  const qText = lang === "HI" && currentQ?.textHi ? currentQ.textHi : currentQ?.textEn || "";
+  const explanationText =
+    lang === "HI" && currentQ?.explanationHi ? currentQ.explanationHi : currentQ?.explanationEn || "";
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
-        <TouchableOpacity style={styles.headerBack} onPress={() => router.back()}>
-          <ChevronLeft size={24} color={theme.colors.text} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* 52px Top Header */}
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.headerBtn}
+          accessibilityLabel="Go back"
+        >
+          <ChevronLeft size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <View style={styles.headerTitleCol}>
-          <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Solutions & Analysis</Text>
-          <Text style={[styles.headerSub, { color: theme.colors.textMuted }]}>
-            Question {currentIndex + 1} of {filteredQuestions.length}
-          </Text>
-        </View>
-        <View style={{ width: 24 }} />
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]} numberOfLines={1}>
+          Solutions & Explanations
+        </Text>
+        {currentQ?.textHi ? (
+          <TouchableOpacity
+            onPress={() => setLang(lang === "EN" ? "HI" : "EN")}
+            style={[styles.langBtn, { backgroundColor: colors.surfaceSecondary }]}
+          >
+            <Text style={[styles.langText, { color: colors.primary }]}>{lang}</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
 
-      {/* Filter Tabs */}
-      <View style={[styles.filterBar, { borderBottomColor: theme.colors.border }]}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
-          <TouchableOpacity
-            style={[styles.filterChip, filter === 'all' && styles.filterChipActive]}
-            onPress={() => {
-              setFilter('all');
-              setCurrentIndex(0);
-            }}
-          >
-            <Text style={[styles.filterChipText, filter === 'all' && styles.filterChipTextActive]}>
-              All ({counts.all})
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.filterChip, filter === 'correct' && styles.filterChipActiveGreen]}
-            onPress={() => {
-              setFilter('correct');
-              setCurrentIndex(0);
-            }}
-          >
-            <CheckCircle size={14} color={filter === 'correct' ? '#16a34a' : '#6b7280'} />
-            <Text style={[styles.filterChipText, filter === 'correct' && { color: '#16a34a', fontWeight: '700' }]}>
-              Correct ({counts.correct})
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.filterChip, filter === 'incorrect' && styles.filterChipActiveRed]}
-            onPress={() => {
-              setFilter('incorrect');
-              setCurrentIndex(0);
-            }}
-          >
-            <XCircle size={14} color={filter === 'incorrect' ? '#dc2626' : '#6b7280'} />
-            <Text style={[styles.filterChipText, filter === 'incorrect' && { color: '#dc2626', fontWeight: '700' }]}>
-              Incorrect ({counts.incorrect})
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.filterChip, filter === 'skipped' && styles.filterChipActiveGray]}
-            onPress={() => {
-              setFilter('skipped');
-              setCurrentIndex(0);
-            }}
-          >
-            <MinusCircle size={14} color={filter === 'skipped' ? '#4b5563' : '#6b7280'} />
-            <Text style={[styles.filterChipText, filter === 'skipped' && { color: '#4b5563', fontWeight: '700' }]}>
-              Skipped ({counts.skipped})
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
+      {/* Filter Chips Bar */}
+      <View style={styles.filterBar}>
+        <Chip
+          label="All"
+          selected={filter === "ALL"}
+          onPress={() => {
+            setFilter("ALL");
+            setCurrentIndex(0);
+          }}
+        />
+        <Chip
+          label="Correct"
+          selected={filter === "CORRECT"}
+          onPress={() => {
+            setFilter("CORRECT");
+            setCurrentIndex(0);
+          }}
+        />
+        <Chip
+          label="Incorrect"
+          selected={filter === "INCORRECT"}
+          onPress={() => {
+            setFilter("INCORRECT");
+            setCurrentIndex(0);
+          }}
+        />
+        <Chip
+          label="Skipped"
+          selected={filter === "SKIPPED"}
+          onPress={() => {
+            setFilter("SKIPPED");
+            setCurrentIndex(0);
+          }}
+        />
       </View>
 
-      {/* Main Solution View */}
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Status Badge Row */}
-        <View style={styles.statusRow}>
-          {isCorrect && (
-            <View style={[styles.outcomeBadge, { backgroundColor: 'rgba(22, 163, 74, 0.12)' }]}>
-              <CheckCircle size={16} color="#16a34a" />
-              <Text style={[styles.outcomeBadgeText, { color: '#16a34a' }]}>
-                Correct (+{currentQ.positiveMarks || 1})
-              </Text>
-            </View>
-          )}
-          {isIncorrect && (
-            <View style={[styles.outcomeBadge, { backgroundColor: 'rgba(220, 38, 38, 0.12)' }]}>
-              <XCircle size={16} color="#dc2626" />
-              <Text style={[styles.outcomeBadgeText, { color: '#dc2626' }]}>
-                Incorrect (-{currentQ.negativeMarks || 0})
-              </Text>
-            </View>
-          )}
-          {isSkipped && (
-            <View style={[styles.outcomeBadge, { backgroundColor: 'rgba(156, 163, 175, 0.15)' }]}>
-              <MinusCircle size={16} color="#6b7280" />
-              <Text style={[styles.outcomeBadgeText, { color: '#4b5563' }]}>Unattempted (0)</Text>
-            </View>
-          )}
-
-          {currentQ.topic && (
-            <Text style={[styles.topicText, { color: theme.colors.textMuted }]}>{currentQ.topic}</Text>
-          )}
-        </View>
-
-        {/* Question Text */}
-        <Text style={[styles.questionText, { color: theme.colors.text }]}>{currentQ.text}</Text>
-
-        {/* Options Comparison */}
-        <View style={styles.optionsList}>
-          {currentQ.options?.map((opt: any, idx: number) => {
-            const isThisCorrect = !!opt.isCorrect;
-            const isUserSelection = opt.id === currentQ.userSelectedOptionId;
-            const letter = String.fromCharCode(65 + idx);
-
-            let cardBg = theme.colors.card;
-            let borderColor = theme.colors.border;
-            let badgeBg = theme.colors.border;
-            let badgeTextColor = theme.colors.text;
-
-            if (isThisCorrect) {
-              cardBg = 'rgba(22, 163, 74, 0.08)';
-              borderColor = '#16a34a';
-              badgeBg = '#16a34a';
-              badgeTextColor = '#ffffff';
-            } else if (isUserSelection && !isThisCorrect) {
-              cardBg = 'rgba(220, 38, 38, 0.08)';
-              borderColor = '#dc2626';
-              badgeBg = '#dc2626';
-              badgeTextColor = '#ffffff';
-            }
-
-            return (
-              <View
-                key={opt.id}
-                style={[styles.optionCard, { backgroundColor: cardBg, borderColor }]}
-              >
-                <View style={[styles.optionLetter, { backgroundColor: badgeBg }]}>
-                  <Text style={[styles.optionLetterText, { color: badgeTextColor }]}>{letter}</Text>
-                </View>
-                <View style={styles.optionBody}>
-                  <Text style={[styles.optionContentText, { color: theme.colors.text }]}>{opt.text}</Text>
-                  {isThisCorrect && (
-                    <Text style={styles.correctIndicator}>✓ Correct Answer</Text>
-                  )}
-                  {isUserSelection && !isThisCorrect && (
-                    <Text style={styles.incorrectIndicator}>✗ Your Answer</Text>
-                  )}
-                  {isUserSelection && isThisCorrect && (
-                    <Text style={styles.userCorrectIndicator}>✓ Your Answer (Correct)</Text>
-                  )}
-                </View>
-              </View>
-            );
-          })}
-        </View>
-
-        {/* Detailed Explanation */}
-        <View style={[styles.explanationCard, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-          <View style={styles.explanationHeader}>
-            <Lightbulb size={20} color="#eab308" />
-            <Text style={[styles.explanationTitle, { color: theme.colors.text }]}>Detailed Explanation</Text>
+      {filteredQuestions.length === 0 ? (
+        <EmptyState
+          title="No Questions Match Filter"
+          description="There are no questions in this attempt matching your filter selection."
+          actionTitle="Show All Questions"
+          onAction={() => {
+            setFilter("ALL");
+            setCurrentIndex(0);
+          }}
+        />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {/* Question Status Banner */}
+          <View style={styles.qHeaderRow}>
+            <Text style={[styles.qNumLabel, { color: colors.textPrimary }]}>
+              Question {currentQ.questionNumber} of {allQuestions.length}
+            </Text>
+            {currentQ.isCorrect ? (
+              <Badge label="CORRECT (+marks)" variant="success" size="sm" />
+            ) : currentQ.selectedOption ? (
+              <Badge label="INCORRECT" variant="danger" size="sm" />
+            ) : (
+              <Badge label="NOT ATTEMPTED" variant="neutral" size="sm" />
+            )}
           </View>
-          <Text style={[styles.explanationText, { color: theme.colors.text }]}>
-            {currentQ.explanation || 'No detailed explanation provided for this question.'}
-          </Text>
-        </View>
-      </ScrollView>
+
+          {/* Question Statement */}
+          <Card style={styles.questionCard}>
+            <MathRenderer text={qText} fontSize={16} />
+          </Card>
+
+          {/* Options with Answer Verification */}
+          <View style={styles.optionsList}>
+            {currentQ.optionsEn.map((optTextEn, idx) => {
+              const optId = String.fromCharCode(65 + idx);
+              const isCorrectOpt = optId === currentQ.correctOption;
+              const isUserChoice = optId === currentQ.selectedOption;
+              const optText =
+                lang === "HI" && currentQ.optionsHi && currentQ.optionsHi[idx]
+                  ? currentQ.optionsHi[idx]
+                  : optTextEn;
+
+              let borderColor = colors.border;
+              let bgColor = colors.surface;
+              if (isCorrectOpt) {
+                borderColor = colors.success;
+                bgColor = "rgba(16, 185, 129, 0.1)";
+              } else if (isUserChoice && !currentQ.isCorrect) {
+                borderColor = colors.danger;
+                bgColor = "rgba(239, 68, 68, 0.1)";
+              }
+
+              return (
+                <View
+                  key={optId}
+                  style={[
+                    styles.optionItem,
+                    {
+                      borderColor,
+                      backgroundColor: bgColor,
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.optionBadge,
+                      {
+                        backgroundColor: isCorrectOpt
+                          ? colors.success
+                          : isUserChoice
+                          ? colors.danger
+                          : colors.surfaceSecondary,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.optionLetter,
+                        {
+                          color: isCorrectOpt || isUserChoice ? "#FFFFFF" : colors.textSecondary,
+                        },
+                      ]}
+                    >
+                      {optId}
+                    </Text>
+                  </View>
+
+                  <View style={styles.optionTextWrap}>
+                    <MathRenderer text={optText} fontSize={15} />
+                  </View>
+
+                  {isCorrectOpt && (
+                    <View style={styles.resultIconWrap}>
+                      <Check size={18} color={colors.success} />
+                    </View>
+                  )}
+                  {isUserChoice && !isCorrectOpt && (
+                    <View style={styles.resultIconWrap}>
+                      <X size={18} color={colors.danger} />
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+
+          {/* Detailed Solution / Explanation Card */}
+          <Card style={styles.explanationCard}>
+            <View style={styles.explanationHeader}>
+              <Lightbulb size={20} color={colors.warning} />
+              <Text style={[styles.explanationTitle, { color: colors.textPrimary }]}>
+                Detailed Solution & Explanation
+              </Text>
+            </View>
+
+            {explanationText ? (
+              <MathRenderer text={explanationText} fontSize={14} style={styles.explanationBody} />
+            ) : (
+              <Text style={[styles.noExplanation, { color: colors.textMuted }]}>
+                No extended explanation was provided for this question.
+              </Text>
+            )}
+          </Card>
+        </ScrollView>
+      )}
 
       {/* Bottom Navigation */}
-      <View style={[styles.bottomBar, { backgroundColor: theme.colors.card, borderTopColor: theme.colors.border }]}>
-        <TouchableOpacity
-          style={[styles.navBtn, currentIndex === 0 && styles.navBtnDisabled]}
-          disabled={currentIndex === 0}
-          onPress={() => setCurrentIndex((idx) => Math.max(0, idx - 1))}
+      {filteredQuestions.length > 0 && (
+        <View
+          style={[
+            styles.bottomNav,
+            {
+              backgroundColor: colors.surface,
+              borderTopColor: colors.border,
+            },
+          ]}
         >
-          <ChevronLeft size={20} color={currentIndex === 0 ? '#9ca3af' : theme.colors.text} />
-          <Text style={[styles.navBtnText, { color: currentIndex === 0 ? '#9ca3af' : theme.colors.text }]}>
-            Previous
-          </Text>
-        </TouchableOpacity>
+          <Button
+            title="Previous"
+            variant="ghost"
+            size="md"
+            disabled={currentIndex === 0}
+            onPress={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
+          />
 
-        <TouchableOpacity
-          style={[styles.navBtn, currentIndex === filteredQuestions.length - 1 && styles.navBtnDisabled]}
-          disabled={currentIndex === filteredQuestions.length - 1}
-          onPress={() => setCurrentIndex((idx) => Math.min(filteredQuestions.length - 1, idx + 1))}
-        >
-          <Text
-            style={[
-              styles.navBtnText,
-              { color: currentIndex === filteredQuestions.length - 1 ? '#9ca3af' : theme.colors.text },
-            ]}
-          >
-            Next
+          <Text style={[styles.navCounter, { color: colors.textSecondary }]}>
+            {currentIndex + 1} / {filteredQuestions.length}
           </Text>
-          <ChevronRight size={20} color={currentIndex === filteredQuestions.length - 1 ? '#9ca3af' : theme.colors.text} />
-        </TouchableOpacity>
-      </View>
+
+          <Button
+            title="Next"
+            variant="primary"
+            size="md"
+            disabled={currentIndex >= filteredQuestions.length - 1}
+            onPress={() =>
+              setCurrentIndex((prev) => Math.min(filteredQuestions.length - 1, prev + 1))
+            }
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -336,212 +350,122 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 15,
-  },
-  errorText: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 16,
-  },
-  resetFilterBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#3b82f6',
-    borderRadius: 8,
-  },
-  resetFilterText: {
-    color: '#ffffff',
-    fontWeight: '600',
-  },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 48,
+    height: 52,
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  headerBack: {
-    padding: 4,
-  },
-  headerTitleCol: {
-    alignItems: 'center',
+  headerBtn: {
+    padding: 6,
+    marginRight: 8,
   },
   headerTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
+    flex: 1,
   },
-  headerSub: {
+  langBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  langText: {
     fontSize: 12,
-    marginTop: 2,
-  },
-  filterBar: {
-    borderBottomWidth: 1,
-    paddingVertical: 8,
-  },
-  filterScroll: {
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  filterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: 'rgba(156, 163, 175, 0.1)',
-  },
-  filterChipActive: {
-    backgroundColor: '#3b82f6',
-  },
-  filterChipActiveGreen: {
-    backgroundColor: 'rgba(22, 163, 74, 0.15)',
-  },
-  filterChipActiveRed: {
-    backgroundColor: 'rgba(220, 38, 38, 0.15)',
-  },
-  filterChipActiveGray: {
-    backgroundColor: 'rgba(107, 114, 128, 0.15)',
-  },
-  filterChipText: {
-    fontSize: 13,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  filterChipTextActive: {
-    color: '#ffffff',
-    fontWeight: '700',
+    fontWeight: "700",
   },
   content: {
     padding: 16,
-    paddingBottom: 40,
+    gap: 16,
   },
-  statusRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+  filterBar: {
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
-  outcomeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 80,
+    gap: 16,
   },
-  outcomeBadgeText: {
-    fontSize: 13,
-    fontWeight: '700',
+  qHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  topicText: {
-    fontSize: 12,
-    fontWeight: '500',
+  qNumLabel: {
+    fontSize: 15,
+    fontWeight: "700",
   },
-  questionText: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '500',
-    marginBottom: 20,
+  questionCard: {
+    padding: 16,
   },
   optionsList: {
-    gap: 12,
-    marginBottom: 24,
+    gap: 10,
   },
-  optionCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    padding: 14,
+  optionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    minHeight: 52,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: 12,
     borderWidth: 1.5,
-    gap: 12,
+  },
+  optionBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
   },
   optionLetter: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  optionLetterText: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
   },
-  optionBody: {
+  optionTextWrap: {
     flex: 1,
   },
-  optionContentText: {
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  correctIndicator: {
-    color: '#16a34a',
-    fontSize: 12,
-    fontWeight: '700',
-    marginTop: 4,
-  },
-  incorrectIndicator: {
-    color: '#dc2626',
-    fontSize: 12,
-    fontWeight: '700',
-    marginTop: 4,
-  },
-  userCorrectIndicator: {
-    color: '#16a34a',
-    fontSize: 12,
-    fontWeight: '700',
-    marginTop: 4,
+  resultIconWrap: {
+    marginLeft: 8,
   },
   explanationCard: {
     padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
   },
   explanationHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   explanationTitle: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
   },
-  explanationText: {
-    fontSize: 14,
+  explanationBody: {
     lineHeight: 22,
   },
-  bottomBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
+  noExplanation: {
+    fontSize: 13,
+    fontStyle: "italic",
+  },
+  bottomNav: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 56,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
     borderTopWidth: 1,
   },
-  navBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  navBtnDisabled: {
-    opacity: 0.4,
-  },
-  navBtnText: {
-    fontSize: 14,
-    fontWeight: '600',
+  navCounter: {
+    fontSize: 13,
+    fontWeight: "600",
   },
 });
