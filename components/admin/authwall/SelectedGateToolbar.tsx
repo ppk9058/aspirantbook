@@ -50,14 +50,20 @@ export function SelectedGateToolbar({
   const [isDirty, setIsDirty] = useState(false)
 
   // Sync state when selectedItem changes
+  const hasSelectedItem = Boolean(selectedItem)
+  const selectedGateMode = selectedItem?.gateMode
+  const selectedPreviewPercentage = selectedItem?.previewPercentage
+  const selectedParentGateMode = selectedItem?.parentGateMode
+  const selectedParentTitle = selectedItem?.parentTitle
+
   useEffect(() => {
-    if (!selectedItem) return
-    const nextMode = ((selectedItem.gateMode as GateMode) || "inherit")
-    const nextPct = selectedItem.previewPercentage ?? coursePreviewPercentage ?? 20
+    if (!hasSelectedItem) return
+    const nextMode = ((selectedGateMode as GateMode) || "inherit")
+    const nextPct = selectedPreviewPercentage ?? coursePreviewPercentage ?? 20
     setMode(nextMode)
     setLocalPct(nextPct)
     setIsDirty(false)
-  }, [selectedItem?.id, selectedItem?.gateMode, selectedItem?.previewPercentage, coursePreviewPercentage])
+  }, [selectedItem?.id, hasSelectedItem, selectedGateMode, selectedPreviewPercentage, coursePreviewPercentage])
 
   // Compute effective percentage for display
   const effectivePct = React.useMemo(() => {
@@ -78,12 +84,12 @@ export function SelectedGateToolbar({
   }, [mode, localPct, selectedItem, isCourseGated, coursePreviewPercentage])
 
   const sourceLabel = React.useMemo(() => {
-    if (!selectedItem || mode !== "inherit") return ""
-    if (selectedItem.parentGateMode && selectedItem.parentGateMode !== "inherit") {
-      return `(from ${selectedItem.parentTitle || "Phase"})`
+    if (!hasSelectedItem || mode !== "inherit") return ""
+    if (selectedParentGateMode && selectedParentGateMode !== "inherit") {
+      return `(from ${selectedParentTitle || "Phase"})`
     }
     return "(from Course)"
-  }, [mode, selectedItem?.parentGateMode, selectedItem?.parentTitle])
+  }, [mode, hasSelectedItem, selectedParentGateMode, selectedParentTitle])
 
   if (!selectedItem) return null
 

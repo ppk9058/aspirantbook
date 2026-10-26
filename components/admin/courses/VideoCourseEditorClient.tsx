@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -208,7 +208,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const [demoReportData, setDemoReportData] = useState<any>(null)
   const [isLoadingReport, setIsLoadingReport] = useState<boolean>(false)
 
-  const fetchDbSlots = async () => {
+  const fetchDbSlots = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/courses/${initialCourse.id}/demo-slots`)
       const data = await res.json()
@@ -230,11 +230,11 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     } catch (e) {
       console.error("Failed to fetch slots from DB:", e)
     }
-  }
+  }, [initialCourse.id])
 
   useEffect(() => {
     fetchDbSlots()
-  }, [initialCourse.id])
+  }, [fetchDbSlots])
 
   const handleAddDbSlot = async () => {
     if (!newSlotDateTime) {

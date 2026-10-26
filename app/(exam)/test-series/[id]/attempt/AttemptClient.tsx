@@ -543,7 +543,7 @@ function Arena() {
                 setLocalSaveFailed(true)
             })
         }
-    }, [activeAttemptId, attemptKey, durationMin, router, seriesId])
+    }, [activeAttemptId, attemptKey, durationMin, router, seriesId, searchParams])
 
     useEffect(() => {
         performSubmitRef.current = performSubmit

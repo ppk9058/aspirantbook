@@ -328,7 +328,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
         return () => {
             isMounted = false
         }
-    }, [seriesId, selectedGoal?.id, isLoaded])
+    }, [seriesId, selectedGoal?.id, isLoaded, customSeriesPackage?.category])
 
     // Fallback if initialSeries wasn't provided directly
     useEffect(() => {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
 import {
     Ticket,
@@ -87,7 +87,7 @@ export function CourseCouponsManager({
     const [badgeShape, setBadgeShape] = useState<"STARBURST" | "RIBBON" | "CIRCLE" | "PILL">("PILL")
     const [badgeColor, setBadgeColor] = useState<string>("#10B981")
 
-    const fetchCoupons = async () => {
+    const fetchCoupons = useCallback(async () => {
         setIsLoading(true)
         try {
             const res = await fetch(`/api/admin/coupons?courseId=${courseId}`)
@@ -101,11 +101,11 @@ export function CourseCouponsManager({
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [courseId])
 
     useEffect(() => {
         fetchCoupons()
-    }, [courseId])
+    }, [fetchCoupons])
 
     const resetForm = () => {
         setIsEditing(false)

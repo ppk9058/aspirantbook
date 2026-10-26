@@ -8,13 +8,18 @@ import { ESLint } from "eslint"
  * B-017 regression: these components shipped with `react-hooks/exhaustive-deps`
  * warnings, i.e. effects that read stale props/state. They must stay clean.
  *
- * Before the fix this suite reported 5 warnings across the four files.
+ * Before the fix this suite reported 11 warnings across the nine files.
  */
 const FILES = [
   "components/course/EnhancedVideoPlayer.tsx",
   "components/course/LiveDemoRoomClient.tsx",
   "components/editor/TutorialImportModal.tsx",
   "components/learn/LessonViewer.tsx",
+  "app/(dashboard)/test-series/[id]/TestSeriesDetailClient.tsx",
+  "app/(exam)/test-series/[id]/attempt/AttemptClient.tsx",
+  "components/admin/authwall/SelectedGateToolbar.tsx",
+  "components/admin/courses/CourseCouponsManager.tsx",
+  "components/admin/courses/VideoCourseEditorClient.tsx",
 ]
 
 describe("B-017: hook dependency arrays are exhaustive", () => {
