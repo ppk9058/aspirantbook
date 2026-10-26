@@ -1,6 +1,6 @@
-import fs from "fs/promises";
-import path from "path";
-import { unstable_cache, revalidateTag } from "next/cache";
+import { unstable_cache } from "next/cache";
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags";
+import { getPlatformSetting, setPlatformSetting, PLATFORM_SETTING_KEYS } from "@/lib/platform-settings";
 
 export interface BatchTier {
   id: string;
@@ -92,9 +92,7 @@ export interface Batch {
   updatedAt?: string;
 }
 
-const BATCHES_FILE_PATH = path.join(process.cwd(), "data", "batches.json");
-
-export const BATCHES_CACHE_TAG = "batches";
+export const BATCHES_CACHE_TAG = CACHE_TAGS.batches;
 
 /**
  * B-019: batches used to sit in a module-level 60s cache, so every serverless
@@ -104,10 +102,10 @@ export const BATCHES_CACHE_TAG = "batches";
  */
 async function readBatchesFileUncached(): Promise<Batch[]> {
   try {
-    const raw = await fs.readFile(BATCHES_FILE_PATH, "utf-8");
-    return JSON.parse(raw) as Batch[];
+    const stored = await getPlatformSetting<Batch[]>(PLATFORM_SETTING_KEYS.batches);
+    return Array.isArray(stored) ? stored : [];
   } catch (err) {
-    console.error("Error reading batches.json:", err);
+    console.error("Error reading batches from the database:", err);
     return [];
   }
 }
@@ -117,27 +115,29 @@ const readBatchesCached = unstable_cache(readBatchesFileUncached, ["batches-json
   revalidate: 300,
 });
 
+let warnedAboutMissingCache = false;
+
 async function readBatchesFile(): Promise<Batch[]> {
-  return readBatchesCached();
+  try {
+    return await readBatchesCached();
+  } catch (error) {
+    // unstable_cache needs a Next request scope. Scripts, CLIs and unit tests
+    // have no incremental cache, so read straight from the database instead of
+    // crashing (the tag is simply not cached there).
+    if (!warnedAboutMissingCache) {
+      warnedAboutMissingCache = true;
+      console.warn(
+        "[batches-service] Next data cache unavailable outside a request scope; reading uncached:",
+        error instanceof Error ? error.message : error
+      );
+    }
+    return readBatchesFileUncached();
+  }
 }
 
 async function writeBatchesFile(batches: Batch[]): Promise<void> {
-  await fs.mkdir(path.dirname(BATCHES_FILE_PATH), { recursive: true });
-  await fs.writeFile(BATCHES_FILE_PATH, JSON.stringify(batches, null, 2), "utf-8");
-  invalidateBatchesCache();
-}
-
-/**
- * Drops the shared batches cache entry after a mutation.
- * revalidateTag needs a Next request scope; outside one (scripts, unit tests)
- * the next read simply repopulates the cache, so we log instead of throwing.
- */
-function invalidateBatchesCache(): void {
-  try {
-    revalidateTag(BATCHES_CACHE_TAG);
-  } catch (error) {
-    console.warn("[batches-service] revalidateTag skipped outside a request scope:", error);
-  }
+  await setPlatformSetting(PLATFORM_SETTING_KEYS.batches, batches);
+  safeRevalidateTags(CACHE_TAGS.batches);
 }
 
 export async function getAllBatches(): Promise<Batch[]> {
