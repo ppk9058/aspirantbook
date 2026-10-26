@@ -1,15 +1,11 @@
 "use server"
 
 import { auth } from "@/auth"
-import Razorpay from "razorpay"
 import { prisma } from "@/lib/prisma"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 import { checkRateLimit } from "@/lib/rate-limit"
+import { getRazorpayClient, getRazorpayKeyId, isRazorpayTestMode } from "@/lib/payments/razorpay-config"
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
-    key_secret: process.env.RAZORPAY_KEY_SECRET || "rzp_secret_placeholder",
-})
 
 export interface CreateOrderParams {
     plan?: "MONTHLY" | "YEARLY"
@@ -239,17 +235,19 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         },
     }
 
+    // V3: a mock order is only allowed in explicit test mode. A missing secret in
+    // production must fail loudly instead of returning a fake successful order.
     let order: any
-    try {
-        order = await razorpay.orders.create(options)
-    } catch (error) {
-        if (process.env.APP_ENV === "test" || process.env.NODE_ENV === "test" || !process.env.RAZORPAY_KEY_SECRET) {
-            order = {
-                id: `order_mock_${Date.now()}`,
-                amount: options.amount,
-                currency: options.currency,
-            }
-        } else {
+    if (isRazorpayTestMode()) {
+        order = {
+            id: `order_mock_${Date.now()}`,
+            amount: options.amount,
+            currency: options.currency,
+        }
+    } else {
+        try {
+            order = await getRazorpayClient().orders.create(options)
+        } catch (error) {
             console.error("Razorpay order creation failed:", error)
             throw new Error("Failed to create Razorpay order")
         }
@@ -301,7 +299,9 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         orderId: order.id,
         amount: order.amount,
         currency: order.currency,
-        keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder",
+        // Test mode may run without credentials; production already resolved them
+        // (getRazorpayClient throws when they are missing).
+        keyId: getRazorpayKeyId() || (isRazorpayTestMode() ? "rzp_test_placeholder" : ""),
     }
 }
 
