@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { unstable_cache } from "next/cache"
 import Link from "next/link"
 import { Compass, Sparkles, BookOpen, Clock, ArrowRight, Target, CheckCircle2, ShieldCheck } from "lucide-react"
+import ServiceUnavailable from "@/components/system/ServiceUnavailable"
 
 export default async function TracksPage({
     searchParams,
@@ -39,46 +40,16 @@ export default async function TracksPage({
 
     try {
         tracks = await getTracks()
-    } catch {
-        console.warn("Database offline on /tracks, serving fallback tracks.")
-        tracks = [
-            {
-                id: "track-data-scientist",
-                title: "Data Scientist Career Track",
-                slug: "data-scientist-career",
-                type: "CAREER",
-                description: "Master Python, SQL, exploratory data analysis, machine learning algorithms, and real-world predictive modeling.",
-                thumbnail: "/batch-blue.svg",
-                _count: { courses: 8 },
-            },
-            {
-                id: "track-fullstack-ai",
-                title: "AI & Fullstack Engineer Track",
-                slug: "fullstack-ai-career",
-                type: "CAREER",
-                description: "Build AI-powered fullstack software, LLM APIs, retrieval-augmented generation (RAG), and vector search.",
-                thumbnail: "/batch-purple.svg",
-                _count: { courses: 6 },
-            },
-            {
-                id: "track-python-specialist",
-                title: "Python Fundamentals & Beyond",
-                slug: "python-specialist-skill",
-                type: "SKILL",
-                description: "Deep dive into object-oriented programming, concurrency, data structures, and algorithmic problem solving.",
-                thumbnail: "/batch-green.svg",
-                _count: { courses: 4 },
-            },
-            {
-                id: "track-sql-analyst",
-                title: "Advanced SQL & Database Analytics",
-                slug: "sql-analyst-skill",
-                type: "SKILL",
-                description: "Master complex analytical queries, partitioning, database optimization, and warehouse reporting.",
-                thumbnail: "/batch-emerald.svg",
-                _count: { courses: 3 },
-            },
-        ]
+    } catch (error) {
+        // Fail closed: never render fabricated tracks when the database is unreachable.
+        console.error("[tracks] Failed to load tracks from the database", error)
+        return (
+            <ServiceUnavailable
+                title="Tracks are temporarily unavailable"
+                description="We could not load the learning tracks right now. Please try again in a moment."
+                homeHref="/dashboard"
+            />
+        )
     }
 
     const careerTracks = tracks.filter((t) => t.type === "CAREER")

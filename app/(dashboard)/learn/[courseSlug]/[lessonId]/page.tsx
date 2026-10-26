@@ -1,7 +1,8 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { notFound, redirect } from "next/navigation"
+import { notFound, redirect, unstable_rethrow } from "next/navigation"
 import LessonViewer from "@/components/learn/LessonViewer"
+import ServiceUnavailable from "@/components/system/ServiceUnavailable"
 import { toSafeCourseDto, toSafeLessonDto } from "@/lib/courses/course-dto"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 
@@ -21,7 +22,7 @@ export default async function LearnLessonPage({
     let lesson: any = null
     let course: any = null
     let userRole = session.user.role || "USER"
-    let hasAccess = true
+    let hasAccess = false
     let progressMap: Record<string, any> = {}
 
     try {
@@ -101,28 +102,23 @@ export default async function LearnLessonPage({
             const map = new Map(progressRecords.map((p: any) => [p.lessonId, p]))
             progressMap = Object.fromEntries(map)
         }
-    } catch {
-        console.warn("Database offline on /learn/[courseSlug]/[lessonId], serving fallback data.")
-        // Provide resilient mock lesson data when Supabase is sleeping
-        const mockLessons = [
-            { id: "intro-lesson", title: "Introduction & Setup", duration: 15, content: "# Welcome\n\nStart your journey with interactive lessons and hands-on coding exercises." },
-            { id: "core-concepts", title: "Core Architecture & Coding", duration: 25, content: "# Core Concepts\n\nLet's write modern code and build robust applications." },
-        ]
-        course = {
-            id: `course-${courseSlug}`,
-            title: courseSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-            slug: courseSlug,
-            chapters: [
-                {
-                    id: "ch-1",
-                    title: "Module 1: Foundations",
-                    order: 1,
-                    lessons: mockLessons,
-                },
-            ],
-        }
-        lesson = mockLessons.find((l) => l.id === lessonId) || mockLessons[0]
-        hasAccess = true
+    } catch (error) {
+        // Preserve Next.js control flow (notFound/redirect) instead of swallowing it.
+        unstable_rethrow(error)
+        // Fail closed: a database error must never grant access or serve fabricated lessons.
+        console.error("[learn] Failed to load lesson from the database", {
+            courseSlug,
+            lessonId,
+            error,
+        })
+        return (
+            <ServiceUnavailable
+                title="Lesson unavailable"
+                description="We could not load this lesson right now. Your progress is safe - please try again in a moment."
+                homeHref={`/courses/${courseSlug}`}
+                homeLabel="Back to course"
+            />
+        )
     }
 
     if (!lesson || !course) {

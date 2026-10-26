@@ -8,6 +8,7 @@ import { classifyCourse } from "@/lib/course-classifier"
 
 import { cleanDescriptionSnippet } from "@/lib/utils"
 import { getHomepagePromoCards } from "@/lib/homepage-cards-service"
+import ServiceUnavailable from "@/components/system/ServiceUnavailable"
 
 const getTopPublishedCourses = unstable_cache(
     async () => {
@@ -205,9 +206,17 @@ export default async function DashboardPage() {
         if (Array.isArray(completedData)) {
             completedLessonSet = new Set(completedData.map((p) => p.lessonId))
         }
-    } catch {
-        console.warn("Database offline on /dashboard, serving fallback data.")
-        recommendedCourses = ALL_GOAL_COURSES
+    } catch (error) {
+        // Fail closed: never render fabricated dashboard data when the database is unreachable.
+        console.error("[dashboard] Failed to load dashboard data", error)
+        return (
+            <ServiceUnavailable
+                title="Dashboard temporarily unavailable"
+                description="We could not load your dashboard right now. Your progress is safe - please try again in a moment."
+                homeHref="/"
+                homeLabel="Back to home"
+            />
+        )
     }
 
     let inProgressCourses = enrollments.map((e: any) => {
