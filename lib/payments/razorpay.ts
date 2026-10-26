@@ -99,12 +99,17 @@ export function verifyRazorpayWebhookSignature(
     body: string,
     signature: string
 ): boolean {
-    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET
-    if (!secret) return false
+    // Webhook signatures use RAZORPAY_WEBHOOK_SECRET only. RAZORPAY_KEY_SECRET is a
+    // different credential and must never be used as a fallback.
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET
+    if (!secret || !signature) return false
     const expectedSignature = crypto
         .createHmac("sha256", secret)
         .update(body)
         .digest("hex")
 
-    return expectedSignature === signature
+    const expected = Buffer.from(expectedSignature, "utf8")
+    const received = Buffer.from(signature, "utf8")
+    if (expected.length !== received.length) return false
+    return crypto.timingSafeEqual(expected, received)
 }
