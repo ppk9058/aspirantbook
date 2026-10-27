@@ -56,9 +56,14 @@ export async function POST(req: Request) {
 
     // Schema v1 check: If meta and phases are present, use importTutorialPackage
     if (body.phases && (body.meta || body.schema)) {
+      // A9: the v1 importer defaults to DRAFT; a teacher can never publish.
+      const wantsPublish = user.role === "ADMIN" && (
+        body.publishImmediately ?? body.status === "PUBLISHED"
+      )
       const result = await importTutorialPackage(body, {
         dryRun: body.dryRun,
-        publishImmediately: body.publishImmediately ?? (body.status === "PUBLISHED"),
+        publishImmediately: Boolean(wantsPublish),
+        createdById: creatorIdFor(user) ?? undefined,
       })
 
       if (!result.success) {
@@ -74,7 +79,9 @@ export async function POST(req: Request) {
       difficulty = "BEGINNER",
       description = "Comprehensive structured tutorial created via Tutorial Studio.",
       theme,
-      status = "PUBLISHED",
+      // A9: imports are drafts unless publishing is explicitly requested by an
+      // administrator. This matches the v1 importer's behaviour.
+      status = "DRAFT",
       chapters = [],
     } = body
 
@@ -86,10 +93,41 @@ export async function POST(req: Request) {
     const canonicalTechnology = goalValidation.isValid
       ? goalValidation.validSlugs.join(",")
       : ""
+    const requestedStatus = status === "PUBLISHED" ? "PUBLISHED" : "DRAFT"
     const effectiveStatus = goalValidation.isValid
-      ? ((status as any) || "PUBLISHED")
+      ? user.role === "ADMIN"
+        ? requestedStatus
+        : "DRAFT"
       : "DRAFT"
     const isPublished = effectiveStatus === "PUBLISHED"
+
+    // A9: validate the chapter/lesson shape up front so malformed input is a
+    // 400 and never a half-applied import.
+    if (chapters !== undefined && !Array.isArray(chapters)) {
+      return NextResponse.json({ error: "chapters must be an array" }, { status: 400 })
+    }
+    for (const [chIdx, ch] of (chapters as ChapterImport[]).entries()) {
+      if (!ch || typeof ch.title !== "string" || !ch.title.trim()) {
+        return NextResponse.json(
+          { error: `chapters[${chIdx}].title is required` },
+          { status: 400 }
+        )
+      }
+      if (ch.lessons !== undefined && !Array.isArray(ch.lessons)) {
+        return NextResponse.json(
+          { error: `chapters[${chIdx}].lessons must be an array` },
+          { status: 400 }
+        )
+      }
+      for (const [lIdx, lesson] of (ch.lessons || []).entries()) {
+        if (!lesson || typeof lesson.title !== "string" || !lesson.title.trim()) {
+          return NextResponse.json(
+            { error: `chapters[${chIdx}].lessons[${lIdx}].title is required` },
+            { status: 400 }
+          )
+        }
+      }
+    }
 
     // If no chapters provided, create a default orientation chapter
     const normalizedChapters =
@@ -120,25 +158,8 @@ export async function POST(req: Request) {
       // Find existing course
       course = await prisma.course.findUnique({ where: { id: courseId } })
       if (course) {
-        // Delete existing chapters to replace with imported curriculum
-        await prisma.chapter.deleteMany({ where: { courseId: course.id } })
-
-        // Update metadata
-        await prisma.course.update({
-          where: { id: course.id },
-          data: {
-            title: title.trim(),
-            description: description.trim(),
-            technology: canonicalTechnology || course.technology,
-            difficulty: (difficulty as any) || "BEGINNER",
-            status: (effectiveStatus as any) || "PUBLISHED",
-            isPublished,
-            metadataJson: theme ? JSON.stringify({ theme }) : undefined,
-          },
-        })
-
-        // B-025: build every row up front and insert in two batched statements
-        // instead of one chapter.create + one lesson.create per row (N+1).
+        // B-025/A9: build every row up front and insert in two batched
+        // statements instead of one chapter.create + one lesson.create per row.
         const chapterRows = normalizedChapters.map((ch, chIdx) => ({
           id: crypto.randomUUID(),
           title: ch.title.trim() || `Chapter ${chIdx + 1}`,
@@ -166,16 +187,33 @@ export async function POST(req: Request) {
               contentHash: computeContentHash(blocks),
               durationText: l.durationText || "15 min read",
               duration: l.duration || 15,
-              isTrial: true,
+              // A9: imported lessons are NOT free trials. Only an explicit
+              // course-level trial unlocks content.
+              isTrial: false,
               chapterId: chapterRow.id,
             }
           })
         })
 
-        await prisma.$transaction([
-          prisma.chapter.createMany({ data: chapterRows }),
-          prisma.lesson.createMany({ data: lessonRows }),
-        ])
+        // A9: the delete and the re-create must be atomic, otherwise a failure
+        // between them leaves the course with no chapters at all.
+        await prisma.$transaction(async (tx) => {
+          await tx.chapter.deleteMany({ where: { courseId: course!.id } })
+          await tx.course.update({
+            where: { id: course!.id },
+            data: {
+              title: title.trim(),
+              description: description.trim(),
+              technology: canonicalTechnology || course!.technology,
+              difficulty: (difficulty as any) || "BEGINNER",
+              status: effectiveStatus as any,
+              isPublished,
+              metadataJson: theme ? JSON.stringify({ theme }) : undefined,
+            },
+          })
+          await tx.chapter.createMany({ data: chapterRows })
+          await tx.lesson.createMany({ data: lessonRows })
+        })
       }
     }
 
@@ -234,7 +272,8 @@ export async function POST(req: Request) {
                       contentHash: computeContentHash(blocks),
                       durationText: l.durationText || "15 min read",
                       duration: l.duration || 15,
-                      isTrial: true,
+                      // A9: imported lessons are not free trials.
+                      isTrial: false,
                     }
                   }
                 ),
