@@ -1,6 +1,10 @@
 import { unstable_cache } from "next/cache";
 import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags";
-import { getPlatformSetting, setPlatformSetting, PLATFORM_SETTING_KEYS } from "@/lib/platform-settings";
+import {
+  getPlatformSetting,
+  PLATFORM_SETTING_KEYS,
+  updatePlatformSettingAtomic,
+} from "@/lib/platform-settings";
 
 export interface BatchTier {
   id: string;
@@ -101,13 +105,11 @@ export const BATCHES_CACHE_TAG = CACHE_TAGS.batches;
  * mutation invalidates the tag, so all instances agree.
  */
 async function readBatchesFileUncached(): Promise<Batch[]> {
-  try {
-    const stored = await getPlatformSetting<Batch[]>(PLATFORM_SETTING_KEYS.batches);
-    return Array.isArray(stored) ? stored : [];
-  } catch (err) {
-    console.error("Error reading batches from the database:", err);
-    return [];
-  }
+  // B1: a read error must propagate. Returning [] here used to feed the
+  // read-modify-write below, so one transient database error plus any write
+  // erased every stored batch.
+  const stored = await getPlatformSetting<Batch[]>(PLATFORM_SETTING_KEYS.batches);
+  return Array.isArray(stored) ? stored : [];
 }
 
 const readBatchesCached = unstable_cache(readBatchesFileUncached, ["batches-json"], {
@@ -135,9 +137,26 @@ async function readBatchesFile(): Promise<Batch[]> {
   }
 }
 
-async function writeBatchesFile(batches: Batch[]): Promise<void> {
-  await setPlatformSetting(PLATFORM_SETTING_KEYS.batches, batches);
+/**
+ * B1: mutate the stored list under an advisory lock instead of writing a whole
+ * array read earlier in the request. Concurrent creates/updates/deletes are
+ * serialised and none of them is lost.
+ */
+async function mutateBatches<T>(
+  mutate: (current: Batch[]) => { next: Batch[]; result: T }
+): Promise<T> {
+  let captured!: T;
+  await updatePlatformSettingAtomic<Batch[]>(
+    PLATFORM_SETTING_KEYS.batches,
+    (current) => {
+      const list = Array.isArray(current) ? current : [];
+      const { next, result } = mutate(list);
+      captured = result;
+      return next;
+    }
+  );
   safeRevalidateTags(CACHE_TAGS.batches);
+  return captured;
 }
 
 export async function getAllBatches(): Promise<Batch[]> {
@@ -253,38 +272,43 @@ export async function createBatch(data: Partial<Batch>): Promise<Batch> {
     updatedAt: new Date().toISOString(),
   };
 
-  batches.unshift(newBatch);
-  await writeBatchesFile(batches);
-  return newBatch;
+  return mutateBatches((current) => {
+    // Re-check inside the lock so a concurrent create cannot be overwritten.
+    if (current.some((b) => b.id === newBatch.id)) {
+      throw new Error(`Batch ${newBatch.id} already exists`);
+    }
+    return { next: [newBatch, ...current], result: newBatch };
+  });
 }
 
 export async function updateBatch(
   id: string,
   data: Partial<Batch>
 ): Promise<Batch | null> {
-  const batches = await readBatchesFile();
-  const index = batches.findIndex((b) => b.id === id || b.slug === id);
-  if (index === -1) return null;
+  return mutateBatches((current) => {
+    const index = current.findIndex((b) => b.id === id || b.slug === id);
+    if (index === -1) return { next: current, result: null };
 
-  const existing = batches[index];
-  const updated: Batch = {
-    ...existing,
-    ...data,
-    id: existing.id, // Preserve immutable ID
-    updatedAt: new Date().toISOString(),
-  };
+    const existing = current[index];
+    const updated: Batch = {
+      ...existing,
+      ...data,
+      id: existing.id, // Preserve immutable ID
+      updatedAt: new Date().toISOString(),
+    };
 
-  batches[index] = updated;
-  await writeBatchesFile(batches);
-  return updated;
+    const next = current.slice();
+    next[index] = updated;
+    return { next, result: updated };
+  });
 }
 
 export async function deleteBatch(id: string): Promise<boolean> {
-  const batches = await readBatchesFile();
-  const index = batches.findIndex((b) => b.id === id || b.slug === id);
-  if (index === -1) return false;
+  return mutateBatches((current) => {
+    const index = current.findIndex((b) => b.id === id || b.slug === id);
+    if (index === -1) return { next: current, result: false };
 
-  batches.splice(index, 1);
-  await writeBatchesFile(batches);
-  return true;
+    const next = current.filter((_, i) => i !== index);
+    return { next, result: true };
+  });
 }

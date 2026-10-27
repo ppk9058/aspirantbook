@@ -40,3 +40,40 @@ export async function deletePlatformSetting(key: string): Promise<boolean> {
   const result = await prisma.platformSetting.deleteMany({ where: { key } })
   return result.count > 0
 }
+
+/**
+ * B1: atomic read-modify-write for JSON settings.
+ *
+ * Settings used to be mutated with "read the value, change it in memory, write
+ * it back". Two concurrent writers both read the same snapshot and the last
+ * write silently drops the other's change. The mutation now runs inside a
+ * transaction that first takes a Postgres advisory lock for the key, so writers
+ * for the same setting serialise while different settings stay independent.
+ *
+ * Read errors propagate: a caller must never be able to write back a default
+ * (empty) value that wipes the stored data.
+ */
+export async function updatePlatformSettingAtomic<T>(
+  key: string,
+  mutate: (current: T | null) => T | Promise<T>,
+  updatedBy?: string | null
+): Promise<T> {
+  return prisma.$transaction(
+    async (tx) => {
+      await tx.$executeRawUnsafe(
+        `SELECT pg_advisory_xact_lock(hashtext($1)::bigint)`,
+        key
+      )
+      const row = await tx.platformSetting.findUnique({ where: { key } })
+      const current = (row?.value ?? null) as T | null
+      const next = await mutate(current)
+      await tx.platformSetting.upsert({
+        where: { key },
+        create: { key, value: next as any, updatedBy: updatedBy ?? null },
+        update: { value: next as any, updatedBy: updatedBy ?? null },
+      })
+      return next
+    },
+    { maxWait: 10_000, timeout: 20_000 }
+  )
+}
