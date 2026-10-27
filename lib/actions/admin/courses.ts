@@ -8,6 +8,11 @@ import { revalidatePath } from "next/cache"
 import { deleteFromS3 } from "@/lib/aws-s3"
 import { canCreateCourse, canEditCourse, canDeleteCourse, isEditorUser } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
+import {
+    courseDraftUpdateSchema,
+    courseInlineUpdateSchema,
+    parseOrThrow,
+} from "@/lib/validation/admin-payloads"
 
 const CourseDraftSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
@@ -94,15 +99,26 @@ export async function createCourseDraft(prevState: any, formData: FormData) {
     }
 }
 
-export async function updateCourseDraft(courseId: string, data: any) {
+export async function updateCourseDraft(courseId: string, rawData: any) {
     const session = await auth()
 
     if (!session || !canEditCourse(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to edit course")
     }
 
+    // A12: allowlisted fields only. Unknown keys are stripped, so a caller can
+    // never mass-assign relations, ids, counters or audit columns.
+    const data: any = parseOrThrow(courseDraftUpdateSchema, rawData ?? {})
+
     if (data.status) {
         data.isPublished = data.status === "PUBLISHED"
+    }
+
+    if (typeof data.prerequisites === "string") {
+        data.prerequisites = data.prerequisites
+            .split(",")
+            .map((s: string) => s.trim())
+            .filter(Boolean)
     }
 
     // Server-side Zod validation and clamping for Authwall gate settings
@@ -152,23 +168,12 @@ export async function updateCourseInline(courseId: string, fields: Record<string
         throw new Error("Unauthorized: Insufficient permissions to edit course")
     }
 
-    const data: Record<string, any> = {}
-    if (fields.title !== undefined) data.title = fields.title.trim()
-    if (fields.description !== undefined) data.description = fields.description
-    if (fields.difficulty !== undefined) data.difficulty = fields.difficulty
-    if (fields.duration !== undefined) data.duration = Number(fields.duration) || 0
-    if (fields.technology !== undefined) data.technology = fields.technology
-    if (fields.isPremium !== undefined) data.isPremium = Boolean(fields.isPremium)
-    if (fields.prerequisites !== undefined) {
-        if (Array.isArray(fields.prerequisites)) {
-            data.prerequisites = fields.prerequisites
-        } else if (typeof fields.prerequisites === "string") {
-            data.prerequisites = fields.prerequisites.split(",").map((s: string) => s.trim()).filter(Boolean)
-        }
+    const data: Record<string, any> = parseOrThrow(courseInlineUpdateSchema, fields ?? {})
+    if (typeof data.prerequisites === "string") {
+        data.prerequisites = data.prerequisites.split(",").map((s: string) => s.trim()).filter(Boolean)
     }
-    if (fields.status !== undefined) {
-        data.status = fields.status
-        data.isPublished = fields.status === "PUBLISHED"
+    if (data.status !== undefined) {
+        data.isPublished = data.status === "PUBLISHED"
     }
 
     const updated = await prisma.course.update({

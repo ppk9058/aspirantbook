@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { requireContentEngineAdmin } from "@/lib/modules/content-engine/auth"
 import { getQuestions } from "@/lib/modules/content-engine/db-service"
 import { prisma } from "@/lib/prisma"
+import { contentEngineQuestionPatchSchema } from "@/lib/validation/admin-payloads"
 
 export async function GET(req: Request) {
   try {
@@ -56,9 +57,22 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Question ID is required" }, { status: 400 })
     }
 
+    // A12: only allowlisted question fields may be written. Unknown keys are
+    // stripped so the body cannot mass-assign ids, hashes or batch relations.
+    const parsed = contentEngineQuestionPatchSchema.safeParse(data)
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: "Invalid question payload",
+          issues: parsed.error.issues.map((i) => ({ path: i.path, message: i.message })),
+        },
+        { status: 400 }
+      )
+    }
+
     const updated = await prisma.contentEngineQuestion.update({
       where: { id },
-      data,
+      data: parsed.data,
     })
 
     return NextResponse.json({ success: true, question: updated })

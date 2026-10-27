@@ -27,7 +27,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (body.expiresAt !== undefined) data.expiresAt = body.expiresAt.trim()
     if (body.hasTrialLesson !== undefined) data.hasTrialLesson = Boolean(body.hasTrialLesson)
     if (body.isPremium !== undefined) data.isPremium = Boolean(body.isPremium)
-    if (body.status !== undefined) data.status = body.status
+    if (body.status !== undefined) {
+      if (body.status !== "DRAFT" && body.status !== "PUBLISHED" && body.status !== "ARCHIVED") {
+        return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+      }
+      data.status = body.status
+    }
     if (body.demoSettings !== undefined) {
       let currentMeta: any = {}
       if (data.metadataJson) {
@@ -36,10 +41,20 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         const existing = await prisma.course.findUnique({ where: { id }, select: { metadataJson: true } })
         try { currentMeta = JSON.parse(existing?.metadataJson || "{}") } catch (e) {}
       }
+      if (!currentMeta || typeof currentMeta !== "object" || Array.isArray(currentMeta)) currentMeta = {}
       currentMeta.demoSettings = body.demoSettings
       data.metadataJson = JSON.stringify(currentMeta)
     } else if (body.metadataJson !== undefined) {
-      data.metadataJson = typeof body.metadataJson === "string" ? body.metadataJson : JSON.stringify(body.metadataJson)
+      const rawMeta = typeof body.metadataJson === "string" ? body.metadataJson : JSON.stringify(body.metadataJson)
+      try {
+        const parsedMeta = JSON.parse(rawMeta)
+        if (!parsedMeta || typeof parsedMeta !== "object" || Array.isArray(parsedMeta)) {
+          return NextResponse.json({ error: "metadataJson must be a JSON object" }, { status: 400 })
+        }
+        data.metadataJson = rawMeta
+      } catch {
+        return NextResponse.json({ error: "metadataJson must be valid JSON" }, { status: 400 })
+      }
     }
 
     const updated = await prisma.course.update({
