@@ -44,6 +44,16 @@ export async function DELETE(req: NextRequest) {
   const reqId = getRequestId(req);
   try {
     const viewer = await getViewer(req);
+    if (!viewer.userId) {
+      return apiError(
+        "UNAUTHORIZED",
+        "Authentication required to unregister a device token",
+        401,
+        undefined,
+        reqId
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
 
@@ -53,7 +63,10 @@ export async function DELETE(req: NextRequest) {
 
     await unregisterDeviceToken(viewer, token);
     return apiSuccess({ success: true, message: "Push token unregistered" }, 200, {}, reqId);
-  } catch (err) {
+  } catch (err: any) {
+    if (err?.message?.startsWith("UNAUTHORIZED:")) {
+      return apiError("UNAUTHORIZED", err.message.replace("UNAUTHORIZED:", "").trim(), 401, undefined, reqId);
+    }
     return handleApiError(err, reqId);
   }
 }

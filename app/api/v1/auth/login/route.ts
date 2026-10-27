@@ -34,6 +34,17 @@ export async function POST(req: NextRequest) {
 
     return apiSuccess(result, 200, {}, reqId);
   } catch (err: any) {
+    // A13: per-account lockout. The message is stable so clients can show a
+    // "try again later" state instead of guessing.
+    if (err?.message?.startsWith("TOO_MANY_REQUESTS:")) {
+      return apiError(
+        "RATE_LIMITED",
+        err.message.replace("TOO_MANY_REQUESTS:", "").trim(),
+        429,
+        { retryAfterSeconds: 900 },
+        reqId
+      );
+    }
     if (err?.message?.startsWith("UNAUTHORIZED:")) {
       return apiError("UNAUTHORIZED", err.message.replace("UNAUTHORIZED:", "").trim(), 401, undefined, reqId);
     }

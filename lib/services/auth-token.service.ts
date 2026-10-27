@@ -9,6 +9,11 @@ import {
 import { invalidateViewerCache } from "@/lib/api/v1/viewer";
 import { logAuditEvent } from "@/lib/api/v1/audit";
 import {
+  checkLoginLockout,
+  clearLoginLockout,
+  recordFailedLoginAttempt,
+} from "@/lib/auth/rate-limiter";
+import {
   LoginRequest,
   RegisterRequest,
   LoginResponseDto,
@@ -17,6 +22,53 @@ import {
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const ACCESS_TOKEN_EXPIRES_IN_SECS = 15 * 60; // 15 minutes
+const BCRYPT_COST = 12; // same cost as the web auth path
+const DEVICE_SESSION_RETENTION_DAYS = 30;
+const EXPIRED_SESSION_GRACE_DAYS = 7;
+
+/**
+ * A13: one uniform failure message for every rejected login (unknown email,
+ * inactive account, wrong password). The caller cannot learn whether an
+ * account exists or is disabled.
+ */
+export const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password";
+export const LOGIN_LOCKED_MESSAGE =
+  "Too many failed login attempts. Please try again later.";
+
+function invalidCredentials(): Error {
+  return new Error(`UNAUTHORIZED: ${INVALID_CREDENTIALS_MESSAGE}`);
+}
+
+/**
+ * A13: retention pruning for device sessions. Rotation updates a row in place,
+ * so the only rows that accumulate are old devices, revoked families and
+ * sessions that already expired. Never touches a live, unexpired session.
+ */
+export async function pruneDeviceSessions(now: Date = new Date()): Promise<number> {
+  const revokedCutoff = new Date(
+    now.getTime() - DEVICE_SESSION_RETENTION_DAYS * 24 * 60 * 60 * 1000
+  );
+  const expiredCutoff = new Date(
+    now.getTime() - EXPIRED_SESSION_GRACE_DAYS * 24 * 60 * 60 * 1000
+  );
+
+  const result = await prisma.deviceSession.deleteMany({
+    where: {
+      OR: [
+        { revokedAt: { not: null, lt: revokedCutoff } },
+        { revokedAt: null, expiresAt: { lt: expiredCutoff } },
+      ],
+    },
+  });
+  return result.count;
+}
+
+/** Fire-and-forget pruning: a failure is logged, never swallowed or fatal. */
+function scheduleDeviceSessionPrune(): void {
+  void pruneDeviceSessions().catch((error) => {
+    console.warn("[auth] device session pruning failed:", error);
+  });
+}
 
 export async function loginWithEmailPassword(
   input: LoginRequest,
@@ -24,6 +76,13 @@ export async function loginWithEmailPassword(
   userAgent?: string | null
 ): Promise<LoginResponseDto> {
   const email = input.email.trim().toLowerCase();
+  const clientIp = ip || "";
+
+  // A13: per-account lockout parity with the web credentials provider.
+  const lockout = await checkLoginLockout(email, clientIp);
+  if (lockout.isLocked) {
+    throw new Error(`TOO_MANY_REQUESTS: ${LOGIN_LOCKED_MESSAGE}`);
+  }
 
   const user = await prisma.user.findUnique({
     where: { email },
@@ -43,17 +102,33 @@ export async function loginWithEmailPassword(
   });
 
   if (!user || !user.password) {
-    throw new Error("UNAUTHORIZED: Invalid email or password");
+    // Count the failure too, so an unknown email is throttled exactly like a
+    // real one (no enumeration through lockout behaviour).
+    const status = await recordFailedLoginAttempt(email, clientIp);
+    if (status.isLocked) {
+      throw new Error(`TOO_MANY_REQUESTS: ${LOGIN_LOCKED_MESSAGE}`);
+    }
+    throw invalidCredentials();
   }
 
-  if (!user.isActive) {
-    throw new Error("FORBIDDEN: Your account has been suspended or deactivated");
-  }
-
+  // Always hash-compare first so an inactive account costs the same as an
+  // active one and cannot be distinguished by timings.
   const isValidPassword = await bcrypt.compare(input.password, user.password);
   if (!isValidPassword) {
-    throw new Error("UNAUTHORIZED: Invalid email or password");
+    const status = await recordFailedLoginAttempt(email, clientIp);
+    if (status.isLocked) {
+      throw new Error(`TOO_MANY_REQUESTS: ${LOGIN_LOCKED_MESSAGE}`);
+    }
+    throw invalidCredentials();
   }
+
+  // Deactivated accounts are refused with the same message as a bad password.
+  if (!user.isActive) {
+    throw invalidCredentials();
+  }
+
+  // Successful login clears the failure counter for this account + IP.
+  await clearLoginLockout(email, clientIp);
 
   // Create session
   const familyId = crypto.randomUUID();
@@ -74,6 +149,8 @@ export async function loginWithEmailPassword(
       expiresAt,
     },
   });
+
+  scheduleDeviceSessionPrune();
 
   const accessToken = await createAccessToken({
     sub: user.id,
@@ -129,7 +206,7 @@ export async function registerUser(
     throw new Error("CONFLICT: An account with this email address already exists");
   }
 
-  const hashedPassword = await bcrypt.hash(input.password, 10);
+  const hashedPassword = await bcrypt.hash(input.password, BCRYPT_COST);
   const familyId = crypto.randomUUID();
   const rawRefreshToken = generateOpaqueRefreshToken();
   const refreshTokenHash = hashRefreshToken(rawRefreshToken);
@@ -204,6 +281,41 @@ export async function registerUser(
   };
 }
 
+async function revokeRefreshFamily(params: {
+  userId: string;
+  familyId: string;
+  sessionId: string;
+  ip?: string | null;
+  details?: Record<string, unknown>;
+}): Promise<void> {
+  await prisma.$transaction([
+    prisma.deviceSession.updateMany({
+      where: { familyId: params.familyId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    }),
+    prisma.user.update({
+      where: { id: params.userId },
+      data: { sessionVersion: { increment: 1 } },
+    }),
+  ]);
+
+  invalidateViewerCache(params.userId);
+
+  await logAuditEvent({
+    actorId: params.userId,
+    action: "SECURITY_REFRESH_TOKEN_REUSE_DETECTED",
+    targetId: params.familyId,
+    ip: params.ip ?? null,
+    details: { compromisedSessionId: params.sessionId, ...(params.details || {}) },
+  });
+}
+
+function refreshReuseError(): Error {
+  return new Error(
+    "UNAUTHORIZED: Token reuse detected. All sessions revoked for your security. Please log in again."
+  );
+}
+
 export async function refreshSession(
   refreshToken: string,
   ip?: string | null,
@@ -232,6 +344,28 @@ export async function refreshSession(
   });
 
   if (!session) {
+    // A13: rotation updates the row in place, so a replay of the immediately
+    // previous token is detected through previousRefreshTokenHash instead of
+    // through a spent sibling row.
+    const previous = await prisma.deviceSession.findFirst({
+      where: { previousRefreshTokenHash: tokenHash, revokedAt: null },
+      select: { id: true, userId: true, familyId: true },
+    });
+
+    if (previous) {
+      console.warn(
+        `[SECURITY ALERT] Refresh token reuse detected for family ${previous.familyId}! Revoking family.`
+      );
+      await revokeRefreshFamily({
+        userId: previous.userId,
+        familyId: previous.familyId,
+        sessionId: previous.id,
+        ip,
+        details: { previousTokenReplay: true },
+      });
+      throw refreshReuseError();
+    }
+
     throw new Error("UNAUTHORIZED: Invalid or expired refresh token");
   }
 
@@ -240,28 +374,14 @@ export async function refreshSession(
   if (session.revokedAt !== null || session.replacedById !== null) {
     console.warn(`[SECURITY ALERT] Refresh token reuse detected for family ${session.familyId}! Revoking family.`);
 
-    await prisma.$transaction([
-      prisma.deviceSession.updateMany({
-        where: { familyId: session.familyId, revokedAt: null },
-        data: { revokedAt: new Date() },
-      }),
-      prisma.user.update({
-        where: { id: session.userId },
-        data: { sessionVersion: { increment: 1 } },
-      }),
-    ]);
-
-    invalidateViewerCache(session.userId);
-
-    await logAuditEvent({
-      actorId: session.userId,
-      action: "SECURITY_REFRESH_TOKEN_REUSE_DETECTED",
-      targetId: session.familyId,
+    await revokeRefreshFamily({
+      userId: session.userId,
+      familyId: session.familyId,
+      sessionId: session.id,
       ip,
-      details: { compromisedSessionId: session.id },
     });
 
-    throw new Error("UNAUTHORIZED: Token reuse detected. All sessions revoked for your security. Please log in again.");
+    throw refreshReuseError();
   }
 
   // Check expiry & user status
@@ -273,81 +393,58 @@ export async function refreshSession(
     throw new Error("FORBIDDEN: Account is suspended or inactive");
   }
 
-  // ROTATION: claim the current token atomically, then create its replacement.
-  // The conditional updateMany is the guard that makes a double spend
-  // impossible: exactly one concurrent refresh can move revokedAt NULL -> now.
+  // ROTATION (A13): the row is updated in place instead of creating a new
+  // DeviceSession per refresh. The conditional updateMany is still the atomic
+  // guard: exactly one concurrent refresh can match the old token hash.
   const newRawRefreshToken = generateOpaqueRefreshToken();
   const newRefreshTokenHash = hashRefreshToken(newRawRefreshToken);
   const newExpiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
 
-  let updatedSession: { id: string };
   try {
-    updatedSession = await prisma.$transaction(async (tx) => {
-      const claim = await tx.deviceSession.updateMany({
-        where: { id: session.id, revokedAt: null, replacedById: null },
-        data: { revokedAt: new Date(), lastUsedAt: new Date() },
-      });
-
-      if (claim.count !== 1) {
-        const race = new Error("REFRESH_REUSE_RACE");
-        (race as any).code = "REFRESH_REUSE_RACE";
-        throw race;
-      }
-
-      const created = await tx.deviceSession.create({
-        data: {
-          userId: session.userId,
-          refreshTokenHash: newRefreshTokenHash,
-          familyId: session.familyId,
-          deviceName: session.deviceName,
-          platform: session.platform,
-          appVersion: session.appVersion,
-          ip: ip || session.ip,
-          userAgent: userAgent || session.userAgent,
-          expiresAt: newExpiresAt,
-        },
-      });
-
-      await tx.deviceSession.update({
-        where: { id: session.id },
-        data: { replacedById: created.id },
-      });
-
-      return created;
+    const claim = await prisma.deviceSession.updateMany({
+      where: {
+        id: session.id,
+        refreshTokenHash: tokenHash,
+        revokedAt: null,
+        replacedById: null,
+      },
+      data: {
+        refreshTokenHash: newRefreshTokenHash,
+        previousRefreshTokenHash: tokenHash,
+        lastUsedAt: new Date(),
+        expiresAt: newExpiresAt,
+        ip: ip || session.ip,
+        userAgent: userAgent || session.userAgent,
+      },
     });
+
+    if (claim.count !== 1) {
+      const race = new Error("REFRESH_REUSE_RACE");
+      (race as any).code = "REFRESH_REUSE_RACE";
+      throw race;
+    }
   } catch (err: any) {
     if (err?.code === "REFRESH_REUSE_RACE" || err?.message === "REFRESH_REUSE_RACE") {
       // A concurrent caller already spent this token. Treat it exactly like
       // reuse: revoke the whole family so a stolen token cannot be replayed.
       console.warn(`[SECURITY ALERT] Concurrent refresh reuse detected for family ${session.familyId}! Revoking family.`);
 
-      await prisma.$transaction([
-        prisma.deviceSession.updateMany({
-          where: { familyId: session.familyId, revokedAt: null },
-          data: { revokedAt: new Date() },
-        }),
-        prisma.user.update({
-          where: { id: session.userId },
-          data: { sessionVersion: { increment: 1 } },
-        }),
-      ]);
-
-      invalidateViewerCache(session.userId);
-
-      await logAuditEvent({
-        actorId: session.userId,
-        action: "SECURITY_REFRESH_TOKEN_REUSE_DETECTED",
-        targetId: session.familyId,
+      await revokeRefreshFamily({
+        userId: session.userId,
+        familyId: session.familyId,
+        sessionId: session.id,
         ip,
-        details: { compromisedSessionId: session.id, concurrent: true },
+        details: { concurrent: true },
       });
 
-      throw new Error("UNAUTHORIZED: Token reuse detected. All sessions revoked for your security. Please log in again.");
+      throw refreshReuseError();
     }
     throw err;
   }
 
-  invalidateViewerCache(session.id);
+  scheduleDeviceSessionPrune();
+
+  invalidateViewerCache(session.userId);
 
   const accessToken = await createAccessToken({
     sub: session.user.id,
@@ -355,7 +452,7 @@ export async function refreshSession(
     role: session.user.role,
     sessionVersion: session.user.sessionVersion,
     familyId: session.familyId,
-    sessionId: updatedSession.id,
+    sessionId: session.id,
   });
 
   return {

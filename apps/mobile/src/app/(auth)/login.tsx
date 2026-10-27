@@ -13,6 +13,7 @@ import { Mail, Lock, Phone, Eye, EyeOff, Sparkles, ArrowRight, AlertCircle, KeyR
 import { Button } from "../../components/primitives/Button";
 import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
+import { loginErrorMessage } from "../../lib/auth-errors";
 import { Storage } from "../../lib/storage";
 import { registerForPushNotificationsAsync, setLastPushRegistrationError } from "../../lib/push";
 
@@ -72,9 +73,7 @@ export default function LoginScreen() {
       });
 
       if (!res.ok || !res.data) {
-        setErrorMessage(
-          res.error?.message || "Invalid email or password. Please try again."
-        );
+        setErrorMessage(loginErrorMessage(res.error));
         return;
       }
 

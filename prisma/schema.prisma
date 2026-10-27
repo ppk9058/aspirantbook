@@ -1545,6 +1545,10 @@ model DeviceSession {
   id               String    @id @default(cuid())
   userId           String
   refreshTokenHash String    @unique
+  /// A13: the refresh token hash this row rotated away from. Lets the server
+  /// detect a replay of the immediately-previous token without storing a new
+  /// DeviceSession row on every refresh.
+  previousRefreshTokenHash String?
   familyId         String
   deviceName       String?
   platform         String // "android" | "ios" | "web"
@@ -1561,6 +1565,7 @@ model DeviceSession {
   @@index([userId])
   @@index([familyId])
   @@index([expiresAt])
+  @@index([previousRefreshTokenHash])
 }
 
 // ---------------------------------------------------------------------------

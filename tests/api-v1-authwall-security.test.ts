@@ -517,7 +517,7 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
 
   // ─── 5. Security Edge Cases: Deactivated User & Token Revocation ──────────
 
-  it("Deactivated user is rejected from login with UNAUTHORIZED message", async () => {
+  it("Deactivated user is rejected with the uniform invalid-credentials message", async () => {
     await assert.rejects(
       async () => {
         await loginWithEmailPassword({
@@ -526,7 +526,7 @@ describe("API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security", () => 
           platform: "android",
         });
       },
-      { message: /FORBIDDEN: Your account has been suspended or deactivated/ }
+      { message: /UNAUTHORIZED: Invalid email or password/ }
     );
   });
 

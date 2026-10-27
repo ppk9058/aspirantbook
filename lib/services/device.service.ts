@@ -34,12 +34,15 @@ export async function unregisterDeviceToken(
   viewer: Viewer,
   token: string
 ): Promise<boolean> {
-  await prisma.devicePushToken.deleteMany({
-    where: {
-      token,
-      ...(viewer.userId ? { userId: viewer.userId } : {}),
-    },
+  // A13: a token may only be removed by the account that owns it. A guest can
+  // never delete anybody's push registration.
+  if (!viewer.userId) {
+    throw new Error("UNAUTHORIZED: Authentication required to unregister a device token");
+  }
+
+  const result = await prisma.devicePushToken.deleteMany({
+    where: { token, userId: viewer.userId },
   });
 
-  return true;
+  return result.count > 0;
 }
