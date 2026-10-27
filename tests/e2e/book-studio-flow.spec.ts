@@ -5,6 +5,8 @@ dotenv.config()
 
 import { test, expect } from "@playwright/test"
 import crypto from "crypto"
+import fs from "node:fs/promises"
+import path from "node:path"
 import {
   prisma,
   newNonce,
@@ -14,6 +16,28 @@ import {
 
 const TEST_SECRET = process.env.RAZORPAY_KEY_SECRET || ""
 const HAS_TEST_SECRET = TEST_SECRET.length > 0
+
+/**
+ * A5 stopped the download route from fabricating a stub PDF for a book without
+ * a real file, which is correct: it now 404s instead of serving invented
+ * content. These tests therefore need a genuine PDF fixture on disk. A minimal
+ * but real PDF is written for the run and every catalogue book without a file
+ * points at it, so the download assertions exercise the real streaming path.
+ */
+const E2E_PDF_KEY = "uploads/books/e2e-book-studio-fixture.pdf"
+const E2E_PDF_PATH = path.join(process.cwd(), "public", E2E_PDF_KEY)
+const E2E_PDF_BYTES = Buffer.from(
+  [
+    "%PDF-1.4",
+    "1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj",
+    "2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj",
+    "3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]>>endobj",
+    "trailer<</Root 1 0 R>>",
+    "%%EOF",
+    "",
+  ].join("\n"),
+  "utf-8"
+)
 
 function generateTestHmacSignature(orderId: string, paymentId: string) {
   return crypto
@@ -28,6 +52,7 @@ test.describe("Book Studio Flow & Payment Security E2E", () => {
   let teacherUser: any
   let studentUser: any
   let otherStudentUser: any
+  let fixtureBookIds: string[] = []
 
   test.beforeAll(async () => {
     nonce = newNonce()
@@ -35,9 +60,33 @@ test.describe("Book Studio Flow & Payment Security E2E", () => {
     teacherUser = await createActor(nonce, "TEACHER", "teacher")
     studentUser = await createActor(nonce, "FREE", "student")
     otherStudentUser = await createActor(nonce, "FREE", "other")
+
+    await fs.mkdir(path.dirname(E2E_PDF_PATH), { recursive: true })
+    await fs.writeFile(E2E_PDF_PATH, E2E_PDF_BYTES)
+    const rows = await prisma.$queryRawUnsafe<{ id: string }[]>(
+      `SELECT id FROM "Book" WHERE coalesce(data->>'fullPdfUrl', '') = ''`
+    )
+    if (rows.length > 0) {
+      fixtureBookIds = rows.map((row) => row.id)
+      await prisma.$executeRawUnsafe(
+        `UPDATE "Book" SET data = data || jsonb_build_object('fullPdfUrl', $1::text)
+         WHERE id = ANY($2::text[])`,
+        E2E_PDF_KEY,
+        fixtureBookIds
+      )
+    }
   })
 
   test.afterAll(async () => {
+    if (fixtureBookIds.length > 0) {
+      await prisma
+        .$executeRawUnsafe(
+          `UPDATE "Book" SET data = data - 'fullPdfUrl' WHERE id = ANY($1::text[])`,
+          fixtureBookIds
+        )
+        .catch(() => {})
+    }
+    await fs.unlink(E2E_PDF_PATH).catch(() => {})
     const ids = [adminUser?.id, teacherUser?.id, studentUser?.id, otherStudentUser?.id].filter(Boolean)
     if (ids.length > 0) {
       await prisma.user.deleteMany({ where: { id: { in: ids } } }).catch(() => {})
