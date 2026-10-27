@@ -2,6 +2,7 @@ import { MetadataRoute } from "next"
 import { prisma } from "@/lib/prisma"
 import { getAllBooks } from "@/lib/books/bookService"
 import { getBaseUrl } from "@/lib/seo/core"
+import { isListedInTutorialsSitemap } from "@/lib/courses/format"
 
 export const revalidate = 3600 // 1 hour
 
@@ -144,10 +145,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }))
 
     const tutorialUrls: MetadataRoute.Sitemap = publishedCourses
-        .filter((c) => {
-            const lowerSlug = (c.slug || "").toLowerCase()
-            return !lowerSlug.includes("video") && c.slug !== "72nd-bpsc-prelims-current-affairs"
-        })
+        .filter((c) => isListedInTutorialsSitemap(c))
         .map((c) => ({
             url: `${baseUrl}/tutorials/${c.slug}`,
             lastModified: c.updatedAt || new Date(),

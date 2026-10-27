@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma"
 import { Edit, Eye, AlertCircle, Video, BookOpen, ArrowRight, Plus } from "lucide-react"
 import { cleanDescriptionSnippet, formatDate } from "@/lib/utils"
 import { auth } from "@/auth"
+import { isVideoCourseForStudio } from "@/lib/courses/format"
 
 export const dynamic = "force-dynamic"
 
@@ -36,12 +37,8 @@ export default async function CoursesPage() {
         dbError = err.message || "Can't reach database server"
     }
 
-    // Video Courses: courses with price, video lessons, or 72nd BPSC
-    const videoCourses = courses.filter((c) => {
-        if (c.slug === "72nd-bpsc-prelims-current-affairs") return true
-        if (c.price && c.price > 0) return true
-        return c.chapters?.some((ch: any) => ch.lessons.some((l: any) => l.videoUrl || l.type === "VIDEO"))
-    })
+    // Video Courses: classification lives in lib/courses/format.ts (single source).
+    const videoCourses = courses.filter((c) => isVideoCourseForStudio(c))
 
     // If none matched, show all so teacher isn't left empty
     const displayCourses = videoCourses.length > 0 ? videoCourses : courses

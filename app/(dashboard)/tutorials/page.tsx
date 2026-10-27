@@ -104,6 +104,7 @@ const FALLBACK_TUTORIALS: TutorialItem[] = [
 import { cookies } from "next/headers"
 import { getStudentGoals } from "@/lib/goals/student-goals"
 import { doesCategoryMatchAnyGoal } from "@/lib/goals/goal-filters"
+import { isTextTutorialForCatalog } from "@/lib/courses/format"
 
 async function fetchTutorials(isStaff: boolean, sortedGoalsStr: string): Promise<TutorialItem[]> {
     const goalIds = sortedGoalsStr ? sortedGoalsStr.split(",").filter(Boolean) : []
@@ -125,20 +126,13 @@ async function fetchTutorials(isStaff: boolean, sortedGoalsStr: string): Promise
         },
     })
 
-    // Strictly include ONLY text-based tutorials created in Tutorial Studio
+    // Strictly include ONLY text-based tutorials. Classification lives in lib/courses/format.ts.
     // Video courses belong exclusively to the Courses menu
     const textTutorials = dbCourses.filter((c) => {
-        if (c.slug === "72nd-bpsc-prelims-current-affairs") return false
-        const lowerTitle = (c.title || "").toLowerCase()
-        const lowerSlug = (c.slug || "").toLowerCase()
-        if (lowerTitle.includes("video course") || lowerTitle.includes("video tutorial") || lowerSlug.includes("video")) {
-            return false
-        }
-        const allLessons = c.chapters?.flatMap((ch: any) => ch.lessons || []) || []
-        const hasVideoLessons = allLessons.some((l: any) => Boolean(l.videoUrl) || l.type === "VIDEO")
-        if (hasVideoLessons) return false
+        if (!isTextTutorialForCatalog(c)) return false
 
         // Hide tutorials with 0 lessons from student listings (still visible to teacher/admin and Studio)
+        const allLessons = c.chapters?.flatMap((ch) => ch.lessons || []) || []
         if (!isStaff && allLessons.length === 0) {
             return false
         }

@@ -1,0 +1,1687 @@
+TAP version 13
+# Subtest: A7 privileged server-action guard
+    # Subtest: anonymous is rejected
+    ok 1 - anonymous is rejected
+      ---
+      duration_ms: 5.530625
+      type: 'test'
+      ...
+    # Subtest: STUDENT is rejected
+    ok 2 - STUDENT is rejected
+      ---
+      duration_ms: 7.848209
+      type: 'test'
+      ...
+    # Subtest: TEACHER is rejected for admin-only actions
+    ok 3 - TEACHER is rejected for admin-only actions
+      ---
+      duration_ms: 0.499083
+      type: 'test'
+      ...
+    # Subtest: ADMIN passes
+    ok 4 - ADMIN passes
+      ---
+      duration_ms: 0.536833
+      type: 'test'
+      ...
+    1..4
+ok 1 - A7 privileged server-action guard
+  ---
+  duration_ms: 16.468625
+  type: 'suite'
+  ...
+# Subtest: A7 tracks mutations fail closed without an admin session
+    # Subtest: createTrack is rejected outside an authenticated admin request
+    ok 1 - createTrack is rejected outside an authenticated admin request
+      ---
+      duration_ms: 1767.5635
+      type: 'test'
+      ...
+    1..1
+ok 2 - A7 tracks mutations fail closed without an admin session
+  ---
+  duration_ms: 1768.03575
+  type: 'suite'
+  ...
+# Subtest: A12 course draft allowlist
+    # Subtest: strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+    ok 1 - strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+      ---
+      duration_ms: 18.217416
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status and an out-of-range preview
+    ok 2 - rejects an invalid status and an out-of-range preview
+      ---
+      duration_ms: 7.2275
+      type: 'test'
+      ...
+    # Subtest: accepts every field the course editor actually sends
+    ok 3 - accepts every field the course editor actually sends
+      ---
+      duration_ms: 9.07475
+      type: 'test'
+      ...
+    # Subtest: inline updates use the same allowlist
+    ok 4 - inline updates use the same allowlist
+      ---
+      duration_ms: 0.410625
+      type: 'test'
+      ...
+    # Subtest: parseOrThrow reports the offending field
+    ok 5 - parseOrThrow reports the offending field
+      ---
+      duration_ms: 1.074042
+      type: 'test'
+      ...
+    1..5
+ok 3 - A12 course draft allowlist
+  ---
+  duration_ms: 39.720917
+  type: 'suite'
+  ...
+# Subtest: A12 content-engine question PATCH allowlist
+    # Subtest: strips ids, hashes and relations
+    ok 1 - strips ids, hashes and relations
+      ---
+      duration_ms: 0.439833
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status
+    ok 2 - rejects an invalid status
+      ---
+      duration_ms: 0.639833
+      type: 'test'
+      ...
+    1..2
+ok 4 - A12 content-engine question PATCH allowlist
+  ---
+  duration_ms: 1.910375
+  type: 'suite'
+  ...
+# Subtest: A10 CSV formula injection
+    # Subtest: prefixes cells that a spreadsheet would execute
+    ok 1 - prefixes cells that a spreadsheet would execute
+      ---
+      duration_ms: 25.935375
+      type: 'test'
+      ...
+    # Subtest: leaves normal cells unchanged and escapes quotes
+    ok 2 - leaves normal cells unchanged and escapes quotes
+      ---
+      duration_ms: 0.342292
+      type: 'test'
+      ...
+    1..2
+ok 5 - A10 CSV formula injection
+  ---
+  duration_ms: 28.161125
+  type: 'suite'
+  ...
+# Subtest: A10 admin password policy
+    # Subtest: rejects the old 6-character minimum
+    ok 1 - rejects the old 6-character minimum
+      ---
+      duration_ms: 0.260334
+      type: 'test'
+      ...
+    # Subtest: accepts a strong password
+    ok 2 - accepts a strong password
+      ---
+      duration_ms: 0.147625
+      type: 'test'
+      ...
+    1..2
+ok 6 - A10 admin password policy
+  ---
+  duration_ms: 0.638416
+  type: 'suite'
+  ...
+# Subtest: A5 book storage key policy
+    # Subtest: rejects traversal, absolute paths and remote URLs
+    ok 1 - rejects traversal, absolute paths and remote URLs
+      ---
+      duration_ms: 1.344583
+      type: 'test'
+      ...
+    # Subtest: accepts storage keys and legacy public paths
+    ok 2 - accepts storage keys and legacy public paths
+      ---
+      duration_ms: 0.5315
+      type: 'test'
+      ...
+    # Subtest: resolves a real key inside the configured root
+    ok 3 - resolves a real key inside the configured root
+      ---
+      duration_ms: 5.789291
+      type: 'test'
+      ...
+    # Subtest: rejects a symlink that escapes the root
+    ok 4 - rejects a symlink that escapes the root
+      ---
+      duration_ms: 3.436708
+      type: 'test'
+      ...
+    # Subtest: a missing file is a 404, never a fabricated PDF
+    ok 5 - a missing file is a 404, never a fabricated PDF
+      ---
+      duration_ms: 1.207
+      type: 'test'
+      ...
+    # Subtest: traversal input to readBookFile is rejected before touching disk
+    ok 6 - traversal input to readBookFile is rejected before touching disk
+      ---
+      duration_ms: 0.377084
+      type: 'test'
+      ...
+    1..6
+ok 7 - A5 book storage key policy
+  ---
+  duration_ms: 113.368167
+  type: 'suite'
+  ...
+# Subtest: A5/A12 book update allowlist
+    # Subtest: strips unknown fields such as createdBy
+    ok 1 - strips unknown fields such as createdBy
+      ---
+      duration_ms: 3.028708
+      type: 'test'
+      ...
+    # Subtest: rejects a traversal fullPdfUrl
+    ok 2 - rejects a traversal fullPdfUrl
+      ---
+      duration_ms: 1.400375
+      type: 'test'
+      ...
+    # Subtest: rejects an absolute fullPdfUrl
+    ok 3 - rejects an absolute fullPdfUrl
+      ---
+      duration_ms: 2.042625
+      type: 'test'
+      ...
+    1..3
+ok 8 - A5/A12 book update allowlist
+  ---
+  duration_ms: 7.392083
+  type: 'suite'
+  ...
+# Subtest: B-005: books/orders/coupons persist in Postgres
+    # Subtest: a coupon with usageLimit 3 accepts exactly 3 of 10 parallel redemptions
+    ok 1 - a coupon with usageLimit 3 accepts exactly 3 of 10 parallel redemptions
+      ---
+      duration_ms: 216.5775
+      type: 'test'
+      ...
+    # Subtest: fulfilling the same payment twice has exactly one order effect
+    ok 2 - fulfilling the same payment twice has exactly one order effect
+      ---
+      duration_ms: 180.766042
+      type: 'test'
+      ...
+    # Subtest: running the backfill twice creates no duplicates
+    ok 3 - running the backfill twice creates no duplicates
+      ---
+      duration_ms: 7099.737459
+      type: 'test'
+      ...
+    # Subtest: does not write any data/*.json file
+    ok 4 - does not write any data/*.json file
+      ---
+      duration_ms: 47.76725
+      type: 'test'
+      ...
+    1..4
+ok 9 - B-005: books/orders/coupons persist in Postgres
+  ---
+  duration_ms: 7591.868667
+  type: 'suite'
+  ...
+# Subtest: Cache tags are declared and invalidated (B-015, B-019)
+    # Subtest: finds the unstable_cache reads it is meant to guard
+    ok 1 - finds the unstable_cache reads it is meant to guard
+      ---
+      duration_ms: 1.334459
+      type: 'test'
+      ...
+    # Subtest: uses only registered cache tags
+    ok 2 - uses only registered cache tags
+      ---
+      duration_ms: 1.633208
+      type: 'test'
+      ...
+    # Subtest: invalidates every cached tag from at least one mutation path
+    ok 3 - invalidates every cached tag from at least one mutation path
+      ---
+      duration_ms: 195.73925
+      type: 'test'
+      ...
+    # Subtest: keeps batches on the shared tagged cache instead of a module-level TTL cache
+    not ok 4 - keeps batches on the shared tagged cache instead of a module-level TTL cache
+      ---
+      duration_ms: 6.52075
+      type: 'test'
+      location: '/Users/praveenkumar/TrillionSkill/tests/unit/cache-tag-coverage.test.ts:2:3817'
+      failureType: 'testCodeFailure'
+      error: 'writes must invalidate the tag'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual: |-
+        import { unstable_cache } from "next/cache";
+        import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags";
+        import { getPlatformSetting, setPlatformSetting, PLATFORM_SETTING_KEYS } from "@/lib/platform-settings";
+        
+        export interface BatchTier {
+          id: string;
+          name: string;
+          price: string;
+          originalPrice?: string;
+          isPopular?: boolean;
+          features: string[];
+        }
+        
+        export interface BatchFeature {
+          title: string;
+          description: string;
+          icon?: string;
+        }
+        
+        export interface BatchScheduleItem {
+          day: string;
+          subjects: string;
+          time: string;
+          type: string;
+        }
+        
+        export interface BatchTeacher {
+          name: string;
+          role: string;
+          subject: string;
+          experience: string;
+          qualification: string;
+          avatar: string;
+          bio?: string;
+        }
+        
+        export interface BatchDemoVideo {
+          title: string;
+          subject: string;
+          duration: string;
+          teacher: string;
+          thumbnail: string;
+          videoUrl?: string;
+        }
+        
+        export interface BatchFAQ {
+          question: string;
+          answer: string;
+        }
+        
+        export interface BatchMoreDetail {
+          title: string;
+          description: string;
+        }
+        
+        export interface Batch {
+          id: string;
+          slug: string;
+          title: string;
+          classTag: string; // e.g. "Class 6", "Class 10", "Skills"
+          category: string; // e.g. "school-prep", "skills", "upsc", "bpsc"
+          language: string; // e.g. "HINGLISH", "ENGLISH", "HINDI"
+          targetText: string;
+          scheduleText: string;
+          startDate: string;
+          endDate: string;
+          durationText: string;
+          validityText: string;
+          price: string;
+          originalPrice: string;
+          discount: string;
+          image: string;
+          badge: string;
+          buttonText?: string;
+          buttonLink?: string;
+          isPrimaryAction?: boolean;
+          tiers: BatchTier[];
+          aboutHighlights: string[];
+          aboutDetails: string[];
+          features: BatchFeature[];
+          subjects: string[];
+          weeklySchedule: BatchScheduleItem[];
+          // Legacy optional aliases that still appear in data/batches.json (B-027).
+          schedule?: BatchScheduleItem[];
+          coverImage?: string | null;
+          metadataJson?: string | null;
+          teachers: BatchTeacher[];
+          demoVideos: BatchDemoVideo[];
+          faqs: BatchFAQ[];
+          moreDetails?: BatchMoreDetail[];
+          createdAt?: string;
+          updatedAt?: string;
+        }
+        
+        export const BATCHES_CACHE_TAG = CACHE_TAGS.batches;
+        
+        /**
+         * B-019: batches used to sit in a module-level 60s cache, so every serverless
+         * instance served its own copy and a write was invisible to the others until
+         * their TTL expired. Reads now go through Next's tagged data cache and every
+         * mutation invalidates the tag, so all instances agree.
+         */
+        async function readBatchesFileUncached(): Promise<Batch[]> {
+          try {
+            const stored = await getPlatformSetting<Batch[]>(PLATFORM_SETTING_KEYS.batches);
+            return Array.isArray(stored) ? stored : [];
+          } catch (err) {
+            console.error("Error reading batches from the database:", err);
+            return [];
+          }
+        }
+        
+        const readBatchesCached = unstable_cache(readBatchesFileUncached, ["batches-json"], {
+          tags: [BATCHES_CACHE_TAG],
+          revalidate: 300,
+        });
+        
+        let warnedAboutMissingCache = false;
+        
+        async function readBatchesFile(): Promise<Batch[]> {
+          try {
+            return await readBatchesCached();
+          } catch (error) {
+            // unstable_cache needs a Next request scope. Scripts, CLIs and unit tests
+            // have no incremental cache, so read straight from the database instead of
+            // crashing (the tag is simply not cached there).
+            if (!warnedAboutMissingCache) {
+              warnedAboutMissingCache = true;
+              console.warn(
+                "[batches-service] Next data cache unavailable outside a request scope; reading uncached:",
+                error instanceof Error ? error.message : error
+              );
+            }
+            return readBatchesFileUncached();
+          }
+        }
+        
+        async function writeBatchesFile(batches: Batch[]): Promise<void> {
+          await setPlatformSetting(PLATFORM_SETTING_KEYS.batches, batches);
+          safeRevalidateTags(CACHE_TAGS.batches);
+        }
+        
+        export async function getAllBatches(): Promise<Batch[]> {
+          return await readBatchesFile();
+        }
+        
+        export async function getBatchesByClass(classTag: string): Promise<Batch[]> {
+          const batches = await readBatchesFile();
+          if (!classTag || classTag.toLowerCase() === "all") {
+            return batches;
+          }
+          return batches.filter(
+            (b) => b.classTag.toLowerCase() === classTag.toLowerCase()
+          );
+        }
+        
+        export async function getBatchBySlug(slug: string): Promise<Batch | null> {
+          const batches = await readBatchesFile();
+          const normalized = slug.trim().toLowerCase();
+          return (
+            batches.find(
+              (b) => b.slug.toLowerCase() === normalized || b.id.toLowerCase() === normalized
+            ) || null
+          );
+        }
+        
+        export async function getBatchById(id: string): Promise<Batch | null> {
+          const batches = await readBatchesFile();
+          return batches.find((b) => b.id === id) || null;
+        }
+        
+        export async function createBatch(data: Partial<Batch>): Promise<Batch> {
+          const batches = await readBatchesFile();
+          const slug =
+            data.slug ||
+            (data.title
+              ? data.title
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, "-")
+                  .replace(/(^-|-$)/g, "")
+              : `batch-${Date.now()}`);
+        
+          const newBatch: Batch = {
+            id: data.id || slug || `batch-${Date.now()}`,
+            slug,
+            title: data.title || "Untitled Batch",
+            classTag: data.classTag || "Class 6",
+            category: data.category || "school-prep",
+            language: data.language || "HINGLISH",
+            targetText: data.targetText || `Targeted for students of ${data.classTag || "School"}`,
+            scheduleText: data.scheduleText || "Starts soon",
+            startDate: data.startDate || "Upcoming",
+            endDate: data.endDate || "Ongoing",
+            durationText: data.durationText || "Full Academic Year",
+            validityText: data.validityText || "Until Exam Completion",
+            price: data.price || "₹2,999",
+            originalPrice: data.originalPrice || "₹4,999",
+            discount: data.discount || "40% OFF",
+            image: data.image || "/batch-green.svg",
+            badge: data.badge || "ONLINE",
+            buttonText: data.buttonText || "Buy Now",
+            buttonLink: data.buttonLink || `/batches/${slug}`,
+            isPrimaryAction: data.isPrimaryAction ?? true,
+            tiers: data.tiers || [
+              {
+                id: "tier-regular",
+                name: "Regular",
+                price: data.price || "₹2,999",
+                features: [
+                  "Live lectures with interactive doubts",
+                  "Daily Practice Problems (DPP) with solutions",
+                  "Comprehensive class notes (PDF)",
+                  "Regular tests & performance analytics"
+                ],
+              },
+            ],
+            aboutHighlights: data.aboutHighlights || [
+              `Target: Students of ${data.classTag || "School"}`,
+              "Full syllabus coverage for Board & Foundation exams",
+              "Live interactive classes with instant doubts resolution",
+            ],
+            aboutDetails: data.aboutDetails || [
+              "This course is meticulously designed by master educators to provide complete conceptual clarity and academic mastery.",
+            ],
+            features: data.features || [
+              {
+                title: "Live & Interactive Lectures",
+                description: "Engaging classes taught by top national educators with high-retention audio-visual aids.",
+              },
+              {
+                title: "Daily Practice Papers (DPPs)",
+                description: "Curated problem sets after every lecture with detailed step-by-step video solutions.",
+              },
+            ],
+            subjects: data.subjects || ["Mathematics", "Science", "Social Science", "English"],
+            weeklySchedule: data.weeklySchedule || [
+              { day: "Monday to Saturday", subjects: "Core Subjects", time: "04:30 PM - 07:30 PM", type: "Live Lectures" },
+            ],
+            teachers: data.teachers || [],
+            demoVideos: data.demoVideos || [],
+            faqs: data.faqs || [
+              {
+                question: "When will the batch start and end?",
+                answer: "The batch schedule begins on the start date listed and recordings remain accessible until the validity date.",
+              },
+              {
+                question: "Can I watch the lectures after they are streamed live?",
+                answer: "Yes! All live sessions are immediately recorded and made available 24/7 in high definition with speed controls.",
+              },
+            ],
+            moreDetails: data.moreDetails || [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+        
+          batches.unshift(newBatch);
+          await writeBatchesFile(batches);
+          return newBatch;
+        }
+        
+        export async function updateBatch(
+          id: string,
+          data: Partial<Batch>
+        ): Promise<Batch | null> {
+          const batches = await readBatchesFile();
+          const index = batches.findIndex((b) => b.id === id || b.slug === id);
+          if (index === -1) return null;
+        
+          const existing = batches[index];
+          const updated: Batch = {
+            ...existing,
+            ...data,
+            id: existing.id, // Preserve immutable ID
+            updatedAt: new Date().toISOString(),
+          };
+        
+          batches[index] = updated;
+          await writeBatchesFile(batches);
+          return updated;
+        }
+        
+        export async function deleteBatch(id: string): Promise<boolean> {
+          const batches = await readBatchesFile();
+          const index = batches.findIndex((b) => b.id === id || b.slug === id);
+          if (index === -1) return false;
+        
+          batches.splice(index, 1);
+          await writeBatchesFile(batches);
+          return true;
+        }
+        
+      operator: 'match'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/unit/cache-tag-coverage.test.ts:95:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..4
+not ok 10 - Cache tags are declared and invalidated (B-015, B-019)
+  ---
+  duration_ms: 209.054708
+  type: 'suite'
+  location: '/Users/praveenkumar/TrillionSkill/tests/unit/cache-tag-coverage.test.ts:2:2908'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: A8 course ownership
+    # Subtest: admin can manage every course
+    ok 1 - admin can manage every course
+      ---
+      duration_ms: 2.033
+      type: 'test'
+      ...
+    # Subtest: a teacher can only manage their own course
+    ok 2 - a teacher can only manage their own course
+      ---
+      duration_ms: 0.164416
+      type: 'test'
+      ...
+    # Subtest: legacy courses without a creator are admin-only for real teachers
+    ok 3 - legacy courses without a creator are admin-only for real teachers
+      ---
+      duration_ms: 0.228125
+      type: 'test'
+      ...
+    # Subtest: students and anonymous callers are always denied
+    ok 4 - students and anonymous callers are always denied
+      ---
+      duration_ms: 0.111958
+      type: 'test'
+      ...
+    # Subtest: missing course or missing user id fails closed
+    ok 5 - missing course or missing user id fails closed
+      ---
+      duration_ms: 0.089791
+      type: 'test'
+      ...
+    # Subtest: assertCanManageCourse distinguishes 401 from 403
+    ok 6 - assertCanManageCourse distinguishes 401 from 403
+      ---
+      duration_ms: 0.52575
+      type: 'test'
+      ...
+    # Subtest: courses with enrollments are archived, never deleted
+    ok 7 - courses with enrollments are archived, never deleted
+      ---
+      duration_ms: 0.226083
+      type: 'test'
+      ...
+    # Subtest: demo identities are never persisted as a creator
+    ok 8 - demo identities are never persisted as a creator
+      ---
+      duration_ms: 0.269959
+      type: 'test'
+      ...
+    1..8
+ok 11 - A8 course ownership
+  ---
+  duration_ms: 5.061708
+  type: 'suite'
+  ...
+# Subtest: Demo chat rate limit is shared, not process-local (B-018)
+    # Subtest: does not keep an in-memory rate limit map in the demo chat route
+    ok 1 - does not keep an in-memory rate limit map in the demo chat route
+      ---
+      duration_ms: 11.896709
+      type: 'test'
+      ...
+    # Subtest: counts requests in Postgres and rejects the second message inside the window
+    ok 2 - counts requests in Postgres and rejects the second message inside the window
+      ---
+      duration_ms: 141.105875
+      type: 'test'
+      ...
+    # Subtest: keeps limits per user
+    ok 3 - keeps limits per user
+      ---
+      duration_ms: 24.307
+      type: 'test'
+      ...
+    1..3
+ok 12 - Demo chat rate limit is shared, not process-local (B-018)
+  ---
+  duration_ms: 298.39075
+  type: 'suite'
+  ...
+# Subtest: A1 demo-role policy
+    # Subtest: production build always ignores ts_demo_role, even in the test env
+    ok 1 - production build always ignores ts_demo_role, even in the test env
+      ---
+      duration_ms: 1.963959
+      type: 'test'
+      ...
+    # Subtest: test environment enables the demo role
+    ok 2 - test environment enables the demo role
+      ---
+      duration_ms: 0.512958
+      type: 'test'
+      ...
+    # Subtest: explicit demo flag enables the demo role outside test
+    ok 3 - explicit demo flag enables the demo role outside test
+      ---
+      duration_ms: 0.642625
+      type: 'test'
+      ...
+    # Subtest: fails closed when nothing explicitly enables demo mode
+    ok 4 - fails closed when nothing explicitly enables demo mode
+      ---
+      duration_ms: 0.659834
+      type: 'test'
+      ...
+    # Subtest: rejects an unknown role value
+    ok 5 - rejects an unknown role value
+      ---
+      duration_ms: 0.404125
+      type: 'test'
+      ...
+    1..5
+ok 13 - A1 demo-role policy
+  ---
+  duration_ms: 6.425541
+  type: 'suite'
+  ...
+# Subtest: A1 /api/auth/role is inert in production
+    # Subtest: POST returns 404 in production and never sets a cookie
+    ok 1 - POST returns 404 in production and never sets a cookie
+      ---
+      duration_ms: 323.208
+      type: 'test'
+      ...
+    # Subtest: GET returns 404 in production
+    ok 2 - GET returns 404 in production
+      ---
+      duration_ms: 3.724208
+      type: 'test'
+      ...
+    1..2
+ok 14 - A1 /api/auth/role is inert in production
+  ---
+  duration_ms: 328.069833
+  type: 'suite'
+  ...
+# Razorpay credentials not configured
+# RAZORPAY_KEY_SECRET is not configured; cannot verify payment signature
+# Subtest: S3 configuration guards (B-013)
+    # Subtest: getS3Url throws an explicit error instead of building an 'undefined' URL
+    ok 1 - getS3Url throws an explicit error instead of building an 'undefined' URL
+      ---
+      duration_ms: 16.298666
+      type: 'test'
+      ...
+    # Subtest: generatePresignedUrl rejects with the explicit configuration error
+    ok 2 - generatePresignedUrl rejects with the explicit configuration error
+      ---
+      duration_ms: 4.512042
+      type: 'test'
+      ...
+    # Subtest: deleteFromS3 rejects with the explicit configuration error
+    ok 3 - deleteFromS3 rejects with the explicit configuration error
+      ---
+      duration_ms: 0.938041
+      type: 'test'
+      ...
+    # Subtest: still builds a normal S3 URL when the bucket is configured
+    ok 4 - still builds a normal S3 URL when the bucket is configured
+      ---
+      duration_ms: 0.84075
+      type: 'test'
+      ...
+    1..4
+ok 15 - S3 configuration guards (B-013)
+  ---
+  duration_ms: 30.608541
+  type: 'suite'
+  ...
+# Subtest: Razorpay signature guards (B-012)
+    # Subtest: verifyRazorpaySignature returns false (never throws) when the secret is missing
+    ok 1 - verifyRazorpaySignature returns false (never throws) when the secret is missing
+      ---
+      duration_ms: 1.326209
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpaySignature accepts a correctly signed payload
+    ok 2 - verifyRazorpaySignature accepts a correctly signed payload
+      ---
+      duration_ms: 4.382666
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpayWebhookSignature never falls back to RAZORPAY_KEY_SECRET
+    ok 3 - verifyRazorpayWebhookSignature never falls back to RAZORPAY_KEY_SECRET
+      ---
+      duration_ms: 0.431583
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpayWebhookSignature accepts a correctly signed webhook
+    ok 4 - verifyRazorpayWebhookSignature accepts a correctly signed webhook
+      ---
+      duration_ms: 0.6765
+      type: 'test'
+      ...
+    1..4
+ok 16 - Razorpay signature guards (B-012)
+  ---
+  duration_ms: 8.677084
+  type: 'suite'
+  ...
+# [CONTENT_AUDIT] UPDATE EXAM_TEST t-1 by anonymous
+# [CONTENT_AUDIT] BULK_QUICK_FIRST_N_FREE EXAM_TEST t-1,t-2 by anonymous
+# [CONTENT_AUDIT] UPDATE EXAM_TEST t-1 by anonymous
+# [CONTENT_AUDIT] BULK_REVERT_STATES EXAM_TEST t-1,t-2 by anonymous
+# [CONTENT_AUDIT] ARCHIVE EXAM_TEST test-preserve-1 by anonymous
+# [CONTENT_AUDIT] RESTORE_VERSION EXAM_TEST test-preserve-1 by anonymous
+# [CONTENT_AUDIT] UPDATE EXAM_TEST test-detach-1 by anonymous
+# [CONTENT_AUDIT] UPDATE EXAM_SERIES entity-456 by anonymous
+# Subtest: Automated Checklist Scenarios Integration Suite
+    # Subtest: Scenario 1: Change package slug and resolve via history returns package
+    ok 1 - Scenario 1: Change package slug and resolve via history returns package
+      ---
+      duration_ms: 64.6225
+      type: 'test'
+      ...
+    # Subtest: Scenario 2: Make first N free applies access, and Undo restores state
+    ok 2 - Scenario 2: Make first N free applies access, and Undo restores state
+      ---
+      duration_ms: 5.498583
+      type: 'test'
+      ...
+    # Subtest: Scenario 3: N=-1 and N greater than total tests are rejected
+    ok 3 - Scenario 3: N=-1 and N greater than total tests are rejected
+      ---
+      duration_ms: 0.414583
+      type: 'test'
+      ...
+    # Subtest: Scenario 4: Soft delete (archive) when attempts exist, hard delete when empty
+    ok 4 - Scenario 4: Soft delete (archive) when attempts exist, hard delete when empty
+      ---
+      duration_ms: 0.5225
+      type: 'test'
+      ...
+    # Subtest: Scenario 5: Teacher mutating another author's package gets 403
+    ok 5 - Scenario 5: Teacher mutating another author's package gets 403
+      ---
+      duration_ms: 1.436416
+      type: 'test'
+      ...
+    # Subtest: Scenario 6: IDOR cross-package tampering is blocked
+    ok 6 - Scenario 6: IDOR cross-package tampering is blocked
+      ---
+      duration_ms: 0.57375
+      type: 'test'
+      ...
+    # Subtest: Scenario 7: ts_demo_role cookie authorizes no mutation in production
+    ok 7 - Scenario 7: ts_demo_role cookie authorizes no mutation in production
+      ---
+      duration_ms: 0.39775
+      type: 'test'
+      ...
+    # Subtest: Scenario 8: Archive test then restore it preserves attempts
+    ok 8 - Scenario 8: Archive test then restore it preserves attempts
+      ---
+      duration_ms: 1.574459
+      type: 'test'
+      ...
+    # Subtest: Scenario 9: Detach test moves to Unassigned series excluded from catalogue
+    ok 9 - Scenario 9: Detach test moves to Unassigned series excluded from catalogue
+      ---
+      duration_ms: 4.712791
+      type: 'test'
+      ...
+    # Subtest: Scenario 10: Concurrent save rejected with 409 conflict when updatedAt differs
+    ok 10 - Scenario 10: Concurrent save rejected with 409 conflict when updatedAt differs
+      ---
+      duration_ms: 0.805833
+      type: 'test'
+      ...
+    # Subtest: Scenario 11: writeDualAuditLog writes dual audit logs
+    ok 11 - Scenario 11: writeDualAuditLog writes dual audit logs
+      ---
+      duration_ms: 0.866333
+      type: 'test'
+      ...
+    # Subtest: Scenario 12: Undo rejects with 409 if tests were modified by another session
+    ok 12 - Scenario 12: Undo rejects with 409 if tests were modified by another session
+      ---
+      duration_ms: 0.422167
+      type: 'test'
+      ...
+    # Subtest: Scenario 13: Toast duration constant is set to 20 seconds
+    ok 13 - Scenario 13: Toast duration constant is set to 20 seconds
+      ---
+      duration_ms: 0.256709
+      type: 'test'
+      ...
+    1..13
+ok 17 - Automated Checklist Scenarios Integration Suite
+  ---
+  duration_ms: 84.953708
+  type: 'suite'
+  ...
+# Subtest: verifyMutationAuth Unit Tests
+    # Subtest: rejects mutation when session is missing and no demo cookie provided
+    ok 1 - rejects mutation when session is missing and no demo cookie provided
+      ---
+      duration_ms: 36.898166
+      type: 'test'
+      ...
+    # Subtest: rejects mutation for non-creator student role
+    ok 2 - rejects mutation for non-creator student role
+      ---
+      duration_ms: 0.383542
+      type: 'test'
+      ...
+    # Subtest: blocks ts_demo_role cookie fallback in production environment
+    ok 3 - blocks ts_demo_role cookie fallback in production environment
+      ---
+      duration_ms: 0.288666
+      type: 'test'
+      ...
+    # Subtest: enforces teacher ownership: rejects teacher trying to mutate another author's content
+    ok 4 - enforces teacher ownership: rejects teacher trying to mutate another author's content
+      ---
+      duration_ms: 0.17675
+      type: 'test'
+      ...
+    # Subtest: authorizes teacher mutating their own content
+    ok 5 - authorizes teacher mutating their own content
+      ---
+      duration_ms: 0.348875
+      type: 'test'
+      ...
+    # Subtest: admin bypasses teacher ownership check
+    ok 6 - admin bypasses teacher ownership check
+      ---
+      duration_ms: 0.141125
+      type: 'test'
+      ...
+    1..6
+ok 18 - verifyMutationAuth Unit Tests
+  ---
+  duration_ms: 40.107208
+  type: 'suite'
+  ...
+# Subtest: IDOR Protection Unit Tests (verifyTestBelongsToPackage)
+    # Subtest: allows test when seriesId matches packageId
+    ok 1 - allows test when seriesId matches packageId
+      ---
+      duration_ms: 0.394834
+      type: 'test'
+      ...
+    # Subtest: blocks test when seriesId does not match packageId (cross-package tampering IDOR)
+    ok 2 - blocks test when seriesId does not match packageId (cross-package tampering IDOR)
+      ---
+      duration_ms: 0.698625
+      type: 'test'
+      ...
+    # Subtest: blocks test when testSeriesId is missing
+    ok 3 - blocks test when testSeriesId is missing
+      ---
+      duration_ms: 0.536708
+      type: 'test'
+      ...
+    1..3
+ok 19 - IDOR Protection Unit Tests (verifyTestBelongsToPackage)
+  ---
+  duration_ms: 3.138833
+  type: 'suite'
+  ...
+# Subtest: Soft vs Hard Delete Decision Unit Tests (decideDeleteAction)
+    # Subtest: decides hard_delete when item has 0 attempts, 0 enrollments, and 0 payments
+    ok 1 - decides hard_delete when item has 0 attempts, 0 enrollments, and 0 payments
+      ---
+      duration_ms: 0.425167
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has student attempts
+    ok 2 - decides archive (soft delete) when item has student attempts
+      ---
+      duration_ms: 0.133291
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has active enrollments
+    ok 3 - decides archive (soft delete) when item has active enrollments
+      ---
+      duration_ms: 0.250416
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has verified payments
+    ok 4 - decides archive (soft delete) when item has verified payments
+      ---
+      duration_ms: 0.126541
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has multiple dependencies
+    ok 5 - decides archive (soft delete) when item has multiple dependencies
+      ---
+      duration_ms: 0.107166
+      type: 'test'
+      ...
+    1..5
+ok 20 - Soft vs Hard Delete Decision Unit Tests (decideDeleteAction)
+  ---
+  duration_ms: 1.293167
+  type: 'suite'
+  ...
+# Subtest: Exam Metrics & Single Source of Truth Tests
+    # Subtest: calculatePackageMetricsSummary correctly computes status and attempt counts
+    ok 1 - calculatePackageMetricsSummary correctly computes status and attempt counts
+      ---
+      duration_ms: 33.10625
+      type: 'test'
+      ...
+    # Subtest: calculatePackageMetricsSummary handles empty array safely
+    ok 2 - calculatePackageMetricsSummary handles empty array safely
+      ---
+      duration_ms: 11.525584
+      type: 'test'
+      ...
+    # Subtest: computePackageMetrics calculates average score percentage correctly without zero division
+    ok 3 - computePackageMetrics calculates average score percentage correctly without zero division
+      ---
+      duration_ms: 0.817041
+      type: 'test'
+      ...
+    # Subtest: computePackageMetrics safely handles series with 0 attempts and 0 tests
+    ok 4 - computePackageMetrics safely handles series with 0 attempts and 0 tests
+      ---
+      duration_ms: 0.632
+      type: 'test'
+      ...
+    # Subtest: isAnalyticsUser correctly filters out staff and test emails
+    not ok 5 - isAnalyticsUser correctly filters out staff and test emails
+      ---
+      duration_ms: 6.407833
+      type: 'test'
+      location: '/Users/praveenkumar/TrillionSkill/tests/unit/exam-packages-tests.test.ts:2:3597'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        
+        true !== false
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: false
+      actual: true
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/unit/exam-packages-tests.test.ts:85:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: getAnalyticsUserWhere returns role excluding staff and test domains
+    ok 6 - getAnalyticsUserWhere returns role excluding staff and test domains
+      ---
+      duration_ms: 1.182542
+      type: 'test'
+      ...
+    1..6
+not ok 21 - Exam Metrics & Single Source of Truth Tests
+  ---
+  duration_ms: 55.67325
+  type: 'suite'
+  location: '/Users/praveenkumar/TrillionSkill/tests/unit/exam-packages-tests.test.ts:2:1073'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Exam Labels & Enums Formatting Tests
+    # Subtest: formatTestType maps test types correctly
+    ok 1 - formatTestType maps test types correctly
+      ---
+      duration_ms: 2.045292
+      type: 'test'
+      ...
+    # Subtest: formatDifficulty maps difficulties correctly
+    ok 2 - formatDifficulty maps difficulties correctly
+      ---
+      duration_ms: 3.785667
+      type: 'test'
+      ...
+    # Subtest: formatLanguage maps language codes correctly
+    ok 3 - formatLanguage maps language codes correctly
+      ---
+      duration_ms: 0.595041
+      type: 'test'
+      ...
+    1..3
+ok 22 - Exam Labels & Enums Formatting Tests
+  ---
+  duration_ms: 7.489708
+  type: 'suite'
+  ...
+# Subtest: System Series Slugs Tests
+    # Subtest: SYSTEM_SERIES_SLUGS contains unassigned tests system series
+    ok 1 - SYSTEM_SERIES_SLUGS contains unassigned tests system series
+      ---
+      duration_ms: 0.336167
+      type: 'test'
+      ...
+    1..1
+ok 23 - System Series Slugs Tests
+  ---
+  duration_ms: 0.47675
+  type: 'suite'
+  ...
+# Subtest: B-017: hook dependency arrays are exhaustive
+    # Subtest: reports no react-hooks/exhaustive-deps warnings in the fixed components
+    ok 1 - reports no react-hooks/exhaustive-deps warnings in the fixed components
+      ---
+      duration_ms: 6036.209459
+      type: 'test'
+      ...
+    1..1
+ok 24 - B-017: hook dependency arrays are exhaustive
+  ---
+  duration_ms: 6037.638958
+  type: 'suite'
+  ...
+# [batches-service] Next data cache unavailable outside a request scope; reading uncached: Invariant: incrementalCache missing in unstable_cache async function readBatchesFileUncached(){try{const stored=await(0,import_platform_settings.getPlatformSetting)(import_platform_settings.PLATFORM_SETTING_KEYS.batches);return Array.isArray(stored)?stored:[]}catch(err){console.error("Error reading batches from the database:",err);return[]}}
+# Subtest: S5: settings, batches and wishlist persist in the database
+    # Subtest: platform settings round trip through PlatformSetting
+    ok 1 - platform settings round trip through PlatformSetting
+      ---
+      duration_ms: 18.204083
+      type: 'test'
+      ...
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/TrillionSkill/node_modules/next/src/server/web/spec-extension/revalidate.ts:88:11)
+#     at revalidateTag (/Users/praveenkumar/TrillionSkill/node_modules/next/src/server/web/spec-extension/revalidate.ts:20:10)
+#     at safeRevalidateTags (/Users/praveenkumar/TrillionSkill/lib/cache-tags.ts:45:7)
+#     at writeBatchesFile (/Users/praveenkumar/TrillionSkill/lib/batches-service.ts:140:3)
+#     at async createBatch (/Users/praveenkumar/TrillionSkill/lib/batches-service.ts:257:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/unit/phase3-settings-batches-wishlist.test.ts:88:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: batches are written to the database and read back
+    ok 2 - batches are written to the database and read back
+      ---
+      duration_ms: 99.962458
+      type: 'test'
+      ...
+    # Subtest: two parallel wishlist adds from different users keep both rows
+    ok 3 - two parallel wishlist adds from different users keep both rows
+      ---
+      duration_ms: 75.573959
+      type: 'test'
+      ...
+    # Subtest: never writes the legacy data/*.json files
+    ok 4 - never writes the legacy data/*.json files
+      ---
+      duration_ms: 7.982459
+      type: 'test'
+      ...
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/TrillionSkill/node_modules/next/src/server/web/spec-extension/revalidate.ts:88:11)
+#     at revalidateTag (/Users/praveenkumar/TrillionSkill/node_modules/next/src/server/web/spec-extension/revalidate.ts:20:10)
+#     at safeRevalidateTags (/Users/praveenkumar/TrillionSkill/lib/cache-tags.ts:45:7)
+#     at writeBatchesFile (/Users/praveenkumar/TrillionSkill/lib/batches-service.ts:140:3)
+#     at async deleteBatch (/Users/praveenkumar/TrillionSkill/lib/batches-service.ts:288:3)
+#     at async SuiteContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/unit/phase3-settings-batches-wishlist.test.ts:62:39)
+#     at async TestHook.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.runHook (node:internal/test_runner/test:965:9)
+#     at async Suite.run (node:internal/test_runner/test:1443:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+    1..4
+ok 25 - S5: settings, batches and wishlist persist in the database
+  ---
+  duration_ms: 406.594875
+  type: 'suite'
+  ...
+# Subtest: PRISMA_LOG_QUERIES Production Guard (O10)
+    # Subtest: strictly disables query logging in production even if PRISMA_LOG_QUERIES=1
+    ok 1 - strictly disables query logging in production even if PRISMA_LOG_QUERIES=1
+      ---
+      duration_ms: 26.017833
+      type: 'test'
+      ...
+    # Subtest: strictly disables query logging in production when PRISMA_LOG_QUERIES is unset or 0
+    ok 2 - strictly disables query logging in production when PRISMA_LOG_QUERIES is unset or 0
+      ---
+      duration_ms: 0.31375
+      type: 'test'
+      ...
+    # Subtest: allows query logging in development or test when PRISMA_LOG_QUERIES=1
+    ok 3 - allows query logging in development or test when PRISMA_LOG_QUERIES=1
+      ---
+      duration_ms: 0.459167
+      type: 'test'
+      ...
+    # Subtest: defaults to no query logging in development or test when PRISMA_LOG_QUERIES is unset or 0
+    ok 4 - defaults to no query logging in development or test when PRISMA_LOG_QUERIES is unset or 0
+      ---
+      duration_ms: 0.260333
+      type: 'test'
+      ...
+    1..4
+ok 26 - PRISMA_LOG_QUERIES Production Guard (O10)
+  ---
+  duration_ms: 28.892667
+  type: 'suite'
+  ...
+# Subtest: Expo Push Notification Service
+    # Subtest: validates Expo push tokens correctly
+    ok 1 - validates Expo push tokens correctly
+      ---
+      duration_ms: 35.588041
+      type: 'test'
+      ...
+    # Subtest: splits large message arrays into chunks of 100
+    ok 2 - splits large message arrays into chunks of 100
+      ---
+      duration_ms: 1.054792
+      type: 'test'
+      ...
+    # Subtest: sends push chunk and purges DeviceNotRegistered tokens
+    ok 3 - sends push chunk and purges DeviceNotRegistered tokens
+      ---
+      duration_ms: 8.232167
+      type: 'test'
+      ...
+    # Subtest: sends push to user with valid registered tokens
+    ok 4 - sends push to user with valid registered tokens
+      ---
+      duration_ms: 1.361583
+      type: 'test'
+      ...
+    # Subtest: sends batched pushes across multiple users, deduplicating tokens
+    ok 5 - sends batched pushes across multiple users, deduplicating tokens
+      ---
+      duration_ms: 0.919042
+      type: 'test'
+      ...
+    1..5
+ok 27 - Expo Push Notification Service
+  ---
+  duration_ms: 50.501
+  type: 'suite'
+  ...
+# Subtest: V3: Razorpay credentials fail closed
+    # Subtest: has no placeholder key id
+    ok 1 - has no placeholder key id
+      ---
+      duration_ms: 3.289
+      type: 'test'
+      ...
+    # Subtest: throws instead of using a placeholder secret
+    ok 2 - throws instead of using a placeholder secret
+      ---
+      duration_ms: 1.482542
+      type: 'test'
+      ...
+    # Subtest: throws when only one credential is present
+    ok 3 - throws when only one credential is present
+      ---
+      duration_ms: 0.472167
+      type: 'test'
+      ...
+    # Subtest: builds one client when both credentials are present
+    ok 4 - builds one client when both credentials are present
+      ---
+      duration_ms: 45.953709
+      type: 'test'
+      ...
+    # Subtest: only treats an explicit test environment as test mode
+    ok 5 - only treats an explicit test environment as test mode
+      ---
+      duration_ms: 3.846166
+      type: 'test'
+      ...
+# Razorpay order creation failed: Error: Razorpay is not configured: set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET (no placeholder fallback)
+#     at getRazorpayClient (/Users/praveenkumar/TrillionSkill/lib/payments/razorpay-config.ts:31:11)
+#     at createRazorpayOrder (/Users/praveenkumar/TrillionSkill/lib/actions/payment/razorpay.ts:249:27)
+#     at async waitForActual (node:assert:644:5)
+#     at async Function.rejects (node:assert:767:25)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/unit/razorpay-config-fail-closed.test.ts:107:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: createRazorpayOrder rejects a missing secret outside test mode (no mock order)
+    ok 6 - createRazorpayOrder rejects a missing secret outside test mode (no mock order)
+      ---
+      duration_ms: 1087.591708
+      type: 'test'
+      ...
+    1..6
+ok 28 - V3: Razorpay credentials fail closed
+  ---
+  duration_ms: 1148.928875
+  type: 'suite'
+  ...
+# Subtest: re-auth token single use (database backed)
+    # Subtest: consumes a token once and rejects the second use
+    ok 1 - consumes a token once and rejects the second use
+      ---
+      duration_ms: 287.252958
+      type: 'test'
+      ...
+    # Subtest: allows exactly one of many parallel consumptions
+    ok 2 - allows exactly one of many parallel consumptions
+      ---
+      duration_ms: 121.258958
+      type: 'test'
+      ...
+    1..2
+ok 29 - re-auth token single use (database backed)
+  ---
+  duration_ms: 458.151541
+  type: 'suite'
+  ...
+# Subtest: S0: test-database guard
+    # Subtest: accepts only the Docker test database
+    ok 1 - accepts only the Docker test database
+      ---
+      duration_ms: 2.480416
+      type: 'test'
+      ...
+    # Subtest: rejects a remote host
+    ok 2 - rejects a remote host
+      ---
+      duration_ms: 0.922333
+      type: 'test'
+      ...
+    # Subtest: rejects the right host on the wrong port
+    ok 3 - rejects the right host on the wrong port
+      ---
+      duration_ms: 0.3015
+      type: 'test'
+      ...
+    # Subtest: rejects a non-test database name
+    ok 4 - rejects a non-test database name
+      ---
+      duration_ms: 0.274167
+      type: 'test'
+      ...
+    # Subtest: rejects APP_ENV other than test
+    ok 5 - rejects APP_ENV other than test
+      ---
+      duration_ms: 0.248583
+      type: 'test'
+      ...
+    # Subtest: rejects a mismatched DIRECT_URL
+    ok 6 - rejects a mismatched DIRECT_URL
+      ---
+      duration_ms: 0.527917
+      type: 'test'
+      ...
+    # Subtest: never leaks the password into the description
+    ok 7 - never leaks the password into the description
+      ---
+      duration_ms: 5.047375
+      type: 'test'
+      ...
+    # Subtest: aborts the Prisma entry point before connecting
+    ok 8 - aborts the Prisma entry point before connecting
+      ---
+      duration_ms: 2515.058917
+      type: 'test'
+      ...
+    # Subtest: aborts the api-v1/contract test entry point before connecting
+    ok 9 - aborts the api-v1/contract test entry point before connecting
+      ---
+      duration_ms: 2074.959708
+      type: 'test'
+      ...
+    # Subtest: aborts the Playwright entry point before starting the webServer
+    ok 10 - aborts the Playwright entry point before starting the webServer
+      ---
+      duration_ms: 1614.708666
+      type: 'test'
+      ...
+    1..10
+ok 30 - S0: test-database guard
+  ---
+  duration_ms: 6217.482625
+  type: 'suite'
+  ...
+# Subtest: Step 1 Unit Tests: Exact Goal Matching & No Substring Leaks
+    # Subtest: UPSC, BPSC, SSC must NOT match skills
+    ok 1 - UPSC, BPSC, SSC must NOT match skills
+      ---
+      duration_ms: 7.936375
+      type: 'test'
+      ...
+    # Subtest: C matches skills ONLY as an exact token
+    ok 2 - C matches skills ONLY as an exact token
+      ---
+      duration_ms: 12.149666
+      type: 'test'
+      ...
+    # Subtest: Target goal exact matching works as expected
+    ok 3 - Target goal exact matching works as expected
+      ---
+      duration_ms: 0.403417
+      type: 'test'
+      ...
+    # Subtest: Explicit alias mapping resolves properly
+    ok 4 - Explicit alias mapping resolves properly
+      ---
+      duration_ms: 11.50825
+      type: 'test'
+      ...
+    # Subtest: validateOrMapCanonicalGoals validates properly
+    ok 5 - validateOrMapCanonicalGoals validates properly
+      ---
+      duration_ms: 0.644125
+      type: 'test'
+      ...
+    1..5
+ok 31 - Step 1 Unit Tests: Exact Goal Matching & No Substring Leaks
+  ---
+  duration_ms: 35.273208
+  type: 'suite'
+  ...
+# Subtest: A6 upload name policy
+    # Subtest: rejects traversal and path segments
+    ok 1 - rejects traversal and path segments
+      ---
+      duration_ms: 1.998917
+      type: 'test'
+      ...
+    # Subtest: rejects svg, html, php and double extensions
+    ok 2 - rejects svg, html, php and double extensions
+      ---
+      duration_ms: 1.849833
+      type: 'test'
+      ...
+    # Subtest: rejects hidden files and missing extensions
+    ok 3 - rejects hidden files and missing extensions
+      ---
+      duration_ms: 0.871958
+      type: 'test'
+      ...
+    # Subtest: accepts ordinary image and document names
+    ok 4 - accepts ordinary image and document names
+      ---
+      duration_ms: 0.308833
+      type: 'test'
+      ...
+    # Subtest: the dangerous list covers executable and markup types
+    ok 5 - the dangerous list covers executable and markup types
+      ---
+      duration_ms: 0.242
+      type: 'test'
+      ...
+    1..5
+ok 32 - A6 upload name policy
+  ---
+  duration_ms: 7.159167
+  type: 'suite'
+  ...
+# Subtest: A6 upload content validation
+    # Subtest: uses a server-generated name, never the caller name
+    ok 1 - uses a server-generated name, never the caller name
+      ---
+      duration_ms: 2.605792
+      type: 'test'
+      ...
+    # Subtest: rejects html content disguised as an image
+    ok 2 - rejects html content disguised as an image
+      ---
+      duration_ms: 0.644208
+      type: 'test'
+      ...
+    # Subtest: rejects svg content even with an image mime
+    ok 3 - rejects svg content even with an image mime
+      ---
+      duration_ms: 1.081083
+      type: 'test'
+      ...
+    # Subtest: oversized uploads are a 413
+    ok 4 - oversized uploads are a 413
+      ---
+      duration_ms: 0.491417
+      type: 'test'
+      ...
+    # Subtest: a valid PDF is accepted
+    ok 5 - a valid PDF is accepted
+      ---
+      duration_ms: 0.863
+      type: 'test'
+      ...
+    1..5
+ok 33 - A6 upload content validation
+  ---
+  duration_ms: 6.786042
+  type: 'suite'
+  ...
+# Subtest: A6 storage fallback
+    # Subtest: test environment stores under public/uploads with a generated name
+    ok 1 - test environment stores under public/uploads with a generated name
+      ---
+      duration_ms: 27.313833
+      type: 'test'
+      ...
+    # Subtest: private visibility stays outside /public
+    ok 2 - private visibility stays outside /public
+      ---
+      duration_ms: 11.761834
+      type: 'test'
+      ...
+    # Subtest: a rejected upload never reaches storage
+    ok 3 - a rejected upload never reaches storage
+      ---
+      duration_ms: 2.334209
+      type: 'test'
+      ...
+    1..3
+ok 34 - A6 storage fallback
+  ---
+  duration_ms: 41.831667
+  type: 'suite'
+  ...
+# [user-goal] database read failed: Error: database is down
+#     at Object.getGoal (/Users/praveenkumar/TrillionSkill/tests/unit/user-goal-store.test.ts:71:15)
+#     at GET (/Users/praveenkumar/TrillionSkill/lib/goals/user-goal-store.ts:97:31)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/TrillionSkill/tests/unit/user-goal-store.test.ts:74:17)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# Subtest: B-007: goal storage is the database only
+    # Subtest: reads a stored goal through the DB client
+    ok 1 - reads a stored goal through the DB client
+      ---
+      duration_ms: 25.219
+      type: 'test'
+      ...
+    # Subtest: returns null when the user has no goal (no memory fallback)
+    ok 2 - returns null when the user has no goal (no memory fallback)
+      ---
+      duration_ms: 0.320709
+      type: 'test'
+      ...
+    # Subtest: propagates DB read failures instead of using a cached value
+    ok 3 - propagates DB read failures instead of using a cached value
+      ---
+      duration_ms: 0.706958
+      type: 'test'
+      ...
+    # Subtest: propagates DB write failures instead of claiming success
+    ok 4 - propagates DB write failures instead of claiming success
+      ---
+      duration_ms: 0.380167
+      type: 'test'
+      ...
+    # Subtest: serialises and de-duplicates goals on write
+    ok 5 - serialises and de-duplicates goals on write
+      ---
+      duration_ms: 0.426166
+      type: 'test'
+      ...
+    # Subtest: GET returns 503 when the DB read throws
+    ok 6 - GET returns 503 when the DB read throws
+      ---
+      duration_ms: 11.105625
+      type: 'test'
+      ...
+    # Subtest: GET returns the stored goal for a signed-in user
+    ok 7 - GET returns the stored goal for a signed-in user
+      ---
+      duration_ms: 1.035167
+      type: 'test'
+      ...
+    # Subtest: GET returns an empty goal for a guest
+    ok 8 - GET returns an empty goal for a guest
+      ---
+      duration_ms: 1.06325
+      type: 'test'
+      ...
+    1..8
+ok 35 - B-007: goal storage is the database only
+  ---
+  duration_ms: 42.460708
+  type: 'suite'
+  ...
+# Subtest: B-007: goal round trip through the real test database
+    # Subtest: writes a goal and reads it back through the DB path
+    ok 1 - writes a goal and reads it back through the DB path
+      ---
+      duration_ms: 48.580917
+      type: 'test'
+      ...
+    1..1
+ok 36 - B-007: goal round trip through the real test database
+  ---
+  duration_ms: 62.060208
+  type: 'suite'
+  ...
+# Subtest: A11 stored XSS sanitizer
+    # Subtest: neutralises: <script>alert(1)</script>
+    ok 1 - neutralises: <script>alert(1)</script>
+      ---
+      duration_ms: 6.807459
+      type: 'test'
+      ...
+    # Subtest: neutralises: <SCRIPT type="text/javascript">alert(1)</SCRIPT>
+    ok 2 - neutralises: <SCRIPT type="text/javascript">alert(1)</SCRIPT>
+      ---
+      duration_ms: 5.865125
+      type: 'test'
+      ...
+    # Subtest: neutralises: <script src="https://evil.test/x.js"></script>
+    ok 3 - neutralises: <script src="https://evil.test/x.js"></script>
+      ---
+      duration_ms: 0.204042
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror=alert(1)>
+    ok 4 - neutralises: <img src=x onerror=alert(1)>
+      ---
+      duration_ms: 0.724917
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror="alert(1)">
+    ok 5 - neutralises: <img src=x onerror="alert(1)">
+      ---
+      duration_ms: 0.219208
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror='alert(1)'>
+    ok 6 - neutralises: <img src=x onerror='alert(1)'>
+      ---
+      duration_ms: 1.908875
+      type: 'test'
+      ...
+    # Subtest: neutralises: <svg/onload=alert(1)>
+    ok 7 - neutralises: <svg/onload=alert(1)>
+      ---
+      duration_ms: 0.192791
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href="javascript:alert(1)">click</a>
+    ok 8 - neutralises: <a href="javascript:alert(1)">click</a>
+      ---
+      duration_ms: 0.317917
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href='javascript:alert(1)'>click</a>
+    ok 9 - neutralises: <a href='javascript:alert(1)'>click</a>
+      ---
+      duration_ms: 0.596833
+      type: 'test'
+      ...
+    # Subtest: neutralises: <iframe src="https://evil.test"></iframe>
+    ok 10 - neutralises: <iframe src="https://evil.test"></iframe>
+      ---
+      duration_ms: 0.988083
+      type: 'test'
+      ...
+    # Subtest: neutralises: <object data="x"></object>
+    ok 11 - neutralises: <object data="x"></object>
+      ---
+      duration_ms: 0.227625
+      type: 'test'
+      ...
+    # Subtest: neutralises: <embed src="x">
+    ok 12 - neutralises: <embed src="x">
+      ---
+      duration_ms: 0.33425
+      type: 'test'
+      ...
+    # Subtest: neutralises: <form action="/x"><input></form>
+    ok 13 - neutralises: <form action="/x"><input></form>
+      ---
+      duration_ms: 0.123458
+      type: 'test'
+      ...
+    # Subtest: neutralises: <style>body{background:url(javascript:alert(1))}
+    ok 14 - neutralises: <style>body{background:url(javascript:alert(1))}
+      ---
+      duration_ms: 0.099792
+      type: 'test'
+      ...
+    # Subtest: neutralises: <div style="width:expression(alert(1))">x</div>
+    ok 15 - neutralises: <div style="width:expression(alert(1))">x</div>
+      ---
+      duration_ms: 0.107375
+      type: 'test'
+      ...
+    # Subtest: neutralises: </script><script>alert(1)</script>
+    ok 16 - neutralises: </script><script>alert(1)</script>
+      ---
+      duration_ms: 0.206375
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href="java\\tscript:alert(1)">tab trick</a>
+    ok 17 - neutralises: <a href="java\\tscript:alert(1)">tab trick</a>
+      ---
+      duration_ms: 0.134167
+      type: 'test'
+      ...
+    # Subtest: keeps harmless formatting
+    ok 18 - keeps harmless formatting
+      ---
+      duration_ms: 0.232333
+      type: 'test'
+      ...
+    1..18
+ok 37 - A11 stored XSS sanitizer
+  ---
+  duration_ms: 21.905
+  type: 'suite'
+  ...
+1..37
+# tests 173
+# suites 37
+# pass 171
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 11911.160583

@@ -8,6 +8,7 @@ import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { Edit, Eye, AlertCircle, BookOpen, Plus, FileText, Sparkles, ExternalLink } from "lucide-react"
 import { cleanDescriptionSnippet, formatDate } from "@/lib/utils"
 import { TutorialStudioImportButton } from "@/components/editor/TutorialStudioImportButton"
+import { isTextTutorialForCatalog } from "@/lib/courses/format"
 
 export const dynamic = "force-dynamic"
 
@@ -43,19 +44,8 @@ export default async function AdminTutorialsPage() {
         dbError = err.message || "Can't reach database server"
     }
 
-    // Strictly include ONLY text-based tutorials (exclude video courses with video lessons, video titles/slugs, or flagship video courses)
-    const textTutorials = tutorials.filter((c) => {
-        if (c.slug === "72nd-bpsc-prelims-current-affairs") return false
-        const lowerTitle = (c.title || "").toLowerCase()
-        const lowerSlug = (c.slug || "").toLowerCase()
-        if (lowerTitle.includes("video course") || lowerTitle.includes("video tutorial") || lowerSlug.includes("video")) {
-            return false
-        }
-        const allLessons = c.chapters?.flatMap((ch: any) => ch.lessons || []) || []
-        const hasVideoLessons = allLessons.some((l: any) => Boolean(l.videoUrl) || l.type === "VIDEO")
-        if (hasVideoLessons) return false
-        return true
-    })
+    // Strictly include ONLY text-based tutorials. Classification lives in lib/courses/format.ts.
+    const textTutorials = tutorials.filter((c) => isTextTutorialForCatalog(c))
 
     return (
         <div className="p-8 max-w-7xl mx-auto space-y-6">

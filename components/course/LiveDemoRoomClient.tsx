@@ -37,6 +37,32 @@ import {
 } from "lucide-react"
 import { formatUtcToIst } from "@/lib/demo/slot-utils"
 
+/**
+ * Demo agenda: authored per course in the studio (metadataJson.demoSettings.agenda).
+ * The fallback is deliberately generic — no exam name is hardcoded.
+ */
+const DEFAULT_DEMO_AGENDA = [
+  "Exam pattern, syllabus structure and weightage",
+  "How the course plan is organised week by week",
+  "How to read study material with minimum effort",
+  "Answer elimination techniques for tricky MCQs",
+]
+
+function readDemoAgenda(metadataJson?: string | null): string[] {
+  if (!metadataJson) return DEFAULT_DEMO_AGENDA
+  try {
+    const meta = JSON.parse(metadataJson)
+    const agenda = meta?.demoSettings?.agenda
+    if (Array.isArray(agenda)) {
+      const cleaned = agenda.filter((item: unknown) => typeof item === "string" && item.trim().length > 0)
+      if (cleaned.length > 0) return cleaned as string[]
+    }
+  } catch {
+    // Malformed metadata falls back to the generic agenda.
+  }
+  return DEFAULT_DEMO_AGENDA
+}
+
 interface LiveDemoRoomClientProps {
   course: {
     id: string
@@ -48,6 +74,8 @@ interface LiveDemoRoomClientProps {
     originalPrice?: number | null
     discountPercent?: number | null
     technology?: string
+    /** Optional demo agenda authored in the studio (metadataJson.demoSettings.agenda). */
+    metadataJson?: string | null
   }
   slotId: string
   initialSlot?: any
@@ -76,6 +104,7 @@ export default function LiveDemoRoomClient({
   isTestMode = false,
 }: LiveDemoRoomClientProps) {
   const { data: session } = useSession()
+  const demoAgenda = readDemoAgenda(course.metadataJson)
   const router = useRouter()
 
   const isTeacherOrAdmin =
@@ -2107,10 +2136,9 @@ export default function LiveDemoRoomClient({
               <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
                 <span className="font-bold text-white block">Key Topics Covered in Demo</span>
                 <ul className="list-disc list-inside space-y-1 text-gray-300">
-                  <li>72nd BPSC Prelims syllabus structure and weightage</li>
-                  <li>Current Affairs 12-month timeline and Bihar special highlights</li>
-                  <li>How to read Economic Survey with minimum effort</li>
-                  <li>Answer elimination techniques for tricky MCQs</li>
+                  {demoAgenda.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
                 </ul>
               </div>
               <p className="text-[11px] text-gray-400">

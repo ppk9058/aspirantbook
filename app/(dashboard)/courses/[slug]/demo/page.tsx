@@ -51,6 +51,7 @@ export default async function CourseDemoPage({
         originalPrice: true,
         discountPercent: true,
         technology: true,
+        metadataJson: true,
         status: true,
         isPublished: true,
       },

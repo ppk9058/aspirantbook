@@ -4,26 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
+import { resolveCourseAlias } from "@/lib/courses/slug-aliases"
 
-const COURSE_ALIASES: Record<string, string> = {
-    "half-yearly-678": "half-yearly-6",
-    "half-yearly-78": "half-yearly-6",
-    "half-yearly-8": "half-yearly-6",
-    "upsc-prelims-mains-batch": "upsc-prelims-mains-comprehensive-batch",
-    "upsc-gs-primer": "upsc-gs-foundation-primer",
-    "bpsc-prelims-current-affairs": "72nd-bpsc-prelims-current-affairs",
-    "bpsc-video-2": "bpsc-2nd-video-tutorial",
-    "class-6-mastery": "class-6-complete-mastery-batch",
-    "class-6-starter": "class-6-foundation-starter",
-    "class-7-excellence": "class-7-academic-excellence-batch",
-    "class-7-booster": "class-7-concept-booster",
-    "class-8-olympiad": "class-8-olympiad-board-foundation-batch",
-    "class-8-essentials": "class-8-pre-foundation-essentials",
-    "class-9-target-95": "class-9-target-95-foundation-batch",
-    "class-9-bridge": "class-9-cbse-bridge-course",
-    "class-10-toppers": "class-10-board-toppers-comprehensive-batch",
-    "class-10-revision": "class-10-board-revision-sprint",
-}
 
 export async function POST(req: NextRequest) {
     try {
@@ -73,7 +55,7 @@ export async function POST(req: NextRequest) {
             )
         }
 
-        const resolvedTarget = COURSE_ALIASES[courseId] || courseId
+        const resolvedTarget = resolveCourseAlias(courseId)
         const course = await prisma.course.findFirst({
             where: {
                 OR: [

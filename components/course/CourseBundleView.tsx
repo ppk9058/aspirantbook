@@ -37,6 +37,7 @@ import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 import { CourseTeachersSection } from "./CourseTeachersSection"
 import ScheduleDemoModal from "./ScheduleDemoModal"
+import { courseLanguageLabel } from "@/lib/courses/languages"
 
 interface LessonItem {
   id: string
@@ -361,7 +362,7 @@ export function CourseBundleView({
             {batch?.classTag || "Video Course"}
           </span>
           <span className="text-xs font-bold text-gray-500">
-            Language: <span className="text-gray-900 font-extrabold">{batch?.language || "HINGLISH"}</span>
+            Language: <span className="text-gray-900 font-extrabold">{courseLanguageLabel(batch?.language)}</span>
           </span>
         </div>
 
@@ -601,7 +602,7 @@ export function CourseBundleView({
                 <div>
                   <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider block">Medium</span>
                   <span className="text-xs sm:text-sm font-extrabold text-gray-900 mt-0.5 block">
-                    {batch?.language || "HINGLISH"}
+                    {courseLanguageLabel(batch?.language)}
                   </span>
                 </div>
                 <div>

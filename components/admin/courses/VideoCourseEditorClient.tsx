@@ -39,6 +39,8 @@ import {
   Calendar,
 } from "lucide-react"
 import { CourseCouponsManager } from "./CourseCouponsManager"
+import { DEFAULT_COURSE_LANGUAGE, COURSE_LANGUAGES } from "@/lib/courses/languages"
+import { EXAM_CATEGORIES, EXAM_CATEGORY_GROUPS, isKnownExamCategory } from "@/lib/courses/categories"
 
 interface LessonItem {
   id: string
@@ -125,7 +127,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     return {}
   })()
 
-  const [language, setLanguage] = useState<string>(initialMeta.language || "HINGLISH")
+  const [language, setLanguage] = useState<string>(initialMeta.language || DEFAULT_COURSE_LANGUAGE)
   const [targetAudience, setTargetAudience] = useState<string>(
     initialMeta.targetText || `Targeted for students of ${initialCourse.technology || "Course"}`
   )
@@ -458,6 +460,9 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
 
     try {
       const metadataPayload = {
+        // Spread the existing object first so unknown/legacy keys survive a save.
+        ...initialMeta,
+        schemaVersion: 2,
         language,
         targetText: targetAudience,
         classTag: technology,
@@ -466,6 +471,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
         aboutHighlights: aboutHighlights.filter((h) => h && h.trim().length > 0),
         faqs: faqs.filter((f) => f.question && f.question.trim().length > 0),
         demoSettings: {
+          ...(initialMeta.demoSettings || {}),
           enabled: demoEnabled,
           topic: demoTopic,
           facultyName: demoFaculty,
@@ -1038,16 +1044,18 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                 className="w-full px-3 py-2 rounded-xl border border-gray-200 font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
               >
                 <option value="Skills & Tech">Skills & Tech (Coding & Dev)</option>
-                <option value="UPSC">UPSC Civil Services</option>
-                <option value="BPSC">BPSC Civil Services</option>
-                <option value="Class 10th">Class 10th (Boards & NTSE)</option>
-                <option value="Class 9th">Class 9th (School Foundation)</option>
-                <option value="Class 8th">Class 8th (Junior Foundation)</option>
-                <option value="Class 7th">Class 7th (Middle School)</option>
-                <option value="Class 6th">Class 6th (Junior School)</option>
-                <option value="Data Science & AI">Data Science & AI / ML</option>
-                <option value="DSA & Coding Interviews">DSA & Coding Interviews</option>
-                <option value="Govt. Job Exams">Govt. Job Exams (SSC/Banking/Railways)</option>
+                {EXAM_CATEGORY_GROUPS.map((group) => (
+                  <optgroup key={group} label={group}>
+                    {EXAM_CATEGORIES.filter((cat) => cat.group === group).map((cat) => (
+                      <option key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+                {technology && !isKnownExamCategory(technology) && (
+                  <option value={technology}>{technology} (custom)</option>
+                )}
               </select>
             </div>
             <div>
@@ -1680,10 +1688,11 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         onChange={(e) => setLanguage(e.target.value)}
                         className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-semibold text-gray-800"
                       >
-                        <option value="HINGLISH">Hinglish (Hindi + English)</option>
-                        <option value="ENGLISH">English</option>
-                        <option value="HINDI">Hindi</option>
-                        <option value="BILINGUAL">Bilingual</option>
+                        {COURSE_LANGUAGES.map((lang) => (
+                          <option key={lang.value} value={lang.value}>
+                            {lang.label}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>
@@ -2071,7 +2080,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     type="text"
                     value={demoTopic}
                     onChange={(e) => setDemoTopic(e.target.value)}
-                    placeholder="e.g. 72nd BPSC Prelims Strategy & Trend Analysis"
+                    placeholder="e.g. Strategy & Trend Analysis for the upcoming attempt"
                     className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   />
                 </div>
@@ -2377,7 +2386,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   required
                   value={chapterTitle}
                   onChange={(e) => setChapterTitle(e.target.value)}
-                  placeholder="e.g. Bihar Special Governance"
+                  placeholder="e.g. Modern History, Budget & Economy, Weekly Revision"
                   className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                 />
               </div>

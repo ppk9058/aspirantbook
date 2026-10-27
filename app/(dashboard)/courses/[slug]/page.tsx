@@ -11,6 +11,8 @@ import { findBatchBySlugOrId } from "@/components/home/homepage-courses.data"
 import { unstable_cache } from "next/cache"
 import { toSafeCourseDto } from "@/lib/courses/course-dto"
 import { isCourseVisibleToUser, isCourseDetailReady } from "@/lib/courses/visibility"
+import { resolveCourseFormat } from "@/lib/courses/format"
+import { DEFAULT_COURSE_LANGUAGE } from "@/lib/courses/languages"
 import { ALL_GOAL_COURSES } from "@/lib/goal-courses-data"
 import { AlertCircle } from "lucide-react"
 import { getBaseUrl, SITE_NAME } from "@/lib/seo/core"
@@ -149,17 +151,10 @@ export default async function CourseDetailPage({
 
     const cachedCourse = rawCachedCourse
     if (cachedCourse) {
-        // Detect if this course is a tutorial (e.g. format: tutorial in metadataJson or externalId set)
-        let isTutorialCourse = Boolean(cachedCourse.externalId)
-        if (cachedCourse.metadataJson) {
-            try {
-                const parsed = JSON.parse(cachedCourse.metadataJson)
-                if (parsed.format === "tutorial" || parsed.meta?.format === "tutorial" || parsed.type === "TUTORIAL") {
-                    isTutorialCourse = true
-                }
-            } catch {}
-        }
-        if (isTutorialCourse) {
+        // Format resolution lives in lib/courses/format.ts. Explicit metadataJson.format
+        // wins; legacy rules (externalId, flagship slug) are contained there.
+        const format = resolveCourseFormat(cachedCourse)
+        if (format === "tutorial") {
             const sp = searchParams ? await searchParams : {}
             const searchParamsObj = new URLSearchParams()
             if (sp) {
@@ -312,12 +307,7 @@ export default async function CourseDetailPage({
     const safeCourse = toSafeCourseDto(course, hasAccess, hasAccess)
 
     // If course is a video course bundle with pricing/attachments or video lessons
-    const isVideoBundle =
-        Boolean(course.price && course.price > 0) ||
-        course.slug.includes("bpsc") ||
-        course.chapters?.some((c: any) =>
-            c.lessons?.some((l: any) => Boolean(l.videoUrl) || l.type === "VIDEO" || l.attachmentType || l.attachmentName)
-        )
+    const isVideoBundle = resolveCourseFormat(course) === "bundle"
 
     if (isVideoBundle) {
         let parsedMetadata: any = null
@@ -335,7 +325,7 @@ export default async function CourseDetailPage({
             weeklySchedule: (parsedMetadata?.schedule && parsedMetadata.schedule.length > 0) ? parsedMetadata.schedule : (batch?.weeklySchedule || (batch as any)?.schedule),
             aboutHighlights: (parsedMetadata?.aboutHighlights && parsedMetadata.aboutHighlights.length > 0) ? parsedMetadata.aboutHighlights : batch?.aboutHighlights,
             faqs: (parsedMetadata?.faqs && parsedMetadata.faqs.length > 0) ? parsedMetadata.faqs : batch?.faqs,
-            language: parsedMetadata?.language || batch?.language || "HINGLISH",
+            language: parsedMetadata?.language || batch?.language || DEFAULT_COURSE_LANGUAGE,
             classTag: parsedMetadata?.classTag || course.technology || batch?.classTag || "Skills",
         }
         return (

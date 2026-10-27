@@ -1,0 +1,50 @@
+┌─────────┬───────────────────────────────────────────────────────────────┬────────────┬─────────────┬─────────────┬───────────┬───────────┬────────┬──────────────┬─────────┬──────────┐
+│ (index) │ slug                                                          │ format     │ oldRedirect │ newRedirect │ oldBundle │ newBundle │ studio │ tutorialList │ sitemap │ mismatch │
+├─────────┼───────────────────────────────────────────────────────────────┼────────────┼─────────────┼─────────────┼───────────┼───────────┼────────┼──────────────┼─────────┼──────────┤
+│ 0       │ 'ai-course'                                                   │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 1       │ 'ai-course-test'                                              │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 2       │ 'generative-ai'                                               │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 3       │ 'intro-to-python'                                             │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 4       │ 'chapter-1-the-foundations-of-c-from-bare-metal-to-execution' │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 5       │ 'this-is-3rd-course'                                          │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 6       │ '72nd-bpsc-prelims-current-affairs'                           │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ false   │ ''       │
+│ 7       │ 'bpsc-2nd-video-tutorial'                                     │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ false   │ ''       │
+│ 8       │ 'new-video-course-zcsvu'                                      │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ false   │ ''       │
+│ 9       │ '3'                                                           │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 10      │ 'this-is-4th-tutorial'                                        │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 11      │ 'upsc-gs-foundation-primer'                                   │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 12      │ 'upsc-prelims-mains-comprehensive-batch'                      │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 13      │ 'class-6-foundation-starter'                                  │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 14      │ 'class-6-complete-mastery-batch'                              │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 15      │ 'class-7-concept-booster'                                     │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 16      │ 'class-7-academic-excellence-batch'                           │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 17      │ 'class-8-pre-foundation-essentials'                           │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 18      │ 'class-8-olympiad-board-foundation-batch'                     │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 19      │ 'class-9-cbse-bridge-course'                                  │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 20      │ 'class-9-target-95-foundation-batch'                          │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 21      │ 'class-10-board-revision-sprint'                              │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 22      │ 'class-10-board-toppers-comprehensive-batch'                  │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 23      │ 'complete-genai-engineer-masterclass-zero-to-hero'            │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 24      │ 'half-yearly-6'                                               │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 25      │ 'actual'                                                      │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ true    │ ''       │
+│ 26      │ 'imported-tutorial-masterclass'                               │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 27      │ 'imported-tutorial-masterclass-ujydi'                         │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 28      │ 'imported-tutorial-masterclass-d53jd'                         │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 29      │ 'imported-tutorial-masterclass-prax'                          │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 30      │ 'imported-tutorial-masterclass-2fva'                          │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 31      │ 'genai-engineer-zero-to-hero'                                 │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 32      │ 'genai-engineer-zero-to-hero-pia8'                            │ 'tutorial' │ true        │ true        │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 33      │ 'genai-engineer-masterclass'                                  │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 34      │ 'genai-engineer-masterclass-phld2'                            │ 'document' │ false       │ false       │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 35      │ 'prompt-engineering-masterclass'                              │ 'tutorial' │ true        │ true        │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 36      │ 'agentic-ai-engineer-zero-to-hero'                            │ 'tutorial' │ true        │ true        │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 37      │ 'agentic-engineering-zero-to-hero'                            │ 'tutorial' │ true        │ true        │ false     │ false     │ false  │ true         │ true    │ ''       │
+│ 38      │ 'new-video-course-m3wee'                                      │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ false   │ ''       │
+│ 39      │ 'new-video-course-bhmkp'                                      │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ false   │ ''       │
+│ 40      │ 'new-video-course-ulglo'                                      │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ false   │ ''       │
+│ 41      │ 'new-video-course-d28ch'                                      │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ false   │ ''       │
+│ 42      │ 'new-video-course-2k4gj'                                      │ 'bundle'   │ false       │ false       │ true      │ true      │ true   │ false        │ false   │ ''       │
+└─────────┴───────────────────────────────────────────────────────────────┴────────────┴─────────────┴─────────────┴───────────┴───────────┴────────┴──────────────┴─────────┴──────────┘
+
+Courses checked: 43
+Observable mismatches: 0

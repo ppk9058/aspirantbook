@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
+import { DEFAULT_COURSE_LANGUAGE } from "@/lib/courses/languages"
 import {
     Clock,
     Sparkles,
@@ -40,7 +41,7 @@ export function CourseComingSoonView({
     scheduleText,
     price,
     image = "/batch-purple.svg",
-    language = "HINGLISH",
+    language = DEFAULT_COURSE_LANGUAGE,
 }: CourseComingSoonViewProps) {
     const router = useRouter()
     const { data: session } = useSession()
