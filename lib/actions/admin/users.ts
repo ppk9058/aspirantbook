@@ -6,6 +6,19 @@ import { revalidatePath } from "next/cache"
 import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/auth/tokens"
 import bcrypt from "bcryptjs"
 
+export const MAX_CSV_USERS = 5000
+
+/**
+ * A10: CSV formula-injection guard. Spreadsheet apps execute cells that start
+ * with = + - @ TAB or CR; prefixing a single quote forces them to be text.
+ * Quotes are escaped after the prefix so the CSV stays well-formed.
+ */
+export function csvCell(value: string): string {
+    const raw = String(value ?? "")
+    const guarded = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw
+    return guarded.replace(/"/g, '""')
+}
+
 async function getClientIp(): Promise<string> {
     try {
         const { headers } = await import("next/headers")
@@ -66,7 +79,19 @@ export async function getUsersList(params: {
         ]
     }
 
-    // For subscription status filter, we need to join with subscriptions
+    // A10: apply the subscription filter in the query so pagination and totals
+    // are computed over the filtered set, not a post-hoc page slice.
+    if (subscriptionStatus) {
+        const now = new Date()
+        if (subscriptionStatus === "ACTIVE") {
+            where.subscriptions = { some: { status: "ACTIVE", endDate: { gt: now } } }
+        } else if (subscriptionStatus === "CANCELLED") {
+            where.subscriptions = { some: { status: "CANCELLED" } }
+        } else {
+            where.subscriptions = { none: { status: "ACTIVE", endDate: { gt: now } } }
+        }
+    }
+
     const users = await prisma.user.findMany({
         where,
         include: {
@@ -84,22 +109,14 @@ export async function getUsersList(params: {
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: "desc" },
+        // Never ship password hashes to the admin client.
+        omit: { password: true },
     })
-
-    // Filter by subscription status if provided
-    let filteredUsers = users
-    if (subscriptionStatus) {
-        filteredUsers = users.filter(user => {
-            const latestSub = user.subscriptions[0]
-            if (!latestSub) return subscriptionStatus === "EXPIRED"
-            return latestSub.status === subscriptionStatus
-        })
-    }
 
     const total = await prisma.user.count({ where })
 
     return {
-        users: filteredUsers,
+        users,
         pagination: {
             page,
             limit,
@@ -161,6 +178,7 @@ export async function getUserDetails(userId: string) {
                 take: 10,
             },
         },
+        omit: { password: true },
     })
 
     if (!user) {
@@ -540,6 +558,9 @@ export async function exportUsersCsv(): Promise<string> {
 
     const users = await prisma.user.findMany({
         orderBy: { createdAt: "desc" },
+        // Bounded export: an unbounded findMany would materialise the whole
+        // user table in memory.
+        take: MAX_CSV_USERS,
         select: {
             id: true,
             name: true,
@@ -555,18 +576,21 @@ export async function exportUsersCsv(): Promise<string> {
     const header = "ID,Name,Email,Phone,Role,Status,Verified,JoinedAt\n"
     const rows = users
         .map((u) => {
-            const name = (u.name || "").replace(/"/g, '""')
-            const email = u.email.replace(/"/g, '""')
-            const phone = u.phoneNumber || ""
-            const role = u.role
+            const name = csvCell(u.name || "")
+            const email = csvCell(u.email)
+            const phone = csvCell(u.phoneNumber || "")
+            const role = csvCell(u.role)
             const status = u.isActive ? "ACTIVE" : "INACTIVE"
             const verified = u.emailVerified ? "YES" : "NO"
             const joined = u.createdAt.toISOString()
-            return `"${u.id}","${name}","${email}","${phone}","${role}","${status}","${verified}","${joined}"`
+            return `"${csvCell(u.id)}","${name}","${email}","${phone}","${role}","${status}","${verified}","${joined}"`
         })
         .join("\n")
 
-    await writeAuditLog(session.user.id, "USER_EXPORT_CSV", undefined, { count: users.length })
+    await writeAuditLog(session.user.id, "USER_EXPORT_CSV", undefined, {
+        count: users.length,
+        cappedAt: MAX_CSV_USERS,
+    })
 
     return header + rows
 }
@@ -612,6 +636,7 @@ export async function createNewUserAdmin(data: {
             isActive: true,
             sessionVersion: 1,
         },
+        omit: { password: true },
     })
 
     await writeAuditLog(session.user.id, "USER_CREATE", created.id, {
