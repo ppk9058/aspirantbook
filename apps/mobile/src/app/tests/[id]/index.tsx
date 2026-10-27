@@ -28,6 +28,7 @@ import { ErrorState } from "../../../components/primitives/ErrorState";
 import { useTheme } from "../../../theme/ThemeProvider";
 import { useAuth } from "../../../context/AuthContext";
 import { api } from "../../../lib/api";
+import { shouldShowUpgradeCta } from "../../../lib/exam-access-ui";
 
 export default function TestInstructionsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -264,6 +265,15 @@ export default function TestInstructionsScreen() {
             <AlertCircle size={15} color="#ef4444" />
             <Text style={styles.startErrorText}>{startError}</Text>
           </View>
+        ) : null}
+        {shouldShowUpgradeCta(test.isFree, startError) ? (
+          <Button
+            title="View Pass Options"
+            variant="secondary"
+            size="lg"
+            style={{ width: "100%", marginBottom: 8 }}
+            onPress={() => router.push("/subscription" as any)}
+          />
         ) : null}
         <Button
           title={starting ? "Initializing..." : "Start Mock Exam"}

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
+import { checkTestAccess } from "@/lib/auth/entitlements";
 import { canViewSolutions, canViewLeaderboard } from "@/lib/exam/access-control";
 import { getTestRankings } from "@/lib/exam-ranking";
 import { Viewer } from "@/lib/api/v1/viewer";
@@ -175,6 +176,19 @@ export async function startTestAttempt(
 
   if (!test || !test.isPublished) {
     throw new Error("NOT_FOUND: Test not found or not currently available");
+  }
+
+  // Entitlement parity with the web start route: the same shared policy decides
+  // whether this learner may attempt the test (free, pass, subscription, admin).
+  const access = await checkTestAccess(
+    viewer.userId,
+    test.id,
+    (viewer.role as any) || undefined
+  );
+  if (!access.allowed) {
+    throw new Error(
+      `FORBIDDEN: ${access.message || "This test requires an active Pass or subscription"}`
+    );
   }
 
   // Check for an active IN_PROGRESS attempt

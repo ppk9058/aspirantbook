@@ -30,6 +30,9 @@ export async function POST(
     if (err?.message?.startsWith("NOT_FOUND:")) {
       return apiError("NOT_FOUND", err.message.replace("NOT_FOUND:", "").trim(), 404, undefined, reqId);
     }
+    if (err?.message?.startsWith("FORBIDDEN:")) {
+      return apiError("FORBIDDEN", err.message.replace("FORBIDDEN:", "").trim(), 403, undefined, reqId);
+    }
     return handleApiError(err, reqId);
   }
 }
