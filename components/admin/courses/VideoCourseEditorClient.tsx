@@ -37,8 +37,19 @@ import {
   HelpCircle,
   Share2,
   Calendar,
+  PhoneCall,
+  Eye,
 } from "lucide-react"
 import { CourseCouponsManager } from "./CourseCouponsManager"
+import { HeroDetailsTab } from "./studio/HeroDetailsTab"
+import { CoursePlanTab } from "./studio/CoursePlanTab"
+import { ExamSyllabusTab } from "./studio/ExamSyllabusTab"
+import { CallbackLeadsTab } from "./studio/CallbackLeadsTab"
+import { SectionsTab } from "./studio/SectionsTab"
+import { useDirtyGuard } from "./studio/useDirtyGuard"
+import { buildHeroDraft, heroDraftToMetadata, heroDraftToCourseColumns, type HeroDraft } from "./studio/draft"
+import { readSectionFlags, type SectionFlags } from "@/lib/courses/metadata-schema"
+import { hindiCompletenessForList, hindiBadgeLabel } from "@/lib/i18n/localized"
 import { DEFAULT_COURSE_LANGUAGE, COURSE_LANGUAGES } from "@/lib/courses/languages"
 import { EXAM_CATEGORIES, EXAM_CATEGORY_GROUPS, isKnownExamCategory } from "@/lib/courses/categories"
 
@@ -59,6 +70,8 @@ interface LessonItem {
 interface ChapterItem {
   id: string
   title: string
+  titleHi?: string | null
+  unitId?: string | null
   order: number
   lessons: LessonItem[]
 }
@@ -112,8 +125,10 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false)
   const [thumbnailInputUrl, setThumbnailInputUrl] = useState(course.thumbnailUrl || "/placeholder-course.svg")
 
-  // Studio Workspace Tab: "syllabus" | "teachers" | "schedule" | "highlights" | "faqs" | "coupons"
-  const [activeTab, setActiveTab] = useState<"syllabus" | "teachers" | "schedule" | "highlights" | "faqs" | "coupons">("syllabus")
+  // Studio Workspace Tab: "hero" | "syllabus" | "plan" | "examSyllabus" | "teachers" | ... | "leads" | "sections"
+  const [activeTab, setActiveTab] = useState<
+    "hero" | "syllabus" | "plan" | "examSyllabus" | "teachers" | "schedule" | "highlights" | "faqs" | "coupons" | "leads" | "sections"
+  >("hero")
 
   // Parsed Metadata State (Teachers, Schedule, About Highlights, FAQs)
   const initialMeta = (() => {
@@ -125,6 +140,60 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
       console.error("Failed to parse initial metadataJson:", e)
     }
     return {}
+  })()
+
+  // ── Course Studio v2 (P4) ───────────────────────────────────────────────
+  // Hero/details draft + section toggles live here; units and the exam syllabus
+  // are real DB rows saved by their own tabs.
+  const [heroDraft, setHeroDraft] = useState<HeroDraft>(() => buildHeroDraft(initialMeta, initialCourse as any))
+  const [sectionFlags, setSectionFlags] = useState<SectionFlags>(() => readSectionFlags(initialMeta))
+  const [studioDirty, setStudioDirty] = useState(false)
+  useDirtyGuard(studioDirty)
+
+  const patchHeroDraft = useCallback((patch: Partial<HeroDraft>) => {
+    setHeroDraft((prev) => ({ ...prev, ...patch }))
+    setStudioDirty(true)
+  }, [])
+
+  const changeSectionFlags = useCallback((next: SectionFlags) => {
+    setSectionFlags(next)
+    setStudioDirty(true)
+  }, [])
+
+  // Hindi coverage badge in the header: counts only fields that have English text.
+  const hindiMissing = (() => {
+    const courseText = hindiCompletenessForList(
+      [
+        {
+          subtitle: heroDraft.subtitle,
+          subtitleHi: heroDraft.subtitleHi,
+          description,
+          descriptionHi: heroDraft.descriptionHi,
+          scheduleText: heroDraft.scheduleText,
+          scheduleTextHi: heroDraft.scheduleTextHi,
+          validityText: heroDraft.validityText,
+          validityTextHi: heroDraft.validityTextHi,
+          validityNote: heroDraft.validityNote,
+          validityNoteHi: heroDraft.validityNoteHi,
+          enrollDisclaimer: heroDraft.enrollDisclaimer,
+          enrollDisclaimerHi: heroDraft.enrollDisclaimerHi,
+          lateJoinerTemplate: heroDraft.lateJoinerTemplate,
+          lateJoinerTemplateHi: heroDraft.lateJoinerTemplateHi,
+        },
+      ],
+      [
+        "subtitle",
+        "description",
+        "scheduleText",
+        "validityText",
+        "validityNote",
+        "enrollDisclaimer",
+        "lateJoinerTemplate",
+      ]
+    )
+    const teachers = hindiCompletenessForList(initialMeta.teachers || [], ["name", "role", "qualification", "bio"])
+    const faqs = hindiCompletenessForList(initialMeta.faqs || [], ["question", "answer"])
+    return courseText.missing + teachers.missing + faqs.missing
   })()
 
   const [language, setLanguage] = useState<string>(initialMeta.language || DEFAULT_COURSE_LANGUAGE)
@@ -463,6 +532,9 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
         // Spread the existing object first so unknown/legacy keys survive a save.
         ...initialMeta,
         schemaVersion: 2,
+        // Hero & Details tab (overrides the fields it owns).
+        ...heroDraftToMetadata(heroDraft),
+        sections: sectionFlags,
         language,
         targetText: targetAudience,
         classTag: technology,
@@ -503,6 +575,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           isPremium,
           status,
           thumbnailUrl,
+          ...heroDraftToCourseColumns(heroDraft),
           metadataJson: JSON.stringify(metadataPayload),
         }),
       })
@@ -516,6 +589,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
       }))
 
       setSuccessMsg("Course specifications & pricing saved successfully!")
+      setStudioDirty(false)
       setTimeout(() => setSuccessMsg(null), 3500)
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to save course")
@@ -959,6 +1033,14 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           </div>
 
           <div className="flex items-center gap-2.5">
+            <span
+              className={`hidden sm:inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+                hindiMissing > 0 ? "bg-amber-100 text-amber-900" : "bg-emerald-100 text-emerald-800"
+              }`}
+              title="Hindi coverage across course text, teachers and FAQs"
+            >
+              {hindiBadgeLabel(hindiMissing)}
+            </span>
             <Link
               href={isTeacher ? `/teacher/tutorials/${course.id}/edit` : `/admin/tutorials/${course.id}/edit`}
               className="px-3 py-1.5 rounded-xl text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors flex items-center gap-1.5"
@@ -1160,6 +1242,71 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
         <div className="bg-white rounded-2xl border border-gray-200 p-2 shadow-xs mb-6 flex items-center gap-2 overflow-x-auto no-scrollbar">
           <button
             type="button"
+            onClick={() => setActiveTab("hero")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "hero"
+                ? "bg-orange-600 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Hero & Details</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("plan")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "plan"
+                ? "bg-orange-600 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Course Plan</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("examSyllabus")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "examSyllabus"
+                ? "bg-orange-600 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Exam Syllabus</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("leads")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "leads"
+                ? "bg-orange-600 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <PhoneCall className="w-4 h-4" />
+            <span>Callback Leads</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("sections")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "sections"
+                ? "bg-orange-600 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Eye className="w-4 h-4" />
+            <span>Sections</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab("syllabus")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === "syllabus"
@@ -1266,6 +1413,57 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column (8 cols): Syllabus Section / Chapter CRUD */}
           <div className="lg:col-span-8 space-y-6">
+            {activeTab === "hero" && (
+              <HeroDetailsTab
+                draft={heroDraft}
+                onChange={(patch) => {
+                  patchHeroDraft(patch)
+                  if (patch.category !== undefined) setTechnology(patch.category)
+                  if (patch.language !== undefined) setLanguage(patch.language)
+                }}
+                title={title}
+                onTitleChange={(value) => {
+                  setTitle(value)
+                  setStudioDirty(true)
+                }}
+                description={description}
+                onDescriptionChange={(value) => {
+                  setDescription(value)
+                  setStudioDirty(true)
+                }}
+              />
+            )}
+
+            {activeTab === "plan" && (
+              <CoursePlanTab
+                courseId={course.id}
+                chapters={chapters.map((chapter) => ({
+                  id: chapter.id,
+                  title: chapter.title,
+                  unitId: chapter.unitId ?? null,
+                }))}
+                onChaptersChanged={() => router.refresh()}
+              />
+            )}
+
+            {activeTab === "examSyllabus" && (
+              <ExamSyllabusTab
+                courseId={course.id}
+                chapters={chapters.map((chapter) => ({ id: chapter.id, title: chapter.title }))}
+              />
+            )}
+
+            {activeTab === "leads" && <CallbackLeadsTab courseId={course.id} />}
+
+            {activeTab === "sections" && (
+              <SectionsTab
+                flags={sectionFlags}
+                onFlagsChange={changeSectionFlags}
+                metadata={initialMeta}
+                heroFields={heroDraft as unknown as Record<string, unknown>}
+              />
+            )}
+
             {activeTab === "syllabus" && (
             <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
               <div className="p-5 border-b border-gray-100 flex items-center justify-between">
