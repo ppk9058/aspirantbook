@@ -646,6 +646,15 @@ model Subscription {
   @@index([status])
   @@index([userId, status])
   @@index([userId, status, endDate])
+  @@unique([providerId])
+}
+
+model StripeWebhookEvent {
+  eventId     String   @id
+  type        String
+  processedAt DateTime @default(now())
+
+  @@index([processedAt])
 }
 
 model Payment {
@@ -653,6 +662,7 @@ model Payment {
   userId            String
   subscriptionId    String?
   amount            Float
+  amountMinor       Int?
   currency          String            @default("USD")
   status            PaymentStatus
   paymentMethod     String?
