@@ -273,37 +273,79 @@ export async function refreshSession(
     throw new Error("FORBIDDEN: Account is suspended or inactive");
   }
 
-  // ROTATION: Create new refresh token and retire current one atomically
+  // ROTATION: claim the current token atomically, then create its replacement.
+  // The conditional updateMany is the guard that makes a double spend
+  // impossible: exactly one concurrent refresh can move revokedAt NULL -> now.
   const newRawRefreshToken = generateOpaqueRefreshToken();
   const newRefreshTokenHash = hashRefreshToken(newRawRefreshToken);
   const newExpiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
 
-  const updatedSession = await prisma.$transaction(async (tx) => {
-    const created = await tx.deviceSession.create({
-      data: {
-        userId: session.userId,
-        refreshTokenHash: newRefreshTokenHash,
-        familyId: session.familyId,
-        deviceName: session.deviceName,
-        platform: session.platform,
-        appVersion: session.appVersion,
-        ip: ip || session.ip,
-        userAgent: userAgent || session.userAgent,
-        expiresAt: newExpiresAt,
-      },
-    });
+  let updatedSession: { id: string };
+  try {
+    updatedSession = await prisma.$transaction(async (tx) => {
+      const claim = await tx.deviceSession.updateMany({
+        where: { id: session.id, revokedAt: null, replacedById: null },
+        data: { revokedAt: new Date(), lastUsedAt: new Date() },
+      });
 
-    await tx.deviceSession.update({
-      where: { id: session.id },
-      data: {
-        revokedAt: new Date(),
-        replacedById: created.id,
-        lastUsedAt: new Date(),
-      },
-    });
+      if (claim.count !== 1) {
+        const race = new Error("REFRESH_REUSE_RACE");
+        (race as any).code = "REFRESH_REUSE_RACE";
+        throw race;
+      }
 
-    return created;
-  });
+      const created = await tx.deviceSession.create({
+        data: {
+          userId: session.userId,
+          refreshTokenHash: newRefreshTokenHash,
+          familyId: session.familyId,
+          deviceName: session.deviceName,
+          platform: session.platform,
+          appVersion: session.appVersion,
+          ip: ip || session.ip,
+          userAgent: userAgent || session.userAgent,
+          expiresAt: newExpiresAt,
+        },
+      });
+
+      await tx.deviceSession.update({
+        where: { id: session.id },
+        data: { replacedById: created.id },
+      });
+
+      return created;
+    });
+  } catch (err: any) {
+    if (err?.code === "REFRESH_REUSE_RACE" || err?.message === "REFRESH_REUSE_RACE") {
+      // A concurrent caller already spent this token. Treat it exactly like
+      // reuse: revoke the whole family so a stolen token cannot be replayed.
+      console.warn(`[SECURITY ALERT] Concurrent refresh reuse detected for family ${session.familyId}! Revoking family.`);
+
+      await prisma.$transaction([
+        prisma.deviceSession.updateMany({
+          where: { familyId: session.familyId, revokedAt: null },
+          data: { revokedAt: new Date() },
+        }),
+        prisma.user.update({
+          where: { id: session.userId },
+          data: { sessionVersion: { increment: 1 } },
+        }),
+      ]);
+
+      invalidateViewerCache(session.userId);
+
+      await logAuditEvent({
+        actorId: session.userId,
+        action: "SECURITY_REFRESH_TOKEN_REUSE_DETECTED",
+        targetId: session.familyId,
+        ip,
+        details: { compromisedSessionId: session.id, concurrent: true },
+      });
+
+      throw new Error("UNAUTHORIZED: Token reuse detected. All sessions revoked for your security. Please log in again.");
+    }
+    throw err;
+  }
 
   invalidateViewerCache(session.id);
 
