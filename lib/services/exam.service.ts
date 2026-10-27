@@ -20,6 +20,66 @@ import {
   TestLeaderboardItemDto,
 } from "@aspirantbook/shared";
 import { z } from "zod";
+import { DEADLINE_EXPIRED_MESSAGE, examDeadline } from "@/lib/exam-deadline";
+
+/**
+ * A14: persist one sync batch.
+ *
+ * One batched read replaces the per-answer `findUnique` N+1, then a single
+ * transaction writes the whole batch: `createMany` for rows that did not
+ * exist yet, and one guarded `updateMany` per item. The `clientSeq` guard is
+ * the monotonic protection — a late packet with an older sequence number
+ * matches 0 rows and is dropped, exactly like the old read-then-decide code,
+ * and a row created between the read and the transaction is protected too.
+ */
+async function applyAnswerBatch(
+  attemptId: string,
+  answers: Array<z.infer<typeof AnswerItemSyncSchema>>
+): Promise<number> {
+  if (answers.length === 0) return 0;
+
+  const questionIds = Array.from(new Set(answers.map((a) => a.questionId)));
+  const existingRows = await prisma.examAttemptAnswer.findMany({
+    where: { attemptId, questionId: { in: questionIds } },
+    select: { questionId: true },
+  });
+  const alreadyStored = new Set(existingRows.map((row) => row.questionId));
+
+  const fresh = answers.filter((a) => !alreadyStored.has(a.questionId));
+  if (fresh.length > 0) {
+    await prisma.examAttemptAnswer.createMany({
+      data: fresh.map((a) => ({
+        attemptId,
+        questionId: a.questionId,
+        selectedOption: a.selectedOption ?? null,
+        isMarked: a.isMarked ?? false,
+        timeSpentSecs: a.timeSpentSecs ?? 0,
+        clientSeq: a.sequenceNumber,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  const results = await prisma.$transaction(
+    answers.map((a) =>
+      prisma.examAttemptAnswer.updateMany({
+        where: {
+          attemptId,
+          questionId: a.questionId,
+          clientSeq: { lte: a.sequenceNumber },
+        },
+        data: {
+          selectedOption: a.selectedOption ?? null,
+          ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
+          ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
+          clientSeq: a.sequenceNumber,
+        },
+      })
+    )
+  );
+
+  return results.reduce((sum, result) => sum + result.count, 0);
+}
 
 export async function getTestsList(
   viewer: Viewer,
@@ -405,90 +465,17 @@ export async function syncAttemptAnswers(
     throw new Error("BAD_REQUEST: Cannot sync answers on an already finalized attempt");
   }
 
-  // Check deadline + 30s grace period:
-  const durationMinutes = attempt.test?.durationMinutes ?? 60;
-  const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
-  const graceDeadlineMs = deadlineMs + 30 * 1000;
+  // A14: the shared deadline policy is checked BEFORE any write.
+  const deadline = examDeadline(
+    { startedAt: attempt.startedAt, durationMinutes: attempt.test?.durationMinutes ?? 60 },
+    new Date()
+  );
 
-  if (Date.now() > graceDeadlineMs) {
-    throw new Error("BAD_REQUEST: Attempt deadline has expired; answers are rejected");
+  if (deadline.expired) {
+    throw new Error(`BAD_REQUEST: ${DEADLINE_EXPIRED_MESSAGE}`);
   }
 
-  // Monotonically and idempotently upsert each answer batch
-  let syncedCount = 0;
-  for (const a of answers) {
-    const existing = await prisma.examAttemptAnswer.findUnique({
-      where: {
-        attemptId_questionId: {
-          attemptId,
-          questionId: a.questionId,
-        },
-      },
-      select: { clientSeq: true },
-    });
-
-    if (existing) {
-      if (
-        existing.clientSeq !== null &&
-        existing.clientSeq !== undefined &&
-        existing.clientSeq > a.sequenceNumber
-      ) {
-        // Monotonic guard: older sequence packet cannot overwrite newer answer
-        continue;
-      }
-      const updated = await prisma.examAttemptAnswer.updateMany({
-        where: {
-          attemptId,
-          questionId: a.questionId,
-          clientSeq: { lte: a.sequenceNumber },
-        },
-        data: {
-          selectedOption: a.selectedOption ?? null,
-          ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
-          ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
-          clientSeq: a.sequenceNumber,
-        },
-      });
-      if (updated.count > 0) {
-        syncedCount++;
-      }
-    } else {
-      try {
-        await prisma.examAttemptAnswer.create({
-          data: {
-            attemptId,
-            questionId: a.questionId,
-            selectedOption: a.selectedOption ?? null,
-            isMarked: a.isMarked ?? false,
-            timeSpentSecs: a.timeSpentSecs ?? 0,
-            clientSeq: a.sequenceNumber,
-          },
-        });
-        syncedCount++;
-      } catch (err: any) {
-        if (err?.code === "P2002") {
-          const updated = await prisma.examAttemptAnswer.updateMany({
-            where: {
-              attemptId,
-              questionId: a.questionId,
-              clientSeq: { lte: a.sequenceNumber },
-            },
-            data: {
-              selectedOption: a.selectedOption ?? null,
-              ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
-              ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
-              clientSeq: a.sequenceNumber,
-            },
-          });
-          if (updated.count > 0) {
-            syncedCount++;
-          }
-        } else {
-          throw err;
-        }
-      }
-    }
-  }
+  const syncedCount = await applyAnswerBatch(attemptId, answers);
 
   return {
     syncedCount,
@@ -529,77 +516,18 @@ export async function submitTestAttempt(
     return getAttemptResult(viewer, attemptId);
   }
 
-  const durationMinutes = attempt.test?.durationMinutes ?? 60;
-  const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
-  const graceDeadlineMs = deadlineMs + 30 * 1000;
-  const withinDeadline = Date.now() <= graceDeadlineMs;
+  // A14: the shared deadline policy gates the final-answer sync. Past the
+  // grace period the late writes are skipped and the stored (synced) answers
+  // are graded — the same window the web submit route uses.
+  const deadline = examDeadline(
+    { startedAt: attempt.startedAt, durationMinutes: attempt.test?.durationMinutes ?? 60 },
+    new Date()
+  );
+  const withinGrace = deadline.withinGrace;
 
   // If final answers provided in submit payload AND within deadline, sync them
-  if (withinDeadline && finalAnswers && finalAnswers.length > 0 && attempt.status === "IN_PROGRESS") {
-    for (const a of finalAnswers) {
-      const existing = await prisma.examAttemptAnswer.findUnique({
-        where: {
-          attemptId_questionId: {
-            attemptId,
-            questionId: a.questionId,
-          },
-        },
-        select: { clientSeq: true },
-      });
-      if (existing) {
-        if (
-          existing.clientSeq !== null &&
-          existing.clientSeq !== undefined &&
-          existing.clientSeq > a.sequenceNumber
-        ) {
-          continue;
-        }
-        await prisma.examAttemptAnswer.updateMany({
-          where: {
-            attemptId,
-            questionId: a.questionId,
-            clientSeq: { lte: a.sequenceNumber },
-          },
-          data: {
-            selectedOption: a.selectedOption ?? null,
-            ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
-            ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
-            clientSeq: a.sequenceNumber,
-          },
-        });
-      } else {
-        try {
-          await prisma.examAttemptAnswer.create({
-            data: {
-              attemptId,
-              questionId: a.questionId,
-              selectedOption: a.selectedOption ?? null,
-              isMarked: a.isMarked ?? false,
-              timeSpentSecs: a.timeSpentSecs ?? 0,
-              clientSeq: a.sequenceNumber,
-            },
-          });
-        } catch (err: any) {
-          if (err?.code === "P2002") {
-            await prisma.examAttemptAnswer.updateMany({
-              where: {
-                attemptId,
-                questionId: a.questionId,
-                clientSeq: { lte: a.sequenceNumber },
-              },
-              data: {
-                selectedOption: a.selectedOption ?? null,
-                ...(a.isMarked !== undefined ? { isMarked: a.isMarked } : {}),
-                ...(a.timeSpentSecs !== undefined ? { timeSpentSecs: a.timeSpentSecs } : {}),
-                clientSeq: a.sequenceNumber,
-              },
-            });
-          } else {
-            throw err;
-          }
-        }
-      }
-    }
+  if (withinGrace && finalAnswers && finalAnswers.length > 0 && attempt.status === "IN_PROGRESS") {
+    await applyAnswerBatch(attemptId, finalAnswers);
   }
 
   // Authoritatively and atomically grade the attempt

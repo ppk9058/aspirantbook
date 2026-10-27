@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 import { gradeExamAttempt } from "@/lib/exam-grading";
+import { DEADLINE_EXPIRED_MESSAGE, examDeadline } from "@/lib/exam-deadline";
 
 interface AnswerPayload {
   questionId: string;
@@ -77,33 +79,63 @@ export async function POST(
       );
     }
 
-    // Enforce sequence ordering using the dedicated clientSeq column:
-    // If existing record has newer/equal clientSeq, return storedSeq to let client catch up.
+    // A14: the shared deadline policy is checked BEFORE any write. Late
+    // answers are never persisted; the attempt is graded and finalized so the
+    // learner still gets a result (the timer ran out mid-sync).
+    const deadline = examDeadline(
+      { startedAt: attempt.startedAt, durationMinutes: attempt.test?.durationMinutes ?? 60 },
+      new Date()
+    );
+    if (deadline.expired) {
+      const graded = await gradeExamAttempt(attemptId, new Date());
+      return NextResponse.json(
+        {
+          data: {
+            synced: false,
+            rejected: answers.length,
+            expired: true,
+            status: "SUBMITTED",
+            error: DEADLINE_EXPIRED_MESSAGE,
+            result: graded,
+          },
+        },
+        { status: 200 }
+      );
+    }
+
+    // A14: one batched read replaces the per-answer findUnique N+1; the
+    // upserts still run inside a single transaction with the stale-sequence
+    // guard.
+    let hasStaleSequence = false;
+    let maxStoredSeq = 0;
+
     if (answers.length > 0) {
-      let maxStoredSeq = 0;
-      let hasStaleSequence = false;
+      const questionIds = Array.from(
+        new Set(answers.map((ans) => ans.questionId))
+      );
 
-      await prisma.$transaction(async (tx) => {
-        for (const ans of answers) {
-          const existing = await tx.examAttemptAnswer.findUnique({
-            where: {
-              attemptId_questionId: {
-                attemptId,
-                questionId: ans.questionId,
-              },
-            },
-            select: { clientSeq: true },
-          });
+      const existingRows = await prisma.examAttemptAnswer.findMany({
+        where: { attemptId, questionId: { in: questionIds } },
+        select: { questionId: true, clientSeq: true },
+      });
+      const storedSeqByQuestion = new Map(
+        existingRows.map((row) => [row.questionId, row.clientSeq])
+      );
 
-          if (existing && existing.clientSeq > sequence) {
-            hasStaleSequence = true;
-            maxStoredSeq = Math.max(maxStoredSeq, existing.clientSeq);
-            continue;
-          }
+      const operations: Prisma.PrismaPromise<any>[] = [];
 
-          maxStoredSeq = Math.max(maxStoredSeq, sequence);
+      for (const ans of answers) {
+        const storedSeq = storedSeqByQuestion.get(ans.questionId) ?? null;
+        if (storedSeq !== null && storedSeq !== undefined && storedSeq > sequence) {
+          hasStaleSequence = true;
+          maxStoredSeq = Math.max(maxStoredSeq, storedSeq);
+          continue;
+        }
 
-          await tx.examAttemptAnswer.upsert({
+        maxStoredSeq = Math.max(maxStoredSeq, sequence);
+
+        operations.push(
+          prisma.examAttemptAnswer.upsert({
             where: {
               attemptId_questionId: {
                 attemptId,
@@ -124,25 +156,21 @@ export async function POST(
               clientSeq: sequence,
               timeSpentSecs: ans.timeSpentSecs ?? 0,
             },
-          });
-        }
+          })
+        );
+      }
 
-        if (typeof tabSwitchCount === "number") {
-          await tx.examAttempt.update({
+      if (typeof tabSwitchCount === "number") {
+        operations.push(
+          prisma.examAttempt.update({
             where: { id: attemptId },
             data: { tabSwitchCount },
-          });
-        }
-      });
-
-      if (hasStaleSequence) {
-        return NextResponse.json(
-          {
-            error: "Stale sequence: server has newer data",
-            storedSeq: maxStoredSeq,
-          },
-          { status: 409 }
+          })
         );
+      }
+
+      if (operations.length > 0) {
+        await prisma.$transaction(operations);
       }
     } else if (typeof tabSwitchCount === "number") {
       await prisma.examAttempt.update({
@@ -151,24 +179,13 @@ export async function POST(
       });
     }
 
-    // Check deadline + 30s grace period:
-    // If expired, do NOT discard answers with 410; grade the attempt and finalize it!
-    const durationMinutes = attempt.test!.durationMinutes;
-    const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
-    const graceDeadlineMs = deadlineMs + 30 * 1000;
-
-    if (Date.now() > graceDeadlineMs) {
-      const graded = await gradeExamAttempt(attemptId, new Date());
+    if (hasStaleSequence) {
       return NextResponse.json(
         {
-          data: {
-            synced: true,
-            expired: true,
-            status: "SUBMITTED",
-            result: graded,
-          },
+          error: "Stale sequence: server has newer data",
+          storedSeq: maxStoredSeq,
         },
-        { status: 200 }
+        { status: 409 }
       );
     }
 

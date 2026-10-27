@@ -188,17 +188,29 @@ export async function gradeExamAttempt(
           return false;
         }
 
+        // A14: one batched update per (isCorrect, marksAwarded) group instead
+        // of an update per answer. Grouping keeps per-question marking
+        // (different papers use different marks) while removing the N+1.
+        const gradedGroups = new Map<
+          string,
+          { isCorrect: boolean; marksAwarded: number; questionIds: string[] }
+        >();
         for (const ga of gradedAnswers) {
-          await tx.examAttemptAnswer.update({
-            where: {
-              attemptId_questionId: {
-                attemptId,
-                questionId: ga.questionId,
-              },
-            },
+          const key = `${ga.isCorrect}|${ga.marksAwarded}`;
+          const group =
+            gradedGroups.get(key) ??
+            { isCorrect: ga.isCorrect, marksAwarded: ga.marksAwarded, questionIds: [] };
+          group.questionIds.push(ga.questionId);
+          gradedGroups.set(key, group);
+        }
+
+        for (const group of gradedGroups.values()) {
+          group.questionIds.sort();
+          await tx.examAttemptAnswer.updateMany({
+            where: { attemptId, questionId: { in: group.questionIds } },
             data: {
-              isCorrect: ga.isCorrect,
-              marksAwarded: ga.marksAwarded,
+              isCorrect: group.isCorrect,
+              marksAwarded: group.marksAwarded,
             },
           });
         }
