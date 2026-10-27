@@ -4,6 +4,16 @@ import { NextResponse } from "next/server"
 import { sanitizeReturnPath } from "./lib/utils/return-path"
 import { isTeacherAllowedAdminPath } from "./lib/auth/roles"
 import { normalizeDemoRole } from "./lib/auth/demo-role"
+import { verifyRequestOrigin } from "./lib/security/csrf"
+
+/**
+ * A15: paths whose mutations authenticate by signature or protocol token rather
+ * than by the session cookie, so a browser Origin check does not apply.
+ *  - /api/webhooks/*      verifies a provider signature over the raw body
+ *  - /api/auth/*          NextAuth's own CSRF token + OAuth callbacks
+ */
+const CSRF_EXEMPT_PREFIXES = ["/api/webhooks", "/api/auth"]
+const CSRF_SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"])
 
 const { auth } = NextAuth(authConfig)
 
@@ -29,6 +39,27 @@ export default auth((req) => {
 
     const toRequestUrl = (path: string) => {
         return new URL(path, reqOrigin)
+    }
+
+    // A15: CSRF guard. A state-changing request that carries the session cookie
+    // must come from this host. Bearer-token and signature-authenticated calls
+    // are unaffected (no session cookie), and requests without an Origin header
+    // stay allowed for non-browser clients.
+    const method = req.method.toUpperCase()
+    const hasSessionCookie = req.cookies
+        .getAll()
+        .some((cookie) => cookie.name.includes("session-token"))
+    const isExemptPath = CSRF_EXEMPT_PREFIXES.some((prefix) => nextUrl.pathname.startsWith(prefix))
+    if (
+        hasSessionCookie &&
+        !CSRF_SAFE_METHODS.has(method) &&
+        !isExemptPath &&
+        !verifyRequestOrigin(req)
+    ) {
+        return NextResponse.json(
+            { error: "Cross-origin request rejected" },
+            { status: 403 }
+        )
     }
 
     // Admin APIs Protection — ADMIN or allowed TEACHER studios
@@ -128,7 +159,7 @@ export default auth((req) => {
 export const config = {
     matcher: [
         "/admin/:path*",
-        "/api/admin/:path*",
+        "/api/((?!auth).*)",
         "/teacher/:path*",
         "/dashboard/:path*",
         "/courses/:path*",
