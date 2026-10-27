@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { TrackType } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
+import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { assertAdmin } from "@/lib/auth/action-guards"
 import { z } from "zod"
 
 const TrackSchema = z.object({
@@ -13,7 +15,12 @@ const TrackSchema = z.object({
     isPublished: z.boolean().optional(),
 })
 
+async function requireAdmin() {
+    assertAdmin(await getCurrentUserContext())
+}
+
 export async function getTracks() {
+    await requireAdmin()
     try {
         const tracks = await prisma.track.findMany({
             orderBy: { order: "asc" },
@@ -31,6 +38,7 @@ export async function getTracks() {
 }
 
 export async function createTrack(data: z.infer<typeof TrackSchema>) {
+    await requireAdmin()
     try {
         const validated = TrackSchema.parse(data)
 
@@ -64,10 +72,12 @@ export async function createTrack(data: z.infer<typeof TrackSchema>) {
 }
 
 export async function updateTrack(id: string, data: Partial<z.infer<typeof TrackSchema>>) {
+    await requireAdmin()
     try {
+        const validated = TrackSchema.partial().parse(data)
         const track = await prisma.track.update({
             where: { id },
-            data,
+            data: validated,
         })
 
         revalidatePath("/admin/tracks")
@@ -81,6 +91,7 @@ export async function updateTrack(id: string, data: Partial<z.infer<typeof Track
 }
 
 export async function deleteTrack(id: string) {
+    await requireAdmin()
     try {
         await prisma.track.delete({
             where: { id },
@@ -97,6 +108,7 @@ export async function deleteTrack(id: string) {
 }
 
 export async function addCourseToTrack(trackId: string, courseId: string) {
+    await requireAdmin()
     try {
         // Get current highest order
         const lastCourse = await prisma.trackCourse.findFirst({
@@ -125,6 +137,7 @@ export async function addCourseToTrack(trackId: string, courseId: string) {
 }
 
 export async function removeCourseFromTrack(trackId: string, courseId: string) {
+    await requireAdmin()
     try {
         await prisma.trackCourse.delete({
             where: {
@@ -146,6 +159,7 @@ export async function removeCourseFromTrack(trackId: string, courseId: string) {
 }
 
 export async function reorderTrackCourses(trackId: string, items: { id: string; order: number }[]) {
+    await requireAdmin()
     try {
         const transaction = items.map((item) =>
             prisma.trackCourse.update({
@@ -165,6 +179,7 @@ export async function reorderTrackCourses(trackId: string, items: { id: string; 
 }
 
 export async function getAvailableCourses(trackId: string) {
+    await requireAdmin()
     try {
         const courses = await prisma.course.findMany({
             where: {
