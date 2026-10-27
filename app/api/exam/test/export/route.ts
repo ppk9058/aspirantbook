@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { normalizeDemoRole } from "@/lib/auth/demo-role"
 import { auth } from "@/auth"
 import { cookies } from "next/headers"
 import { exportTestsCsv } from "@/lib/exam-tests"
@@ -8,7 +9,7 @@ export async function GET(_req: NextRequest) {
   try {
     const session = await auth()
     const cookieStore = await cookies()
-    const demoRole = cookieStore.get("ts_demo_role")?.value
+    const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
 
     const authCheck = verifyMutationAuth({ session, demoRole })
     if (!authCheck.authorized || !authCheck.userId || !authCheck.role) {

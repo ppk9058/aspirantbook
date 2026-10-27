@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { logContentAudit, AuditAction, AuditEntityType } from "@/lib/actions/admin/audit"
+import { normalizeDemoRole } from "@/lib/auth/demo-role"
 
 export interface MutationAuthResult {
   authorized: boolean
@@ -33,9 +34,10 @@ export function verifyMutationAuth({
       return { authorized: false, error: "Unauthorized: Active session required", status: 401 }
     }
     // Dev only fallback if explicitly provided
-    if (demoRole && (demoRole === "ADMIN" || demoRole === "TEACHER")) {
-      userId = `demo-${demoRole.toLowerCase()}`
-      role = demoRole
+    const normalizedDemoRole = normalizeDemoRole(demoRole)
+    if (normalizedDemoRole && (normalizedDemoRole === "ADMIN" || normalizedDemoRole === "TEACHER")) {
+      userId = `demo-${normalizedDemoRole.toLowerCase()}`
+      role = normalizedDemoRole
     } else {
       return { authorized: false, error: "Unauthorized: Active session required", status: 401 }
     }

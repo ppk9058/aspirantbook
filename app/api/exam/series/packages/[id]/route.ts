@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { normalizeDemoRole } from "@/lib/auth/demo-role"
 import { auth } from "@/auth"
 import { cookies } from "next/headers"
 import {
@@ -16,7 +17,7 @@ export async function GET(
   try {
     const session = await auth()
     const cookieStore = await cookies()
-    const demoRole = cookieStore.get("ts_demo_role")?.value
+    const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
     const effectiveRole = session?.user?.role || demoRole
     const userId = session?.user?.id || (demoRole ? `demo-${demoRole.toLowerCase()}` : "")
 
@@ -67,7 +68,7 @@ export async function PATCH(
   try {
     const session = await auth()
     const cookieStore = await cookies()
-    const demoRole = cookieStore.get("ts_demo_role")?.value
+    const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
 
     const authCheck = verifyMutationAuth({ session, demoRole })
     if (!authCheck.authorized || !authCheck.userId || !authCheck.role) {
@@ -152,7 +153,7 @@ export async function DELETE(
   try {
     const session = await auth()
     const cookieStore = await cookies()
-    const demoRole = cookieStore.get("ts_demo_role")?.value
+    const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
 
     const authCheck = verifyMutationAuth({ session, demoRole })
     if (!authCheck.authorized || !authCheck.userId || !authCheck.role) {

@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { AppRole, normalizeAppRole } from "./roles"
 import { Permission, hasPermission, ROLE_PERMISSIONS } from "./permissions"
 import { cookies } from "next/headers"
+import { normalizeDemoRole } from "./demo-role"
 
 export interface UserContext {
   userId?: string
@@ -19,7 +20,7 @@ export interface UserContext {
 export async function getCurrentUserContext(): Promise<UserContext> {
   const session = await auth()
   const cookieStore = await cookies()
-  const demoRoleCookie = cookieStore.get("ts_demo_role")?.value as AppRole | undefined
+  const demoRoleCookie = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
 
   // Authentic session role always takes precedence; fallback to demo cookie for unauthenticated testing
   let rawRole: string | undefined = session?.user?.role

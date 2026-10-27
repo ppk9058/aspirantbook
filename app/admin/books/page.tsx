@@ -1,4 +1,5 @@
 import { auth } from "@/auth"
+import { normalizeDemoRole } from "@/lib/auth/demo-role"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { getAllBooks, getAllOrders, getAllCoupons, getBookstoreStats } from "@/lib/books/bookService"
@@ -14,7 +15,7 @@ export const metadata = {
 export default async function AdminBookstorePage() {
   const session = await auth()
   const cookieStore = await cookies()
-  const demoRole = cookieStore.get("ts_demo_role")?.value
+  const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
   const effectiveRole = session?.user?.role || demoRole
 
   // STRICT ACCESS: Only ADMIN role can access Online Bookstore admin panel
