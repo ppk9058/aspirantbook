@@ -1,6 +1,3 @@
-import fs from "fs/promises"
-import path from "path"
-
 export interface PdfUploadResult {
   url: string
   filePath: string
@@ -59,56 +56,40 @@ export function estimatePdfPageCount(buffer: Buffer): number {
 }
 
 /**
- * Saves a PDF to the specified subdirectory (e.g. "books-sample", "books-secure", "ca-private", "pyq-private")
+ * Saves a PDF through the shared upload policy (validation, server-generated
+ * name, object storage with a fail-closed production path). Kept as a thin
+ * wrapper so any legacy caller cannot reach the old raw-disk writer.
  */
 export async function savePdfFile(
   file: File,
   subFolder: string,
   isPublic: boolean = false
 ): Promise<PdfUploadResult> {
-  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")
-  if (!isPdf) {
-    throw new Error("Invalid file format. Only PDF files are permitted.")
-  }
+  const { storeUpload, UploadError } = await import("@/lib/security/upload-policy")
 
   const buffer = Buffer.from(await file.arrayBuffer())
   const validation = validatePdfBuffer(buffer)
   if (!validation.valid) {
-    throw new Error(validation.error || "Invalid PDF file")
+    throw new UploadError(400, validation.error || "Invalid PDF file")
   }
 
-  const timestamp = Date.now()
-  const safeBaseName = file.name
-    .replace(/\.[^/.]+$/, "")
-    .replace(/[^a-zA-Z0-9_-]/g, "_")
-    .slice(0, 80)
-  const fileName = `${timestamp}-${safeBaseName || "document"}.pdf`
-
-  // Public files can be placed in public/uploads/ or uploads/
-  const targetDir = isPublic
-    ? path.join(process.cwd(), "public", "uploads", subFolder)
-    : path.join(process.cwd(), "uploads", subFolder)
-
-  await fs.mkdir(targetDir, { recursive: true })
-  const destinationPath = path.join(targetDir, fileName)
-  await fs.writeFile(destinationPath, buffer)
+  const stored = await storeUpload({
+    file,
+    buffer,
+    category: "pdf",
+    folder: subFolder,
+    visibility: isPublic ? "public" : "private",
+  })
 
   const detectedPages = estimatePdfPageCount(buffer)
-  const fileSizeBytes = buffer.length
-  const fileSizeKb = Math.round(fileSizeBytes / 1024)
-  const fileSizeMb = Number((fileSizeBytes / (1024 * 1024)).toFixed(2))
-
-  const url = isPublic
-    ? `/uploads/${subFolder}/${fileName}`
-    : `/uploads/${subFolder}/${fileName}`
 
   return {
-    url,
-    filePath: destinationPath,
-    fileName: file.name,
-    fileSizeKb,
-    fileSizeMb,
-    fileSizeBytes,
+    url: stored.url,
+    filePath: stored.url,
+    fileName: stored.fileName,
+    fileSizeKb: stored.sizeKb,
+    fileSizeMb: Number((stored.sizeKb / 1024).toFixed(2)),
+    fileSizeBytes: stored.sizeKb * 1024,
     detectedPages: detectedPages > 0 ? detectedPages : undefined,
   }
 }
