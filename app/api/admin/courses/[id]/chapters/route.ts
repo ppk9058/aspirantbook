@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { requireManagedCourse, requireManagedChapter } from "@/lib/auth/course-access-server"
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -10,6 +11,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     const { id: courseId } = await params
+
+    // A8: teachers may only add chapters to their own courses.
+    const access = await requireManagedCourse(user, courseId)
+    if (access.response) return access.response
+
     const body = await req.json()
     if (!body.title) {
       return NextResponse.json({ error: "Chapter title is required" }, { status: 400 })
@@ -53,6 +59,10 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Chapter ID and title are required" }, { status: 400 })
     }
 
+    // A8: ownership is resolved from the chapter's course.
+    const access = await requireManagedChapter(user, body.chapterId)
+    if (access.response) return access.response
+
     const updated = await prisma.chapter.update({
       where: { id: body.chapterId },
       data: {
@@ -83,6 +93,10 @@ export async function DELETE(req: Request) {
     if (!chapterId) {
       return NextResponse.json({ error: "Chapter ID is required" }, { status: 400 })
     }
+
+    // A8: ownership is resolved from the chapter's course.
+    const access = await requireManagedChapter(user, chapterId)
+    if (access.response) return access.response
 
     await prisma.chapter.delete({ where: { id: chapterId } })
     return NextResponse.json({ success: true, message: "Chapter deleted successfully" })

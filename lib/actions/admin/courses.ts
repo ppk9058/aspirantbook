@@ -13,6 +13,16 @@ import {
     courseInlineUpdateSchema,
     parseOrThrow,
 } from "@/lib/validation/admin-payloads"
+import {
+    creatorIdFor,
+    decideCourseDelete,
+    toCourseAccessUser,
+} from "@/lib/auth/course-access"
+import {
+    assertManagedCourseForAction,
+    assertManagedChapterForAction,
+    assertManagedLessonForAction,
+} from "@/lib/auth/course-access-server"
 
 const CourseDraftSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
@@ -60,7 +70,10 @@ export async function createCourseDraft(prevState: any, formData: FormData) {
         }
 
         const statusVal = formData.get("status") === "PUBLISHED" ? "PUBLISHED" : "DRAFT"
-        const isPublished = statusVal === "PUBLISHED"
+        // A8: only an ADMIN publishes directly; teachers always start as drafts.
+        const isTeacher = session.user.role === "TEACHER"
+        const effectiveStatus = isTeacher ? "DRAFT" : statusVal
+        const isPublished = effectiveStatus === "PUBLISHED"
 
         const course = await prisma.course.create({
             data: {
@@ -69,9 +82,10 @@ export async function createCourseDraft(prevState: any, formData: FormData) {
                 description,
                 difficulty,
                 technology,
-                isPremium,
-                status: statusVal,
+                isPremium: isTeacher ? false : isPremium,
+                status: effectiveStatus,
                 isPublished,
+                createdById: creatorIdFor(toCourseAccessUser(session.user)),
                 thumbnailUrl: "/placeholder-course.svg", // Default placeholder
             },
         })
@@ -105,6 +119,9 @@ export async function updateCourseDraft(courseId: string, rawData: any) {
     if (!session || !canEditCourse(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to edit course")
     }
+
+    // A8: teachers may only edit courses they created.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
 
     // A12: allowlisted fields only. Unknown keys are stripped, so a caller can
     // never mass-assign relations, ids, counters or audit columns.
@@ -168,6 +185,9 @@ export async function updateCourseInline(courseId: string, fields: Record<string
         throw new Error("Unauthorized: Insufficient permissions to edit course")
     }
 
+    // A8: teachers may only edit courses they created.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
+
     const data: Record<string, any> = parseOrThrow(courseInlineUpdateSchema, fields ?? {})
     if (typeof data.prerequisites === "string") {
         data.prerequisites = data.prerequisites.split(",").map((s: string) => s.trim()).filter(Boolean)
@@ -216,6 +236,9 @@ export async function updateCourseThumbnail(courseId: string, thumbnailUrl: stri
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "update")
+
     const course = await prisma.course.findUnique({
         where: { id: courseId },
     })
@@ -245,6 +268,10 @@ export async function deleteDraft(courseId: string) {
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership.
+    const accessUser = toCourseAccessUser(session.user)
+    await assertManagedCourseForAction(accessUser, courseId, "delete")
+
     // Only allow deleting drafts
     const course = await prisma.course.findUnique({
         where: { id: courseId },
@@ -263,6 +290,23 @@ export async function deleteDraft(courseId: string) {
 
     if (course.status !== "DRAFT") {
         throw new Error("Can only delete draft courses")
+    }
+
+    // A8: a course with learners is archived, never destroyed.
+    const enrollmentCount = await prisma.enrollment.count({ where: { courseId } })
+    if (decideCourseDelete(enrollmentCount) === "archive") {
+        await prisma.course.update({
+            where: { id: courseId },
+            data: { status: "ARCHIVED", isPublished: false },
+        })
+        await logContentAudit({
+            entityId: courseId,
+            entityType: "COURSE",
+            action: "UPDATE",
+            details: { archived: true, reason: "has enrollments", enrollmentCount },
+        })
+        revalidatePath("/admin/courses")
+        return { archived: true, enrollmentCount }
     }
 
     // Delete all associated files from S3
@@ -309,6 +353,9 @@ export async function togglePublishStatus(courseId: string) {
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "publish")
+
     const course = await prisma.course.findUnique({
         where: { id: courseId },
     })
@@ -347,6 +394,9 @@ export async function createChapter(courseId: string, data: { title: string; des
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "manage")
+
     const lastChapter = await prisma.chapter.findFirst({
         where: { courseId },
         orderBy: { order: "desc" },
@@ -373,6 +423,9 @@ export async function updateChapter(chapterId: string, data: { title: string; de
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership, resolved from the chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "manage")
+
     const chapter = await prisma.chapter.update({
         where: { id: chapterId },
         data: {
@@ -390,6 +443,9 @@ export async function deleteChapter(chapterId: string) {
     if (!session || !isEditorUser(session.user)) {
         throw new Error("Unauthorized")
     }
+
+    // A8: ownership, resolved from the chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "delete")
 
     const chapter = await prisma.chapter.findUnique({
         where: { id: chapterId },
@@ -428,6 +484,9 @@ export async function createLesson(chapterId: string, data: any) {
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership, resolved from the chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "manage")
+
     const lastLesson = await prisma.lesson.findFirst({
         where: { chapterId },
         orderBy: { order: "desc" },
@@ -459,6 +518,9 @@ export async function updateLesson(lessonId: string, data: any) {
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership, resolved from the lesson's chapter/course.
+    await assertManagedLessonForAction(toCourseAccessUser(session.user), lessonId, "manage")
+
     const lesson = await prisma.lesson.update({
         where: { id: lessonId },
         data,
@@ -474,6 +536,9 @@ export async function deleteLesson(lessonId: string) {
     if (!session || !isEditorUser(session.user)) {
         throw new Error("Unauthorized")
     }
+
+    // A8: ownership, resolved from the lesson's chapter/course.
+    await assertManagedLessonForAction(toCourseAccessUser(session.user), lessonId, "delete")
 
     const lesson = await prisma.lesson.findUnique({
         where: { id: lessonId },
@@ -506,7 +571,10 @@ export async function getTutorialCoursesAction() {
     if (!session || !isEditorUser(session.user)) {
         return []
     }
+    const accessUser = toCourseAccessUser(session.user)
     const courses = await prisma.course.findMany({
+        // A8: teachers only see the courses they own in the studio.
+        where: accessUser.role === "ADMIN" ? undefined : { createdById: accessUser.userId },
         orderBy: { updatedAt: "desc" },
         select: {
             id: true,

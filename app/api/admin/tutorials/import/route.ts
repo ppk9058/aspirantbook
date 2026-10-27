@@ -7,6 +7,8 @@ import { importTutorialPackage } from "@/lib/actions/admin/tutorial-import"
 import { validateOrMapCanonicalGoals } from "@/lib/tutorials-goal-categories"
 import { chunkContent, computeContentHash } from "@/lib/authwall/chunker"
 import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
+import { creatorIdFor } from "@/lib/auth/course-access"
+import { requireManagedCourse } from "@/lib/auth/course-access-server"
 
 interface LessonImport {
   title: string
@@ -111,6 +113,10 @@ export async function POST(req: Request) {
     let course: any = null
 
     if (courseId) {
+      // A8: teachers may only import into a course they own.
+      const access = await requireManagedCourse(user, courseId)
+      if (access.response) return access.response
+
       // Find existing course
       course = await prisma.course.findUnique({ where: { id: courseId } })
       if (course) {
@@ -190,6 +196,11 @@ export async function POST(req: Request) {
       }
 
       // Create new course with nested chapters and lessons
+      // A8: teachers create private drafts; only an ADMIN publishes directly.
+      const isTeacherCreate = user.role === "TEACHER"
+      const createdStatus = isTeacherCreate ? "DRAFT" : (effectiveStatus as any) || "PUBLISHED"
+      const createdPublished = isTeacherCreate ? false : isPublished
+
       course = await prisma.course.create({
         data: {
           title: title.trim(),
@@ -198,8 +209,9 @@ export async function POST(req: Request) {
           technology: canonicalTechnology,
           difficulty: (difficulty as any) || "BEGINNER",
           isPremium: false,
-          status: (effectiveStatus as any) || "PUBLISHED",
-          isPublished,
+          status: createdStatus,
+          isPublished: createdPublished,
+          createdById: creatorIdFor(user),
           thumbnailUrl: "/course-bpsc.svg",
           hasTrialLesson: true,
           metadataJson: theme ? JSON.stringify({ theme }) : null,

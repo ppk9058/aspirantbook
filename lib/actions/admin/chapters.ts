@@ -6,6 +6,11 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { canEditChapter, canDeleteChapter } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
+import { toCourseAccessUser } from "@/lib/auth/course-access"
+import {
+    assertManagedCourseForAction,
+    assertManagedChapterForAction,
+} from "@/lib/auth/course-access-server"
 
 const ChapterSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -43,6 +48,9 @@ export async function createChapter(courseId: string, data: { title: string; des
     if (!session || !canEditChapter(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to create chapter")
     }
+
+    // A8: teachers may only add chapters to their own courses.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "manage")
 
     const validated = ChapterSchema.parse(data)
 
@@ -90,6 +98,9 @@ export async function updateChapter(
     if (!session || !canEditChapter(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to update chapter")
     }
+
+    // A8: ownership, resolved from the chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "manage")
 
     // Validate fields if provided
     const updatePayload: Record<string, any> = {}
@@ -142,6 +153,9 @@ export async function updateChaptersGateMode(
         throw new Error("Unauthorized: Insufficient permissions to update chapters")
     }
 
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "manage")
+
     const cleanPercentage =
         previewPercentage === null || previewPercentage === undefined
             ? null
@@ -177,6 +191,9 @@ export async function deleteChapter(chapterId: string) {
         throw new Error("Unauthorized: Insufficient permissions to delete chapter")
     }
 
+    // A8: ownership, resolved from the chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "delete")
+
     const chapter = await prisma.chapter.findUnique({
         where: { id: chapterId },
         select: { courseId: true, title: true },
@@ -210,6 +227,9 @@ export async function reorderChapters(courseId: string, chapterIds: string[]) {
         throw new Error("Unauthorized: Insufficient permissions to reorder chapters")
     }
 
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "manage")
+
     // Update order for each chapter
     await Promise.all(
         chapterIds.map((id, index) =>
@@ -238,6 +258,9 @@ export async function duplicateChapter(chapterId: string) {
     if (!session || !canEditChapter(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to duplicate chapter")
     }
+
+    // A8: ownership, resolved from the source chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "duplicate")
 
     const sourceChapter = await prisma.chapter.findUnique({
         where: { id: chapterId },

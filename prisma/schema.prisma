@@ -50,6 +50,7 @@ model User {
   currentAffairsPdfs    CurrentAffairsPdf[]    @relation("UserCurrentAffairsPdfs")
   pushTokens            DevicePushToken[]
   deviceSessions        DeviceSession[]
+  createdCourses        Course[]               @relation("UserCreatedCourses")
 
   @@index([email])
   @@index([role])
@@ -114,6 +115,7 @@ model Course {
   expiresAt         String?             @default("Oct 30, 2026")
   hasTrialLesson    Boolean             @default(true)
   metadataJson      String?
+  createdById       String?
   externalId        String?             @unique
   theme             Json?
   schemaVersion     Int                 @default(1)
@@ -136,8 +138,10 @@ model Course {
   demoBookingsV2    DemoBooking[]
   coupons           Coupon[]
   couponRedemptions CouponRedemption[]
+  createdBy         User?               @relation("UserCreatedCourses", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([slug])
+  @@index([createdById])
   @@index([difficulty])
   @@index([status])
   @@index([isPublished])

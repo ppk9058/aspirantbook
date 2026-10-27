@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { storeUpload, uploadErrorResponse } from "@/lib/security/upload-policy"
 import { updateBatch, getBatchBySlug, getBatchById } from "@/lib/batches-service"
+import { requireManagedCourse } from "@/lib/auth/course-access-server"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -77,6 +78,10 @@ export async function POST(request: NextRequest) {
 
     // If courseId and teacherIndex are provided, persist in database
     if (courseId && teacherIndex !== null && !isNaN(teacherIndex)) {
+      // A8: teachers may only edit faculty on their own courses.
+      const access = await requireManagedCourse(user, courseId)
+      if (access.response) return access.response
+
       const course = await prisma.course.findUnique({
         where: { id: courseId },
         select: { id: true, slug: true, metadataJson: true },

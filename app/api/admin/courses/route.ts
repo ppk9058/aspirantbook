@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { creatorIdFor } from "@/lib/auth/course-access"
 
 export async function POST(req: Request) {
   try {
@@ -46,7 +47,12 @@ export async function POST(req: Request) {
       slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`
     }
 
-    const isPublished = status === "PUBLISHED"
+    // A8: a teacher-created course starts as a private draft. Only an ADMIN may
+    // publish directly or mark a course premium.
+    const isTeacher = user.role === "TEACHER"
+    const effectiveStatus = isTeacher ? "DRAFT" : status === "PUBLISHED" ? "PUBLISHED" : "DRAFT"
+    const isPublished = effectiveStatus === "PUBLISHED"
+    const effectiveIsPremium = isTeacher ? false : Boolean(isPremium)
 
     const course = await prisma.course.create({
       data: {
@@ -62,9 +68,10 @@ export async function POST(req: Request) {
         couponDiscount: Number(couponDiscount) || 50,
         expiresAt: expiresAt || "Oct 30, 2026",
         hasTrialLesson: Boolean(hasTrialLesson),
-        isPremium: Boolean(isPremium),
-        status: (status as any) || "PUBLISHED",
+        isPremium: effectiveIsPremium,
+        status: effectiveStatus,
         isPublished,
+        createdById: creatorIdFor(user),
         thumbnailUrl: "/placeholder-course.svg",
         chapters: {
           create: [
@@ -85,6 +92,9 @@ export async function POST(req: Request) {
     return NextResponse.json(course, { status: 201 })
   } catch (error: any) {
     console.error("POST /api/admin/courses error:", error)
-    return NextResponse.json({ error: error.message || "Failed to create course" }, { status: 500 })
+    if (error?.code === "P2002") {
+      return NextResponse.json({ error: "A course with this slug already exists" }, { status: 409 })
+    }
+    return NextResponse.json({ error: "Failed to create course" }, { status: 500 })
   }
 }
