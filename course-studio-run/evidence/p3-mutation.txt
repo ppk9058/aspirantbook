@@ -1,0 +1,20 @@
+--- mutation 1: foldIcsLine no longer folds
+PASS: ics folding fails when implementation is broken
+# pass 25
+# fail 2
+--- mutation 2: guest DTO no longer strips videoUrl
+PASS: dto sanitizer fails when implementation is broken
+# pass 25
+# fail 2
+--- mutation 3: checkRateLimit always allows
+PASS: rate limit fails when implementation is broken
+# pass 2
+# fail 1
+--- mutation 4: explicit metadata format ignored
+PASS: resolveCourseFormat fails when implementation is broken
+# pass 17
+# fail 1
+--- restore check
+ lib/courses/course-dto.ts | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+mutation failures: 0

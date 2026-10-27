@@ -11,6 +11,9 @@ import {
   CareerTrackDto,
   CareerTrackDetailDto,
 } from "@aspirantbook/shared";
+import { parseCourseMetadata, readSectionFlags } from "@/lib/courses/metadata-schema";
+import { deriveRatingDistribution } from "@/lib/courses/ratings";
+import { loadCourseSyllabus } from "@/lib/courses/syllabus";
 
 export async function getCoursesList(
   viewer: Viewer,
@@ -82,6 +85,7 @@ export async function getCourseDetail(
       isPublished: true,
     },
     include: {
+      units: { orderBy: { order: "asc" } },
       chapters: {
         orderBy: { order: "asc" },
         include: {
@@ -137,6 +141,8 @@ export async function getCourseDetail(
         order: l.order,
         isLocked,
         isCompleted: completedLessonIds.has(l.id),
+        titleHi: l.titleHi,
+        scheduledAt: l.scheduledAt ? l.scheduledAt.toISOString() : null,
       };
     });
 
@@ -144,6 +150,10 @@ export async function getCourseDetail(
       id: ch.id,
       title: ch.title,
       order: ch.order,
+      titleHi: ch.titleHi,
+      unitId: ch.unitId,
+      subtopics: ch.subtopics,
+      subtopicsHi: ch.subtopicsHi,
       lessons,
     };
   });
@@ -168,12 +178,99 @@ export async function getCourseDetail(
     chaptersCount: chapters.length,
     lessonsCount: totalLessons,
     isEnrolled,
+    titleHi: course.titleHi,
+    subtitle: course.subtitle,
+    subtitleHi: course.subtitleHi,
+    descriptionHi: course.descriptionHi,
   };
+
+  // ── Additive v2 payload ────────────────────────────────────────────────────
+  const metaResult = parseCourseMetadata(course.metadataJson);
+  const meta = metaResult.ok ? metaResult.data : {};
+  const sections = readSectionFlags(meta);
+
+  const units = (course.units || []).map((unit) => ({
+    id: unit.id,
+    title: unit.title,
+    titleHi: unit.titleHi,
+    tags: unit.tags,
+    order: unit.order,
+  }));
+
+  const reviews = await prisma.review.findMany({
+    where: { courseId: course.id },
+    select: { rating: true },
+  });
+  const ratingSummary = deriveRatingDistribution(reviews);
+
+  const syllabusView = await loadCourseSyllabus(course.id);
 
   return {
     course: courseSummary,
     chapters,
     isEnrolled,
+    units,
+    hero: {
+      metrics: (meta.heroMetrics || []).map((m) => ({
+        value: m.value,
+        valueHi: m.valueHi,
+        label: m.label,
+        labelHi: m.labelHi,
+      })),
+      pillTags: meta.pillTags || [],
+      pillTagsHi: meta.pillTagsHi || [],
+      firstClassDate: meta.firstClassDate || null,
+      lateJoinerText: meta.lateJoinerTemplate || null,
+      lateJoinerTextHi: meta.lateJoinerTemplateHi || null,
+      instructor: meta.instructor || null,
+    },
+    teachers: (meta.teachers || []).map((t) => ({
+      name: t.name,
+      nameHi: t.nameHi,
+      role: t.role ?? null,
+      roleHi: t.roleHi ?? null,
+      subject: t.subject ?? null,
+      experience: t.experience ?? null,
+      qualification: t.qualification ?? null,
+      qualificationHi: t.qualificationHi ?? null,
+      avatar: t.avatar ?? null,
+      bio: t.bio ?? null,
+      bioHi: t.bioHi ?? null,
+    })),
+    faqs: (meta.faqs || []).map((f) => ({
+      question: f.question,
+      questionHi: f.questionHi,
+      answer: f.answer,
+      answerHi: f.answerHi,
+    })),
+    aboutHighlights: meta.aboutHighlights || [],
+    aboutHighlightsHi: meta.aboutHighlightsHi || [],
+    ratingSummary,
+    syllabus: {
+      hasSyllabus: syllabusView.hasSyllabus,
+      papers: syllabusView.papers.map((paper) => ({
+        id: paper.id,
+        key: paper.key,
+        title: paper.title,
+        titleHi: paper.titleHi,
+        marks: paper.marks,
+        durationMinutes: paper.durationMinutes,
+        introText: paper.introText,
+        introTextHi: paper.introTextHi,
+        sections: paper.sections.map((section) => ({
+          id: section.id,
+          title: section.title,
+          titleHi: section.titleHi,
+          subtopics: section.subtopics,
+          subtopicsHi: section.subtopicsHi,
+          unitId: section.unitId,
+          unitTitle: section.unitTitle,
+          totalQuestions: section.stats.totalQuestions,
+          byYear: section.stats.byYear,
+        })),
+      })),
+    },
+    sections,
   };
 }
 

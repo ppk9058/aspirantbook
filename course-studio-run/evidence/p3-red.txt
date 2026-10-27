@@ -1,0 +1,12 @@
+TAP version 13
+# node:internal/modules/cjs/loader:1430
+#   const err = new Error(message);
+#               ^
+# Error: Cannot find module '../../lib/calendar/ics'
+# Require stack:
+# - /Users/praveenkumar/TrillionSkill/tests/unit/course-studio-p3.test.ts
+#     at node:internal/modules/cjs/loader:1430:15
+#     at nextResolveSimple (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1004)
+#     at /Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:2630
+#     at /Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1542
+#     at resolveTsPaths (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:4:760)

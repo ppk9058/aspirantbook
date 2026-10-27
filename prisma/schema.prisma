@@ -51,6 +51,7 @@ model User {
   pushTokens            DevicePushToken[]
   deviceSessions        DeviceSession[]
   createdCourses        Course[]               @relation("UserCreatedCourses")
+  handledCallbackLeads  CourseCallbackLead[]   @relation("UserHandledCallbackLeads")
 
   @@index([email])
   @@index([role])
@@ -93,40 +94,44 @@ model Track {
 }
 
 model Course {
-  id                String              @id @default(cuid())
+  id                String                @id @default(cuid())
   title             String
-  slug              String              @unique
+  titleHi           String?
+  subtitle          String?
+  subtitleHi        String?
+  slug              String                @unique
   description       String
+  descriptionHi     String?
   thumbnailUrl      String?
   difficulty        Difficulty
-  duration          Int                 @default(0)
-  rating            Float               @default(0)
-  enrollmentCount   Int                 @default(0)
-  technology        String              @default("")
+  duration          Int                   @default(0)
+  rating            Float                 @default(0)
+  enrollmentCount   Int                   @default(0)
+  technology        String                @default("")
   prerequisites     String[]
-  status            CourseStatus        @default(DRAFT)
-  isPremium         Boolean             @default(false)
-  isPublished       Boolean             @default(false)
-  price             Int?                @default(0)
-  originalPrice     Int?                @default(0)
-  discountPercent   Int?                @default(0)
-  couponCode        String?             @default("OFF50")
-  couponDiscount    Int?                @default(50)
-  expiresAt         String?             @default("Oct 30, 2026")
-  hasTrialLesson    Boolean             @default(true)
+  status            CourseStatus          @default(DRAFT)
+  isPremium         Boolean               @default(false)
+  isPublished       Boolean               @default(false)
+  price             Int?                  @default(0)
+  originalPrice     Int?                  @default(0)
+  discountPercent   Int?                  @default(0)
+  couponCode        String?               @default("OFF50")
+  couponDiscount    Int?                  @default(50)
+  expiresAt         String?               @default("Oct 30, 2026")
+  hasTrialLesson    Boolean               @default(true)
   metadataJson      String?
   createdById       String?
-  externalId        String?             @unique
+  externalId        String?               @unique
   theme             Json?
-  schemaVersion     Int                 @default(1)
+  schemaVersion     Int                   @default(1)
   // Authwall Gate Settings
-  isGated           Boolean             @default(false)
-  previewPercentage Int                 @default(20)
-  seoMode           String              @default("preview") // "preview" | "bot-full"
+  isGated           Boolean               @default(false)
+  previewPercentage Int                   @default(20)
+  seoMode           String                @default("preview") // "preview" | "bot-full"
   gateTitle         String?
   gateSubtitle      String?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
   chapters          Chapter[]
   contentUploads    ContentUpload[]
   courseAnalytics   CourseAnalytics[]
@@ -138,7 +143,10 @@ model Course {
   demoBookingsV2    DemoBooking[]
   coupons           Coupon[]
   couponRedemptions CouponRedemption[]
-  createdBy         User?               @relation("UserCreatedCourses", fields: [createdById], references: [id], onDelete: SetNull)
+  units             CourseUnit[]
+  callbackLeads     CourseCallbackLead[]
+  syllabusPapers    CourseSyllabusPaper[]
+  createdBy         User?                 @relation("UserCreatedCourses", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([slug])
   @@index([createdById])
@@ -163,23 +171,48 @@ model TrackCourse {
 }
 
 model Chapter {
-  id                String          @id @default(cuid())
+  id                String                  @id @default(cuid())
   externalId        String?
   title             String
+  titleHi           String?
   description       String?
-  order             Float           @default(1000)
+  descriptionHi     String?
+  subtopics         String[]                @default([])
+  subtopicsHi       String[]                @default([])
+  order             Float                   @default(1000)
   archivedAt        DateTime?
-  locked            Boolean         @default(false)
+  locked            Boolean                 @default(false)
   // Authwall Gate Settings
-  gateMode          String          @default("inherit") // "inherit" | "free" | "preview" | "locked"
+  gateMode          String                  @default("inherit") // "inherit" | "free" | "preview" | "locked"
   previewPercentage Int?
   courseId          String
-  createdAt         DateTime        @default(now())
-  course            Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  unitId            String?
+  createdAt         DateTime                @default(now())
+  course            Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  unit              CourseUnit?             @relation(fields: [unitId], references: [id], onDelete: SetNull)
   contentUploads    ContentUpload[]
   lessons           Lesson[]
+  syllabusSections  CourseSyllabusSection[]
 
   @@unique([courseId, externalId])
+  @@index([courseId])
+  @@index([order])
+  @@index([unitId])
+}
+
+model CourseUnit {
+  id               String                  @id @default(cuid())
+  courseId         String
+  title            String
+  titleHi          String?
+  tags             String[]                @default([])
+  order            Float                   @default(1000)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  course           Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  chapters         Chapter[]
+  syllabusSections CourseSyllabusSection[]
+
   @@index([courseId])
   @@index([order])
 }
@@ -188,14 +221,17 @@ model Lesson {
   id                        String          @id @default(cuid())
   externalId                String?
   title                     String
+  titleHi                   String?
   type                      LessonType
   order                     Float           @default(1000)
   xpReward                  Int             @default(10)
   videoUrl                  String?
   content                   String?
+  contentHi                 String?
   slides                    String?
   duration                  Int?
   durationText              String?
+  scheduledAt               DateTime?
   isTrial                   Boolean         @default(false)
   attachmentType            String?
   attachmentUrl             String?
@@ -223,6 +259,7 @@ model Lesson {
   @@index([chapterId])
   @@index([type])
   @@index([order])
+  @@index([scheduledAt])
   @@index([currentPublishedVersionId])
   @@index([currentDraftVersionId])
 }
@@ -646,11 +683,11 @@ model Subscription {
   payments          Payment[]
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([providerId])
   @@index([userId])
   @@index([status])
   @@index([userId, status])
   @@index([userId, status, endDate])
-  @@unique([providerId])
 }
 
 model StripeWebhookEvent {
@@ -1542,25 +1579,25 @@ model DevicePushToken {
 }
 
 model DeviceSession {
-  id               String    @id @default(cuid())
-  userId           String
-  refreshTokenHash String    @unique
+  id                       String    @id @default(cuid())
+  userId                   String
+  refreshTokenHash         String    @unique
   /// A13: the refresh token hash this row rotated away from. Lets the server
   /// detect a replay of the immediately-previous token without storing a new
   /// DeviceSession row on every refresh.
   previousRefreshTokenHash String?
-  familyId         String
-  deviceName       String?
-  platform         String // "android" | "ios" | "web"
-  appVersion       String?
-  ip               String?
-  userAgent        String?
-  createdAt        DateTime  @default(now())
-  lastUsedAt       DateTime  @default(now())
-  expiresAt        DateTime
-  revokedAt        DateTime?
-  replacedById     String?
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyId                 String
+  deviceName               String?
+  platform                 String // "android" | "ios" | "web"
+  appVersion               String?
+  ip                       String?
+  userAgent                String?
+  createdAt                DateTime  @default(now())
+  lastUsedAt               DateTime  @default(now())
+  expiresAt                DateTime
+  revokedAt                DateTime?
+  replacedById             String?
+  user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([familyId])
@@ -1574,16 +1611,16 @@ model DeviceSession {
 // ---------------------------------------------------------------------------
 
 model Book {
-  id           String   @id
-  slug         String   @unique
-  title        String
-  status       String   @default("published")
-  price        Int      @default(0)
-  salesCount   Int      @default(0)
+  id         String   @id
+  slug       String   @unique
+  title      String
+  status     String   @default("published")
+  price      Int      @default(0)
+  salesCount Int      @default(0)
   /// Full Book payload (see lib/books/types.ts) so the public API shape is unchanged.
-  data         Json
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  data       Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([status])
 }
@@ -1648,4 +1685,78 @@ model ReauthTokenUse {
   createdAt DateTime @default(now())
 
   @@index([expiresAt])
+}
+
+/// Callback requests from the course page. Stored in our own DB only — no SMS is sent.
+enum CallbackLeadStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+model CourseCallbackLead {
+  id          String             @id @default(cuid())
+  courseId    String
+  name        String
+  mobile      String // E.164, e.g. +919876543210
+  status      CallbackLeadStatus @default(NEW)
+  note        String?
+  source      String             @default("COURSE_DETAIL")
+  utm         String?
+  handledById String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  handledBy   User?              @relation("UserHandledCallbackLeads", fields: [handledById], references: [id], onDelete: SetNull)
+
+  @@index([courseId])
+  @@index([createdAt])
+  @@index([courseId, mobile, createdAt])
+}
+
+/// Exam syllabus authored per course. Optional: courses without papers hide the section.
+model CourseSyllabusPaper {
+  id              String                  @id @default(cuid())
+  courseId        String
+  key             String // e.g. "PRELIMS-GS"
+  title           String
+  titleHi         String?
+  marks           Int?
+  durationMinutes Int?
+  introText       String?
+  introTextHi     String?
+  order           Float                   @default(1000)
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  course          Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  sections        CourseSyllabusSection[]
+
+  @@unique([courseId, key])
+  @@index([courseId])
+}
+
+/// One syllabus section. Links to the real PYQ taxonomy via pyqSubject/pyqTopic,
+/// which map to ContentEngineQuestion.sub / .top (both indexed).
+model CourseSyllabusSection {
+  id          String              @id @default(cuid())
+  paperId     String
+  title       String
+  titleHi     String?
+  subtopics   String[]            @default([])
+  subtopicsHi String[]            @default([])
+  order       Float               @default(1000)
+  unitId      String?
+  chapterId   String?
+  pyqSubject  String?
+  pyqTopic    String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  paper       CourseSyllabusPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  unit        CourseUnit?         @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  chapter     Chapter?            @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+
+  @@index([paperId])
+  @@index([unitId])
+  @@index([chapterId])
+  @@index([pyqSubject, pyqTopic])
 }
