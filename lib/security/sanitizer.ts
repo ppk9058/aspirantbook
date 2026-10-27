@@ -1,26 +1,40 @@
 /**
  * Input sanitization and XSS prevention utilities.
  * Strips executable script tags, event handlers, and dangerous URIs.
+ *
+ * This is a defence-in-depth regex sanitizer used on both write and render
+ * paths. It intentionally over-removes rather than under-removes.
  */
+
+const DANGEROUS_TAGS = ["script", "iframe", "object", "embed", "applet", "form", "style", "meta", "link", "base"]
 
 export function sanitizeHtml(raw: string): string {
     if (!raw || typeof raw !== "string") return ""
 
     let cleaned = raw
-        // Remove script, iframe, object, embed, applet, form, style
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-        .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
-        .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, "")
-        .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, "")
-        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
-        .replace(/<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi, "")
-        // Strip event handler attributes (onload, onerror, onclick, onmouseover, etc.)
-        .replace(/\son\w+\s*=\s*(['"]).*?\1/gi, "")
-        .replace(/\son\w+\s*=\s*[^\s>]+/gi, "")
-        // Neutralize javascript: pseudo-protocol URIs
-        .replace(/href\s*=\s*(['"])\s*javascript:[^'"]*\1/gi, 'href="#"')
-        .replace(/src\s*=\s*(['"])\s*javascript:[^'"]*\1/gi, 'src=""')
-        .replace(/data:\s*text\/html/gi, "data:text/plain")
+
+    // Remove paired dangerous elements, including unterminated ones.
+    for (const tag of DANGEROUS_TAGS) {
+        const paired = new RegExp(`<\\s*${tag}\\b[^>]*>[\\s\\S]*?(<\\s*\\/\\s*${tag}\\s*>|$)`, "gi")
+        cleaned = cleaned.replace(paired, "")
+        const stray = new RegExp(`<\\s*\\/?\\s*${tag}\\b[^>]*>`, "gi")
+        cleaned = cleaned.replace(stray, "")
+    }
+
+    // Strip event handler attributes (quoted, single-quoted and unquoted).
+    cleaned = cleaned.replace(/\son[a-z0-9_-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+
+    // Neutralise script pseudo-protocols anywhere (defeats entity/space tricks).
+    cleaned = cleaned.replace(/javascript\s*:/gi, "")
+    cleaned = cleaned.replace(/vbscript\s*:/gi, "")
+    cleaned = cleaned.replace(/data\s*:\s*text\/html/gi, "data:text/plain")
+
+    // Collapse the resulting empty URI attributes.
+    cleaned = cleaned.replace(/\s(href|src|action|formaction|xlink:href)\s*=\s*(?:"\s*"|'\s*'|)\s*/gi, " ")
+
+    // CSS expression() can execute script in legacy engines.
+    cleaned = cleaned.replace(/expression\s*\(/gi, "blocked(")
+    cleaned = cleaned.replace(/url\s*\(\s*['"]?\s*javascript\s*:/gi, "url(blocked:")
 
     return cleaned
 }

@@ -1,4 +1,5 @@
 import DOMPurify from "dompurify"
+import { sanitizeHtml as sanitizeHtmlFallback } from "@/lib/security/sanitizer"
 
 /**
  * Safe inline formatting for tutorial content text.
@@ -36,6 +37,6 @@ export function sanitizeSvg(rawSvg: string): string {
  */
 export function sanitizeHtml(rawHtml: string): string {
     if (!rawHtml) return ""
-    if (typeof window === "undefined") return rawHtml
+    if (typeof window === "undefined") return sanitizeHtmlFallback(rawHtml)
     return DOMPurify.sanitize(rawHtml)
 }
