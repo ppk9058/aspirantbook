@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { getBookById, getAllOrders } from "@/lib/books/bookService"
-import fs from "fs/promises"
-import path from "path"
+import { BookFileError, readBookFile } from "@/lib/books/book-file-storage"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -74,32 +73,23 @@ export async function GET(
       )
     }
 
-    // Serve the file buffer securely
-    let fileBuffer: Buffer
-    if (book.fullPdfUrl) {
-      const rawPath = book.fullPdfUrl
-      let diskPath: string
-      if (rawPath.startsWith("/uploads/")) {
-        diskPath = path.join(process.cwd(), rawPath.slice(1))
-      } else {
-        diskPath = path.join(process.cwd(), rawPath)
-      }
-      try {
-        fileBuffer = await fs.readFile(diskPath)
-      } catch {
-        const title = (book.title || "Verified eBook").replace(/[^\x20-\x7E]/g, "")
-        fileBuffer = Buffer.from(
-          `%PDF-1.4\n1 0 obj\n<< /Title (${title}) /Author (${book.author || "Faculty"}) >>\nendobj\n` +
-          `aspirantbook Verified eBook Delivery\nBook: ${title}\nEdition: ${book.edition || "2026 Edition"}\nPages: ${book.pages || "N/A"}\n`
-        )
-      }
-    } else {
-      // Legacy or sample catalogue book without dedicated full PDF uploaded: serve standard valid signed preview PDF
-      const title = (book.title || "Verified eBook").replace(/[^\x20-\x7E]/g, "")
-      fileBuffer = Buffer.from(
-        `%PDF-1.4\n1 0 obj\n<< /Title (${title}) /Author (${book.author || "aspirantbook Academic Team"}) >>\nendobj\n` +
-        `aspirantbook Verified eBook Delivery\nBook: ${title}\nEdition: ${book.edition || "2026 Edition"}\nPages: ${book.pages || "N/A"}\n`
+    // Serve the file buffer securely. A missing or invalid file is an error;
+    // we never fabricate a placeholder PDF.
+    if (!book.fullPdfUrl) {
+      return NextResponse.json(
+        { error: "No full PDF is available for this book" },
+        { status: 404 }
       )
+    }
+
+    let fileBuffer: Buffer
+    try {
+      fileBuffer = await readBookFile(book.fullPdfUrl)
+    } catch (err: any) {
+      if (err instanceof BookFileError) {
+        return NextResponse.json({ error: err.message }, { status: err.status })
+      }
+      throw err
     }
 
 
