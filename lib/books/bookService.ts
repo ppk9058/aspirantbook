@@ -287,11 +287,33 @@ function couponRowToCoupon(row: CouponRow): Coupon {
 
 // ----------------- BOOKS -----------------
 
+/**
+ * B3: built-in seed data may only stand in for the database in test/demo
+ * environments. In production an empty table means "empty", never fabricated
+ * books, coupons or revenue.
+ */
+function seedFallbackEnabled(): boolean {
+  if (process.env.NODE_ENV === "production") return false
+  return (
+    process.env.NODE_ENV === "test" ||
+    process.env.APP_ENV === "test" ||
+    process.env.ENABLE_DEMO_DATA === "true"
+  )
+}
+
+/** B3: only settled money counts as revenue. */
+const PAID_ORDER_STATUSES = new Set(["completed", "paid"])
+
+export function isPaidOrderStatus(status: string | null | undefined): boolean {
+  if (typeof status !== "string") return false
+  return PAID_ORDER_STATUSES.has(status.toLowerCase())
+}
+
 export async function getAllBooks(): Promise<Book[]> {
   const rows = await prisma.book.findMany({ orderBy: [{ createdAt: "desc" }, { id: "asc" }] })
-  if (rows.length === 0) {
-    // Seed source only: an empty catalogue (before the owner runs the backfill)
-    // still renders the built-in books instead of an empty storefront.
+  if (rows.length === 0 && seedFallbackEnabled()) {
+    // Seed source only: an empty catalogue in a test/demo environment still
+    // renders the built-in books instead of an empty storefront.
     return BOOKS_DATA.map(normalizeBook)
   }
   return rows.map(bookRowToBook)
@@ -495,7 +517,8 @@ export async function deleteBook(id: string): Promise<boolean> {
 
 export async function getAllOrders(): Promise<BookOrder[]> {
   const rows = await prisma.bookOrder.findMany({ orderBy: [{ createdAt: "desc" }, { id: "asc" }] })
-  if (rows.length === 0) return INITIAL_ORDERS
+  // B3: never present seed orders as real ones outside test/demo.
+  if (rows.length === 0 && seedFallbackEnabled()) return INITIAL_ORDERS
   return rows.map(orderRowToOrder)
 }
 
@@ -698,7 +721,7 @@ export async function updateOrderStatus(
 
 export async function getAllCoupons(): Promise<Coupon[]> {
   const rows = await prisma.bookCoupon.findMany({ orderBy: [{ createdAt: "desc" }, { code: "asc" }] })
-  if (rows.length === 0) return AVAILABLE_COUPONS
+  if (rows.length === 0 && seedFallbackEnabled()) return AVAILABLE_COUPONS
   return rows.map(couponRowToCoupon)
 }
 
@@ -773,10 +796,14 @@ export async function getBookstoreStats() {
   const orders = await getAllOrders()
   const coupons = await getAllCoupons()
 
-  const totalRevenue = orders.reduce((sum, o) => sum + (o.finalTotal || 0), 0)
+  // B3: revenue counts settled orders only. A pending, failed or refunded
+  // order must never inflate the bookstore's numbers.
+  const paidOrders = orders.filter((o) => isPaidOrderStatus(o.status))
+  const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.finalTotal || 0), 0)
   const totalOrders = orders.length
-  const completedOrders = orders.filter((o) => o.status === "COMPLETED").length
-  const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0
+  const completedOrders = paidOrders.length
+  const avgOrderValue =
+    paidOrders.length > 0 ? Math.round(totalRevenue / paidOrders.length) : 0
 
   // Category breakdown
   const categoryCounts: { [cat: string]: number } = {}
@@ -786,7 +813,7 @@ export async function getBookstoreStats() {
 
   // Sales by book (calculated from orders)
   const bookSalesCount: { [id: string]: { book: Book; sales: number; revenue: number } } = {}
-  orders.forEach((o) => {
+  paidOrders.forEach((o) => {
     o.items?.forEach((item) => {
       const bId = item.bookId || item.book?.id
       if (!bId) return
@@ -817,5 +844,6 @@ export async function getBookstoreStats() {
     categoryCounts,
     topSellingBooks,
     recentOrders: orders.slice(0, 8),
+    paidOrders: paidOrders.length,
   }
 }
