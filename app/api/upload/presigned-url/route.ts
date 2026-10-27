@@ -15,7 +15,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 export async function POST(req: NextRequest) {
     try {
         const clientIp = getClientIp(req)
-        const rl = await checkRateLimit(`upload_presigned:${clientIp}`, 20, 60)
+        const rl = await checkRateLimit(`upload_presigned:${clientIp}`, 20, 60, { failClosed: true })
         if (!rl.allowed) {
             return NextResponse.json({ error: "Too many upload requests. Please slow down." }, { status: 429 })
         }

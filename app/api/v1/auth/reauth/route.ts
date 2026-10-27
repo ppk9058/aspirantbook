@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     const ip = getClientIp(req);
     // Tightened rate limit: 5 attempts per 15 min (900 seconds) per user+IP
-    const rl = await checkV1RateLimit(req, "auth_reauth", 5, 900, `${viewer.userId}:${ip}`);
+    const rl = await checkV1RateLimit(req, "auth_reauth", 5, 900, `${viewer.userId}:${ip}`, { failClosed: true });
     if (!rl.allowed) return rl.response!;
 
     const body = await req.json().catch(() => ({}));

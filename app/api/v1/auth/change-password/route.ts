@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       return apiError("UNAUTHORIZED", "Authentication required to change password", 401, undefined, reqId);
     }
 
-    const rl = await checkV1RateLimit(req, `auth_change_pwd_${viewer.userId}`, 15, 60);
+    const rl = await checkV1RateLimit(req, `auth_change_pwd_${viewer.userId}`, 15, 60, undefined, { failClosed: true });
     if (!rl.allowed) return rl.response!;
 
     const body = await req.json().catch(() => ({}));

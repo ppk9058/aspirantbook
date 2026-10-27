@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp, type RateLimitOptions } from "@/lib/rate-limit";
 import { apiError } from "./response";
 
 export async function checkV1RateLimit(
@@ -7,13 +7,14 @@ export async function checkV1RateLimit(
   prefix: string,
   limit: number,
   windowSecs: number,
-  userId?: string | null
+  userId?: string | null,
+  options: RateLimitOptions = {}
 ) {
   const ip = getClientIp(req);
   const identifier = userId ? `u_${userId}` : `ip_${ip}`;
   const key = `v1:${prefix}:${identifier}`;
 
-  const res = await checkRateLimit(key, limit, windowSecs);
+  const res = await checkRateLimit(key, limit, windowSecs, options);
   if (!res.allowed) {
     return {
       allowed: false,

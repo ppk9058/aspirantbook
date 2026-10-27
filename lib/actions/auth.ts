@@ -62,7 +62,7 @@ export async function register(prevState: any, formData: FormData) {
     }
 
     const maxAttempts = process.env.APP_ENV === "test" ? 200 : 10
-    const rateLimit = await checkRateLimit(`register:${clientIp}`, maxAttempts, 3600)
+    const rateLimit = await checkRateLimit(`register:${clientIp}`, maxAttempts, 3600, { failClosed: true })
     if (!rateLimit.allowed) {
         return { error: "Too many registration attempts from this network. Please try again later." }
     }
@@ -204,7 +204,7 @@ export async function resendVerificationEmailAction(prevState: any, formData: Fo
     const maxIp = isTest ? 100 : 5
     const maxEmail = isTest ? 50 : 3
 
-    const ipLimit = await checkRateLimit(`resend-verify-ip:${clientIp}`, maxIp, 3600)
+    const ipLimit = await checkRateLimit(`resend-verify-ip:${clientIp}`, maxIp, 3600, { failClosed: true })
     const emailLimit = await checkRateLimit(`resend-verify-email:${email}`, maxEmail, 3600)
 
     if (!ipLimit.allowed || !emailLimit.allowed) {
@@ -263,7 +263,7 @@ export async function requestPasswordResetAction(prevState: any, formData: FormD
     const maxIp = isTest ? 100 : 5
     const maxEmail = isTest ? 50 : 3
 
-    const ipLimit = await checkRateLimit(`forgot-ip:${clientIp}`, maxIp, 3600)
+    const ipLimit = await checkRateLimit(`forgot-ip:${clientIp}`, maxIp, 3600, { failClosed: true })
     const emailLimit = await checkRateLimit(`forgot-email:${email}`, maxEmail, 3600)
 
     if (!ipLimit.allowed || !emailLimit.allowed) {

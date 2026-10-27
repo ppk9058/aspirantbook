@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
         // Rate limit uploads per user/IP
         const { checkRateLimit } = await import('@/lib/rate-limit')
-        const rateCheck = await checkRateLimit(`upload:${userContext.userId || 'anon'}`, 30, 60)
+        const rateCheck = await checkRateLimit(`upload:${userContext.userId || 'anon'}`, 30, 60, { failClosed: true })
         if (!rateCheck.allowed) {
             return NextResponse.json({ error: 'Too many upload requests. Please wait a moment.' }, { status: 429 })
         }

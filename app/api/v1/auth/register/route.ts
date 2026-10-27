@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const reqId = getRequestId(req);
   try {
     // 1. Rate limiting: 5 registrations per hour per IP
-    const rl = await checkV1RateLimit(req, "auth_register", 5, 3600);
+    const rl = await checkV1RateLimit(req, "auth_register", 5, 3600, undefined, { failClosed: true });
     if (!rl.allowed) return rl.response!;
 
     // 2. Parse & validate body

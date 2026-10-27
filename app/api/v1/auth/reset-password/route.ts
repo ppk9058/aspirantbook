@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   const reqId = getRequestId(req);
   try {
-    const rl = await checkV1RateLimit(req, "auth_reset_pwd", 10, 3600);
+    const rl = await checkV1RateLimit(req, "auth_reset_pwd", 10, 3600, undefined, { failClosed: true });
     if (!rl.allowed) return rl.response!;
 
     const body = await req.json().catch(() => ({}));

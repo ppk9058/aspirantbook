@@ -31,7 +31,7 @@ function computeCouponDiscount(code: string, subtotal: number, availableCoupons:
 export async function POST(req: Request) {
   try {
     const clientIp = getClientIp(req)
-    const rl = await checkRateLimit(`book_checkout_order:${clientIp}`, 15, 60)
+    const rl = await checkRateLimit(`book_checkout_order:${clientIp}`, 15, 60, { failClosed: true })
     if (!rl.allowed) {
       return NextResponse.json({ error: "Too many checkout requests. Please try again in a moment." }, { status: 429 })
     }

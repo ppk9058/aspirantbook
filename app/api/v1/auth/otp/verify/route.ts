@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   const reqId = getRequestId(req);
   try {
-    const rl = await checkV1RateLimit(req, "auth_otp_verify", 10, 60);
+    const rl = await checkV1RateLimit(req, "auth_otp_verify", 10, 60, undefined, { failClosed: true });
     if (!rl.allowed) return rl.response!;
 
     const devBypass = isDevBypassAllowed();

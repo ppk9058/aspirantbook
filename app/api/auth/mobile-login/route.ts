@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     try {
         const clientIp = getClientIp(req)
         const rateLimitKey = `mobile_login:${clientIp}`
-        const rl = await checkRateLimit(rateLimitKey, 10, 60)
+        const rl = await checkRateLimit(rateLimitKey, 10, 60, { failClosed: true })
         if (!rl.allowed) {
             return NextResponse.json(
                 { error: "Too many login requests. Please try again later." },

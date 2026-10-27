@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const reqId = getRequestId(req);
   try {
     // 1. Rate limiting: 10 attempts per minute per IP
-    const rl = await checkV1RateLimit(req, "auth_login", 10, 60);
+    const rl = await checkV1RateLimit(req, "auth_login", 10, 60, undefined, { failClosed: true });
     if (!rl.allowed) return rl.response!;
 
     // 2. Parse & validate body

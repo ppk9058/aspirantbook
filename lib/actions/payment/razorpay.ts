@@ -36,7 +36,7 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         throw new Error("User must be logged in to create a payment order.")
     }
 
-    const rl = await checkRateLimit(`payment_create_order:${userId}`, 15, 60)
+    const rl = await checkRateLimit(`payment_create_order:${userId}`, 15, 60, { failClosed: true })
     if (!rl.allowed) {
         throw new Error("Too many order requests. Please wait a moment before trying again.")
     }
