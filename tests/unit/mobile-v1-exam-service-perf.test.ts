@@ -162,7 +162,14 @@ describe("P1-6: Mobile v1 exam.service.ts perf port & query counts", () => {
     });
 
     process.env.EXAM_RUNTIME_BATCH_SYNC = "false";
-    const viewer = { userId, role: "FREE" as const, email: "p16_mobile_test@trillionskill.test", name: "Mobile Student" };
+    const viewer = {
+      userId,
+      role: "FREE" as const,
+      email: "p16_mobile_test@trillionskill.test",
+      name: "Mobile Student",
+      isGuest: false,
+      authMethod: "bearer" as const,
+    };
 
     const legacyRes = await syncAttemptAnswers(viewer, attLegacy.id, answersPayload, 1);
     assert.equal(legacyRes.syncedCount, 3);
@@ -217,7 +224,14 @@ describe("P1-6: Mobile v1 exam.service.ts perf port & query counts", () => {
       },
     });
 
-    const viewer = { userId, role: "FREE" as const, email: "p16_mobile_test@trillionskill.test", name: "Mobile Student" };
+    const viewer = {
+      userId,
+      role: "FREE" as const,
+      email: "p16_mobile_test@trillionskill.test",
+      name: "Mobile Student",
+      isGuest: false,
+      authMethod: "bearer" as const,
+    };
     const finalAnswers = [
       { questionId: q1Id, selectedOption: "A" as const, isMarked: false, sequenceNumber: 2, timeSpentSecs: 10 }, // correct (+10)
       { questionId: q2Id, selectedOption: "A" as const, isMarked: false, sequenceNumber: 2, timeSpentSecs: 10 }, // wrong (-2)
@@ -243,7 +257,14 @@ describe("P1-6: Mobile v1 exam.service.ts perf port & query counts", () => {
       },
     });
 
-    const viewer = { userId, role: "FREE" as const, email: "p16_mobile_test@trillionskill.test", name: "Mobile Student" };
+    const viewer = {
+      userId,
+      role: "FREE" as const,
+      email: "p16_mobile_test@trillionskill.test",
+      name: "Mobile Student",
+      isGuest: false,
+      authMethod: "bearer" as const,
+    };
     const answers = [
       { questionId: q1Id, selectedOption: "A" as const, isMarked: false, sequenceNumber: 1, timeSpentSecs: 10 },
     ];

@@ -32,7 +32,14 @@ describe("P0-1: Exam Deadline Before Write Verification", () => {
       },
     });
     studentId = user.id;
-    viewer = { userId: studentId, role: "FREE", email: user.email };
+    viewer = {
+      userId: studentId,
+      role: "FREE",
+      email: user.email,
+      name: user.name,
+      isGuest: false,
+      authMethod: "bearer",
+    };
 
     // Setup exam test (60 min)
     const series = await prisma.examSeries.upsert({

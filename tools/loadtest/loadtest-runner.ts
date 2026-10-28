@@ -97,6 +97,7 @@ async function runScenario(vuCount: number, flagsOn: boolean): Promise<MetricRes
   if (!testRecord) {
     throw new Error("Target 100-question test et_perf_100q not found! Run measure-phase0-exam-trace first.");
   }
+  const targetTestId = testRecord.id;
   const sampleQuestionIds = testRecord.sections.flatMap((s) => s.questions.map((q) => q.id));
 
   // Setup VU IDs
@@ -165,7 +166,7 @@ async function runScenario(vuCount: number, flagsOn: boolean): Promise<MetricRes
           method: "POST",
           headers,
           body: JSON.stringify({
-            testId: testRecord.id,
+            testId: targetTestId,
             language: "English",
             retake: true,
           }),
@@ -238,7 +239,7 @@ async function runScenario(vuCount: number, flagsOn: boolean): Promise<MetricRes
       try {
         const [resFetch, lbFetch] = await Promise.all([
           fetch(`${BASE_URL}/api/exam/attempt/${attemptId}/result`, { headers }),
-          fetch(`${BASE_URL}/api/exam/${testRecord.id}/leaderboard`, { headers }),
+          fetch(`${BASE_URL}/api/exam/${targetTestId}/leaderboard`, { headers }),
         ]);
         const elapsed = Date.now() - tRes0;
         latencies.push(elapsed / 2);
