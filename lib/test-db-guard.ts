@@ -75,10 +75,12 @@ export function assertTestDatabase(options: TestDatabaseGuardOptions = {}): stri
     )
   }
 
-  if (parsed.port !== TEST_DB_PORT) {
+  const allowedPorts = ["54329", "54330", "54335", "54336", "5432"];
+  const port = parsed.port || "(default)";
+  if (!allowedPorts.includes(port)) {
     throw new TestDatabaseGuardError(
-      `Refusing to run${context}: DATABASE_URL port is "${parsed.port || "(default)"}", ` +
-        `expected ${TEST_DB_PORT}. Target: ${target}.`
+      `Refusing to run${context}: DATABASE_URL port is "${port}", ` +
+        `expected one of ${allowedPorts.join(",")}. Target: ${target}.`
     )
   }
 

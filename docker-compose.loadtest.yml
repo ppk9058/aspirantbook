@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: trillionskill-loadtest-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: testpassword123
+      POSTGRES_DB: trillionskill_perf_v2_test
+    ports:
+      - "127.0.0.1:54335:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d trillionskill_perf_v2_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    networks:
+      - loadtest-net
+
+  redis:
+    image: redis:alpine
+    container_name: trillionskill-loadtest-redis
+    ports:
+      - "127.0.0.1:6389:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+    networks:
+      - loadtest-net
+
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:2.9.0
+    container_name: trillionskill-loadtest-toxiproxy
+    command: ["-config", "/toxiproxy.json", "-host=0.0.0.0"]
+    volumes:
+      - ./tools/loadtest/toxiproxy.json:/toxiproxy.json:ro
+    ports:
+      - "127.0.0.1:8484:8474"
+      - "127.0.0.1:54336:54336"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - loadtest-net
+
+  app:
+    image: trillionskill-perf-app:latest
+    container_name: trillionskill-loadtest-app
+    ports:
+      - "127.0.0.1:3055:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      AUTH_URL: http://127.0.0.1:3055
+      AUTH_SECRET: dGhpcy1pcy1hLXRlc3Qtc2VjcmV0LWZvci1wZXJmCg==
+      DATABASE_URL: postgresql://postgres:testpassword123@toxiproxy:54336/trillionskill_perf_v2_test?connection_limit=10&pool_timeout=10
+      DIRECT_URL: postgresql://postgres:testpassword123@postgres:5432/trillionskill_perf_v2_test
+      REDIS_URL: redis://redis:6379
+      EXAM_REQUIRE_POOL_LIMIT: "false"
+      EXAM_RUNTIME_FAST_GRADING: "false"
+      EXAM_RUNTIME_BATCH_SYNC: "false"
+      EXAM_RUNTIME_CACHE_QUESTIONS: "false"
+      EXAM_RUNTIME_CACHE_LEADERBOARD: "false"
+      EXAM_RUNTIME_REDIS_RATELIMIT: "false"
+      EXAM_RATE_LIMIT_ENABLED: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      toxiproxy:
+        condition: service_started
+    networks:
+      - loadtest-net
+
+networks:
+  loadtest-net:
+    driver: bridge
