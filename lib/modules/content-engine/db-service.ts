@@ -268,6 +268,15 @@ export async function addBatch(params: AddBatchParams): Promise<AddBatchResult> 
   }
 }
 
+/**
+ * Escapes the characters `contains` treats as wildcards (Prisma maps `contains`
+ * to SQL LIKE for Postgres). Without this, searching for "50%" or "a_b" matches
+ * far more than the literal text.
+ */
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, (match) => `\\${match}`)
+}
+
 export interface GetQuestionsParams {
   batchId?: string
   uncategorizedOnly?: boolean
@@ -283,6 +292,17 @@ export interface GetQuestionsParams {
 
 /**
  * Retrieves paginated questions with filtering.
+ *
+ * B9: filters and search were both written to `where.OR`, so the later one
+ * silently replaced the other — ticking "uncategorised" and typing a search
+ * returned every question that matched the search, in any category, and a
+ * multi-word search only matched the exact phrase. Each condition is now its own
+ * `AND` clause: the category filter survives, the equality filters are ANDed
+ * with the search, and every search token must appear in the question or its
+ * explanation.
+ *
+ * Tokens are escaped for the `contains` operator so a pasted `%` or `_` is
+ * treated as text rather than a wildcard.
  */
 export async function getQuestions(params: GetQuestionsParams) {
   const page = Math.max(1, params.page || 1)
@@ -290,13 +310,15 @@ export async function getQuestions(params: GetQuestionsParams) {
   const skip = (page - 1) * pageSize
 
   const where: any = {}
+  const and: any[] = []
 
   if (params.batchId) {
     where.batchId = params.batchId
   }
 
   if (params.uncategorizedOnly) {
-    where.OR = [{ sub: "Uncategorized" }, { top: "General" }]
+    // Kept in AND, not OR: a search must not widen the category filter.
+    and.push({ OR: [{ sub: "Uncategorized" }, { top: "General" }] })
   }
 
   if (params.subject) {
@@ -319,11 +341,23 @@ export async function getQuestions(params: GetQuestionsParams) {
     where.isPublished = params.isPublished
   }
 
-  if (params.search) {
-    where.OR = [
-      { q: { contains: params.search, mode: "insensitive" } },
-      { explanation: { contains: params.search, mode: "insensitive" } },
-    ]
+  const searchTerms = (params.search || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  for (const term of searchTerms) {
+    const needle = escapeLikePattern(term)
+    and.push({
+      OR: [
+        { q: { contains: needle, mode: "insensitive" } },
+        { explanation: { contains: needle, mode: "insensitive" } },
+      ],
+    })
+  }
+
+  if (and.length > 0) {
+    where.AND = and
   }
 
   const [total, items] = await Promise.all([
