@@ -1,0 +1,138 @@
+=== TASK A8: RANKING PERFORMANCE & EXPLAIN BUFFER PLANS ===
+
+=====================================================================
+SCALE: 1000 ATTEMPTS
+Live-Rank Query Latency: 3.74 ms
+Top-50 Query Latency: 0.306 ms
+
+--- Live-Rank EXPLAIN (ANALYZE, BUFFERS) ---
+Aggregate  (cost=2503.67..2503.69 rows=1 width=8) (actual time=3.697..3.698 rows=1 loops=1)
+  Buffers: shared hit=26 read=4
+  ->  Unique  (cost=2466.55..2471.56 rows=988 width=79) (actual time=3.313..3.580 rows=1000 loops=1)
+        Buffers: shared hit=26 read=4
+        ->  Sort  (cost=2466.55..2469.06 rows=1003 width=79) (actual time=3.312..3.380 rows=1000 loops=1)
+              Sort Key: a."userId", a."submittedAt", a."startedAt"
+              Sort Method: quicksort  Memory: 102kB
+              Buffers: shared hit=26 read=4
+              ->  Bitmap Heap Scan on "ExamAttempt" a  (cost=12.07..2416.55 rows=1003 width=79) (actual time=0.128..0.339 rows=1000 loops=1)
+                    Recheck Cond: ("testId" = 'et_bench_1000'::text)
+                    Filter: (status = 'SUBMITTED'::"ExamAttemptStatus")
+                    Heap Blocks: exact=21
+                    Buffers: shared hit=20 read=4
+                    ->  Bitmap Index Scan on "ExamAttempt_testId_idx"  (cost=0.00..11.82 rows=1003 width=0) (actual time=0.087..0.087 rows=1116 loops=1)
+                          Index Cond: ("testId" = 'et_bench_1000'::text)
+                          Buffers: shared hit=1 read=2
+Planning:
+  Buffers: shared hit=97
+Planning Time: 0.400 ms
+Execution Time: 3.740 ms
+
+--- Top-50 EXPLAIN (ANALYZE, BUFFERS) ---
+Limit  (cost=0.42..158.45 rows=50 width=58) (actual time=0.073..0.293 rows=50 loops=1)
+  Buffers: shared hit=72 read=13
+  ->  Index Scan using idx_examattempt_ranking on "ExamAttempt" a  (cost=0.42..3170.44 rows=1003 width=58) (actual time=0.072..0.285 rows=50 loops=1)
+        Index Cond: ("testId" = 'et_bench_1000'::text)
+        Filter: (status = 'SUBMITTED'::"ExamAttemptStatus")
+        Buffers: shared hit=72 read=13
+Planning:
+  Buffers: shared hit=19
+Planning Time: 0.134 ms
+Execution Time: 0.306 ms
+
+=====================================================================
+SCALE: 10000 ATTEMPTS
+Live-Rank Query Latency: 47.99 ms
+Top-50 Query Latency: 0.157 ms
+
+--- Live-Rank EXPLAIN (ANALYZE, BUFFERS) ---
+Aggregate  (cost=5794.17..5794.18 rows=1 width=8) (actual time=47.901..47.902 rows=1 loops=1)
+  Buffers: shared hit=194 read=8
+  ->  Unique  (cost=5443.35..5496.83 rows=9149 width=79) (actual time=44.206..46.785 rows=10000 loops=1)
+        Buffers: shared hit=194 read=8
+        ->  Sort  (cost=5443.35..5470.09 rows=10695 width=79) (actual time=44.204..44.877 rows=10000 loops=1)
+              Sort Key: a."userId", a."submittedAt", a."startedAt"
+              Sort Method: quicksort  Memory: 1166kB
+              Buffers: shared hit=194 read=8
+              ->  Bitmap Heap Scan on "ExamAttempt" a  (cost=119.18..4727.61 rows=10695 width=79) (actual time=0.317..2.543 rows=10000 loops=1)
+                    Recheck Cond: ("testId" = 'et_bench_10000'::text)
+                    Filter: (status = 'SUBMITTED'::"ExamAttemptStatus")
+                    Heap Blocks: exact=193
+                    Buffers: shared hit=194 read=8
+                    ->  Bitmap Index Scan on "ExamAttempt_testId_idx"  (cost=0.00..116.51 rows=10695 width=0) (actual time=0.290..0.290 rows=10000 loops=1)
+                          Index Cond: ("testId" = 'et_bench_10000'::text)
+                          Buffers: shared hit=1 read=8
+Planning Time: 0.156 ms
+Execution Time: 47.990 ms
+
+--- Top-50 EXPLAIN (ANALYZE, BUFFERS) ---
+Limit  (cost=0.42..75.00 rows=50 width=58) (actual time=0.036..0.145 rows=50 loops=1)
+  Buffers: shared hit=52 read=2
+  ->  Index Scan using idx_examattempt_ranking on "ExamAttempt" a  (cost=0.42..15952.76 rows=10695 width=58) (actual time=0.035..0.139 rows=50 loops=1)
+        Index Cond: ("testId" = 'et_bench_10000'::text)
+        Filter: (status = 'SUBMITTED'::"ExamAttemptStatus")
+        Buffers: shared hit=52 read=2
+Planning Time: 0.114 ms
+Execution Time: 0.157 ms
+
+=====================================================================
+SCALE: 100000 ATTEMPTS
+Live-Rank Query Latency: 640.686 ms
+Top-50 Query Latency: 0.181 ms
+
+--- Live-Rank EXPLAIN (ANALYZE, BUFFERS) ---
+Aggregate  (cost=21594.65..21594.66 rows=1 width=8) (actual time=639.851..639.852 rows=1 loops=1)
+  Buffers: shared hit=2110, temp read=809 written=811
+  ->  Unique  (cost=20140.19..20650.65 rows=29046 width=79) (actual time=550.849..628.236 rows=100000 loops=1)
+        Buffers: shared hit=2110, temp read=809 written=811
+        ->  Sort  (cost=20140.19..20395.42 rows=102092 width=79) (actual time=550.847..609.026 rows=100000 loops=1)
+              Sort Key: a."userId", a."submittedAt", a."startedAt"
+              Sort Method: external merge  Disk: 6472kB
+              Buffers: shared hit=2110, temp read=809 written=811
+              ->  Bitmap Heap Scan on "ExamAttempt" a  (cost=1127.51..7106.89 rows=102092 width=79) (actual time=2.621..64.762 rows=100000 loops=1)
+                    Recheck Cond: ("testId" = 'et_bench_100000'::text)
+                    Filter: (status = 'SUBMITTED'::"ExamAttemptStatus")
+                    Heap Blocks: exact=2030
+                    Buffers: shared hit=2110
+                    ->  Bitmap Index Scan on "ExamAttempt_testId_idx"  (cost=0.00..1101.99 rows=102092 width=0) (actual time=2.347..2.348 rows=100000 loops=1)
+                          Index Cond: ("testId" = 'et_bench_100000'::text)
+                          Buffers: shared hit=80
+Planning Time: 0.175 ms
+Execution Time: 640.686 ms
+
+--- Top-50 EXPLAIN (ANALYZE, BUFFERS) ---
+Limit  (cost=0.42..10.88 rows=50 width=58) (actual time=0.076..0.167 rows=50 loops=1)
+  Buffers: shared hit=53
+  ->  Index Scan using idx_examattempt_ranking on "ExamAttempt" a  (cost=0.42..21351.87 rows=102092 width=58) (actual time=0.075..0.159 rows=50 loops=1)
+        Index Cond: ("testId" = 'et_bench_100000'::text)
+        Filter: (status = 'SUBMITTED'::"ExamAttemptStatus")
+        Buffers: shared hit=53
+Planning Time: 0.151 ms
+Execution Time: 0.181 ms
+
+=====================================================================
+SCALE: 300000 ATTEMPTS
+Live-Rank Query Latency: 288.94 ms
+Top-50 Query Latency: 0.301 ms
+
+--- Live-Rank EXPLAIN (ANALYZE, BUFFERS) ---
+Aggregate  (cost=8.48..8.49 rows=1 width=8) (actual time=288.875..288.877 rows=1 loops=1)
+  Buffers: shared hit=61098 read=5727 dirtied=5964 written=2610
+  ->  Unique  (cost=0.42..8.44 rows=1 width=79) (actual time=0.110..252.194 rows=300000 loops=1)
+        Buffers: shared hit=61098 read=5727 dirtied=5964 written=2610
+        ->  Index Scan using idx_examattempt_user_sub on "ExamAttempt" a  (cost=0.42..8.44 rows=1 width=79) (actual time=0.109..176.089 rows=300000 loops=1)
+              Index Cond: ("testId" = 'et_bench_300000'::text)
+              Filter: (status = 'SUBMITTED'::"ExamAttemptStatus")
+              Buffers: shared hit=61098 read=5727 dirtied=5964 written=2610
+Planning Time: 0.221 ms
+Execution Time: 288.940 ms
+
+--- Top-50 EXPLAIN (ANALYZE, BUFFERS) ---
+Limit  (cost=0.42..8.44 rows=1 width=58) (actual time=0.089..0.278 rows=50 loops=1)
+  Buffers: shared hit=50 read=3
+  ->  Index Scan using idx_examattempt_ranking on "ExamAttempt" a  (cost=0.42..8.44 rows=1 width=58) (actual time=0.087..0.269 rows=50 loops=1)
+        Index Cond: ("testId" = 'et_bench_300000'::text)
+        Filter: (status = 'SUBMITTED'::"ExamAttemptStatus")
+        Buffers: shared hit=50 read=3
+Planning Time: 0.155 ms
+Execution Time: 0.301 ms
+
