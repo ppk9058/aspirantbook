@@ -1414,6 +1414,26 @@ model AuditLog {
   @@index([createdAt])
 }
 
+// B5: content audit trail. These events used to be appended to a local
+// .content-audit/audit-events.jsonl file, which is per-instance on serverless
+// and lost on every deploy.
+model AuditEvent {
+  id         String   @id @default(cuid())
+  /// Stable hash of the event payload so the jsonl backfill can run repeatedly.
+  dedupeKey  String   @unique
+  entityId   String
+  entityType String
+  action     String
+  userId     String?
+  userEmail  String?
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([entityType, entityId])
+}
+
 // ==========================================
 // CONTENT ENGINE MODULE (ADMIN-ONLY PIPELINE)
 // ==========================================

@@ -1,42 +1,27 @@
 "use server"
 
 import { auth } from "@/auth"
-import fs from "fs"
-import path from "path"
+import { prisma } from "@/lib/prisma"
+import { buildAuditDedupeKey } from "@/lib/audit/audit-event-key"
+import type {
+    AuditAction,
+    AuditEntityType,
+    ContentAuditEvent,
+} from "./audit-types"
 
-export type AuditAction =
-    | "CREATE"
-    | "UPDATE"
-    | "PUBLISH"
-    | "UNPUBLISH"
-    | "DELETE"
-    | "DUPLICATE"
-    | "REORDER"
-    | "RESTORE_VERSION"
+export type { AuditAction, AuditEntityType, ContentAuditEvent } from "./audit-types"
 
-export type AuditEntityType =
-    | "COURSE"
-    | "CHAPTER"
-    | "LESSON"
-    | "ARTICLE"
-    | "EXAM_SERIES"
-    | "EXAM_TEST"
-    | "PYQ_PAPER"
-    | "CURRENT_AFFAIRS"
-
-export interface ContentAuditEvent {
-    entityId: string
-    entityType: AuditEntityType
-    action: AuditAction
-    userId?: string
-    userEmail?: string
-    timestamp: string
-    details?: Record<string, any>
-}
-
-const AUDIT_DIR = path.join(process.cwd(), ".content-audit")
-const AUDIT_FILE = path.join(AUDIT_DIR, "audit-events.jsonl")
-
+/**
+ * B5: the content audit trail lives in the AuditEvent table.
+ *
+ * It used to be appended to `.content-audit/audit-events.jsonl` with
+ * fs.appendFileSync and read back synchronously, which only works on a single
+ * writable machine: on serverless the file is read-only and each instance would
+ * write its own copy, so the trail an admin reviewed was never the whole story.
+ *
+ * The event identity is a hash of its content, so replaying the same event
+ * (including the one-time jsonl backfill) is idempotent.
+ */
 /**
  * Records a content audit trail entry for content lifecycle operations.
  */
@@ -56,7 +41,7 @@ export async function logContentAudit({
         try {
             session = await auth()
         } catch {
-            // Called outside Next.js request context
+            // Called outside a Next.js request context (scripts, tests).
         }
 
         const event: ContentAuditEvent = {
@@ -69,45 +54,83 @@ export async function logContentAudit({
             details,
         }
 
-        // Ensure audit directory exists
-        if (!fs.existsSync(AUDIT_DIR)) {
-            fs.mkdirSync(AUDIT_DIR, { recursive: true })
-        }
+        await prisma.auditEvent.create({
+            data: {
+                dedupeKey: buildAuditDedupeKey(event),
+                entityId: event.entityId,
+                entityType: event.entityType,
+                action: event.action,
+                userId: event.userId ?? null,
+                userEmail: event.userEmail ?? null,
+                details: (details ?? {}) as any,
+            },
+        })
 
-        fs.appendFileSync(AUDIT_FILE, JSON.stringify(event) + "\n", "utf-8")
         console.log(`[CONTENT_AUDIT] ${action} ${entityType} ${entityId} by ${event.userEmail}`)
-        return { success: true }
+        return { success: true as const }
     } catch (err) {
-        console.warn("Failed to write content audit event:", err)
-        return { success: false }
+        console.error("Failed to write content audit event:", err)
+        return { success: false as const }
     }
 }
 
-/**
- * Retrieves the latest content audit events for system diagnostics and history.
- */
-export async function getRecentAuditEvents(limit = 20): Promise<ContentAuditEvent[]> {
-    try {
-        if (!fs.existsSync(AUDIT_FILE)) {
-            return []
-        }
-        const content = fs.readFileSync(AUDIT_FILE, "utf-8")
-        const lines = content.trim().split("\n").filter(Boolean)
-        const events = lines
-            .slice(-limit)
-            .map((line) => {
-                try {
-                    return JSON.parse(line) as ContentAuditEvent
-                } catch {
-                    return null
-                }
-            })
-            .filter((e): e is ContentAuditEvent => e !== null)
-            .reverse()
+export interface GetAuditEventsOptions {
+    limit?: number
+    offset?: number
+    entityType?: AuditEntityType
+    entityId?: string
+}
 
-        return events
+const MAX_AUDIT_PAGE_SIZE = 200
+
+/**
+ * Retrieves content audit events, newest first, with real pagination.
+ *
+ * The old reader loaded the entire file into memory and sliced the last N
+ * lines; this reads one page from the database.
+ */
+export async function getRecentAuditEvents(
+    limitOrOptions: number | GetAuditEventsOptions = 20,
+    offset = 0
+): Promise<ContentAuditEvent[]> {
+    const options: GetAuditEventsOptions =
+        typeof limitOrOptions === "number" ? { limit: limitOrOptions, offset } : limitOrOptions
+
+    const take = Math.min(Math.max(1, options.limit ?? 20), MAX_AUDIT_PAGE_SIZE)
+    const skip = Math.max(0, options.offset ?? 0)
+
+    try {
+        const rows = await prisma.auditEvent.findMany({
+            where: {
+                ...(options.entityType ? { entityType: options.entityType } : {}),
+                ...(options.entityId ? { entityId: options.entityId } : {}),
+            },
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            take,
+            skip,
+        })
+
+        return rows.map((row) => ({
+            entityId: row.entityId,
+            entityType: row.entityType as AuditEntityType,
+            action: row.action as AuditAction,
+            userId: row.userId ?? undefined,
+            userEmail: row.userEmail ?? undefined,
+            timestamp: row.createdAt.toISOString(),
+            details: (row.details ?? {}) as Record<string, any>,
+        }))
     } catch (err) {
-        console.warn("Failed to read audit events:", err)
+        console.error("Failed to read audit events:", err)
         return []
     }
+}
+
+/** Total number of stored audit events, for pagination controls. */
+export async function countAuditEvents(options: Omit<GetAuditEventsOptions, "limit" | "offset"> = {}) {
+    return prisma.auditEvent.count({
+        where: {
+            ...(options.entityType ? { entityType: options.entityType } : {}),
+            ...(options.entityId ? { entityId: options.entityId } : {}),
+        },
+    })
 }
