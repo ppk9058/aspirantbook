@@ -97,8 +97,34 @@ describe("T6: Alert.alert Cleanup & Allow-List Enforcement", () => {
   });
 
   it("enforces that all Alert.alert occurrences have a literal array of >=2 buttons", () => {
-    const { execSync } = require("child_process");
-    const out = execSync("node /Users/praveenkumar/trillionskill-mobile-spec/run4/gates/alert-check.js", { encoding: "utf8" });
-    assert.ok(out.includes('"total":8'));
+    // The previous version shelled out to an absolute path in another checkout
+    // (/Users/.../trillionskill-mobile-spec/run4/gates/alert-check.js), so it
+    // scanned whatever that checkout happened to contain and reported 0 calls.
+    // Parse this repository's own sources instead.
+    const ts = require("typescript") as typeof import("typescript");
+    const srcRoot = path.join(__dirname, "../src");
+    const offenders: string[] = [];
+    let total = 0;
+
+    for (const filePath of findFiles(srcRoot)) {
+      const source = fs.readFileSync(filePath, "utf-8");
+      const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true);
+      const visit = (node: any) => {
+        if (ts.isCallExpression(node) && node.expression.getText(sourceFile) === "Alert.alert") {
+          total++;
+          const buttons = node.arguments[2];
+          if (!(buttons && ts.isArrayLiteralExpression(buttons) && buttons.elements.length >= 2)) {
+            offenders.push(
+              `${path.relative(path.join(__dirname, ".."), filePath)}: Alert.alert without a literal array of >=2 buttons`
+            );
+          }
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(sourceFile);
+    }
+
+    assert.deepEqual(offenders, [], offenders.join("\n"));
+    assert.equal(total, ALERT_ALLOWLIST.length, `expected ${ALERT_ALLOWLIST.length} approved confirmations, found ${total}`);
   });
 });
