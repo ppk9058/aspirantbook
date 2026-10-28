@@ -6,6 +6,7 @@ import Image from "next/image"
 import { cleanDescriptionSnippet } from "@/lib/utils"
 
 import { auth } from "@/auth"
+import { HybridSearchEngine } from "@/lib/ai/search/hybrid-search"
 
 export default async function SearchPage({
     searchParams,
@@ -33,66 +34,13 @@ export default async function SearchPage({
     let lessons: any[] = []
 
     try {
-        const courseVisibilityWhere: any = isAdmin
-            ? {}
-            : {
-                  status: "PUBLISHED",
-                  isPublished: { not: false },
-              }
-
-        const lessonVisibilityWhere: any = isAdmin
-            ? {}
-            : {
-                  chapter: {
-                      course: {
-                          status: "PUBLISHED",
-                          isPublished: { not: false },
-                      },
-                  },
-              }
-
-        ;[courses, lessons] = await Promise.all([
-            prisma.course.findMany({
-                where: {
-                    OR: [
-                        { title: { contains: query, mode: "insensitive" } },
-                        { description: { contains: query, mode: "insensitive" } },
-                    ],
-                    ...courseVisibilityWhere,
-                },
-                take: 10,
-                select: {
-                    id: true,
-                    title: true,
-                    slug: true,
-                    description: true,
-                    thumbnailUrl: true,
-                },
-            }),
-            prisma.lesson.findMany({
-                where: {
-                    title: { contains: query, mode: "insensitive" },
-                    ...lessonVisibilityWhere,
-                },
-                select: {
-                    id: true,
-                    title: true,
-                    type: true,
-                    chapter: {
-                        select: {
-                            course: {
-                                select: {
-                                    id: true,
-                                    title: true,
-                                    slug: true,
-                                },
-                            },
-                        },
-                    },
-                },
-                take: 10,
-            }),
-        ])
+        const searchResult = await HybridSearchEngine.search({
+            query,
+            isAdmin,
+            limit: 10,
+        })
+        courses = searchResult.courses
+        lessons = searchResult.lessons
     } catch {
         console.warn("Database offline on /search, returning empty results.")
     }

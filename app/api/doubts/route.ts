@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUserContext, requirePermission } from "@/lib/auth/rbac"
 import { getAllDoubts, createDoubt, answerDoubt, upvoteDoubt } from "@/lib/doubts-service"
 import { logAuditEvent } from "@/lib/audit/audit-logger"
+import { StudentDoubtSolver } from "@/lib/ai/student/doubt-solver"
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,12 +30,31 @@ export async function POST(request: NextRequest) {
     const userContext = await requirePermission("question.create")
     const body = await request.json()
 
-    const { subject, topic, questionText, attachment } = body
+    const { subject, topic, questionText, attachment, requestAiSolution } = body
     if (!subject || !questionText) {
       return NextResponse.json(
         { error: "Subject and question text are required." },
         { status: 400 }
       )
+    }
+
+    let aiSolution: any = null
+    let aiFallback: string | undefined = undefined
+
+    // Optional student AI doubt solving (protected by quota, length limits, and kill switch)
+    if (requestAiSolution) {
+      const aiResult = await StudentDoubtSolver.solve({
+        userId: userContext.userId || "anonymous-student",
+        subject,
+        topic,
+        questionText,
+      })
+
+      if (aiResult.solvedByAi) {
+        aiSolution = aiResult
+      } else {
+        aiFallback = aiResult.message
+      }
     }
 
     const newDoubt = await createDoubt({
@@ -47,16 +67,32 @@ export async function POST(request: NextRequest) {
       attachment,
     })
 
+    if (aiSolution) {
+      await answerDoubt(
+        newDoubt.id,
+        "AI Mentor (Draft Preview)",
+        aiSolution.answer
+      )
+    }
+
     await logAuditEvent({
       userId: userContext.userId || "student",
       userName: userContext.name || "Student Learner",
       userRole: userContext.role,
       action: "question.ask",
       target: newDoubt.id,
-      details: { subject, topic, hasAttachment: !!attachment },
+      details: { subject, topic, hasAttachment: !!attachment, aiAssisted: !!aiSolution },
     })
 
-    return NextResponse.json({ success: true, doubt: newDoubt }, { status: 201 })
+    return NextResponse.json(
+      {
+        success: true,
+        doubt: newDoubt,
+        aiSolution,
+        aiFallback,
+      },
+      { status: 201 }
+    )
   } catch (error: any) {
     console.error("POST /api/doubts error:", error)
     const isUnauth = error.message?.includes("UNAUTHORIZED")

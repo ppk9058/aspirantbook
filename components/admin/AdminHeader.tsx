@@ -40,6 +40,7 @@ const routeNameMap: Record<string, string> = {
     "/admin/homepage-cards": "HomePage Card Studio",
     "/admin/test-series": "Test Series Studio",
     "/admin/pyqs": "PYQ Studio",
+    "/admin/ai-batch": "AI Batch Studio",
     "/admin/batches": "Batches & Prep",
     "/admin/tracks": "Career Tracks",
     "/admin/book-studio": "Book Studio",

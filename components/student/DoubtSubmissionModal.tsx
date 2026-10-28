@@ -47,6 +47,9 @@ export default function DoubtSubmissionModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
+  const isAiEnabled = process.env.NEXT_PUBLIC_AI_ENABLED === "true"
+  const [requestAiSolution, setRequestAiSolution] = useState(false)
+  const [aiMessage, setAiMessage] = useState<string | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -133,12 +136,20 @@ export default function DoubtSubmissionModal({
           topic: topic.trim() || undefined,
           questionText: questionText.trim(),
           attachment: attachmentData,
+          requestAiSolution: isAiEnabled && requestAiSolution,
         }),
       })
 
+      const data = await res.json().catch(() => ({}))
+
       if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}))
-        throw new Error(errJson.error || "Failed to submit doubt.")
+        throw new Error(data.error || "Failed to submit doubt.")
+      }
+
+      if (data.aiSolution?.answer) {
+        setAiMessage(data.aiSolution.answer)
+      } else if (data.aiFallback) {
+        setAiMessage(data.aiFallback)
       }
 
       setIsSuccess(true)
@@ -146,10 +157,11 @@ export default function DoubtSubmissionModal({
         setIsSuccess(false)
         setQuestionText("")
         setTopic("")
+        setAiMessage(null)
         handleRemoveFile()
         onClose()
         if (onSuccess) onSuccess()
-      }, 1500)
+      }, data.aiSolution?.answer ? 4000 : 1500)
     } catch (err: any) {
       setErrorMessage(err.message || "Something went wrong. Please try again.")
     } finally {
@@ -194,13 +206,13 @@ export default function DoubtSubmissionModal({
           )}
 
           {isSuccess && (
-            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-center space-y-1">
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-center space-y-2">
               <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
               <p className="font-semibold text-emerald-700 dark:text-emerald-300 text-sm">
                 Doubt submitted successfully!
               </p>
               <p className="text-xs text-emerald-600 dark:text-emerald-400">
-                Your teachers have been notified and will answer shortly.
+                {aiMessage || "Your teachers have been notified and will answer shortly."}
               </p>
             </div>
           )}
@@ -318,6 +330,27 @@ export default function DoubtSubmissionModal({
                   </div>
                 )}
               </div>
+
+              {/* Instant AI faculty assistance option (flag-gated) */}
+              {isAiEnabled && (
+                <label className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={requestAiSolution}
+                    onChange={(e) => setRequestAiSolution(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 rounded text-[#1448d8] focus:ring-[#1448d8]"
+                  />
+                  <div className="text-xs">
+                    <span className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#1448d8]" />
+                      Get Instant AI Faculty Explanation
+                    </span>
+                    <span className="text-[11px] text-gray-500 dark:text-gray-400 block mt-0.5">
+                      Conceptual answer powered by free-tier AI models. Daily quota applies.
+                    </span>
+                  </div>
+                </label>
+              )}
 
               {/* Action Buttons */}
               <div className="pt-2 flex items-center justify-end gap-3 border-t border-gray-100 dark:border-gray-800">

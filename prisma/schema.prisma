@@ -136,6 +136,8 @@ model Course {
   couponRedemptions CouponRedemption[]
 
   @@index([slug])
+  @@index([title])
+  @@index([description])
   @@index([difficulty])
   @@index([status])
   @@index([isPublished])
@@ -876,6 +878,7 @@ model ExamSeries {
   slugHistory  PackageSlugHistory[]
 
   @@index([slug])
+  @@index([title])
   @@index([category])
   @@index([isPublished])
   @@index([isPublished, createdAt])
@@ -963,6 +966,7 @@ model ExamTest {
   attempts        ExamAttempt[]
 
   @@index([seriesId])
+  @@index([title])
   @@index([testType])
   @@index([isPublished])
   @@index([seriesId, isPublished])
@@ -1354,6 +1358,8 @@ model CurrentAffairsPdf {
   createdBy     User?     @relation("UserCurrentAffairsPdfs", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([year, month])
+  @@index([title])
+  @@index([titleHi])
   @@index([status])
   @@index([createdById])
   @@index([status, year, month])
@@ -1395,4 +1401,98 @@ model AuditLog {
   @@index([targetId])
   @@index([createdAt])
 }
+
+model AiCache {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  task          String
+  promptVersion String
+  language      String   @default("en")
+  inputText     String   @db.Text
+  outputText    String   @db.Text
+  metadata      Json?
+  modelUsed     String
+  provider      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([task, language])
+}
+
+model AiRateLimitCounter {
+  id         String   @id @default(cuid())
+  key        String   @unique
+  provider   String
+  windowType String
+  count      Int      @default(0)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([provider, windowType])
+  @@index([expiresAt])
+}
+
+model AiStudentQuota {
+  id        String   @id @default(cuid())
+  userId    String
+  dayDate   String
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, dayDate])
+  @@index([userId])
+}
+
+model AiBatchJob {
+  id             String        @id @default(cuid())
+  jobType        String
+  status         String        @default("PENDING")
+  totalItems     Int           @default(0)
+  processedItems Int           @default(0)
+  failedItems    Int           @default(0)
+  config         Json?
+  progress       Float         @default(0.0)
+  errorMessage   String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  items          AiBatchItem[]
+
+  @@index([status])
+  @@index([jobType])
+}
+
+model AiBatchItem {
+  id           String     @id @default(cuid())
+  jobId        String
+  referenceId  String?
+  status       String     @default("PENDING")
+  input        Json
+  output       Json?
+  editedOutput Json?
+  error        String?
+  approvedAt   DateTime?
+  approvedBy   String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  job          AiBatchJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, status])
+  @@index([referenceId])
+}
+
+model AiContentEmbedding {
+  id          String                      @id @default(cuid())
+  contentType String
+  contentId   String
+  title       String
+  snippet     String                      @db.Text
+  embedding   Unsupported("vector(768)")?
+  createdAt   DateTime                    @default(now())
+  updatedAt   DateTime                    @updatedAt
+
+  @@index([contentType, contentId])
+}
+
 

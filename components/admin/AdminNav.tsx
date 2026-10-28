@@ -46,6 +46,7 @@ const adminNavigation = [
     { icon: Sparkles, name: "HomePage Card Studio", href: "/admin/homepage-cards", matchPrefix: "/admin/homepage-cards" },
     { icon: PencilRuler, name: "Test Series Studio", href: "/admin/test-series", matchPrefix: "/admin/test-series" },
     { icon: FileText, name: "PYQ Studio", href: "/admin/pyqs", matchPrefix: "/admin/pyqs" },
+    { icon: Sparkles, name: "AI Batch Studio", href: "/admin/ai-batch", matchPrefix: "/admin/ai-batch", adminOnly: true, aiOnly: true },
     { icon: BookOpen, name: "Book Studio", href: "/admin/book-studio", matchPrefix: "/admin/book-studio" },
     { icon: Book, name: "Online Bookstore", href: "/admin/books", matchPrefix: "/admin/books", adminOnly: true },
     { icon: GraduationCap, name: "Batches & Prep", href: "/admin/batches", matchPrefix: "/admin/batches" },
@@ -142,6 +143,9 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                     <nav className="space-y-1">
                         {adminNavigation
                             .filter((item) => {
+                                if ((item as any).aiOnly && process.env.NEXT_PUBLIC_AI_ENABLED !== "true") {
+                                    return false
+                                }
                                 if (user?.role === "TEACHER") {
                                     return isTeacherAllowedAdminPath(item.href)
                                 }
