@@ -34,6 +34,7 @@ import { useGoal } from "@/components/providers/GoalProvider"
 import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
 import { TEST_TYPE_LABELS } from "@/lib/exam/labels"
+import Image from "next/image"
 
 interface TestItem {
     id: string
@@ -314,20 +315,13 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
         let isMounted = true
         if (!seriesId || !isLoaded) return
 
-        const goalParam = selectedGoal?.id ? `&goal=${encodeURIComponent(selectedGoal.id)}` : ""
+        const effectiveGoal = customSeriesPackage?.category || selectedGoal?.id || ""
+        const goalParam = effectiveGoal ? `&goal=${encodeURIComponent(effectiveGoal)}` : ""
         fetch(`/api/exam/series/recommendations?seriesId=${encodeURIComponent(seriesId)}${goalParam}`)
             .then((res) => res.json())
             .then((json) => {
                 if (isMounted && json.success && Array.isArray(json.data)) {
-                    const activeGoalId = selectedGoal?.id?.toLowerCase()
-                    const filtered = activeGoalId
-                        ? json.data.filter((item: any) => {
-                            const gid = (item.goalId || item.category || "").toLowerCase()
-                            const tags = Array.isArray(item.tags) ? item.tags.map((t: string) => t.toLowerCase()) : []
-                            return gid === activeGoalId || tags.includes(activeGoalId) || item.category?.toLowerCase() === activeGoalId
-                        })
-                        : json.data
-                    setMoreTestSeries(filtered)
+                    setMoreTestSeries(json.data)
                 }
             })
             .catch(() => {})
@@ -335,7 +329,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
         return () => {
             isMounted = false
         }
-    }, [seriesId, selectedGoal?.id, isLoaded])
+    }, [seriesId, selectedGoal?.id, isLoaded, customSeriesPackage?.category])
 
     // Fallback if initialSeries wasn't provided directly
     useEffect(() => {
@@ -544,10 +538,12 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                         {/* Visual Banner at top of header card */}
                         {currentSeries.bannerUrl && (
                             <div className="w-full h-40 sm:h-52 md:h-60 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xs relative">
-                                <img
+                                <Image
                                     src={currentSeries.bannerUrl}
                                     alt={seriesData.title}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    sizes="(max-width: 1024px) 100vw, 66vw"
+                                    className="object-cover"
                                 />
                             </div>
                         )}

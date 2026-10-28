@@ -3,6 +3,7 @@
 import React from "react"
 import { BookOrder } from "@/lib/books/types"
 import { X, CheckCircle2, FileText, ShoppingBag, Download, Printer } from "lucide-react"
+import Image from "next/image"
 
 interface OrderDetailsModalProps {
   order: BookOrder | null
@@ -94,7 +95,7 @@ Powered by aspirantbook Online Bookstore & Publications.
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-12 rounded-lg bg-gray-200 overflow-hidden shrink-0 border border-gray-300">
-                      <img src={item.book.coverImage} alt="" className="w-full h-full object-cover" />
+                      <Image src={item.book.coverImage} alt="" width={40} height={48} className="h-full w-full object-cover" />
                     </div>
                     <div>
                       <h4 className="text-xs font-black text-gray-900 line-clamp-1">{item.book.title}</h4>

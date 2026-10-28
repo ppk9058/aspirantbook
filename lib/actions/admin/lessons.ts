@@ -7,6 +7,15 @@ import { z } from "zod"
 import { LessonType } from "@prisma/client"
 import { canEditContent, canDeleteContent } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
+import { withTransactionLock } from "@/lib/prisma-lock"
+import { nextLessonOrder } from "@/lib/utils/next-order"
+import { toCourseAccessUser } from "@/lib/auth/course-access"
+import {
+    assertManagedCourseForAction,
+    assertManagedChapterForAction,
+    assertManagedLessonForAction,
+} from "@/lib/auth/course-access-server"
 import { chunkContent, computeContentHash } from "@/lib/authwall/chunker"
 
 const LessonSchema = z.object({
@@ -28,6 +37,8 @@ async function revalidateLessonPages(courseId: string, lessonId?: string) {
     revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
     revalidatePath("/tutorials")
+    // B10: lesson changes alter the course outline in the tagged course cache.
+    safeRevalidateTags(CACHE_TAGS.courses)
     try {
         const course = await prisma.course.findUnique({
             where: { id: courseId },
@@ -64,38 +75,38 @@ export async function createLesson(
         throw new Error("Unauthorized: Insufficient permissions to create lesson")
     }
 
-    const validated = LessonSchema.parse(data)
+    // A8: teachers may only add lessons to their own courses.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "manage")
 
-    // Get the current max order for this chapter
-    const maxOrder = await prisma.lesson.findFirst({
-        where: { chapterId },
-        orderBy: { order: "desc" },
-        select: { order: true },
-    })
+    const validated = LessonSchema.parse(data)
 
     const contentBlocks = validated.content ? chunkContent(validated.content) : []
     const blockCount = contentBlocks.length > 0 ? contentBlocks.length : undefined
     const contentHash = contentBlocks.length > 0 ? computeContentHash(contentBlocks) : undefined
 
-    const lesson = await prisma.lesson.create({
-        data: {
-            title: validated.title,
-            type: validated.type,
-            videoUrl: validated.videoUrl || undefined,
-            content: validated.content || undefined,
-            slides: validated.slides || undefined,
-            duration: validated.duration || undefined,
-            xpReward: validated.xpReward || 10,
-            blockCount,
-            contentHash,
-            chapterId,
-            order: (maxOrder?.order ?? -1) + 1,
-        },
-        include: {
-            chapter: {
-                select: { courseId: true },
+    // B8: allocate the position and insert under the chapter's advisory lock.
+    const lesson = await withTransactionLock(`lesson-order:${chapterId}`, async (tx) => {
+        const order = await nextLessonOrder(tx, chapterId)
+        return tx.lesson.create({
+            data: {
+                title: validated.title,
+                type: validated.type,
+                videoUrl: validated.videoUrl || undefined,
+                content: validated.content || undefined,
+                slides: validated.slides || undefined,
+                duration: validated.duration || undefined,
+                xpReward: validated.xpReward || 10,
+                blockCount,
+                contentHash,
+                chapterId,
+                order,
             },
-        },
+            include: {
+                chapter: {
+                    select: { courseId: true },
+                },
+            },
+        })
     })
 
     await revalidateLessonPages(lesson.chapter.courseId, lesson.id)
@@ -129,6 +140,9 @@ export async function updateLesson(
     if (!session || !canEditContent(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to update lesson")
     }
+
+    // A8: ownership, resolved from the lesson's chapter/course.
+    await assertManagedLessonForAction(toCourseAccessUser(session.user), lessonId, "manage")
 
     const contentBlocks = data.content ? chunkContent(data.content) : undefined
     const blockCount = contentBlocks ? contentBlocks.length : undefined
@@ -194,6 +208,9 @@ export async function updateLessonsGateMode(
         throw new Error("Unauthorized: Insufficient permissions to update lessons")
     }
 
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "manage")
+
     const cleanPercentage =
         previewPercentage === null || previewPercentage === undefined
             ? null
@@ -228,6 +245,9 @@ export async function deleteLesson(lessonId: string) {
     if (!session || !canDeleteContent(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to delete lesson")
     }
+
+    // A8: ownership, resolved from the lesson's chapter/course.
+    await assertManagedLessonForAction(toCourseAccessUser(session.user), lessonId, "delete")
 
     const lesson = await prisma.lesson.findUnique({
         where: { id: lessonId },
@@ -266,6 +286,9 @@ export async function reorderLessons(chapterId: string, lessonIds: string[]) {
     if (!session || !canEditContent(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to reorder lessons")
     }
+
+    // A8: ownership.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "manage")
 
     // Get courseId for revalidation
     const chapter = await prisma.chapter.findUnique({
@@ -306,6 +329,9 @@ export async function duplicateLesson(lessonId: string) {
         throw new Error("Unauthorized: Insufficient permissions to duplicate lesson")
     }
 
+    // A8: ownership, resolved from the source lesson's chapter/course.
+    await assertManagedLessonForAction(toCourseAccessUser(session.user), lessonId, "duplicate")
+
     const sourceLesson = await prisma.lesson.findUnique({
         where: { id: lessonId },
         include: {
@@ -319,29 +345,27 @@ export async function duplicateLesson(lessonId: string) {
         throw new Error("Lesson not found")
     }
 
-    const maxOrder = await prisma.lesson.findFirst({
-        where: { chapterId: sourceLesson.chapterId },
-        orderBy: { order: "desc" },
-        select: { order: true },
-    })
-
-    const newLesson = await prisma.lesson.create({
-        data: {
-            title: `${sourceLesson.title} (Copy)`,
-            type: sourceLesson.type,
-            videoUrl: sourceLesson.videoUrl,
-            content: sourceLesson.content,
-            slides: sourceLesson.slides,
-            duration: sourceLesson.duration,
-            xpReward: sourceLesson.xpReward,
-            chapterId: sourceLesson.chapterId,
-            order: (maxOrder?.order ?? -1) + 1,
-        },
-        include: {
-            chapter: {
-                select: { courseId: true },
+    // B8: same lock as createLesson, so a duplicate never reuses a position.
+    const newLesson = await withTransactionLock(`lesson-order:${sourceLesson.chapterId}`, async (tx) => {
+        const order = await nextLessonOrder(tx, sourceLesson.chapterId)
+        return tx.lesson.create({
+            data: {
+                title: `${sourceLesson.title} (Copy)`,
+                type: sourceLesson.type,
+                videoUrl: sourceLesson.videoUrl,
+                content: sourceLesson.content,
+                slides: sourceLesson.slides,
+                duration: sourceLesson.duration,
+                xpReward: sourceLesson.xpReward,
+                chapterId: sourceLesson.chapterId,
+                order,
             },
-        },
+            include: {
+                chapter: {
+                    select: { courseId: true },
+                },
+            },
+        })
     })
 
     await revalidateLessonPages(newLesson.chapter.courseId, newLesson.id)
@@ -365,6 +389,9 @@ export async function saveLessonDraft(
     if (!session || !canEditContent(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to save draft")
     }
+
+    // A8: ownership.
+    await assertManagedLessonForAction(toCourseAccessUser(session.user), lessonId, "manage")
 
     const lesson = await prisma.lesson.findUnique({
         where: { id: lessonId },
@@ -411,6 +438,9 @@ export async function publishLessonVersion(
     if (!session || !canEditContent(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to publish lesson")
     }
+
+    // A8: ownership.
+    await assertManagedLessonForAction(toCourseAccessUser(session.user), lessonId, "publish")
 
     const lesson = await prisma.lesson.findUnique({
         where: { id: lessonId },
@@ -594,6 +624,13 @@ export async function restoreLessonVersion(versionId: string) {
     if (!versionToRestore) {
         throw new Error("Version not found")
     }
+
+    // A8: ownership, resolved from the version's lesson/course.
+    await assertManagedLessonForAction(
+        toCourseAccessUser(session.user),
+        versionToRestore.lessonId,
+        "restore"
+    )
 
     const lesson = versionToRestore.lesson
     const blocks = Array.isArray(versionToRestore.blocks) ? versionToRestore.blocks : []

@@ -1,0 +1,37 @@
+{
+  "url": "http://127.0.0.1:3045/current-affairs-quizzes/upsc-economy-ca",
+  "path": "/current-affairs-quizzes/upsc-economy-ca",
+  "module": "current-affairs",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "UPSC Economy CA - Current Affairs Quiz | aspirantbook | aspirantbook",
+  "metaDescription": "Practice UPSC Economy CA with 10 questions in 10 minutes. Instant evaluation and detailed explanations.",
+  "canonical": "http://localhost:3000/current-affairs-quizzes/upsc-economy-ca",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://localhost:3000/current-affairs-quizzes/upsc-economy-ca",
+    "x-default": "http://localhost:3000/current-affairs-quizzes/upsc-economy-ca"
+  },
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Quiz",
+      "name": "UPSC Economy CA",
+      "description": "Current affairs speed quiz with 10 questions and 10 minutes timer.",
+      "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+      "provider": {
+        "@type": "Organization",
+        "name": "aspirantbook",
+        "url": "http://localhost:3000"
+      },
+      "learningResourceType": "Quiz",
+      "timeRequired": "PT10M",
+      "isAccessibleForFree": true,
+      "hasPart": {
+        "@type": "WebPageElement",
+        "isAccessibleForFree": true
+      },
+      "url": "http://localhost:3000/current-affairs-quizzes/upsc-economy-ca"
+    }
+  ]
+}

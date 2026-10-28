@@ -1,0 +1,25 @@
+{
+  "url": "http://127.0.0.1:3045/courses/e2e-20261021025147563-wzrey-course-studio",
+  "path": "/courses/e2e-20261021025147563-wzrey-course-studio",
+  "module": "courses",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "Bugfix Course Studio E2E-20261021025147563-wzrey | aspirantbook | aspirantbook",
+  "metaDescription": "Testing studio persistence and lesson editor guards",
+  "canonical": "http://localhost:3000/courses/e2e-20261021025147563-wzrey-course-studio",
+  "robots": null,
+  "hreflang": {},
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Bugfix Course Studio E2E-20261021025147563-wzrey",
+      "description": "Testing studio persistence and lesson editor guards",
+      "provider": {
+        "@type": "Organization",
+        "name": "TrillionSkill",
+        "sameAs": "http://localhost:3000"
+      }
+    }
+  ]
+}

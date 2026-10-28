@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
 import { isExamBatchSyncEnabled } from "@/lib/exam-flags";
+import { DEADLINE_EXPIRED_MESSAGE, examDeadline } from "@/lib/exam-deadline";
 import crypto from "crypto";
 
 interface AnswerPayload {
@@ -78,36 +80,63 @@ export async function POST(
       );
     }
 
-    // Enforce sequence ordering using the dedicated clientSeq column:
-    // If existing record has newer/equal clientSeq, return storedSeq to let client catch up.
+    const safeSequence = sequence ?? 0;
+
+    // P0-1 / A14: the shared deadline policy is checked BEFORE any write. Late
+    // answers are never persisted; the attempt is graded and finalized so the
+    // learner still gets a result (the timer ran out mid-sync).
+    const deadline = examDeadline(
+      { startedAt: attempt.startedAt, durationMinutes: attempt.test?.durationMinutes ?? 60 },
+      new Date()
+    );
+    if (deadline.expired) {
+      const graded = await gradeExamAttempt(attemptId, new Date());
+      return NextResponse.json(
+        {
+          data: {
+            synced: false,
+            rejected: answers.length,
+            expired: true,
+            status: "SUBMITTED",
+            error: DEADLINE_EXPIRED_MESSAGE,
+            result: graded,
+          },
+        },
+        { status: 200 }
+      );
+    }
+
+    let hasStaleSequence = false;
+    let maxStoredSeq = 0;
+
     if (answers.length > 0) {
-      if (isExamBatchSyncEnabled()) {
-        const questionIds = answers.map((a) => a.questionId);
-        const existingRows = await prisma.examAttemptAnswer.findMany({
-          where: { attemptId, questionId: { in: questionIds } },
-          select: { questionId: true, clientSeq: true },
-        });
+      const questionIds = Array.from(new Set(answers.map((a) => a.questionId)));
+      const existingRows = await prisma.examAttemptAnswer.findMany({
+        where: { attemptId, questionId: { in: questionIds } },
+        select: { questionId: true, clientSeq: true },
+      });
 
-        const staleAnswers = existingRows.filter(
-          (r) => r.clientSeq !== null && r.clientSeq !== undefined && r.clientSeq > sequence
+      const staleAnswers = existingRows.filter(
+        (r) => r.clientSeq !== null && r.clientSeq !== undefined && r.clientSeq > safeSequence
+      );
+
+      if (staleAnswers.length > 0) {
+        maxStoredSeq = Math.max(...staleAnswers.map((r) => r.clientSeq!));
+        return NextResponse.json(
+          {
+            error: "Stale sequence: server has newer data",
+            storedSeq: maxStoredSeq,
+          },
+          { status: 409 }
         );
+      }
 
-        if (staleAnswers.length > 0) {
-          const maxStoredSeq = Math.max(...staleAnswers.map((r) => r.clientSeq!));
-          return NextResponse.json(
-            {
-              error: "Stale sequence: server has newer data",
-              storedSeq: maxStoredSeq,
-            },
-            { status: 409 }
-          );
-        }
-
+      if (isExamBatchSyncEnabled()) {
         const ids = answers.map(() => crypto.randomUUID());
         const qIds = answers.map((a) => a.questionId);
         const options = answers.map((a) => a.selectedOption);
         const markeds = answers.map((a) => a.isMarked ?? false);
-        const seqs = answers.map(() => sequence);
+        const seqs = answers.map(() => safeSequence);
         const times = answers.map((a) => a.timeSpentSecs ?? 0);
 
         await prisma.$transaction(async (tx) => {
@@ -119,7 +148,7 @@ export async function POST(
               v.question_id,
               v.selected_option,
               v.is_marked,
-              v.client_seq,
+              COALESCE(v.client_seq, 0),
               v.time_spent_secs
             FROM UNNEST(
               ${ids}::text[],
@@ -133,10 +162,9 @@ export async function POST(
             DO UPDATE SET
               "selectedOption" = EXCLUDED."selectedOption",
               "isMarked" = EXCLUDED."isMarked",
-              "clientSeq" = EXCLUDED."clientSeq",
+              "clientSeq" = COALESCE(EXCLUDED."clientSeq", 0),
               "timeSpentSecs" = EXCLUDED."timeSpentSecs"
-            WHERE "ExamAttemptAnswer"."clientSeq" IS NULL
-               OR EXCLUDED."clientSeq" >= "ExamAttemptAnswer"."clientSeq";
+            WHERE COALESCE("ExamAttemptAnswer"."clientSeq", 0) <= COALESCE(EXCLUDED."clientSeq", 0);
           `;
 
           if (typeof tabSwitchCount === "number") {
@@ -147,30 +175,24 @@ export async function POST(
           }
         });
       } else {
-        let maxStoredSeq = 0;
-        let hasStaleSequence = false;
+        const storedSeqByQuestion = new Map(
+          existingRows.map((row) => [row.questionId, row.clientSeq])
+        );
 
-        await prisma.$transaction(async (tx) => {
-          for (const ans of answers) {
-            const existing = await tx.examAttemptAnswer.findUnique({
-              where: {
-                attemptId_questionId: {
-                  attemptId,
-                  questionId: ans.questionId,
-                },
-              },
-              select: { clientSeq: true },
-            });
+        const operations: Prisma.PrismaPromise<any>[] = [];
 
-            if (existing && existing.clientSeq > sequence) {
-              hasStaleSequence = true;
-              maxStoredSeq = Math.max(maxStoredSeq, existing.clientSeq);
-              continue;
-            }
+        for (const ans of answers) {
+          const storedSeq = storedSeqByQuestion.get(ans.questionId) ?? null;
+          if (storedSeq !== null && storedSeq !== undefined && storedSeq > safeSequence) {
+            hasStaleSequence = true;
+            maxStoredSeq = Math.max(maxStoredSeq, storedSeq);
+            continue;
+          }
 
-            maxStoredSeq = Math.max(maxStoredSeq, sequence);
+          maxStoredSeq = Math.max(maxStoredSeq, safeSequence);
 
-            await tx.examAttemptAnswer.upsert({
+          operations.push(
+            prisma.examAttemptAnswer.upsert({
               where: {
                 attemptId_questionId: {
                   attemptId,
@@ -182,34 +204,30 @@ export async function POST(
                 questionId: ans.questionId,
                 selectedOption: ans.selectedOption,
                 isMarked: ans.isMarked ?? false,
-                clientSeq: sequence,
+                clientSeq: safeSequence,
                 timeSpentSecs: ans.timeSpentSecs ?? 0,
               },
               update: {
                 selectedOption: ans.selectedOption,
                 isMarked: ans.isMarked ?? false,
-                clientSeq: sequence,
+                clientSeq: safeSequence,
                 timeSpentSecs: ans.timeSpentSecs ?? 0,
               },
-            });
-          }
+            })
+          );
+        }
 
-          if (typeof tabSwitchCount === "number") {
-            await tx.examAttempt.update({
+        if (typeof tabSwitchCount === "number") {
+          operations.push(
+            prisma.examAttempt.update({
               where: { id: attemptId },
               data: { tabSwitchCount },
-            });
-          }
-        });
-
-        if (hasStaleSequence) {
-          return NextResponse.json(
-            {
-              error: "Stale sequence: server has newer data",
-              storedSeq: maxStoredSeq,
-            },
-            { status: 409 }
+            })
           );
+        }
+
+        if (operations.length > 0) {
+          await prisma.$transaction(operations);
         }
       }
     } else if (typeof tabSwitchCount === "number") {
@@ -219,24 +237,13 @@ export async function POST(
       });
     }
 
-    // Check deadline + 30s grace period:
-    // If expired, do NOT discard answers with 410; grade the attempt and finalize it!
-    const durationMinutes = attempt.test!.durationMinutes;
-    const deadlineMs = attempt.startedAt.getTime() + durationMinutes * 60 * 1000;
-    const graceDeadlineMs = deadlineMs + 30 * 1000;
-
-    if (Date.now() > graceDeadlineMs) {
-      const graded = await gradeExamAttempt(attemptId, new Date());
+    if (hasStaleSequence) {
       return NextResponse.json(
         {
-          data: {
-            synced: true,
-            expired: true,
-            status: "SUBMITTED",
-            result: graded,
-          },
+          error: "Stale sequence: server has newer data",
+          storedSeq: maxStoredSeq,
         },
-        { status: 200 }
+        { status: 409 }
       );
     }
 

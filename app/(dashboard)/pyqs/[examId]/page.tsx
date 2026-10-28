@@ -4,7 +4,36 @@ import { PyqStudentListingClient } from "@/components/pyqs/PyqStudentListingClie
 import Link from "next/link"
 import { ArrowLeft, BookOpen, AlertCircle, Sparkles } from "lucide-react"
 
+import { Metadata } from "next"
+import { adaptPyqCategorySeo } from "@/lib/seo/adapters/pyqs"
+
 export const revalidate = 60
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ examId: string }>
+}): Promise<Metadata> {
+  const { examId } = await params
+  const category = await prisma.pyqCategory.findFirst({
+    where: {
+      OR: [
+        { slug: examId.toLowerCase() },
+        { id: examId },
+        { name: { equals: examId, mode: "insensitive" } },
+      ],
+    },
+    select: { name: true, slug: true, description: true, isPublished: true },
+  })
+
+  if (!category) {
+    return {
+      title: "Exam Category Not Found | TrillionSkill",
+    }
+  }
+
+  return adaptPyqCategorySeo(category).metadata
+}
 
 export default async function ExamCategoryDetailPage({
   params,
@@ -58,8 +87,18 @@ export default async function ExamCategoryDetailPage({
     includeAllStatuses: false,
   })
 
+  const seo = adaptPyqCategorySeo(category)
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {seo.jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(Array.isArray(seo.jsonLd) ? seo.jsonLd[0] : seo.jsonLd),
+          }}
+        />
+      )}
       {/* Navigation Breadcrumb */}
       <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
         <Link href="/pyqs" className="hover:text-orange-600 transition-colors flex items-center gap-1">

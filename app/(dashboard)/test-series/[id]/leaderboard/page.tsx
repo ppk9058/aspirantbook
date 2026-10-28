@@ -84,7 +84,7 @@ export default async function LeaderboardPage({
                             href={`/auth/login?callbackUrl=/test-series/${encodeURIComponent(testId)}/leaderboard`}
                             className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-[#00A8FF] to-[#0096e6] text-white font-bold text-sm shadow-md hover:shadow-[#00A8FF]/25 transition-all text-center block"
                         >
-                            Sign In to View Rankings
+                            Sign In to View Leaderboard
                         </Link>
                         <Link
                             href={seriesBackUrl}

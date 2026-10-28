@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 // Simple profanity/link filter (block URLs, basic banned words)
 const BANNED_PATTERNS = [
@@ -15,9 +16,9 @@ function containsBannedContent(text: string): boolean {
   return BANNED_PATTERNS.some((p) => p.test(text))
 }
 
-// Per-user in-memory rate limit map: userId -> lastPostTime ms
-const lastPostTime = new Map<string, number>()
-const RATE_LIMIT_MS = 2000 // 1 message per 2 seconds
+// Rate limiting is Postgres-backed (lib/rate-limit.ts) so a limit cannot be
+// bypassed by hitting a different serverless instance (B-018).
+const RATE_LIMIT_WINDOW_SECONDS = 2 // 1 message per 2 seconds
 
 // ────────────────────────────────────────────────────────────────────────────
 // GET /api/courses/demo/chat?slotId=<>&since=<ISO>
@@ -91,13 +92,12 @@ export async function POST(req: NextRequest) {
   const userRole = (session.user as any).role as string
   const isPrivileged = userRole === "TEACHER" || userRole === "ADMIN"
 
-  // Rate limit check
-  const now = Date.now()
-  const lastPost = lastPostTime.get(userId) ?? 0
-  if (now - lastPost < RATE_LIMIT_MS) {
+  // Rate limit check (shared across instances via Postgres)
+  const rate = await checkRateLimit(`demo_chat:${userId}`, 1, RATE_LIMIT_WINDOW_SECONDS)
+  if (!rate.allowed) {
     return NextResponse.json(
       { error: "Too many messages. Please wait a moment." },
-      { status: 429 }
+      { status: 429, headers: { "Retry-After": String(RATE_LIMIT_WINDOW_SECONDS) } }
     )
   }
 
@@ -183,8 +183,7 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  // Update rate limit
-  lastPostTime.set(userId, now)
+  // The rate limit was already consumed by checkRateLimit() above.
 
   return NextResponse.json({ message: chatMsg }, { status: 201 })
 }

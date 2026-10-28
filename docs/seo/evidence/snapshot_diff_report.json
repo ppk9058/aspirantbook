@@ -1,0 +1,165 @@
+[
+  {
+    "file": "content-engine__hi_question_answer.json",
+    "url": "http://127.0.0.1:3045/hi/question-answer",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "content-engine__hi_question_answer_upsc_cse.json",
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "content-engine__hi_question_answer_upsc_cse_history.json",
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "content-engine__hi_question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json",
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "status": "DEVIATION",
+    "diffs": {
+      "title": {
+        "before": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: | सिंधु घाटी सभ्यता UPSC CSE 2023 MCQ | aspirantbook",
+        "after": "[UPSC CSE 2023] Q1. सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर | सिंधु घाटी सभ्यता UPSC CSE 2023 MCQ | aspirantbook"
+      },
+      "metaDescription": {
+        "before": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: उत्तर: 1 और 2 दोनों — मुख्य बिंदु और व्याख्या सहित। सिंधु घाटी सभ्यता, UPSC CSE 2023.",
+        "after": "[UPSC CSE 2023] Q1. सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए:\n1. हड़ उत्तर: 1 और 2 दोनों — मुख्य बिंदु और व्याख्या सहित। सिंधु घाटी सभ्य"
+      }
+    }
+  },
+  {
+    "file": "content-engine__question_answer.json",
+    "url": "http://127.0.0.1:3045/question-answer",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "content-engine__question_answer_upsc_cse.json",
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "content-engine__question_answer_upsc_cse_2023.json",
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/2023",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "content-engine__question_answer_upsc_cse_history.json",
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/history",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "content-engine__question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json",
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "current-affairs__current_affairs_quizzes.json",
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "current-affairs__current_affairs_quizzes_upsc_economy_ca.json",
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/upsc-economy-ca",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "pyqs-test-series__pyqs.json",
+    "url": "http://127.0.0.1:3045/pyqs",
+    "status": "ENHANCED",
+    "diffs": {
+      "canonical": {
+        "before": null,
+        "after": "http://127.0.0.1:3045/pyqs"
+      },
+      "robots": {
+        "before": null,
+        "after": "index, follow"
+      }
+    }
+  },
+  {
+    "file": "pyqs-test-series__pyqs_bpsc.json",
+    "url": "http://127.0.0.1:3045/pyqs/bpsc",
+    "status": "DEVIATION",
+    "diffs": {
+      "title": {
+        "before": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+        "after": "BPSC Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook"
+      },
+      "canonical": {
+        "before": null,
+        "after": "http://127.0.0.1:3045/pyqs/bpsc"
+      },
+      "robots": {
+        "before": null,
+        "after": "index, follow"
+      },
+      "metaDescription": {
+        "before": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+        "after": "Official Previous Year Papers for 70th, 69th, 68th, 67th CCE, CDPO, AEDO &amp; TRE."
+      }
+    }
+  },
+  {
+    "file": "pyqs-test-series__test_series.json",
+    "url": "http://127.0.0.1:3045/test-series",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "pyqs-test-series__test_series_e2e_series_e2e_20261021124106098_4akv9.json",
+    "url": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021124106098-4akv9",
+    "status": "DEVIATION",
+    "diffs": {
+      "title": {
+        "before": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+        "after": "E2E Series E2E-20261021124106098-4akv9 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook"
+      },
+      "canonical": {
+        "before": null,
+        "after": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021124106098-4akv9"
+      },
+      "robots": {
+        "before": null,
+        "after": "index, follow"
+      },
+      "metaDescription": {
+        "before": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+        "after": "Take online mock tests for E2E Series E2E-20261021124106098-4akv9. Real-time analytics, all-India ranking, and detailed solutions."
+      }
+    }
+  },
+  {
+    "file": "tutorials__tutorials.json",
+    "url": "http://127.0.0.1:3045/tutorials",
+    "status": "IDENTICAL",
+    "diffs": {}
+  },
+  {
+    "file": "tutorials__tutorials_e2e_20261021025140619_1frn8_course_studio.json",
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021025140619-1frn8-course-studio",
+    "status": "ENHANCED",
+    "diffs": {
+      "canonical": {
+        "before": null,
+        "after": "http://127.0.0.1:3045/tutorials/e2e-20261021025140619-1frn8-course-studio"
+      },
+      "robots": {
+        "before": null,
+        "after": "index, follow"
+      }
+    }
+  }
+]

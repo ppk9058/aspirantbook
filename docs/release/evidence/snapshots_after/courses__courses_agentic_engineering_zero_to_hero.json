@@ -1,0 +1,13 @@
+{
+  "url": "http://127.0.0.1:3045/courses/agentic-engineering-zero-to-hero",
+  "path": "/courses/agentic-engineering-zero-to-hero",
+  "module": "courses",
+  "statusCode": 308,
+  "redirectTarget": "/tutorials/agentic-engineering-zero-to-hero",
+  "title": null,
+  "metaDescription": null,
+  "canonical": null,
+  "robots": null,
+  "hreflang": {},
+  "jsonLd": []
+}

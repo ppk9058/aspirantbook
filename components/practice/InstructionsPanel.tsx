@@ -3,6 +3,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Lightbulb, CheckCircle2, List } from "lucide-react"
+import { sanitizeHtml } from "@/lib/security/sanitizer"
 
 interface InstructionsPanelProps {
     title: string
@@ -31,7 +32,7 @@ export function InstructionsPanel({
                 <h1 className="text-2xl font-bold mb-4 text-gray-900">{title}</h1>
 
                 <div className="prose prose-sm max-w-none text-gray-600 mb-8">
-                    <div dangerouslySetInnerHTML={{ __html: instructions }} />
+                    <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(instructions) }} />
                 </div>
 
                 <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-4 mb-8">

@@ -1,0 +1,44 @@
+==========================================================================================================
+RECONCILED PROOF SUITE EXECUTION SUMMARY TABLE
+==========================================================================================================
+Executed at: 2026-10-26T17:04:38.931Z | Mode: all
+Database: 127.0.0.1:54329 (CONNECTED (healthy))
+----------------------------------------------------------------------------------------------------------
+Suite Name                           | File Path                                  | Count            | Type               | Status        
+----------------------------------------------------------------------------------------------------------
+Pure Logic & Acceptance              | tests/content-engine/pure-logic.test.ts    | 17               | Unit               | PASS          
+Parser Bugs & Edge Cases             | tests/content-engine/parser-bugs.test.ts   | 9                | Unit               | PASS          
+Prisma Query Log Production Guard    | tests/unit/prisma-log-guard.test.ts        | 4                | Unit               | PASS          
+Tutorial Goal Categories             | tests/unit/tutorials-goal-categories.test. | 5                | Unit               | PASS          
+Exam Mutations Auth                  | tests/unit/exam-mutations-auth.test.ts     | 14               | Unit               | PASS          
+Exam Packages & Labels               | tests/unit/exam-packages-tests.test.ts     | 10               | Unit               | PASS          
+Exam Checklist Scenarios             | tests/unit/exam-checklist-scenarios.test.t | 13               | Unit               | PASS          
+SEO Core Functions                   | tests/seo/core.test.ts                     | 14               | Unit               | PASS          
+SEO Module Adapters                  | tests/seo/adapters.test.ts                 | 15               | Unit               | PASS          
+SEO Adapter Parity                   | tests/seo/parity.test.ts                   | 3                | Unit               | PASS          
+SEO Admin Auth & Layout Guard        | tests/seo/admin-auth.test.ts               | 3                | Unit               | PASS          
+Sitemap DB Failure Resilience        | tests/seo/sitemap-resilience.test.ts       | 3                | Unit               | PASS          
+Content Engine DB Service            | tests/content-engine/db-service.test.ts    | 11               | DB                 | PASS          
+Admin UI & Nav Registration          | tests/content-engine/admin-ui.test.ts      | 2                | Unit               | PASS          
+Public SEO Pages & ShortID           | tests/content-engine/public-pages.test.ts  | 5                | Unit               | PASS          
+Content Engine Safety Mutations      | tests/content-engine/mutations.test.ts     | 20               | Physical code muta | PASS          
+Phase 1.4 Production Auth Guard      | scripts/test-phase1-4-prod-auth.ts         | 4                | HTTP integration   | PASS          
+Phase 1.5 Cache & Revalidation       | scripts/test-phase1-5-cache-revalidation.t | 12               | HTTP integration   | PASS          
+Phase 1.6 Public XSS & HTML Safety   | scripts/test-phase1-6-xss.ts               | 8                | HTTP integration   | PASS          
+Phase 1.7 Hindi Year Hub & 404s      | scripts/test-phase1-7-hindi-year-hub.ts    | 6                | HTTP integration   | PASS          
+Phase 1.9 Admin Leak Audit           | scripts/test-phase1-9-leak-audit.ts        | 5                | HTTP integration   | PASS          
+Phase 2.3 Cross-Module Snapshots     | scripts/test-phase2-3-cross-module-snapsho | 10               | HTTP integration   | PASS          
+Phase 2.4 Sitemap Comparison         | scripts/test-phase2-4-sitemap-comparison.t | 5                | HTTP integration   | PASS          
+Phase A Sitemap ISR & Revalidation   | scripts/test-phaseA-sitemap-proof.ts       | 11               | HTTP integration   | PASS          
+Phase B Cross-Module JSON-LD Audit   | scripts/validate-jsonld.ts                 | 64 URLs          | HTTP integration   | PASS          
+Content Engine Browser Workflow      | tests/e2e/content-engine-browser.spec.ts   | 6                | Browser E2E        | PASS          
+SEO Responsive Audit                 | tests/e2e/seo-responsive.spec.ts           | 6                | Browser E2E        | PASS          
+----------------------------------------------------------------------------------------------------------
+TOTALS: 221 tests passed / 0 tests failed / 0 suites crashed / 64 URL checks
+==========================================================================================================
+
+=== TEST COUNT RECONCILIATION EXPLANATION ===
+1. Pure logic & parser bugs suites verify parsing and edge cases (including 9 standalone tests in parser-bugs).
+2. SEO suites verify core functions, adapter parity, admin guards, and sitemap DB failure resilience.
+3. Content engine DB, mutation, HTTP integration, and Playwright E2E suites verify end-to-end platform workflows.
+4. Phase B validate-jsonld (64 URLs checked) is tracked separately under URL checks rather than as individual unit tests.

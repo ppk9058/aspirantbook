@@ -96,6 +96,9 @@ export interface Coupon {
   discountType: "PERCENT" | "FLAT"
   value: number
   minCartValue: number
+  /** null/undefined = unlimited redemptions. Enforced atomically by redeemCoupon(). */
+  usageLimit?: number
+  redemptions?: number
 }
 
 export type BookOrderStatus =

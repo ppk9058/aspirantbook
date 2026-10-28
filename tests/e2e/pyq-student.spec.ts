@@ -111,6 +111,11 @@ test.describe("PYQ Student-Facing Experience E2E (Gate 3)", () => {
   test("STUDENT-02: Search and filtering by stage/subject works reactively", async ({ page }) => {
     await page.goto("/pyqs", { waitUntil: "domcontentloaded" })
     await expect(page.getByText(`Official GS Paper ${nonce}`)).toBeVisible({ timeout: 15_000 })
+    // Search is client state: wait for hydration before typing, otherwise the
+    // keystroke lands in the DOM before React attaches its onChange handler.
+    await expect(
+      page.locator('[data-testid="pyqs-listing-root"][data-hydrated="true"]')
+    ).toBeVisible({ timeout: 15_000 })
 
     const searchInput = page.locator('input[placeholder*="Search by exam"]')
     await searchInput.click()

@@ -1,0 +1,15 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "postgres", schema "public" at "aws-1-ap-south-1.pooler.supabase.com:5432"
+
+17 migrations found in prisma/migrations
+Your local migration history and the migrations table from your database are different:
+
+The last common migration is: 20261018140000_add_series_package_banner_syllabus_fields
+
+The migration have not yet been applied:
+20261025220000_add_content_engine_tables
+
+The migrations from the database are not found locally in prisma/migrations:
+20261021010000_add_device_push_token
+20261021020000_add_device_session

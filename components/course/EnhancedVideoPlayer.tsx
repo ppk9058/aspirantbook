@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useEffect } from "react"
+import { useRef, useState, useEffect, useCallback } from "react"
 import {
     Play,
     Pause,
@@ -61,33 +61,34 @@ export default function EnhancedVideoPlayer({
     }, [initialProgress])
 
     // Handle play/pause
-    const togglePlay = () => {
-        if (videoRef.current) {
-            if (isPlaying) {
-                videoRef.current.pause()
-            } else {
-                videoRef.current.play()
-            }
-            setIsPlaying(!isPlaying)
+    const togglePlay = useCallback(() => {
+        const video = videoRef.current
+        if (!video) return
+        if (video.paused) {
+            video.play()
+            setIsPlaying(true)
+        } else {
+            video.pause()
+            setIsPlaying(false)
         }
-    }
+    }, [])
 
     // Handle volume
-    const handleVolumeChange = (newVolume: number) => {
+    const handleVolumeChange = useCallback((newVolume: number) => {
         if (videoRef.current) {
             videoRef.current.volume = newVolume
             setVolume(newVolume)
             setIsMuted(newVolume === 0)
         }
-    }
+    }, [])
 
-    const toggleMute = () => {
-        if (videoRef.current) {
-            const newMuted = !isMuted
-            videoRef.current.muted = newMuted
-            setIsMuted(newMuted)
-        }
-    }
+    const toggleMute = useCallback(() => {
+        const video = videoRef.current
+        if (!video) return
+        const newMuted = !video.muted
+        video.muted = newMuted
+        setIsMuted(newMuted)
+    }, [])
 
     // Handle seek
     const handleSeek = (time: number) => {
@@ -107,7 +108,7 @@ export default function EnhancedVideoPlayer({
     }
 
     // Handle fullscreen
-    const toggleFullscreen = () => {
+    const toggleFullscreen = useCallback(() => {
         if (!document.fullscreenElement) {
             containerRef.current?.requestFullscreen()
             setIsFullscreen(true)
@@ -115,7 +116,7 @@ export default function EnhancedVideoPlayer({
             document.exitFullscreen()
             setIsFullscreen(false)
         }
-    }
+    }, [])
 
     // Handle Picture-in-Picture
     const togglePiP = async () => {
@@ -133,11 +134,11 @@ export default function EnhancedVideoPlayer({
     }
 
     // Skip forward/backward
-    const skip = (seconds: number) => {
+    const skip = useCallback((seconds: number) => {
         if (videoRef.current) {
             videoRef.current.currentTime += seconds
         }
-    }
+    }, [])
 
     // Keyboard shortcuts
     useEffect(() => {
@@ -172,7 +173,7 @@ export default function EnhancedVideoPlayer({
 
         window.addEventListener('keydown', handleKeyPress)
         return () => window.removeEventListener('keydown', handleKeyPress)
-    }, [isPlaying, volume])
+    }, [volume, handleVolumeChange, skip, toggleFullscreen, toggleMute, togglePlay])
 
     // Auto-hide controls
     const triggerControls = () => {

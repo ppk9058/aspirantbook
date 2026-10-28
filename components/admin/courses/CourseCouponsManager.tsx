@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
 import {
     Ticket,
@@ -17,6 +17,7 @@ import {
     Tag,
 } from "lucide-react"
 import { CoursePromoBadge } from "@/components/course/CoursePromoBadge"
+import Image from "next/image"
 
 interface CouponItem {
     id: string
@@ -87,7 +88,7 @@ export function CourseCouponsManager({
     const [badgeShape, setBadgeShape] = useState<"STARBURST" | "RIBBON" | "CIRCLE" | "PILL">("PILL")
     const [badgeColor, setBadgeColor] = useState<string>("#10B981")
 
-    const fetchCoupons = async () => {
+    const fetchCoupons = useCallback(async () => {
         setIsLoading(true)
         try {
             const res = await fetch(`/api/admin/coupons?courseId=${courseId}`)
@@ -101,11 +102,11 @@ export function CourseCouponsManager({
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [courseId])
 
     useEffect(() => {
         fetchCoupons()
-    }, [courseId])
+    }, [fetchCoupons])
 
     const resetForm = () => {
         setIsEditing(false)
@@ -492,10 +493,12 @@ export function CourseCouponsManager({
                                     Live Thumbnail Preview on Course Card:
                                 </span>
                                 <div className="relative w-64 h-36 rounded-2xl overflow-hidden shadow-lg border border-gray-200 bg-slate-900 group">
-                                    <img
+                                    <Image
                                         src={thumbnailUrl}
                                         alt={courseTitle}
-                                        className="w-full h-full object-cover opacity-80"
+                                        fill
+                                        sizes="256px"
+                                        className="object-cover opacity-80"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 

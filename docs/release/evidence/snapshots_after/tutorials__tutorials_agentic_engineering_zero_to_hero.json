@@ -1,0 +1,28 @@
+{
+  "url": "http://127.0.0.1:3045/tutorials/agentic-engineering-zero-to-hero",
+  "path": "/tutorials/agentic-engineering-zero-to-hero",
+  "module": "tutorials",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "Agentic Engineering: Zero to Hero | aspirantbook",
+  "metaDescription": "The complete 35-chapter masterclass on production agentic AI, tool calling, multi-agent swarms, verification, and automated evaluation.",
+  "canonical": "http://localhost:3000/tutorials/agentic-engineering-zero-to-hero",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://localhost:3000/tutorials/agentic-engineering-zero-to-hero",
+    "x-default": "http://localhost:3000/tutorials/agentic-engineering-zero-to-hero"
+  },
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Agentic Engineering: Zero to Hero",
+      "description": "The complete 35-chapter masterclass on production agentic AI, tool calling, multi-agent swarms, verification, and automated evaluation.",
+      "provider": {
+        "@type": "Organization",
+        "name": "TrillionSkill",
+        "url": "http://localhost:3000"
+      }
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import AssessmentResults from "@/components/assessment/AssessmentResults"
+import ServiceUnavailable from "@/components/system/ServiceUnavailable"
 
 interface ResultsPageProps {
     params: Promise<{
@@ -17,7 +18,7 @@ export default async function ResultsPage({ params, searchParams }: ResultsPageP
     const { attemptId } = await searchParams
     const session = await auth()
 
-    if (!session) {
+    if (!session?.user?.id) {
         redirect("/login")
     }
 
@@ -27,45 +28,39 @@ export default async function ResultsPage({ params, searchParams }: ResultsPageP
 
     let attempt: any = null
 
-    if (attemptId !== "mock-attempt-id" && !attemptId.startsWith("mock-")) {
-        try {
-            attempt = await prisma.assessmentAttempt.findUnique({
-                where: { id: attemptId },
-                include: {
-                    assessment: {
-                        include: {
-                            _count: {
-                                select: {
-                                    questions: true,
-                                },
+    try {
+        attempt = await prisma.assessmentAttempt.findUnique({
+            where: { id: attemptId },
+            include: {
+                assessment: {
+                    include: {
+                        _count: {
+                            select: {
+                                questions: true,
                             },
                         },
                     },
                 },
-            })
-        } catch {
-            console.warn("Database offline on /assessments/[id]/results, relying on client attempt state.")
-        }
-    }
-
-    // Dynamic initial fallback (enhanced by localStorage in AssessmentResults component)
-    if (!attempt) {
-        attempt = {
-            id: attemptId,
-            score: 0,
-            passed: false,
-            timeSpent: 60,
-            assessmentId: id,
-            assessment: {
-                _count: {
-                    questions: 5,
-                },
-                passingScore: 60,
             },
-        }
+        })
+    } catch (error) {
+        // Fail closed: never render a fabricated score when the database is unreachable.
+        console.error("[assessments/results] Failed to load attempt", error)
+        return (
+            <ServiceUnavailable
+                title="Results temporarily unavailable"
+                description="We could not load these results right now. Please try again in a moment."
+                homeHref={`/assessments/${id}`}
+                homeLabel="Back to assessment"
+            />
+        )
     }
 
-    const totalQuestions = attempt.assessment?._count?.questions || 5
+    if (!attempt || attempt.userId !== session.user.id) {
+        notFound()
+    }
+
+    const totalQuestions = attempt.assessment?._count?.questions || 0
     const score = attempt.score ?? 0
     const passed = Boolean(attempt.passed)
     const correctAnswers = Math.round((score / 100) * totalQuestions)

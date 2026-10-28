@@ -4,6 +4,7 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import bcrypt from "bcryptjs"
+import { validatePasswordPolicy } from "@/lib/auth/password-policy"
 
 /**
  * Fetch current admin profile details
@@ -103,8 +104,9 @@ export async function updateAdminPassword(data: {
             return { success: false, error: "New passwords do not match" }
         }
 
-        if (data.newPassword.length < 6) {
-            return { success: false, error: "New password must be at least 6 characters" }
+        const policy = validatePasswordPolicy(data.newPassword)
+        if (!policy.valid) {
+            return { success: false, error: policy.error || "Password does not meet the security policy" }
         }
 
         const user = await prisma.user.findUnique({
@@ -127,12 +129,16 @@ export async function updateAdminPassword(data: {
             }
         }
 
-        // Hash new password
-        const hashedPassword = await bcrypt.hash(data.newPassword, 10)
+        // Hash new password (same cost as the rest of the auth paths)
+        const hashedPassword = await bcrypt.hash(data.newPassword, 12)
 
         await prisma.user.update({
             where: { id: session.user.id },
-            data: { password: hashedPassword },
+            data: {
+                password: hashedPassword,
+                // Invalidate every existing session for this account.
+                sessionVersion: { increment: 1 },
+            },
         })
 
         return { success: true }

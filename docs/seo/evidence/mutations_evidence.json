@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "description": "robotsPolicy makes unreviewed/unindexed pages indexable (index, follow)",
+    "file": "lib/seo/core.ts",
+    "failedAsExpected": true,
+    "failedTestName": "adaptTutorialDetailSeo sets noindex for unpublished course",
+    "isCleanRevert": true,
+    "passGreen": true
+  },
+  {
+    "id": 2,
+    "description": "safeJsonLdStringify fails to escape < leaving XSS vulnerable",
+    "file": "lib/seo/core.ts",
+    "failedAsExpected": true,
+    "failedTestName": "safeJsonLdStringify neutralizes < into \\\\u003c to prevent script injection",
+    "isCleanRevert": true,
+    "passGreen": true
+  },
+  {
+    "id": 3,
+    "description": "hreflangAlternates leaks unreviewed Hindi into hreflang links",
+    "file": "lib/seo/core.ts",
+    "failedAsExpected": true,
+    "failedTestName": "hreflangAlternates produces bilingual links only when Hindi is reviewed",
+    "isCleanRevert": true,
+    "passGreen": true
+  },
+  {
+    "id": 4,
+    "description": "canonicalUrl points to hardcoded wrong domain",
+    "file": "lib/seo/core.ts",
+    "failedAsExpected": true,
+    "failedTestName": "adaptPyqsCatalogSeo returns indexable catalog metadata",
+    "isCleanRevert": true,
+    "passGreen": true
+  },
+  {
+    "id": 5,
+    "description": "Content Engine SEO adapter breaks title template",
+    "file": "lib/seo/adapters/content-engine.ts",
+    "failedAsExpected": true,
+    "failedTestName": "produces byte-identical output for English version",
+    "isCleanRevert": true,
+    "passGreen": true
+  },
+  {
+    "id": 6,
+    "description": "Current Affairs quiz adapter deviates from invariant title format",
+    "file": "lib/seo/adapters/current-affairs.ts",
+    "failedAsExpected": true,
+    "failedTestName": "adaptCurrentAffairsQuizSeo strictly preserves title, description, and canonical format",
+    "isCleanRevert": true,
+    "passGreen": true
+  },
+  {
+    "id": 7,
+    "description": "Tutorial adapter marks draft/unpublished course as indexable",
+    "file": "lib/seo/adapters/tutorials.ts",
+    "failedAsExpected": true,
+    "failedTestName": "adaptTutorialDetailSeo sets noindex for unpublished course",
+    "isCleanRevert": true,
+    "passGreen": true
+  },
+  {
+    "id": 8,
+    "description": "PYQs catalog adapter corrupts canonical path",
+    "file": "lib/seo/adapters/pyqs.ts",
+    "failedAsExpected": true,
+    "failedTestName": "adaptPyqsCatalogSeo returns indexable catalog metadata",
+    "isCleanRevert": true,
+    "passGreen": true
+  },
+  {
+    "id": 9,
+    "description": "Test series detail adapter omits Product JSON-LD schema",
+    "file": "lib/seo/adapters/test-series.ts",
+    "failedAsExpected": true,
+    "failedTestName": "adaptTestSeriesDetailSeo returns detail metadata and JSON-LD",
+    "isCleanRevert": true,
+    "passGreen": true
+  },
+  {
+    "id": 10,
+    "description": "buildSitemapEntry drops priority field",
+    "file": "lib/seo/core.ts",
+    "failedAsExpected": true,
+    "failedTestName": "buildSitemapEntry returns valid sitemap shape",
+    "isCleanRevert": true,
+    "passGreen": true
+  }
+]

@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         const ip = getClientIp(request)
 
         const rateLimitKey = session?.user?.id ? `exec_user_${session.user.id}` : `exec_ip_${ip}`
-        const rl = await checkRateLimit(rateLimitKey, 10, 60)
+        const rl = await checkRateLimit(rateLimitKey, 10, 60, { failClosed: true })
 
         if (!rl.allowed) {
             return NextResponse.json(

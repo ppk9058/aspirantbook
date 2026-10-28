@@ -2,9 +2,13 @@
   "name": "aspirantbook",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "predev": "npm run db:check",
     "dev": "NODE_OPTIONS='--max-old-space-size=4096' next dev",
+    "dev:mobile-api": "ALLOW_DEV_MOBILE_LOGIN=true NODE_OPTIONS='--max-old-space-size=4096' next dev -H 0.0.0.0 -p 3045",
     "db:check": "tsx scripts/db-check.ts",
     "build": "next build",
     "start": "next start",
@@ -19,7 +23,13 @@
     "test:e2e:real-catalogue": "npx tsx scripts/reset-test-catalogue.ts && CATALOGUE_CASE=empty BASE_URL=http://127.0.0.1:3045 npx playwright test --project=real-catalogue-desktop --project=real-catalogue-mobile",
     "test:e2e:dev-smoke": "DEV_SMOKE=1 BASE_URL=http://127.0.0.1:3045 npx playwright test tests/e2e/dev-smoke.spec.ts",
     "content:chunk": "tsx scripts/content-chunk.ts",
-    "perf:check": "tsx scripts/perf-check.ts"
+    "perf:check": "tsx scripts/perf-check.ts",
+    "test:content-engine": "tsx --test --test-concurrency=1 tests/content-engine/**/*.test.ts",
+    "test:proof:http": "tsx scripts/run-proof-suite.ts --mode=http",
+    "test:proof:all": "tsx scripts/run-proof-suite.ts --mode=all",
+    "dev:lan": "node scripts/dev-lan.mjs",
+    "mobile:env": "node scripts/mobile-env.mjs",
+    "seed:mobile-test": "node --env-file=.env.test node_modules/.bin/tsx scripts/seed-mobile-test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.940.0",
@@ -64,6 +74,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "dockerode": "^4.0.9",
+    "dompurify": "^3.4.17",
     "framer-motion": "^12.23.24",
     "ioredis": "^5.8.2",
     "katex": "^0.18.9",

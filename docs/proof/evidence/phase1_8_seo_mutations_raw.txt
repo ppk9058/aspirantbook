@@ -1,0 +1,53 @@
+Running 10 Real SEO Core Mutations against unit test suites...
+
+[Mutation #1] robotsPolicy makes unreviewed/unindexed pages indexable (index, follow)
+  -> RED: Caught by 'adaptTutorialDetailSeo sets noindex for unpublished course'
+     Details: Expected values to be strictly equal: | + actual - expected | name: 'AssertionError'
+  -> GREEN: Restored and passed clean
+
+[Mutation #2] safeJsonLdStringify fails to escape < leaving XSS vulnerable
+  -> RED: Caught by 'safeJsonLdStringify neutralizes < into \\u003c to prevent script injection'
+     Details: Expected values to be strictly equal: | name: 'AssertionError' | expected: false
+  -> GREEN: Restored and passed clean
+
+[Mutation #3] hreflangAlternates leaks unreviewed Hindi into hreflang links
+  -> RED: Caught by 'hreflangAlternates produces bilingual links only when Hindi is reviewed'
+     Details: Expected values to be strictly equal: | + actual - expected | name: 'AssertionError'
+  -> GREEN: Restored and passed clean
+
+[Mutation #4] canonicalUrl points to hardcoded wrong domain
+  -> RED: Caught by 'adaptPyqsCatalogSeo returns indexable catalog metadata'
+     Details: Expected values to be strictly equal: | + actual - expected | name: 'AssertionError'
+  -> GREEN: Restored and passed clean
+
+[Mutation #5] Content Engine SEO adapter breaks title template
+  -> RED: Caught by 'produces byte-identical output for English version'
+     Details: name: 'AssertionError' | expected: true | actual: false
+  -> GREEN: Restored and passed clean
+
+[Mutation #6] Current Affairs quiz adapter deviates from invariant title format
+  -> RED: Caught by 'adaptCurrentAffairsQuizSeo strictly preserves title, description, and canonical format'
+     Details: Expected values to be strictly equal: | + actual - expected | name: 'AssertionError'
+  -> GREEN: Restored and passed clean
+
+[Mutation #7] Tutorial adapter marks draft/unpublished course as indexable
+  -> RED: Caught by 'adaptTutorialDetailSeo sets noindex for unpublished course'
+     Details: Expected values to be strictly equal: | + actual - expected | name: 'AssertionError'
+  -> GREEN: Restored and passed clean
+
+[Mutation #8] PYQs catalog adapter corrupts canonical path
+  -> RED: Caught by 'adaptPyqsCatalogSeo returns indexable catalog metadata'
+     Details: Expected values to be strictly equal: | + actual - expected | name: 'AssertionError'
+  -> GREEN: Restored and passed clean
+
+[Mutation #9] Test series detail adapter omits Product JSON-LD schema
+  -> RED: Caught by 'adaptTestSeriesDetailSeo returns detail metadata and JSON-LD'
+     Details: Expected values to be strictly equal: | name: 'AssertionError' | expected: true
+  -> GREEN: Restored and passed clean
+
+[Mutation #10] buildSitemapEntry drops priority field
+  -> RED: Caught by 'buildSitemapEntry returns valid sitemap shape'
+     Details: Expected values to be strictly equal: | name: 'AssertionError' | expected: 0.9
+  -> GREEN: Restored and passed clean
+
+All 10 Real SEO Mutations executed successfully (10/10 caught, 10/10 restored).

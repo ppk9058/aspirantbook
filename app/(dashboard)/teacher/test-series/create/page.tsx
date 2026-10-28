@@ -8,6 +8,7 @@ import { processBulkJsonImport, naturalSortFiles, type BulkJsonPipelineResult } 
 import CreateSeriesModal from "@/components/exam/CreateSeriesModal"
 import ReviewAllQuestions from "@/components/exam/ReviewAllQuestions"
 import { useGoal } from "@/components/providers/GoalProvider"
+import { TEST_TYPE_LABELS, formatTestType } from "@/lib/exam/labels"
 import {
     ChevronLeft,
     ChevronRight,
@@ -98,6 +99,8 @@ interface FormData {
 }
 
 const TEST_TYPE_MAP: Record<string, "FULL_MOCK" | "CHAPTER_TEST" | "SECTIONAL_TEST" | "PREVIOUS_YEAR" | "LIVE_SPEED" | "CURRENT_AFFAIRS"> = {
+    [TEST_TYPE_LABELS.FULL_MOCK]: "FULL_MOCK",
+    "Full Mock": "FULL_MOCK",
     "Full Test": "FULL_MOCK",
     "Full Mock Test": "FULL_MOCK",
     "Chapter Test": "CHAPTER_TEST",
@@ -280,7 +283,7 @@ const EXAM_CATEGORIES = [
 ]
 
 const TEST_TYPES = [
-    "Full Test",
+    TEST_TYPE_LABELS.FULL_MOCK,
     "Chapter Test",
     "Sectional Test",
     "Previous Year Paper",
@@ -524,7 +527,7 @@ function CreateTestContent() {
         ? "PYQ"
         : (queryType === "CURRENT_AFFAIRS" || queryType === "Current Affairs"
             ? "Current Affairs"
-            : (TEST_TYPES.includes(queryType) ? queryType : "Full Test"))
+            : (TEST_TYPES.includes(queryType) ? queryType : TEST_TYPE_LABELS.FULL_MOCK))
 
     const [step, setStep] = useState(1)
     const [errors, setErrors] = useState<Record<string, string>>({})
@@ -673,8 +676,8 @@ function CreateTestContent() {
                     }
                 }
 
-                let displayType = "Full Test"
-                if (t.testType === "FULL_MOCK" || t.testType === "Full Mock Test") displayType = "Full Test"
+                let displayType = TEST_TYPE_LABELS.FULL_MOCK
+                if (t.testType === "FULL_MOCK" || t.testType === "Full Mock Test" || t.testType === "Full Mock" || t.testType === "Full Test") displayType = TEST_TYPE_LABELS.FULL_MOCK
                 else if (t.testType === "CHAPTER_TEST") displayType = "Chapter Test"
                 else if (t.testType === "SECTIONAL_TEST") displayType = "Sectional Test"
                 else if (t.testType === "PREVIOUS_YEAR" || t.testType === "PYQ") displayType = "Previous Year Paper"
@@ -994,8 +997,10 @@ function CreateTestContent() {
         if (step === 1 && !validateStep1()) return
         if (step === 2 && !validateStep2()) return
 
-        // Auto-save changes in background so nothing is lost when moving steps
-        handleSaveCurrent({ stayOnStep: true, silent: true }).catch(console.error)
+        // Auto-save changes in background so nothing is lost when moving steps (only if already editing/persisted)
+        if (editTestId) {
+            handleSaveCurrent({ stayOnStep: true, silent: true }).catch(console.error)
+        }
 
         if (step === 2) {
             // Rebuild question bank to match section counts while preserving existing questions
@@ -2113,7 +2118,7 @@ function CreateTestContent() {
                                     type="text"
                                     value={formData.title}
                                     onChange={(e) => updateField("title", e.target.value)}
-                                    placeholder="e.g. 72nd BPSC Prelims Full Test 1"
+                                    placeholder="e.g. 72nd BPSC Prelims Full Mock Test 1"
                                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-[#00A8FF] focus:ring-2 focus:ring-[#00A8FF]/20 transition-all"
                                 />
                                 <FieldError msg={errors.title} />
@@ -3635,7 +3640,7 @@ function CreateTestContent() {
                                 }`}
                             >
                                 <Rocket className="h-4 w-4" />
-                                {isSaving ? "Saving..." : (editTestId ? "Update Test" : "Publish Test")}
+                                {isSaving ? "Saving..." : (isPublishedTest ? "Update Test" : "Publish Test")}
                             </button>
                         </div>
                     </div>

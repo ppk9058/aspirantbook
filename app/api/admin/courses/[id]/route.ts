@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { requireManagedCourse } from "@/lib/auth/course-access-server"
+import { decideCourseDelete } from "@/lib/auth/course-access"
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -11,6 +13,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
 
     const { id } = await params
+
+    // A8: teachers may only modify their own courses.
+    const access = await requireManagedCourse(user, id)
+    if (access.response) return access.response
+
     const body = await req.json()
 
     const data: any = {}
@@ -27,7 +34,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (body.expiresAt !== undefined) data.expiresAt = body.expiresAt.trim()
     if (body.hasTrialLesson !== undefined) data.hasTrialLesson = Boolean(body.hasTrialLesson)
     if (body.isPremium !== undefined) data.isPremium = Boolean(body.isPremium)
-    if (body.status !== undefined) data.status = body.status
+    if (body.status !== undefined) {
+      if (body.status !== "DRAFT" && body.status !== "PUBLISHED" && body.status !== "ARCHIVED") {
+        return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+      }
+      data.status = body.status
+    }
     if (body.demoSettings !== undefined) {
       let currentMeta: any = {}
       if (data.metadataJson) {
@@ -36,10 +48,20 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         const existing = await prisma.course.findUnique({ where: { id }, select: { metadataJson: true } })
         try { currentMeta = JSON.parse(existing?.metadataJson || "{}") } catch (e) {}
       }
+      if (!currentMeta || typeof currentMeta !== "object" || Array.isArray(currentMeta)) currentMeta = {}
       currentMeta.demoSettings = body.demoSettings
       data.metadataJson = JSON.stringify(currentMeta)
     } else if (body.metadataJson !== undefined) {
-      data.metadataJson = typeof body.metadataJson === "string" ? body.metadataJson : JSON.stringify(body.metadataJson)
+      const rawMeta = typeof body.metadataJson === "string" ? body.metadataJson : JSON.stringify(body.metadataJson)
+      try {
+        const parsedMeta = JSON.parse(rawMeta)
+        if (!parsedMeta || typeof parsedMeta !== "object" || Array.isArray(parsedMeta)) {
+          return NextResponse.json({ error: "metadataJson must be a JSON object" }, { status: 400 })
+        }
+        data.metadataJson = rawMeta
+      } catch {
+        return NextResponse.json({ error: "metadataJson must be valid JSON" }, { status: 400 })
+      }
     }
 
     const updated = await prisma.course.update({
@@ -61,7 +83,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json(updated)
   } catch (error: any) {
     console.error("PUT /api/admin/courses/[id] error:", error)
-    return NextResponse.json({ error: error.message || "Failed to update course" }, { status: 500 })
+    if (error?.code === "P2002") {
+      return NextResponse.json(
+        { error: "A course with this slug already exists" },
+        { status: 409 }
+      )
+    }
+    return NextResponse.json({ error: "Failed to update course" }, { status: 500 })
   }
 }
 
@@ -73,10 +101,43 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     const { id } = await params
+
+    // A8: ownership check. Teachers may only delete their own courses.
+    const access = await requireManagedCourse(user, id)
+    if (access.response) return access.response
+
+    // A8: never destroy a course that learners are enrolled in — archive it.
+    if (decideCourseDelete(access.course.enrollmentRowCount) === "archive") {
+      const archived = await prisma.course.update({
+        where: { id },
+        data: { status: "ARCHIVED", isPublished: false },
+      })
+      try {
+        revalidatePath("/courses")
+        revalidatePath("/admin/courses")
+        revalidateTag("courses")
+        revalidatePath(`/courses/${archived.slug}`)
+      } catch (e) {
+        // Ignore cache revalidation errors
+      }
+      return NextResponse.json({
+        success: true,
+        archived: true,
+        message: "Course has enrolled learners, so it was archived instead of deleted",
+      })
+    }
+
     await prisma.course.delete({ where: { id } })
-    return NextResponse.json({ success: true, message: "Course deleted successfully" })
+    try {
+      revalidatePath("/courses")
+      revalidatePath("/admin/courses")
+      revalidateTag("courses")
+    } catch (e) {
+      // Ignore cache revalidation errors
+    }
+    return NextResponse.json({ success: true, archived: false, message: "Course deleted successfully" })
   } catch (error: any) {
     console.error("DELETE /api/admin/courses/[id] error:", error)
-    return NextResponse.json({ error: error.message || "Failed to delete course" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to delete course" }, { status: 500 })
   }
 }

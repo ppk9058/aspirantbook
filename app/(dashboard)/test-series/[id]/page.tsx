@@ -1,13 +1,49 @@
 import { notFound, permanentRedirect } from "next/navigation"
+import { Metadata } from "next"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import TestSeriesDetailClient from "./TestSeriesDetailClient"
+import { adaptTestSeriesDetailSeo } from "@/lib/seo/adapters/test-series"
 
 interface TestSeriesDetailPageProps {
     params: Promise<{
         id: string
     }>
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ id: string }>
+}): Promise<Metadata> {
+    const { id: seriesId } = await params
+    if (seriesId === "current-affairs-system-series" || seriesId === "pyq-system-series") {
+        return { title: "Test Series | TrillionSkill" }
+    }
+
+    const series = await prisma.examSeries.findFirst({
+        where: {
+            OR: [
+                { id: seriesId },
+                { slug: seriesId },
+            ],
+        },
+        select: {
+            id: true,
+            title: true,
+            slug: true,
+            description: true,
+            isPublished: true,
+            isFree: true,
+        },
+    })
+
+    if (!series) {
+        return { title: "Test Series Not Found | TrillionSkill" }
+    }
+
+    return adaptTestSeriesDetailSeo(series).metadata
 }
 
 export default async function TestSeriesDetailPage({ params, searchParams }: TestSeriesDetailPageProps) {
@@ -143,7 +179,20 @@ export default async function TestSeriesDetailPage({ params, searchParams }: Tes
         gateSubtitle: fullSeries.gateSubtitle,
     }
 
-    const jsonLd = fullSeries.isGated
+    const isUnpublishedOrArchived = !fullSeries.isPublished || Boolean(fullSeries.isArchived)
+    const seoPackage = adaptTestSeriesDetailSeo({
+        id: fullSeries.id,
+        title: fullSeries.title,
+        slug: fullSeries.slug,
+        description: cleanDescription,
+        isPublished: !isUnpublishedOrArchived,
+        isArchived: Boolean(fullSeries.isArchived),
+        isFree: fullSeries.isFree,
+    })
+
+    const jsonLd = isUnpublishedOrArchived
+        ? null
+        : fullSeries.isGated
         ? {
               "@context": "https://schema.org",
               "@type": "Course",
@@ -156,7 +205,7 @@ export default async function TestSeriesDetailPage({ params, searchParams }: Tes
                   cssSelector: "[role='region'][aria-label='Content Gate']",
               },
           }
-        : null
+        : seoPackage.jsonLd?.[0] || null
 
     return (
         <>

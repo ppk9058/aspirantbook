@@ -30,6 +30,8 @@ export default function DashboardShell({
 
     useEffect(() => {
         try {
+            // Demo role switching is a non-production affordance only.
+            if (process.env.NODE_ENV === "production") return
             const match = document.cookie.match(/(^|;)\s*ts_demo_role\s*=\s*([^;]+)/)
             if (match) setDemoRole(match[2])
         } catch {}

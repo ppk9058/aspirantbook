@@ -1,5 +1,4 @@
-import fs from "fs/promises"
-import path from "path"
+import { prisma } from "@/lib/prisma"
 
 export interface DoubtAttachment {
   name: string
@@ -25,107 +24,63 @@ export interface StudentDoubt {
   upvotes?: number
 }
 
-const DOUBTS_FILE_PATH = path.join(process.cwd(), "data", "doubts.json")
+/**
+ * C2: doubts used to live in `data/doubts.json`, read into a module-level cache
+ * and written with `fs.writeFile`. On a serverless or multi-instance deployment
+ * that file is per-instance and read-only, so a doubt a student posted was lost
+ * (or visible on only one instance), and the file shipped with three invented
+ * "demo" doubts that every teacher saw as real student questions.
+ *
+ * The rows are now in Postgres (`Doubt`), with no seed data and no cache.
+ */
 
-const SEED_DOUBTS: StudentDoubt[] = [
-  {
-    id: "doubt-1",
-    studentId: "demo-student",
-    studentName: "Aman Verma",
-    studentEmail: "aman@example.com",
-    subject: "Python & Data Science",
-    topic: "NumPy Vectorization",
-    questionText: "Why is vectorization faster than Python's native for-loops when operating on large arrays? How does SIMD hardware execution come into play here?",
-    attachment: {
-      name: "benchmark_comparison.png",
-      url: "/batch-blue.svg",
-      type: "image",
-      size: "142 KB"
-    },
-    status: "ANSWERED",
-    teacherAnswer: "NumPy arrays are stored in contiguous memory blocks with homogeneous types. Vectorized operations run compiled C loops directly utilizing CPU vector registers (SIMD - Single Instruction Multiple Data), avoiding Python's per-element type inspection, reference counting, and interpreter overhead!",
-    teacherName: "Prof. Rajesh Sharma",
-    answeredAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-    createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
-    upvotes: 6
-  },
-  {
-    id: "doubt-2",
-    studentId: "demo-student",
-    studentName: "Priya Patel",
-    studentEmail: "priya@example.com",
-    subject: "Full-Stack Web Development",
-    topic: "Next.js Server Components vs Client Components",
-    questionText: "In Next.js App Router, if I pass a Server Component as children to a 'use client' component, does the child get rendered on the server or client?",
-    status: "ANSWERED",
-    teacherAnswer: "It gets rendered on the SERVER! When you pass a Server Component as a child (or prop) into a Client Component, Next.js executes the Server Component on the server first, serializes its output (RSC payload), and sends it to the client. The client component simply renders the received React tree without re-executing server code.",
-    teacherName: "Dr. Ananya Roy",
-    answeredAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-    createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
-    upvotes: 12
-  },
-  {
-    id: "doubt-3",
-    studentId: "demo-student",
-    studentName: "Karan Johar",
-    studentEmail: "karan@example.com",
-    subject: "Data Structures & Algorithms",
-    topic: "Dijkstra with Negative Weights",
-    questionText: "Can we use Dijkstra's algorithm with negative edge weights if there are no negative cycles? See my graph diagram attached in the screenshot.",
-    attachment: {
-      name: "graph_dijkstra.png",
-      url: "/batch-green.svg",
-      type: "image",
-      size: "210 KB"
-    },
-    status: "PENDING",
-    createdAt: new Date(Date.now() - 3600000 * 1).toISOString(),
-    upvotes: 3
-  }
-]
-
-let cachedDoubts: StudentDoubt[] | null = null
-let lastReadTime = 0
-const CACHE_TTL_MS = 2000
-
-async function ensureDirectoryExists(filePath: string) {
-  const dir = path.dirname(filePath)
-  try {
-    await fs.access(dir)
-  } catch {
-    await fs.mkdir(dir, { recursive: true })
-  }
+type DoubtRow = {
+  id: string
+  studentId: string | null
+  studentName: string
+  studentEmail: string | null
+  subject: string
+  topic: string | null
+  questionText: string
+  attachmentName: string | null
+  attachmentUrl: string | null
+  attachmentType: string | null
+  attachmentSize: string | null
+  status: string
+  teacherAnswer: string | null
+  teacherName: string | null
+  answeredAt: Date | null
+  upvotes: number
+  createdAt: Date
 }
 
-async function readDoubtsFile(): Promise<StudentDoubt[]> {
-  const now = Date.now()
-  if (cachedDoubts && now - lastReadTime < CACHE_TTL_MS) {
-    return cachedDoubts
-  }
+function toStudentDoubt(row: DoubtRow): StudentDoubt {
+  const attachment: DoubtAttachment | undefined =
+    row.attachmentUrl && row.attachmentName
+      ? {
+          name: row.attachmentName,
+          url: row.attachmentUrl,
+          type: row.attachmentType === "pdf" ? "pdf" : "image",
+          size: row.attachmentSize ?? undefined,
+        }
+      : undefined
 
-  try {
-    await ensureDirectoryExists(DOUBTS_FILE_PATH)
-    const content = await fs.readFile(DOUBTS_FILE_PATH, "utf-8")
-    cachedDoubts = JSON.parse(content)
-    lastReadTime = now
-    return cachedDoubts || []
-  } catch {
-    try {
-      await fs.writeFile(DOUBTS_FILE_PATH, JSON.stringify(SEED_DOUBTS, null, 2), "utf-8")
-      cachedDoubts = [...SEED_DOUBTS]
-      lastReadTime = now
-      return cachedDoubts
-    } catch {
-      return [...SEED_DOUBTS]
-    }
+  return {
+    id: row.id,
+    studentId: row.studentId ?? "",
+    studentName: row.studentName,
+    studentEmail: row.studentEmail ?? undefined,
+    subject: row.subject,
+    topic: row.topic ?? undefined,
+    questionText: row.questionText,
+    attachment,
+    status: row.status === "ANSWERED" ? "ANSWERED" : "PENDING",
+    teacherAnswer: row.teacherAnswer ?? undefined,
+    teacherName: row.teacherName ?? undefined,
+    answeredAt: row.answeredAt ? row.answeredAt.toISOString() : undefined,
+    createdAt: row.createdAt.toISOString(),
+    upvotes: row.upvotes,
   }
-}
-
-async function writeDoubtsFile(doubts: StudentDoubt[]): Promise<void> {
-  await ensureDirectoryExists(DOUBTS_FILE_PATH)
-  await fs.writeFile(DOUBTS_FILE_PATH, JSON.stringify(doubts, null, 2), "utf-8")
-  cachedDoubts = doubts
-  lastReadTime = Date.now()
 }
 
 export async function getAllDoubts(filter?: {
@@ -133,18 +88,21 @@ export async function getAllDoubts(filter?: {
   status?: "PENDING" | "ANSWERED"
   subject?: string
 }): Promise<StudentDoubt[]> {
-  const doubts = await readDoubtsFile()
-  return doubts.filter((d) => {
-    if (filter?.studentId && d.studentId !== filter.studentId) return false
-    if (filter?.status && d.status !== filter.status) return false
-    if (filter?.subject && d.subject !== filter.subject) return false
-    return true
+  const rows = await prisma.doubt.findMany({
+    where: {
+      ...(filter?.studentId ? { studentId: filter.studentId } : {}),
+      ...(filter?.status ? { status: filter.status } : {}),
+      ...(filter?.subject ? { subject: filter.subject } : {}),
+    },
+    orderBy: { createdAt: "desc" },
   })
+
+  return rows.map(toStudentDoubt)
 }
 
 export async function getDoubtById(id: string): Promise<StudentDoubt | null> {
-  const doubts = await readDoubtsFile()
-  return doubts.find((d) => d.id === id) || null
+  const row = await prisma.doubt.findUnique({ where: { id } })
+  return row ? toStudentDoubt(row) : null
 }
 
 export async function createDoubt(data: {
@@ -156,24 +114,30 @@ export async function createDoubt(data: {
   questionText: string
   attachment?: DoubtAttachment
 }): Promise<StudentDoubt> {
-  const doubts = await readDoubtsFile()
-  const newDoubt: StudentDoubt = {
-    id: `doubt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-    studentId: data.studentId,
-    studentName: data.studentName,
-    studentEmail: data.studentEmail,
-    subject: data.subject,
-    topic: data.topic,
-    questionText: data.questionText,
-    attachment: data.attachment,
-    status: "PENDING",
-    createdAt: new Date().toISOString(),
-    upvotes: 0,
-  }
+  // The client sends whatever id is in its session; store the row even when that
+  // user no longer exists rather than failing the question outright.
+  const student = data.studentId
+    ? await prisma.user.findUnique({ where: { id: data.studentId }, select: { id: true } })
+    : null
 
-  doubts.unshift(newDoubt)
-  await writeDoubtsFile(doubts)
-  return newDoubt
+  const row = await prisma.doubt.create({
+    data: {
+      studentId: student?.id ?? null,
+      studentName: data.studentName,
+      studentEmail: data.studentEmail ?? null,
+      subject: data.subject,
+      topic: data.topic ?? null,
+      questionText: data.questionText,
+      attachmentName: data.attachment?.name ?? null,
+      attachmentUrl: data.attachment?.url ?? null,
+      attachmentType: data.attachment?.type ?? null,
+      attachmentSize: data.attachment?.size ?? null,
+      status: "PENDING",
+      upvotes: 0,
+    },
+  })
+
+  return toStudentDoubt(row)
 }
 
 export async function answerDoubt(
@@ -181,25 +145,31 @@ export async function answerDoubt(
   teacherName: string,
   answerText: string
 ): Promise<StudentDoubt | null> {
-  const doubts = await readDoubtsFile()
-  const doubt = doubts.find((d) => d.id === id)
-  if (!doubt) return null
+  const existing = await prisma.doubt.findUnique({ where: { id }, select: { id: true } })
+  if (!existing) return null
 
-  doubt.status = "ANSWERED"
-  doubt.teacherName = teacherName
-  doubt.teacherAnswer = answerText
-  doubt.answeredAt = new Date().toISOString()
+  const row = await prisma.doubt.update({
+    where: { id },
+    data: {
+      status: "ANSWERED",
+      teacherName,
+      teacherAnswer: answerText,
+      answeredAt: new Date(),
+    },
+  })
 
-  await writeDoubtsFile(doubts)
-  return doubt
+  return toStudentDoubt(row)
 }
 
 export async function upvoteDoubt(id: string): Promise<StudentDoubt | null> {
-  const doubts = await readDoubtsFile()
-  const doubt = doubts.find((d) => d.id === id)
-  if (!doubt) return null
+  const existing = await prisma.doubt.findUnique({ where: { id }, select: { id: true } })
+  if (!existing) return null
 
-  doubt.upvotes = (doubt.upvotes || 0) + 1
-  await writeDoubtsFile(doubts)
-  return doubt
+  // Increment in the database so two concurrent upvotes both count.
+  const row = await prisma.doubt.update({
+    where: { id },
+    data: { upvotes: { increment: 1 } },
+  })
+
+  return toStudentDoubt(row)
 }

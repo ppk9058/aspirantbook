@@ -22,6 +22,7 @@ import {
   Layers,
   ArrowUpDown,
 } from "lucide-react"
+import Image from "next/image"
 
 export interface BookStudioClientProps {
   initialBooks: Book[]
@@ -336,10 +337,12 @@ export default function BookStudioClient({
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3 min-w-[240px] max-w-sm">
                           <div className="w-10 h-14 rounded-lg bg-gray-100 dark:bg-slate-900 p-0.5 border border-gray-200 dark:border-slate-700 shrink-0 flex items-center justify-center overflow-hidden">
-                            <img
+                            <Image
                               src={book.coverImage}
                               alt={book.title}
-                              className="w-full h-full object-contain"
+                              width={40}
+                              height={56}
+                              className="h-full w-full object-contain"
                             />
                           </div>
                           <div className="min-w-0">

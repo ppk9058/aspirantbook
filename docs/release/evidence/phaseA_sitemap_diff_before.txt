@@ -1,0 +1,21 @@
+diff --git a/app/sitemap.ts b/app/sitemap.ts
+index 0441fe2..8798eb0 100644
+--- a/app/sitemap.ts
++++ b/app/sitemap.ts
+@@ -1,11 +1,15 @@
+ import { MetadataRoute } from "next"
+ import { prisma } from "@/lib/prisma"
+ import { getAllBooks } from "@/lib/books/bookService"
++import { getBaseUrl } from "@/lib/seo/core"
+ 
+ export const revalidate = 3600 // 1 hour
+ 
+ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
++    const baseUrl = getBaseUrl()
++    if (!baseUrl) {
++        return []
++    }
+ 
+     const staticRoutes: MetadataRoute.Sitemap = [
+         {

@@ -15,7 +15,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 export async function POST(req: NextRequest) {
     try {
         const clientIp = getClientIp(req)
-        const rl = await checkRateLimit(`upload_presigned:${clientIp}`, 20, 60)
+        const rl = await checkRateLimit(`upload_presigned:${clientIp}`, 20, 60, { failClosed: true })
         if (!rl.allowed) {
             return NextResponse.json({ error: "Too many upload requests. Please slow down." }, { status: 429 })
         }
@@ -70,6 +70,17 @@ export async function POST(req: NextRequest) {
             )
         }
 
+        // Fail with an actionable error before signing when storage is not configured.
+        const region = process.env.AWS_REGION || "us-east-1"
+        const bucketName = process.env.AWS_S3_BUCKET_NAME
+        if (!bucketName) {
+            console.error("AWS_S3_BUCKET_NAME is not configured; cannot return an upload URL")
+            return NextResponse.json(
+                { error: "File storage is not configured" },
+                { status: 500 }
+            )
+        }
+
         // Generate unique file key
         const key = generateFileKey(folder, filename)
 
@@ -79,9 +90,6 @@ export async function POST(req: NextRequest) {
             contentType,
             expiresIn: 3600, // 1 hour
         })
-
-        const region = process.env.AWS_REGION || "us-east-1"
-        const bucketName = process.env.AWS_S3_BUCKET_NAME!
 
         return NextResponse.json({
             presignedUrl,

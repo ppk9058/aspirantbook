@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
   ChevronDown,
@@ -30,13 +29,14 @@ import {
   HelpCircle,
   BookOpen,
 } from "lucide-react"
-import type { Batch } from "@/lib/batches-service"
+import type { Batch, BatchScheduleItem } from "@/lib/batches-service"
 import CuriousNavbar from "@/components/common/CuriousNavbar"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 import { CourseTeachersSection } from "./CourseTeachersSection"
 import ScheduleDemoModal from "./ScheduleDemoModal"
+import Image from "next/image"
 
 interface LessonItem {
   id: string
@@ -75,6 +75,9 @@ interface CourseBundleProps {
     expiresAt?: string | null
     hasTrialLesson?: boolean
     isPremium?: boolean
+    // B-027: persisted course metadata (theme, demoSettings, ...) is read by
+    // this view but was missing from the prop type.
+    metadataJson?: string | null
     chapters: ChapterItem[]
   }
   batch?: Batch | null
@@ -144,7 +147,7 @@ export function CourseBundleView({
         id: course.id,
         slug: course.slug,
         title: course.title,
-        price: course.price,
+        price: course.price ?? 0,
         isFree: false,
         image: course.thumbnailUrl || undefined,
       },
@@ -282,7 +285,7 @@ export function CourseBundleView({
       ]
 
   // Weekly Schedule
-  const scheduleItems = (batch?.weeklySchedule && batch.weeklySchedule.length > 0)
+  const scheduleItems: BatchScheduleItem[] = (batch?.weeklySchedule && batch.weeklySchedule.length > 0)
     ? batch.weeklySchedule
     : (batch?.schedule && batch.schedule.length > 0)
     ? batch.schedule
@@ -767,10 +770,12 @@ export function CourseBundleView({
               {/* Course Thumbnail Banner */}
               <div className="relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-gray-200 flex items-center justify-center p-4 text-center">
                 {course.thumbnailUrl ? (
-                  <img
+                  <Image
                     src={course.thumbnailUrl}
                     alt={course.title}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                    className="object-cover"
                   />
                 ) : (
                   <div className="space-y-1 z-10">

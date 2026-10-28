@@ -1,5 +1,4 @@
-import fs from "fs/promises"
-import path from "path"
+import { getPlatformSetting, PLATFORM_SETTING_KEYS } from "@/lib/platform-settings"
 
 export interface HomepagePromoCard {
   id: string
@@ -20,26 +19,20 @@ export interface HomepagePromoCard {
   goalCategory: string
 }
 
-const CARDS_FILE_PATH = path.join(process.cwd(), "data", "homepage-cards.json")
-
-let cachedPromos: HomepagePromoCard[] | null = null
-let lastReadTime = 0
-const CACHE_TTL_MS = 60000 // 60s cache
-
+/**
+ * B-006: cards are read from PlatformSetting (database), not from
+ * data/homepage-cards.json. The old 60s in-process cache is gone too: it made
+ * two serverless instances serve different homepage content.
+ */
 export async function getHomepagePromoCards(): Promise<HomepagePromoCard[]> {
-  const now = Date.now()
-  if (cachedPromos && now - lastReadTime < CACHE_TTL_MS) {
-    return cachedPromos
-  }
-
   try {
-    const raw = await fs.readFile(CARDS_FILE_PATH, "utf-8")
-    const data = JSON.parse(raw)
+    const data = await getPlatformSetting<Record<string, any>>(PLATFORM_SETTING_KEYS.homepageCards)
+    if (!data || typeof data !== "object") return []
 
     const cards: HomepagePromoCard[] = []
 
     for (const [goalCategory, section] of Object.entries<any>(data)) {
-      if (Array.isArray(section.batches)) {
+      if (Array.isArray(section?.batches)) {
         for (const batch of section.batches) {
           cards.push({
             id: batch.id,
@@ -65,13 +58,9 @@ export async function getHomepagePromoCards(): Promise<HomepagePromoCard[]> {
 
     // Filter to standout promotions (featured primary action or significant discounts first)
     const featuredPromos = cards.filter((c) => c.isPrimaryAction || Boolean(c.discount))
-    const finalCards = featuredPromos.length > 0 ? featuredPromos : cards.slice(0, 8)
-
-    cachedPromos = finalCards
-    lastReadTime = now
-    return finalCards
+    return featuredPromos.length > 0 ? featuredPromos : cards.slice(0, 8)
   } catch (error) {
-    console.error("Error reading homepage-cards.json:", error)
+    console.error("Error reading homepage cards from the database:", error)
     return []
   }
 }

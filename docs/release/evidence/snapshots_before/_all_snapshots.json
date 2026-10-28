@@ -1,0 +1,1122 @@
+{
+  "/courses": {
+    "url": "http://127.0.0.1:3045/courses",
+    "path": "/courses",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "All Video Courses &amp; Batches | aspirantbook | aspirantbook",
+    "metaDescription": "Explore all comprehensive video courses, academic foundations, and competitive batches on aspirantbook.",
+    "canonical": "http://127.0.0.1:3045/courses",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/courses/agentic-engineering-zero-to-hero": {
+    "url": "http://127.0.0.1:3045/courses/agentic-engineering-zero-to-hero",
+    "path": "/courses/agentic-engineering-zero-to-hero",
+    "module": "courses",
+    "statusCode": 308,
+    "redirectTarget": "/tutorials/agentic-engineering-zero-to-hero",
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/courses/e2e-20261021001139624-a9b3g-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021001139624-a9b3g-course-studio",
+    "path": "/courses/e2e-20261021001139624-a9b3g-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021001139624-a9b3g | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://127.0.0.1:3045/courses/e2e-20261021001139624-a9b3g-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021001139624-a9b3g",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "sameAs": "https://aspirantbook.com"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021010807414-8eqmd-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021010807414-8eqmd-course-studio",
+    "path": "/courses/e2e-20261021010807414-8eqmd-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021010807414-8eqmd | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://127.0.0.1:3045/courses/e2e-20261021010807414-8eqmd-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021010807414-8eqmd",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "sameAs": "https://aspirantbook.com"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021025140619-1frn8-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021025140619-1frn8-course-studio",
+    "path": "/courses/e2e-20261021025140619-1frn8-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021025140619-1frn8 | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://127.0.0.1:3045/courses/e2e-20261021025140619-1frn8-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021025140619-1frn8",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "sameAs": "https://aspirantbook.com"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021025147563-wzrey-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021025147563-wzrey-course-studio",
+    "path": "/courses/e2e-20261021025147563-wzrey-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021025147563-wzrey | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://127.0.0.1:3045/courses/e2e-20261021025147563-wzrey-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021025147563-wzrey",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "sameAs": "https://aspirantbook.com"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021032926063-319dp-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021032926063-319dp-course-studio",
+    "path": "/courses/e2e-20261021032926063-319dp-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021032926063-319dp | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://127.0.0.1:3045/courses/e2e-20261021032926063-319dp-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021032926063-319dp",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "sameAs": "https://aspirantbook.com"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021034304510-8ksog-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021034304510-8ksog-course-studio",
+    "path": "/courses/e2e-20261021034304510-8ksog-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021034304510-8ksog | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://127.0.0.1:3045/courses/e2e-20261021034304510-8ksog-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021034304510-8ksog",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "sameAs": "https://aspirantbook.com"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021045339947-h7fa6-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021045339947-h7fa6-course-studio",
+    "path": "/courses/e2e-20261021045339947-h7fa6-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021045339947-h7fa6 | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://127.0.0.1:3045/courses/e2e-20261021045339947-h7fa6-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021045339947-h7fa6",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "sameAs": "https://aspirantbook.com"
+        }
+      }
+    ]
+  },
+  "/courses/e2e-20261021050009997-npdiv-course-studio": {
+    "url": "http://127.0.0.1:3045/courses/e2e-20261021050009997-npdiv-course-studio",
+    "path": "/courses/e2e-20261021050009997-npdiv-course-studio",
+    "module": "courses",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021050009997-npdiv | aspirantbook | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": "http://127.0.0.1:3045/courses/e2e-20261021050009997-npdiv-course-studio",
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Bugfix Course Studio E2E-20261021050009997-npdiv",
+        "description": "Testing studio persistence and lesson editor guards",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "sameAs": "https://aspirantbook.com"
+        }
+      }
+    ]
+  },
+  "/tutorials": {
+    "url": "http://127.0.0.1:3045/tutorials",
+    "path": "/tutorials",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Text-Based Tutorials | aspirantbook | aspirantbook",
+    "metaDescription": "In-depth, step-by-step reading tutorials with interactive code blocks, diagrams, and curriculum authored in Tutorial Studio.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/tutorials/agentic-engineering-zero-to-hero": {
+    "url": "http://127.0.0.1:3045/tutorials/agentic-engineering-zero-to-hero",
+    "path": "/tutorials/agentic-engineering-zero-to-hero",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Agentic Engineering: Zero to Hero | aspirantbook",
+    "metaDescription": "The complete 35-chapter masterclass on production agentic AI, tool calling, multi-agent swarms, verification, and automated evaluation.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/tutorials/e2e-20261021001139624-a9b3g-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021001139624-a9b3g-course-studio",
+    "path": "/tutorials/e2e-20261021001139624-a9b3g-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021001139624-a9b3g | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Bugfix Course Studio E2E-20261021001139624-a9b3g",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021010807414-8eqmd-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021010807414-8eqmd-course-studio",
+    "path": "/tutorials/e2e-20261021010807414-8eqmd-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021010807414-8eqmd | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Bugfix Course Studio E2E-20261021010807414-8eqmd",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021025140619-1frn8-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021025140619-1frn8-course-studio",
+    "path": "/tutorials/e2e-20261021025140619-1frn8-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021025140619-1frn8 | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Bugfix Course Studio E2E-20261021025140619-1frn8",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021025147563-wzrey-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021025147563-wzrey-course-studio",
+    "path": "/tutorials/e2e-20261021025147563-wzrey-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021025147563-wzrey | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Bugfix Course Studio E2E-20261021025147563-wzrey",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021032926063-319dp-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021032926063-319dp-course-studio",
+    "path": "/tutorials/e2e-20261021032926063-319dp-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021032926063-319dp | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Bugfix Course Studio E2E-20261021032926063-319dp",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021034304510-8ksog-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021034304510-8ksog-course-studio",
+    "path": "/tutorials/e2e-20261021034304510-8ksog-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021034304510-8ksog | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Bugfix Course Studio E2E-20261021034304510-8ksog",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/e2e-20261021045339947-h7fa6-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021045339947-h7fa6-course-studio",
+    "path": "/tutorials/e2e-20261021045339947-h7fa6-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Bugfix Course Studio E2E-20261021045339947-h7fa6 | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Bugfix Course Studio E2E-20261021045339947-h7fa6",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  },
+  "/tutorials/draft-course-hidden": {
+    "url": "http://127.0.0.1:3045/tutorials/draft-course-hidden",
+    "path": "/tutorials/draft-course-hidden",
+    "module": "tutorials",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/current-affairs-quizzes": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes",
+    "path": "/current-affairs-quizzes",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Current Affairs and Quizzes | aspirantbook | aspirantbook",
+    "metaDescription": "Daily speed tests, monthly current affairs roundups, and general awareness quizzes for competitive examinations.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/current-affairs-quizzes/upsc-economy-ca": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/upsc-economy-ca",
+    "path": "/current-affairs-quizzes/upsc-economy-ca",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "UPSC Economy CA - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice UPSC Economy CA with 10 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/upsc-economy-ca",
+    "robots": "index, follow",
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "UPSC Economy CA",
+        "description": "Current affairs speed quiz with 10 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": true,
+        "url": "http://127.0.0.1:3045/current-affairs-quizzes/upsc-economy-ca"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-1": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 1 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 1 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-1",
+    "robots": "index, follow",
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 1",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-1"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-2": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-2",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-2",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 2 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 2 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-2",
+    "robots": "index, follow",
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 2",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-2"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-3": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-3",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-3",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 3 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 3 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-3",
+    "robots": "index, follow",
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 3",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-3"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-4": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-4",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-4",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 4 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 4 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-4",
+    "robots": "index, follow",
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 4",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-4"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-5": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-5",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-5",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 5 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 5 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-5",
+    "robots": "index, follow",
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 5",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-5"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-6": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-6",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-6",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 6 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 6 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-6",
+    "robots": "index, follow",
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 6",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-6"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-7": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-7",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-7",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 7 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 7 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-7",
+    "robots": "index, follow",
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 7",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-7"
+      }
+    ]
+  },
+  "/current-affairs-quizzes/daily-ca-quiz-sample-test-8": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-8",
+    "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-8",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Daily CA Quiz Sample Test 8 - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice Daily CA Quiz Sample Test 8 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-8",
+    "robots": "index, follow",
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "Daily CA Quiz Sample Test 8",
+        "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": false,
+        "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-8"
+      }
+    ]
+  },
+  "/pyqs": {
+    "url": "http://127.0.0.1:3045/pyqs",
+    "path": "/pyqs",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook",
+    "metaDescription": "Download and practice verified previous year examination papers for BPSC, UPSC, NCERT, and State Boards with answer keys and CBT simulations.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/bpsc": {
+    "url": "http://127.0.0.1:3045/pyqs/bpsc",
+    "path": "/pyqs/bpsc",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/upsc-cse": {
+    "url": "http://127.0.0.1:3045/pyqs/upsc-cse",
+    "path": "/pyqs/upsc-cse",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/uppcs": {
+    "url": "http://127.0.0.1:3045/pyqs/uppcs",
+    "path": "/pyqs/uppcs",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/mppsc": {
+    "url": "http://127.0.0.1:3045/pyqs/mppsc",
+    "path": "/pyqs/mppsc",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/ras": {
+    "url": "http://127.0.0.1:3045/pyqs/ras",
+    "path": "/pyqs/ras",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/ssc-cgl": {
+    "url": "http://127.0.0.1:3045/pyqs/ssc-cgl",
+    "path": "/pyqs/ssc-cgl",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/cds": {
+    "url": "http://127.0.0.1:3045/pyqs/cds",
+    "path": "/pyqs/cds",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/nda": {
+    "url": "http://127.0.0.1:3045/pyqs/nda",
+    "path": "/pyqs/nda",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/ugc-net": {
+    "url": "http://127.0.0.1:3045/pyqs/ugc-net",
+    "path": "/pyqs/ugc-net",
+    "module": "pyqs",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series": {
+    "url": "http://127.0.0.1:3045/test-series",
+    "path": "/test-series",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/pb-7391-s-pub": {
+    "url": "http://127.0.0.1:3045/test-series/pb-7391-s-pub",
+    "path": "/test-series/pb-7391-s-pub",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/pb-7391-s-legacy": {
+    "url": "http://127.0.0.1:3045/test-series/pb-7391-s-legacy",
+    "path": "/test-series/pb-7391-s-legacy",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/e2e-series-e2e-20261021111538671-tnwv1": {
+    "url": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021111538671-tnwv1",
+    "path": "/test-series/e2e-series-e2e-20261021111538671-tnwv1",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/e2e-series-e2e-20261021114050130-622aa": {
+    "url": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021114050130-622aa",
+    "path": "/test-series/e2e-series-e2e-20261021114050130-622aa",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/e2e-series-e2e-20261021124106098-4akv9": {
+    "url": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021124106098-4akv9",
+    "path": "/test-series/e2e-series-e2e-20261021124106098-4akv9",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/e2e-series-e2e-20261021134628389-8s2bg": {
+    "url": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021134628389-8s2bg",
+    "path": "/test-series/e2e-series-e2e-20261021134628389-8s2bg",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/sample-audit-series-1": {
+    "url": "http://127.0.0.1:3045/test-series/sample-audit-series-1",
+    "path": "/test-series/sample-audit-series-1",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/sample-audit-series-2": {
+    "url": "http://127.0.0.1:3045/test-series/sample-audit-series-2",
+    "path": "/test-series/sample-audit-series-2",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/bpsc-72nd-2026": {
+    "url": "http://127.0.0.1:3045/test-series/bpsc-72nd-2026",
+    "path": "/test-series/bpsc-72nd-2026",
+    "module": "test-series",
+    "statusCode": 200,
+    "redirectTarget": null,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer": {
+    "url": "http://127.0.0.1:3045/question-answer",
+    "path": "/question-answer",
+    "module": "content-engine",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/hi/question-answer": {
+    "url": "http://127.0.0.1:3045/hi/question-answer",
+    "path": "/hi/question-answer",
+    "module": "content-engine",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse",
+    "path": "/question-answer/upsc-cse",
+    "module": "content-engine",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/hi/question-answer/upsc-cse": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse",
+    "path": "/hi/question-answer/upsc-cse",
+    "module": "content-engine",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse/2023": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/2023",
+    "path": "/question-answer/upsc-cse/2023",
+    "module": "content-engine",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/hi/question-answer/upsc-cse/2023": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/2023",
+    "path": "/hi/question-answer/upsc-cse/2023",
+    "module": "content-engine",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse/history": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/history",
+    "path": "/question-answer/upsc-cse/history",
+    "module": "content-engine",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/hi/question-answer/upsc-cse/history": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history",
+    "path": "/hi/question-answer/upsc-cse/history",
+    "module": "content-engine",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "path": "/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "module": "content-engine",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "path": "/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "module": "content-engine",
+    "statusCode": 404,
+    "redirectTarget": null,
+    "title": null,
+    "metaDescription": null,
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  }
+}

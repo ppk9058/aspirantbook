@@ -25,6 +25,7 @@ import {
   ExternalLink,
   BookOpen,
 } from "lucide-react"
+import Image from "next/image"
 
 export default function CartDrawer() {
   const { data: session } = useSession()
@@ -169,10 +170,12 @@ export default function CartDrawer() {
                         onClick={() => setIsCartOpen(false)}
                         className="w-16 h-22 sm:w-20 sm:h-26 shrink-0 bg-white rounded-lg p-1 border border-gray-200 flex items-center justify-center overflow-hidden"
                       >
-                        <img
+                        <Image
                           src={item.book.coverImage}
                           alt={item.book.title}
-                          className="w-full h-full object-contain"
+                          width={64}
+                          height={88}
+                          className="h-full w-full object-contain"
                         />
                       </Link>
 
@@ -267,10 +270,12 @@ export default function CartDrawer() {
                       className="p-3 bg-amber-50/40 border border-amber-200/80 rounded-xl flex gap-3 items-center justify-between"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <img
+                        <Image
                           src={saved.book.coverImage}
                           alt={saved.book.title}
-                          className="w-10 h-14 object-contain rounded bg-white p-0.5 border shrink-0"
+                          width={40}
+                          height={56}
+                          className="h-14 w-10 shrink-0 rounded border bg-white object-contain p-0.5"
                         />
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-gray-900 truncate">

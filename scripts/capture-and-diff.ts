@@ -69,9 +69,11 @@ const pages: PageDef[] = [
   { name: "reset_password", url: "/reset-password?token=preview-token" },
 ]
 
-async function compareImages(basePath: string, headPath: string, diffPath: string) {
+type ImageComparison = { diffRatio: number; missing: boolean; totalPixels: number; diffPixels: number }
+
+async function compareImages(basePath: string, headPath: string, diffPath: string): Promise<ImageComparison> {
   if (!fs.existsSync(basePath) || !fs.existsSync(headPath)) {
-    return { diffRatio: 0, missing: true }
+    return { diffRatio: 0, missing: true, totalPixels: 0, diffPixels: 0 }
   }
 
   const baseMeta = await sharp(basePath).metadata()
@@ -80,7 +82,7 @@ async function compareImages(basePath: string, headPath: string, diffPath: strin
   const width = Math.min(baseMeta.width || 0, headMeta.width || 0)
   const height = Math.min(baseMeta.height || 0, headMeta.height || 0)
 
-  if (width === 0 || height === 0) return { diffRatio: 0, missing: true }
+  if (width === 0 || height === 0) return { diffRatio: 0, missing: true, totalPixels: 0, diffPixels: 0 }
 
   const baseBuf = await sharp(basePath).extract({ left: 0, top: 0, width, height }).raw().toBuffer()
   const headBuf = await sharp(headPath).extract({ left: 0, top: 0, width, height }).raw().toBuffer()
@@ -167,7 +169,8 @@ async function run() {
             fullPage: false, // capture consistent above-the-fold viewport
           })
 
-          let comp = { diffRatio: 0, missing: true, totalPixels: 0, diffPixels: 0 }
+          let comp: { diffRatio: number; missing: boolean; totalPixels: number; diffPixels: number } =
+            { diffRatio: 0, missing: true, totalPixels: 0, diffPixels: 0 }
           if (fs.existsSync(basePath)) {
             comp = await compareImages(basePath, headPath, diffPath)
           }

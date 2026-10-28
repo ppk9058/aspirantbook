@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getAttemptRanking } from "./exam-ranking";
 import { isExamFastGradingEnabled } from "./exam-flags";
+import { calculateExamScore } from "@aspirantbook/shared";
 
 export interface GradedAttemptResult {
   attemptId: string;
@@ -139,50 +140,14 @@ export async function gradeExamAttempt(
     },
   });
 
-  const questionMap = new Map(allQuestions.map((q) => [q.id, q]));
-  const answerMap = new Map(answers.map((a) => [a.questionId, a]));
-
-  let totalScore = 0;
-  let correctCount = 0;
-  let wrongCount = 0;
-  let skippedCount = 0;
-  let markedCount = 0;
-
-  // Grade answered questions and update them
-  const gradedAnswers = answers.map((ans) => {
-    const question = questionMap.get(ans.questionId);
-    if (!question) {
-      return { questionId: ans.questionId, isCorrect: false, marksAwarded: 0 };
-    }
-
-    if (ans.isMarked) markedCount++;
-
-    let isCorrect = false;
-    let marksAwarded = 0;
-
-    if (!ans.selectedOption) {
-      skippedCount++;
-      marksAwarded = 0;
-    } else if (ans.selectedOption === question.correctOption) {
-      isCorrect = true;
-      correctCount++;
-      marksAwarded = question.positiveMarks;
-      totalScore += marksAwarded;
-    } else {
-      wrongCount++;
-      marksAwarded = -question.negativeMarks;
-      totalScore += marksAwarded;
-    }
-
-    return { questionId: ans.questionId, isCorrect, marksAwarded };
-  });
-
-  // Any test question not present in answers is also skipped
-  for (const q of allQuestions) {
-    if (!answerMap.has(q.id)) {
-      skippedCount++;
-    }
-  }
+  const {
+    totalScore,
+    correctCount,
+    wrongCount,
+    skippedCount,
+    markedCount,
+    gradedAnswers,
+  } = calculateExamScore(allQuestions, answers);
 
 
   const testDurationSecs = (attempt.test!.durationMinutes) * 60;
@@ -245,17 +210,29 @@ export async function gradeExamAttempt(
             `;
           }
         } else {
+          // A14: one batched update per (isCorrect, marksAwarded) group instead
+          // of an update per answer. Grouping keeps per-question marking
+          // (different papers use different marks) while removing the N+1.
+          const gradedGroups = new Map<
+            string,
+            { isCorrect: boolean; marksAwarded: number; questionIds: string[] }
+          >();
           for (const ga of gradedAnswers) {
-            await tx.examAttemptAnswer.update({
-              where: {
-                attemptId_questionId: {
-                  attemptId,
-                  questionId: ga.questionId,
-                },
-              },
+            const key = `${ga.isCorrect}|${ga.marksAwarded}`;
+            const group =
+              gradedGroups.get(key) ??
+              { isCorrect: ga.isCorrect, marksAwarded: ga.marksAwarded, questionIds: [] };
+            group.questionIds.push(ga.questionId);
+            gradedGroups.set(key, group);
+          }
+
+          for (const group of gradedGroups.values()) {
+            group.questionIds.sort();
+            await tx.examAttemptAnswer.updateMany({
+              where: { attemptId, questionId: { in: group.questionIds } },
               data: {
-                isCorrect: ga.isCorrect,
-                marksAwarded: ga.marksAwarded,
+                isCorrect: group.isCorrect,
+                marksAwarded: group.marksAwarded,
               },
             });
           }

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
-import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 
 const COURSE_ALIASES: Record<string, string> = {
@@ -29,7 +28,7 @@ export async function POST(req: NextRequest) {
     try {
         const clientIp = getClientIp(req)
         const rateLimitKey = `mobile_login:${clientIp}`
-        const rl = await checkRateLimit(rateLimitKey, 10, 60)
+        const rl = await checkRateLimit(rateLimitKey, 10, 60, { failClosed: true })
         if (!rl.allowed) {
             return NextResponse.json(
                 { error: "Too many login requests. Please try again later." },
@@ -91,6 +90,7 @@ export async function POST(req: NextRequest) {
         // Auto-enroll into the course if courseId is provided (supports either DB ID, slug, or alias)
         let enrolledCourse: { id: string; title: string; slug: string } | null = null
         let goalId: string | null = null
+        let goalPersisted = true
 
         if (courseId) {
             const resolvedTarget = COURSE_ALIASES[courseId] || courseId
@@ -124,14 +124,17 @@ export async function POST(req: NextRequest) {
                 }
 
                 if (goalId) {
-                    userGoalsMemoryMap.set(user.id, {
-                        goalId,
-                        updatedAt: new Date().toISOString(),
-                    })
-                    await prisma.user.update({
-                        where: { id: user.id },
-                        data: { selectedGoal: goalId },
-                    }).catch(() => {})
+                    try {
+                        await prisma.user.update({
+                            where: { id: user.id },
+                            data: { selectedGoal: goalId },
+                        })
+                    } catch (goalErr) {
+                        // B-007: no memory fallback. Login still succeeds, but the
+                        // failure is logged and reported to the client.
+                        console.error("[mobile-login] failed to persist the goal:", goalErr)
+                        goalPersisted = false
+                    }
                 }
 
                 revalidatePath("/my-learning")
@@ -145,6 +148,7 @@ export async function POST(req: NextRequest) {
             userId: user.id,
             name: user.name,
             goalId: goalId || undefined,
+            goalPersisted,
             enrolledCourseTitle: enrolledCourse?.title,
         })
 

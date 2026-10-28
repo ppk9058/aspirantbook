@@ -1,0 +1,10 @@
+app/(dashboard)/current-affairs-quizzes/[slug]/page.tsx:108:        type="application/ld+json"
+app/(dashboard)/books/[slug]/page.tsx:81:          type="application/ld+json"
+app/(dashboard)/courses/[slug]/page.tsx:400:                type="application/ld+json"
+app/(dashboard)/tutorials/[slug]/page.tsx:203:                    type="application/ld+json"
+app/(dashboard)/test-series/[id]/page.tsx:201:                    type="application/ld+json"
+app/page.tsx:103:                    type="application/ld+json"
+lib/modules/content-engine/seo-model.ts:62: * Escapes characters safely for embedding inside <script type="application/ld+json">.
+lib/seo/adapters/content-engine.ts:151:        `<script type="application/ld+json">${safeJsonLdStringify(schema)}</script>`
+lib/seo/core.ts:93: * Escapes characters safely for embedding inside <script type="application/ld+json">.
+lib/seo/core.ts:367:        `<script type="application/ld+json">${safeJsonLdStringify(schema)}</script>`

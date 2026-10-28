@@ -1,0 +1,13 @@
+{
+  "url": "http://127.0.0.1:3045/current-affairs-quizzes",
+  "path": "/current-affairs-quizzes",
+  "module": "current-affairs",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "Current Affairs and Quizzes | aspirantbook | aspirantbook",
+  "metaDescription": "Daily speed tests, monthly current affairs roundups, and general awareness quizzes for competitive examinations.",
+  "canonical": null,
+  "robots": null,
+  "hreflang": {},
+  "jsonLd": []
+}

@@ -3,7 +3,6 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
-import { userGoalsMemoryMap } from "@/lib/user-goals-memory"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 
 const COURSE_ALIASES: Record<string, string> = {
@@ -122,10 +121,17 @@ export async function POST(req: NextRequest) {
 
         // Determine goal category for this course (e.g. class-10, class-6, upsc, etc.)
         const goalId = getGoalForCourse(course)
-        userGoalsMemoryMap.set(userId, {
-            goalId,
-            updatedAt: new Date().toISOString(),
-        })
+        // B-007: persist to the DB; there is no in-memory fallback any more.
+        let goalPersisted = true
+        try {
+            await prisma.user.update({
+                where: { id: userId },
+                data: { selectedGoal: goalId },
+            })
+        } catch (goalErr) {
+            console.error("[courses/enroll] failed to persist the goal:", goalErr)
+            goalPersisted = false
+        }
 
         revalidatePath("/my-learning")
         revalidatePath("/dashboard")
@@ -137,6 +143,7 @@ export async function POST(req: NextRequest) {
             courseTitle: course.title,
             courseSlug: course.slug,
             goalId,
+            goalPersisted,
             redirectUrl: "/my-learning",
         })
 

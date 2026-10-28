@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -39,6 +39,7 @@ import {
   Calendar,
 } from "lucide-react"
 import { CourseCouponsManager } from "./CourseCouponsManager"
+import Image from "next/image"
 
 interface LessonItem {
   id: string
@@ -208,7 +209,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const [demoReportData, setDemoReportData] = useState<any>(null)
   const [isLoadingReport, setIsLoadingReport] = useState<boolean>(false)
 
-  const fetchDbSlots = async () => {
+  const fetchDbSlots = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/courses/${initialCourse.id}/demo-slots`)
       const data = await res.json()
@@ -230,11 +231,11 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     } catch (e) {
       console.error("Failed to fetch slots from DB:", e)
     }
-  }
+  }, [initialCourse.id])
 
   useEffect(() => {
     fetchDbSlots()
-  }, [initialCourse.id])
+  }, [fetchDbSlots])
 
   const handleAddDbSlot = async () => {
     if (!newSlotDateTime) {
@@ -1090,10 +1091,12 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="relative w-24 h-14 rounded-xl overflow-hidden border-2 border-orange-200 bg-gray-100 shrink-0 shadow-2xs">
-                <img
+                <Image
                   src={thumbnailUrl || "/placeholder-course.svg"}
                   alt="First Video Thumbnail"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="96px"
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                   <Play className="w-4 h-4 text-white drop-shadow" />
@@ -1596,10 +1599,12 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                             <div className="flex items-center gap-2">
                               {teacher.avatar && (
                                 <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-200 bg-purple-100 shrink-0 relative">
-                                  <img
+                                  <Image
                                     src={teacher.avatar}
                                     alt={teacher.name || "Teacher"}
-                                    className="w-full h-full object-cover"
+                                    width={32}
+                                    height={32}
+                                    className="h-full w-full object-cover"
                                   />
                                 </div>
                               )}
@@ -2830,7 +2835,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                 <div className="pt-2 border-t border-sky-100 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="w-12 h-7 rounded bg-gray-200 overflow-hidden border border-amber-300 shrink-0">
-                      <img src={thumbnailUrl || "/placeholder-course.svg"} alt="" className="w-full h-full object-cover" />
+                      <Image src={thumbnailUrl || "/placeholder-course.svg"} alt="" width={48} height={28} className="h-full w-full object-cover" />
                     </div>
                     <div className="min-w-0">
                       <span className="text-[11px] font-bold text-sky-950 block truncate">Video Player Poster Thumbnail</span>
@@ -3019,10 +3024,12 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
 
             {/* Live Preview Card */}
             <div className="relative w-full aspect-video rounded-xl overflow-hidden border-2 border-orange-200 bg-gray-900 shadow-inner group">
-              <img
+              <Image
                 src={thumbnailInputUrl || thumbnailUrl || "/placeholder-course.svg"}
                 alt="Video Thumbnail Preview"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 640px"
+                className="object-cover"
                 onError={(e: any) => {
                   e.currentTarget.src = "/placeholder-course.svg"
                 }}

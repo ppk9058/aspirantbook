@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import "@/lib/boot-guard";
 import "./globals.css";
 import { Providers } from "./providers"
-import { auth } from "@/auth"
+import { getBaseUrl } from "@/lib/seo/core"
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+const siteUrl = getBaseUrl()
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
   title: {
     default: "aspirantbook - Interactive Learning Platform & Test Series",
     template: "%s | aspirantbook",
@@ -57,13 +57,21 @@ export const viewport: Viewport = {
 
 const themeInitScript = `(function(){try{var t=localStorage.getItem("ts_theme");if(t==="dark"){document.documentElement.classList.add("dark")}else{document.documentElement.classList.remove("dark")}}catch(e){}})();`
 
-export default async function RootLayout({
+/**
+ * C1: the root layout used to call `auth()` to seed SessionProvider. Because a
+ * layout is part of every route's render, that single call forced every page to
+ * be dynamic — `export const revalidate = 60` on the landing page could never
+ * take effect and nothing could be served from the ISR cache.
+ *
+ * SessionProvider now fetches the session itself (GET /api/auth/session), which
+ * it already did whenever the prop was missing, and the header components read
+ * it through useSession.
+ */
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
-
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>
@@ -72,7 +80,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning={true}>
-        <Providers session={session}>{children}</Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

@@ -1,6 +1,21 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { requireManagedCourse, requireManagedChapter } from "@/lib/auth/course-access-server"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
+
+/**
+ * B10: these studio routes wrote the chapter row and returned, so the cached
+ * public course page (/courses/[slug], tagged "courses", 60s) kept serving the
+ * old outline. Every mutation now drops the tag and refreshes the affected paths.
+ */
+function invalidateCourseContent(slug?: string | null) {
+  safeRevalidateTags(CACHE_TAGS.courses)
+  revalidatePath("/courses")
+  revalidatePath("/admin/courses")
+  if (slug) revalidatePath(`/courses/${slug}`)
+}
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -10,6 +25,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     const { id: courseId } = await params
+
+    // A8: teachers may only add chapters to their own courses.
+    const access = await requireManagedCourse(user, courseId)
+    if (access.response) return access.response
+
     const body = await req.json()
     if (!body.title) {
       return NextResponse.json({ error: "Chapter title is required" }, { status: 400 })
@@ -34,6 +54,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       },
     })
 
+    invalidateCourseContent(access.course.slug)
     return NextResponse.json(chapter, { status: 201 })
   } catch (error: any) {
     console.error("POST /api/admin/courses/[id]/chapters error:", error)
@@ -53,6 +74,10 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Chapter ID and title are required" }, { status: 400 })
     }
 
+    // A8: ownership is resolved from the chapter's course.
+    const access = await requireManagedChapter(user, body.chapterId)
+    if (access.response) return access.response
+
     const updated = await prisma.chapter.update({
       where: { id: body.chapterId },
       data: {
@@ -64,6 +89,7 @@ export async function PUT(req: Request) {
       },
     })
 
+    invalidateCourseContent(access.course.slug)
     return NextResponse.json(updated)
   } catch (error: any) {
     console.error("PUT /api/admin/courses/[id]/chapters error:", error)
@@ -84,7 +110,12 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Chapter ID is required" }, { status: 400 })
     }
 
+    // A8: ownership is resolved from the chapter's course.
+    const access = await requireManagedChapter(user, chapterId)
+    if (access.response) return access.response
+
     await prisma.chapter.delete({ where: { id: chapterId } })
+    invalidateCourseContent(access.course.slug)
     return NextResponse.json({ success: true, message: "Chapter deleted successfully" })
   } catch (error: any) {
     console.error("DELETE /api/admin/courses/[id]/chapters error:", error)

@@ -31,6 +31,7 @@ export default async function SearchPage({
 
     let courses: any[] = []
     let lessons: any[] = []
+    let searchFailed = false
 
     try {
         const courseVisibilityWhere: any = isAdmin
@@ -93,17 +94,25 @@ export default async function SearchPage({
                 take: 10,
             }),
         ])
-    } catch {
-        console.warn("Database offline on /search, returning empty results.")
+    } catch (error) {
+        // Do not pretend the search found nothing when the database is unreachable.
+        console.error("[search] Failed to run search query", error)
+        searchFailed = true
     }
 
     return (
         <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-8 pb-32 sm:pb-24 lg:pb-12">
             <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Search Results for "{query}"</h1>
-                <p className="text-slate-600 dark:text-slate-300 mt-1">
-                    Found {courses.length} courses and {lessons.length} lessons
-                </p>
+                {searchFailed ? (
+                    <p role="alert" className="text-destructive mt-1">
+                        Search is temporarily unavailable. Please try again in a moment.
+                    </p>
+                ) : (
+                    <p className="text-slate-600 dark:text-slate-300 mt-1">
+                        Found {courses.length} courses and {lessons.length} lessons
+                    </p>
+                )}
             </div>
 
             {/* Courses */}

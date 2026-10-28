@@ -1,0 +1,266 @@
+{
+  "sourceReferences": {
+    "header": "components/layout/MobileAppHeader.tsx",
+    "drawer": "components/layout/MobileDrawer.tsx",
+    "profileSheet": "components/layout/MobileProfileSheet.tsx",
+    "bottomBar": "components/layout/MobileNativeBottomBar.tsx",
+    "goalModal": "components/layout/GoalModal.tsx"
+  },
+  "header": {
+    "height": 56,
+    "source": "components/layout/MobileAppHeader.tsx:47",
+    "left": [
+      {
+        "type": "hamburger",
+        "action": "openDrawer",
+        "ariaLabel": "Open navigation menu",
+        "source": "components/layout/MobileAppHeader.tsx:51-57"
+      },
+      {
+        "type": "brandLogo",
+        "target": "/",
+        "brandPrefix": "aspirant",
+        "brandSuffix": "book",
+        "source": "components/layout/MobileAppHeader.tsx:59-66"
+      }
+    ],
+    "right": [
+      {
+        "type": "search",
+        "target": "/search",
+        "ariaLabel": "Search courses, test series, notes",
+        "source": "components/layout/MobileAppHeader.tsx:72-78"
+      },
+      {
+        "type": "notifications",
+        "target": "/",
+        "ariaLabel": "Notifications",
+        "badgeColor": "#f43f5e",
+        "source": "components/layout/MobileAppHeader.tsx:81-88"
+      },
+      {
+        "type": "auth",
+        "guest": {
+          "label": "Login",
+          "target": "/(auth)/login",
+          "source": "components/layout/MobileAppHeader.tsx:106-114"
+        },
+        "authenticated": {
+          "type": "avatarCircle",
+          "action": "openProfileSheet",
+          "source": "components/layout/MobileAppHeader.tsx:96-105"
+        }
+      }
+    ]
+  },
+  "drawer": {
+    "widthPercent": 80,
+    "maxWidth": 320,
+    "backdrop": "rgba(2, 6, 23, 0.6)",
+    "source": "components/layout/MobileDrawer.tsx:66-72",
+    "goalSelector": {
+      "label": "Target Goal",
+      "action": "openGoalModal",
+      "source": "components/layout/MobileDrawer.tsx:95-98"
+    },
+    "navItems": [
+      {
+        "order": 1,
+        "name": "Dashboard",
+        "route": "/",
+        "icon": "Home",
+        "source": "components/layout/MobileDrawer.tsx:50"
+      },
+      {
+        "order": 2,
+        "name": "My Batches & Enrollments",
+        "route": "/my-learning",
+        "icon": "Layers",
+        "badge": "Enrolled",
+        "source": "components/layout/MobileDrawer.tsx:51"
+      },
+      {
+        "order": 3,
+        "name": "Online Bookstore",
+        "route": "/library",
+        "icon": "Book",
+        "source": "components/layout/MobileDrawer.tsx:52"
+      },
+      {
+        "order": 4,
+        "name": "Test Series & Mocks",
+        "route": "/tests",
+        "icon": "ClipboardList",
+        "source": "components/layout/MobileDrawer.tsx:53"
+      },
+      {
+        "order": 5,
+        "name": "My Test",
+        "route": "/my-tests",
+        "icon": "ClipboardCheck",
+        "badge": "Active",
+        "source": "components/layout/MobileDrawer.tsx:54"
+      },
+      {
+        "order": 6,
+        "name": "Video Courses",
+        "route": "/courses",
+        "icon": "BookOpen",
+        "source": "components/layout/MobileDrawer.tsx:55"
+      },
+      {
+        "order": 7,
+        "name": "Previous Year Papers (PYQs)",
+        "route": "/pyqs",
+        "icon": "FileText",
+        "source": "components/layout/MobileDrawer.tsx:56"
+      },
+      {
+        "order": 8,
+        "name": "Current Affairs & Quizzes",
+        "route": "/current-affairs",
+        "icon": "Newspaper",
+        "source": "components/layout/MobileDrawer.tsx:57"
+      },
+      {
+        "order": 9,
+        "name": "Tutorials & Articles",
+        "route": "/tutorials",
+        "icon": "GraduationCap",
+        "source": "components/layout/MobileDrawer.tsx:58"
+      },
+      {
+        "order": 10,
+        "name": "Coding Practice",
+        "route": "/practice",
+        "icon": "Code2",
+        "source": "components/layout/MobileDrawer.tsx:59"
+      }
+    ],
+    "footer": {
+      "type": "themeToggle",
+      "labels": ["Dark Mode", "Light Mode"],
+      "source": "components/layout/MobileDrawer.tsx:136-144"
+    }
+  },
+  "profileSheet": {
+    "title": "ACCOUNT & PROFILE",
+    "widthPercent": 80,
+    "maxWidth": 320,
+    "source": "components/layout/MobileProfileSheet.tsx:44-49",
+    "guestState": {
+      "title": "You are exploring as a guest learner",
+      "cta": "Sign In / Register →",
+      "target": "/(auth)/login",
+      "source": "components/layout/MobileProfileSheet.tsx:90-99"
+    },
+    "authenticatedState": {
+      "elements": ["avatar", "name", "email", "phone"],
+      "passBanner": {
+        "active": "Pass Active (Pro Access)",
+        "inactive": "Upgrade with Pass",
+        "target": "/subscription",
+        "source": "components/layout/MobileProfileSheet.tsx:104-120"
+      }
+    },
+    "navLinks": [
+      {
+        "order": 1,
+        "name": "My Profile & Learning Stats",
+        "route": "/profile",
+        "icon": "User",
+        "source": "components/layout/MobileProfileSheet.tsx:128-135"
+      },
+      {
+        "order": 2,
+        "name": "Subscription & Payments",
+        "route": "/subscription",
+        "icon": "CreditCard",
+        "source": "components/layout/MobileProfileSheet.tsx:136-143"
+      },
+      {
+        "order": 3,
+        "name": "Account Settings",
+        "route": "/settings",
+        "icon": "Settings",
+        "source": "components/layout/MobileProfileSheet.tsx:144-151"
+      }
+    ],
+    "footer": {
+      "themeToggle": true,
+      "logoutButton": {
+        "label": "Logout",
+        "action": "logout",
+        "visibility": "authenticatedOnly",
+        "source": "components/layout/MobileProfileSheet.tsx:164-172"
+      }
+    }
+  },
+  "bottomBar": {
+    "height": 60,
+    "minTouchTarget": 44,
+    "source": "components/layout/MobileNativeBottomBar.tsx:99-113",
+    "tabs": [
+      {
+        "name": "Home",
+        "route": "/(tabs)/home",
+        "icon": "Home",
+        "activePattern": ["^/$", "^/dashboard$", "^/(tabs)/home$"],
+        "source": "components/layout/MobileNativeBottomBar.tsx:68-73"
+      },
+      {
+        "name": "Tests",
+        "route": "/(tabs)/tests",
+        "icon": "ClipboardList",
+        "activePattern": [
+          "^/test-series",
+          "^/my-tests",
+          "^/assessments",
+          "^/pyqs",
+          "^/current-affairs",
+          "^/(tabs)/tests"
+        ],
+        "source": "components/layout/MobileNativeBottomBar.tsx:74-79"
+      },
+      {
+        "name": "Courses",
+        "route": "/(tabs)/courses",
+        "icon": "BookOpen",
+        "activePattern": [
+          "^/courses",
+          "^/tutorials",
+          "^/tracks",
+          "^/batches",
+          "^/my-learning",
+          "^/(tabs)/courses"
+        ],
+        "source": "components/layout/MobileNativeBottomBar.tsx:80-85"
+      },
+      {
+        "name": "Pass",
+        "route": "/(tabs)/pass",
+        "icon": "Zap",
+        "activePattern": [
+          "^/subscription",
+          "^/pricing",
+          "^/checkout",
+          "^/(tabs)/pass"
+        ],
+        "badge": "ACTIVE",
+        "source": "components/layout/MobileNativeBottomBar.tsx:86-92"
+      }
+    ],
+    "hiddenConditions": [
+      {
+        "flow": "testAttempt",
+        "patterns": ["/attempt", "/take", "/test-execution"],
+        "source": "components/layout/MobileNativeBottomBar.tsx:21-27"
+      },
+      {
+        "flow": "videoWatch",
+        "patterns": ["/learn/"],
+        "source": "components/layout/MobileNativeBottomBar.tsx:29-34"
+      }
+    ]
+  }
+}

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { getBookById, updateBook, deleteBook } from "@/lib/books/bookService"
+import { bookUpdateSchema } from "@/lib/books/book-validation"
+import { normalizeBookStorageKey } from "@/lib/books/book-file-storage"
 
 export const dynamic = "force-dynamic"
 
@@ -56,7 +58,27 @@ export async function PUT(
       )
     }
 
-    const body = await req.json()
+    // A5/A12: only allowlisted fields are accepted. Unknown keys (including
+    // createdBy and arbitrary JSON) are stripped by the schema.
+    const parsed = bookUpdateSchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid book payload", issues: parsed.error.issues.map((i) => ({ path: i.path, message: i.message })) },
+        { status: 400 }
+      )
+    }
+    const body = parsed.data
+
+    // Store canonical storage keys, never caller-supplied paths.
+    for (const field of ["fullPdfUrl", "samplePdfUrl"] as const) {
+      const value = body[field]
+      if (value !== undefined) {
+        body[field] = value === "" ? "" : normalizeBookStorageKey(value) || ""
+        if (value !== "" && body[field] === "") {
+          return NextResponse.json({ error: `Invalid ${field}` }, { status: 400 })
+        }
+      }
+    }
 
     // Validate price <= MRP if changed
     const price = body.price !== undefined ? Number(body.price) : existing.price

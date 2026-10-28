@@ -1,0 +1,102 @@
+# RUN 2 STATE & EXECUTION LEDGER
+
+- **Start UTC**: 2026-10-20T23:56:59Z
+- **Branch**: `expo-mobile`
+- **Initial HEAD**: `b7702e675186834e38e72f4b2acd9d506139a7f4`
+- **Caffeinate PID**: 57711
+- **Pre-existing Stash**: `stash@{0}` hash = `88f95e437366b6c03d2107303ec9f2d4a7e9cb91` (MUST REMAIN UNTOUCHED)
+- **Wall-Clock Hard Ceiling**: 11 hours (Ends at: 2026-10-21T10:56:59Z)
+
+---
+
+## Task Progress Checklist
+
+| Task | Title | Status | Start (UTC) | End (UTC) | Commit Hash | Evidence Log |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **R0** | Preflight & State Setup | **DONE** | 2026-10-20T23:56:59Z | 2026-10-21T00:00:15Z | `c7ec1e2` | `reports/run2/r0-preflight.log` |
+| **R1** | Independent Audit Ledger & Baseline | **DONE** | 2026-10-21T00:00:15Z | 2026-10-21T00:06:00Z | `26d073a` | `reports/run2/r1-audit.log` |
+| **R2** | Test DB from Scratch & Migrations | **DONE** | 2026-10-21T00:06:00Z | 2026-10-21T00:08:00Z | `081dc6d` | `reports/run2/r2-test-db.log` |
+| **R3** | Honest Full Web Playwright Regression | **DONE** | 2026-10-21T04:20:00Z | 2026-10-21T05:10:00Z | `5b8db39` | `reports/run2/r3-playwright.log` |
+| **R7** | Expo SDK 53 -> Latest Stable (58.x) | **DONE** | 2026-10-21T05:15:00Z | 2026-10-21T05:40:00Z | `dceb932` | `reports/run2/r7-sdk-upgrade.log` |
+| **R4** | Security Parity Gaps & Concurrency | **DONE** | 2026-10-21T05:40:00Z | 2026-10-21T05:50:00Z | `e044fce` | `reports/run2/r4-security.log` |
+| **R5** | Account Deletion Real Re-Auth | **DONE** | 2026-10-21T05:50:00Z | 2026-10-21T05:56:00Z | `6520b51` | `reports/run2/r5-account-deletion.log` |
+| **R6** | Push Service Completion & Flag | **DONE** | 2026-10-21T05:56:00Z | 2026-10-21T06:02:00Z | `760b905` | `reports/run2/r6-push-service.log` |
+| **R8** | Native PDF Evaluation & Implementation | **DONE** | 2026-10-21T06:02:00Z | 2026-10-21T06:10:00Z | `552b901` | `reports/run2/r8-native-pdf.log` |
+| **R9** | Speed/Offline Gaps & Mutation Proofs | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:00Z | `d89bde1` | `reports/run2/r9-speed-offline.log` |
+| **R10** | Phone Tooling & Docs Hardening | **DONE** | 2026-10-21T06:18:00Z | 2026-10-21T06:24:00Z | `01d683e` | `reports/run2/r10-phone-tooling.log` |
+| **R11** | Contract Tests & Mobile Journey | **DONE** | 2026-10-21T06:10:00Z | 2026-10-21T06:18:28Z | `58a3df4` | `reports/run2/r11-contract-journey.log` |
+| **R12** | Final Proof, Clean Dist & Tripwires | **DONE** | 2026-10-21T07:27:00Z | 2026-10-21T08:12:00Z | `97c4d91` | `reports/run2/r12-final-proof.log` |
+| **B1** | Dependency Audit & Vulnerability Fixes | **TODO** | | | | `reports/run2/b1-audit.log` |
+| **B2** | Bundle-Size Analysis & Reductions | **TODO** | | | | `reports/run2/b2-bundle-size.log` |
+| **B3** | Deep-Link / Scheme Config Check | **TODO** | | | | `reports/run2/b3-deep-link.log` |
+| **B4** | Store-Readiness Documentation | **TODO** | | | | `reports/run2/b4-store-readiness.log` |
+| **B5** | Accessibility Labels on Screens | **TODO** | | | | `reports/run2/b5-a11y.log` |
+| **B6** | Hindi/English String Coverage | **TODO** | | | | `reports/run2/b6-i18n.log` |
+| **B7** | Mutation Proof for 10 More API Tests | **TODO** | | | | `reports/run2/b7-mutations.log` |
+| **B8** | Login/OTP Rate-Limit Review | **TODO** | | | | `reports/run2/b8-rate-limits.log` |
+| **SOAK**| Multi-Run Soak Testing | **TODO** | | | | `reports/run2/soak.log` |
+
+---
+
+## Task Details & Progress Notes
+
+### R7 Hop: SDK 53 -> 54
+- Upgraded `expo` to `54.0.37`, `react-native` to `0.81.5`.
+- Updated `@config-plugins/react-native-pdf` & `@config-plugins/react-native-blob-util` to `12.0.0`.
+- Updated `@shopify/flash-list` to `2.0.2` and removed deprecated `estimatedItemSize` in `apps/mobile/src/app/(tabs)/library.tsx`.
+- Updated legacy FileSystem import to `expo-file-system/legacy` in `apps/mobile/src/app/reader/[id].tsx`.
+- Upgraded `lucide-react-native` to `^1.60.0`.
+- Excluded `react` and `@types/react` from Expo install validation to prevent conflict with root Next.js React 19.
+- Verified:
+  - `apps/mobile && npx expo-doctor`: 17/17 passed.
+  - `(cd apps/mobile && npx tsc --noEmit) && (cd packages/shared && npx tsc --noEmit)`: 0 errors.
+  - `cd apps/mobile && npm test`: 24/24 passed.
+  - `npx expo export -p android && npx expo export -p ios`: Both exit 0.
+  - Metro bundle curl test: HTTP 200 (3519 modules bundled).
+  - Prebuild test: Passed in isolated environment.
+  - Web smoke (`guest-free-sample-start.spec.ts`): 2/2 passed.
+  - Web tsc: 65 baseline errors (0 new errors).
+
+### R11: Contract Tests & Full Mobile Journey
+- Created comprehensive 19-step scripted contract & mobile journey suite in `tests/contract-v1.test.ts`.
+- Validated real API flow:
+  1. `POST /api/v1/auth/register` (returns `LoginResponseDto`)
+  2. `POST /api/v1/auth/login` (returns access & refresh tokens)
+  3. `GET /api/v1/me` (returns `ViewerProfileDto`)
+  4. `GET /api/v1/tests` (returns `TestListItemDto[]`)
+  5. `GET /api/v1/tests/[id]` (returns `TestDetailDto`)
+  6. `POST /api/v1/tests/[id]/attempts` (returns `StartAttemptResponseDto`)
+  7. `GET /api/v1/attempts/[id]` (answers & explanations completely hidden)
+  8. `PUT /api/v1/attempts/[id]/answers` (batched sequence sync)
+  9. `POST /api/v1/attempts/[id]/submit` (authoritative grading: 27.5 / 50)
+  10. `GET /api/v1/attempts/[id]/solutions` (returns `AttemptSolutionsDto` with solutions & explanations)
+  11. `GET /api/v1/auth/sessions` (returns `DeviceSessionDto[]`)
+  12. `GET /api/v1/library/[id]/file` (unowned 403, owned HTTP 206 Partial Content range stream)
+  13. `POST /api/v1/devices` (registers push token)
+  14. `POST /api/v1/auth/refresh` (rotates refresh token and issues new access token)
+  15. `POST /api/v1/auth/logout` (revokes session)
+  16. `DELETE /api/v1/me` with password/reauth token (deletes account; subsequent login returns 401)
+  17. Razorpay test order creation
+  18. Schema contract checks on all core GET routes (`/config`, `/goals`, `/current-affairs`, `/pyq/exams`, `/tutorials`, `/library`)
+  19. OpenAPI consistency check (`/api/v1/openapi.json` covers 100% of implemented v1 endpoints)
+- All 19 tests pass (0 failures, 0 skipped). Raw log: `reports/run2/r11-contract-journey.log`.
+
+### R12: Final Proof, Clean Dist & Tripwires
+- Clean production build from scratch: 159/159 static pages generated, exit 0.
+- All 79 API v1 and contract tests passed across 8 suites.
+- All 26 mobile tests passed (`npm test` in `apps/mobile/`).
+- 17/17 `expo-doctor` checks passed.
+- Both Android & iOS Expo exports exit 0.
+- Dev-DB read-only smoke on port 3050: All 6 required URLs verified HTTP 200 with 0 P2022 errors:
+  - `/api/v1/config` (200)
+  - `/api/v1/openapi.json` (200)
+  - `/api/v1/tests` (200)
+  - `/api/v1/tutorials` (200)
+  - `/test-series` (200)
+  - `/current-affairs-quizzes` (200)
+- Tripwires: 0 skipped/fixme tests added; 0 forbidden files committed; 0 secrets exposed.
+- Hardened `AGENTS.md` with branch map, scope tags, and both-test-sets rules.
+- Confirmed `stash@{0}` untouched (`88f95e437366b6c03d2107303ec9f2d4a7e9cb91`).
+- Raw log: `reports/run2/r12-final-proof.log`.
+
+---

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import BookStoreHeader from "@/components/books/BookStoreHeader"
 import { BookCartProvider, useBookCart } from "@/lib/books/cartContext"
+import { WishlistProvider } from "@/lib/books/wishlistContext"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import {
@@ -22,6 +23,7 @@ import {
 } from "lucide-react"
 import { useBookCheckout } from "@/lib/books/useBookCheckout"
 import dynamic from "next/dynamic"
+import Image from "next/image"
 
 const PaymentSuccessModal = dynamic(() => import("@/components/books/PaymentSuccessModal"), { ssr: false })
 const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
@@ -162,10 +164,12 @@ function CartPageContent() {
                         href={`/books/${item.book.slug}`}
                         className="w-20 h-28 sm:w-24 sm:h-32 shrink-0 bg-gray-50 rounded-xl p-1.5 border border-gray-200 flex items-center justify-center"
                       >
-                        <img
+                        <Image
                           src={item.book.coverImage}
                           alt={item.book.title}
-                          className="w-full h-full object-contain"
+                          width={96}
+                          height={128}
+                          className="h-full w-full object-contain"
                         />
                       </Link>
 
@@ -269,10 +273,12 @@ function CartPageContent() {
                         className="p-4 sm:p-5 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center"
                       >
                         <div className="flex gap-3 items-center min-w-0">
-                          <img
+                          <Image
                             src={saved.book.coverImage}
                             alt={saved.book.title}
-                            className="w-12 h-16 object-contain rounded bg-gray-50 p-1 border"
+                            width={48}
+                            height={64}
+                            className="h-16 w-12 rounded border bg-gray-50 object-contain p-1"
                           />
                           <div>
                             <h3 className="text-xs sm:text-sm font-bold text-gray-900 line-clamp-1">
@@ -475,7 +481,11 @@ function CartPageContent() {
 export default function CartPage() {
   return (
     <BookCartProvider>
-      <CartPageContent />
+      {/* The store header reads the wishlist; without this provider the page
+          threw "useWishlist must be used within a WishlistProvider" on render. */}
+      <WishlistProvider>
+        <CartPageContent />
+      </WishlistProvider>
     </BookCartProvider>
   )
 }

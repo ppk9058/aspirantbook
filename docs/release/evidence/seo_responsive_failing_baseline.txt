@@ -1,0 +1,99 @@
+====================================================================================================
+SEO RESPONSIVE AUDIT: RAW FAILING OUTPUT (BASELINE DEFECTS BEFORE FIXES)
+====================================================================================================
+Command: BASE_URL=http://127.0.0.1:3045 npx playwright test tests/e2e/seo-responsive.spec.ts
+Executed: 2026-10-26T19:44:14Z
+
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 12 tests using 1 worker
+
+      1 …e Audit Suite › Check 5: Rendered HTML contains valid viewport meta tag
+  ✓   1 …Suite › Check 5: Rendered HTML contains valid viewport meta tag (698ms)
+      2 …Question Pages have document.documentElement.scrollWidth <= clientWidth
+  ✓   2 … Pages have document.documentElement.scrollWidth <= clientWidth (711ms)
+      3 … Test Series Print View has no horizontal overflow on mobile or desktop
+  ✓   3 …ries Print View has no horizontal overflow on mobile or desktop (527ms)
+      4 …der and Question interactive elements meet 40x40px touch target minimum
+  -   4 …der and Question interactive elements meet 40x40px touch target minimum
+      5 …st Series Print screen action buttons meet 40x40px touch target minimum
+  -   5 …st Series Print screen action buttons meet 40x40px touch target minimum
+      6 …, 4: Admin Nav drawer toggle, close button, and surfaces are responsive
+  ✓   6 …in Nav drawer toggle, close button, and surfaces are responsive (859ms)
+      7 …e Audit Suite › Check 5: Rendered HTML contains valid viewport meta tag
+  ✓   7 …Suite › Check 5: Rendered HTML contains valid viewport meta tag (338ms)
+      8 …Question Pages have document.documentElement.scrollWidth <= clientWidth
+  ✓   8 … Pages have document.documentElement.scrollWidth <= clientWidth (638ms)
+      9 … Test Series Print View has no horizontal overflow on mobile or desktop
+  ✘   9 …ries Print View has no horizontal overflow on mobile or desktop (400ms)
+     10 …der and Question interactive elements meet 40x40px touch target minimum
+  ✘  10 …Question interactive elements meet 40x40px touch target minimum (370ms)
+     11 …st Series Print screen action buttons meet 40x40px touch target minimum
+  ✘  11 …s Print screen action buttons meet 40x40px touch target minimum (418ms)
+     12 …, 4: Admin Nav drawer toggle, close button, and surfaces are responsive
+  ✘  12 …min Nav drawer toggle, close button, and surfaces are responsive (1.2s)
+
+  1) [mobile] › tests/e2e/seo-responsive.spec.ts:41:7 › SEO Responsive Audit Suite › Check 1: Test Series Print View has no horizontal overflow on mobile or desktop 
+
+    Error: Print page overflowed: scrollWidth 385 > clientWidth 375
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      54 |       overflowInfo.hasOverflow,
+      55 |       `Print page overflowed: scrollWidth ${overflowInfo.scrollW} > clientWidth ${overflowInfo.clientW}`
+    > 56 |     ).toBe(false)
+         |       ^
+      57 |   })
+
+  2) [mobile] › tests/e2e/seo-responsive.spec.ts:60:7 › SEO Responsive Audit Suite › Check 2: Public Header and Question interactive elements meet 40x40px touch target minimum 
+
+    Error: Header brand touch target height must be >= 40px
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 40
+    Received:    32
+
+      68 |     const headerBrand = page.locator('header a[href="/question-answer"], header a[href="/hi/question-answer"]').first()
+      69 |     const brandBox = await headerBrand.boundingBox()
+    > 70 |     expect(brandBox?.height ?? 0, "Header brand touch target height must be >= 40px").toBeGreaterThanOrEqual(40)
+
+  3) [mobile] › tests/e2e/seo-responsive.spec.ts:78:7 › SEO Responsive Audit Suite › Check 2: Test Series Print screen action buttons meet 40x40px touch target minimum 
+
+    Error: Back button height must be >= 40px
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 40
+    Received:    30
+
+      86 |     const backBtn = page.locator('.print\\:hidden button:has-text("Back")').first()
+      87 |     const backBox = await backBtn.boundingBox()
+    > 88 |     expect(backBox?.height ?? 0, "Back button height must be >= 40px").toBeGreaterThanOrEqual(40)
+
+  4) [mobile] › tests/e2e/seo-responsive.spec.ts:96:7 › SEO Responsive Audit Suite › Checks 1, 2, 4: Admin Nav drawer toggle, close button, and surfaces are responsive 
+
+    Error: Mobile hamburger menu button must be >= 40px
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 40
+    Received:    36
+
+      110 |       const menuBtn = page.locator('header button[aria-label="Toggle navigation menu"]').first()
+      111 |       const menuBox = await menuBtn.boundingBox()
+    > 112 |       expect(menuBox?.height ?? 0, "Mobile hamburger menu button must be >= 40px").toBeGreaterThanOrEqual(40)
+
+  4 failed
+    [mobile] › tests/e2e/seo-responsive.spec.ts:41:7 › SEO Responsive Audit Suite › Check 1: Test Series Print View has no horizontal overflow on mobile or desktop 
+    [mobile] › tests/e2e/seo-responsive.spec.ts:60:7 › SEO Responsive Audit Suite › Check 2: Public Header and Question interactive elements meet 40x40px touch target minimum 
+    [mobile] › tests/e2e/seo-responsive.spec.ts:78:7 › SEO Responsive Audit Suite › Check 2: Test Series Print screen action buttons meet 40x40px touch target minimum 
+    [mobile] › tests/e2e/seo-responsive.spec.ts:96:7 › SEO Responsive Audit Suite › Checks 1, 2, 4: Admin Nav drawer toggle, close button, and surfaces are responsive 
+  2 skipped
+  6 passed (15.2s)
+====================================================================================================

@@ -6,15 +6,17 @@ import { register } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react"
 import { useEffect, useState } from "react"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 
-function SubmitButton() {
+function SubmitButton({ disabled = false }: { disabled?: boolean }) {
     const { pending } = useFormStatus()
     return (
         <Button
             type="submit"
-            className="w-full bg-[#1DB954] hover:bg-[#16a34a] text-white font-bold py-2.5 rounded-xl shadow-xs transition-all"
-            aria-disabled={pending}
-            disabled={pending}
+            className="w-full bg-[#1DB954] hover:bg-[#16a34a] text-white font-bold py-2.5 rounded-xl shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-disabled={pending || disabled}
+            disabled={pending || disabled}
         >
             {pending ? (
                 <>
@@ -28,8 +30,6 @@ function SubmitButton() {
     )
 }
 
-import { useSearchParams } from "next/navigation"
-
 export function RegisterForm() {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl")
@@ -40,6 +40,7 @@ export function RegisterForm() {
     const [selectedGoal, setSelectedGoal] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
+    const [agreedToTerms, setAgreedToTerms] = useState(true)
 
     useEffect(() => {
         if (state?.success) {
@@ -110,7 +111,7 @@ export function RegisterForm() {
                         name="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Ada Lovelace"
+                        placeholder="John Doe"
                         required
                     />
                 </div>
@@ -126,32 +127,31 @@ export function RegisterForm() {
                         name="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="ada@example.com"
+                        placeholder="you@example.com"
                         required
                     />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="phoneNumber">
-                            Phone Number <span className="text-gray-400 font-normal">(Optional)</span>
-                        </label>
-                        <input
-                            className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1DB954] dark:text-white"
-                            id="phoneNumber"
-                            type="tel"
-                            name="phoneNumber"
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder="9876543210"
-                            maxLength={10}
-                        />
-                    </div>
+                <div>
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="phoneNumber">
+                        Phone Number (Optional)
+                    </label>
+                    <input
+                        className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1DB954] dark:text-white"
+                        id="phoneNumber"
+                        type="tel"
+                        name="phoneNumber"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="+91 98765 43210"
+                    />
+                </div>
 
-                    <div>
-                        <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="selectedGoal">
-                            Target Goal / Exam <span className="text-gray-400 font-normal">(Optional)</span>
-                        </label>
+                <div>
+                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" htmlFor="selectedGoal">
+                        Primary Goal / Target Exam
+                    </label>
+                    <div className="relative">
                         <select
                             className="w-full px-3.5 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1DB954] dark:text-white"
                             id="selectedGoal"
@@ -217,8 +217,33 @@ export function RegisterForm() {
                     )}
                 </div>
 
+                {/* Age & Consent Checkbox */}
+                <div className="flex items-start gap-2 pt-1">
+                    <input
+                        type="checkbox"
+                        id="consentCheckbox"
+                        name="consent"
+                        required
+                        checked={agreedToTerms}
+                        onChange={(e) => setAgreedToTerms(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                        data-testid="register-consent-checkbox"
+                    />
+                    <label htmlFor="consentCheckbox" className="text-xs text-gray-600 dark:text-gray-400 leading-snug cursor-pointer select-none">
+                        I am 13+ and agree to{" "}
+                        <Link href="/terms" target="_blank" className="text-indigo-600 dark:text-indigo-400 underline font-semibold hover:text-indigo-700">
+                            Terms
+                        </Link>{" "}
+                        and{" "}
+                        <Link href="/privacy" target="_blank" className="text-indigo-600 dark:text-indigo-400 underline font-semibold hover:text-indigo-700">
+                            Privacy
+                        </Link>
+                        .
+                    </label>
+                </div>
+
                 <div className="pt-2">
-                    <SubmitButton />
+                    <SubmitButton disabled={!agreedToTerms} />
                 </div>
 
                 {state?.error && (

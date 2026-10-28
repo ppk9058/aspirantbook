@@ -1,0 +1,30 @@
+{
+  "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-8",
+  "path": "/current-affairs-quizzes/daily-ca-quiz-sample-test-8",
+  "module": "current-affairs",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "Daily CA Quiz Sample Test 8 - Current Affairs Quiz | aspirantbook | aspirantbook",
+  "metaDescription": "Practice Daily CA Quiz Sample Test 8 with 150 questions in 10 minutes. Instant evaluation and detailed explanations.",
+  "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-8",
+  "robots": "index, follow",
+  "hreflang": {},
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Quiz",
+      "name": "Daily CA Quiz Sample Test 8",
+      "description": "Current affairs speed quiz with 150 questions and 10 minutes timer.",
+      "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+      "provider": {
+        "@type": "Organization",
+        "name": "aspirantbook",
+        "url": "http://127.0.0.1:3045"
+      },
+      "learningResourceType": "Quiz",
+      "timeRequired": "PT10M",
+      "isAccessibleForFree": false,
+      "url": "http://127.0.0.1:3045/current-affairs-quizzes/daily-ca-quiz-sample-test-8"
+    }
+  ]
+}

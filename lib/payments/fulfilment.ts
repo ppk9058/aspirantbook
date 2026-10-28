@@ -156,6 +156,8 @@ export async function fulfilPaymentOrder(params: FulfilPaymentParams): Promise<F
                     razorpayOrderId: orderId,
                     razorpayPaymentId: paymentId,
                     paymentMethod,
+                    // B7: record the captured amount in minor units too
+                    amountMinor: Math.round(amountPaise ?? expectedPaise),
                     metadata: updatedMeta,
                 },
             })
@@ -216,6 +218,8 @@ export async function fulfilPaymentOrder(params: FulfilPaymentParams): Promise<F
                     razorpayPaymentId: paymentId,
                     subscriptionId: subscription.id,
                     paymentMethod,
+                    // B7: record the captured amount in minor units too
+                    amountMinor: Math.round(amountPaise ?? expectedPaise),
                     metadata: updatedMeta,
                 },
             })

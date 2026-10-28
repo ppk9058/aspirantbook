@@ -1,0 +1,18 @@
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 10 tests using 1 worker
+
+  ✓   1 [desktop] › tests/e2e/content-engine.spec.ts:43:7 › Exam Content Engine E2E Acceptance Suite › 1. RBAC & Security: API endpoints enforce Admin-only authority (86ms)
+  ✓   2 [desktop] › tests/e2e/content-engine.spec.ts:82:7 › Exam Content Engine E2E Acceptance Suite › 2. Admin Navigation & Library Dashboard (1.3s)
+  ✓   3 [desktop] › tests/e2e/content-engine.spec.ts:105:7 › Exam Content Engine E2E Acceptance Suite › 3. Add Batch & Quality Gates Wave Publishing (2.8s)
+  ✓   4 [desktop] › tests/e2e/content-engine.spec.ts:150:7 › Exam Content Engine E2E Acceptance Suite › 4. Public SEO Routes: unauthenticated student & crawler access (1.8s)
+  ✓   5 [desktop] › tests/e2e/content-engine.spec.ts:191:7 › Exam Content Engine E2E Acceptance Suite › 5. Static ZIP Export API: delivers valid ZIP package (59ms)
+  ✓   6 [mobile] › tests/e2e/content-engine.spec.ts:43:7 › Exam Content Engine E2E Acceptance Suite › 1. RBAC & Security: API endpoints enforce Admin-only authority (94ms)
+  ✓   7 [mobile] › tests/e2e/content-engine.spec.ts:82:7 › Exam Content Engine E2E Acceptance Suite › 2. Admin Navigation & Library Dashboard (667ms)
+  ✓   8 [mobile] › tests/e2e/content-engine.spec.ts:105:7 › Exam Content Engine E2E Acceptance Suite › 3. Add Batch & Quality Gates Wave Publishing (1.5s)
+  ✓   9 [mobile] › tests/e2e/content-engine.spec.ts:150:7 › Exam Content Engine E2E Acceptance Suite › 4. Public SEO Routes: unauthenticated student & crawler access (1.5s)
+  ✓  10 [mobile] › tests/e2e/content-engine.spec.ts:191:7 › Exam Content Engine E2E Acceptance Suite › 5. Static ZIP Export API: delivers valid ZIP package (40ms)
+
+  10 passed (15.4s)

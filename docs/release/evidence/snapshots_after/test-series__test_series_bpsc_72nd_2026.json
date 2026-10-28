@@ -1,0 +1,41 @@
+{
+  "url": "http://127.0.0.1:3045/test-series/bpsc-72nd-2026",
+  "path": "/test-series/bpsc-72nd-2026",
+  "module": "test-series",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "72nd BPSC Prelims Mock Series 2026 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook",
+  "metaDescription": "Mock test series for BPSC 72nd Prelims",
+  "canonical": "http://localhost:3000/test-series/bpsc-72nd-2026",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://localhost:3000/test-series/bpsc-72nd-2026",
+    "x-default": "http://localhost:3000/test-series/bpsc-72nd-2026"
+  },
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "http://localhost:3000/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Test Series",
+          "item": "http://localhost:3000/test-series"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "72nd BPSC Prelims Mock Series 2026",
+          "item": "http://localhost:3000/test-series/bpsc-72nd-2026"
+        }
+      ]
+    }
+  ]
+}

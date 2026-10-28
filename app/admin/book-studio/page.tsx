@@ -1,4 +1,5 @@
 import { auth } from "@/auth"
+import { normalizeDemoRole } from "@/lib/auth/demo-role"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { getAllBooks } from "@/lib/books/bookService"
@@ -14,7 +15,7 @@ export const metadata = {
 export default async function AdminBookStudioPage() {
   const session = await auth()
   const cookieStore = await cookies()
-  const demoRole = cookieStore.get("ts_demo_role")?.value
+  const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
   const effectiveRole = session?.user?.role || demoRole
 
   if (effectiveRole !== "ADMIN") {

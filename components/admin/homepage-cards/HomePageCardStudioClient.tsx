@@ -402,10 +402,12 @@ export function HomePageCardStudioClient() {
                                 <div>
                                     {/* Card Top Banner */}
                                     <div className="relative h-44 w-full bg-gray-100 overflow-hidden border-b border-gray-100">
-                                        <img
+                                        <Image
                                             src={batch.image || "/batch-skills.svg"}
                                             alt={batch.title}
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            sizes="(max-width: 768px) 100vw, 33vw"
+                                            className="object-cover"
                                         />
                                         <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-black uppercase">
                                             {batch.isLive ? "Live Course" : "Upcoming"}

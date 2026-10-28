@@ -73,14 +73,14 @@ export default function PrintPaperPage() {
     return (
         <div className="min-h-screen bg-gray-100 text-gray-900 print:bg-white print:text-black">
             {/* Screen Controls Header (Hidden in Print) */}
-            <div className="print:hidden bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+            <div className="print:hidden bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sticky top-0 z-30 shadow-xs">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => router.back()}
-                        className="px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-1"
+                        className="min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-lg border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-1.5"
                     >
-                        <ArrowLeft className="h-3.5 w-3.5" />
-                        Back
+                        <ArrowLeft className="h-4 w-4" />
+                        <span>Back</span>
                     </button>
                     <div>
                         <h1 className="text-sm font-black text-gray-900">Official Question Paper Print View</h1>
@@ -88,20 +88,20 @@ export default function PrintPaperPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-gray-700">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                    <label className="min-h-[44px] flex items-center gap-2 cursor-pointer text-xs font-semibold text-gray-700">
                         <input
                             type="checkbox"
                             checked={includeAnswers}
                             onChange={(e) => setIncludeAnswers(e.target.checked)}
-                            className="rounded border-gray-300"
+                            className="rounded border-gray-300 h-4 w-4"
                         />
                         <span>Include Answer Key &amp; Explanations at end</span>
                     </label>
 
                     <button
                         onClick={handlePrint}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-900 text-white font-bold text-xs shadow-md hover:bg-black transition-colors"
+                        className="min-h-[44px] flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gray-900 text-white font-bold text-xs shadow-md hover:bg-black transition-colors"
                     >
                         <Printer className="h-4 w-4" />
                         <span>Print / Save as PDF</span>
@@ -110,14 +110,14 @@ export default function PrintPaperPage() {
             </div>
 
             {/* Printable Paper Canvas (A4 format) */}
-            <div className="max-w-[850px] mx-auto my-8 print:my-0 p-8 sm:p-12 bg-white print:p-0 shadow-lg print:shadow-none border border-gray-200 print:border-none">
+            <div className="max-w-[850px] mx-auto my-4 sm:my-8 print:my-0 p-4 sm:p-12 bg-white print:p-0 shadow-lg print:shadow-none border border-gray-200 print:border-none">
                 {/* Header Strip */}
                 <div className="text-center border-b-2 border-black pb-4 mb-6">
                     <h2 className="text-xs font-bold uppercase tracking-widest text-gray-600">aspirantbook Online CBT Examination</h2>
                     <h1 className="text-xl font-black uppercase tracking-wide mt-1">72nd BPSC Combined Competitive Examination 2026</h1>
                     <p className="text-xs font-semibold text-gray-700 mt-0.5">Preliminary Mock Examination • Paper 1 (General Studies)</p>
 
-                    <div className="grid grid-cols-4 border-t border-b border-gray-300 py-2 mt-4 text-xs font-semibold text-gray-800">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-b border-gray-300 py-2 mt-4 text-xs font-semibold text-gray-800">
                         <div>Time Allowed: <strong>2 Hours</strong></div>
                         <div>Total Questions: <strong>150</strong></div>
                         <div>Maximum Marks: <strong>150</strong></div>

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
-import { savePdfFile } from "@/lib/upload/pdf-storage"
-import fs from "fs/promises"
-import path from "path"
+import { storeUpload, uploadErrorResponse } from "@/lib/security/upload-policy"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
+
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024
+const MAX_PDF_BYTES = 50 * 1024 * 1024
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,73 +21,66 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get("file") as File | null
     const type = (formData.get("type") as string) || "pdf"
-    const folder = (formData.get("folder") as string) || "books"
+    // A6: the folder is never user-controlled. It is derived from the asset kind.
+    const wantsSample = String(formData.get("folder") || "").includes("sample")
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    // 1. PDF Upload handling
+    const buffer = Buffer.from(await file.arrayBuffer())
+
+    // 1. PDF uploads (sample or full)
     if (type === "pdf" || file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
-      const isSample = folder.includes("sample")
-      // Sample PDFs can be stored in public/uploads/books-sample, full PDFs in uploads/books-secure
-      const subFolder = isSample ? "books-sample" : "books-secure"
-      const result = await savePdfFile(file, subFolder, isSample)
+      const stored = await storeUpload({
+        file,
+        buffer,
+        category: "pdf",
+        folder: wantsSample ? "books-sample" : "books-secure",
+        maxBytes: MAX_PDF_BYTES,
+        visibility: wantsSample ? "public" : "private",
+      })
 
       return NextResponse.json({
         success: true,
-        url: result.url,
-        filePath: result.filePath,
-        fileName: result.fileName,
-        fileSizeKb: result.fileSizeKb,
-        fileSizeMb: result.fileSizeMb,
-        detectedPages: result.detectedPages,
+        url: stored.url,
+        filePath: stored.url,
+        fileName: stored.fileName,
+        fileSizeKb: stored.sizeKb,
+        fileSizeMb: Number((stored.sizeKb / 1024).toFixed(2)),
+        detectedPages: null,
       })
     }
 
-    // 2. Image Upload handling (Cover & gallery images)
-    const validImageTypes = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"]
-    const isImage = validImageTypes.includes(file.type) || /\.(jpg|jpeg|png|webp|svg)$/i.test(file.name)
-
-    if (!isImage) {
+    // 2. Cover / gallery images. SVG is rejected by the shared policy.
+    const lower = file.name.toLowerCase()
+    const looksLikeImage =
+      ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type) ||
+      /\.(jpg|jpeg|png|webp|gif)$/.test(lower)
+    if (!looksLikeImage) {
       return NextResponse.json(
-        { error: "Invalid image file format. Supported: JPG, PNG, WEBP, SVG." },
+        { error: "Invalid image file format. Supported: JPG, PNG, WEBP, GIF." },
         { status: 400 }
       )
     }
 
-    // Max 10MB for images
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: "Image size exceeds 10 MB limit." }, { status: 400 })
-    }
-
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const timestamp = Date.now()
-    const ext = path.extname(file.name) || ".png"
-    const safeBase = file.name
-      .replace(/\.[^/.]+$/, "")
-      .replace(/[^a-zA-Z0-9_-]/g, "_")
-      .slice(0, 50)
-    const imageName = `${timestamp}-${safeBase}${ext}`
-
-    const publicImagesDir = path.join(process.cwd(), "public", "images", "books")
-    await fs.mkdir(publicImagesDir, { recursive: true })
-    const localImgPath = path.join(publicImagesDir, imageName)
-    await fs.writeFile(localImgPath, buffer)
-
-    const imgUrl = `/images/books/${imageName}`
+    const stored = await storeUpload({
+      file,
+      buffer,
+      category: "image",
+      folder: "books",
+      maxBytes: MAX_IMAGE_BYTES,
+    })
 
     return NextResponse.json({
       success: true,
-      url: imgUrl,
-      fileName: file.name,
-      fileSizeKb: Math.round(file.size / 1024),
+      url: stored.url,
+      fileName: stored.fileName,
+      fileSizeKb: stored.sizeKb,
     })
   } catch (error: any) {
     console.error("POST /api/books/upload error:", error)
-    return NextResponse.json(
-      { error: error.message || "Failed to process asset upload" },
-      { status: 500 }
-    )
+    const mapped = uploadErrorResponse(error)
+    return NextResponse.json({ error: mapped.error }, { status: mapped.status })
   }
 }

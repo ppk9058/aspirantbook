@@ -3,9 +3,10 @@ import Image from "next/image"
 import { Video, Headphones, CalendarCheck, Award, ArrowRight, Sparkles, BookOpen } from "lucide-react"
 import ClassesCoursesSection from "@/components/home/ClassesCoursesSection"
 import HomeHeaderUserCTA from "@/components/home/HomeHeaderUserCTA"
-import { auth } from "@/auth"
-import { getDashboardHref } from "@/lib/auth/roles"
+import HomeLogoLink from "@/components/home/HomeLogoLink"
+import Footer from "@/components/layout/Footer"
 import { LANDING_NAV_ITEMS } from "@/lib/navigation/landing-nav"
+import { getBaseUrl } from "@/lib/seo/core"
 
 export const revalidate = 60
 
@@ -59,65 +60,56 @@ const navTint = (href: string) =>
         : "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/30"
 
 export default async function LandingHomePage() {
-    const session = await auth()
-    const logoHref = getDashboardHref(session?.user?.role, !!session?.user)
-
-    const homeJsonLd = {
-        "@context": "https://schema.org",
-        "@graph": [
-            {
-                "@type": "Organization",
-                "@id": "https://aspirantbook.com/#organization",
-                "name": "aspirantbook",
-                "url": "https://aspirantbook.com",
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": "https://aspirantbook.com/aspirant-logo.jpg"
-                }
-            },
-            {
-                "@type": "WebSite",
-                "@id": "https://aspirantbook.com/#website",
-                "url": "https://aspirantbook.com",
-                "name": "aspirantbook",
-                "publisher": {
-                    "@id": "https://aspirantbook.com/#organization"
-                },
-                "potentialAction": {
-                    "@type": "SearchAction",
-                    "target": "https://aspirantbook.com/courses?search={search_term_string}",
-                    "query-input": "required name=search_term_string"
-                }
-            }
-        ]
-    }
+    // C1: no `auth()` here. Reading the session on the server made this route
+    // dynamic and defeated `revalidate = 60`; the two pieces of the header that
+    // depend on the session now read it on the client.
+    const baseUrl = getBaseUrl()
+    const homeJsonLd = baseUrl
+        ? {
+              "@context": "https://schema.org",
+              "@graph": [
+                  {
+                      "@type": "Organization",
+                      "@id": `${baseUrl}/#organization`,
+                      "name": "aspirantbook",
+                      "url": baseUrl,
+                      "logo": {
+                          "@type": "ImageObject",
+                          "url": `${baseUrl}/aspirant-logo.jpg`,
+                      },
+                  },
+                  {
+                      "@type": "WebSite",
+                      "@id": `${baseUrl}/#website`,
+                      "url": baseUrl,
+                      "name": "aspirantbook",
+                      "publisher": {
+                          "@id": `${baseUrl}/#organization`,
+                      },
+                      "potentialAction": {
+                          "@type": "SearchAction",
+                          "target": `${baseUrl}/courses?search={search_term_string}`,
+                          "query-input": "required name=search_term_string",
+                      },
+                  },
+              ],
+          }
+        : null
 
     return (
         <div className="min-h-dvh bg-white text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900 dark:bg-gray-950 dark:text-gray-50">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
-            />
+            {homeJsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
+                />
+            )}
 
             {/* Top Navigation Bar — sticky, compact on phones */}
             <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-lg dark:border-white/10 dark:bg-gray-950/85">
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-20 sm:px-8">
                     {/* Brand Logo */}
-                    <Link href={logoHref} className="group flex min-w-0 items-center gap-2 sm:gap-3">
-                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#ECDCC9] bg-[#F7EFE4] p-0.5 shadow-sm ring-1 ring-black/5 transition-transform group-hover:scale-105 sm:h-11 sm:w-11">
-                            <Image
-                                src="/aspirant-logo.jpg"
-                                alt="aspirantbook"
-                                width={44}
-                                height={44}
-                                className="h-full w-full rounded-full object-contain"
-                                priority
-                            />
-                        </div>
-                        <span className="truncate text-lg font-black tracking-tight text-gray-900 sm:text-2xl dark:text-white">
-                            aspirant<span className="ml-0.5 font-black text-[#F26522]">book</span>
-                        </span>
-                    </Link>
+                    <HomeLogoLink />
 
                     {/* Desktop Menu Links */}
                     <nav className="hidden items-center gap-5 text-sm font-semibold lg:gap-7 md:flex">
@@ -150,7 +142,7 @@ export default async function LandingHomePage() {
 
                     {/* Right Login / User State CTA */}
                     <div className="flex flex-shrink-0 items-center gap-3">
-                        <HomeHeaderUserCTA initialSession={session} />
+                        <HomeHeaderUserCTA />
                     </div>
                 </div>
             </header>
@@ -284,6 +276,9 @@ export default async function LandingHomePage() {
 
             {/* Class 6 to 12 & Skills Batches Section */}
             <ClassesCoursesSection />
+
+            {/* Footer with Legal & Policies */}
+            <Footer />
         </div>
     )
 }

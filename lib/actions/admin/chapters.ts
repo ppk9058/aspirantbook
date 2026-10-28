@@ -6,6 +6,14 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { canEditChapter, canDeleteChapter } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
+import { withTransactionLock } from "@/lib/prisma-lock"
+import { nextChapterOrder } from "@/lib/utils/next-order"
+import { toCourseAccessUser } from "@/lib/auth/course-access"
+import {
+    assertManagedCourseForAction,
+    assertManagedChapterForAction,
+} from "@/lib/auth/course-access-server"
 
 const ChapterSchema = z.object({
     title: z.string().min(1, "Title is required"),
@@ -23,6 +31,8 @@ async function revalidateCoursePages(courseId: string) {
     revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
     revalidatePath("/tutorials")
+    // B10: chapter changes alter the course outline shown by tagged reads.
+    safeRevalidateTags(CACHE_TAGS.courses)
     try {
         const course = await prisma.course.findUnique({
             where: { id: courseId },
@@ -44,29 +54,30 @@ export async function createChapter(courseId: string, data: { title: string; des
         throw new Error("Unauthorized: Insufficient permissions to create chapter")
     }
 
+    // A8: teachers may only add chapters to their own courses.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "manage")
+
     const validated = ChapterSchema.parse(data)
 
-    // Get the current max order for this course
-    const maxOrder = await prisma.chapter.findFirst({
-        where: { courseId },
-        orderBy: { order: "desc" },
-        select: { order: true },
-    })
-
-    const chapter = await prisma.chapter.create({
-        data: {
-            title: validated.title,
-            description: validated.description,
-            gateMode: validated.gateMode || "inherit",
-            previewPercentage: validated.previewPercentage ?? null,
-            courseId,
-            order: (maxOrder?.order ?? -1) + 1,
-        },
-        include: {
-            lessons: {
-                orderBy: { order: "asc" },
+    // B8: allocate the position and insert under the course's advisory lock,
+    // otherwise two concurrent creates read the same maximum order.
+    const chapter = await withTransactionLock(`chapter-order:${courseId}`, async (tx) => {
+        const order = await nextChapterOrder(tx, courseId)
+        return tx.chapter.create({
+            data: {
+                title: validated.title,
+                description: validated.description,
+                gateMode: validated.gateMode || "inherit",
+                previewPercentage: validated.previewPercentage ?? null,
+                courseId,
+                order,
             },
-        },
+            include: {
+                lessons: {
+                    orderBy: { order: "asc" },
+                },
+            },
+        })
     })
 
     await revalidateCoursePages(courseId)
@@ -90,6 +101,9 @@ export async function updateChapter(
     if (!session || !canEditChapter(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to update chapter")
     }
+
+    // A8: ownership, resolved from the chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "manage")
 
     // Validate fields if provided
     const updatePayload: Record<string, any> = {}
@@ -142,6 +156,9 @@ export async function updateChaptersGateMode(
         throw new Error("Unauthorized: Insufficient permissions to update chapters")
     }
 
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "manage")
+
     const cleanPercentage =
         previewPercentage === null || previewPercentage === undefined
             ? null
@@ -177,6 +194,9 @@ export async function deleteChapter(chapterId: string) {
         throw new Error("Unauthorized: Insufficient permissions to delete chapter")
     }
 
+    // A8: ownership, resolved from the chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "delete")
+
     const chapter = await prisma.chapter.findUnique({
         where: { id: chapterId },
         select: { courseId: true, title: true },
@@ -210,6 +230,9 @@ export async function reorderChapters(courseId: string, chapterIds: string[]) {
         throw new Error("Unauthorized: Insufficient permissions to reorder chapters")
     }
 
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "manage")
+
     // Update order for each chapter
     await Promise.all(
         chapterIds.map((id, index) =>
@@ -239,6 +262,9 @@ export async function duplicateChapter(chapterId: string) {
         throw new Error("Unauthorized: Insufficient permissions to duplicate chapter")
     }
 
+    // A8: ownership, resolved from the source chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "duplicate")
+
     const sourceChapter = await prisma.chapter.findUnique({
         where: { id: chapterId },
         include: {
@@ -252,36 +278,34 @@ export async function duplicateChapter(chapterId: string) {
         throw new Error("Source chapter not found")
     }
 
-    const maxOrder = await prisma.chapter.findFirst({
-        where: { courseId: sourceChapter.courseId },
-        orderBy: { order: "desc" },
-        select: { order: true },
-    })
-
-    const newChapter = await prisma.chapter.create({
-        data: {
-            title: `${sourceChapter.title} (Copy)`,
-            description: sourceChapter.description,
-            courseId: sourceChapter.courseId,
-            order: (maxOrder?.order ?? -1) + 1,
-            lessons: {
-                create: sourceChapter.lessons.map((lesson) => ({
-                    title: lesson.title,
-                    type: lesson.type,
-                    order: lesson.order,
-                    xpReward: lesson.xpReward,
-                    videoUrl: lesson.videoUrl,
-                    content: lesson.content,
-                    slides: lesson.slides,
-                    duration: lesson.duration,
-                })),
+    // B8: same lock as createChapter, so a duplicate never reuses a position.
+    const newChapter = await withTransactionLock(`chapter-order:${sourceChapter.courseId}`, async (tx) => {
+        const order = await nextChapterOrder(tx, sourceChapter.courseId)
+        return tx.chapter.create({
+            data: {
+                title: `${sourceChapter.title} (Copy)`,
+                description: sourceChapter.description,
+                courseId: sourceChapter.courseId,
+                order,
+                lessons: {
+                    create: sourceChapter.lessons.map((lesson) => ({
+                        title: lesson.title,
+                        type: lesson.type,
+                        order: lesson.order,
+                        xpReward: lesson.xpReward,
+                        videoUrl: lesson.videoUrl,
+                        content: lesson.content,
+                        slides: lesson.slides,
+                        duration: lesson.duration,
+                    })),
+                },
             },
-        },
-        include: {
-            lessons: {
-                orderBy: { order: "asc" },
+            include: {
+                lessons: {
+                    orderBy: { order: "asc" },
+                },
             },
-        },
+        })
     })
 
     await revalidateCoursePages(sourceChapter.courseId)

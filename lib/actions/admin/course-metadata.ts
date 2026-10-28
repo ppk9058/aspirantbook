@@ -3,6 +3,8 @@
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { canEditCourse } from "@/lib/auth/permissions"
+import { toCourseAccessUser } from "@/lib/auth/course-access"
+import { assertManagedCourseForAction } from "@/lib/auth/course-access-server"
 import { logContentAudit } from "@/lib/actions/admin/audit"
 import { prisma } from "@/lib/prisma"
 import {
@@ -47,6 +49,9 @@ export async function updateCourseMetadataAction(
         throw new Error("Unauthorized: Insufficient permissions to edit course metadata")
     }
 
+    // A8: teachers may only edit courses they own.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
+
     const updated = await saveCourseCustomMetadata(courseId, data)
     await revalidateCourseRoutes(courseId)
 
@@ -75,6 +80,9 @@ export async function addCourseFeatureAction(
         throw new Error("Unauthorized")
     }
 
+    // A8: teachers may only edit courses they own.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
+
     const current = await getCourseCustomMetadata(courseId)
     const newFeatures = [...current.features, trimmed]
     const updated = await saveCourseCustomMetadata(courseId, { features: newFeatures })
@@ -99,6 +107,9 @@ export async function updateCourseFeatureAction(
         throw new Error("Unauthorized")
     }
 
+    // A8: teachers may only edit courses they own.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
+
     const current = await getCourseCustomMetadata(courseId)
     const newFeatures = [...current.features]
     if (index >= 0 && index < newFeatures.length) {
@@ -122,6 +133,9 @@ export async function deleteCourseFeatureAction(
         throw new Error("Unauthorized")
     }
 
+    // A8: teachers may only edit courses they own.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
+
     const current = await getCourseCustomMetadata(courseId)
     const newFeatures = current.features.filter((_, i) => i !== index)
     const updated = await saveCourseCustomMetadata(courseId, { features: newFeatures })
@@ -144,6 +158,9 @@ export async function addCourseSkillAction(
     if (!session || !canEditCourse(session.user)) {
         throw new Error("Unauthorized")
     }
+
+    // A8: teachers may only edit courses they own.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
 
     const current = await getCourseCustomMetadata(courseId)
     const newSkills = [...current.skills, trimmed]
@@ -169,6 +186,9 @@ export async function updateCourseSkillAction(
         throw new Error("Unauthorized")
     }
 
+    // A8: teachers may only edit courses they own.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
+
     const current = await getCourseCustomMetadata(courseId)
     const newSkills = [...current.skills]
     if (index >= 0 && index < newSkills.length) {
@@ -192,6 +212,9 @@ export async function deleteCourseSkillAction(
         throw new Error("Unauthorized")
     }
 
+    // A8: teachers may only edit courses they own.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
+
     const current = await getCourseCustomMetadata(courseId)
     const newSkills = current.skills.filter((_, i) => i !== index)
     const updated = await saveCourseCustomMetadata(courseId, { skills: newSkills })
@@ -211,6 +234,9 @@ export async function saveCourseTeachersAction(
     if (!session || !canEditCourse(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to edit course teachers")
     }
+
+    // A8: teachers may only edit courses they own.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
 
     const course = await prisma.course.findUnique({
         where: { id: courseId },

@@ -1,0 +1,333 @@
+
+> aspirantbook@0.1.0 build
+> next build
+
+   ▲ Next.js 15.1.4
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · staleTimes
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/181) ...
+   Generating static pages (45/181) 
+   Generating static pages (90/181) 
+   Generating static pages (135/181) 
+ ✓ Generating static pages (181/181)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                             Size     First Load JS
+┌ ƒ /                                                   11.2 kB         173 kB
+├ ƒ /_not-found                                         503 B           107 kB
+├ ƒ /admin                                              503 B           107 kB
+├ ƒ /admin/analytics                                    503 B           107 kB
+├ ƒ /admin/assessments                                  2.14 kB         112 kB
+├ ƒ /admin/assessments/[id]/attempts                    243 B           110 kB
+├ ƒ /admin/assessments/[id]/edit                        141 B           119 kB
+├ ƒ /admin/assessments/create                           142 B           119 kB
+├ ƒ /admin/audit                                        3.13 kB         113 kB
+├ ƒ /admin/batches                                      184 B           123 kB
+├ ƒ /admin/batches/[id]/edit                            144 B           120 kB
+├ ƒ /admin/batches/new                                  144 B           120 kB
+├ ƒ /admin/book-studio                                  143 B           125 kB
+├ ƒ /admin/books                                        12.1 kB         129 kB
+├ ƒ /admin/content-engine                               7.13 kB         141 kB
+├ ƒ /admin/content-engine/add                           5.89 kB         139 kB
+├ ƒ /admin/content-engine/aliases                       6.4 kB          133 kB
+├ ƒ /admin/content-engine/assign                        5.37 kB         139 kB
+├ ƒ /admin/content-engine/categories                    2.66 kB         120 kB
+├ ƒ /admin/content-engine/export                        6.51 kB         133 kB
+├ ƒ /admin/content-engine/gates                         7.33 kB         134 kB
+├ ƒ /admin/content-engine/hindi                         12 kB           139 kB
+├ ƒ /admin/content-engine/practice                      7 kB            134 kB
+├ ƒ /admin/courses                                      243 B           110 kB
+├ ƒ /admin/courses/[id]/edit                            149 B           146 kB
+├ ƒ /admin/courses/new                                  503 B           107 kB
+├ ƒ /admin/current-affairs                              163 B           162 kB
+├ ƒ /admin/dashboard                                    243 B           110 kB
+├ ƒ /admin/exercises                                    1.8 kB          112 kB
+├ ƒ /admin/exercises/[id]/edit                          142 B           119 kB
+├ ƒ /admin/exercises/create                             143 B           119 kB
+├ ƒ /admin/homepage-cards                               8.1 kB          125 kB
+├ ƒ /admin/pyqs                                         161 B           162 kB
+├ ƒ /admin/pyqs/categories                              144 B           119 kB
+├ ƒ /admin/pyqs/leads                                   243 B           110 kB
+├ ƒ /admin/pyqs/upload                                  145 B           119 kB
+├ ƒ /admin/seo                                          503 B           107 kB
+├ ƒ /admin/settings                                     10.3 kB         124 kB
+├ ƒ /admin/test-series                                  220 B           216 kB
+├ ƒ /admin/test-series/[testId]/edit                    189 B           137 kB
+├ ƒ /admin/test-series/[testId]/review                  2.01 kB         119 kB
+├ ƒ /admin/test-series/create                           210 B           197 kB
+├ ƒ /admin/test-series/package/[id]                     180 B           231 kB
+├ ƒ /admin/test-series/packages                         156 B           135 kB
+├ ƒ /admin/tracks                                       1.78 kB         148 kB
+├ ƒ /admin/tracks/[id]                                  37.5 kB         221 kB
+├ ƒ /admin/tracks/create                                196 B           181 kB
+├ ƒ /admin/tutorials                                    152 B           140 kB
+├ ƒ /admin/tutorials/[id]/edit                          195 B           249 kB
+├ ƒ /admin/tutorials/new                                208 B           174 kB
+├ ƒ /admin/users                                        4.47 kB         122 kB
+├ ƒ /admin/users/[id]                                   10.7 kB         134 kB
+├ ƒ /api/admin/audit                                    503 B           107 kB
+├ ƒ /api/admin/batches                                  503 B           107 kB
+├ ƒ /api/admin/batches/[id]                             503 B           107 kB
+├ ƒ /api/admin/books                                    503 B           107 kB
+├ ƒ /api/admin/books/[id]                               503 B           107 kB
+├ ƒ /api/admin/books/coupons                            503 B           107 kB
+├ ƒ /api/admin/books/orders                             503 B           107 kB
+├ ƒ /api/admin/books/stats                              503 B           107 kB
+├ ƒ /api/admin/content-engine/aliases                   503 B           107 kB
+├ ƒ /api/admin/content-engine/assign                    503 B           107 kB
+├ ƒ /api/admin/content-engine/batch                     503 B           107 kB
+├ ƒ /api/admin/content-engine/export                    503 B           107 kB
+├ ƒ /api/admin/content-engine/hindi/import              503 B           107 kB
+├ ƒ /api/admin/content-engine/hindi/review              503 B           107 kB
+├ ƒ /api/admin/content-engine/publish                   503 B           107 kB
+├ ƒ /api/admin/content-engine/questions                 503 B           107 kB
+├ ƒ /api/admin/content-engine/recategorise              503 B           107 kB
+├ ƒ /api/admin/content-engine/settings                  503 B           107 kB
+├ ƒ /api/admin/coupons                                  503 B           107 kB
+├ ƒ /api/admin/coupons/[id]                             503 B           107 kB
+├ ƒ /api/admin/courses                                  503 B           107 kB
+├ ƒ /api/admin/courses/[id]                             503 B           107 kB
+├ ƒ /api/admin/courses/[id]/chapters                    503 B           107 kB
+├ ƒ /api/admin/courses/[id]/demo-report                 503 B           107 kB
+├ ƒ /api/admin/courses/[id]/demo-slots                  503 B           107 kB
+├ ƒ /api/admin/courses/[id]/lessons                     503 B           107 kB
+├ ƒ /api/admin/courses/upload                           503 B           107 kB
+├ ƒ /api/admin/current-affairs                          503 B           107 kB
+├ ƒ /api/admin/current-affairs/[id]                     503 B           107 kB
+├ ƒ /api/admin/current-affairs/upload                   503 B           107 kB
+├ ƒ /api/admin/homepage-cards                           503 B           107 kB
+├ ƒ /api/admin/pyqs/categories                          503 B           107 kB
+├ ƒ /api/admin/pyqs/categories/[id]                     503 B           107 kB
+├ ƒ /api/admin/pyqs/leads                               503 B           107 kB
+├ ƒ /api/admin/pyqs/papers                              503 B           107 kB
+├ ƒ /api/admin/pyqs/papers/[id]                         503 B           107 kB
+├ ƒ /api/admin/pyqs/sub-exams                           503 B           107 kB
+├ ƒ /api/admin/pyqs/sub-exams/[id]                      503 B           107 kB
+├ ƒ /api/admin/pyqs/upload                              503 B           107 kB
+├ ƒ /api/admin/revalidate                               503 B           107 kB
+├ ƒ /api/admin/run-analytics                            503 B           107 kB
+├ ƒ /api/admin/tutorials/import                         503 B           107 kB
+├ ƒ /api/admin/users/export                             503 B           107 kB
+├ ƒ /api/assessments/[id]/start                         503 B           107 kB
+├ ƒ /api/assessments/attempts/[attemptId]/submit        503 B           107 kB
+├ ƒ /api/auth/[...nextauth]                             503 B           107 kB
+├ ƒ /api/auth/check-user                                503 B           107 kB
+├ ƒ /api/auth/debug                                     503 B           107 kB
+├ ƒ /api/auth/logout                                    503 B           107 kB
+├ ƒ /api/auth/mobile-login                              503 B           107 kB
+├ ƒ /api/auth/role                                      503 B           107 kB
+├ ƒ /api/books                                          503 B           107 kB
+├ ƒ /api/books/[id]                                     503 B           107 kB
+├ ƒ /api/books/[id]/download                            503 B           107 kB
+├ ƒ /api/books/[id]/status                              503 B           107 kB
+├ ƒ /api/books/checkout/create-order                    503 B           107 kB
+├ ƒ /api/books/checkout/verify                          503 B           107 kB
+├ ƒ /api/books/orders                                   503 B           107 kB
+├ ƒ /api/books/upload                                   503 B           107 kB
+├ ƒ /api/books/wishlist                                 503 B           107 kB
+├ ƒ /api/checkout                                       503 B           107 kB
+├ ƒ /api/checkout/coupon/preview                        503 B           107 kB
+├ ƒ /api/checkout/course-info                           503 B           107 kB
+├ ƒ /api/checkout/razorpay                              503 B           107 kB
+├ ƒ /api/courses/[slug]/demo-slots                      503 B           107 kB
+├ ƒ /api/courses/demo/book                              503 B           107 kB
+├ ƒ /api/courses/demo/chat                              503 B           107 kB
+├ ƒ /api/courses/demo/complete                          503 B           107 kB
+├ ƒ /api/courses/demo/hand-raise                        503 B           107 kB
+├ ƒ /api/courses/demo/leave                             503 B           107 kB
+├ ƒ /api/courses/demo/screen                            503 B           107 kB
+├ ƒ /api/courses/demo/stage                             503 B           107 kB
+├ ƒ /api/courses/demo/stage/token                       503 B           107 kB
+├ ƒ /api/courses/demo/status                            503 B           107 kB
+├ ƒ /api/courses/demo/token                             503 B           107 kB
+├ ƒ /api/courses/demo/track-watch                       503 B           107 kB
+├ ƒ /api/courses/enroll                                 503 B           107 kB
+├ ƒ /api/courses/free-enroll                            503 B           107 kB
+├ ƒ /api/courses/progress                               503 B           107 kB
+├ ƒ /api/courses/teacher-photo-upload                   503 B           107 kB
+├ ƒ /api/courses/video-courses                          503 B           107 kB
+├ ƒ /api/current-affairs/file/[id]                      503 B           107 kB
+├ ƒ /api/current-affairs/pdfs                           503 B           107 kB
+├ ƒ /api/doubts                                         503 B           107 kB
+├ ƒ /api/exam/[testId]/leaderboard                      503 B           107 kB
+├ ƒ /api/exam/[testId]/questions                        503 B           107 kB
+├ ƒ /api/exam/ai-parse                                  503 B           107 kB
+├ ƒ /api/exam/attempt/[attemptId]                       503 B           107 kB
+├ ƒ /api/exam/attempt/[attemptId]/result                503 B           107 kB
+├ ƒ /api/exam/attempt/[attemptId]/submit                503 B           107 kB
+├ ƒ /api/exam/attempt/[attemptId]/sync                  503 B           107 kB
+├ ƒ /api/exam/attempt/start                             503 B           107 kB
+├ ƒ /api/exam/attempt/user-status                       503 B           107 kB
+├ ƒ /api/exam/series/create                             503 B           107 kB
+├ ƒ /api/exam/series/enroll                             503 B           107 kB
+├ ƒ /api/exam/series/list                               503 B           107 kB
+├ ƒ /api/exam/series/packages                           503 B           107 kB
+├ ƒ /api/exam/series/packages/[id]                      503 B           107 kB
+├ ƒ /api/exam/series/packages/[id]/duplicate            503 B           107 kB
+├ ƒ /api/exam/series/packages/[id]/restore              503 B           107 kB
+├ ƒ /api/exam/series/recommendations                    503 B           107 kB
+├ ƒ /api/exam/teacher/[testId]/questions                503 B           107 kB
+├ ƒ /api/exam/test/[id]                                 503 B           107 kB
+├ ƒ /api/exam/test/[id]/archive                         503 B           107 kB
+├ ƒ /api/exam/test/[id]/detach                          503 B           107 kB
+├ ƒ /api/exam/test/[id]/duplicate                       503 B           107 kB
+├ ƒ /api/exam/test/[id]/edit-data                       503 B           107 kB
+├ ƒ /api/exam/test/bulk                                 503 B           107 kB
+├ ƒ /api/exam/test/create                               503 B           107 kB
+├ ƒ /api/exam/test/export                               503 B           107 kB
+├ ƒ /api/exam/test/list                                 503 B           107 kB
+├ ƒ /api/exam/test/reorder                              503 B           107 kB
+├ ƒ /api/execute                                        503 B           107 kB
+├ ƒ /api/forms                                          503 B           107 kB
+├ ƒ /api/goals                                          503 B           107 kB
+├ ƒ /api/health                                         503 B           107 kB
+├ ƒ /api/leaderboard                                    503 B           107 kB
+├ ƒ /api/pyqs/[paperId]                                 503 B           107 kB
+├ ƒ /api/pyqs/file/[paperId]                            503 B           107 kB
+├ ƒ /api/razorpay/webhook                               503 B           107 kB
+├ ƒ /api/teacher/classes                                503 B           107 kB
+├ ƒ /api/teacher/classes/[id]                           503 B           107 kB
+├ ƒ /api/teacher/courses                                503 B           107 kB
+├ ƒ /api/test/health                                    503 B           107 kB
+├ ƒ /api/upload                                         503 B           107 kB
+├ ƒ /api/upload/presigned-url                           503 B           107 kB
+├ ƒ /api/user/goal                                      503 B           107 kB
+├ ƒ /api/verify-payment/razorpay                        503 B           107 kB
+├ ƒ /api/webhooks/razorpay                              503 B           107 kB
+├ ƒ /api/webhooks/stripe                                503 B           107 kB
+├ ƒ /assessments                                        503 B           107 kB
+├ ƒ /assessments/[id]                                   2.93 kB         117 kB
+├ ƒ /assessments/[id]/results                           5.19 kB         160 kB
+├ ƒ /assessments/[id]/take                              6.49 kB         124 kB
+├ ● /batches/[slug]                                     12.2 kB         134 kB
+├   ├ /batches/upsc-foundation
+├   ├ /batches/champs-6
+├   ├ /batches/half-yearly-6
+├   └ [+6 more paths]
+├ ƒ /books                                              4.4 kB          151 kB
+├ ƒ /books/[slug]                                       9.66 kB         156 kB
+├ ƒ /books/cart                                         6.54 kB         146 kB
+├ ƒ /books/orders                                       2.79 kB         149 kB
+├ ƒ /books/wishlist                                     2.96 kB         149 kB
+├ ƒ /checkout                                           15.5 kB         150 kB
+├ ƒ /code-along                                         503 B           107 kB
+├ ƒ /courses                                            17.2 kB         182 kB
+├ ƒ /courses/[slug]                                     34.7 kB         242 kB
+├ ƒ /courses/[slug]/demo                                15.7 kB         129 kB
+├ ƒ /courses/[slug]/learn/[lessonId]                    11.2 kB         124 kB
+├ ƒ /current-affairs-quizzes                            11.3 kB         155 kB
+├ ƒ /current-affairs-quizzes/[slug]                     3.49 kB         117 kB
+├ ƒ /current-affairs-quizzes/[slug]/instructions        5.39 kB         119 kB
+├ ƒ /dashboard                                          17 kB           213 kB
+├ ƒ /doubts                                             5.19 kB         120 kB
+├ ƒ /forgot-password                                    4.01 kB         121 kB
+├ ƒ /forms                                              243 B           110 kB
+├ ƒ /forms/[slug]                                       6.6 kB          117 kB
+├ ○ /hi/question-answer                                 243 B           110 kB
+├ ● /hi/question-answer/[exam]                          243 B           110 kB
+├   └ /hi/question-answer/upsc-cse
+├ ● /hi/question-answer/[exam]/[subject]                243 B           110 kB
+├   └ /hi/question-answer/upsc-cse/history
+├ ○ /hi/question-answer/[exam]/[subject]/[slug]         146 B           132 kB
+├ ○ /hi/question-answer/[exam]/[subject]/topic/[topic]  243 B           110 kB
+├ ○ /hi/question-answer/sitemap.xml                     0 B                0 B
+├ ƒ /leaderboard                                        503 B           107 kB
+├ ƒ /learn                                              503 B           107 kB
+├ ƒ /learn/[courseSlug]                                 503 B           107 kB
+├ ƒ /learn/[courseSlug]/[lessonId]                      17.6 kB         176 kB
+├ ƒ /login                                              4.36 kB         134 kB
+├ ƒ /my-learning                                        8.46 kB         127 kB
+├ ƒ /my-tests                                           147 B           124 kB
+├ ƒ /practice                                           14.9 kB         121 kB
+├ ƒ /practice/runner                                    3.28 kB         114 kB
+├ ƒ /pricing                                            5.17 kB         140 kB
+├ ƒ /profile                                            243 B           110 kB
+├ ƒ /profile/[userId]                                   243 B           110 kB
+├ ƒ /projects                                           503 B           107 kB
+├ ƒ /purchases                                          6.29 kB         122 kB
+├ ƒ /pyqs                                               177 B           114 kB
+├ ƒ /pyqs/[examId]                                      190 B           114 kB
+├ ƒ /pyqs/pdf-view                                      5.52 kB         119 kB
+├ ƒ /q/[shortId]                                        503 B           107 kB
+├ ○ /question-answer                                    243 B           110 kB
+├ ● /question-answer/[exam]                             243 B           110 kB
+├   └ /question-answer/upsc-cse
+├ ● /question-answer/[exam]/[subject]                   243 B           110 kB
+├   └ /question-answer/upsc-cse/history
+├ ○ /question-answer/[exam]/[subject]/[slug]            145 B           132 kB
+├ ○ /question-answer/[exam]/[subject]/topic/[topic]     243 B           110 kB
+├ ○ /question-answer/sitemap.xml                        0 B                0 B
+├ ƒ /register                                           5.86 kB         123 kB
+├ ƒ /reset-password                                     4.68 kB         122 kB
+├ ○ /robots.txt                                         0 B                0 B
+├ ƒ /search                                             190 B           115 kB
+├ ƒ /settings                                           6.56 kB         132 kB
+├ ƒ /settings/subscription                              243 B           110 kB
+├ ○ /sitemap.xml                                        0 B                0 B
+├ ƒ /subscription                                       243 B           110 kB
+├ ƒ /teacher                                            243 B           110 kB
+├ ƒ /teacher/batches                                    185 B           123 kB
+├ ƒ /teacher/batches/[id]/edit                          143 B           120 kB
+├ ƒ /teacher/batches/new                                144 B           120 kB
+├ ƒ /teacher/book-studio                                143 B           125 kB
+├ ƒ /teacher/classes                                    5.41 kB         115 kB
+├ ƒ /teacher/classes/[id]/edit                          4.53 kB         115 kB
+├ ƒ /teacher/classes/new                                4.72 kB         115 kB
+├ ƒ /teacher/courses                                    243 B           110 kB
+├ ƒ /teacher/courses/[id]/edit                          148 B           146 kB
+├ ƒ /teacher/courses/new                                503 B           107 kB
+├ ƒ /teacher/current-affairs                            164 B           162 kB
+├ ƒ /teacher/pyqs                                       161 B           162 kB
+├ ƒ /teacher/pyqs/categories                            144 B           119 kB
+├ ƒ /teacher/pyqs/leads                                 243 B           110 kB
+├ ƒ /teacher/pyqs/upload                                144 B           119 kB
+├ ƒ /teacher/questions                                  4.64 kB         115 kB
+├ ƒ /teacher/test-series                                221 B           216 kB
+├ ƒ /teacher/test-series/[testId]/edit                  188 B           137 kB
+├ ƒ /teacher/test-series/[testId]/review                2.02 kB         119 kB
+├ ƒ /teacher/test-series/[testId]/submissions           4.01 kB         110 kB
+├ ƒ /teacher/test-series/create                         208 B           197 kB
+├ ƒ /teacher/test-series/package/[id]                   180 B           231 kB
+├ ƒ /teacher/test-series/packages                       156 B           135 kB
+├ ƒ /teacher/tests/new                                  3.88 kB         114 kB
+├ ƒ /teacher/tutorials                                  151 B           140 kB
+├ ƒ /teacher/tutorials/[id]/edit                        195 B           249 kB
+├ ƒ /teacher/tutorials/new                              208 B           174 kB
+├ ƒ /test-series                                        11.9 kB         186 kB
+├ ƒ /test-series/[id]                                   14.6 kB         167 kB
+├ ƒ /test-series/[id]/attempt                           17.7 kB         127 kB
+├ ƒ /test-series/[id]/declaration                       5.31 kB         119 kB
+├ ƒ /test-series/[id]/instructions                      4.78 kB         118 kB
+├ ƒ /test-series/[id]/leaderboard                       3.71 kB         120 kB
+├ ƒ /test-series/[id]/print                             4.19 kB         111 kB
+├ ƒ /test-series/[id]/result                            12.2 kB         125 kB
+├ ƒ /test-series/[id]/solutions                         11.1 kB         124 kB
+├ ƒ /test-series/my-tests                               146 B           124 kB
+├ ƒ /tracks                                             243 B           110 kB
+├ ƒ /tracks/[slug]                                      3.61 kB         121 kB
+├ ƒ /tracks/career                                      4.47 kB         122 kB
+├ ƒ /tracks/career/[slug]                               3.11 kB         120 kB
+├ ƒ /tracks/skills                                      503 B           107 kB
+├ ƒ /tutorials                                          9.72 kB         155 kB
+├ ƒ /tutorials/[slug]                                   2.38 kB         145 kB
+└ ƒ /verify-email                                       3.84 kB         121 kB
++ First Load JS shared by all                           106 kB
+  ├ chunks/1517-903ca4e94515c7e6.js                     50.6 kB
+  ├ chunks/4bd1b696-d53804191fe6e732.js                 53 kB
+  └ other shared chunks (total)                         2.75 kB
+
+
+ƒ Middleware                                            85.4 kB
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

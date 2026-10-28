@@ -1,0 +1,226 @@
+====================================================================================================
+PHASE E SURFACE INVENTORY: SEO / CONTENT ENGINE & SHARED APP SURFACES
+====================================================================================================
+Generated: 2026-10-26T19:27:00Z
+Scope: Complete catalog of user-visible SEO / Content Engine surfaces, authoring UI, and non-visual outputs.
+
+----------------------------------------------------------------------------------------------------
+GROUP 1: PUBLIC PAGES (RESPONSIVE AUDIT TARGETS)
+----------------------------------------------------------------------------------------------------
+
+1.1 Home Page
+    - File Path: app/page.tsx
+    - URL Pattern: /
+    - Purpose: Main landing page for learners and search engines.
+    - Test Fixture: Seeded default root.
+
+1.2 ShortID Question Redirect
+    - File Path: app/q/[shortId]/route.ts
+    - URL Pattern: /q/[shortId]
+    - Purpose: Short, durable public URL redirecting (308) to canonical question page.
+    - Test Fixture: /q/resp01img -> /question-answer/upsc-cse/geography/test-resp-01-long-english-question-with-image
+
+1.3 English Canonical Question Page
+    - File Path: app/question-answer/[exam]/[subject]/[slug]/page.tsx
+    - URL Pattern: /question-answer/[exam]/[subject]/[slug]
+    - Component: components/content-engine-public/PublicQuestionView.tsx
+    - Purpose: Canonical English question page with interactive check, detailed explanation, JSON-LD schema, and hreflang twins.
+    - Test Fixtures:
+      * Long English question with image: /question-answer/upsc-cse/geography/test-resp-01-long-english-question-with-image
+      * Question with table & SQL code block: /question-answer/upsc-cse/computer-science/test-resp-03-question-with-table-and-code
+      * Question with exceptionally long title & slug: /question-answer/upsc-cse/public-administration/test-resp-04-exceptionally-long-slug-designed-to-verify-responsive-wrapping-and-prevent-horizontal-page-overflow-on-mobile-phone-viewports-without-layout-breakage-2024
+
+1.4 Hindi Canonical Question Page
+    - File Path: app/hi/question-answer/[exam]/[subject]/[slug]/page.tsx
+    - URL Pattern: /hi/question-answer/[exam]/[subject]/[slug]
+    - Component: components/content-engine-public/PublicQuestionView.tsx
+    - Purpose: Canonical Hindi question page with Devanagari typography, verified translation, and bilingual toggle.
+    - Test Fixture:
+      * Hindi question with very long compound words: /hi/question-answer/bpsc/hindi-literature/test-resp-02-hindi-question-long-words
+
+1.5 Question Hub Root (English)
+    - File Path: app/question-answer/page.tsx
+    - URL Pattern: /question-answer
+    - Purpose: Hub listing competitive exams, subjects, and recent questions.
+
+1.6 Question Hub Root (Hindi)
+    - File Path: app/hi/question-answer/page.tsx
+    - URL Pattern: /hi/question-answer
+    - Purpose: Hindi hub listing competitive exams, subjects, and recent questions in Hindi.
+
+1.7 Exam Hub (English & Hindi)
+    - File Path: app/question-answer/[exam]/page.tsx & app/hi/question-answer/[exam]/page.tsx
+    - URL Patterns: /question-answer/[exam] and /hi/question-answer/[exam]
+    - Purpose: Examination-specific portal grouping questions by subject and year.
+    - Test Fixture: /question-answer/upsc-cse and /hi/question-answer/bpsc
+
+1.8 Subject Hub (English & Hindi)
+    - File Path: app/question-answer/[exam]/[subject]/page.tsx & app/hi/question-answer/[exam]/[subject]/page.tsx
+    - URL Patterns: /question-answer/[exam]/[subject] and /hi/question-answer/[exam]/[subject]
+    - Purpose: Subject-specific archive within an exam.
+    - Test Fixtures:
+      * Standard subject hub: /question-answer/upsc-cse/geography
+      * 100+ items hub: /question-answer/test-resp-bulk-exam/bulk-general-studies (105 questions seeded)
+
+1.9 Year Hub (English & Hindi)
+    - File Path: app/question-answer/[exam]/[subject]/page.tsx & app/hi/question-answer/[exam]/[subject]/page.tsx
+    - URL Patterns: /question-answer/[exam]/[year] and /hi/question-answer/[exam]/[year]
+    - Purpose: Year-specific archive matching 4-digit year regex.
+    - Test Fixture: /question-answer/upsc-cse/2024 and /hi/question-answer/bpsc/2024
+
+1.10 Topic Hub (English & Hindi)
+    - File Path: app/question-answer/[exam]/[subject]/topic/[topic]/page.tsx & app/hi/question-answer/[exam]/[subject]/topic/[topic]/page.tsx
+    - URL Patterns: /question-answer/[exam]/[subject]/topic/[topic]
+    - Purpose: Fine-grained topic archive.
+    - Test Fixture: /question-answer/upsc-cse/geography/topic/geomorphology
+
+1.11 PYQ Catalog Hub
+    - File Path: app/(dashboard)/pyqs/page.tsx
+    - URL Pattern: /pyqs
+    - Component: components/pyqs/PyqStudentListingClient.tsx
+    - Purpose: Student catalog of all previous year question paper categories.
+
+1.12 PYQ Category Page (and Empty Hub)
+    - File Path: app/(dashboard)/pyqs/[examId]/page.tsx
+    - URL Pattern: /pyqs/[examId]
+    - Component: components/pyqs/PyqStudentListingClient.tsx
+    - Purpose: Listing of official past papers for an exam category.
+    - Test Fixtures:
+      * Active category: /pyqs/test-resp-pyq-cat (contains 2024 Prelims General Studies Paper)
+      * Empty hub: /pyqs/test-resp-empty-hub (category exists, 0 papers seeded)
+
+1.13 Test Series Catalog Hub
+    - File Path: app/(dashboard)/test-series/page.tsx
+    - URL Pattern: /test-series
+    - Component: components/test-series/TestSeriesClient.tsx
+    - Purpose: Mock test series catalog across competitive exams.
+
+1.14 Test Series Detail Page
+    - File Path: app/(dashboard)/test-series/[id]/page.tsx
+    - URL Pattern: /test-series/[id]
+    - Component: app/(dashboard)/test-series/[id]/TestSeriesDetailClient.tsx
+    - Purpose: Detailed test series breakdown, test list, syllabus, and action triggers.
+    - Test Fixture: /test-series/test-resp-series
+
+1.15 Test Series Printable Paper
+    - File Path: app/(exam)/test-series/[id]/print/page.tsx
+    - URL Pattern: /test-series/[id]/print
+    - Purpose: Clean offline printable test paper layout formatted for A4 printing and preview.
+    - Test Fixture: /test-series/test-resp-test-id/print
+
+1.16 Text Tutorial Slug Page
+    - File Path: app/(dashboard)/tutorials/[slug]/page.tsx
+    - URL Pattern: /tutorials/[slug]
+    - Component: components/editor/AspirantbookTutorialView.tsx
+    - Purpose: Long-form reading tutorial with code blocks, chapters, and curriculum.
+    - Test Fixture: /tutorials/test-resp-tutorial
+
+1.17 Current Affairs Quiz Detail Page
+    - File Path: app/(dashboard)/current-affairs-quizzes/[slug]/page.tsx
+    - URL Pattern: /current-affairs-quizzes/[slug]
+    - Purpose: Single current affairs speed quiz overview and attempt launcher.
+    - Test Fixture: /current-affairs-quizzes/weekly-national-current-affairs-round-2026
+
+1.18 Video Course Detail Page
+    - File Path: app/(dashboard)/courses/[slug]/page.tsx
+    - URL Pattern: /courses/[slug]
+    - Component: app/(dashboard)/courses/[slug]/CourseDetailView.tsx
+    - Purpose: Video course curriculum, demo preview, and enrollment details.
+    - Test Fixture: /courses/test-resp-course
+
+
+----------------------------------------------------------------------------------------------------
+GROUP 2: ADMIN & AUTHORING SURFACES (RESPONSIVE AUDIT TARGETS)
+----------------------------------------------------------------------------------------------------
+
+2.1 SEO Studio Dashboard
+    - File Path: app/admin/seo/page.tsx
+    - URL Pattern: /admin/seo
+    - Purpose: Live SEO crawlability audit, sitemap status, schema validation, and URL health indicators.
+
+2.2 Content Engine Admin Overview
+    - File Path: app/admin/content-engine/page.tsx
+    - URL Pattern: /admin/content-engine
+    - Purpose: Search, filter, inspect, and manage ingested question batches and questions.
+
+2.3 Content Engine Add / Import
+    - File Path: app/admin/content-engine/add/page.tsx
+    - URL Pattern: /admin/content-engine/add
+    - Purpose: Question ingestion studio (raw text paste, regex parser, bulk intake).
+
+2.4 Content Engine Categories & Overrides
+    - File Path: app/admin/content-engine/categories/page.tsx
+    - URL Pattern: /admin/content-engine/categories
+    - Purpose: Subject and topic taxonomy manager with auto-classification rules.
+
+2.5 Content Engine Practice Tab
+    - File Path: app/admin/content-engine/practice/page.tsx
+    - URL Pattern: /admin/content-engine/practice
+    - Purpose: Interactive test-runner preview of questions as students see them.
+
+2.6 Content Engine Translation Review (Hindi)
+    - File Path: app/admin/content-engine/hindi/page.tsx
+    - URL Pattern: /admin/content-engine/hindi
+    - Purpose: Side-by-side English vs Hindi translation review and approval pipeline.
+
+2.7 Content Engine Aliases
+    - File Path: app/admin/content-engine/aliases/page.tsx
+    - URL Pattern: /admin/content-engine/aliases
+    - Purpose: Exam name regex pattern normalization.
+
+2.8 Content Engine Quality Gates
+    - File Path: app/admin/content-engine/gates/page.tsx
+    - URL Pattern: /admin/content-engine/gates
+    - Purpose: Ingestion quality thresholds and validation flags.
+
+2.9 Content Engine Export
+    - File Path: app/admin/content-engine/export/page.tsx
+    - URL Pattern: /admin/content-engine/export
+    - Purpose: Export content engine data to primary or mirror sites.
+
+2.10 Admin Navigation Component
+    - File Path: components/admin/AdminNav.tsx
+    - Rendered On: All /admin/* routes
+    - Purpose: Desktop sidebar & mobile slide-out drawer navigation for all admin tools.
+
+2.11 Left Sidebar Navigation Component
+    - File Path: components/layout/LeftSidebar.tsx
+    - Rendered On: All /(dashboard)/* routes
+    - Purpose: Collapsible left navigation bar on desktop, hidden on mobile in favor of bottom shell.
+
+
+----------------------------------------------------------------------------------------------------
+GROUP 3: NON-VISUAL SEO OUTPUT (N/A FOR RESPONSIVE AUDIT; WEB SEARCH ENGINE CONCERN ONLY)
+----------------------------------------------------------------------------------------------------
+
+3.1 Primary Sitemap Index & Core Sitemap
+    - File Path: app/sitemap.ts
+    - URL Pattern: /sitemap.xml
+    - Purpose: XML sitemap exposing core pages, courses, books, series, and quizzes.
+
+3.2 English Question Engine Sub-Sitemap
+    - File Path: app/question-answer/sitemap.ts
+    - URL Pattern: /question-answer/sitemap.xml
+    - Purpose: XML sitemap for English published question URLs.
+
+3.3 Hindi Question Engine Sub-Sitemap
+    - File Path: app/hi/question-answer/sitemap.ts
+    - URL Pattern: /hi/question-answer/sitemap.xml
+    - Purpose: XML sitemap for reviewed Hindi question URLs.
+
+3.4 Search Engine Robots Policy
+    - File Path: app/robots.ts
+    - URL Pattern: /robots.txt
+    - Purpose: User-agent crawl directives, disallowing /admin/, /api/, and linking sitemaps.
+
+3.5 JSON-LD Structured Data
+    - Sources:
+      * components/content-engine-public/PublicQuestionView.tsx (Question schema, Quiz, BreadcrumbList)
+      * lib/modules/content-engine/metadata.ts
+      * lib/seo/adapters/*.ts (Course, Quiz, Series schemas)
+    - Purpose: Rich search snippet definitions for Google Search.
+
+3.6 Next.js Metadata API
+    - Sources: generateMetadata exports across app/ routes
+    - Purpose: Canonical URLs, OpenGraph, Twitter Cards, and hreflang language alternates.
+====================================================================================================

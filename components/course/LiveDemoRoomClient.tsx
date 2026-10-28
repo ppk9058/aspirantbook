@@ -211,7 +211,7 @@ export default function LiveDemoRoomClient({
         // Check if teacher changed controls or removed me from stage
         if (isOnStage && data.myStageSession) {
           if (data.myStageSession.status === "REMOVED" || data.myStageSession.status === "EXPIRED") {
-            handleLeaveStage()
+            handleLeaveStageRef.current()
           } else {
             // Apply mute/video toggle from teacher
             if (stageLocalTracksRef.current?.audio) {
@@ -867,6 +867,11 @@ export default function LiveDemoRoomClient({
     }
   }
 
+  // Latest-handler ref: the status poller must call the current
+  // handleLeaveStage without re-subscribing on every render (B-017).
+  const handleLeaveStageRef = useRef(handleLeaveStage)
+  handleLeaveStageRef.current = handleLeaveStage
+
   // ── 8c. Teacher Stage Controls ─────────────────────────────────────────────
   const handleTeacherInviteToStage = async (studentId: string, mode: "AUDIO_ONLY" | "VIDEO_AUDIO") => {
     try {
@@ -1176,6 +1181,7 @@ export default function LiveDemoRoomClient({
 
   // ── 9. Cleanup on unmount ──────────────────────────────────────────────────
   useEffect(() => {
+    const playingAudioTracks = playingAudioTracksRef.current
     return () => {
       isLeavingRef.current = true
       if (agoraManagerRef.current) {
@@ -1200,8 +1206,8 @@ export default function LiveDemoRoomClient({
         stageLocalTracksRef.current.video?.stop(); stageLocalTracksRef.current.video?.close()
         stageLocalTracksRef.current = null
       }
-      playingAudioTracksRef.current.forEach((track) => { try { track.stop() } catch {} })
-      playingAudioTracksRef.current.clear()
+      playingAudioTracks.forEach((track) => { try { track.stop() } catch {} })
+      playingAudioTracks.clear()
       if (chatPollTimeoutRef.current) clearTimeout(chatPollTimeoutRef.current)
       if (watchTrackerRef.current) clearInterval(watchTrackerRef.current)
     }

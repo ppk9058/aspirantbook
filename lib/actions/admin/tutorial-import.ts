@@ -17,6 +17,8 @@ export interface ImportOptions {
   courseId?: string
   updateCourseMeta?: boolean
   archiveOrphans?: boolean
+  /** A8/A9: creator recorded on a newly imported course. */
+  createdById?: string
 }
 
 export type LessonMergeStatus = "created" | "updated" | "unlocked" | "unchanged" | "conflict"
@@ -788,6 +790,7 @@ export async function importTutorialPackage(
               prerequisites: parsedPrerequisites,
               status: effectiveStatus,
               isPublished: effectiveIsPublished,
+              createdById: options.createdById ?? null,
               theme: effectiveTheme as any,
               metadataJson: JSON.stringify({
                 format: "tutorial",

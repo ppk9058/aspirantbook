@@ -96,7 +96,7 @@ export default function BatchDetailClient({ batch }: BatchDetailClientProps) {
           title: batch.title,
           price: selectedTier.price,
           isFree,
-          image: batch.coverImage,
+          image: batch.coverImage ?? undefined,
           classTag: batch.classTag,
         },
         actionType: isFree ? "enroll" : "buy",

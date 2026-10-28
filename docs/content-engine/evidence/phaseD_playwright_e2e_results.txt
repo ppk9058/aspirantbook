@@ -1,0 +1,22 @@
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 14 tests using 1 worker
+
+  ✓   1 [desktop] › D1: AUTH — Blocks logged-out and TEACHER on EVERY admin page and API route (29.3s)
+  ✓   2 [desktop] › D3: PUBLIC — Logged-out access to hubs, questions, and sitemaps; 404 for drafts (8.1s)
+  ✓   3 [desktop] › D4: LEAK AUDIT — Ensures zero administrative or draft fields leaked to public (214ms)
+  ✓   4 [desktop] › D5: HINDI TWIN & NOINDEX — Reviewed twin indexed, unreviewed twin noindexed (1.4s)
+  ✓   5 [desktop] › D6: SLUG & REDIRECT — ShortId and non-canonical slugs 308-redirect to canonical; unknown shortId returns 404 (943ms)
+  ✓   6 [desktop] › D8: XSS ESCAPING — <script> tags safely escaped in JSON-LD and HTML (59ms)
+  ✓   7 [desktop] › D10: STATIC ZIP EXPORT — Contains all required architecture files (839ms)
+  ✓   8 [mobile] › D1: AUTH — Blocks logged-out and TEACHER on EVERY admin page and API route (12.7s)
+  ✓   9 [mobile] › D3: PUBLIC — Logged-out access to hubs, questions, and sitemaps; 404 for drafts (581ms)
+  ✓  10 [mobile] › D4: LEAK AUDIT — Ensures zero administrative or draft fields leaked to public (77ms)
+  ✓  11 [mobile] › D5: HINDI TWIN & NOINDEX — Reviewed twin indexed, unreviewed twin noindexed (231ms)
+  ✓  12 [mobile] › D6: SLUG & REDIRECT — ShortId and non-canonical slugs 308-redirect to canonical; unknown shortId returns 404 (490ms)
+  ✓  13 [mobile] › D8: XSS ESCAPING — <script> tags safely escaped in JSON-LD and HTML (132ms)
+  ✓  14 [mobile] › D10: STATIC ZIP EXPORT — Contains all required architecture files (188ms)
+
+  14 passed (1.2m)

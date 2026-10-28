@@ -1,0 +1,12 @@
+| # | Description | Mutated File | Failed Test Caught | Clean Revert? | Restored Green? |
+|:---|:---|:---|:---|:---:|:---:|
+| 1 | robotsPolicy makes unreviewed/unindexed pages indexable (index, follow) | `lib/seo/core.ts` | `adaptTutorialDetailSeo sets noindex for unpublished course` | YES | YES |
+| 2 | safeJsonLdStringify fails to escape < leaving XSS vulnerable | `lib/seo/core.ts` | `safeJsonLdStringify neutralizes < into \\u003c to prevent script injection` | YES | YES |
+| 3 | hreflangAlternates leaks unreviewed Hindi into hreflang links | `lib/seo/core.ts` | `hreflangAlternates produces bilingual links only when Hindi is reviewed` | YES | YES |
+| 4 | canonicalUrl points to hardcoded wrong domain | `lib/seo/core.ts` | `adaptPyqsCatalogSeo returns indexable catalog metadata` | YES | YES |
+| 5 | Content Engine SEO adapter breaks title template | `lib/seo/adapters/content-engine.ts` | `produces byte-identical output for English version` | YES | YES |
+| 6 | Current Affairs quiz adapter deviates from invariant title format | `lib/seo/adapters/current-affairs.ts` | `adaptCurrentAffairsQuizSeo strictly preserves title, description, and canonical format` | YES | YES |
+| 7 | Tutorial adapter marks draft/unpublished course as indexable | `lib/seo/adapters/tutorials.ts` | `adaptTutorialDetailSeo sets noindex for unpublished course` | YES | YES |
+| 8 | PYQs catalog adapter corrupts canonical path | `lib/seo/adapters/pyqs.ts` | `adaptPyqsCatalogSeo returns indexable catalog metadata` | YES | YES |
+| 9 | Test series detail adapter omits Product JSON-LD schema | `lib/seo/adapters/test-series.ts` | `adaptTestSeriesDetailSeo returns detail metadata and JSON-LD` | YES | YES |
+| 10 | buildSitemapEntry drops priority field | `lib/seo/core.ts` | `buildSitemapEntry returns valid sitemap shape` | YES | YES |

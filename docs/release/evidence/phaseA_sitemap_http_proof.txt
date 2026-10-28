@@ -1,0 +1,53 @@
+=====================================================
+PHASE A: SITEMAP ISR AND ON-DEMAND REVALIDATION PROOF
+=====================================================
+DB resolved host:port -> 127.0.0.1:54329
+Base URL: http://127.0.0.1:3045
+Timestamp: 2026-10-26T17:04:11.568Z
+
+--- STEP 1: Main Sitemap GET /sitemap.xml ---
+GET /sitemap.xml Status: 200 (expected 200)
+Content-Type: application/xml
+Cache-Control: public, max-age=0, must-revalidate
+Body length: 25385 bytes
+Starts with <?xml: true
+
+--- STEP 2: Content Engine Sitemap GET /question-answer/sitemap.xml ---
+GET /question-answer/sitemap.xml Status: 200 (expected 200)
+Body length: 863 bytes
+
+--- STEP 3: Hindi Content Engine Sitemap GET /hi/question-answer/sitemap.xml ---
+GET /hi/question-answer/sitemap.xml Status: 200 (expected 200)
+Body length: 694 bytes
+
+--- STEP 4: Authenticating as ADMIN ---
+Admin authenticated successfully.
+
+--- STEP 5: Creating Draft Question in Docker DB (shortId: smpttiee) ---
+Created test question cmvpiar6m0000xpap12vp14u7 with slug q-smpttiee-ancient-university-bihar-kumaragupta
+Draft in /question-answer/sitemap.xml: false (expected false)
+
+--- STEP 6: Publishing Question via POST /api/admin/content-engine/publish ---
+Publish API HTTP 200, successCount: 1
+
+--- STEP 7: Immediate GET /question-answer/sitemap.xml after Publish ---
+Published question in /question-answer/sitemap.xml: true (expected true)
+Hindi translation in /hi/question-answer/sitemap.xml before review: false (expected false)
+
+--- STEP 8: Toggle Hindi Review to true via PATCH /api/admin/content-engine/hindi/review ---
+Hindi Review toggle HTTP 200
+
+--- STEP 9: Immediate GET /hi/question-answer/sitemap.xml after Hindi Review ---
+Hindi translation in /hi/question-answer/sitemap.xml after review: true (expected true)
+
+--- STEP 10: Unpublishing Question via POST /api/admin/content-engine/publish ---
+Unpublish API HTTP 200, successCount: 1
+
+--- STEP 11: Immediate GET /question-answer/sitemap.xml after Unpublish ---
+Unpublished question in /question-answer/sitemap.xml: false (expected false)
+Unpublished question in /hi/question-answer/sitemap.xml: false (expected false)
+Test DB cleanup completed.
+
+=====================================================
+PHASE A: SITEMAP HTTP PROOF SUCCESSFUL - ALL CHECKS PASSED
+=====================================================

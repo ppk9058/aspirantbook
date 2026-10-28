@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { FIVE_STANDARD_QUESTIONS } from "@/lib/assessments-data"
 
 export async function POST(
     req: NextRequest,
@@ -11,7 +10,7 @@ export async function POST(
         const { id } = await params
         const session = await auth()
 
-        if (!session) {
+        if (!session?.user?.id) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
@@ -35,16 +34,14 @@ export async function POST(
         })
 
         if (!assessment) {
-            // Curated 5-question mock attempt
-            const attemptId = "attempt-" + Date.now()
-            const now = new Date()
-            return NextResponse.json({
-                attemptId,
-                questions: FIVE_STANDARD_QUESTIONS,
-                startTime: now,
-                endTime: new Date(now.getTime() + 15 * 60 * 1000),
-                duration: 15,
-            })
+            return NextResponse.json({ error: "Assessment not found" }, { status: 404 })
+        }
+
+        if (!assessment.questions || assessment.questions.length === 0) {
+            return NextResponse.json(
+                { error: "This assessment does not have any questions yet" },
+                { status: 409 }
+            )
         }
 
         // Create new attempt in DB
@@ -55,6 +52,7 @@ export async function POST(
                 answers: {},
                 score: 0,
                 passed: false,
+                timeSpent: 0,
             },
         })
 
@@ -62,20 +60,17 @@ export async function POST(
 
         return NextResponse.json({
             attemptId: attempt.id,
-            questions: assessment.questions && assessment.questions.length > 0 ? assessment.questions : FIVE_STANDARD_QUESTIONS,
+            questions: assessment.questions,
             startTime: attempt.startedAt,
             endTime,
             duration: assessment.duration || 15,
         })
-    } catch {
-        console.warn("Database offline in assessment start API, serving curated 5 questions.")
-        const now = new Date()
-        return NextResponse.json({
-            attemptId: "attempt-" + Date.now(),
-            questions: FIVE_STANDARD_QUESTIONS,
-            startTime: now,
-            endTime: new Date(now.getTime() + 15 * 60 * 1000),
-            duration: 15,
-        })
+    } catch (error) {
+        // Fail closed: never serve a fabricated exam when the database is unreachable.
+        console.error("[assessments/start] Failed to start assessment", error)
+        return NextResponse.json(
+            { error: "Assessment service is temporarily unavailable" },
+            { status: 503 }
+        )
     }
 }

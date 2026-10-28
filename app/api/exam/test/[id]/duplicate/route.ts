@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { normalizeDemoRole } from "@/lib/auth/demo-role"
 import { auth } from "@/auth"
 import { cookies } from "next/headers"
 import { duplicateExamTest } from "@/lib/exam-tests"
@@ -11,7 +12,7 @@ export async function POST(
   try {
     const session = await auth()
     const cookieStore = await cookies()
-    const demoRole = cookieStore.get("ts_demo_role")?.value
+    const demoRole = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
 
     const authCheck = verifyMutationAuth({ session, demoRole })
     if (!authCheck.authorized || !authCheck.userId || !authCheck.role) {
@@ -33,7 +34,7 @@ export async function POST(
       return NextResponse.json({ error: result.error || "Failed to duplicate test" }, { status: result.status })
     }
 
-    return NextResponse.json({ success: true, data: result.data })
+    return NextResponse.json({ success: true, data: result.data, test: result.data })
   } catch (error: any) {
     console.error("[TEST_DUPLICATE_ROUTE_ERROR]", error)
     return NextResponse.json({ error: error.message || "Failed to duplicate test" }, { status: 500 })

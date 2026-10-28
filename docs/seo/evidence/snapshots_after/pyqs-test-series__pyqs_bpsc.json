@@ -1,0 +1,15 @@
+{
+  "url": "http://127.0.0.1:3045/pyqs/bpsc",
+  "path": "/pyqs/bpsc",
+  "module": "pyqs-test-series",
+  "statusCode": 200,
+  "title": "BPSC Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook",
+  "metaDescription": "Official Previous Year Papers for 70th, 69th, 68th, 67th CCE, CDPO, AEDO &amp; TRE.",
+  "canonical": "http://127.0.0.1:3045/pyqs/bpsc",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://127.0.0.1:3045/pyqs/bpsc",
+    "x-default": "http://127.0.0.1:3045/pyqs/bpsc"
+  },
+  "jsonLd": []
+}

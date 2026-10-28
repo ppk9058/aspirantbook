@@ -1,7 +1,8 @@
 import { MetadataRoute } from "next"
+import { getBaseUrl } from "@/lib/seo/core"
 
 export default function robots(): MetadataRoute.Robots {
-    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://aspirantbook.com"
+    const siteUrl = getBaseUrl()
     return {
         rules: {
             userAgent: "*",
@@ -26,6 +27,12 @@ export default function robots(): MetadataRoute.Robots {
                 "/test-series/*/solutions",
             ],
         },
-        sitemap: `${siteUrl}/sitemap.xml`,
+        sitemap: siteUrl
+            ? [
+                  `${siteUrl}/sitemap.xml`,
+                  `${siteUrl}/question-answer/sitemap.xml`,
+                  `${siteUrl}/hi/question-answer/sitemap.xml`,
+              ]
+            : undefined,
     }
 }

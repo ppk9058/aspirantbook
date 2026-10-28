@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -176,6 +177,7 @@ export async function PUT(
       },
     })
 
+    safeRevalidateTags(CACHE_TAGS.currentAffairs)
     return NextResponse.json({ success: true, data: updated })
   } catch (error: any) {
     console.error("Error updating Current Affairs PDF:", error)
@@ -223,12 +225,12 @@ export async function DELETE(
       data: { status: "ARCHIVED" },
     })
 
+    safeRevalidateTags(CACHE_TAGS.currentAffairs)
     return NextResponse.json({
       success: true,
       message: "Document archived successfully",
       data: updated,
-    })
-  } catch (error: any) {
+    })  } catch (error: any) {
     console.error("Error archiving Current Affairs PDF:", error)
     return NextResponse.json(
       { error: "Internal server error archiving document" },

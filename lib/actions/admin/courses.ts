@@ -5,9 +5,25 @@ import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 import { deleteFromS3 } from "@/lib/aws-s3"
 import { canCreateCourse, canEditCourse, canDeleteCourse, isEditorUser } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
+import {
+    courseDraftUpdateSchema,
+    courseInlineUpdateSchema,
+    parseOrThrow,
+} from "@/lib/validation/admin-payloads"
+import {
+    creatorIdFor,
+    decideCourseDelete,
+    toCourseAccessUser,
+} from "@/lib/auth/course-access"
+import {
+    assertManagedCourseForAction,
+    assertManagedChapterForAction,
+    assertManagedLessonForAction,
+} from "@/lib/auth/course-access-server"
 
 const CourseDraftSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
@@ -55,7 +71,10 @@ export async function createCourseDraft(prevState: any, formData: FormData) {
         }
 
         const statusVal = formData.get("status") === "PUBLISHED" ? "PUBLISHED" : "DRAFT"
-        const isPublished = statusVal === "PUBLISHED"
+        // A8: only an ADMIN publishes directly; teachers always start as drafts.
+        const isTeacher = session.user.role === "TEACHER"
+        const effectiveStatus = isTeacher ? "DRAFT" : statusVal
+        const isPublished = effectiveStatus === "PUBLISHED"
 
         const course = await prisma.course.create({
             data: {
@@ -64,9 +83,10 @@ export async function createCourseDraft(prevState: any, formData: FormData) {
                 description,
                 difficulty,
                 technology,
-                isPremium,
-                status: statusVal,
+                isPremium: isTeacher ? false : isPremium,
+                status: effectiveStatus,
                 isPublished,
+                createdById: creatorIdFor(toCourseAccessUser(session.user)),
                 thumbnailUrl: "/placeholder-course.svg", // Default placeholder
             },
         })
@@ -77,6 +97,8 @@ export async function createCourseDraft(prevState: any, formData: FormData) {
             action: isPublished ? "PUBLISH" : "CREATE",
             details: { title, slug, technology, difficulty },
         })
+
+        safeRevalidateTags(CACHE_TAGS.courses)
 
         const returnUrl = formData.get("returnUrl") as string
         if (returnUrl) {
@@ -90,19 +112,39 @@ export async function createCourseDraft(prevState: any, formData: FormData) {
         if (error.message === "NEXT_REDIRECT") {
             throw error
         }
+        // B8: the slug pre-check and the insert are separate statements, so two
+        // concurrent creates can pick the same slug. Report a conflict the user
+        // can retry instead of leaking the Prisma constraint message.
+        if (error?.code === "P2002") {
+            return { error: "A course with this slug already exists. Please try again." }
+        }
         return { error: error.message || "Failed to create course" }
     }
 }
 
-export async function updateCourseDraft(courseId: string, data: any) {
+export async function updateCourseDraft(courseId: string, rawData: any) {
     const session = await auth()
 
     if (!session || !canEditCourse(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to edit course")
     }
 
+    // A8: teachers may only edit courses they created.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
+
+    // A12: allowlisted fields only. Unknown keys are stripped, so a caller can
+    // never mass-assign relations, ids, counters or audit columns.
+    const data: any = parseOrThrow(courseDraftUpdateSchema, rawData ?? {})
+
     if (data.status) {
         data.isPublished = data.status === "PUBLISHED"
+    }
+
+    if (typeof data.prerequisites === "string") {
+        data.prerequisites = data.prerequisites
+            .split(",")
+            .map((s: string) => s.trim())
+            .filter(Boolean)
     }
 
     // Server-side Zod validation and clamping for Authwall gate settings
@@ -130,6 +172,9 @@ export async function updateCourseDraft(courseId: string, data: any) {
     revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
     revalidatePath("/tutorials")
+    // B10: the "courses" data cache feeds /api/courses/video-courses and the
+    // course badges; revalidatePath alone does not drop a tagged cache entry.
+    safeRevalidateTags(CACHE_TAGS.courses)
     if (updated.slug) {
         revalidatePath(`/courses/${updated.slug}`)
         revalidatePath(`/tutorials/${updated.slug}`)
@@ -152,23 +197,15 @@ export async function updateCourseInline(courseId: string, fields: Record<string
         throw new Error("Unauthorized: Insufficient permissions to edit course")
     }
 
-    const data: Record<string, any> = {}
-    if (fields.title !== undefined) data.title = fields.title.trim()
-    if (fields.description !== undefined) data.description = fields.description
-    if (fields.difficulty !== undefined) data.difficulty = fields.difficulty
-    if (fields.duration !== undefined) data.duration = Number(fields.duration) || 0
-    if (fields.technology !== undefined) data.technology = fields.technology
-    if (fields.isPremium !== undefined) data.isPremium = Boolean(fields.isPremium)
-    if (fields.prerequisites !== undefined) {
-        if (Array.isArray(fields.prerequisites)) {
-            data.prerequisites = fields.prerequisites
-        } else if (typeof fields.prerequisites === "string") {
-            data.prerequisites = fields.prerequisites.split(",").map((s: string) => s.trim()).filter(Boolean)
-        }
+    // A8: teachers may only edit courses they created.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "edit")
+
+    const data: Record<string, any> = parseOrThrow(courseInlineUpdateSchema, fields ?? {})
+    if (typeof data.prerequisites === "string") {
+        data.prerequisites = data.prerequisites.split(",").map((s: string) => s.trim()).filter(Boolean)
     }
-    if (fields.status !== undefined) {
-        data.status = fields.status
-        data.isPublished = fields.status === "PUBLISHED"
+    if (data.status !== undefined) {
+        data.isPublished = data.status === "PUBLISHED"
     }
 
     const updated = await prisma.course.update({
@@ -184,6 +221,9 @@ export async function updateCourseInline(courseId: string, fields: Record<string
     revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
     revalidatePath("/tutorials")
+    // B10: the "courses" data cache feeds /api/courses/video-courses and the
+    // course badges; revalidatePath alone does not drop a tagged cache entry.
+    safeRevalidateTags(CACHE_TAGS.courses)
     if (updated.slug) {
         revalidatePath(`/courses/${updated.slug}`)
         revalidatePath(`/tutorials/${updated.slug}`)
@@ -211,6 +251,9 @@ export async function updateCourseThumbnail(courseId: string, thumbnailUrl: stri
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "update")
+
     const course = await prisma.course.findUnique({
         where: { id: courseId },
     })
@@ -231,6 +274,8 @@ export async function updateCourseThumbnail(courseId: string, thumbnailUrl: stri
     })
 
     revalidatePath(`/admin/courses/${courseId}/edit`)
+    // B10: thumbnail comes from the tagged course cache too.
+    safeRevalidateTags(CACHE_TAGS.courses)
 }
 
 export async function deleteDraft(courseId: string) {
@@ -239,6 +284,10 @@ export async function deleteDraft(courseId: string) {
     if (!session || !isEditorUser(session.user)) {
         throw new Error("Unauthorized")
     }
+
+    // A8: ownership.
+    const accessUser = toCourseAccessUser(session.user)
+    await assertManagedCourseForAction(accessUser, courseId, "delete")
 
     // Only allow deleting drafts
     const course = await prisma.course.findUnique({
@@ -258,6 +307,25 @@ export async function deleteDraft(courseId: string) {
 
     if (course.status !== "DRAFT") {
         throw new Error("Can only delete draft courses")
+    }
+
+    // A8: a course with learners is archived, never destroyed.
+    const enrollmentCount = await prisma.enrollment.count({ where: { courseId } })
+    if (decideCourseDelete(enrollmentCount) === "archive") {
+        await prisma.course.update({
+            where: { id: courseId },
+            data: { status: "ARCHIVED", isPublished: false },
+        })
+        await logContentAudit({
+            entityId: courseId,
+            entityType: "COURSE",
+            action: "UPDATE",
+            details: { archived: true, reason: "has enrollments", enrollmentCount },
+        })
+        revalidatePath("/admin/courses")
+        revalidatePath("/courses")
+        safeRevalidateTags(CACHE_TAGS.courses)
+        return { archived: true, enrollmentCount }
     }
 
     // Delete all associated files from S3
@@ -295,6 +363,8 @@ export async function deleteDraft(courseId: string) {
     })
 
     revalidatePath("/admin/courses")
+    revalidatePath("/courses")
+    safeRevalidateTags(CACHE_TAGS.courses)
 }
 
 export async function togglePublishStatus(courseId: string) {
@@ -303,6 +373,9 @@ export async function togglePublishStatus(courseId: string) {
     if (!session || !isEditorUser(session.user)) {
         throw new Error("Unauthorized")
     }
+
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "publish")
 
     const course = await prisma.course.findUnique({
         where: { id: courseId },
@@ -342,6 +415,9 @@ export async function createChapter(courseId: string, data: { title: string; des
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership.
+    await assertManagedCourseForAction(toCourseAccessUser(session.user), courseId, "manage")
+
     const lastChapter = await prisma.chapter.findFirst({
         where: { courseId },
         orderBy: { order: "desc" },
@@ -368,6 +444,9 @@ export async function updateChapter(chapterId: string, data: { title: string; de
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership, resolved from the chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "manage")
+
     const chapter = await prisma.chapter.update({
         where: { id: chapterId },
         data: {
@@ -385,6 +464,9 @@ export async function deleteChapter(chapterId: string) {
     if (!session || !isEditorUser(session.user)) {
         throw new Error("Unauthorized")
     }
+
+    // A8: ownership, resolved from the chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "delete")
 
     const chapter = await prisma.chapter.findUnique({
         where: { id: chapterId },
@@ -423,6 +505,9 @@ export async function createLesson(chapterId: string, data: any) {
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership, resolved from the chapter's course.
+    await assertManagedChapterForAction(toCourseAccessUser(session.user), chapterId, "manage")
+
     const lastLesson = await prisma.lesson.findFirst({
         where: { chapterId },
         orderBy: { order: "desc" },
@@ -454,6 +539,9 @@ export async function updateLesson(lessonId: string, data: any) {
         throw new Error("Unauthorized")
     }
 
+    // A8: ownership, resolved from the lesson's chapter/course.
+    await assertManagedLessonForAction(toCourseAccessUser(session.user), lessonId, "manage")
+
     const lesson = await prisma.lesson.update({
         where: { id: lessonId },
         data,
@@ -469,6 +557,9 @@ export async function deleteLesson(lessonId: string) {
     if (!session || !isEditorUser(session.user)) {
         throw new Error("Unauthorized")
     }
+
+    // A8: ownership, resolved from the lesson's chapter/course.
+    await assertManagedLessonForAction(toCourseAccessUser(session.user), lessonId, "delete")
 
     const lesson = await prisma.lesson.findUnique({
         where: { id: lessonId },
@@ -501,7 +592,10 @@ export async function getTutorialCoursesAction() {
     if (!session || !isEditorUser(session.user)) {
         return []
     }
+    const accessUser = toCourseAccessUser(session.user)
     const courses = await prisma.course.findMany({
+        // A8: teachers only see the courses they own in the studio.
+        where: accessUser.role === "ADMIN" ? undefined : { createdById: accessUser.userId },
         orderBy: { updatedAt: "desc" },
         select: {
             id: true,

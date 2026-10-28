@@ -21,8 +21,10 @@ export async function GET(
 
     const user = await getCurrentUserContext()
 
-    // Status check: DRAFT papers are invisible to guests and unauthorized students
-    if (paper.status === "DRAFT") {
+    // Status check: DRAFT and ARCHIVED papers are invisible to guests and
+    // unauthorized students. ARCHIVED means "withdrawn" (B4 archives a paper
+    // that has paid unlocks instead of destroying the entitlement).
+    if (paper.status === "DRAFT" || paper.status === "ARCHIVED") {
       const isOwner = user.isAuthenticated && user.role === "TEACHER" && paper.creatorId === user.userId
       const isAdmin = user.isAuthenticated && user.role === "ADMIN"
       if (!isAdmin && !isOwner) {

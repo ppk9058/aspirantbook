@@ -1,0 +1,69 @@
+{
+  "filePath": "tests/fixtures/dry-run-sample.txt",
+  "totalParsed": 5,
+  "skippedCount": 0,
+  "first5Skipped": [],
+  "junkLinesStripped": 0,
+  "questionNumbersOptionsNot4": [],
+  "emptyStems": [],
+  "stemsLookMerged": [],
+  "distinctSubjectTopicPairs": [
+    "General Science / Earth Sciences",
+    "General Science / Physics"
+  ],
+  "subjectCount": 1,
+  "topicCount": 2,
+  "taggedWithExamAndYearCount": 0,
+  "questions": [
+    {
+      "no": 1,
+      "stemSnippet": "Which of the following is the standard SI unit of electrical resistance?",
+      "optionCount": 4,
+      "answer": "C",
+      "sub": "General Science",
+      "top": "Physics",
+      "exam": "",
+      "year": ""
+    },
+    {
+      "no": 2,
+      "stemSnippet": "What is the chemical symbol for the element Gold?",
+      "optionCount": 4,
+      "answer": "B",
+      "sub": "General Science",
+      "top": "Physics",
+      "exam": "",
+      "year": ""
+    },
+    {
+      "no": 3,
+      "stemSnippet": "Which layer of Earth's atmosphere contains the majority of atmospheric ozone?",
+      "optionCount": 4,
+      "answer": "B",
+      "sub": "General Science",
+      "top": "Earth Sciences",
+      "exam": "",
+      "year": ""
+    },
+    {
+      "no": 4,
+      "stemSnippet": "What is the primary function of chlorophyll in plant cells?",
+      "optionCount": 4,
+      "answer": "B",
+      "sub": "General Science",
+      "top": "Earth Sciences",
+      "exam": "",
+      "year": ""
+    },
+    {
+      "no": 5,
+      "stemSnippet": "Which planet in our solar system exhibits the highest mean density?",
+      "optionCount": 4,
+      "answer": "C",
+      "sub": "General Science",
+      "top": "Earth Sciences",
+      "exam": "",
+      "year": ""
+    }
+  ]
+}

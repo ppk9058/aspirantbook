@@ -1,0 +1,16 @@
+{
+  "url": "http://127.0.0.1:3045/question-answer",
+  "path": "/question-answer",
+  "module": "content-engine",
+  "statusCode": 200,
+  "title": "Competitive Exam Previous Year Questions (PYQs) | TrillionSkill | aspirantbook",
+  "metaDescription": "Explore authentic previous year questions, answer keys, and detailed solutions for UPSC CSE, BPSC, UPPCS, RAS, and SSC CGL.",
+  "canonical": "http://127.0.0.1:3045/question-answer",
+  "robots": null,
+  "hreflang": {
+    "en": "http://127.0.0.1:3045/question-answer",
+    "hi": "http://127.0.0.1:3045/hi/question-answer",
+    "x-default": "http://127.0.0.1:3045/question-answer"
+  },
+  "jsonLd": []
+}

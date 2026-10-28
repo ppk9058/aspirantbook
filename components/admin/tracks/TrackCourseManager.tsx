@@ -42,7 +42,7 @@ export function TrackCourseManager({ trackId, courses: initialCourses }: TrackCo
     async function loadAvailableCourses() {
         const res = await getAvailableCourses(trackId)
         if (res.success) {
-            setAvailableCourses(res.courses)
+            setAvailableCourses(res.courses ?? [])
         }
     }
 

@@ -2,10 +2,21 @@
 
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { forEachBatchedId } from "@/lib/utils/concurrency"
 import { startOfDay, endOfDay, subDays } from "date-fns"
 
 /**
- * Aggregate course analytics for a specific date
+ * Aggregate course analytics for a specific date.
+ *
+ * B6: the previous version ran the same `progress` count twice (`completions`
+ * and `lessonsCompleted` were literally the same query), computed the
+ * completion rate as "lessons completed today / enrollments ever", and loaded
+ * every progress row and every review into memory to reduce them. Here each
+ * metric comes from its own definition:
+ *   completions      = enrollments marked complete during the day
+ *   lessonsCompleted = lessons completed during the day
+ *   completionRate   = enrollments ever completed / enrollments ever
+ * and the per-user rollup is a single `groupBy` instead of a full row scan.
  */
 export async function aggregateCourseAnalytics(courseId: string, date: Date, preVerified = false) {
     if (!preVerified) {
@@ -17,100 +28,54 @@ export async function aggregateCourseAnalytics(courseId: string, date: Date, pre
 
     const startDate = startOfDay(date)
     const endDate = endOfDay(date)
+    const inDay = { gte: startDate, lte: endDate }
 
-    // Get enrollments
-    const [totalEnrollments, newEnrollments] = await Promise.all([
-        prisma.enrollment.count({
-            where: { courseId },
-        }),
-        prisma.enrollment.count({
+    const [
+        totalEnrollments,
+        newEnrollments,
+        completedEnrollments,
+        completions,
+        dayProgress,
+        lessonsCompleted,
+        reviewStats,
+    ] = await Promise.all([
+        prisma.enrollment.count({ where: { courseId } }),
+        prisma.enrollment.count({ where: { courseId, enrolledAt: inDay } }),
+        prisma.enrollment.count({ where: { courseId, completedAt: { not: null } } }),
+        prisma.enrollment.count({ where: { courseId, completedAt: inDay } }),
+        // One row per active learner: distinct users plus their time spent.
+        prisma.progress.groupBy({
+            by: ["userId"],
             where: {
-                courseId,
-                enrolledAt: {
-                    gte: startDate,
-                    lte: endDate,
-                },
+                lesson: { chapter: { courseId } },
+                lastAccessed: inDay,
             },
+            _sum: { timeSpent: true },
+        }),
+        prisma.progress.count({
+            where: {
+                lesson: { chapter: { courseId } },
+                completed: true,
+                lastAccessed: inDay,
+            },
+        }),
+        prisma.review.aggregate({
+            where: { courseId, createdAt: inDay },
+            _avg: { rating: true },
+            _count: { _all: true },
         }),
     ])
 
-    // Get completions
-    const completions = await prisma.progress.count({
-        where: {
-            lesson: {
-                chapter: {
-                    courseId,
-                },
-            },
-            completed: true,
-            lastAccessed: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-    })
-
-    // Get engagement metrics
-    const progressRecords = await prisma.progress.findMany({
-        where: {
-            lesson: {
-                chapter: {
-                    courseId,
-                },
-            },
-            lastAccessed: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-        select: {
-            timeSpent: true,
-            userId: true,
-        },
-    })
-
-    const totalTimeSpentHours = progressRecords.reduce((sum, p) => sum + (p.timeSpent || 0), 0) / 60
-    const activeLearnersToday = new Set(progressRecords.map(p => p.userId)).size
+    const totalTimeSpentMinutes = dayProgress.reduce((sum, row) => sum + (row._sum.timeSpent ?? 0), 0)
+    const totalTimeSpentHours = totalTimeSpentMinutes / 60
+    const activeLearnersToday = dayProgress.length
     const avgTimePerUserHours = activeLearnersToday > 0 ? totalTimeSpentHours / activeLearnersToday : 0
 
-    // Get lessons completed
-    const lessonsCompleted = await prisma.progress.count({
-        where: {
-            lesson: {
-                chapter: {
-                    courseId,
-                },
-            },
-            completed: true,
-            lastAccessed: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-    })
+    const newReviews = reviewStats._count._all
+    const averageRating = reviewStats._avg.rating ?? 0
 
-    // Get reviews
-    const reviews = await prisma.review.findMany({
-        where: {
-            courseId,
-            createdAt: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-        select: {
-            rating: true,
-        },
-    })
-
-    const newReviews = reviews.length
-    const averageRating = newReviews > 0
-        ? reviews.reduce((sum, r) => sum + r.rating, 0) / newReviews
-        : 0
-
-    // Calculate completion rate
     const completionRate = totalEnrollments > 0
-        ? (completions / totalEnrollments) * 100
+        ? (completedEnrollments / totalEnrollments) * 100
         : 0
 
     // Upsert analytics record
@@ -153,7 +118,14 @@ export async function aggregateCourseAnalytics(courseId: string, date: Date, pre
 }
 
 /**
- * Aggregate user analytics for a specific date
+ * Aggregate user analytics for a specific date.
+ *
+ * B6: `loginCount` was written as a hard-coded 1 ("Simplified - would need
+ * session tracking") and overwritten on every run, so it never described
+ * anything. Sign-in events are not persisted anywhere (the audit logger in
+ * `lib/audit/audit-logger.ts` is an in-memory array), so this job no longer
+ * writes a value it cannot measure and leaves the column at its default.
+ * Time spent is a single `aggregate` instead of loading every progress row.
  */
 export async function aggregateUserAnalytics(userId: string, date: Date, preVerified = false) {
     if (!preVerified) {
@@ -165,57 +137,41 @@ export async function aggregateUserAnalytics(userId: string, date: Date, preVeri
 
     const startDate = startOfDay(date)
     const endDate = endOfDay(date)
+    const inDay = { gte: startDate, lte: endDate }
 
     // Get activity metrics — all queries are independent, run in parallel
-    const [lessonsCompleted, exercisesCompleted, assessmentsTaken, progressRecords, achievementsUnlocked, user] = await Promise.all([
+    const [lessonsCompleted, exercisesCompleted, assessmentsTaken, timeSpent, achievementsUnlocked, user] = await Promise.all([
         prisma.progress.count({
             where: {
                 userId,
                 completed: true,
-                lastAccessed: {
-                    gte: startDate,
-                    lte: endDate,
-                },
+                lastAccessed: inDay,
             },
         }),
         prisma.submission.count({
             where: {
                 userId,
                 passed: true,
-                createdAt: {
-                    gte: startDate,
-                    lte: endDate,
-                },
+                createdAt: inDay,
             },
         }),
         prisma.assessmentAttempt.count({
             where: {
                 userId,
-                startedAt: {
-                    gte: startDate,
-                    lte: endDate,
-                },
+                startedAt: inDay,
             },
         }),
-        prisma.progress.findMany({
+        prisma.progress.aggregate({
             where: {
                 userId,
-                lastAccessed: {
-                    gte: startDate,
-                    lte: endDate,
-                },
+                lastAccessed: inDay,
             },
-            select: {
-                timeSpent: true,
-            },
+            _sum: { timeSpent: true },
         }),
         prisma.userAchievement.count({
             where: {
                 userId,
-                unlockedAt: {
-                    gte: startDate,
-                    lte: endDate,
-                },
+                unlockedAt: inDay,
             },
         }),
         prisma.user.findUnique({
@@ -231,7 +187,7 @@ export async function aggregateUserAnalytics(userId: string, date: Date, preVeri
         }),
     ])
 
-    const timeSpentMinutes = progressRecords.reduce((sum, p) => sum + (p.timeSpent || 0), 0)
+    const timeSpentMinutes = timeSpent._sum.timeSpent ?? 0
 
     // Upsert analytics record
     const analytics = await prisma.userAnalytics.upsert({
@@ -242,7 +198,6 @@ export async function aggregateUserAnalytics(userId: string, date: Date, preVeri
             },
         },
         update: {
-            loginCount: 1, // Simplified - would need session tracking
             timeSpentMinutes,
             lessonsCompleted,
             exercisesCompleted,
@@ -254,7 +209,6 @@ export async function aggregateUserAnalytics(userId: string, date: Date, preVeri
         create: {
             userId,
             date: startDate,
-            loginCount: 1,
             timeSpentMinutes,
             lessonsCompleted,
             exercisesCompleted,
@@ -269,7 +223,22 @@ export async function aggregateUserAnalytics(userId: string, date: Date, preVeri
 }
 
 /**
- * Aggregate revenue analytics for a specific date
+ * Aggregate revenue analytics for a specific date.
+ *
+ * B6: this used to invent money. MRR was `number of MONTHLY subscribers * 9.99`
+ * (a constant, not a price anyone was charged) and ARR was that times twelve;
+ * "cancelled" counted PAST_DUE subscriptions, which are not cancellations, and
+ * new-subscription revenue was set to total revenue while renewal revenue was
+ * hard-coded to 0.
+ *
+ * Now every written number comes from a stored row:
+ *   totalRevenue / refunds  – summed by status
+ *   new / renewal revenue   – the payment's subscription was created inside or
+ *                             before the day (payments without a subscription
+ *                             are course purchases and count in neither)
+ *   cancelledSubscriptions  – status CANCELED updated during the day
+ * MRR, ARR and churn rate are written as NULL: `Subscription` has no price and
+ * no status history, so any number for them would be a guess.
  */
 export async function aggregateRevenueAnalytics(date: Date, preVerified = false) {
     if (!preVerified) {
@@ -281,71 +250,57 @@ export async function aggregateRevenueAnalytics(date: Date, preVerified = false)
 
     const startDate = startOfDay(date)
     const endDate = endOfDay(date)
+    const inDay = { gte: startDate, lte: endDate }
 
-    // Get payments
-    const payments = await prisma.payment.findMany({
-        where: {
-            createdAt: {
-                gte: startDate,
-                lte: endDate,
-            },
-        },
-        select: {
-            amount: true,
-            status: true,
-        },
-    })
-
-    const totalRevenue = payments
-        .filter(p => p.status === "COMPLETED")
-        .reduce((sum, p) => sum + p.amount, 0)
-
-    const refunds = payments
-        .filter(p => p.status === "REFUNDED")
-        .reduce((sum, p) => sum + p.amount, 0)
-
-    const netRevenue = totalRevenue - refunds
-
-    // Get subscriptions
-    const [newSubscriptions, cancelledSubscriptions, activeSubscriptions] = await Promise.all([
-        prisma.subscription.count({
+    const [
+        paymentsByStatus,
+        newSubscriptionsRevenue,
+        renewalRevenue,
+        newSubscriptions,
+        cancelledSubscriptions,
+        activeSubscriptions,
+    ] = await Promise.all([
+        prisma.payment.groupBy({
+            by: ["status"],
+            where: { createdAt: inDay },
+            _sum: { amount: true },
+        }),
+        prisma.payment.aggregate({
             where: {
-                createdAt: {
-                    gte: startDate,
-                    lte: endDate,
-                },
+                createdAt: inDay,
+                status: "COMPLETED",
+                subscription: { createdAt: inDay },
             },
+            _sum: { amount: true },
+        }),
+        prisma.payment.aggregate({
+            where: {
+                createdAt: inDay,
+                status: "COMPLETED",
+                subscription: { createdAt: { lt: startDate } },
+            },
+            _sum: { amount: true },
+        }),
+        prisma.subscription.count({
+            where: { createdAt: inDay },
         }),
         prisma.subscription.count({
             where: {
-                status: "PAST_DUE", // Using valid enum value
-                updatedAt: {
-                    gte: startDate,
-                    lte: endDate,
-                },
+                status: "CANCELED",
+                updatedAt: inDay,
             },
         }),
         prisma.subscription.count({
-            where: {
-                status: "ACTIVE",
-            },
+            where: { status: "ACTIVE" },
         }),
     ])
 
-    // Calculate MRR (simplified)
-    const monthlySubscriptions = await prisma.subscription.findMany({
-        where: {
-            status: "ACTIVE",
-            plan: "MONTHLY",
-        },
-    })
+    const sumFor = (status: "COMPLETED" | "REFUNDED") =>
+        paymentsByStatus.find((row) => row.status === status)?._sum.amount ?? 0
 
-    const mrr = monthlySubscriptions.length * 9.99 // Assuming $9.99/month
-
-    // Calculate churn rate
-    const churnRate = activeSubscriptions > 0
-        ? (cancelledSubscriptions / activeSubscriptions) * 100
-        : 0
+    const totalRevenue = sumFor("COMPLETED")
+    const refunds = sumFor("REFUNDED")
+    const netRevenue = totalRevenue - refunds
 
     // Upsert analytics record
     const analytics = await prisma.revenueAnalytics.upsert({
@@ -354,30 +309,30 @@ export async function aggregateRevenueAnalytics(date: Date, preVerified = false)
         },
         update: {
             totalRevenue,
-            newSubscriptionsRevenue: totalRevenue, // Simplified
-            renewalRevenue: 0,
+            newSubscriptionsRevenue: newSubscriptionsRevenue._sum.amount ?? 0,
+            renewalRevenue: renewalRevenue._sum.amount ?? 0,
             refunds,
             netRevenue,
             newSubscriptions,
             cancelledSubscriptions,
             activeSubscriptions,
-            mrr,
-            arr: mrr * 12,
-            churnRate,
+            mrr: null,
+            arr: null,
+            churnRate: null,
         },
         create: {
             date: startDate,
             totalRevenue,
-            newSubscriptionsRevenue: totalRevenue,
-            renewalRevenue: 0,
+            newSubscriptionsRevenue: newSubscriptionsRevenue._sum.amount ?? 0,
+            renewalRevenue: renewalRevenue._sum.amount ?? 0,
             refunds,
             netRevenue,
             newSubscriptions,
             cancelledSubscriptions,
             activeSubscriptions,
-            mrr,
-            arr: mrr * 12,
-            churnRate,
+            mrr: null,
+            arr: null,
+            churnRate: null,
         },
     })
 
@@ -385,7 +340,15 @@ export async function aggregateRevenueAnalytics(date: Date, preVerified = false)
 }
 
 /**
- * Run all analytics aggregations for today
+ * Run all analytics aggregations for today.
+ *
+ * B6: courses and users were aggregated one `await` at a time. They now run in
+ * bounded waves so a full day's snapshot finishes in a predictable number of
+ * round trips without opening one connection per course.
+ *
+ * B11: the id lists were also read with an unbounded `findMany`, which grows
+ * with the learner count. They are now paged (200 courses, 500 users at a time)
+ * and each page is aggregated before the next is fetched.
  */
 export async function runDailyAnalytics() {
     const session = await auth()
@@ -398,33 +361,44 @@ export async function runDailyAnalytics() {
     // Aggregate revenue
     await aggregateRevenueAnalytics(today, true)
 
-    // Get all courses and aggregate
-    const courses = await prisma.course.findMany({
-        where: { status: "PUBLISHED" },
-        select: { id: true },
+    // B11: walk the tables in pages instead of loading every id at once; each
+    // page is still aggregated with bounded concurrency.
+    const courseCursor = (cursor: string | undefined, take: number) =>
+        prisma.course.findMany({
+            where: { status: "PUBLISHED" },
+            select: { id: true },
+            orderBy: { id: "asc" },
+            take,
+            ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+        })
+
+    const coursesAggregated = await forEachBatchedId({
+        pageSize: 200,
+        concurrency: 4,
+        fetchPage: courseCursor,
+        worker: (id) => aggregateCourseAnalytics(id, today, true),
     })
 
-    for (const course of courses) {
-        await aggregateCourseAnalytics(course.id, today, true)
-    }
+    const since = subDays(today, 1)
+    const userCursor = (cursor: string | undefined, take: number) =>
+        prisma.user.findMany({
+            where: { lastActive: { gte: since } },
+            select: { id: true },
+            orderBy: { id: "asc" },
+            take,
+            ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+        })
 
-    // Get active users and aggregate
-    const activeUsers = await prisma.user.findMany({
-        where: {
-            lastActive: {
-                gte: subDays(today, 1),
-            },
-        },
-        select: { id: true },
+    const usersAggregated = await forEachBatchedId({
+        pageSize: 500,
+        concurrency: 8,
+        fetchPage: userCursor,
+        worker: (id) => aggregateUserAnalytics(id, today, true),
     })
-
-    for (const user of activeUsers) {
-        await aggregateUserAnalytics(user.id, today, true)
-    }
 
     return {
         success: true,
-        coursesAggregated: courses.length,
-        usersAggregated: activeUsers.length,
+        coursesAggregated,
+        usersAggregated,
     }
 }

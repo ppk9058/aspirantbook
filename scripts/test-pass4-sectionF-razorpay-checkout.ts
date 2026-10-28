@@ -51,7 +51,7 @@ async function run() {
       await page.waitForTimeout(50)
     }
 
-    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 })
+    await page.waitForURL((url: URL) => !url.pathname.includes("/login"), { timeout: 15000 })
     console.log("[auth] Logged in successfully")
 
     // 2. Open course page

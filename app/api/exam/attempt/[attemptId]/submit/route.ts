@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
 import { getAttemptRanking } from "@/lib/exam-ranking";
+import { examDeadline } from "@/lib/exam-deadline";
 
 interface AnswerPayload {
   questionId: string;
@@ -95,16 +96,17 @@ export async function POST(
       );
     }
 
-    // Check server deadline with ~30s grace period.
-    // If expired: do NOT discard answers with 410! Upsert final answers, grade the attempt, and return the result.
-    const durationMinutes = attempt.test!.durationMinutes;
-    const testDurationSecs = durationMinutes * 60;
-    const deadlineMs = attempt.startedAt.getTime() + testDurationSecs * 1000;
-    const graceDeadlineMs = deadlineMs + 30 * 1000;
+    // A14: shared deadline policy, checked BEFORE any write. Past the grace
+    // period the final-answer upsert is skipped (the synced answers on record
+    // are graded instead) — the same rejection windows the v1/mobile path.
     const now = new Date();
+    const deadline = examDeadline(
+      { startedAt: attempt.startedAt, durationMinutes: attempt.test?.durationMinutes ?? 60 },
+      now
+    );
 
     // Upsert all final answers (sort deterministically to prevent deadlock under concurrency)
-    if (answers.length > 0) {
+    if (answers.length > 0 && deadline.withinGrace) {
       const sortedAnswers = [...answers].sort((a, b) => a.questionId.localeCompare(b.questionId));
       await prisma.$transaction(
         sortedAnswers.map((ans) =>

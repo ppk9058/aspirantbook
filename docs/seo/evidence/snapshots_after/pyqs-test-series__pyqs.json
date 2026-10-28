@@ -1,0 +1,15 @@
+{
+  "url": "http://127.0.0.1:3045/pyqs",
+  "path": "/pyqs",
+  "module": "pyqs-test-series",
+  "statusCode": 200,
+  "title": "Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook",
+  "metaDescription": "Download and practice verified previous year examination papers for BPSC, UPSC, NCERT, and State Boards with answer keys and CBT simulations.",
+  "canonical": "http://127.0.0.1:3045/pyqs",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://127.0.0.1:3045/pyqs",
+    "x-default": "http://127.0.0.1:3045/pyqs"
+  },
+  "jsonLd": []
+}

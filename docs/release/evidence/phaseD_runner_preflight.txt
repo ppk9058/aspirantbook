@@ -1,0 +1,71 @@
+=== PHASE D: RUNNER PREFLIGHT VERIFICATION EVIDENCE ===
+Date: 2026-10-26T18:50:37+05:30
+
+1. TEST DB CONNECTION PREFLIGHT ABORT (DATABASE DOWN)
+--------------------------------------------------
+$ docker stop trillionskill-test-db
+trillionskill-test-db
+
+$ SKIP_DOCKER_AUTOSTART=1 npx tsx scripts/run-proof-suite.ts
+==================================================================
+ONE-COMMAND PROOF RUNNER: RECONCILED TEST VERIFICATION
+TEST DB UNREACHABLE
+
+(Command exited with code 1. Guard successfully prevented suites from executing against dead DB).
+
+2. TEST DB AUTO-START RECOVERY & HEALTH CHECK
+--------------------------------------------------
+$ npx tsx scripts/run-proof-suite.ts --mode=unit
+==================================================================
+ONE-COMMAND PROOF RUNNER: RECONCILED TEST VERIFICATION
+Test DB at 127.0.0.1:54329 unreachable. Attempting `docker start trillionskill-test-db`...
+Mode: unit | DB: 127.0.0.1:54329 (RECOVERED via docker start (healthy))
+==================================================================
+
+--- 1. Pure Logic & Unit Suites ---
+--- 2. SEO Core & Adapter Suites ---
+--- 3. Database & Mutation Suites ---
+--- 4. HTTP Integration Suites ---
+
+==========================================================================================================
+RECONCILED PROOF SUITE EXECUTION SUMMARY TABLE
+==========================================================================================================
+Executed at: 2026-10-26T13:21:18.679Z | Mode: unit
+Database: 127.0.0.1:54329 (RECOVERED via docker start (healthy))
+----------------------------------------------------------------------------------------------------------
+Suite Name                           | File Path                                  | Count            | Type               | Status        
+----------------------------------------------------------------------------------------------------------
+Pure Logic & Acceptance              | tests/content-engine/pure-logic.test.ts    | 17               | Unit               | PASS          
+Parser Bugs & Edge Cases             | tests/content-engine/parser-bugs.test.ts   | 9                | Unit               | PASS          
+Prisma Query Log Production Guard    | tests/unit/prisma-log-guard.test.ts        | 4                | Unit               | PASS          
+Tutorial Goal Categories             | tests/unit/tutorials-goal-categories.test. | 5                | Unit               | PASS          
+Exam Mutations Auth                  | tests/unit/exam-mutations-auth.test.ts     | 14               | Unit               | PASS          
+Exam Packages & Labels               | tests/unit/exam-packages-tests.test.ts     | 10               | Unit               | PASS          
+Exam Checklist Scenarios             | tests/unit/exam-checklist-scenarios.test.t | 13               | Unit               | PASS          
+SEO Core Functions                   | tests/seo/core.test.ts                     | 13               | Unit               | PASS          
+SEO Module Adapters                  | tests/seo/adapters.test.ts                 | 15               | Unit               | PASS          
+SEO Adapter Parity                   | tests/seo/parity.test.ts                   | 3                | Unit               | PASS          
+SEO Admin Auth & Layout Guard        | tests/seo/admin-auth.test.ts               | 3                | Unit               | PASS          
+Sitemap DB Failure Resilience        | tests/seo/sitemap-resilience.test.ts       | 3                | Unit               | PASS          
+Content Engine DB Service            | tests/content-engine/db-service.test.ts    | 11               | DB                 | PASS          
+Admin UI & Nav Registration          | tests/content-engine/admin-ui.test.ts      | 2                | Unit               | PASS          
+Public SEO Pages & ShortID           | tests/content-engine/public-pages.test.ts  | 5                | Unit               | PASS          
+Content Engine Safety Mutations      | tests/content-engine/mutations.test.ts     | 20               | Physical code muta | PASS          
+Phase 1.4 Production Auth Guard      | scripts/test-phase1-4-prod-auth.ts         | count unknown    | HTTP integration   | SUITE CRASHED 
+Phase 1.5 Cache & Revalidation       | scripts/test-phase1-5-cache-revalidation.t | count unknown    | HTTP integration   | SUITE CRASHED 
+Phase 1.6 Public XSS & HTML Safety   | scripts/test-phase1-6-xss.ts               | count unknown    | HTTP integration   | SUITE CRASHED 
+Phase 1.7 Hindi Year Hub & 404s      | scripts/test-phase1-7-hindi-year-hub.ts    | count unknown    | HTTP integration   | SUITE CRASHED 
+Phase 1.9 Admin Leak Audit           | scripts/test-phase1-9-leak-audit.ts        | count unknown    | HTTP integration   | SUITE CRASHED 
+Phase 2.3 Cross-Module Snapshots     | scripts/test-phase2-3-cross-module-snapsho | count unknown    | HTTP integration   | SUITE CRASHED 
+Phase 2.4 Sitemap Comparison         | scripts/test-phase2-4-sitemap-comparison.t | count unknown    | HTTP integration   | SUITE CRASHED 
+Phase A Sitemap ISR & Revalidation   | scripts/test-phaseA-sitemap-proof.ts       | count unknown    | HTTP integration   | SUITE CRASHED 
+Phase B Cross-Module JSON-LD Audit   | scripts/validate-jsonld.ts                 | 0 URLs           | HTTP integration   | SUITE CRASHED 
+----------------------------------------------------------------------------------------------------------
+TOTALS: 147 tests passed / 0 tests failed / 8 suites crashed / 0 URL checks
+==========================================================================================================
+
+3. HONEST COUNTING & CRASH REPORTING VERIFICATION
+--------------------------------------------------
+- When HTTP suites could not reach the server, they were properly classified as "SUITE CRASHED" with "count unknown", NOT falsely added to test failure count.
+- Phase B validate-jsonld was segregated under "URL checks", keeping assertion counts decoupled from URL validation counts.
+- Real connection state is logged dynamically in header: "127.0.0.1:54329 (CONNECTED (healthy))" or "RECOVERED via docker start (healthy)".

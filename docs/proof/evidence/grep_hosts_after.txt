@@ -1,0 +1,43 @@
+lib/auth/rbac.ts:36:    email: session?.user?.email || `${role.toLowerCase()}@aspirantbook.com`,
+lib/email.ts:36:            const parsedUrl = new URL(link, "http://localhost")
+lib/email.ts:71:        const from = process.env.EMAIL_FROM || "AspirantBook <no-reply@aspirantbook.com>"
+lib/authwall/bot-verify.ts:52:      "127.0.0.1"
+lib/authwall/bot-verify.ts:55:    clientIp = ip || "127.0.0.1"
+lib/authwall/bot-verify.ts:71:    // If it's localhost or an ordinary IP without the test mock signal, treat as normal user
+lib/authwall/bot-verify.ts:72:    if (clientIp === "127.0.0.1" || clientIp === "::1") {
+lib/authwall/bot-verify.ts:79:  if (!cleanIp || cleanIp === "127.0.0.1" || cleanIp === "::1" || cleanIp.startsWith("192.168.") || cleanIp.startsWith("10.")) {
+lib/utils/return-path.ts:6: * 3. Uses new URL(raw, "http://localhost") to assert identical origin and that pathname starts with exactly one '/'.
+lib/utils/return-path.ts:47:    // Reject @ symbol in path before query string (prevents http://localhost/path@evil.com parser differential)
+lib/utils/return-path.ts:57:    const parsed = new URL(trimmed, "http://localhost");
+lib/utils/return-path.ts:58:    // Origin must remain strictly http://localhost
+lib/utils/return-path.ts:59:    if (parsed.origin !== "http://localhost") {
+lib/testing/assert-test-db.ts:25:    if (host !== "localhost" && host !== "127.0.0.1") {
+lib/testing/assert-test-db.ts:27:            `[DB GUARD VIOLATION] TEST_DATABASE_URL host must be localhost or 127.0.0.1 (got: ${host})`
+lib/boot-guard.ts:17:  // 1. Guard: APP_ENV=test must only ever be paired with local test database (127.0.0.1 or localhost, ending in _test)
+lib/boot-guard.ts:22:      const isLocalHost = parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
+lib/boot-guard.ts:32:        `Test mode is strictly restricted to local PostgreSQL (127.0.0.1/localhost) ending with _test. (got: ${dbUrl ? dbUrl.replace(/:[^:@]+@/, ":***@") : "none"})`;
+lib/actions/admin/users.ts:16:            "127.0.0.1"
+lib/actions/admin/users.ts:19:        return "127.0.0.1"
+lib/actions/admin/users.ts:456:    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+lib/actions/admin/users.ts:481:    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+lib/actions/auth.ts:52:    let clientIp = "127.0.0.1"
+lib/actions/auth.ts:59:            "127.0.0.1"
+lib/actions/auth.ts:61:        clientIp = "127.0.0.1"
+lib/actions/auth.ts:111:        const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+lib/actions/auth.ts:191:    let clientIp = "127.0.0.1"
+lib/actions/auth.ts:198:            "127.0.0.1"
+lib/actions/auth.ts:200:        clientIp = "127.0.0.1"
+lib/actions/auth.ts:227:        const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+lib/actions/auth.ts:250:    let clientIp = "127.0.0.1"
+lib/actions/auth.ts:257:            "127.0.0.1"
+lib/actions/auth.ts:259:        clientIp = "127.0.0.1"
+lib/actions/auth.ts:288:        const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+lib/exam/audit-helper.ts:101:        ip: ip || "127.0.0.1",
+lib/rate-limit.ts:19:    console.warn("[RateLimit] TRUST_PROXY is not set to 'true'. Client IP will default to 127.0.0.1. Set TRUST_PROXY=true if running behind Nginx/Cloudflare/AWS ALB.");
+lib/rate-limit.ts:31:  return "127.0.0.1";
+lib/seo/core.ts:15: * - In development or test: falls back to http://127.0.0.1:3045.
+lib/seo/core.ts:39:  return "http://127.0.0.1:3045"
+app/admin/layout.tsx:32:        email: session?.user?.email || "admin@aspirantbook.com",
+app/api/auth/mobile-login/route.ts:47:            isLocalTestDb = (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") && parsed.pathname.endsWith("_test")
+components/admin/AdminProfileDialog.tsx:164:                            <p className="text-xs text-slate-400 truncate mt-0.5">{currentUser?.email || "admin@aspirantbook.com"}</p>
+components/admin/AdminHeader.tsx:210:                                            {user?.email || "admin@aspirantbook.com"}

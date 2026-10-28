@@ -6,6 +6,7 @@ import { Book } from "@/lib/books/types"
 import { useBookCart } from "@/lib/books/cartContext"
 import { useWishlist } from "@/lib/books/wishlistContext"
 import { Star, Plus, Minus, Heart, Zap, ShoppingCart } from "lucide-react"
+import Image from "next/image"
 
 interface BookCardProps {
   book: Book
@@ -59,10 +60,12 @@ export default function BookCard({ book }: BookCardProps) {
       <Link href={`/books/${book.slug}`} className="block flex-1">
         {/* Book Cover Container */}
         <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-gray-50 dark:bg-slate-900 flex items-center justify-center p-2 mb-3">
-          <img
+          <Image
             src={book.coverImage}
             alt={book.title}
-            className="w-full h-full object-contain drop-shadow-md group-hover:scale-[1.03] transition-transform duration-200"
+            fill
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
+            className="object-contain drop-shadow-md transition-transform duration-200 group-hover:scale-[1.03]"
           />
 
           {/* Heart / Wishlist Icon in the TOP-RIGHT corner of the image itself */}

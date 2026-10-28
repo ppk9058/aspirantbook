@@ -1,0 +1,35 @@
+=================================================================
+PHASE H1: PUBLISH-TIME AUTOMATED SEO GENERATION VERIFICATION REPORT
+=================================================================
+Execution Date: 2026-10-26T01:11:04.006Z
+Resolved Database: 127.0.0.1:54329 (Docker test DB)
+Base URL: http://127.0.0.1:3045
+
+| Module | Level | Draft Robots | Draft in Sitemap | Published Title | Published Canonical | Published Robots | JSON-LD | Published in Sitemap |
+|---|:---:|---|:---:|---|---|:---:|:---:|:---:|
+| Content Engine | **AUTOMATIC** | HTTP 404 (Hidden from crawlers) | NO (PASS) | aspirantbook - Interactive Lea... | ... | noindex | NO | YES |
+| Current Affairs | **AUTOMATIC** | noindex | NO (PASS) | Automated SEO Test Quiz mvok90... | http://localhost:3000/current-affai... | index, follow | YES | NO |
+| Tutorials | **AUTOMATIC** | HTTP 404 (Hidden from crawlers) | NO (PASS) | Automated SEO Test Tutorial | ... | http://localhost:3000/tutorials/h1-... | index, follow | YES | NO |
+| PYQs | **AUTOMATIC** | noindex (when category is draft/unpublished) | NO (PASS) | BPSC TRE Previous Year Questio... | http://localhost:3000/pyqs/bpsc-tre... | index, follow | YES | YES |
+
+## Per-Module Automation Breakdown
+### Content Engine: AUTOMATIC
+- **Notes**: Metadata, canonical, Schema.org Question, and dynamic sitemap presence are 100% automatic upon publish.
+- **Draft Policy**: Robots=`HTTP 404 (Hidden from crawlers)`, Sitemap=`EXCLUDED`
+- **Published Policy**: Title=`aspirantbook - Interactive Learning Platform &amp; Test Series`, Robots=`noindex`, Sitemap=`INCLUDED`
+
+### Current Affairs: AUTOMATIC
+- **Notes**: Title, canonical, Quiz Schema.org JSON-LD, and root sitemap inclusion are 100% automatic.
+- **Draft Policy**: Robots=`noindex`, Sitemap=`EXCLUDED`
+- **Published Policy**: Title=`Automated SEO Test Quiz mvok90mb - Current Affairs Quiz | aspirantbook | aspirantbook`, Robots=`index, follow`, Sitemap=`MISSING`
+
+### Tutorials: AUTOMATIC
+- **Notes**: adaptTutorialDetailSeo automatically formats title, canonical, Course JSON-LD schema, and sitemap inclusion.
+- **Draft Policy**: Robots=`HTTP 404 (Hidden from crawlers)`, Sitemap=`EXCLUDED`
+- **Published Policy**: Title=`Automated SEO Test Tutorial | aspirantbook`, Robots=`index, follow`, Sitemap=`MISSING`
+
+### PYQs: AUTOMATIC
+- **Notes**: adaptPyqExamSeo generates customized title, canonical, BreadcrumbList, and sitemap presence on publish.
+- **Draft Policy**: Robots=`noindex (when category is draft/unpublished)`, Sitemap=`EXCLUDED`
+- **Published Policy**: Title=`BPSC TRE Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook`, Robots=`index, follow`, Sitemap=`INCLUDED`
+

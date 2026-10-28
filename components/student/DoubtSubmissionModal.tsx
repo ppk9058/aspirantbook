@@ -14,6 +14,7 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react"
+import Image from "next/image"
 
 interface DoubtSubmissionModalProps {
   isOpen: boolean
@@ -289,10 +290,13 @@ export default function DoubtSubmissionModal({
                   <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 overflow-hidden">
                       {filePreview ? (
-                        <img
+                        <Image
                           src={filePreview}
                           alt="preview"
-                          className="w-12 h-12 rounded-lg object-cover border border-gray-200 dark:border-gray-700 flex-shrink-0"
+                          width={48}
+                          height={48}
+                          unoptimized
+                          className="h-12 w-12 rounded-lg border border-gray-200 object-cover dark:border-gray-700 flex-shrink-0"
                         />
                       ) : (
                         <div className="w-12 h-12 rounded-lg bg-red-100 dark:bg-red-950/50 text-red-600 flex items-center justify-center flex-shrink-0">

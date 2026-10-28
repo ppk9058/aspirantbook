@@ -88,10 +88,13 @@ export function getAnalyticsUserWhere(includeStaff = false) {
   }
   return {
     role: { notIn: ["ADMIN", "TEACHER"] },
-    NOT: [
-      { email: { endsWith: "@test.local" } },
-      { email: { contains: "dummy" } },
-    ],
+    NOT:
+      process.env.APP_ENV === "test"
+        ? [{ email: { contains: "dummy" } }]
+        : [
+            { email: { endsWith: "@test.local" } },
+            { email: { contains: "dummy" } },
+          ],
   }
 }
 
@@ -237,27 +240,36 @@ export async function computeAuthoritativePackageMetrics(
     const enrolledUserIds = new Set(enrollments.map((e) => e.userId))
     const qualifyingStudentAttempts: typeof allAttempts = []
 
+    let enrolledCount = 0
+    let guestCount = 0
+
     for (const att of allAttempts) {
       const user = att.user
       const isStaff = user?.role === "ADMIN" || user?.role === "TEACHER"
-      const isTestEmail = user?.email?.endsWith("@test.local")
+      const isTestEmail =
+        process.env.APP_ENV !== "test" && Boolean(user?.email?.endsWith("@test.local"))
 
       if (!includeStaff && (isStaff || isTestEmail)) {
         continue
       }
 
+      qualifyingStudentAttempts.push(att)
+
       // Categorize enrolled student attempts vs guest / unenrolled open attempts
       if (user?.id && enrolledUserIds.has(user.id)) {
-        qualifyingStudentAttempts.push(att)
+        enrolledCount += 1
       } else {
-        guestAttempts += 1
+        guestCount += 1
       }
     }
 
-    enrolledAttempts = qualifyingStudentAttempts.length
-    // Total attempts across all takers (enrolled + guest)
-    attempts = enrolledAttempts + guestAttempts
-    const studentUserIds = new Set(allAttempts.filter((a) => a.user?.id).map((a) => a.userId))
+    enrolledAttempts = enrolledCount
+    guestAttempts = guestCount
+    // Total attempts across all student takers (enrolled + guest)
+    attempts = qualifyingStudentAttempts.length
+    const studentUserIds = new Set(
+      qualifyingStudentAttempts.map((a) => a.userId).filter(Boolean)
+    )
     uniqueStudents = studentUserIds.size
 
     // Average score percentage calculation on first attempts across all qualifying attempts
@@ -304,7 +316,11 @@ export function isAnalyticsUser(user?: { role?: string; email?: string } | null)
   if (user.role === "ADMIN" || user.role === "TEACHER") return false
   if (user.email) {
     const email = user.email.toLowerCase()
-    if (email.endsWith("@test.local") || email.includes("dummy") || email.includes("test-bot")) {
+    if (
+      (process.env.APP_ENV !== "test" && email.endsWith("@test.local")) ||
+      email.includes("dummy") ||
+      email.includes("test-bot")
+    ) {
       return false
     }
   }

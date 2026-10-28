@@ -1,0 +1,340 @@
+# Phase D Cross-Module Snapshot Invariance Report
+
+Execution Timestamp: 2026-10-26T00:57:16.364Z
+Baseline (Before): Merge-base 1b48ec9 (docs/release/evidence/snapshots_before)
+Current (After): HEAD release-hardening (docs/release/evidence/snapshots_after)
+Total URLs Compared: 60
+
+| Category | Count | Status |
+|---|:---:|:---:|
+| Exactly Identical | 23 | PASS |
+| Additive Enhancements (new routes / previously missing tags) | 19 | PASS |
+| Owner-Approved Deviations (/pyqs/[examId] & /test-series/[id]) | 18 | PASS |
+| Unexpected Diff (FAIL) | 0 | PASS |
+
+## 1. Owner-Approved Deviations (/pyqs/[examId] & /test-series/[id])
+### `/pyqs/bpsc` (pyqs__pyqs_bpsc.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"BPSC Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Official Previous Year Papers for 70th, 69th, 68th, 67th CCE, CDPO, AEDO &amp; TRE."`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/pyqs/bpsc"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+### `/pyqs/cds` (pyqs__pyqs_cds.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"Exam Category Not Found | TrillionSkill | aspirantbook"`
+
+### `/pyqs/mppsc` (pyqs__pyqs_mppsc.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"Exam Category Not Found | TrillionSkill | aspirantbook"`
+
+### `/pyqs/nda` (pyqs__pyqs_nda.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"Exam Category Not Found | TrillionSkill | aspirantbook"`
+
+### `/pyqs/ras` (pyqs__pyqs_ras.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"Exam Category Not Found | TrillionSkill | aspirantbook"`
+
+### `/pyqs/ssc-cgl` (pyqs__pyqs_ssc_cgl.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"SSC CGL Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Official previous year question papers for SSC CGL"`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/pyqs/ssc-cgl"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+### `/pyqs/ugc-net` (pyqs__pyqs_ugc_net.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"Exam Category Not Found | TrillionSkill | aspirantbook"`
+
+### `/pyqs/uppcs` (pyqs__pyqs_uppcs.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"Exam Category Not Found | TrillionSkill | aspirantbook"`
+
+### `/pyqs/upsc-cse` (pyqs__pyqs_upsc_cse.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"Exam Category Not Found | TrillionSkill | aspirantbook"`
+
+### `/test-series/bpsc-72nd-2026` (test-series__test_series_bpsc_72nd_2026.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"72nd BPSC Prelims Mock Series 2026 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Mock test series for BPSC 72nd Prelims"`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/test-series/bpsc-72nd-2026"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+### `/test-series/e2e-series-e2e-20261021111538671-tnwv1` (test-series__test_series_e2e_series_e2e_20261021111538671_tnwv1.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"E2E Series E2E-20261021111538671-tnwv1 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Take online mock tests for E2E Series E2E-20261021111538671-tnwv1. Real-time analytics, all-India ranking, and detailed solutions."`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/test-series/e2e-series-e2e-20261021111538671-tnwv1"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+### `/test-series/e2e-series-e2e-20261021114050130-622aa` (test-series__test_series_e2e_series_e2e_20261021114050130_622aa.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"E2E Series E2E-20261021114050130-622aa Test Series &amp; Mock Tests | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Take online mock tests for E2E Series E2E-20261021114050130-622aa. Real-time analytics, all-India ranking, and detailed solutions."`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/test-series/e2e-series-e2e-20261021114050130-622aa"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+### `/test-series/e2e-series-e2e-20261021124106098-4akv9` (test-series__test_series_e2e_series_e2e_20261021124106098_4akv9.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"E2E Series E2E-20261021124106098-4akv9 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Take online mock tests for E2E Series E2E-20261021124106098-4akv9. Real-time analytics, all-India ranking, and detailed solutions."`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/test-series/e2e-series-e2e-20261021124106098-4akv9"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+### `/test-series/e2e-series-e2e-20261021134628389-8s2bg` (test-series__test_series_e2e_series_e2e_20261021134628389_8s2bg.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"E2E Series E2E-20261021134628389-8s2bg Test Series &amp; Mock Tests | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Take online mock tests for E2E Series E2E-20261021134628389-8s2bg. Real-time analytics, all-India ranking, and detailed solutions."`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/test-series/e2e-series-e2e-20261021134628389-8s2bg"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+### `/test-series/pb-7391-s-legacy` (test-series__test_series_pb_7391_s_legacy.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"PB-7391 S-LEGACY Prelims Series Test Series &amp; Mock Tests | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Take online mock tests for PB-7391 S-LEGACY Prelims Series. Real-time analytics, all-India ranking, and detailed solutions."`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/test-series/pb-7391-s-legacy"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+### `/test-series/pb-7391-s-pub` (test-series__test_series_pb_7391_s_pub.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"PB-7391 S-PUB BPSC Prelims Test Series Test Series &amp; Mock Tests | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Take online mock tests for PB-7391 S-PUB BPSC Prelims Test Series. Real-time analytics, all-India ranking, and detailed solutions."`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/test-series/pb-7391-s-pub"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+### `/test-series/sample-audit-series-1` (test-series__test_series_sample_audit_series_1.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"Sample Audit Test Series 1 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Take online mock tests for Sample Audit Test Series 1. Real-time analytics, all-India ranking, and detailed solutions."`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/test-series/sample-audit-series-1"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+### `/test-series/sample-audit-series-2` (test-series__test_series_sample_audit_series_2.json)
+- **title**:
+  - Before: `"aspirantbook - Interactive Learning Platform &amp; Test Series"`
+  - After:  `"Sample Audit Test Series 2 Test Series &amp; Mock Tests | TrillionSkill | aspirantbook"`
+- **metaDescription**:
+  - Before: `"Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook."`
+  - After:  `"Take online mock tests for Sample Audit Test Series 2. Real-time analytics, all-India ranking, and detailed solutions."`
+- **canonical**:
+  - Before: `null`
+  - After:  `"http://localhost:3000/test-series/sample-audit-series-2"`
+- **robots**:
+  - Before: `null`
+  - After:  `"index, follow"`
+- **jsonLdTypes**:
+  - Before: `[]`
+  - After:  `["BreadcrumbList"]`
+
+## 2. Additive Enhancements
+### `/hi/question-answer` (content-engine__hi_question_answer.json)
+- **statusCode**: Before=`404` -> After=`200`
+- **title**: Before=`null` -> After=`"प्रतियोगी परीक्षा पिछले वर्ष के प्रश्नोत्तर (PYQs) | TrillionSkill हिन्दी | aspirantbook"`
+- **metaDescription**: Before=`null` -> After=`"यूपीएससी, बीपीएससी, यूपीपीसीएस, आरएएस और एसएससी परीक्षाओं के प्रामाणिक पिछले वर्षों के प्रश्नोत्तर और विस्तृत हिन्दी समाधान।"`
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/hi/question-answer"`
+
+### `/hi/question-answer/upsc-cse` (content-engine__hi_question_answer_upsc_cse.json)
+- **statusCode**: Before=`404` -> After=`200`
+- **title**: Before=`null` -> After=`"Upsc Cse पिछले वर्षों के प्रश्नोत्तर (हिन्दी) | TrillionSkill | aspirantbook"`
+- **metaDescription**: Before=`null` -> After=`"Upsc Cse परीक्षा के प्रामाणिक पिछले वर्षों के प्रश्नोत्तर और विस्तृत हिन्दी व्याख्या।"`
+
+### `/hi/question-answer/upsc-cse/2023` (content-engine__hi_question_answer_upsc_cse_2023.json)
+- **statusCode**: Before=`404` -> After=`200`
+- **title**: Before=`null` -> After=`"Upsc Cse 2023 प्रश्नोत्तर (हिन्दी) | TrillionSkill | aspirantbook"`
+- **metaDescription**: Before=`null` -> After=`"Upsc Cse परीक्षा के 2023 विषय पर आधारित पिछले वर्षों के प्रश्न और हिन्दी समाधान।"`
+
+### `/hi/question-answer/upsc-cse/history` (content-engine__hi_question_answer_upsc_cse_history.json)
+- **statusCode**: Before=`404` -> After=`200`
+- **title**: Before=`null` -> After=`"Upsc Cse History प्रश्नोत्तर (हिन्दी) | TrillionSkill | aspirantbook"`
+- **metaDescription**: Before=`null` -> After=`"Upsc Cse परीक्षा के History विषय पर आधारित पिछले वर्षों के प्रश्न और हिन्दी समाधान।"`
+
+### `/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements` (content-engine__hi_question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json)
+- **statusCode**: Before=`404` -> After=`200`
+- **title**: Before=`null` -> After=`"सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: | सिंधु घाटी सभ्यता UPSC CSE 2023 MCQ | aspirantbook"`
+- **metaDescription**: Before=`null` -> After=`"सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: उत्तर: 1 और 2 दोनों — मुख्य बिंदु और व्याख्या सहित। सिंधु घाटी सभ्यता, UPSC CSE 2023."`
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+- **jsonLdTypes**: Before=`[]` -> After=`["unknown"]`
+
+### `/question-answer` (content-engine__question_answer.json)
+- **statusCode**: Before=`404` -> After=`200`
+- **title**: Before=`null` -> After=`"Competitive Exam Previous Year Questions (PYQs) | TrillionSkill | aspirantbook"`
+- **metaDescription**: Before=`null` -> After=`"Explore authentic previous year questions, answer keys, and detailed solutions for UPSC CSE, BPSC, UPPCS, RAS, and SSC CGL."`
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/question-answer"`
+
+### `/question-answer/upsc-cse` (content-engine__question_answer_upsc_cse.json)
+- **statusCode**: Before=`404` -> After=`200`
+- **title**: Before=`null` -> After=`"Upsc Cse Previous Year Questions (PYQs) | TrillionSkill | aspirantbook"`
+- **metaDescription**: Before=`null` -> After=`"Complete archive of Upsc Cse previous year exam questions with verified solutions, answer keys, and year-wise breakdown."`
+
+### `/question-answer/upsc-cse/2023` (content-engine__question_answer_upsc_cse_2023.json)
+- **statusCode**: Before=`404` -> After=`200`
+- **title**: Before=`null` -> After=`"Upsc Cse 2023 Questions | TrillionSkill | aspirantbook"`
+- **metaDescription**: Before=`null` -> After=`"Practice Upsc Cse questions for 2023 with verified answer keys and complete explanations."`
+
+### `/question-answer/upsc-cse/history` (content-engine__question_answer_upsc_cse_history.json)
+- **statusCode**: Before=`404` -> After=`200`
+- **title**: Before=`null` -> After=`"Upsc Cse History Questions | TrillionSkill | aspirantbook"`
+- **metaDescription**: Before=`null` -> After=`"Practice Upsc Cse questions for History with verified answer keys and complete explanations."`
+
+### `/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements` (content-engine__question_answer_upsc_cse_history_4d3fa9c7_upsc_cse_2023_q1_consider_the_following_statements.json)
+- **statusCode**: Before=`404` -> After=`200`
+- **title**: Before=`null` -> After=`"[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley | Indus Valley Civilization UPSC CSE 2023 MCQ | aspirantbook"`
+- **metaDescription**: Before=`null` -> After=`"[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley Civilizat Answer: Both 1 and 2 with key points and explanation. Indus Valley"`
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+- **jsonLdTypes**: Before=`[]` -> After=`["unknown"]`
+
+### `/pyqs` (pyqs__pyqs.json)
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/pyqs"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+
+### `/tutorials/agentic-engineering-zero-to-hero` (tutorials__tutorials_agentic_engineering_zero_to_hero.json)
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/tutorials/agentic-engineering-zero-to-hero"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+- **jsonLdTypes**: Before=`[]` -> After=`["Course"]`
+
+### `/tutorials/e2e-20261021001139624-a9b3g-course-studio` (tutorials__tutorials_e2e_20261021001139624_a9b3g_course_studio.json)
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/tutorials/e2e-20261021001139624-a9b3g-course-studio"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+
+### `/tutorials/e2e-20261021010807414-8eqmd-course-studio` (tutorials__tutorials_e2e_20261021010807414_8eqmd_course_studio.json)
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/tutorials/e2e-20261021010807414-8eqmd-course-studio"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+
+### `/tutorials/e2e-20261021025140619-1frn8-course-studio` (tutorials__tutorials_e2e_20261021025140619_1frn8_course_studio.json)
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/tutorials/e2e-20261021025140619-1frn8-course-studio"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+
+### `/tutorials/e2e-20261021025147563-wzrey-course-studio` (tutorials__tutorials_e2e_20261021025147563_wzrey_course_studio.json)
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/tutorials/e2e-20261021025147563-wzrey-course-studio"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+
+### `/tutorials/e2e-20261021032926063-319dp-course-studio` (tutorials__tutorials_e2e_20261021032926063_319dp_course_studio.json)
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/tutorials/e2e-20261021032926063-319dp-course-studio"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+
+### `/tutorials/e2e-20261021034304510-8ksog-course-studio` (tutorials__tutorials_e2e_20261021034304510_8ksog_course_studio.json)
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/tutorials/e2e-20261021034304510-8ksog-course-studio"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+
+### `/tutorials/e2e-20261021045339947-h7fa6-course-studio` (tutorials__tutorials_e2e_20261021045339947_h7fa6_course_studio.json)
+- **canonical**: Before=`null` -> After=`"http://localhost:3000/tutorials/e2e-20261021045339947-h7fa6-course-studio"`
+- **robots**: Before=`null` -> After=`"index, follow"`
+
+## 3. Unexpected Diffs
+✓ ZERO unexpected diffs found! Every pre-existing route preserves strict invariance.
+
+
+=======================================================
+FINAL VERDICT: FAIL COUNT = 0 (PASS)
+=======================================================

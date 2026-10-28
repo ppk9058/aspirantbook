@@ -15,6 +15,8 @@ interface Course {
     difficulty: string
     rating: number
     enrollmentCount: number
+    duration?: string
+    lessonsCount?: number
 }
 
 interface RecommendedCoursesProps {
@@ -90,7 +92,8 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
                             {/* Bottom Left Rating */}
                             <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-white/95 dark:bg-slate-900/90 backdrop-blur-md px-2.5 py-0.5 rounded-full text-slate-900 dark:text-white text-xs font-black shadow-xs">
                                 <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                                <span>{course.rating ? course.rating.toFixed(1) : "4.8"}</span>
+                                {/* B12: a course with no rating is "New", not a fabricated 4.8. */}
+                                <span>{course.rating > 0 ? course.rating.toFixed(1) : "New"}</span>
                             </div>
                         </div>
 
@@ -109,11 +112,16 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
                                 <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
                                     <span className="flex items-center gap-1 font-medium">
                                         <Clock className="h-3.5 w-3.5 text-[#1448d8]" />
-                                        12h curriculum
+                                        {course.duration ||
+                                            (course.lessonsCount
+                                                ? `${course.lessonsCount} lessons`
+                                                : "Self-paced")}
                                     </span>
                                     <span className="flex items-center gap-1 font-medium">
                                         <Users className="h-3.5 w-3.5 text-gray-400" />
-                                        {(course.enrollmentCount / 1000).toFixed(1)}k learners
+                                        {course.enrollmentCount > 0
+                                            ? `${course.enrollmentCount.toLocaleString("en-IN")} learners`
+                                            : "New course"}
                                     </span>
                                 </div>
 

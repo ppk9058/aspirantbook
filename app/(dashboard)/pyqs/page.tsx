@@ -8,12 +8,11 @@ import { cookies } from "next/headers"
 import { getStudentGoals } from "@/lib/goals/student-goals"
 import { applyPyqGoalFilter } from "@/lib/goals/goal-filters"
 
+import { adaptPyqsCatalogSeo } from "@/lib/seo/adapters/pyqs"
+
 export const dynamic = "force-dynamic"
 
-export const metadata = {
-  title: "Previous Year Question Papers (PYQs) | TrillionSkill",
-  description: "Download and practice verified previous year examination papers for BPSC, UPSC, NCERT, and State Boards with answer keys and CBT simulations.",
-}
+export const metadata = adaptPyqsCatalogSeo().metadata
 
 async function fetchPyqCatalog(sortedGoalsStr: string) {
   const goalIds = sortedGoalsStr ? sortedGoalsStr.split(",").filter(Boolean) : []

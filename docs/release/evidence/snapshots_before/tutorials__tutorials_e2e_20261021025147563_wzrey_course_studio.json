@@ -1,0 +1,26 @@
+{
+  "url": "http://127.0.0.1:3045/tutorials/e2e-20261021025147563-wzrey-course-studio",
+  "path": "/tutorials/e2e-20261021025147563-wzrey-course-studio",
+  "module": "tutorials",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "Bugfix Course Studio E2E-20261021025147563-wzrey | aspirantbook",
+  "metaDescription": "Testing studio persistence and lesson editor guards",
+  "canonical": null,
+  "robots": null,
+  "hreflang": {},
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Bugfix Course Studio E2E-20261021025147563-wzrey",
+      "description": "Testing studio persistence and lesson editor guards",
+      "isAccessibleForFree": false,
+      "hasPart": {
+        "@type": "WebPageElement",
+        "isAccessibleForFree": false,
+        "cssSelector": "[role='region'][aria-label='Content Gate']"
+      }
+    }
+  ]
+}

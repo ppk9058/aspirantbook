@@ -32,28 +32,37 @@ interface AssessmentOverviewProps {
 export default function AssessmentOverview({ assessment, userId }: AssessmentOverviewProps) {
     const router = useRouter()
     const [isStarting, setIsStarting] = useState(false)
+    const [startError, setStartError] = useState<string | null>(null)
 
     const hasAttempted = assessment.attempts.length > 0
     const lastAttempt = hasAttempted ? assessment.attempts[0] : null
 
     const handleStartAssessment = async () => {
         setIsStarting(true)
+        setStartError(null)
 
         try {
-            // Create new attempt
+            // Create new attempt. The server is the only source of attempt ids:
+            // never invent one client-side, that would serve a fabricated exam.
             const response = await fetch(`/api/assessments/${assessment.id}/start`, {
                 method: "POST",
             })
 
-            const data = await response.json()
+            const data = await response.json().catch(() => null)
 
-            if (data?.attemptId) {
-                router.push(`/assessments/${assessment.id}/take?attemptId=${data.attemptId}`)
-            } else {
-                router.push(`/assessments/${assessment.id}/take?attemptId=attempt-${Date.now()}`)
+            if (!response.ok || !data?.attemptId) {
+                setStartError(
+                    data?.error || "We could not start this assessment. Please try again."
+                )
+                return
             }
-        } catch {
-            router.push(`/assessments/${assessment.id}/take?attemptId=attempt-${Date.now()}`)
+
+            router.push(`/assessments/${assessment.id}/take?attemptId=${data.attemptId}`)
+        } catch (error) {
+            console.error("[assessment] Failed to start assessment", error)
+            setStartError("Network error - we could not start this assessment. Please try again.")
+        } finally {
+            setIsStarting(false)
         }
     }
 
@@ -194,7 +203,12 @@ export default function AssessmentOverview({ assessment, userId }: AssessmentOve
             </Card>
 
             {/* Start Button */}
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center gap-3">
+                {startError && (
+                    <p role="alert" className="text-sm font-medium text-destructive text-center">
+                        {startError}
+                    </p>
+                )}
                 <button
                     onClick={handleStartAssessment}
                     disabled={isStarting}

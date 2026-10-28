@@ -1,0 +1,341 @@
+{
+  "/question-answer": {
+    "url": "http://127.0.0.1:3045/question-answer",
+    "path": "/question-answer",
+    "module": "content-engine",
+    "statusCode": 200,
+    "title": "Competitive Exam Previous Year Questions (PYQs) | TrillionSkill | aspirantbook",
+    "metaDescription": "Explore authentic previous year questions, answer keys, and detailed solutions for UPSC CSE, BPSC, UPPCS, RAS, and SSC CGL.",
+    "canonical": "http://127.0.0.1:3045/question-answer",
+    "robots": null,
+    "hreflang": {
+      "en": "http://127.0.0.1:3045/question-answer",
+      "hi": "http://127.0.0.1:3045/hi/question-answer",
+      "x-default": "http://127.0.0.1:3045/question-answer"
+    },
+    "jsonLd": []
+  },
+  "/hi/question-answer": {
+    "url": "http://127.0.0.1:3045/hi/question-answer",
+    "path": "/hi/question-answer",
+    "module": "content-engine",
+    "statusCode": 200,
+    "title": "प्रतियोगी परीक्षा पिछले वर्ष के प्रश्नोत्तर (PYQs) | TrillionSkill हिन्दी | aspirantbook",
+    "metaDescription": "यूपीएससी, बीपीएससी, यूपीपीसीएस, आरएएस और एसएससी परीक्षाओं के प्रामाणिक पिछले वर्षों के प्रश्नोत्तर और विस्तृत हिन्दी समाधान।",
+    "canonical": "http://127.0.0.1:3045/hi/question-answer",
+    "robots": null,
+    "hreflang": {
+      "en": "http://127.0.0.1:3045/question-answer",
+      "hi": "http://127.0.0.1:3045/hi/question-answer",
+      "x-default": "http://127.0.0.1:3045/question-answer"
+    },
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse",
+    "path": "/question-answer/upsc-cse",
+    "module": "content-engine",
+    "statusCode": 200,
+    "title": "Upsc Cse Previous Year Questions (PYQs) | TrillionSkill | aspirantbook",
+    "metaDescription": "Complete archive of Upsc Cse previous year exam questions with verified solutions, answer keys, and year-wise breakdown.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/hi/question-answer/upsc-cse": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse",
+    "path": "/hi/question-answer/upsc-cse",
+    "module": "content-engine",
+    "statusCode": 200,
+    "title": "Upsc Cse पिछले वर्षों के प्रश्नोत्तर (हिन्दी) | TrillionSkill | aspirantbook",
+    "metaDescription": "Upsc Cse परीक्षा के प्रामाणिक पिछले वर्षों के प्रश्नोत्तर और विस्तृत हिन्दी व्याख्या।",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse/2023": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/2023",
+    "path": "/question-answer/upsc-cse/2023",
+    "module": "content-engine",
+    "statusCode": 200,
+    "title": "Upsc Cse 2023 Questions | TrillionSkill | aspirantbook",
+    "metaDescription": "Practice Upsc Cse questions for 2023 with verified answer keys and complete explanations.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse/history": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/history",
+    "path": "/question-answer/upsc-cse/history",
+    "module": "content-engine",
+    "statusCode": 200,
+    "title": "Upsc Cse History Questions | TrillionSkill | aspirantbook",
+    "metaDescription": "Practice Upsc Cse questions for History with verified answer keys and complete explanations.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/hi/question-answer/upsc-cse/history": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history",
+    "path": "/hi/question-answer/upsc-cse/history",
+    "module": "content-engine",
+    "statusCode": 200,
+    "title": "Upsc Cse History प्रश्नोत्तर (हिन्दी) | TrillionSkill | aspirantbook",
+    "metaDescription": "Upsc Cse परीक्षा के History विषय पर आधारित पिछले वर्षों के प्रश्न और हिन्दी समाधान।",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements": {
+    "url": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "path": "/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "module": "content-engine",
+    "statusCode": 200,
+    "title": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley | Indus Valley Civilization UPSC CSE 2023 MCQ | aspirantbook",
+    "metaDescription": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley Civilizat Answer: Both 1 and 2 with key points and explanation. Indus Valley",
+    "canonical": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+      "hi": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+      "x-default": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"
+    },
+    "jsonLd": [
+      {
+        "raw": "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Home\",\"item\":\"http://127.0.0.1:3045/question-answer\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"UPSC CSE\",\"item\":\"http://127.0.0.1:3045/question-answer/upsc-cse\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"History\",\"item\":\"http://127.0.0.1:3045/question-answer/upsc-cse/history\"},{\"@type\":\"ListItem\",\"position\":4,\"name\":\"[UPSC CSE 2023] Q1. Consider the following statements\",\"item\":\"http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements\"}]}"
+      },
+      {
+        "@context": "https://schema.org/",
+        "@type": "Quiz",
+        "name": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley Civilization:\n1. Harappa was ",
+        "about": {
+          "@type": "Thing",
+          "name": "Indus Valley Civilization"
+        },
+        "educationalLevel": "Competitive exam",
+        "assesses": "Indus Valley Civilization",
+        "hasPart": [
+          {
+            "@type": "Question",
+            "eduQuestionType": "Multiple choice",
+            "text": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley Civilization:\n1. Harappa was excavated before Mohenjo-daro.\n2. The Great Bath was discovered at Mohenjo-daro.\nWhich of the statements given above is/are correct?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Both 1 and 2",
+              "answerExplanation": {
+                "@type": "Comment",
+                "text": "Harappa was excavated in 1921 by Daya Ram Sahni. Mohenjo-daro was excavated in 1922 by R.D. Banerji. The Great Bath was discovered at Mohenjo-daro. Both statements are correct."
+              }
+            },
+            "suggestedAnswer": [
+              {
+                "@type": "Answer",
+                "text": "1 only"
+              },
+              {
+                "@type": "Answer",
+                "text": "2 only"
+              },
+              {
+                "@type": "Answer",
+                "text": "Neither 1 nor 2"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements": {
+    "url": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "path": "/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "module": "content-engine",
+    "statusCode": 200,
+    "title": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: | सिंधु घाटी सभ्यता UPSC CSE 2023 MCQ | aspirantbook",
+    "metaDescription": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए: उत्तर: 1 और 2 दोनों — मुख्य बिंदु और व्याख्या सहित। सिंधु घाटी सभ्यता, UPSC CSE 2023.",
+    "canonical": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "robots": "index, follow",
+    "hreflang": {
+      "en": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+      "hi": "http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+      "x-default": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"
+    },
+    "jsonLd": [
+      {
+        "raw": "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"होम\",\"item\":\"http://127.0.0.1:3045/hi/question-answer\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"UPSC CSE\",\"item\":\"http://127.0.0.1:3045/hi/question-answer/upsc-cse\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"इतिहास\",\"item\":\"http://127.0.0.1:3045/hi/question-answer/upsc-cse/history\"},{\"@type\":\"ListItem\",\"position\":4,\"name\":\"सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार\",\"item\":\"http://127.0.0.1:3045/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements\"}]}"
+      },
+      {
+        "@context": "https://schema.org/",
+        "@type": "Quiz",
+        "name": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए:",
+        "about": {
+          "@type": "Thing",
+          "name": "सिंधु घाटी सभ्यता"
+        },
+        "educationalLevel": "Competitive exam",
+        "assesses": "सिंधु घाटी सभ्यता",
+        "inLanguage": "hi",
+        "hasPart": [
+          {
+            "@type": "Question",
+            "eduQuestionType": "Multiple choice",
+            "text": "सिंधु घाटी सभ्यता के संबंध में निम्नलिखित कथनों पर विचार कीजिए:",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "1 और 2 दोनों",
+              "answerExplanation": {
+                "@type": "Comment",
+                "text": "Harappa was excavated in 1921 by Daya Ram Sahni. Mohenjo-daro was excavated in 1922 by R.D. Banerji. The Great Bath was discovered at Mohenjo-daro. Both statements are correct."
+              }
+            },
+            "suggestedAnswer": [
+              {
+                "@type": "Answer",
+                "text": "केवल 1"
+              },
+              {
+                "@type": "Answer",
+                "text": "केवल 2"
+              },
+              {
+                "@type": "Answer",
+                "text": "न तो 1, न ही 2"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "/pyqs": {
+    "url": "http://127.0.0.1:3045/pyqs",
+    "path": "/pyqs",
+    "module": "pyqs-test-series",
+    "statusCode": 200,
+    "title": "Previous Year Question Papers (PYQs) | TrillionSkill | aspirantbook",
+    "metaDescription": "Download and practice verified previous year examination papers for BPSC, UPSC, NCERT, and State Boards with answer keys and CBT simulations.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/pyqs/bpsc": {
+    "url": "http://127.0.0.1:3045/pyqs/bpsc",
+    "path": "/pyqs/bpsc",
+    "module": "pyqs-test-series",
+    "statusCode": 200,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series": {
+    "url": "http://127.0.0.1:3045/test-series",
+    "path": "/test-series",
+    "module": "pyqs-test-series",
+    "statusCode": 200,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/test-series/e2e-series-e2e-20261021124106098-4akv9": {
+    "url": "http://127.0.0.1:3045/test-series/e2e-series-e2e-20261021124106098-4akv9",
+    "path": "/test-series/e2e-series-e2e-20261021124106098-4akv9",
+    "module": "pyqs-test-series",
+    "statusCode": 200,
+    "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+    "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/current-affairs-quizzes": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes",
+    "path": "/current-affairs-quizzes",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "title": "Current Affairs and Quizzes | aspirantbook | aspirantbook",
+    "metaDescription": "Daily speed tests, monthly current affairs roundups, and general awareness quizzes for competitive examinations.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/current-affairs-quizzes/upsc-economy-ca": {
+    "url": "http://127.0.0.1:3045/current-affairs-quizzes/upsc-economy-ca",
+    "path": "/current-affairs-quizzes/upsc-economy-ca",
+    "module": "current-affairs",
+    "statusCode": 200,
+    "title": "UPSC Economy CA - Current Affairs Quiz | aspirantbook | aspirantbook",
+    "metaDescription": "Practice UPSC Economy CA with 10 questions in 10 minutes. Instant evaluation and detailed explanations.",
+    "canonical": "http://127.0.0.1:3045/current-affairs-quizzes/upsc-economy-ca",
+    "robots": "index, follow",
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        "name": "UPSC Economy CA",
+        "description": "Current affairs speed quiz with 10 questions and 10 minutes timer.",
+        "educationalLevel": "Competitive Examination (UPSC, BPSC, SSC)",
+        "provider": {
+          "@type": "Organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045"
+        },
+        "learningResourceType": "Quiz",
+        "timeRequired": "PT10M",
+        "isAccessibleForFree": true,
+        "url": "http://127.0.0.1:3045/current-affairs-quizzes/upsc-economy-ca"
+      }
+    ]
+  },
+  "/tutorials": {
+    "url": "http://127.0.0.1:3045/tutorials",
+    "path": "/tutorials",
+    "module": "tutorials",
+    "statusCode": 200,
+    "title": "Text-Based Tutorials | aspirantbook | aspirantbook",
+    "metaDescription": "In-depth, step-by-step reading tutorials with interactive code blocks, diagrams, and curriculum authored in Tutorial Studio.",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": []
+  },
+  "/tutorials/e2e-20261021025140619-1frn8-course-studio": {
+    "url": "http://127.0.0.1:3045/tutorials/e2e-20261021025140619-1frn8-course-studio",
+    "path": "/tutorials/e2e-20261021025140619-1frn8-course-studio",
+    "module": "tutorials",
+    "statusCode": 200,
+    "title": "Bugfix Course Studio E2E-20261021025140619-1frn8 | aspirantbook",
+    "metaDescription": "Testing studio persistence and lesson editor guards",
+    "canonical": null,
+    "robots": null,
+    "hreflang": {},
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Bugfix Course Studio E2E-20261021025140619-1frn8",
+        "description": "Testing studio persistence and lesson editor guards",
+        "isAccessibleForFree": false,
+        "hasPart": {
+          "@type": "WebPageElement",
+          "isAccessibleForFree": false,
+          "cssSelector": "[role='region'][aria-label='Content Gate']"
+        }
+      }
+    ]
+  }
+}

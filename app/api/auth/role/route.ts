@@ -1,15 +1,24 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { AppRole } from "@/lib/auth/roles"
+import { isDemoModeEnabled, normalizeDemoRole } from "@/lib/auth/demo-role"
 import { logAuditAction } from "@/lib/audit/audit-logger"
 
 export async function GET() {
+  if (!isDemoModeEnabled()) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 })
+  }
   const cookieStore = await cookies()
-  const currentRole = (cookieStore.get("ts_demo_role")?.value as AppRole) || "STUDENT"
+  const currentRole = (normalizeDemoRole(cookieStore.get("ts_demo_role")?.value) as AppRole) || "STUDENT"
   return NextResponse.json({ role: currentRole })
 }
 
 export async function POST(req: NextRequest) {
+  // Demo role switching must never be reachable in production.
+  if (!isDemoModeEnabled()) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 })
+  }
+
   try {
     const { role } = await req.json()
     if (role !== "STUDENT" && role !== "TEACHER" && role !== "ADMIN") {

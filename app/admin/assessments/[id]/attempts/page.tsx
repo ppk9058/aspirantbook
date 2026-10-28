@@ -5,6 +5,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, CheckCircle2, XCircle, Clock, Calendar } from "lucide-react"
+import Image from "next/image"
 
 interface AssessmentAttemptsPageProps {
     params: Promise<{
@@ -94,10 +95,12 @@ export default async function AssessmentAttemptsPage({ params }: AssessmentAttem
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-3">
                                                 {attempt.user.image ? (
-                                                    <img
+                                                    <Image
                                                         src={attempt.user.image}
                                                         alt={attempt.user.name || ""}
-                                                        className="w-8 h-8 rounded-full"
+                                                        width={32}
+                                                        height={32}
+                                                        className="h-8 w-8 rounded-full"
                                                     />
                                                 ) : (
                                                     <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">

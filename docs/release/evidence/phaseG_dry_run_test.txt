@@ -1,0 +1,17 @@
+Saved dry-run report JSON to docs/content-engine/samples/dry_run_sample.json
+
+=======================================================
+CONTENT ENGINE OFFLINE DRY-RUN REPORT
+=======================================================
+File: tests/fixtures/dry-run-sample.txt
+Total Parsed: 5
+Skipped Count: 0
+Junk Lines Stripped: 0
+Option count != 4 count: 0
+Empty stems count: 0
+Merged stems count: 0
+Distinct Subjects: 1
+Distinct Topics: 2
+Tagged with Exam & Year: 0
+=======================================================
+

@@ -25,7 +25,25 @@ const OUTBOX_FILE = path.join(OUTBOX_DIR, "dev-email-outbox.jsonl")
 export async function sendEmail({ to, subject, html, text }: SendEmailOptions): Promise<{ success: boolean; id?: string }> {
     const isProduction = process.env.NODE_ENV === "production"
     const appEnv = process.env.APP_ENV || ""
-    const isDevOrTest = !isProduction || appEnv === "test" || !process.env.RESEND_API_KEY
+    const hasProvider = Boolean(process.env.RESEND_API_KEY)
+
+    /**
+     * C2: the old condition treated "production without RESEND_API_KEY" as a
+     * dev environment, appended the message to logs/dev-email-outbox.jsonl — a
+     * read-only, per-instance path on serverless — and returned
+     * `{ success: true }`. A password-reset mail was then reported as sent while
+     * nothing left the server. The outbox is now dev/test only and a production
+     * deployment with no provider reports failure.
+     */
+    const canWriteOutbox = !isProduction || appEnv === "test" || process.env.NODE_ENV === "test"
+    const isDevOrTest = canWriteOutbox
+
+    if (!hasProvider && !canWriteOutbox) {
+        console.error(
+            "[Email] RESEND_API_KEY is not configured in production; refusing to report a message as sent."
+        )
+        return { success: false }
+    }
 
     // Extract any token or link from HTML / text
     const linkMatch = html.match(/href="([^"]+)"/) || text?.match(/https?:\/\/[^\s]+/)
@@ -61,7 +79,9 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions): 
             return { success: true, id: record.id }
         } catch (err) {
             console.error("[DevEmailOutbox] Failed to write outbox record:", err)
-            return { success: true }
+            // Reporting success here hid a failed write; the caller (and the
+            // forgot-password test helper) must know the mail was not recorded.
+            return { success: false }
         }
     }
 

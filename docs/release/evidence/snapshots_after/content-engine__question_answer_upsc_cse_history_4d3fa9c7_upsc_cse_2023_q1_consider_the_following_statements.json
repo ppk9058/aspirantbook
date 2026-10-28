@@ -1,0 +1,93 @@
+{
+  "url": "http://127.0.0.1:3045/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+  "path": "/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+  "module": "content-engine",
+  "statusCode": 200,
+  "redirectTarget": null,
+  "title": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley | Indus Valley Civilization UPSC CSE 2023 MCQ | aspirantbook",
+  "metaDescription": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley Civilizat Answer: Both 1 and 2 with key points and explanation. Indus Valley",
+  "canonical": "http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+  "robots": "index, follow",
+  "hreflang": {
+    "en": "http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "hi": "http://localhost:3000/hi/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements",
+    "x-default": "http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"
+  },
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "http://localhost:3000/question-answer"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "UPSC CSE",
+              "item": "http://localhost:3000/question-answer/upsc-cse"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "History",
+              "item": "http://localhost:3000/question-answer/upsc-cse/history"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "[UPSC CSE 2023] Q1. Consider the following statements",
+              "item": "http://localhost:3000/question-answer/upsc-cse/history/4d3fa9c7-upsc-cse-2023-q1-consider-the-following-statements"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org/",
+          "@type": "Quiz",
+          "name": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley Civilization:\n1. Harappa was ",
+          "about": {
+            "@type": "Thing",
+            "name": "Indus Valley Civilization"
+          },
+          "educationalLevel": "Competitive exam",
+          "assesses": "Indus Valley Civilization",
+          "hasPart": [
+            {
+              "@type": "Question",
+              "eduQuestionType": "Multiple choice",
+              "text": "[UPSC CSE 2023] Q1. Consider the following statements regarding the Indus Valley Civilization:\n1. Harappa was excavated before Mohenjo-daro.\n2. The Great Bath was discovered at Mohenjo-daro.\nWhich of the statements given above is/are correct?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Both 1 and 2",
+                "answerExplanation": {
+                  "@type": "Comment",
+                  "text": "Harappa was excavated in 1921 by Daya Ram Sahni. Mohenjo-daro was excavated in 1922 by R.D. Banerji. The Great Bath was discovered at Mohenjo-daro. Both statements are correct."
+                }
+              },
+              "suggestedAnswer": [
+                {
+                  "@type": "Answer",
+                  "text": "1 only"
+                },
+                {
+                  "@type": "Answer",
+                  "text": "2 only"
+                },
+                {
+                  "@type": "Answer",
+                  "text": "Neither 1 nor 2"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

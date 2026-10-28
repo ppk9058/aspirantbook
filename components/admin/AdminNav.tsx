@@ -27,7 +27,9 @@ import {
     PencilRuler,
     Sparkles,
     Book,
+    Globe,
 } from "lucide-react"
+import Image from "next/image"
 
 interface AdminNavProps {
     user?: {
@@ -46,6 +48,8 @@ const adminNavigation = [
     { icon: Sparkles, name: "HomePage Card Studio", href: "/admin/homepage-cards", matchPrefix: "/admin/homepage-cards" },
     { icon: PencilRuler, name: "Test Series Studio", href: "/admin/test-series", matchPrefix: "/admin/test-series" },
     { icon: FileText, name: "PYQ Studio", href: "/admin/pyqs", matchPrefix: "/admin/pyqs" },
+    { icon: Sparkles, name: "Content Engine", href: "/admin/content-engine", matchPrefix: "/admin/content-engine", adminOnly: true },
+    { icon: Globe, name: "SEO Audit", href: "/admin/seo", matchPrefix: "/admin/seo", adminOnly: true },
     { icon: BookOpen, name: "Book Studio", href: "/admin/book-studio", matchPrefix: "/admin/book-studio" },
     { icon: Book, name: "Online Bookstore", href: "/admin/books", matchPrefix: "/admin/books", adminOnly: true },
     { icon: GraduationCap, name: "Batches & Prep", href: "/admin/batches", matchPrefix: "/admin/batches" },
@@ -112,7 +116,7 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                 <div className="p-4 flex items-center justify-between border-b border-slate-800">
                     <Link
                         href={user?.role === "TEACHER" ? "/teacher" : "/"}
-                        className="flex items-center gap-3 group transition-transform active:scale-95"
+                        className="flex items-center gap-3 group transition-transform active:scale-95 min-h-[44px]"
                         title={user?.role === "TEACHER" ? "Return to Teacher Dashboard" : "Return to aspirantbook Home Page"}
                     >
                         <div className="h-9 w-9 bg-purple-600 rounded-lg flex items-center justify-center shadow-md group-hover:bg-purple-500 transition-colors flex-shrink-0">
@@ -130,7 +134,7 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                     {/* Mobile Close Button */}
                     <button
                         onClick={() => setIsOpen(false)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-slate-800 lg:hidden"
+                        className="min-h-[44px] min-w-[44px] p-2 rounded-lg text-gray-400 hover:text-white hover:bg-slate-800 lg:hidden flex items-center justify-center"
                         aria-label="Close navigation"
                     >
                         <X className="h-5 w-5" />
@@ -176,12 +180,12 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                     <div className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-between gap-2">
                         <button
                             onClick={openProfileDialog}
-                            className="flex items-center gap-2.5 min-w-0 text-left hover:opacity-90 transition-opacity cursor-pointer group flex-1"
+                            className="flex items-center gap-2.5 min-w-0 text-left hover:opacity-90 transition-opacity cursor-pointer group flex-1 min-h-[44px]"
                             title="Edit Profile & Password"
                         >
                             <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm overflow-hidden">
                                 {user?.image ? (
-                                    <img src={user.image} alt={user.name || "A"} className="h-full w-full object-cover" />
+                                    <Image src={user.image} alt={user.name || "A"} width={32} height={32} className="h-full w-full object-cover" />
                                 ) : (
                                     <span>{(user?.name || user?.email || "A").slice(0, 2).toUpperCase()}</span>
                                 )}
@@ -200,20 +204,20 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                         <div className="flex items-center gap-1 flex-shrink-0">
                             <button
                                 onClick={openProfileDialog}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer"
+                                className="min-h-[40px] min-w-[40px] p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer flex items-center justify-center"
                                 title="Edit Profile & Password"
                                 aria-label="Edit Profile"
                             >
-                                <Settings className="h-3.5 w-3.5" />
+                                <Settings className="h-4 w-4" />
                             </button>
 
                             <button
                                 onClick={() => safeSignOut("/")}
-                                className="p-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/60 transition-colors cursor-pointer"
+                                className="min-h-[40px] min-w-[40px] p-2 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/60 transition-colors cursor-pointer flex items-center justify-center"
                                 title="Sign Out"
                                 aria-label="Sign Out"
                             >
-                                <LogOut className="h-3.5 w-3.5" />
+                                <LogOut className="h-4 w-4" />
                             </button>
                         </div>
                     </div>

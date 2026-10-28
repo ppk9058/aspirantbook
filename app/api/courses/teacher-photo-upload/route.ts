@@ -2,8 +2,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
-import fs from "fs/promises"
-import path from "path"
+import { storeUpload, uploadErrorResponse } from "@/lib/security/upload-policy"
+import { updateBatch, getBatchBySlug, getBatchById } from "@/lib/batches-service"
+import { requireManagedCourse } from "@/lib/auth/course-access-server"
+
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
+
+const MAX_SIZE = 15 * 1024 * 1024
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,119 +45,118 @@ export async function POST(request: NextRequest) {
     }
 
     const nameLower = file.name.toLowerCase()
+    // SVG is deliberately excluded — it can carry executable script.
     const isImage =
       nameLower.endsWith(".png") ||
       nameLower.endsWith(".jpg") ||
       nameLower.endsWith(".jpeg") ||
-      nameLower.endsWith(".webp") ||
-      nameLower.endsWith(".svg")
+      nameLower.endsWith(".webp")
 
     if (!isImage) {
       return NextResponse.json(
-        { error: "Invalid file format. Please upload a PNG, JPG, WEBP, or SVG image." },
+        { error: "Invalid file format. Please upload a PNG, JPG, or WEBP image." },
         { status: 400 }
       )
     }
 
-    // Limit to 15MB
-    const MAX_SIZE = 15 * 1024 * 1024
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
         { error: "File exceeds 15 MB size limit." },
-        { status: 400 }
+        { status: 413 }
       )
     }
 
-    const timestamp = Date.now()
-    const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_")
-    const fileName = `${timestamp}-${cleanName}`
-
-    const uploadsDir = path.join(process.cwd(), "public", "uploads", "teachers")
-    await fs.mkdir(uploadsDir, { recursive: true })
-    const localFilePath = path.join(uploadsDir, fileName)
-
     const buffer = Buffer.from(await file.arrayBuffer())
-    await fs.writeFile(localFilePath, buffer)
-
-    const fileUrl = `/uploads/teachers/${fileName}`
+    const stored = await storeUpload({
+      file,
+      buffer,
+      category: "image",
+      folder: "teachers",
+      maxBytes: MAX_SIZE,
+    })
+    const fileUrl = stored.url
 
     // If courseId and teacherIndex are provided, persist in database
     if (courseId && teacherIndex !== null && !isNaN(teacherIndex)) {
-      try {
-        const course = await prisma.course.findUnique({
-          where: { id: courseId },
-          select: { id: true, slug: true, metadataJson: true },
-        })
+      // A8: teachers may only edit faculty on their own courses.
+      const access = await requireManagedCourse(user, courseId)
+      if (access.response) return access.response
 
-        if (course) {
-          let metadata: any = {}
-          if (course.metadataJson) {
-            try {
-              metadata = JSON.parse(course.metadataJson)
-            } catch (e) {
-              metadata = {}
-            }
-          }
+      const course = await prisma.course.findUnique({
+        where: { id: courseId },
+        select: { id: true, slug: true, metadataJson: true },
+      })
 
-          if (!Array.isArray(metadata.teachers)) {
-            metadata.teachers = []
-          }
-
-          if (metadata.teachers[teacherIndex]) {
-            metadata.teachers[teacherIndex].avatar = fileUrl
-          } else {
-            metadata.teachers[teacherIndex] = {
-              name: "Faculty Member",
-              role: "Subject Expert",
-              subject: "Course Instructor",
-              experience: "5+ Years",
-              qualification: "Senior Educator",
-              avatar: fileUrl,
-            }
-          }
-
-          await prisma.course.update({
-            where: { id: courseId },
-            data: { metadataJson: JSON.stringify(metadata) },
-          })
-
-          try {
-            revalidatePath(`/courses/${course.slug}`)
-            revalidatePath(`/admin/courses/${courseId}/edit`)
-          } catch {}
-        }
-      } catch (dbErr) {
-        console.warn("Could not persist teacher avatar to database course record:", dbErr)
+      if (!course) {
+        return NextResponse.json({ error: "Course not found" }, { status: 404 })
       }
+
+      let metadata: any = {}
+      if (course.metadataJson) {
+        try {
+          metadata = JSON.parse(course.metadataJson)
+        } catch (e) {
+          metadata = {}
+        }
+      }
+
+      if (!Array.isArray(metadata.teachers)) {
+        metadata.teachers = []
+      }
+
+      if (metadata.teachers[teacherIndex]) {
+        metadata.teachers[teacherIndex].avatar = fileUrl
+      } else {
+        metadata.teachers[teacherIndex] = {
+          name: "Faculty Member",
+          role: "Subject Expert",
+          subject: "Course Instructor",
+          experience: "5+ Years",
+          qualification: "Senior Educator",
+          avatar: fileUrl,
+        }
+      }
+
+      await prisma.course.update({
+        where: { id: courseId },
+        data: { metadataJson: JSON.stringify(metadata) },
+      })
+
+      revalidatePath(`/courses/${course.slug}`)
+      revalidatePath(`/admin/courses/${courseId}/edit`)
     }
 
-    // If batchSlug is provided, persist in batches.json
+    // If batchSlug is provided, persist through the database-backed batches
+    // service (never a runtime file write).
     if (batchSlug && teacherIndex !== null && !isNaN(teacherIndex)) {
-      try {
-        const batchesFilePath = path.join(process.cwd(), "data", "batches.json")
-        const content = await fs.readFile(batchesFilePath, "utf-8")
-        const batches = JSON.parse(content)
-        const batch = batches.find((b: any) => b.slug === batchSlug || b.id === batchSlug)
-        if (batch && Array.isArray(batch.teachers) && batch.teachers[teacherIndex]) {
-          batch.teachers[teacherIndex].avatar = fileUrl
-          batch.teachers[teacherIndex].image = fileUrl
-          await fs.writeFile(batchesFilePath, JSON.stringify(batches, null, 2), "utf-8")
-        }
-      } catch (batchErr) {
-        console.warn("Could not persist teacher avatar to batches.json:", batchErr)
+      const batch = (await getBatchBySlug(batchSlug)) || (await getBatchById(batchSlug))
+      if (!batch) {
+        return NextResponse.json({ error: "Batch not found" }, { status: 404 })
       }
+      const teachers = Array.isArray(batch.teachers) ? [...batch.teachers] : []
+      if (teachers[teacherIndex]) {
+        teachers[teacherIndex] = { ...teachers[teacherIndex], avatar: fileUrl }
+      } else {
+        teachers[teacherIndex] = {
+          name: "Faculty Member",
+          role: "Subject Expert",
+          subject: "Course Instructor",
+          experience: "5+ Years",
+          qualification: "Senior Educator",
+          avatar: fileUrl,
+        }
+      }
+      await updateBatch(batch.id, { teachers })
     }
 
     return NextResponse.json({
       success: true,
       url: fileUrl,
-      fileName: file.name,
+      fileName: stored.fileName,
     })
   } catch (error: any) {
     console.error("POST /api/courses/teacher-photo-upload error:", error)
-    return NextResponse.json(
-      { error: error.message || "Failed to upload teacher photo" },
-      { status: 500 }
-    )
+    const mapped = uploadErrorResponse(error)
+    return NextResponse.json({ error: mapped.error }, { status: mapped.status })
   }
 }

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import { Heart, ZoomIn } from "lucide-react"
+import Image from "next/image"
 
 export interface BookGalleryProps {
   images: string[]
@@ -57,10 +58,12 @@ export default function BookImageGallery({
                 }`}
                 title={`View image ${idx + 1}`}
               >
-                <img
+                <Image
                   src={imgUrl}
                   alt={`${title} thumbnail ${idx + 1}`}
-                  className="w-full h-full object-contain"
+                  width={56}
+                  height={72}
+                  className="h-full w-full object-contain"
                 />
               </button>
             )
@@ -88,10 +91,13 @@ export default function BookImageGallery({
                 : undefined
             }
           >
-            <img
+            <Image
               src={currentImage}
               alt={title}
-              className="w-full h-full object-contain drop-shadow select-none pointer-events-none"
+              width={600}
+              height={800}
+              sizes="(max-width: 640px) 90vw, 420px"
+              className="h-full w-full select-none object-contain drop-shadow pointer-events-none"
             />
           </div>
 

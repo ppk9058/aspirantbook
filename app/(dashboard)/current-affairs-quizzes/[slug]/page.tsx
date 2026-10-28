@@ -20,6 +20,7 @@ import { resolveAccess } from "@/lib/authwall/resolveAccess"
 import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify"
 import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
+import { getBaseUrl } from "@/lib/seo/core"
 
 export const dynamic = "force-dynamic"
 
@@ -27,34 +28,15 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
+import { adaptCurrentAffairsQuizSeo } from "@/lib/seo/adapters/current-affairs"
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const quiz = await findQuizBySlug(slug)
   if (!quiz) return { title: "Quiz Not Found | aspirantbook" }
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://aspirantbook.com"
   const canonicalSlug = getQuizSlug(quiz)
-
-  return {
-    title: `${quiz.title} - Current Affairs Quiz | aspirantbook`,
-    description: `Practice ${quiz.title} with ${quiz.totalQuestions} questions in ${quiz.durationMinutes} minutes. Instant evaluation and detailed explanations.`,
-    alternates: {
-      canonical: `${baseUrl}/current-affairs-quizzes/${canonicalSlug}`,
-    },
-    openGraph: {
-      title: `${quiz.title} - Daily Current Affairs Speed Test`,
-      description: `Test your knowledge with ${quiz.totalQuestions} high-yield Current Affairs questions for competitive examinations.`,
-      url: `${baseUrl}/current-affairs-quizzes/${canonicalSlug}`,
-      type: "website",
-    },
-    robots: {
-      index: quiz.isPublished,
-      follow: quiz.isPublished,
-    },
-  }
+  return adaptCurrentAffairsQuizSeo(quiz, canonicalSlug).metadata
 }
 
 export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
@@ -73,10 +55,7 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
   }
 
   const canonicalSlug = getQuizSlug(quiz)
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://aspirantbook.com"
+  const baseUrl = getBaseUrl()
 
   const headersList = await headers()
   const isBot = await isVerifiedSearchEngineCrawler(headersList)
@@ -118,7 +97,10 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
           isAccessibleForFree: false,
           cssSelector: "[role='region'][aria-label='Content Gate']",
         }
-      : undefined,
+      : {
+          "@type": "WebPageElement",
+          isAccessibleForFree: true,
+        },
     url: `${baseUrl}/current-affairs-quizzes/${canonicalSlug}`,
   }
 

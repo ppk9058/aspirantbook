@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 
 const CODE_REGEX = /^[A-Z0-9_-]{3,20}$/
 const HEX_COLOR_REGEX = /^#[0-9A-Fa-f]{6}$/
@@ -245,6 +246,7 @@ export async function POST(req: NextRequest) {
             },
         })
 
+        safeRevalidateTags(CACHE_TAGS.coupons, CACHE_TAGS.courses)
         return NextResponse.json({ success: true, coupon }, { status: 201 })
     } catch (err: any) {
         console.error("Admin coupons POST error:", err)

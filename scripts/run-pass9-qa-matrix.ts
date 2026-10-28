@@ -24,6 +24,9 @@ const prisma = new PrismaClient({
 
 const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "default_test_secret_32_characters_long_min";
 const WEBHOOK_SECRET = "whsec_test_secret_12345";
+// Throwaway signing key for the spawned test server; never a committed credential (B-023).
+const RAZORPAY_TEST_KEY_SECRET =
+  process.env.RAZORPAY_KEY_SECRET || crypto.randomBytes(24).toString("hex");
 process.env.RAZORPAY_WEBHOOK_SECRET = WEBHOOK_SECRET;
 
 async function createSessionCookie(userId: string, role: string, email: string) {
@@ -252,7 +255,7 @@ async function run() {
       ALLOW_DEV_MOBILE_LOGIN: "false",
       RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
       RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_test_RkX507LjMqteDr",
-      RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "QljFqlEML0mHLqEgKOeztfw8",
+      RAZORPAY_KEY_SECRET: RAZORPAY_TEST_KEY_SECRET,
       NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_RkX507LjMqteDr"
     },
     stdio: "pipe"

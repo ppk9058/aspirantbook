@@ -1,0 +1,108 @@
+# Phase 1.9 Raw Leak Audit Evidence
+Generated: 2026-10-26T17:04:05.523Z
+Scope: English/Hindi Public HTML, JSON-LD blocks, RSC flight payloads, Sitemaps, and Static Export ZIP files.
+
+## 1. db-service.ts Public Query Whitelist (file:line)
+Location: lib/modules/content-engine/db-service.ts:674-710
+Explicit Select: id, shortId, slug, isPublished, q, options, answer, answerIndex, explanation, sub, top, exam, year, sourceTag, publishedAt, updatedAt, translations: { q, options, explanation, top, isReviewed }
+
+## 2. Raw Grep Commands and Results
+
+### Grep: "pastedText"
+Command: `grep -rn "pastedText" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "createdById"
+Command: `grep -rn "createdById" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "reviewedById"
+Command: `grep -rn "reviewedById" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "isInferred"
+Command: `grep -rn "isInferred" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "batchId"
+Command: `grep -rn "batchId" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "qualityScore"
+Command: `grep -rn "qualityScore" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "reviewedAt"
+Command: `grep -rn "reviewedAt" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "DRAFT_SECRET_PAYLOAD_TOKEN_ABC789"
+Command: `grep -rn "DRAFT_SECRET_PAYLOAD_TOKEN_ABC789" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "RAW_PASTED_OCR_TEXT"
+Command: `grep -rn "RAW_PASTED_OCR_TEXT" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "INTERNAL_USER_CREATOR_ID"
+Command: `grep -rn "INTERNAL_USER_CREATOR_ID" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "INTERNAL_USER_REVIEWER_ID"
+Command: `grep -rn "INTERNAL_USER_REVIEWER_ID" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "INTERNAL_HINDI_REVIEWER_ID"
+Command: `grep -rn "INTERNAL_HINDI_REVIEWER_ID" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "DRAFT_PASTED_TEXT"
+Command: `grep -rn "DRAFT_PASTED_TEXT" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+
+### Grep: "DRAFT_CREATOR_ID"
+Command: `grep -rn "DRAFT_CREATOR_ID" /tmp/leak_audit`
+Output:
+```
+(0 matches)
+```
+

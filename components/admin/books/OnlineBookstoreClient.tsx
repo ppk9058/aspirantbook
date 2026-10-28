@@ -30,6 +30,7 @@ import {
   FileText,
   AlertCircle,
 } from "lucide-react"
+import Image from "next/image"
 
 interface OnlineBookstoreClientProps {
   initialBooks: Book[]
@@ -354,7 +355,7 @@ export default function OnlineBookstoreClient({
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3 max-w-sm">
                             <div className="w-10 h-14 rounded-lg bg-gray-100 overflow-hidden shrink-0 border border-gray-200 shadow-2xs">
-                              <img src={book.coverImage} alt="" className="w-full h-full object-cover" />
+                              <Image src={book.coverImage} alt="" width={40} height={56} className="h-full w-full object-cover" />
                             </div>
                             <div>
                               <h4 className="font-bold text-gray-900 line-clamp-1 text-xs hover:text-teal-700">

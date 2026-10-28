@@ -1,0 +1,42 @@
+{
+  "url": "http://127.0.0.1:3045/",
+  "path": "/",
+  "module": "home",
+  "statusCode": 200,
+  "title": "aspirantbook - Interactive Learning Platform &amp; Test Series",
+  "metaDescription": "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+  "canonical": null,
+  "robots": null,
+  "hreflang": {},
+  "jsonLd": [
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "http://127.0.0.1:3045/#organization",
+          "name": "aspirantbook",
+          "url": "http://127.0.0.1:3045",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "http://127.0.0.1:3045/aspirant-logo.jpg"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "http://127.0.0.1:3045/#website",
+          "url": "http://127.0.0.1:3045",
+          "name": "aspirantbook",
+          "publisher": {
+            "@id": "http://127.0.0.1:3045/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "http://127.0.0.1:3045/courses?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+  ]
+}

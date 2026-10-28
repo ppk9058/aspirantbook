@@ -1,5 +1,10 @@
-import fs from "fs/promises";
-import path from "path";
+import { unstable_cache } from "next/cache";
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags";
+import {
+  getPlatformSetting,
+  PLATFORM_SETTING_KEYS,
+  updatePlatformSettingAtomic,
+} from "@/lib/platform-settings";
 
 export interface BatchTier {
   id: string;
@@ -79,6 +84,10 @@ export interface Batch {
   features: BatchFeature[];
   subjects: string[];
   weeklySchedule: BatchScheduleItem[];
+  // Legacy optional aliases that still appear in data/batches.json (B-027).
+  schedule?: BatchScheduleItem[];
+  coverImage?: string | null;
+  metadataJson?: string | null;
   teachers: BatchTeacher[];
   demoVideos: BatchDemoVideo[];
   faqs: BatchFAQ[];
@@ -87,34 +96,67 @@ export interface Batch {
   updatedAt?: string;
 }
 
-const BATCHES_FILE_PATH = path.join(process.cwd(), "data", "batches.json");
+export const BATCHES_CACHE_TAG = CACHE_TAGS.batches;
 
-// In-memory cache for fast read performance in dev/serverless
-let cachedBatches: Batch[] | null = null;
-let lastReadTime = 0;
-const CACHE_TTL_MS = 60000; // 60 seconds (in-memory cached)
+/**
+ * B-019: batches used to sit in a module-level 60s cache, so every serverless
+ * instance served its own copy and a write was invisible to the others until
+ * their TTL expired. Reads now go through Next's tagged data cache and every
+ * mutation invalidates the tag, so all instances agree.
+ */
+async function readBatchesFileUncached(): Promise<Batch[]> {
+  // B1: a read error must propagate. Returning [] here used to feed the
+  // read-modify-write below, so one transient database error plus any write
+  // erased every stored batch.
+  const stored = await getPlatformSetting<Batch[]>(PLATFORM_SETTING_KEYS.batches);
+  return Array.isArray(stored) ? stored : [];
+}
+
+const readBatchesCached = unstable_cache(readBatchesFileUncached, ["batches-json"], {
+  tags: [BATCHES_CACHE_TAG],
+  revalidate: 300,
+});
+
+let warnedAboutMissingCache = false;
 
 async function readBatchesFile(): Promise<Batch[]> {
-  const now = Date.now();
-  if (cachedBatches && now - lastReadTime < CACHE_TTL_MS) {
-    return cachedBatches;
-  }
   try {
-    const raw = await fs.readFile(BATCHES_FILE_PATH, "utf-8");
-    cachedBatches = JSON.parse(raw);
-    lastReadTime = now;
-    return cachedBatches || [];
-  } catch (err) {
-    console.error("Error reading batches.json:", err);
-    return cachedBatches || [];
+    return await readBatchesCached();
+  } catch (error) {
+    // unstable_cache needs a Next request scope. Scripts, CLIs and unit tests
+    // have no incremental cache, so read straight from the database instead of
+    // crashing (the tag is simply not cached there).
+    if (!warnedAboutMissingCache) {
+      warnedAboutMissingCache = true;
+      console.warn(
+        "[batches-service] Next data cache unavailable outside a request scope; reading uncached:",
+        error instanceof Error ? error.message : error
+      );
+    }
+    return readBatchesFileUncached();
   }
 }
 
-async function writeBatchesFile(batches: Batch[]): Promise<void> {
-  await fs.mkdir(path.dirname(BATCHES_FILE_PATH), { recursive: true });
-  await fs.writeFile(BATCHES_FILE_PATH, JSON.stringify(batches, null, 2), "utf-8");
-  cachedBatches = batches;
-  lastReadTime = Date.now();
+/**
+ * B1: mutate the stored list under an advisory lock instead of writing a whole
+ * array read earlier in the request. Concurrent creates/updates/deletes are
+ * serialised and none of them is lost.
+ */
+async function mutateBatches<T>(
+  mutate: (current: Batch[]) => { next: Batch[]; result: T }
+): Promise<T> {
+  let captured!: T;
+  await updatePlatformSettingAtomic<Batch[]>(
+    PLATFORM_SETTING_KEYS.batches,
+    (current) => {
+      const list = Array.isArray(current) ? current : [];
+      const { next, result } = mutate(list);
+      captured = result;
+      return next;
+    }
+  );
+  safeRevalidateTags(CACHE_TAGS.batches);
+  return captured;
 }
 
 export async function getAllBatches(): Promise<Batch[]> {
@@ -230,38 +272,43 @@ export async function createBatch(data: Partial<Batch>): Promise<Batch> {
     updatedAt: new Date().toISOString(),
   };
 
-  batches.unshift(newBatch);
-  await writeBatchesFile(batches);
-  return newBatch;
+  return mutateBatches((current) => {
+    // Re-check inside the lock so a concurrent create cannot be overwritten.
+    if (current.some((b) => b.id === newBatch.id)) {
+      throw new Error(`Batch ${newBatch.id} already exists`);
+    }
+    return { next: [newBatch, ...current], result: newBatch };
+  });
 }
 
 export async function updateBatch(
   id: string,
   data: Partial<Batch>
 ): Promise<Batch | null> {
-  const batches = await readBatchesFile();
-  const index = batches.findIndex((b) => b.id === id || b.slug === id);
-  if (index === -1) return null;
+  return mutateBatches((current) => {
+    const index = current.findIndex((b) => b.id === id || b.slug === id);
+    if (index === -1) return { next: current, result: null };
 
-  const existing = batches[index];
-  const updated: Batch = {
-    ...existing,
-    ...data,
-    id: existing.id, // Preserve immutable ID
-    updatedAt: new Date().toISOString(),
-  };
+    const existing = current[index];
+    const updated: Batch = {
+      ...existing,
+      ...data,
+      id: existing.id, // Preserve immutable ID
+      updatedAt: new Date().toISOString(),
+    };
 
-  batches[index] = updated;
-  await writeBatchesFile(batches);
-  return updated;
+    const next = current.slice();
+    next[index] = updated;
+    return { next, result: updated };
+  });
 }
 
 export async function deleteBatch(id: string): Promise<boolean> {
-  const batches = await readBatchesFile();
-  const index = batches.findIndex((b) => b.id === id || b.slug === id);
-  if (index === -1) return false;
+  return mutateBatches((current) => {
+    const index = current.findIndex((b) => b.id === id || b.slug === id);
+    if (index === -1) return { next: current, result: false };
 
-  batches.splice(index, 1);
-  await writeBatchesFile(batches);
-  return true;
+    const next = current.filter((_, i) => i !== index);
+    return { next, result: true };
+  });
 }

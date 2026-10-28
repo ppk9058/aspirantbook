@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { toMinorUnits } from "@/lib/money"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -38,6 +39,8 @@ export async function upgradeSubscription(plan: "MONTHLY" | "YEARLY") {
             userId: session.user.id,
             subscriptionId: subscription.id,
             amount: plan === "MONTHLY" ? 499 : 4999,
+            // B7: dual-write the exact minor-unit amount
+            amountMinor: toMinorUnits(plan === "MONTHLY" ? 499 : 4999, "INR"),
             currency: "INR",
             status: "COMPLETED",
             paymentMethod: "card",

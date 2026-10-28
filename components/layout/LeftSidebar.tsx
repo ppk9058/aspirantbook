@@ -28,6 +28,7 @@ import {
     GraduationCap,
     Newspaper,
     ClipboardCheck,
+    Sparkles,
 } from "lucide-react"
 import { useState, useEffect, useMemo } from "react"
 import { useSession } from "next-auth/react"
@@ -53,6 +54,7 @@ const ADMIN_NAV = [
     { name: "Test Series Studio", href: "/admin/test-series", icon: PencilRuler },
     { name: "Current Affairs & Quizzes", href: "/current-affairs-quizzes", icon: Newspaper },
     { name: "PYQ Studio", href: "/admin/pyqs", icon: FileText },
+    { name: "Content Engine", href: "/admin/content-engine", icon: Sparkles },
     { name: "Tutorial Studio", href: "/admin/tutorials", icon: BookOpen },
     { name: "Batches & Prep", href: "/admin/batches", icon: Layers },
     { name: "Online Bookstore", href: "/admin/books", icon: Book },

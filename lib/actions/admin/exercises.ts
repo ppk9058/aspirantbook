@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { Difficulty } from "@prisma/client"
+import { sanitizeHtml } from "@/lib/security/sanitizer"
 
 interface ExerciseInput {
     title: string
@@ -37,7 +38,7 @@ export async function createExercise(data: ExerciseInput) {
     const exercise = await prisma.exercise.create({
         data: {
             ...exerciseData,
-            instructions: description, // Map description to instructions
+            instructions: sanitizeHtml(description), // Map description to sanitized instructions
             testCases: testCases ? {
                 create: testCases.map(tc => ({
                     input: tc.input,
@@ -70,7 +71,7 @@ export async function updateExercise(id: string, data: ExerciseInput) {
         where: { id },
         data: {
             ...exerciseData,
-            instructions: description, // Map description to instructions
+            instructions: sanitizeHtml(description), // Map description to sanitized instructions
         },
     })
 
