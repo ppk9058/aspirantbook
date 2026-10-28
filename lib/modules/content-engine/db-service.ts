@@ -45,23 +45,49 @@ export function safeRevalidatePath(path: string, type?: "page" | "layout") {
   }
 }
 
+/** Routes plus tag that hold cached copies of published Content Engine content. */
+export const CONTENT_ENGINE_PUBLIC_ROUTES = [
+  "/sitemap.xml",
+  "/question-answer",
+  "/hi/question-answer",
+  "/question-answer/[exam]",
+  "/question-answer/[exam]/[subject]",
+  "/question-answer/[exam]/[subject]/[slug]",
+  "/hi/question-answer/[exam]",
+  "/hi/question-answer/[exam]/[subject]",
+  "/hi/question-answer/[exam]/[subject]/[slug]",
+  "/question-answer/sitemap.xml",
+  "/hi/question-answer/sitemap.xml",
+] as const
+
+export const CONTENT_ENGINE_CACHE_TAG = "content-engine"
+
+interface ContentEngineInvalidator {
+  tag: (tag: string) => void
+  path: (path: string, type?: "page" | "layout") => void
+}
+
+const defaultContentEngineInvalidator: ContentEngineInvalidator = {
+  tag: (tag) => safeRevalidateTag(tag),
+  path: (path, type) => safeRevalidatePath(path, type),
+}
+
 /**
  * Revalidates all Content Engine public and hub routes across English and Hindi.
  * Uses exact route pattern + "page" type for Next.js App Router ISR invalidation.
+ *
+ * B10: every mutation of a question that can be public must call this — editing
+ * or deleting a published question used to leave the 1h cached copy of it live
+ * until it expired. The invalidator is injectable so a test can assert the exact
+ * tag and route list without a Next request scope.
  */
-export function revalidateContentEngineRoutes() {
-  safeRevalidateTag("content-engine")
-  safeRevalidatePath("/sitemap.xml")
-  safeRevalidatePath("/question-answer", "page")
-  safeRevalidatePath("/hi/question-answer", "page")
-  safeRevalidatePath("/question-answer/[exam]", "page")
-  safeRevalidatePath("/question-answer/[exam]/[subject]", "page")
-  safeRevalidatePath("/question-answer/[exam]/[subject]/[slug]", "page")
-  safeRevalidatePath("/hi/question-answer/[exam]", "page")
-  safeRevalidatePath("/hi/question-answer/[exam]/[subject]", "page")
-  safeRevalidatePath("/hi/question-answer/[exam]/[subject]/[slug]", "page")
-  safeRevalidatePath("/question-answer/sitemap.xml")
-  safeRevalidatePath("/hi/question-answer/sitemap.xml")
+export function revalidateContentEngineRoutes(
+  invalidator: ContentEngineInvalidator = defaultContentEngineInvalidator
+) {
+  invalidator.tag(CONTENT_ENGINE_CACHE_TAG)
+  for (const route of CONTENT_ENGINE_PUBLIC_ROUTES) {
+    invalidator.path(route, route === "/sitemap.xml" ? undefined : "page")
+  }
 }
 
 /**
@@ -495,6 +521,9 @@ export async function reCategoriseAllQuestions(): Promise<{ updatedCount: number
     updatedCount++
   }
 
+  // B10: sub/top are part of the public URL and listing, so the cached copies
+  // of published questions are stale after a re-categorisation.
+  revalidateContentEngineRoutes()
   return { updatedCount }
 }
 

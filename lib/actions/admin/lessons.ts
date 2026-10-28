@@ -7,6 +7,7 @@ import { z } from "zod"
 import { LessonType } from "@prisma/client"
 import { canEditContent, canDeleteContent } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 import { withTransactionLock } from "@/lib/prisma-lock"
 import { nextLessonOrder } from "@/lib/utils/next-order"
 import { toCourseAccessUser } from "@/lib/auth/course-access"
@@ -36,6 +37,8 @@ async function revalidateLessonPages(courseId: string, lessonId?: string) {
     revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
     revalidatePath("/tutorials")
+    // B10: lesson changes alter the course outline in the tagged course cache.
+    safeRevalidateTags(CACHE_TAGS.courses)
     try {
         const course = await prisma.course.findUnique({
             where: { id: courseId },

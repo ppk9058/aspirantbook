@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { canEditChapter, canDeleteChapter } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 import { withTransactionLock } from "@/lib/prisma-lock"
 import { nextChapterOrder } from "@/lib/utils/next-order"
 import { toCourseAccessUser } from "@/lib/auth/course-access"
@@ -30,6 +31,8 @@ async function revalidateCoursePages(courseId: string) {
     revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
     revalidatePath("/tutorials")
+    // B10: chapter changes alter the course outline shown by tagged reads.
+    safeRevalidateTags(CACHE_TAGS.courses)
     try {
         const course = await prisma.course.findUnique({
             where: { id: courseId },

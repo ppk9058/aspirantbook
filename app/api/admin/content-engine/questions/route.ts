@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 import { requireContentEngineAdmin } from "@/lib/modules/content-engine/auth"
-import { getQuestions } from "@/lib/modules/content-engine/db-service"
+import {
+  getQuestions,
+  revalidateContentEngineRoutes,
+} from "@/lib/modules/content-engine/db-service"
 import { prisma } from "@/lib/prisma"
 import { contentEngineQuestionPatchSchema } from "@/lib/validation/admin-payloads"
 
@@ -75,6 +78,10 @@ export async function PATCH(req: Request) {
       data: parsed.data,
     })
 
+    // B10: an edited question may already be public; drop the cached copy and
+    // the route cache for the hub/detail pages.
+    revalidateContentEngineRoutes()
+
     return NextResponse.json({ success: true, question: updated })
   } catch (error: any) {
     console.error("PATCH /api/admin/content-engine/questions error:", error)
@@ -100,6 +107,9 @@ export async function DELETE(req: Request) {
     await prisma.contentEngineQuestion.delete({
       where: { id },
     })
+
+    // B10: a deleted question must not stay readable from the public cache.
+    revalidateContentEngineRoutes()
 
     return NextResponse.json({ success: true })
   } catch (error: any) {

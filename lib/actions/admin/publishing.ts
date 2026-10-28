@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 import { toCourseAccessUser } from "@/lib/auth/course-access"
 import { assertManagedCourseForAction } from "@/lib/auth/course-access-server"
 
@@ -28,6 +29,8 @@ export async function publishCourse(courseId: string) {
     // Revalidate pages to show the new course
     revalidatePath("/courses")
     revalidatePath("/admin/courses")
+    // B10: publishing changes the tagged course list, not just the route.
+    safeRevalidateTags(CACHE_TAGS.courses)
     revalidatePath(`/admin/courses/${courseId}/edit`)
     if (course.slug) {
         revalidatePath(`/courses/${course.slug}`)
@@ -56,6 +59,8 @@ export async function unpublishCourse(courseId: string) {
 
     revalidatePath("/courses")
     revalidatePath("/admin/courses")
+    // B10: publishing changes the tagged course list, not just the route.
+    safeRevalidateTags(CACHE_TAGS.courses)
     revalidatePath(`/admin/courses/${courseId}/edit`)
     if (course.slug) {
         revalidatePath(`/courses/${course.slug}`)

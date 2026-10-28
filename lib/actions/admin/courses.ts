@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 import { deleteFromS3 } from "@/lib/aws-s3"
 import { canCreateCourse, canEditCourse, canDeleteCourse, isEditorUser } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
@@ -97,6 +98,8 @@ export async function createCourseDraft(prevState: any, formData: FormData) {
             details: { title, slug, technology, difficulty },
         })
 
+        safeRevalidateTags(CACHE_TAGS.courses)
+
         const returnUrl = formData.get("returnUrl") as string
         if (returnUrl) {
             redirect(returnUrl.replace("[id]", course.id).replace(":id", course.id))
@@ -169,6 +172,9 @@ export async function updateCourseDraft(courseId: string, rawData: any) {
     revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
     revalidatePath("/tutorials")
+    // B10: the "courses" data cache feeds /api/courses/video-courses and the
+    // course badges; revalidatePath alone does not drop a tagged cache entry.
+    safeRevalidateTags(CACHE_TAGS.courses)
     if (updated.slug) {
         revalidatePath(`/courses/${updated.slug}`)
         revalidatePath(`/tutorials/${updated.slug}`)
@@ -215,6 +221,9 @@ export async function updateCourseInline(courseId: string, fields: Record<string
     revalidatePath("/teacher/tutorials")
     revalidatePath("/courses")
     revalidatePath("/tutorials")
+    // B10: the "courses" data cache feeds /api/courses/video-courses and the
+    // course badges; revalidatePath alone does not drop a tagged cache entry.
+    safeRevalidateTags(CACHE_TAGS.courses)
     if (updated.slug) {
         revalidatePath(`/courses/${updated.slug}`)
         revalidatePath(`/tutorials/${updated.slug}`)
@@ -265,6 +274,8 @@ export async function updateCourseThumbnail(courseId: string, thumbnailUrl: stri
     })
 
     revalidatePath(`/admin/courses/${courseId}/edit`)
+    // B10: thumbnail comes from the tagged course cache too.
+    safeRevalidateTags(CACHE_TAGS.courses)
 }
 
 export async function deleteDraft(courseId: string) {
@@ -312,6 +323,8 @@ export async function deleteDraft(courseId: string) {
             details: { archived: true, reason: "has enrollments", enrollmentCount },
         })
         revalidatePath("/admin/courses")
+        revalidatePath("/courses")
+        safeRevalidateTags(CACHE_TAGS.courses)
         return { archived: true, enrollmentCount }
     }
 
@@ -350,6 +363,8 @@ export async function deleteDraft(courseId: string) {
     })
 
     revalidatePath("/admin/courses")
+    revalidatePath("/courses")
+    safeRevalidateTags(CACHE_TAGS.courses)
 }
 
 export async function togglePublishStatus(courseId: string) {
