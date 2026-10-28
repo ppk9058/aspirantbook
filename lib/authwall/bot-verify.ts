@@ -15,6 +15,29 @@ const ipVerificationCache = new Map<string, BotCacheEntry>()
 // Simple rate limiter for bot verification per IP (max 60/minute)
 const botRateLimits = new Map<string, { count: number; resetAt: number }>()
 
+/**
+ * C2: both maps grow with every distinct client IP and nothing ever removed an
+ * entry, so a long-lived instance leaked memory for the life of the process
+ * (and, on an instance-per-request platform, the limiter was per instance).
+ * Expired entries are dropped once the maps get large; the limiter stays a soft
+ * per-process guard — the DB-backed limiter in lib/rate-limit.ts is used by the
+ * auth, payment and upload paths.
+ */
+const MAX_TRACKED_IPS = 5000
+
+function pruneExpired(now: number) {
+  if (ipVerificationCache.size > MAX_TRACKED_IPS) {
+    for (const [ip, entry] of ipVerificationCache) {
+      if (entry.expiresAt <= now) ipVerificationCache.delete(ip)
+    }
+  }
+  if (botRateLimits.size > MAX_TRACKED_IPS) {
+    for (const [ip, entry] of botRateLimits) {
+      if (entry.resetAt <= now) botRateLimits.delete(ip)
+    }
+  }
+}
+
 const KNOWN_BOT_DOMAINS = [
   /\.googlebot\.com$/i,
   /\.google\.com$/i,
@@ -82,6 +105,7 @@ export async function isVerifiedSearchEngineCrawler(
 
   // 3. Check rate limiting for bot checks
   const now = Date.now()
+  pruneExpired(now)
   const rl = botRateLimits.get(cleanIp)
   if (rl) {
     if (now < rl.resetAt) {

@@ -51,6 +51,8 @@ model User {
   pushTokens            DevicePushToken[]
   deviceSessions        DeviceSession[]
   createdCourses        Course[]               @relation("UserCreatedCourses")
+  doubts                Doubt[]
+  formSubmissions       FormSubmission[]
 
   @@index([email])
   @@index([role])
@@ -1670,4 +1672,53 @@ model ReauthTokenUse {
   createdAt DateTime @default(now())
 
   @@index([expiresAt])
+}
+
+/// C2: student doubts were stored in data/doubts.json through fs.writeFile, which
+/// is lost on every serverless instance and races between instances. The rows
+/// live in Postgres now.
+model Doubt {
+  id             String    @id @default(cuid())
+  studentId      String?
+  studentName    String
+  studentEmail   String?
+  subject        String
+  topic          String?
+  questionText   String
+  attachmentName String?
+  attachmentUrl  String?
+  attachmentType String?
+  attachmentSize String?
+  status         String    @default("PENDING")
+  teacherAnswer  String?
+  teacherName    String?
+  answeredAt     DateTime?
+  upvotes        Int       @default(0)
+  createdAt      DateTime  @default(now())
+  student        User?     @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([status])
+  @@index([subject])
+  @@index([createdAt])
+}
+
+/// C2: form submissions were stored in data/form-submissions.json (same problem).
+model FormSubmission {
+  id             String   @id @default(cuid())
+  formSlug       String
+  userId         String?
+  userName       String?
+  userEmail      String?
+  formData       Json
+  attachmentUrl  String?
+  attachmentName String?
+  status         String   @default("SUBMITTED")
+  adminNotes     String?
+  submittedAt    DateTime @default(now())
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([formSlug])
+  @@index([userId])
+  @@index([submittedAt])
 }

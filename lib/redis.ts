@@ -9,6 +9,24 @@ const getRedisUrl = () => {
     return process.env.REDIS_URL || null
 }
 
+let warnedMissingRedis = false
+
+/**
+ * C2: with no REDIS_URL every helper below falls back to module-level Maps,
+ * which are per process. On serverless that means the XP leaderboard and the
+ * cached values are only correct within a single instance. That is a
+ * deployment decision (set REDIS_URL), not something the code can fix, so it is
+ * reported loudly once instead of failing silently.
+ */
+function warnIfRedisMissing() {
+    if (warnedMissingRedis || getRedisUrl()) return
+    if (process.env.NODE_ENV !== "production" && process.env.APP_ENV !== "test") return
+    warnedMissingRedis = true
+    console.warn(
+        "[Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory."
+    )
+}
+
 class RedisClient {
     private static instance: Redis | null = null
     private static hasAttemptedConnect = false
@@ -16,6 +34,7 @@ class RedisClient {
     static getInstance(): Redis | null {
         const url = getRedisUrl()
         if (!url) {
+            warnIfRedisMissing()
             return null
         }
 
