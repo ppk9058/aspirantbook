@@ -7,7 +7,7 @@ import {
   aggregateUserAnalytics,
   aggregateRevenueAnalytics,
 } from "@/lib/actions/admin/analytics"
-import { mapWithConcurrency } from "@/lib/utils/concurrency"
+import { forEachBatchedId, mapWithConcurrency } from "@/lib/utils/concurrency"
 
 /**
  * B6: the admin analytics aggregations invented numbers.
@@ -277,6 +277,42 @@ describe("B6 admin analytics are measured, not invented", () => {
     assert.deepEqual(results, items.map((i) => i * 2), "results keep input order")
     assert.deepEqual([...seen].sort((a, b) => a - b), items, "every item runs exactly once")
     assert.equal(maxInFlight <= 4, true, `concurrency must stay bounded (saw ${maxInFlight})`)
+  })
+
+  it("pages through ids instead of loading them all at once", async () => {
+    // B11: runDailyAnalytics used to read every course/user id in one findMany.
+    const rows = Array.from({ length: 23 }, (_, i) => ({
+      id: `id-${String(i).padStart(3, "0")}`,
+    }))
+    const fetches: Array<{ cursor: string | undefined; take: number }> = []
+    const seen: string[] = []
+    let inFlight = 0
+    let maxInFlight = 0
+
+    const processed = await forEachBatchedId({
+      pageSize: 5,
+      concurrency: 3,
+      fetchPage: async (cursor, take) => {
+        fetches.push({ cursor, take })
+        const start = cursor ? rows.findIndex((row) => row.id === cursor) + 1 : 0
+        return rows.slice(start, start + take)
+      },
+      worker: async (id) => {
+        inFlight += 1
+        maxInFlight = Math.max(maxInFlight, inFlight)
+        await new Promise((resolve) => setTimeout(resolve, 1))
+        inFlight -= 1
+        seen.push(id)
+      },
+    })
+
+    assert.equal(processed, 23)
+    assert.deepEqual(seen, rows.map((row) => row.id), "every id is processed once, in page order")
+    assert.equal(fetches.length, 5, "23 rows at 5 per page is 5 fetches")
+    assert.equal(fetches.every((fetch) => fetch.take === 5), true)
+    assert.equal(fetches[0].cursor, undefined)
+    assert.equal(fetches[1].cursor, "id-004", "each page starts after the previous page's last id")
+    assert.equal(maxInFlight <= 3, true, `concurrency must stay bounded (saw ${maxInFlight})`)
   })
 
   it("propagates a worker failure instead of returning partial results", async () => {

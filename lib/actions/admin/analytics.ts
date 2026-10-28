@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { mapWithConcurrency } from "@/lib/utils/concurrency"
+import { forEachBatchedId } from "@/lib/utils/concurrency"
 import { startOfDay, endOfDay, subDays } from "date-fns"
 
 /**
@@ -345,6 +345,10 @@ export async function aggregateRevenueAnalytics(date: Date, preVerified = false)
  * B6: courses and users were aggregated one `await` at a time. They now run in
  * bounded waves so a full day's snapshot finishes in a predictable number of
  * round trips without opening one connection per course.
+ *
+ * B11: the id lists were also read with an unbounded `findMany`, which grows
+ * with the learner count. They are now paged (200 courses, 500 users at a time)
+ * and each page is aggregated before the next is fetched.
  */
 export async function runDailyAnalytics() {
     const session = await auth()
@@ -357,33 +361,44 @@ export async function runDailyAnalytics() {
     // Aggregate revenue
     await aggregateRevenueAnalytics(today, true)
 
-    // Get all courses and aggregate
-    const courses = await prisma.course.findMany({
-        where: { status: "PUBLISHED" },
-        select: { id: true },
+    // B11: walk the tables in pages instead of loading every id at once; each
+    // page is still aggregated with bounded concurrency.
+    const courseCursor = (cursor: string | undefined, take: number) =>
+        prisma.course.findMany({
+            where: { status: "PUBLISHED" },
+            select: { id: true },
+            orderBy: { id: "asc" },
+            take,
+            ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+        })
+
+    const coursesAggregated = await forEachBatchedId({
+        pageSize: 200,
+        concurrency: 4,
+        fetchPage: courseCursor,
+        worker: (id) => aggregateCourseAnalytics(id, today, true),
     })
 
-    await mapWithConcurrency(courses, 4, (course) =>
-        aggregateCourseAnalytics(course.id, today, true)
-    )
+    const since = subDays(today, 1)
+    const userCursor = (cursor: string | undefined, take: number) =>
+        prisma.user.findMany({
+            where: { lastActive: { gte: since } },
+            select: { id: true },
+            orderBy: { id: "asc" },
+            take,
+            ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+        })
 
-    // Get active users and aggregate
-    const activeUsers = await prisma.user.findMany({
-        where: {
-            lastActive: {
-                gte: subDays(today, 1),
-            },
-        },
-        select: { id: true },
+    const usersAggregated = await forEachBatchedId({
+        pageSize: 500,
+        concurrency: 8,
+        fetchPage: userCursor,
+        worker: (id) => aggregateUserAnalytics(id, today, true),
     })
-
-    await mapWithConcurrency(activeUsers, 8, (user) =>
-        aggregateUserAnalytics(user.id, today, true)
-    )
 
     return {
         success: true,
-        coursesAggregated: courses.length,
-        usersAggregated: activeUsers.length,
+        coursesAggregated,
+        usersAggregated,
     }
 }

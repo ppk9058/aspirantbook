@@ -15,27 +15,28 @@ export default function ContentEngineExportPage() {
   const [publishedCount, setPublishedCount] = useState<number | null>(null)
 
   useEffect(() => {
-    // Load current exportMode setting & question count
+    // Load current exportMode setting & question count. B11: a failed load must
+    // be visible; silently showing defaults hides a broken export configuration.
     fetch("/api/admin/content-engine/settings?key=exportMode")
       .then((res) => res.json())
       .then((data) => {
         if (data.value) setExportMode(data.value)
       })
-      .catch(() => {})
+      .catch(() => toast.error("Could not load the export mode setting"))
 
     fetch("/api/admin/content-engine/settings?key=exportBaseUrl")
       .then((res) => res.json())
       .then((data) => {
         if (data.value) setExportBaseUrl(data.value)
       })
-      .catch(() => {})
+      .catch(() => toast.error("Could not load the export base URL setting"))
 
     fetch("/api/admin/content-engine/questions?isPublished=true&pageSize=1")
       .then((res) => res.json())
       .then((data) => {
         if (data.total !== undefined) setPublishedCount(data.total)
       })
-      .catch(() => {})
+      .catch(() => toast.error("Could not count published questions"))
   }, [])
 
   async function handleModeChange(newMode: "mirror" | "primary") {
@@ -59,16 +60,65 @@ export default function ContentEngineExportPage() {
     }
   }
 
-  function handleDownloadZip() {
-    setIsDownloading(true)
-    toast.info("Generating static ZIP package...")
+  // B11: an export is bounded to EXPORT_PART_SIZE questions per archive, so a
+  // large corpus downloads several parts. The response headers say whether
+  // another part exists; following them keeps every archive complete instead of
+  // silently shipping only the first page.
+  const EXPORT_PART_SIZE = 2000
+
+  function saveBlob(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
-    link.href = "/api/admin/content-engine/export"
-    link.download = "content-engine-static-site.zip"
+    link.href = url
+    link.download = filename
     document.body.appendChild(link)
     link.click()
-    document.body.removeChild(link)
-    setTimeout(() => setIsDownloading(false), 2000)
+    link.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 10_000)
+  }
+
+  async function handleDownloadZip() {
+    setIsDownloading(true)
+    try {
+      let offset = 0
+      let part = 1
+      let parts = Math.max(1, Math.ceil((publishedCount ?? 0) / EXPORT_PART_SIZE))
+
+      while (offset >= 0) {
+        if (parts > 1) {
+          toast.info(`Generating export archive ${part} of ${parts}...`)
+        } else {
+          toast.info("Generating static ZIP package...")
+        }
+
+        const res = await fetch(
+          `/api/admin/content-engine/export?limit=${EXPORT_PART_SIZE}&offset=${offset}`
+        )
+        if (!res.ok) {
+          const body = await res.json().catch(() => null)
+          throw new Error(body?.error || `Export failed with status ${res.status}`)
+        }
+
+        parts = Math.max(1, Number(res.headers.get("X-Export-Parts") || parts))
+        const nextOffset = res.headers.get("X-Export-Next-Offset")
+        const filename =
+          parts > 1
+            ? `content-engine-static-site-part-${part}-of-${parts}.zip`
+            : "content-engine-static-site.zip"
+
+        saveBlob(await res.blob(), filename)
+        offset = nextOffset ? Number(nextOffset) : -1
+        part += 1
+      }
+
+      toast.success(
+        parts > 1 ? `Downloaded ${parts} export archives` : "Static ZIP downloaded"
+      )
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to generate static export")
+    } finally {
+      setIsDownloading(false)
+    }
   }
 
   return (
@@ -185,7 +235,11 @@ export default function ContentEngineExportPage() {
           <span className="text-sm font-semibold text-foreground block">Ready for Export</span>
           <span className="text-xs text-muted-foreground">
             {publishedCount !== null
-              ? `${publishedCount} published questions will be compiled into static HTML.`
+              ? publishedCount > EXPORT_PART_SIZE
+                ? `${publishedCount} published questions will be compiled into ${Math.ceil(
+                    publishedCount / EXPORT_PART_SIZE
+                  )} ZIP archives (${EXPORT_PART_SIZE} questions each).`
+                : `${publishedCount} published questions will be compiled into static HTML.`
               : "Compiling published question repository..."}
           </span>
         </div>

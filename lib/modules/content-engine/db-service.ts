@@ -4,6 +4,7 @@
  */
 
 import { prisma } from "@/lib/prisma"
+import type { Prisma } from "@prisma/client"
 import { createHash } from "node:crypto"
 import { parse, parseWithDiagnostics, ParsedQuestion } from "./parser"
 import { nz, classify, inferRuns } from "./classifier"
@@ -817,4 +818,64 @@ export async function getPublicQuestionBySlug(slugOrShortId: string) {
     questionQueryCache.set(shortId, { data: result, expiresAt: Date.now() + 3600 * 1000 })
   }
   return result
+}
+
+// ─── B11: bounded static export ──────────────────────────────────────────────
+
+const EXPORT_QUESTION_WHERE = { isPublished: true, status: "PUBLISHED" } as const
+
+/**
+ * Number of published questions available to the static export.
+ *
+ * `where` is an optional narrowing predicate (a batch, in tests); production
+ * callers omit it.
+ */
+export async function countPublishedQuestionsForExport(
+  where?: Prisma.ContentEngineQuestionWhereInput
+): Promise<number> {
+  return prisma.contentEngineQuestion.count({
+    where: where ? { AND: [EXPORT_QUESTION_WHERE, where] } : EXPORT_QUESTION_WHERE,
+  })
+}
+
+/**
+ * Reads one bounded part of the published corpus for the static export.
+ *
+ * Rows are fetched in chunks of `chunkSize` (default 250) instead of one
+ * unbounded `findMany`, so peak memory is a chunk plus the part being zipped.
+ * The ordering is stable (`createdAt`, then `id`) so successive offsets do not
+ * repeat or skip a question.
+ */
+export async function readPublishedQuestionsForExport(params: {
+  limit: number
+  offset: number
+  chunkSize?: number
+  where?: Prisma.ContentEngineQuestionWhereInput
+}) {
+  const chunkSize = Math.max(1, Math.min(params.chunkSize ?? 250, params.limit))
+  const end = params.offset + params.limit
+
+  const fetchChunk = (position: number, take: number) =>
+    prisma.contentEngineQuestion.findMany({
+      where: params.where
+        ? { AND: [EXPORT_QUESTION_WHERE, params.where] }
+        : EXPORT_QUESTION_WHERE,
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      skip: position,
+      take,
+      include: { translations: true },
+    })
+
+  const rows: Awaited<ReturnType<typeof fetchChunk>> = []
+
+  let position = params.offset
+  while (position < end) {
+    const take = Math.min(chunkSize, end - position)
+    const page = await fetchChunk(position, take)
+    if (page.length === 0) break
+    rows.push(...page)
+    position += page.length
+  }
+
+  return rows
 }
