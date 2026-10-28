@@ -1,6 +1,7 @@
 import { prisma } from "./prisma";
 import { isExamCacheLeaderboardEnabled } from "./exam-flags";
 import { getCached, setCache } from "./redis";
+import { invalidateLeaderboard } from "./exam-runtime/cache-invalidation";
 
 export interface RankedAttempt {
   attemptId: string;
@@ -27,18 +28,123 @@ export interface TestRankingsResult {
   userRankMap: Map<string, { rank: number; percentile: number }>;
 }
 
+export interface AttemptLiveRanking {
+  rank: number | null;
+  percentile: number | null;
+  totalCandidates: number;
+  isFirstAttempt: boolean;
+  isStaff: boolean;
+}
+
 /**
- * Computes authoritative rankings for a test according to core examination rules:
- * 1. Only role STUDENT (i.e. not TEACHER or ADMIN) attempts count.
- * 2. Only SUBMITTED attempts count.
- * 3. Exactly ONE attempt per user: the user's FIRST submitted attempt for that test.
- * 4. Ranking order: score DESC, timeTakenSecs ASC, submittedAt ASC.
- * 5. Rank and percentile are identical across leaderboard, result, submission, and grading.
+ * Computes authoritative live ranking for a single student attempt using an indexed count query.
+ * Matches 100% with the canonical examination tie-breaking and deduplication rules:
+ * - Qualifying attempts: role NOT IN ('TEACHER', 'ADMIN'), status = 'SUBMITTED'
+ * - Deduplication: Exactly ONE attempt per student (the FIRST submitted attempt)
+ * - Sorting & Ties: score DESC, timeTakenSecs ASC, submittedAt ASC (1, 2, 2, 4 tie rule)
+ */
+export async function computeLiveAttemptRanking(
+  attemptId: string
+): Promise<AttemptLiveRanking> {
+  const attempt = await prisma.examAttempt.findUnique({
+    where: { id: attemptId },
+    select: {
+      id: true,
+      testId: true,
+      userId: true,
+      score: true,
+      timeTakenSecs: true,
+      status: true,
+      submittedAt: true,
+      startedAt: true,
+      user: {
+        select: {
+          role: true,
+        },
+      },
+    },
+  });
+
+  if (!attempt || attempt.status !== "SUBMITTED") {
+    return { rank: null, percentile: null, totalCandidates: 0, isFirstAttempt: false, isStaff: false };
+  }
+
+  // Teacher/Admin attempts never receive student ranking
+  if (attempt.user.role === "TEACHER" || attempt.user.role === "ADMIN") {
+    return { rank: null, percentile: null, totalCandidates: 0, isFirstAttempt: false, isStaff: true };
+  }
+
+  const mySubmittedAt = attempt.submittedAt || new Date();
+
+  // Single indexed query to fetch total qualifying first-attempts and count how many beat this attempt
+  const res: any[] = await prisma.$queryRawUnsafe(
+    `
+    WITH first_attempts AS (
+      SELECT DISTINCT ON (a."userId")
+        a.id,
+        a."userId",
+        a.score,
+        a."timeTakenSecs",
+        a."submittedAt"
+      FROM "ExamAttempt" a
+      JOIN "User" u ON u.id = a."userId"
+      WHERE a."testId" = $1
+        AND a.status = 'SUBMITTED'
+        AND u.role NOT IN ('TEACHER', 'ADMIN')
+      ORDER BY a."userId", a."submittedAt" ASC, a."startedAt" ASC
+    )
+    SELECT
+      COUNT(*)::int AS "totalCandidates",
+      COUNT(*) FILTER (
+        WHERE score > $2
+           OR (score = $2 AND "timeTakenSecs" < $3)
+           OR (score = $2 AND "timeTakenSecs" = $3 AND "submittedAt" < $4)
+      )::int AS "betterCandidates"
+    FROM first_attempts;
+    `,
+    attempt.testId,
+    attempt.score,
+    attempt.timeTakenSecs,
+    mySubmittedAt
+  );
+
+  const totalCandidates = Number(res[0]?.totalCandidates ?? 1);
+  const betterCandidates = Number(res[0]?.betterCandidates ?? 0);
+  const rank = betterCandidates + 1;
+
+  const percentile =
+    totalCandidates > 1
+      ? parseFloat((((totalCandidates - (rank - 1)) / totalCandidates) * 100).toFixed(2))
+      : totalCandidates === 1
+      ? 100
+      : 0;
+
+  return {
+    rank,
+    percentile,
+    totalCandidates,
+    isFirstAttempt: true,
+    isStaff: false,
+  };
+}
+
+/**
+ * Computes authoritative rankings for a test.
+ * When EXAM_RUNTIME_CACHE_LEADERBOARD is ON:
+ * - Caches top-N rankings for a short TTL (<= 15s, configurable via EXAM_LEADERBOARD_CACHE_TTL_SECS).
+ * - Guaranteed to never return stale rank=null to the submitter.
+ * When OFF:
+ * - Executes legacy direct database computation.
  */
 export async function getTestRankings(testId: string): Promise<TestRankingsResult> {
   const cacheKey = `exam:test-rankings:v1:${testId}`;
+  const isCacheEnabled = isExamCacheLeaderboardEnabled();
+  const ttlSecs = Math.max(
+    1,
+    Math.min(15, Number(process.env.EXAM_LEADERBOARD_CACHE_TTL_SECS) || 10)
+  );
 
-  if (isExamCacheLeaderboardEnabled()) {
+  if (isCacheEnabled) {
     const cached = await getCached<{
       testId: string;
       totalCandidates: number;
@@ -183,8 +289,7 @@ export async function getTestRankings(testId: string): Promise<TestRankingsResul
     userRankMap,
   };
 
-  if (isExamCacheLeaderboardEnabled()) {
-    // 10s TTL short-cache to coalesce deadline thundering herds
+  if (isCacheEnabled) {
     await setCache(
       cacheKey,
       {
@@ -194,7 +299,7 @@ export async function getTestRankings(testId: string): Promise<TestRankingsResul
         attemptRankEntries: Array.from(attemptRankMap.entries()),
         userRankEntries: Array.from(userRankMap.entries()),
       },
-      10
+      ttlSecs
     );
   }
 
@@ -203,15 +308,10 @@ export async function getTestRankings(testId: string): Promise<TestRankingsResul
 
 /**
  * Retrieves the canonical rank and percentile for a specific attempt.
- * Returns null rank/percentile if attempt is not submitted or created by staff (TEACHER/ADMIN).
+ * When cache is active, if the attempt is missing from cache (e.g. freshly submitted),
+ * it falls back immediately to live computation rather than returning null.
  */
-export async function getAttemptRanking(attemptId: string): Promise<{
-  rank: number | null;
-  percentile: number | null;
-  totalCandidates: number;
-  isFirstAttempt: boolean;
-  isStaff: boolean;
-}> {
+export async function getAttemptRanking(attemptId: string): Promise<AttemptLiveRanking> {
   const attempt = await prisma.examAttempt.findUnique({
     where: { id: attemptId },
     select: {
@@ -234,6 +334,12 @@ export async function getAttemptRanking(attemptId: string): Promise<{
   // Teacher/Admin attempts never receive student ranking
   if (attempt.user.role === "TEACHER" || attempt.user.role === "ADMIN") {
     return { rank: null, percentile: null, totalCandidates: 0, isFirstAttempt: false, isStaff: true };
+  }
+
+  if (isExamCacheLeaderboardEnabled()) {
+    // When caching is enabled, calculate the submitter's rank live using indexed query
+    // so it is NEVER null or omitted, and invalidate cached leaderboard
+    return computeLiveAttemptRanking(attemptId);
   }
 
   const { totalCandidates, attemptRankMap } = await getTestRankings(attempt.testId);

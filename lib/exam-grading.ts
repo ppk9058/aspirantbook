@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getAttemptRanking } from "./exam-ranking";
 import { isExamFastGradingEnabled } from "./exam-flags";
 import { calculateExamScore } from "@aspirantbook/shared";
+import { invalidateLeaderboard } from "./exam-runtime/cache-invalidation";
 
 export interface GradedAttemptResult {
   attemptId: string;
@@ -257,14 +258,20 @@ export async function gradeExamAttempt(
 
   const ranking = await getAttemptRanking(attemptId);
 
-  if (isExamFastGradingEnabled()) {
+  // Invalidate leaderboard cache so next fetch sees new attempt
+  await invalidateLeaderboard(attempt.testId);
+
+  // Always persist rank and percentile on ExamAttempt record
+  try {
     await prisma.examAttempt.update({
       where: { id: attemptId },
       data: {
         percentile: ranking.percentile,
         allIndiaRank: ranking.rank,
       },
-    }).catch(() => {});
+    });
+  } catch (err) {
+    console.warn(`[Grading] Could not update percentile/rank on attempt ${attemptId}:`, err);
   }
 
   return {

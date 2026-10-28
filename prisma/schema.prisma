@@ -1080,6 +1080,7 @@ model ExamAttempt {
   @@index([userId, testId])
   @@index([testId, status, score])
   @@index([userId, startedAt])
+  @@index([testId, score(sort: Desc), timeTakenSecs(sort: Asc), submittedAt(sort: Asc)], map: "idx_examattempt_ranking")
 }
 
 model ExamAttemptAnswer {

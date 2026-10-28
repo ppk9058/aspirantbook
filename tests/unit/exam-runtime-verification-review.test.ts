@@ -11,7 +11,7 @@ import {
   isExamCacheLeaderboardEnabled,
 } from "../../lib/exam-flags";
 
-process.env.DATABASE_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
+process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_perf_v2_test";
 process.env.DIRECT_URL = process.env.DATABASE_URL;
 
 const prisma = new PrismaClient();
@@ -239,12 +239,11 @@ describe("Task E: Correctness & Edge Case Verification Suite", () => {
 
     console.log(`[E.2] User 2 Graded Result allIndiaRank: ${gradedUser2.allIndiaRank}, percentile: ${gradedUser2.percentile}`);
 
-    // BUG VERIFICATION: Because leaderboard is cached for 120s and NOT invalidated on submit,
-    // getAttemptRanking uses the cached rankings which DOES NOT contain user 2!
-    // Result: allIndiaRank and percentile return null for the student's own submit!
-    const isRankNull = gradedUser2.allIndiaRank === null;
-    console.log(`[E.2] BUG CONFIRMED: Student receives rank=null on submit when leaderboard cache is ON: ${isRankNull}`);
-    assert.equal(isRankNull, true, "Leaderboard cache staleness causes rank=null on immediate submit");
+    // P0-2 FIX VERIFICATION: Submitter ALWAYS gets their own correct allIndiaRank and percentile immediately
+    // even when EXAM_RUNTIME_CACHE_LEADERBOARD is ON!
+    assert.notEqual(gradedUser2.allIndiaRank, null, "Submitter must receive non-null allIndiaRank immediately");
+    assert.notEqual(gradedUser2.percentile, null, "Submitter must receive non-null percentile immediately");
+    assert.equal(gradedUser2.allIndiaRank, 1, "User 2 has score 5 vs user 1 score 2, so rank must be 1");
   });
 
   // --------------------------------------------------------------------------
