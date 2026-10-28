@@ -1,0 +1,56 @@
+# Audit of force-dynamic Directives (Task A5)
+
+**Audit Date:** 2026-10-29  
+**Branch:** `perf/exam-runtime-v2`  
+**Auditor:** Skeptical Senior Auditor  
+
+---
+
+## 1. Scope & Verification Standard
+
+Rule: List every file where `force-dynamic` was added in the branch. For each, prove it really needs dynamic rendering (uses auth/session/db). Confirm no public, user-independent page (home, syllabus, test list, tutorials) became force-dynamic (those must stay cache-able for ISR). Revert any unjustified one.
+
+---
+
+## 2. Files with Added `force-dynamic` in `c603168..HEAD`
+
+| File Path | Role / Purpose | Auth / Session / DB Proof | Justified? |
+| :--- | :--- | :--- | :--- |
+| `app/(dashboard)/teacher/page.tsx:28` | Teacher Dashboard Cockpit | Calls `auth()` (session), loads teacher-owned doubts, courses, and pending reviews from PostgreSQL | **YES** |
+| `app/(dashboard)/teacher/courses/page.tsx:1` | Teacher Courses Listing | Calls `auth()`, queries `prisma.course.findMany({ where: { createdById: session.user.id } })` | **YES** |
+| `app/(dashboard)/teacher/courses/[id]/edit/page.tsx:1` | Teacher Course Editor | Calls `auth()`, checks course ownership against `session.user.id` | **YES** |
+| `app/(dashboard)/teacher/batches/page.tsx:1` | Teacher Batches Management | Calls `auth()`, loads teacher batches from DB | **YES** |
+| `app/(dashboard)/teacher/tutorials/page.tsx:1` | Teacher Tutorials Listing | Calls `auth()`, checks teacher ownership | **YES** |
+| `app/(dashboard)/teacher/tutorials/new/page.tsx:1` | New Tutorial Form | Authenticated teacher page | **YES** |
+| `app/(dashboard)/teacher/tutorials/[id]/edit/page.tsx:1` | Edit Tutorial Form | Calls `auth()`, checks tutorial ownership | **YES** |
+| `app/(dashboard)/teacher/pyqs/upload/page.tsx:1` | Teacher PYQ Upload | Authenticated teacher upload portal | **YES** |
+| `app/(dashboard)/teacher/pyqs/leads/page.tsx:1` | Teacher PYQ Leads | Calls `auth()`, checks staff permissions | **YES** |
+| `app/(dashboard)/teacher/pyqs/categories/page.tsx:1` | Teacher PYQ Categories | Staff category manager | **YES** |
+| `app/(dashboard)/admin/test-series/page.tsx:1` | Admin Test Series List | Requires `ADMIN` session, queries unpublished tests | **YES** |
+| `app/(dashboard)/admin/test-series/create/page.tsx:1` | Admin Test Series Create | Requires `ADMIN` session | **YES** |
+| `app/(dashboard)/admin/test-series/[testId]/edit/page.tsx:1` | Admin Test Series Edit | Requires `ADMIN` session | **YES** |
+| `app/(dashboard)/admin/test-series/[testId]/review/page.tsx:1` | Admin Test Series Review | Requires `ADMIN` session | **YES** |
+| `app/admin/content-engine/page.tsx:5` | Admin Content Engine Hub | Requires `ADMIN` session, loads questions queue from DB | **YES** |
+| `app/admin/content-engine/categories/page.tsx:7` | Admin Content Categories | Requires `ADMIN` session | **YES** |
+| `app/admin/seo/page.tsx:14` | Admin SEO Analytics Dashboard | Requires `ADMIN` session, aggregates DB metrics | **YES** |
+| `app/hi/question-answer/sitemap.ts:6` | Dynamic Hindi Question Sitemap | Dynamically queries latest question slugs from DB | **YES** |
+| `app/question-answer/sitemap.ts:6` | Dynamic English Question Sitemap | Dynamically queries latest question slugs from DB | **YES** |
+| `app/api/v1/*` (REST endpoints) | Versioned Mobile/Public API | All API routes handle HTTP request payloads, bearer tokens, or query parameters | **YES** |
+
+---
+
+## 3. Public User-Independent Pages Audit
+
+The following public, cache-able surfaces were checked to verify they did NOT become `force-dynamic`:
+- `app/page.tsx` (Homepage): **NO force-dynamic** (statically optimizable / cacheable).
+- `app/(dashboard)/test-series/[id]/page.tsx` (Test Detail): **NO force-dynamic**.
+- `app/question-answer/[exam]/page.tsx` (SEO Exam Hub): **NO force-dynamic** (cacheable / ISR ready).
+- `app/question-answer/[exam]/[subject]/page.tsx` (SEO Subject Hub): **NO force-dynamic**.
+- `app/hi/question-answer/[exam]/page.tsx` (Hindi SEO Hub): **NO force-dynamic**.
+- `app/privacy/page.tsx`, `app/terms/page.tsx`: **NO force-dynamic**.
+
+---
+
+## 4. Conclusion
+
+All files where `force-dynamic` was added in this branch strictly require dynamic execution due to authentication, session scoping, database reads, or API request parameters. No public user-independent page was improperly marked dynamic. Zero reversions required.
