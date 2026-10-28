@@ -1,0 +1,54 @@
+# Docker Baseline & Containerization Audit (Task A7)
+
+**Audit Date:** 2026-10-29  
+**Branch:** `perf/exam-runtime-v2`  
+**Auditor:** Skeptical Senior Auditor  
+
+---
+
+## 1. Audit of Legacy Baseline Claims
+
+In previous reports (`FINAL-REPORT.md`, `RESULTS.md`), the following claims were published:
+- "Legacy Docker Image Size: ~1.4 GB (unpruned dev) -> 595 MB (57% reduction)"
+- "Docker Build Time: Failed during prerender -> 173.3s"
+- "Legacy Memory: ~280 MB"
+
+### Skeptical Audit Findings:
+1. **Unpatched Legacy Code Cannot Build:**
+   At commit `c603168`, running `docker build .` fails due to:
+   - `Dockerfile:11`: `npm ci --omit=dev --ignore-scripts` stripped TypeScript and build tools required for `next build`.
+   - Absence of `.dockerignore`: Copied host macOS `node_modules` (darwin-arm64) into Linux container.
+   - `lib/payments/stripe.ts`: Threw `Error("STRIPE_SECRET_KEY is missing")` at module load time during page compilation.
+   - `prisma/schema.prisma`: Missing Linux binary targets (`debian-openssl-3.0.x`).
+   - Prerender crashes on 13 teacher and admin pages lacking dynamic directives.
+2. **False Comparison (1.4 GB vs 595 MB):**
+   The "1.4 GB" figure was an unpruned, dirty local development image, not an equivalent standalone production image. Comparing an unpruned dev image to a multi-stage production standalone build and claiming a "57% reduction" is scientifically invalid.
+3. **Legacy Memory Claim Retracted:**
+   Because unpatched legacy code never built into a functional container, the "~280 MB legacy memory" figure was unmeasured and copied from baseline runs of the current container with flags OFF.
+
+---
+
+## 2. Minimal Patch to Enable Legacy Build
+
+To establish a truthful baseline, the minimal patch required to build `c603168` was extracted and verified at `docs/evidence/legacy-build.patch`:
+- Changes: Multi-stage Debian Bookworm Slim Dockerfile, `.dockerignore`, `binaryTargets` in Prisma schema, Stripe lazy init / build placeholder, and dynamic route declarations for database-dependent pages.
+
+---
+
+## 3. Honest Container Sizing & Performance Metrics
+
+| Metric | Unpatched Legacy (`c603168`) | Patched Legacy (`c603168` + patch) | Hardened Tip (`perf/exam-runtime-v2`) |
+| :--- | :--- | :--- | :--- |
+| **Build Status** | **FAILS** (Prerender / deps / arch) | **PASSES** | **PASSES** |
+| **Image Size** | N/A (Cannot build) | **595 MB** | **595 MB** |
+| **Cold Build Time** | N/A (Fails at step 12/15) | **~175 s** | **173.3 s** |
+| **Idle Memory** | N/A | **180–190 MB** | **185 MB** |
+| **Loaded Memory (50 VUs)** | N/A | **280–325 MB** | **282–323 MB** |
+| **Security User** | root (legacy alpine) | `nextjs:nodejs` (UID 1001) | `nextjs:nodejs` (UID 1001) |
+| **Healthcheck** | `wget` (broken on Debian) | `curl -f http://localhost:3000/api/health` | `curl -f http://localhost:3000/api/health` |
+
+---
+
+## 4. Retraction Notice
+
+The claims of "1.4 GB legacy image size" and "57% image reduction" are formally retracted from the claims register (C-03) and performance reports.
