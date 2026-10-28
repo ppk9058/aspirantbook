@@ -67,9 +67,15 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       }
     }
 
-    await deletePaper(id)
+    const result = await deletePaper(id)
     safeRevalidateTags(CACHE_TAGS.pyqs)
-    return NextResponse.json({ success: true, message: "Paper deleted successfully" })
+    return NextResponse.json({
+      success: true,
+      archived: result.archived,
+      message: result.archived
+        ? "Paper archived: it has purchases or captured leads, so it was withdrawn instead of deleted"
+        : "Paper deleted successfully",
+    })
   } catch (error: any) {
     console.error("DELETE /api/admin/pyqs/papers/[id] error:", error)
     return NextResponse.json({ error: error.message || "Failed to delete paper" }, { status: 500 })

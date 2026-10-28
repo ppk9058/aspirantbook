@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useEffect, useState, useMemo } from "react"
 import Link from "next/link"
 import {
   Search,
@@ -101,8 +101,18 @@ export function PyqStudentListingClient({
 
   const hasActiveFilters = search || selectedCategory !== "ALL" || selectedStage !== "ALL" || selectedAccess !== "ALL"
 
+  // Search and filters are client state, so they only work once React has
+  // hydrated. Expose that fact so an automation (or a slow device) can wait for
+  // it instead of typing into an inert input and silently losing the keystrokes.
+  const [hydrated, setHydrated] = useState(false)
+  useEffect(() => setHydrated(true), [])
+
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6"
+      data-testid="pyqs-listing-root"
+      data-hydrated={hydrated ? "true" : "false"}
+    >
       {/* Search & Filter Bar */}
       <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">

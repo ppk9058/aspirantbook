@@ -320,7 +320,7 @@ test.describe("PYQ Admin & Teacher Authoring E2E (Gate 1)", () => {
     })
     expect(fakeUpload.status()).toBe(400)
     const errData = await fakeUpload.json()
-    expect(errData.error).toContain("PDF signature")
+    expect(errData.error).toContain("File signature does not match")
 
     // Upload text file
     const txtUpload = await page.request.post("/api/admin/pyqs/upload", {

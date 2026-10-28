@@ -421,19 +421,6 @@ export async function getAllPapers(options?: {
     },
   })
 
-  if (papers.length > 0 && (papers[0] as any).subject === undefined) {
-    try {
-      const rawSubjects: { id: string; subject: string | null }[] = await prisma.$queryRawUnsafe(
-        `SELECT "id", "subject" FROM "PyqPaper" WHERE "id" = ANY($1::text[])`,
-        papers.map((p) => p.id)
-      )
-      const map = new Map(rawSubjects.map((r) => [r.id, r.subject]))
-      return papers.map((p) => ({ ...p, subject: map.get(p.id) || null }))
-    } catch {
-      return papers
-    }
-  }
-
   return papers
 }
 
@@ -446,20 +433,6 @@ export async function getPaperById(id: string) {
       _count: { select: { leads: true, unlocks: true } },
     },
   })
-
-  if (paper && (paper as any).subject === undefined) {
-    try {
-      const raw: any[] = await prisma.$queryRawUnsafe(
-        `SELECT "subject" FROM "PyqPaper" WHERE "id" = $1`,
-        paper.id
-      )
-      if (raw.length > 0) {
-        return { ...paper, subject: raw[0].subject }
-      }
-    } catch {
-      return paper
-    }
-  }
 
   return paper
 }
@@ -496,19 +469,12 @@ export async function createPaper(input: CreatePaperInput) {
       cbtTestId: input.cbtTestId || null,
       hasCbtMode: input.hasCbtMode ?? false,
       status: input.status || "PUBLISHED",
+      // B4: `subject` is a real Prisma column. The old code wrote it with a
+      // raw UPDATE wrapped in a bare `catch {}`, so a failed subject write was
+      // invisible and the response still claimed the new value.
+      subject: subjectValue,
     },
   })
-
-  if (subjectValue) {
-    try {
-      await prisma.$executeRawUnsafe(
-        `UPDATE "PyqPaper" SET "subject" = $1 WHERE "id" = $2`,
-        subjectValue,
-        paper.id
-      )
-    } catch {}
-    return { ...paper, subject: subjectValue }
-  }
 
   return paper
 }
@@ -545,32 +511,44 @@ export async function updatePaper(input: UpdatePaperInput) {
   if (input.seoMode !== undefined) data.seoMode = input.seoMode
   if (input.gateTitle !== undefined) data.gateTitle = input.gateTitle
   if (input.gateSubtitle !== undefined) data.gateSubtitle = input.gateSubtitle
+  // B4: plain column write, so a failure surfaces instead of being swallowed.
+  if (input.subject !== undefined) data.subject = input.subject?.trim() || null
 
-  const updated = await prisma.pyqPaper.update({
+  return prisma.pyqPaper.update({
     where: { id: input.id },
     data,
   })
-
-  const subjectValue = input.subject !== undefined ? (input.subject?.trim() || null) : undefined
-  if (subjectValue !== undefined) {
-    try {
-      await prisma.$executeRawUnsafe(
-        `UPDATE "PyqPaper" SET "subject" = $1 WHERE "id" = $2`,
-        subjectValue,
-        input.id
-      )
-    } catch {}
-    return { ...updated, subject: subjectValue }
-  }
-
-  return updated
 }
 
-export async function deletePaper(id: string) {
+/**
+ * B4: deleting a paper used to hard-delete the row, and `onDelete: Cascade` took
+ * every PyqUnlock (a paid entitlement) and PyqLeadCapture with it. A paper that
+ * anyone bought must never be destroyed: it is archived instead, so the
+ * purchase keeps working and the paper disappears from public listings.
+ *
+ * A paper with no unlocks and no captured leads is still deleted for real,
+ * which is what an admin expects for a mistake uploaded minutes ago.
+ */
+export async function deletePaper(id: string): Promise<{ id: string; archived: boolean }> {
   await requireRole(["ADMIN", "TEACHER"])
-  return prisma.pyqPaper.delete({
+
+  const paper = await prisma.pyqPaper.findUnique({
     where: { id },
+    select: { _count: { select: { unlocks: true, leads: true } } },
   })
+  if (!paper) throw new Error("Paper not found")
+
+  const hasDependents = paper._count.unlocks > 0 || paper._count.leads > 0
+  if (hasDependents) {
+    await prisma.pyqPaper.update({
+      where: { id },
+      data: { status: "ARCHIVED" },
+    })
+    return { id, archived: true }
+  }
+
+  await prisma.pyqPaper.delete({ where: { id } })
+  return { id, archived: false }
 }
 
 // ─── LEADS & UNLOCK ANALYTICS ─────────────────────────────────────────────
