@@ -13,7 +13,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **A1** | Claim audit & report rewrite | DONE | `53f6455` | `docs/evidence/claims-register.md`, `docs/perf/*` | Audited all claims, classified into PROVEN/DISPROVEN/UNPROVEN, rewrote 4 docs with retraction sections |
 | **A2** | tsc truth across 3 trees | DONE | `d642d57` | `docs/evidence/raw/tsc-*.txt`, `docs/evidence/raw/tsc-truth-analysis.md` | Base: 65, c603168: 67, Tip: 0 (web/shared), mobile: 2 config errors. Root cause identified & verified. |
-| **A3** | Intentional behaviour changes with flags OFF | DONE | [pending commit] | `docs/evidence/raw/parity-diff.txt`, `docs/evidence/raw/exam-runtime-golden-5x.txt` | Enumerated 8 intentional diffs, pinned by tests 5-8 in golden parity suite, verified 5x passes |
+| **A3** | Intentional behaviour changes with flags OFF | DONE | `62d34e1` | `docs/evidence/raw/parity-diff.txt`, `docs/evidence/raw/exam-runtime-golden-5x.txt` | Enumerated 8 intentional diffs, pinned by tests 5-8 in golden parity suite, verified 5x passes |
 | **A4** | Stripe placeholder lazy initialisation | NOT_STARTED | - | `docs/evidence/raw/stripe-test.txt` | Lazy init, fails closed in prod without key, build succeeds |
 | **A5** | force-dynamic review | NOT_STARTED | - | `docs/evidence/raw/force-dynamic-audit.txt` | Review added force-dynamic, revert unjustified |
 | **A6** | Migration safety & additive check | NOT_STARTED | - | `docs/evidence/raw/migration-safety.txt` | Test on 100k attempts, verify IF NOT EXISTS, run check-migrations-additive |
