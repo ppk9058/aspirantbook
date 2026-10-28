@@ -5,19 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/auth/tokens"
 import bcrypt from "bcryptjs"
-
-export const MAX_CSV_USERS = 5000
-
-/**
- * A10: CSV formula-injection guard. Spreadsheet apps execute cells that start
- * with = + - @ TAB or CR; prefixing a single quote forces them to be text.
- * Quotes are escaped after the prefix so the CSV stays well-formed.
- */
-export function csvCell(value: string): string {
-    const raw = String(value ?? "")
-    const guarded = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw
-    return guarded.replace(/"/g, '""')
-}
+import { MAX_CSV_USERS, csvCell } from "@/lib/admin/csv"
 
 async function getClientIp(): Promise<string> {
     try {

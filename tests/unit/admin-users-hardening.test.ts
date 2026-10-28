@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import { test, describe } from "node:test"
-import { csvCell } from "../../lib/actions/admin/users"
+import { csvCell } from "../../lib/admin/csv"
 import { validatePasswordPolicy } from "../../lib/auth/password-policy"
 
 describe("A10 CSV formula injection", () => {

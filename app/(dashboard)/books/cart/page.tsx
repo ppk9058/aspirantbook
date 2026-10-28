@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import BookStoreHeader from "@/components/books/BookStoreHeader"
 import { BookCartProvider, useBookCart } from "@/lib/books/cartContext"
+import { WishlistProvider } from "@/lib/books/wishlistContext"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import {
@@ -475,7 +476,11 @@ function CartPageContent() {
 export default function CartPage() {
   return (
     <BookCartProvider>
-      <CartPageContent />
+      {/* The store header reads the wishlist; without this provider the page
+          threw "useWishlist must be used within a WishlistProvider" on render. */}
+      <WishlistProvider>
+        <CartPageContent />
+      </WishlistProvider>
     </BookCartProvider>
   )
 }
