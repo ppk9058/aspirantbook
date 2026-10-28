@@ -20,6 +20,9 @@ import {
 
 const nonce = newNonce()
 const EVIL_ORIGIN = "https://evil.example"
+// The same-origin case must use whatever host the run is pointed at, so the
+// spec does not silently become a cross-origin test when BASE_URL changes.
+const APP_ORIGIN = new URL(process.env.BASE_URL || "http://127.0.0.1:3045").origin
 
 let testId = ""
 let questionId = ""
@@ -94,7 +97,7 @@ test.describe("A15 cross-origin mutation guard", () => {
     await loginAs(page, userEmail)
 
     const res = await page.request.post(`/api/exam/attempt/${attempt.id}/sync`, {
-      headers: { Origin: "http://127.0.0.1:3045" },
+      headers: { Origin: APP_ORIGIN },
       data: answerPayload(1),
     })
     expect(res.status(), await res.text()).toBe(200)
