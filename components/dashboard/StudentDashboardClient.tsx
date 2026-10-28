@@ -61,7 +61,12 @@ export default function StudentDashboardClient({
   const { openMobileAuth } = useMobileAuth()
   const [isDoubtModalOpen, setIsDoubtModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<"courses" | "batches" | "tests" | "tutorials">("courses")
+  // B12: the tests tab showed two hand-written mock tests per goal. They are
+  // now the real published tests for the goal's category, with explicit
+  // loading / error / empty states.
   const [mockTests, setMockTests] = useState<any[]>([])
+  const [testsLoading, setTestsLoading] = useState(false)
+  const [testsError, setTestsError] = useState<string | null>(null)
 
   const isGuest = !session?.user
 
@@ -121,154 +126,43 @@ export default function StudentDashboardClient({
   }, [recommendedCourses, selectedGoal])
 
   useEffect(() => {
-    // Only fetch remote test catalog over network when user opens the tests tab
+    // Only fetch the catalog when the learner opens the tests tab.
     if (activeTab !== "tests") return
 
     let isMounted = true
     const loadTests = async () => {
+      setTestsLoading(true)
+      setTestsError(null)
       try {
-        const res = await fetch("/api/exam/test/list?seriesId=bpsc-72nd-2026")
-        if (res.ok && isMounted) {
-          const json = await res.json()
-          if (json.success && Array.isArray(json.data)) {
-            setMockTests(json.data)
-          }
+        const params = new URLSearchParams()
+        const category = selectedGoal.category?.trim()
+        if (category) params.set("category", category)
+
+        const res = await fetch(`/api/exam/test/list?${params.toString()}`)
+        if (!res.ok) {
+          throw new Error(`Test catalog returned status ${res.status}`)
         }
-      } catch (err) {}
+        const json = await res.json()
+        if (!json.success || !Array.isArray(json.data)) {
+          throw new Error(json.error || "Unexpected test catalog response")
+        }
+        if (!isMounted) return
+        setMockTests(json.data)
+      } catch (err) {
+        if (!isMounted) return
+        console.error("Failed to load dashboard mock tests:", err)
+        setMockTests([])
+        setTestsError("We could not load mock tests right now. Please try again.")
+      } finally {
+        if (isMounted) setTestsLoading(false)
+      }
     }
+
     loadTests()
     return () => {
       isMounted = false
     }
-  }, [activeTab])
-
-  const upcomingTests = useMemo(() => {
-    const gid = selectedGoal.id.toLowerCase()
-    if (gid === "bpsc") {
-      return [
-        {
-          id: "bpsc-72nd-2026",
-          title: "72nd BPSC CCE Full Length Prelims Mock 01",
-          duration: "120 mins",
-          questionsCount: 150,
-          difficulty: "INTERMEDIATE",
-        },
-        {
-          id: "bihar-gk-speed-drill",
-          title: "Bihar Special History & Contemporary GK Drill",
-          duration: "45 mins",
-          questionsCount: 50,
-          difficulty: "BEGINNER",
-        },
-      ]
-    }
-    if (gid === "upsc") {
-      return [
-        {
-          id: "upsc-prelims-2026",
-          title: "UPSC Prelims GS Paper 1 All India Rank Mock 01",
-          duration: "120 mins",
-          questionsCount: 100,
-          difficulty: "ADVANCED",
-        },
-        {
-          id: "upsc-csat-mock",
-          title: "UPSC CSAT Paper 2 Speed Drill & Passages",
-          duration: "120 mins",
-          questionsCount: 80,
-          difficulty: "INTERMEDIATE",
-        },
-      ]
-    }
-    if (gid === "class-10" || gid.startsWith("class-")) {
-      return [
-        {
-          id: "class-10-boards-2026",
-          title: "CBSE Class 10th Mathematics Pre-Board Mock 01",
-          duration: "180 mins",
-          questionsCount: 38,
-          difficulty: "INTERMEDIATE",
-        },
-        {
-          id: "class-10-science-drill",
-          title: "Class 10th Science Full Syllabus Board Mock",
-          duration: "180 mins",
-          questionsCount: 39,
-          difficulty: "BEGINNER",
-        },
-      ]
-    }
-    if (gid === "govt-exams" || gid === "ssc") {
-      return [
-        {
-          id: "ssc-cgl-2026",
-          title: "SSC CGL 2026 Tier 1 All India Live Mock",
-          duration: "60 mins",
-          questionsCount: 100,
-          difficulty: "INTERMEDIATE",
-        },
-        {
-          id: "ssc-static-gk-test",
-          title: "General Awareness & Static GK 100 Speed MCQs",
-          duration: "30 mins",
-          questionsCount: 100,
-          difficulty: "BEGINNER",
-        },
-      ]
-    }
-    if (gid === "data-science") {
-      return [
-        {
-          id: "ds-ml-diagnostic",
-          title: "NumPy, Pandas & Machine Learning Diagnostic Benchmark",
-          duration: "60 mins",
-          questionsCount: 40,
-          difficulty: "INTERMEDIATE",
-        },
-        {
-          id: "deep-learning-test",
-          title: "Deep Learning & Neural Network Mathematics Test",
-          duration: "45 mins",
-          questionsCount: 25,
-          difficulty: "ADVANCED",
-        },
-      ]
-    }
-    if (gid === "dsa-interview") {
-      return [
-        {
-          id: "dsa-blind-75-mock",
-          title: "Blind 75 & NeetCode 150 All India Coding Sprint",
-          duration: "90 mins",
-          questionsCount: 4,
-          difficulty: "ADVANCED",
-        },
-        {
-          id: "dsa-trees-graphs-test",
-          title: "Trees, Graphs & Dynamic Programming Speed Mock",
-          duration: "60 mins",
-          questionsCount: 25,
-          difficulty: "INTERMEDIATE",
-        },
-      ]
-    }
-    return [
-      {
-        id: "skills-dsa-faang-2026",
-        title: "Python Data Structures & OOPs Benchmark",
-        duration: "45 mins",
-        questionsCount: 25,
-        difficulty: "INTERMEDIATE",
-      },
-      {
-        id: "skills-python-ai-2026",
-        title: "Linear Algebra & NumPy Arrays CBT Test",
-        duration: "30 mins",
-        questionsCount: 20,
-        difficulty: "ADVANCED",
-      },
-    ]
-  }, [selectedGoal.id])
+  }, [activeTab, selectedGoal.category])
 
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8">
@@ -476,7 +370,7 @@ export default function StudentDashboardClient({
               }`}
             >
               <FileQuestion className="w-4 h-4" />
-              <span>Tests & CBT ({upcomingTests.length})</span>
+              <span>Tests & CBT ({mockTests.length})</span>
             </button>
 
             <button
@@ -629,69 +523,118 @@ export default function StudentDashboardClient({
         {/* Tab 3: Tests */}
         {activeTab === "tests" && (
           <div className="space-y-4">
-            {mockTests.map((ct) => (
-              <div
-                key={ct.id}
-                className="bg-gradient-to-r from-emerald-500/10 to-teal-500/5 rounded-2xl border-2 border-emerald-500/30 p-5 shadow-sm space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-black uppercase">
-                      Faculty Mock
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#00A8FF]/10 text-[#00A8FF] text-[11px] font-bold">
-                      {ct.category || "Civil Services"}
-                    </span>
-                    {Boolean(ct.isFreeSample || (ct.seriesIsPro && (ct.isFree || ct.accessMode === "FREE"))) && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-extrabold uppercase">
-                        Free sample
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-xs text-gray-500 font-semibold">{ct.durationMinutes || 10} Mins</span>
-                </div>
-                <h4 className="font-black text-base text-gray-900 dark:text-white">{ct.title}</h4>
-                <div className="pt-2 flex items-center justify-between border-t border-emerald-100 dark:border-gray-800">
-                  <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">
-                    {ct.questions || (ct.questionsList ? ct.questionsList.length : 5)} Questions • Bilingual (English/Hindi)
-                  </span>
-                  <TestActionButton
-                    testId={ct.id}
-                    seriesId={ct.seriesId || "bpsc-72nd-2026"}
-                    testTitle={ct.title}
-                    returnPath="/dashboard"
-                    size="sm"
-                    isFreeSample={Boolean(ct.isFreeSample || (ct.seriesIsPro && (ct.isFree || ct.accessMode === "FREE")))}
-                  />
-                </div>
+            {testsLoading && (
+              <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  Loading mock tests…
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Fetching the published tests for {selectedGoal.name}.
+                </p>
               </div>
-            ))}
+            )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {upcomingTests.map((t) => (
-              <div
-                key={t.id}
-                className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-600 text-[11px] font-bold">
-                    CBT Test
-                  </span>
-                  <span className="text-xs text-gray-400">{t.duration}</span>
-                </div>
-                <h4 className="font-bold text-sm text-gray-900 dark:text-white">{t.title}</h4>
-                <div className="pt-2 flex items-center justify-between border-t border-gray-100 dark:border-gray-800">
-                  <span className="text-xs text-gray-500">{t.questionsCount} Questions</span>
-                  <Link
-                    href={`/test-series`}
-                    className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold"
-                  >
-                    Start Test
-                  </Link>
-                </div>
+            {!testsLoading && testsError && (
+              <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl border border-red-200 dark:border-red-900/60 p-8 text-center space-y-3">
+                <p className="text-sm font-semibold text-red-700 dark:text-red-300">{testsError}</p>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("courses")}
+                  className="px-4 py-2 rounded-xl bg-[#1448d8] text-white text-xs font-bold"
+                >
+                  Back to courses
+                </button>
               </div>
-            ))}
-            </div>
+            )}
+
+            {!testsLoading && !testsError && mockTests.length === 0 && (
+              <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center space-y-3">
+                <FileQuestion className="w-10 h-10 text-gray-400 mx-auto" />
+                <h4 className="font-bold text-gray-900 dark:text-white text-sm">
+                  No mock tests published yet
+                </h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+                  There are no published CBT tests for {selectedGoal.name} right now. Browse the full
+                  test series to see everything available.
+                </p>
+                <Link
+                  href="/test-series"
+                  className="inline-block px-4 py-2 rounded-xl bg-[#1448d8] text-white text-xs font-bold"
+                >
+                  Browse Test Series
+                </Link>
+              </div>
+            )}
+
+            {!testsLoading && !testsError && mockTests.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {mockTests.map((ct) => (
+                  <div
+                    key={ct.id}
+                    className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm space-y-3"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-black uppercase">
+                          {String(ct.testType || "CBT Test").replace(/_/g, " ")}
+                        </span>
+                        {ct.category && (
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#00A8FF]/10 text-[#00A8FF] text-[11px] font-bold">
+                            {ct.category}
+                          </span>
+                        )}
+                        {Boolean(
+                          ct.isFreeSample ||
+                            (ct.seriesIsPro && (ct.isFree || ct.accessMode === "FREE"))
+                        ) && (
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-extrabold uppercase">
+                            Free sample
+                          </span>
+                        )}
+                      </div>
+                      {ct.durationMinutes ? (
+                        <span className="text-xs text-gray-500 font-semibold shrink-0">
+                          {ct.durationMinutes} Mins
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400 shrink-0">Duration not set</span>
+                      )}
+                    </div>
+                    <h4 className="font-black text-base text-gray-900 dark:text-white">{ct.title}</h4>
+                    <div className="pt-2 flex items-center justify-between border-t border-gray-100 dark:border-gray-800 gap-3">
+                      <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">
+                        {Number.isFinite(Number(ct.questions))
+                          ? Number(ct.questions)
+                          : Array.isArray(ct.questionsList)
+                            ? ct.questionsList.length
+                            : Number(ct.totalQuestions) || 0}{" "}
+                        Questions
+                      </span>
+                      {ct.seriesId ? (
+                        <TestActionButton
+                          testId={ct.id}
+                          seriesId={ct.seriesId}
+                          testTitle={ct.title}
+                          returnPath="/dashboard"
+                          size="sm"
+                          isFreeSample={Boolean(
+                            ct.isFreeSample ||
+                              (ct.seriesIsPro && (ct.isFree || ct.accessMode === "FREE"))
+                          )}
+                        />
+                      ) : (
+                        <Link
+                          href="/test-series"
+                          className="px-3.5 py-1.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-semibold"
+                        >
+                          Open Test Series
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
