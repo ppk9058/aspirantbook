@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { getRazorpayClient, getRazorpayKeyId, isRazorpayTestMode } from "@/lib/payments/razorpay-config"
+import { toMinorUnits } from "@/lib/money"
 
 
 export interface CreateOrderParams {
@@ -172,6 +173,8 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
                     data: {
                         userId,
                         amount: finalPaise / 100,
+                        // B7: dual-write the exact minor-unit amount
+                        amountMinor: finalPaise,
                         currency: "INR",
                         status: "PENDING",
                         paymentProvider: "RAZORPAY",
@@ -277,6 +280,8 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
                 data: {
                     userId,
                     amount: Number(order.amount) / 100,
+                    // B7: dual-write the exact minor-unit amount
+                    amountMinor: toMinorUnits(Number(order.amount) / 100, order.currency || "INR"),
                     currency: order.currency || "INR",
                     status: "PENDING",
                     paymentProvider: "RAZORPAY",
