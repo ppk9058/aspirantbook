@@ -19,6 +19,14 @@ import { getAllBatches } from "@/lib/batches-service"
 import { prisma } from "@/lib/prisma"
 import { formatUtcToIst } from "@/lib/demo/slot-utils"
 
+/**
+ * C1: this cockpit renders live operational data (open doubts, batches, demo
+ * slots). It was dynamic only as a side effect of the root layout's `auth()`
+ * call; with that gone the page would have been prerendered once at build time
+ * and served a frozen snapshot. Per-user data stays request-rendered.
+ */
+export const dynamic = "force-dynamic"
+
 export default async function TeacherDashboardPage() {
   const doubts = await getAllDoubts().catch(() => [])
   const pendingDoubts = doubts.filter((d) => d.status === "PENDING")
