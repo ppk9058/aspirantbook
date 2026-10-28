@@ -844,9 +844,11 @@ model RevenueAnalytics {
   newSubscriptions        Int      @default(0)
   cancelledSubscriptions  Int      @default(0)
   activeSubscriptions     Int      @default(0)
-  mrr                     Float    @default(0)
-  arr                     Float    @default(0)
-  churnRate               Float    @default(0)
+  /// B6: NULL means "not measurable". Subscription stores no price and no status
+  /// history, so MRR/ARR/churn used to be guesses (monthly subscribers * 9.99).
+  mrr                     Float?
+  arr                     Float?
+  churnRate               Float?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
