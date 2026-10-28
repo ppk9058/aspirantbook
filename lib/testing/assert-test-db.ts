@@ -1,9 +1,16 @@
 import dotenv from "dotenv"
-dotenv.config({ path: ".env.local" })
-dotenv.config({ path: ".env" })
+import { guardTestDatabase, assertNoEnvLocal, assertNoSupabaseEnv } from "../../scripts/guard-test-db"
+
+// Enforce Phase 0 guards: Never allow .env.local or remote Supabase in test runs
+assertNoEnvLocal()
+assertNoSupabaseEnv()
+
 dotenv.config({ path: ".env.test" })
 
 export function assertTestDb() {
+    assertNoEnvLocal()
+    assertNoSupabaseEnv()
+
     const currentDb = process.env.DATABASE_URL
     const testDb = process.env.TEST_DATABASE_URL
     const devDb = process.env.DEV_DIRECT_URL || process.env.DEV_DATABASE_URL || "aws-1-ap-south-1.pooler.supabase.com"
@@ -14,6 +21,8 @@ export function assertTestDb() {
         )
     }
 
+    guardTestDatabase(testDb)
+
     let parsedTest: URL
     try {
         parsedTest = new URL(testDb)
@@ -22,9 +31,9 @@ export function assertTestDb() {
     }
 
     const host = parsedTest.hostname
-    if (host !== "localhost" && host !== "127.0.0.1") {
+    if (host !== "localhost" && host !== "127.0.0.1" && host !== "test-db" && host !== "postgres" && host !== "trillionskill-test-db") {
         throw new Error(
-            `[DB GUARD VIOLATION] TEST_DATABASE_URL host must be localhost or 127.0.0.1 (got: ${host})`
+            `[DB GUARD VIOLATION] TEST_DATABASE_URL host must be localhost or 127.0.0.1 or test-db (got: ${host})`
         )
     }
 
@@ -35,12 +44,6 @@ export function assertTestDb() {
     }
 
     const port = parsedTest.port || "5432"
-    if (port === "6543" || port === "5432") {
-        // Dev Supabase ports
-        if (devDb.includes("5432") && host.includes("supabase")) {
-            throw new Error(`[DB GUARD VIOLATION] TEST_DATABASE_URL port matches dev port`)
-        }
-    }
 
     const pathname = parsedTest.pathname.replace(/^\//, "")
     if (!pathname.endsWith("_test")) {
@@ -60,6 +63,8 @@ export function assertTestDb() {
     if (!currentDb) {
         throw new Error(`[DB GUARD VIOLATION] DATABASE_URL is not set!`)
     }
+
+    guardTestDatabase(currentDb)
 
     if (currentDb !== testDb) {
         throw new Error(
