@@ -1,0 +1,35 @@
+Command: Task A6 Migration Safety & Index Benchmark
+Git SHA: a29e82007e5d74f6429847a106b390decaa0387f
+Timestamp: 2026-10-28T23:09:24.252Z
+Exit Code: 0
+
+=== 1. PRISMA MIGRATE STATUS ===
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "trillionskill_perf_v2_test", schema "public" at "127.0.0.1:54329"
+
+29 migrations found in prisma/migrations
+
+Database schema is up to date!
+
+=== 2. ADDITIVE MIGRATIONS CHECK ===
+[PASS] All migrations are strictly additive. Scanned 30 migration folders with zero unallowlisted violations.
+
+=== 3. 100K ATTEMPTS INDEX MEASUREMENT ===
+=== Task A6: Migration Safety & Ranking Index Benchmark ===
+Current benchmark attempts on record: 0
+Seeding 100000 attempts via generate_series...
+Seeding completed in 7.63s
+
+Table Dimensions:
+┌─────────┬───────────────┬────────────┬────────────┬────────────┬───────────┐
+│ (index) │ table_name    │ total_size │ table_size │ index_size │ row_count │
+├─────────┼───────────────┼────────────┼────────────┼────────────┼───────────┤
+│ 0       │ 'ExamAttempt' │ '56 MB'    │ '16 MB'    │ '40 MB'    │ 100027n   │
+└─────────┴───────────────┴────────────┴────────────┴────────────┴───────────┘
+
+Dropping idx_examattempt_ranking...
+Measuring standard CREATE INDEX IF NOT EXISTS build time...
+Standard index build time: 187.79 ms
+Size of idx_examattempt_ranking alone: 6640 kB
+
+All checks completed successfully.
