@@ -7,9 +7,15 @@ interface BatchPageProps {
   params: Promise<{ slug: string }>
 }
 
+export const dynamicParams = true
+
 export async function generateStaticParams() {
-  const batches = await getAllBatches()
-  return batches.map((b) => ({ slug: b.slug }))
+  try {
+    const batches = await getAllBatches()
+    return batches.map((b) => ({ slug: b.slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: BatchPageProps): Promise<Metadata> {

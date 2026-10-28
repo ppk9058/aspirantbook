@@ -1,0 +1,33 @@
+# Dependencies & version control
+node_modules
+.git
+.gitignore
+
+# Next.js & Build outputs
+.next
+.next-test
+out
+dist
+build
+
+# Environment files - strictly forbidden to bake into image
+.env
+.env*
+!.env.example
+
+# Loadtest & Performance results
+tools/loadtest/results
+evidence
+reports
+logs
+
+# Mobile app artefacts
+apps/mobile/node_modules
+apps/mobile/.expo
+apps/mobile/android
+apps/mobile/ios
+
+# Coverage & test caches
+coverage
+.nyc_output
+*.tsbuildinfo
