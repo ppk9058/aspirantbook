@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { canEditChapter, canDeleteChapter } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
+import { withTransactionLock } from "@/lib/prisma-lock"
+import { nextChapterOrder } from "@/lib/utils/next-order"
 import { toCourseAccessUser } from "@/lib/auth/course-access"
 import {
     assertManagedCourseForAction,
@@ -54,27 +56,25 @@ export async function createChapter(courseId: string, data: { title: string; des
 
     const validated = ChapterSchema.parse(data)
 
-    // Get the current max order for this course
-    const maxOrder = await prisma.chapter.findFirst({
-        where: { courseId },
-        orderBy: { order: "desc" },
-        select: { order: true },
-    })
-
-    const chapter = await prisma.chapter.create({
-        data: {
-            title: validated.title,
-            description: validated.description,
-            gateMode: validated.gateMode || "inherit",
-            previewPercentage: validated.previewPercentage ?? null,
-            courseId,
-            order: (maxOrder?.order ?? -1) + 1,
-        },
-        include: {
-            lessons: {
-                orderBy: { order: "asc" },
+    // B8: allocate the position and insert under the course's advisory lock,
+    // otherwise two concurrent creates read the same maximum order.
+    const chapter = await withTransactionLock(`chapter-order:${courseId}`, async (tx) => {
+        const order = await nextChapterOrder(tx, courseId)
+        return tx.chapter.create({
+            data: {
+                title: validated.title,
+                description: validated.description,
+                gateMode: validated.gateMode || "inherit",
+                previewPercentage: validated.previewPercentage ?? null,
+                courseId,
+                order,
             },
-        },
+            include: {
+                lessons: {
+                    orderBy: { order: "asc" },
+                },
+            },
+        })
     })
 
     await revalidateCoursePages(courseId)
@@ -275,36 +275,34 @@ export async function duplicateChapter(chapterId: string) {
         throw new Error("Source chapter not found")
     }
 
-    const maxOrder = await prisma.chapter.findFirst({
-        where: { courseId: sourceChapter.courseId },
-        orderBy: { order: "desc" },
-        select: { order: true },
-    })
-
-    const newChapter = await prisma.chapter.create({
-        data: {
-            title: `${sourceChapter.title} (Copy)`,
-            description: sourceChapter.description,
-            courseId: sourceChapter.courseId,
-            order: (maxOrder?.order ?? -1) + 1,
-            lessons: {
-                create: sourceChapter.lessons.map((lesson) => ({
-                    title: lesson.title,
-                    type: lesson.type,
-                    order: lesson.order,
-                    xpReward: lesson.xpReward,
-                    videoUrl: lesson.videoUrl,
-                    content: lesson.content,
-                    slides: lesson.slides,
-                    duration: lesson.duration,
-                })),
+    // B8: same lock as createChapter, so a duplicate never reuses a position.
+    const newChapter = await withTransactionLock(`chapter-order:${sourceChapter.courseId}`, async (tx) => {
+        const order = await nextChapterOrder(tx, sourceChapter.courseId)
+        return tx.chapter.create({
+            data: {
+                title: `${sourceChapter.title} (Copy)`,
+                description: sourceChapter.description,
+                courseId: sourceChapter.courseId,
+                order,
+                lessons: {
+                    create: sourceChapter.lessons.map((lesson) => ({
+                        title: lesson.title,
+                        type: lesson.type,
+                        order: lesson.order,
+                        xpReward: lesson.xpReward,
+                        videoUrl: lesson.videoUrl,
+                        content: lesson.content,
+                        slides: lesson.slides,
+                        duration: lesson.duration,
+                    })),
+                },
             },
-        },
-        include: {
-            lessons: {
-                orderBy: { order: "asc" },
+            include: {
+                lessons: {
+                    orderBy: { order: "asc" },
+                },
             },
-        },
+        })
     })
 
     await revalidateCoursePages(sourceChapter.courseId)

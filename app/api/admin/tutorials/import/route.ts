@@ -330,6 +330,16 @@ export async function POST(req: Request) {
     )
   } catch (error: any) {
     console.error("POST /api/admin/tutorials/import error:", error)
+    // B8: two imports of the same title can both pass the "does this slug
+    // exist?" check and then race on the unique column. That is a conflict the
+    // caller can retry, not a server error, and the Prisma message (which names
+    // the constraint and column) must not leak.
+    if (error?.code === "P2002") {
+      return NextResponse.json(
+        { error: "A course or tutorial with this slug already exists" },
+        { status: 409 }
+      )
+    }
     return NextResponse.json(
       { error: error.message || "Failed to import tutorial package" },
       { status: 500 }

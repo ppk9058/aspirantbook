@@ -7,6 +7,8 @@ import { z } from "zod"
 import { LessonType } from "@prisma/client"
 import { canEditContent, canDeleteContent } from "@/lib/auth/permissions"
 import { logContentAudit } from "@/lib/actions/admin/audit"
+import { withTransactionLock } from "@/lib/prisma-lock"
+import { nextLessonOrder } from "@/lib/utils/next-order"
 import { toCourseAccessUser } from "@/lib/auth/course-access"
 import {
     assertManagedCourseForAction,
@@ -75,36 +77,33 @@ export async function createLesson(
 
     const validated = LessonSchema.parse(data)
 
-    // Get the current max order for this chapter
-    const maxOrder = await prisma.lesson.findFirst({
-        where: { chapterId },
-        orderBy: { order: "desc" },
-        select: { order: true },
-    })
-
     const contentBlocks = validated.content ? chunkContent(validated.content) : []
     const blockCount = contentBlocks.length > 0 ? contentBlocks.length : undefined
     const contentHash = contentBlocks.length > 0 ? computeContentHash(contentBlocks) : undefined
 
-    const lesson = await prisma.lesson.create({
-        data: {
-            title: validated.title,
-            type: validated.type,
-            videoUrl: validated.videoUrl || undefined,
-            content: validated.content || undefined,
-            slides: validated.slides || undefined,
-            duration: validated.duration || undefined,
-            xpReward: validated.xpReward || 10,
-            blockCount,
-            contentHash,
-            chapterId,
-            order: (maxOrder?.order ?? -1) + 1,
-        },
-        include: {
-            chapter: {
-                select: { courseId: true },
+    // B8: allocate the position and insert under the chapter's advisory lock.
+    const lesson = await withTransactionLock(`lesson-order:${chapterId}`, async (tx) => {
+        const order = await nextLessonOrder(tx, chapterId)
+        return tx.lesson.create({
+            data: {
+                title: validated.title,
+                type: validated.type,
+                videoUrl: validated.videoUrl || undefined,
+                content: validated.content || undefined,
+                slides: validated.slides || undefined,
+                duration: validated.duration || undefined,
+                xpReward: validated.xpReward || 10,
+                blockCount,
+                contentHash,
+                chapterId,
+                order,
             },
-        },
+            include: {
+                chapter: {
+                    select: { courseId: true },
+                },
+            },
+        })
     })
 
     await revalidateLessonPages(lesson.chapter.courseId, lesson.id)
@@ -343,29 +342,27 @@ export async function duplicateLesson(lessonId: string) {
         throw new Error("Lesson not found")
     }
 
-    const maxOrder = await prisma.lesson.findFirst({
-        where: { chapterId: sourceLesson.chapterId },
-        orderBy: { order: "desc" },
-        select: { order: true },
-    })
-
-    const newLesson = await prisma.lesson.create({
-        data: {
-            title: `${sourceLesson.title} (Copy)`,
-            type: sourceLesson.type,
-            videoUrl: sourceLesson.videoUrl,
-            content: sourceLesson.content,
-            slides: sourceLesson.slides,
-            duration: sourceLesson.duration,
-            xpReward: sourceLesson.xpReward,
-            chapterId: sourceLesson.chapterId,
-            order: (maxOrder?.order ?? -1) + 1,
-        },
-        include: {
-            chapter: {
-                select: { courseId: true },
+    // B8: same lock as createLesson, so a duplicate never reuses a position.
+    const newLesson = await withTransactionLock(`lesson-order:${sourceLesson.chapterId}`, async (tx) => {
+        const order = await nextLessonOrder(tx, sourceLesson.chapterId)
+        return tx.lesson.create({
+            data: {
+                title: `${sourceLesson.title} (Copy)`,
+                type: sourceLesson.type,
+                videoUrl: sourceLesson.videoUrl,
+                content: sourceLesson.content,
+                slides: sourceLesson.slides,
+                duration: sourceLesson.duration,
+                xpReward: sourceLesson.xpReward,
+                chapterId: sourceLesson.chapterId,
+                order,
             },
-        },
+            include: {
+                chapter: {
+                    select: { courseId: true },
+                },
+            },
+        })
     })
 
     await revalidateLessonPages(newLesson.chapter.courseId, newLesson.id)

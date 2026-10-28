@@ -109,6 +109,12 @@ export async function createCourseDraft(prevState: any, formData: FormData) {
         if (error.message === "NEXT_REDIRECT") {
             throw error
         }
+        // B8: the slug pre-check and the insert are separate statements, so two
+        // concurrent creates can pick the same slug. Report a conflict the user
+        // can retry instead of leaking the Prisma constraint message.
+        if (error?.code === "P2002") {
+            return { error: "A course with this slug already exists. Please try again." }
+        }
         return { error: error.message || "Failed to create course" }
     }
 }
