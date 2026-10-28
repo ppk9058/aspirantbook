@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { requireManagedChapter, requireManagedLesson } from "@/lib/auth/course-access-server"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
+
+/** B10: see the sibling chapters route — the cached course page must refresh. */
+function invalidateCourseContent(slug?: string | null) {
+  safeRevalidateTags(CACHE_TAGS.courses)
+  revalidatePath("/courses")
+  revalidatePath("/admin/courses")
+  if (slug) revalidatePath(`/courses/${slug}`)
+}
 
 export async function POST(req: Request) {
   try {
@@ -43,6 +53,7 @@ export async function POST(req: Request) {
       },
     })
 
+    invalidateCourseContent(access.course.slug)
     return NextResponse.json(lesson, { status: 201 })
   } catch (error: any) {
     console.error("POST /api/admin/courses/[id]/lessons error:", error)
@@ -82,6 +93,7 @@ export async function PUT(req: Request) {
       data,
     })
 
+    invalidateCourseContent(access.course.slug)
     return NextResponse.json(updated)
   } catch (error: any) {
     console.error("PUT /api/admin/courses/[id]/lessons error:", error)
@@ -107,6 +119,7 @@ export async function DELETE(req: Request) {
     if (access.response) return access.response
 
     await prisma.lesson.delete({ where: { id: lessonId } })
+    invalidateCourseContent(access.course.slug)
     return NextResponse.json({ success: true, message: "Lesson deleted successfully" })
   } catch (error: any) {
     console.error("DELETE /api/admin/courses/[id]/lessons error:", error)

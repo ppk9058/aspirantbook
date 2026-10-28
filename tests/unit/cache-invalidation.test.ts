@@ -126,6 +126,43 @@ describe("B10 cache invalidation", () => {
     }
   })
 
+  it("invalidates the tag on the coupon deactivation branch and the studio routes", async () => {
+    // A coupon with redemptions is deactivated rather than deleted. That branch
+    // used to return before invalidating, so the cached promo badges kept the
+    // coupon advertised.
+    const coupons = await fs.readFile(
+      path.join(ROOT, "app/api/admin/coupons/[id]/route.ts"),
+      "utf-8"
+    )
+    const deactivation = coupons.slice(
+      coupons.indexOf("if (existing._count.redemptions > 0)"),
+      coupons.indexOf("await prisma.coupon.delete")
+    )
+    assert.match(
+      deactivation,
+      /safeRevalidateTags\(CACHE_TAGS\.coupons, CACHE_TAGS\.courses\)/,
+      "the deactivation early return must drop the coupons/courses tags"
+    )
+
+    // The course studio writes chapters and lessons through these route
+    // handlers; each mutation must drop the "courses" tag.
+    for (const file of [
+      "app/api/admin/courses/[id]/chapters/route.ts",
+      "app/api/admin/courses/[id]/lessons/route.ts",
+    ]) {
+      const source = await fs.readFile(path.join(ROOT, file), "utf-8")
+      assert.match(source, /safeRevalidateTags\(CACHE_TAGS\.courses\)/, `${file} must drop the tag`)
+
+      const handlerCalls = (source.match(/invalidateCourseContent\(access\.course\.slug\)/g) || []).length
+      const handlers = (source.match(/export async function (POST|PUT|DELETE)/g) || []).length
+      assert.equal(
+        handlerCalls,
+        handlers,
+        `${file}: every mutation handler must invalidate (${handlerCalls}/${handlers})`
+      )
+    }
+  })
+
   it("keeps every cached read on a registered cache tag", async () => {
     const registry = await fs.readFile(path.join(ROOT, "lib/cache-tags.ts"), "utf-8")
     const registered = new Set(

@@ -171,6 +171,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
                 where: { id },
                 data: { isActive: false },
             })
+            // B10: the early return used to skip invalidation, so the cached promo
+            // badges (tagged "coupons"/"courses", 30s) kept advertising this coupon.
+            safeRevalidateTags(CACHE_TAGS.coupons, CACHE_TAGS.courses)
             return NextResponse.json({
                 success: true,
                 message: "Coupon has existing redemptions and was deactivated instead of deleted.",
