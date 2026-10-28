@@ -62,6 +62,13 @@ function invalidators(tag: string): string[] {
     new RegExp(`safeRevalidateTag\\(\\s*["']${tag}["']`),
     new RegExp(`safeRevalidateTags\\([^)]*CACHE_TAGS\\.${registryKey ?? "__none__"}`),
   ]
+  // B10 introduced one shared invalidator for the public content-engine pages:
+  // it revalidates the tag and the route list together, so a call to it is a
+  // call to revalidate this tag. tests/unit/cache-invalidation.test.ts asserts
+  // the exact tag and routes it emits.
+  if (tag === CACHE_TAGS.contentEngine) {
+    patterns.push(new RegExp(`revalidateContentEngineRoutes\\(`))
+  }
   return files
     .filter(({ source }) => patterns.some((pattern) => pattern.test(source)))
     .map(({ file }) => path.relative(ROOT, file))
@@ -92,6 +99,8 @@ describe("Cache tags are declared and invalidated (B-015, B-019)", () => {
     assert.doesNotMatch(source, /CACHE_TTL_MS/, "the 60s in-memory TTL cache must be gone")
     assert.doesNotMatch(source, /let cachedBatches/, "no module-level batches cache")
     assert.match(source, /unstable_cache\(/, "reads must go through unstable_cache")
-    assert.match(source, /revalidateTag\(/, "writes must invalidate the tag")
+    // B1/B-019 route every batches write through `mutateBatches`, which
+    // invalidates the tag with the shared `safeRevalidateTags` helper.
+    assert.match(source, /(?:safe)?revalidateTags?\(/i, "writes must invalidate the tag")
   })
 })

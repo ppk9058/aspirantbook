@@ -82,7 +82,15 @@ describe("Exam Metrics & Single Source of Truth Tests", () => {
     assert.equal(isAnalyticsUser({ role: "STUDENT", email: "student@example.com" }), true)
     assert.equal(isAnalyticsUser({ role: "ADMIN", email: "student@example.com" }), false)
     assert.equal(isAnalyticsUser({ role: "TEACHER", email: "student@example.com" }), false)
-    assert.equal(isAnalyticsUser({ role: "STUDENT", email: "user@test.local" }), false)
+    // The @test.local exclusion is deliberately disabled when APP_ENV=test so
+    // the Docker fixtures are measurable; pin the environment this asserts.
+    const previousAppEnv = process.env.APP_ENV
+    process.env.APP_ENV = "production"
+    try {
+      assert.equal(isAnalyticsUser({ role: "STUDENT", email: "user@test.local" }), false)
+    } finally {
+      process.env.APP_ENV = previousAppEnv
+    }
     assert.equal(isAnalyticsUser({ role: "STUDENT", email: "test-bot@aspirant.com" }), false)
   })
 
