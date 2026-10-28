@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import RoleSwitcher from "@/components/common/RoleSwitcher"
 import { AdminProfileDialog } from "./AdminProfileDialog"
+import Image from "next/image"
 
 interface AdminHeaderProps {
     user?: {
@@ -168,9 +169,11 @@ export function AdminHeader({ user }: AdminHeaderProps) {
                         >
                             <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs overflow-hidden">
                                 {user?.image ? (
-                                    <img
+                                    <Image
                                         src={user.image}
                                         alt={user.name || "Admin"}
+                                        width={32}
+                                        height={32}
                                         className="h-full w-full object-cover"
                                     />
                                 ) : (

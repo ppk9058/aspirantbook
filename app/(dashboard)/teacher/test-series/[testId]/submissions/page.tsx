@@ -12,6 +12,7 @@ import {
     ShieldAlert,
     AlertCircle,
 } from "lucide-react"
+import Image from "next/image"
 
 interface RankedCandidate {
     id: string
@@ -234,10 +235,12 @@ export default function SubmissionsPage() {
                                                 <td className="py-3 px-5">
                                                     <div className="flex items-center gap-2.5">
                                                         {cand.avatar ? (
-                                                            <img
+                                                            <Image
                                                                 src={cand.avatar}
                                                                 alt={cand.name}
-                                                                className="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+                                                                width={28}
+                                                                height={28}
+                                                                className="h-7 w-7 rounded-full border border-gray-200 object-cover dark:border-gray-700"
                                                             />
                                                         ) : (
                                                             <div className="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-[11px]">

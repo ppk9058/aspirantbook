@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import { Book } from "@/lib/books/types"
 import { CATEGORIES_TREE, SUBJECTS_LIST } from "@/lib/books/data"
 import { X, Sparkles, BookOpen, Upload, CheckCircle2, AlertCircle } from "lucide-react"
+import Image from "next/image"
 
 interface CreateBookModalProps {
   isOpen: boolean
@@ -330,7 +331,7 @@ export default function CreateBookModal({ isOpen, onClose, onSuccess }: CreateBo
                     }`}
                   >
                     <div className="w-8 h-10 rounded bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
-                      <img src={preset.url} alt="" className="w-full h-full object-cover" />
+                      <Image src={preset.url} alt="" width={32} height={40} className="h-full w-full object-cover" />
                     </div>
                     <span className="truncate text-[11px]">{preset.label}</span>
                   </button>

@@ -33,6 +33,7 @@ import {
 import { toggleLessonCompletion } from "@/lib/actions/course/progress"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import Image from "next/image"
 
 interface LessonItem {
   id: string
@@ -660,10 +661,12 @@ export function CoursePlayerClient({
                   className="relative w-full h-full flex flex-col items-center justify-center bg-gradient-to-t from-black/90 via-black/50 to-transparent cursor-pointer group"
                 >
                   {course.thumbnailUrl && (
-                    <img
+                    <Image
                       src={course.thumbnailUrl}
                       alt={activeLesson.title}
-                      className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-60 transition-opacity"
+                      fill
+                      sizes="100vw"
+                      className="object-cover opacity-50 group-hover:opacity-60 transition-opacity"
                     />
                   )}
                   <div className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-sky-600 group-hover:bg-sky-500 text-white flex items-center justify-center shadow-xl shadow-sky-600/40 group-hover:scale-110 transition-all">

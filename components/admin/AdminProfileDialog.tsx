@@ -29,6 +29,7 @@ import {
 } from "lucide-react"
 import { updateAdminProfile, updateAdminPassword } from "@/lib/actions/admin/profile"
 import { useTheme } from "@/components/providers/ThemeProvider"
+import Image from "next/image"
 
 interface AdminProfileDialogProps {
     isOpen: boolean
@@ -148,7 +149,7 @@ export function AdminProfileDialog({ isOpen, onClose, initialUser }: AdminProfil
                     <div className="flex items-center gap-4">
                         <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg border border-purple-400/30 overflow-hidden flex-shrink-0">
                             {image ? (
-                                <img src={image} alt={name || "Admin"} className="h-full w-full object-cover" />
+                                <Image src={image} alt={name || "Admin"} width={56} height={56} className="h-full w-full object-cover" />
                             ) : (
                                 <span>{(name || currentUser?.email || "A").slice(0, 2).toUpperCase()}</span>
                             )}

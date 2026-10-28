@@ -13,6 +13,7 @@ import {
   Shield,
   CheckCircle2,
 } from "lucide-react"
+import Image from "next/image"
 
 export default async function PublicUserProfilePage({
   params,
@@ -95,10 +96,12 @@ export default async function PublicUserProfilePage({
       <div className="bg-white dark:bg-[#0a1628] rounded-3xl border border-gray-200 dark:border-gray-800 p-6 lg:p-8 shadow-xs">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
           {user.image ? (
-            <img
+            <Image
               src={user.image}
               alt={user.name || "Student"}
-              className="w-20 h-20 rounded-2xl object-cover border-2 border-primary/20 shadow-md"
+              width={80}
+              height={80}
+              className="h-20 w-20 rounded-2xl border-2 border-primary/20 object-cover shadow-md"
             />
           ) : (
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#00A8FF]/20 to-blue-600/20 text-[#00A8FF] flex items-center justify-center font-black text-2xl border border-[#00A8FF]/30 shadow-md">

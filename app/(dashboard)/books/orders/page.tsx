@@ -162,10 +162,12 @@ function OrdersContent() {
                         href={`/books/${item.book.slug}`}
                         className="w-16 h-22 shrink-0 bg-gray-50 rounded-xl p-1 border border-gray-200 flex items-center justify-center"
                       >
-                        <img
+                        <Image
                           src={item.book.coverImage}
                           alt={item.book.title}
-                          className="w-full h-full object-contain"
+                          width={64}
+                          height={88}
+                          className="h-full w-full object-contain"
                         />
                       </Link>
 
@@ -248,6 +250,7 @@ function OrdersContent() {
 }
 
 import { WishlistProvider } from "@/lib/books/wishlistContext"
+import Image from "next/image"
 
 export default function OrdersPage() {
   return (

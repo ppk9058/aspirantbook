@@ -18,6 +18,7 @@ import {
   Filter,
 } from "lucide-react"
 import DoubtSubmissionModal from "@/components/student/DoubtSubmissionModal"
+import Image from "next/image"
 
 interface Doubt {
   id: string
@@ -293,10 +294,12 @@ export default function DoubtsPage() {
                   {doubt.attachment.type === "image" ? (
                     <div className="inline-block relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 group cursor-pointer"
                          onClick={() => setPreviewImage(doubt.attachment!.url)}>
-                      <img
+                      <Image
                         src={doubt.attachment.url}
                         alt={doubt.attachment.name}
-                        className="max-h-48 max-w-full rounded-xl object-contain bg-gray-50 dark:bg-gray-900"
+                        width={800}
+                        height={600}
+                        className="max-h-48 max-w-full rounded-xl bg-gray-50 object-contain dark:bg-gray-900"
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-semibold transition-opacity">
                         Click to Zoom
@@ -378,7 +381,13 @@ export default function DoubtsPage() {
           onClick={() => setPreviewImage(null)}
         >
           <div className="relative max-w-4xl max-h-[90vh]">
-            <img src={previewImage} alt="Enlarged screenshot" className="max-w-full max-h-[85vh] rounded-2xl object-contain" />
+            <Image
+              src={previewImage}
+              alt="Enlarged screenshot"
+              width={1200}
+              height={900}
+              className="max-h-[85vh] max-w-full rounded-2xl object-contain"
+            />
             <button
               onClick={() => setPreviewImage(null)}
               className="absolute -top-4 -right-4 w-9 h-9 rounded-full bg-white text-black font-bold flex items-center justify-center shadow-lg"

@@ -4,6 +4,7 @@ import React from "react"
 import Link from "next/link"
 import { CheckCircle2, BookOpen, ShoppingBag, ExternalLink, ArrowRight, X } from "lucide-react"
 import { BookOrder } from "@/lib/books/types"
+import Image from "next/image"
 
 interface PaymentSuccessModalProps {
   isOpen: boolean
@@ -71,10 +72,12 @@ export default function PaymentSuccessModal({
             <div className="flex items-center gap-3 pt-1">
               <div className="w-12 h-16 rounded-lg bg-gray-200 dark:bg-slate-700 overflow-hidden shrink-0 shadow-2xs">
                 {firstBook.coverImage ? (
-                  <img
+                  <Image
                     src={firstBook.coverImage}
                     alt={firstBook.title}
-                    className="w-full h-full object-cover"
+                    width={48}
+                    height={64}
+                    className="h-full w-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">

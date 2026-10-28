@@ -34,6 +34,7 @@ import { useGoal } from "@/components/providers/GoalProvider"
 import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
 import { TEST_TYPE_LABELS } from "@/lib/exam/labels"
+import Image from "next/image"
 
 interface TestItem {
     id: string
@@ -537,10 +538,12 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                         {/* Visual Banner at top of header card */}
                         {currentSeries.bannerUrl && (
                             <div className="w-full h-40 sm:h-52 md:h-60 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xs relative">
-                                <img
+                                <Image
                                     src={currentSeries.bannerUrl}
                                     alt={seriesData.title}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    sizes="(max-width: 1024px) 100vw, 66vw"
+                                    className="object-cover"
                                 />
                             </div>
                         )}

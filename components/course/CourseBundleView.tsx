@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
   ChevronDown,
@@ -37,6 +36,7 @@ import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 import { CourseTeachersSection } from "./CourseTeachersSection"
 import ScheduleDemoModal from "./ScheduleDemoModal"
+import Image from "next/image"
 
 interface LessonItem {
   id: string
@@ -770,10 +770,12 @@ export function CourseBundleView({
               {/* Course Thumbnail Banner */}
               <div className="relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-gray-200 flex items-center justify-center p-4 text-center">
                 {course.thumbnailUrl ? (
-                  <img
+                  <Image
                     src={course.thumbnailUrl}
                     alt={course.title}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                    className="object-cover"
                   />
                 ) : (
                   <div className="space-y-1 z-10">

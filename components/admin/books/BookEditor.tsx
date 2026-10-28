@@ -24,6 +24,7 @@ import {
   X,
   ExternalLink,
 } from "lucide-react"
+import Image from "next/image"
 
 export interface BookEditorProps {
   initialBook?: Partial<Book>
@@ -622,10 +623,12 @@ export default function BookEditor({
                   )}
 
                   <div className="w-full aspect-[3/4] flex items-center justify-center overflow-hidden rounded-lg mb-2">
-                    <img
+                    <Image
                       src={imgUrl}
                       alt={`Book image ${idx + 1}`}
-                      className="w-full h-full object-contain"
+                      width={300}
+                      height={400}
+                      className="h-full w-full object-contain"
                     />
                   </div>
 
@@ -1008,10 +1011,12 @@ export default function BookEditor({
             {previewTab === "card" ? (
               <div className="max-w-[280px] mx-auto bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-3 shadow-md">
                 <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-gray-50 dark:bg-slate-900 flex items-center justify-center p-2 mb-2">
-                  <img
+                  <Image
                     src={previewBook.coverImage}
                     alt={previewBook.title}
-                    className="w-full h-full object-contain drop-shadow"
+                    fill
+                    sizes="280px"
+                    className="object-contain drop-shadow"
                   />
                   {/* Heart Icon top right */}
                   <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 shadow flex items-center justify-center text-rose-500">

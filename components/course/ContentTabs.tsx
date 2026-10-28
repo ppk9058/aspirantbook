@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { FileDown, Clock, MessageSquare, Book } from "lucide-react"
+import Image from "next/image"
 
 interface Tab {
     id: string
@@ -145,10 +146,12 @@ export default function ContentTabs({
                             <div className="flex items-start gap-4">
                                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
                                     {courseData.instructor.avatar ? (
-                                        <img
+                                        <Image
                                             src={courseData.instructor.avatar}
                                             alt={courseData.instructor.name}
-                                            className="w-full h-full rounded-full object-cover"
+                                            width={64}
+                                            height={64}
+                                            className="h-full w-full rounded-full object-cover"
                                         />
                                     ) : (
                                         courseData.instructor.name.charAt(0)

@@ -29,6 +29,7 @@ import {
     Book,
     Globe,
 } from "lucide-react"
+import Image from "next/image"
 
 interface AdminNavProps {
     user?: {
@@ -184,7 +185,7 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                         >
                             <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm overflow-hidden">
                                 {user?.image ? (
-                                    <img src={user.image} alt={user.name || "A"} className="h-full w-full object-cover" />
+                                    <Image src={user.image} alt={user.name || "A"} width={32} height={32} className="h-full w-full object-cover" />
                                 ) : (
                                     <span>{(user?.name || user?.email || "A").slice(0, 2).toUpperCase()}</span>
                                 )}
