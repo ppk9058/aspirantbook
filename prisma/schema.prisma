@@ -147,6 +147,7 @@ model Course {
   @@index([difficulty])
   @@index([status])
   @@index([isPublished])
+  @@index([isPublished, createdAt])
   @@index([status, enrollmentCount])
 }
 
@@ -264,6 +265,7 @@ model Enrollment {
   @@index([userId])
   @@index([courseId])
   @@index([userId, enrolledAt(sort: Desc)])
+  @@index([courseId, enrolledAt])
 }
 
 // Tracks student bookings for live demo classes
@@ -653,6 +655,7 @@ model Subscription {
   @@index([userId, status])
   @@index([userId, status, endDate])
   @@unique([providerId])
+  @@index([createdAt])
 }
 
 model StripeWebhookEvent {
@@ -692,6 +695,7 @@ model Payment {
   @@index([status])
   @@index([couponId])
   @@index([userId, status, createdAt])
+  @@index([createdAt])
 }
 
 model Coupon {
@@ -988,6 +992,8 @@ model ExamTest {
   @@index([seriesId, isPublished])
   @@index([year, month])
   @@index([isArchived])
+  @@index([isPublished, isArchived, createdAt])
+  @@index([isPublished, isArchived, order])
 }
 
 model ExamSection {
@@ -1073,6 +1079,7 @@ model ExamAttempt {
   @@index([testId, status])
   @@index([userId, testId])
   @@index([testId, status, score])
+  @@index([userId, startedAt])
 }
 
 model ExamAttemptAnswer {
@@ -1491,6 +1498,7 @@ model ContentEngineQuestion {
   @@index([sub, top])
   @@index([exam, year])
   @@index([createdAt])
+  @@index([isPublished, status, createdAt])
 }
 
 model ContentEngineTranslation {
@@ -1610,6 +1618,7 @@ model Book {
   updatedAt    DateTime @updatedAt
 
   @@index([status])
+  @@index([createdAt])
 }
 
 model BookOrder {
@@ -1628,6 +1637,8 @@ model BookOrder {
 
   @@index([userId])
   @@index([status])
+  @@index([userId, status])
+  @@index([createdAt])
 }
 
 model BookCoupon {
@@ -1701,6 +1712,8 @@ model Doubt {
   @@index([status])
   @@index([subject])
   @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([subject, createdAt])
 }
 
 /// C2: form submissions were stored in data/form-submissions.json (same problem).
@@ -1721,4 +1734,5 @@ model FormSubmission {
   @@index([formSlug])
   @@index([userId])
   @@index([submittedAt])
+  @@index([formSlug, submittedAt])
 }
