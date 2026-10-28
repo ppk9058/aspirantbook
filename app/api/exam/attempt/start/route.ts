@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
 import { checkTestAccess } from "@/lib/auth/entitlements";
+import { isExamCacheQuestionsEnabled } from "@/lib/exam-flags";
+import { getSanitizedQuestionSet } from "@/lib/exam-questions-cache";
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,121 +35,49 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Validate test exists, is published, has positive duration, and has questions
-    let test = await prisma.examTest.findUnique({
-      where: { id: testId },
-      select: {
-        id: true,
-        title: true,
-        titleHi: true,
-        durationMinutes: true,
-        totalMarks: true,
-        totalQuestions: true,
-        positiveMarks: true,
-        negativeMarks: true,
-        testType: true,
-        seriesId: true,
-        accessMode: true,
-        createdById: true,
-        series: {
-          select: {
-            id: true,
-            slug: true,
-            title: true,
-            examName: true,
-            category: true,
-            isPublished: true,
-            createdById: true,
-          },
-        },
-        isPublished: true,
-        sections: {
-          orderBy: { order: "asc" },
-          select: {
-            id: true,
-            title: true,
-            titleHi: true,
-            order: true,
-            positiveMarks: true,
-            negativeMarks: true,
-            timeLimitMins: true,
-            questions: {
-              orderBy: { order: "asc" },
-              select: {
-                id: true,
-                questionEn: true,
-                questionHi: true,
-                optionAEn: true,
-                optionBEn: true,
-                optionCEn: true,
-                optionDEn: true,
-                optionAHi: true,
-                optionBHi: true,
-                optionCHi: true,
-                optionDHi: true,
-                questionType: true,
-                subject: true,
-                positiveMarks: true,
-                negativeMarks: true,
-                order: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!test) {
-      const isAdmin = session.user.role === "ADMIN";
-      test = await prisma.examTest.findFirst({
-        where: {
-          AND: [
-            {
-              OR: [
-                { seriesId: testId },
-                { series: { slug: testId } },
-              ],
-            },
-            ...(!isAdmin
-              ? [
-                  {
-                    OR: [
-                      { isPublished: true, series: { isPublished: true } },
-                      { isPublished: true, testType: "PREVIOUS_YEAR" as any },
-                      { isPublished: true, testType: "CURRENT_AFFAIRS" as any },
-                      { createdById: session.user.id },
-                      { series: { createdById: session.user.id } },
-                    ],
-                  },
-                ]
-              : []),
-          ],
-        },
-        orderBy: [{ isPublished: "desc" }, { createdAt: "asc" }],
+    const useQuestionsCache = isExamCacheQuestionsEnabled();
+    const testSelectNoSections = {
+      id: true,
+      title: true,
+      titleHi: true,
+      durationMinutes: true,
+      totalMarks: true,
+      totalQuestions: true,
+      positiveMarks: true,
+      negativeMarks: true,
+      testType: true,
+      seriesId: true,
+      accessMode: true,
+      createdById: true,
+      series: {
         select: {
           id: true,
+          slug: true,
           title: true,
-          titleHi: true,
-          durationMinutes: true,
-          totalMarks: true,
-          totalQuestions: true,
-          positiveMarks: true,
-          negativeMarks: true,
-          testType: true,
-          seriesId: true,
-          accessMode: true,
-          createdById: true,
-          series: {
-            select: {
-              id: true,
-              slug: true,
-              title: true,
-              examName: true,
-              category: true,
-              isPublished: true,
-              createdById: true,
-            },
-          },
+          examName: true,
+          category: true,
           isPublished: true,
+          createdById: true,
+        },
+      },
+      isPublished: true,
+    };
+
+    let test: any = null;
+    if (useQuestionsCache) {
+      test = await prisma.examTest.findUnique({
+        where: { id: testId },
+        select: testSelectNoSections,
+      });
+      if (test) {
+        const qSet = await getSanitizedQuestionSet(test.id);
+        test.sections = qSet?.sections ?? [];
+      }
+    } else {
+      test = await prisma.examTest.findUnique({
+        where: { id: testId },
+        select: {
+          ...testSelectNoSections,
           sections: {
             orderBy: { order: "asc" },
             select: {
@@ -183,6 +113,86 @@ export async function POST(req: NextRequest) {
           },
         },
       });
+    }
+
+    if (!test) {
+      const isAdmin = session.user.role === "ADMIN";
+      const whereCondition = {
+        AND: [
+          {
+            OR: [
+              { seriesId: testId },
+              { series: { slug: testId } },
+            ],
+          },
+          ...(!isAdmin
+            ? [
+                {
+                  OR: [
+                    { isPublished: true, series: { isPublished: true } },
+                    { isPublished: true, testType: "PREVIOUS_YEAR" as any },
+                    { isPublished: true, testType: "CURRENT_AFFAIRS" as any },
+                    { createdById: session.user.id },
+                    { series: { createdById: session.user.id } },
+                  ],
+                },
+              ]
+            : []),
+        ],
+      };
+
+      if (useQuestionsCache) {
+        test = await prisma.examTest.findFirst({
+          where: whereCondition,
+          orderBy: [{ isPublished: "desc" }, { createdAt: "asc" }],
+          select: testSelectNoSections,
+        });
+        if (test) {
+          const qSet = await getSanitizedQuestionSet(test.id);
+          test.sections = qSet?.sections ?? [];
+        }
+      } else {
+        test = await prisma.examTest.findFirst({
+          where: whereCondition,
+          orderBy: [{ isPublished: "desc" }, { createdAt: "asc" }],
+          select: {
+            ...testSelectNoSections,
+            sections: {
+              orderBy: { order: "asc" },
+              select: {
+                id: true,
+                title: true,
+                titleHi: true,
+                order: true,
+                positiveMarks: true,
+                negativeMarks: true,
+                timeLimitMins: true,
+                questions: {
+                  orderBy: { order: "asc" },
+                  select: {
+                    id: true,
+                    questionEn: true,
+                    questionHi: true,
+                    optionAEn: true,
+                    optionBEn: true,
+                    optionCEn: true,
+                    optionDEn: true,
+                    optionAHi: true,
+                    optionBHi: true,
+                    optionCHi: true,
+                    optionDHi: true,
+                    questionType: true,
+                    subject: true,
+                    positiveMarks: true,
+                    negativeMarks: true,
+                    order: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
     }
 
     if (!test) {
@@ -230,7 +240,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const hasQuestions = test.sections.some((sec) => sec.questions.length > 0);
+    const hasQuestions = test.sections.some((sec: any) => sec.questions?.length > 0);
     if (!hasQuestions) {
       return NextResponse.json(
         { error: "This test does not contain any questions" },

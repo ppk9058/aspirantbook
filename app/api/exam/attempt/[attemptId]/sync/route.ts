@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-
 import { gradeExamAttempt } from "@/lib/exam-grading";
+import { isExamBatchSyncEnabled } from "@/lib/exam-flags";
+import crypto from "crypto";
 
 interface AnswerPayload {
   questionId: string;
@@ -80,69 +81,136 @@ export async function POST(
     // Enforce sequence ordering using the dedicated clientSeq column:
     // If existing record has newer/equal clientSeq, return storedSeq to let client catch up.
     if (answers.length > 0) {
-      let maxStoredSeq = 0;
-      let hasStaleSequence = false;
+      if (isExamBatchSyncEnabled()) {
+        const questionIds = answers.map((a) => a.questionId);
+        const existingRows = await prisma.examAttemptAnswer.findMany({
+          where: { attemptId, questionId: { in: questionIds } },
+          select: { questionId: true, clientSeq: true },
+        });
 
-      await prisma.$transaction(async (tx) => {
-        for (const ans of answers) {
-          const existing = await tx.examAttemptAnswer.findUnique({
-            where: {
-              attemptId_questionId: {
+        const staleAnswers = existingRows.filter(
+          (r) => r.clientSeq !== null && r.clientSeq !== undefined && r.clientSeq > sequence
+        );
+
+        if (staleAnswers.length > 0) {
+          const maxStoredSeq = Math.max(...staleAnswers.map((r) => r.clientSeq!));
+          return NextResponse.json(
+            {
+              error: "Stale sequence: server has newer data",
+              storedSeq: maxStoredSeq,
+            },
+            { status: 409 }
+          );
+        }
+
+        const ids = answers.map(() => crypto.randomUUID());
+        const qIds = answers.map((a) => a.questionId);
+        const options = answers.map((a) => a.selectedOption);
+        const markeds = answers.map((a) => a.isMarked ?? false);
+        const seqs = answers.map(() => sequence);
+        const times = answers.map((a) => a.timeSpentSecs ?? 0);
+
+        await prisma.$transaction(async (tx) => {
+          await tx.$executeRaw`
+            INSERT INTO "ExamAttemptAnswer" ("id", "attemptId", "questionId", "selectedOption", "isMarked", "clientSeq", "timeSpentSecs")
+            SELECT
+              v.id,
+              ${attemptId},
+              v.question_id,
+              v.selected_option,
+              v.is_marked,
+              v.client_seq,
+              v.time_spent_secs
+            FROM UNNEST(
+              ${ids}::text[],
+              ${qIds}::text[],
+              ${options}::text[],
+              ${markeds}::boolean[],
+              ${seqs}::int[],
+              ${times}::int[]
+            ) AS v(id, question_id, selected_option, is_marked, client_seq, time_spent_secs)
+            ON CONFLICT ("attemptId", "questionId")
+            DO UPDATE SET
+              "selectedOption" = EXCLUDED."selectedOption",
+              "isMarked" = EXCLUDED."isMarked",
+              "clientSeq" = EXCLUDED."clientSeq",
+              "timeSpentSecs" = EXCLUDED."timeSpentSecs"
+            WHERE "ExamAttemptAnswer"."clientSeq" IS NULL
+               OR EXCLUDED."clientSeq" >= "ExamAttemptAnswer"."clientSeq";
+          `;
+
+          if (typeof tabSwitchCount === "number") {
+            await tx.examAttempt.update({
+              where: { id: attemptId },
+              data: { tabSwitchCount },
+            });
+          }
+        });
+      } else {
+        let maxStoredSeq = 0;
+        let hasStaleSequence = false;
+
+        await prisma.$transaction(async (tx) => {
+          for (const ans of answers) {
+            const existing = await tx.examAttemptAnswer.findUnique({
+              where: {
+                attemptId_questionId: {
+                  attemptId,
+                  questionId: ans.questionId,
+                },
+              },
+              select: { clientSeq: true },
+            });
+
+            if (existing && existing.clientSeq > sequence) {
+              hasStaleSequence = true;
+              maxStoredSeq = Math.max(maxStoredSeq, existing.clientSeq);
+              continue;
+            }
+
+            maxStoredSeq = Math.max(maxStoredSeq, sequence);
+
+            await tx.examAttemptAnswer.upsert({
+              where: {
+                attemptId_questionId: {
+                  attemptId,
+                  questionId: ans.questionId,
+                },
+              },
+              create: {
                 attemptId,
                 questionId: ans.questionId,
+                selectedOption: ans.selectedOption,
+                isMarked: ans.isMarked ?? false,
+                clientSeq: sequence,
+                timeSpentSecs: ans.timeSpentSecs ?? 0,
               },
-            },
-            select: { clientSeq: true },
-          });
-
-          if (existing && existing.clientSeq > sequence) {
-            hasStaleSequence = true;
-            maxStoredSeq = Math.max(maxStoredSeq, existing.clientSeq);
-            continue;
+              update: {
+                selectedOption: ans.selectedOption,
+                isMarked: ans.isMarked ?? false,
+                clientSeq: sequence,
+                timeSpentSecs: ans.timeSpentSecs ?? 0,
+              },
+            });
           }
 
-          maxStoredSeq = Math.max(maxStoredSeq, sequence);
+          if (typeof tabSwitchCount === "number") {
+            await tx.examAttempt.update({
+              where: { id: attemptId },
+              data: { tabSwitchCount },
+            });
+          }
+        });
 
-          await tx.examAttemptAnswer.upsert({
-            where: {
-              attemptId_questionId: {
-                attemptId,
-                questionId: ans.questionId,
-              },
+        if (hasStaleSequence) {
+          return NextResponse.json(
+            {
+              error: "Stale sequence: server has newer data",
+              storedSeq: maxStoredSeq,
             },
-            create: {
-              attemptId,
-              questionId: ans.questionId,
-              selectedOption: ans.selectedOption,
-              isMarked: ans.isMarked ?? false,
-              clientSeq: sequence,
-              timeSpentSecs: ans.timeSpentSecs ?? 0,
-            },
-            update: {
-              selectedOption: ans.selectedOption,
-              isMarked: ans.isMarked ?? false,
-              clientSeq: sequence,
-              timeSpentSecs: ans.timeSpentSecs ?? 0,
-            },
-          });
+            { status: 409 }
+          );
         }
-
-        if (typeof tabSwitchCount === "number") {
-          await tx.examAttempt.update({
-            where: { id: attemptId },
-            data: { tabSwitchCount },
-          });
-        }
-      });
-
-      if (hasStaleSequence) {
-        return NextResponse.json(
-          {
-            error: "Stale sequence: server has newer data",
-            storedSeq: maxStoredSeq,
-          },
-          { status: 409 }
-        );
       }
     } else if (typeof tabSwitchCount === "number") {
       await prisma.examAttempt.update({

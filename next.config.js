@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: process.env.NEXT_STANDALONE === "true" || process.env.NEXT_STANDALONE === "1" ? "standalone" : undefined,
     distDir: process.env.NEXT_DIST_DIR || ".next",
     skipMiddlewareUrlNormalize: true,
     images: {

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getAttemptRanking } from "./exam-ranking";
+import { isExamFastGradingEnabled } from "./exam-flags";
 
 export interface GradedAttemptResult {
   attemptId: string;
@@ -223,19 +224,41 @@ export async function gradeExamAttempt(
           return false;
         }
 
-        for (const ga of gradedAnswers) {
-          await tx.examAttemptAnswer.update({
-            where: {
-              attemptId_questionId: {
-                attemptId,
-                questionId: ga.questionId,
+        if (isExamFastGradingEnabled()) {
+          if (gradedAnswers.length > 0) {
+            const qIds = gradedAnswers.map((g) => g.questionId);
+            const isCorrects = gradedAnswers.map((g) => g.isCorrect);
+            const marks = gradedAnswers.map((g) => g.marksAwarded);
+            await tx.$executeRaw`
+              UPDATE "ExamAttemptAnswer" AS a
+              SET
+                "isCorrect" = v.is_correct,
+                "marksAwarded" = v.marks_awarded
+              FROM (
+                SELECT
+                  UNNEST(${qIds}::text[]) as question_id,
+                  UNNEST(${isCorrects}::boolean[]) as is_correct,
+                  UNNEST(${marks}::double precision[]) as marks_awarded
+              ) AS v
+              WHERE a."attemptId" = ${attemptId}
+                AND a."questionId" = v.question_id;
+            `;
+          }
+        } else {
+          for (const ga of gradedAnswers) {
+            await tx.examAttemptAnswer.update({
+              where: {
+                attemptId_questionId: {
+                  attemptId,
+                  questionId: ga.questionId,
+                },
               },
-            },
-            data: {
-              isCorrect: ga.isCorrect,
-              marksAwarded: ga.marksAwarded,
-            },
-          });
+              data: {
+                isCorrect: ga.isCorrect,
+                marksAwarded: ga.marksAwarded,
+              },
+            });
+          }
         }
 
         return true;
@@ -256,6 +279,16 @@ export async function gradeExamAttempt(
   }
 
   const ranking = await getAttemptRanking(attemptId);
+
+  if (isExamFastGradingEnabled()) {
+    await prisma.examAttempt.update({
+      where: { id: attemptId },
+      data: {
+        percentile: ranking.percentile,
+        allIndiaRank: ranking.rank,
+      },
+    }).catch(() => {});
+  }
 
   return {
     attemptId,

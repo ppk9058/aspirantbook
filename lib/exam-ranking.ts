@@ -1,4 +1,6 @@
 import { prisma } from "./prisma";
+import { isExamCacheLeaderboardEnabled } from "./exam-flags";
+import { getCached, setCache } from "./redis";
 
 export interface RankedAttempt {
   attemptId: string;
@@ -34,6 +36,31 @@ export interface TestRankingsResult {
  * 5. Rank and percentile are identical across leaderboard, result, submission, and grading.
  */
 export async function getTestRankings(testId: string): Promise<TestRankingsResult> {
+  const cacheKey = `exam:test-rankings:v1:${testId}`;
+
+  if (isExamCacheLeaderboardEnabled()) {
+    const cached = await getCached<{
+      testId: string;
+      totalCandidates: number;
+      rankedAttempts: any[];
+      attemptRankEntries: [string, { rank: number; percentile: number; isFirstAttempt: boolean }][];
+      userRankEntries: [string, { rank: number; percentile: number }][];
+    }>(cacheKey);
+
+    if (cached) {
+      return {
+        testId: cached.testId,
+        totalCandidates: cached.totalCandidates,
+        rankedAttempts: cached.rankedAttempts.map((r) => ({
+          ...r,
+          submittedAt: r.submittedAt ? new Date(r.submittedAt) : null,
+        })),
+        attemptRankMap: new Map(cached.attemptRankEntries),
+        userRankMap: new Map(cached.userRankEntries),
+      };
+    }
+  }
+
   const allAttempts = await prisma.examAttempt.findMany({
     where: {
       testId,
@@ -148,13 +175,30 @@ export async function getTestRankings(testId: string): Promise<TestRankingsResul
     }
   }
 
-  return {
+  const result: TestRankingsResult = {
     testId,
     totalCandidates,
     rankedAttempts,
     attemptRankMap,
     userRankMap,
   };
+
+  if (isExamCacheLeaderboardEnabled()) {
+    // 10s TTL short-cache to coalesce deadline thundering herds
+    await setCache(
+      cacheKey,
+      {
+        testId,
+        totalCandidates,
+        rankedAttempts,
+        attemptRankEntries: Array.from(attemptRankMap.entries()),
+        userRankEntries: Array.from(userRankMap.entries()),
+      },
+      10
+    );
+  }
+
+  return result;
 }
 
 /**

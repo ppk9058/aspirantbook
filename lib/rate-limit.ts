@@ -1,4 +1,6 @@
 import { prisma } from "./prisma";
+import { isExamRedisRateLimitEnabled } from "./exam-flags";
+import { redis } from "./redis";
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -11,7 +13,7 @@ let hasWarnedProxy = false;
 
 /**
  * Safely extract client IP taking into account trusted proxy configuration.
- * Ignores client-supplied X-Forwarded-For unless TRUST_PROXY=true (or running behind trusted reverse proxy).
+ * Prioritizes Cloudflare CF-Connecting-IP, then X-Forwarded-For when TRUST_PROXY=true.
  */
 export function getClientIp(req: Request | { headers: Headers }): string {
   const isTrustedProxy = process.env.TRUST_PROXY === "true";
@@ -20,6 +22,9 @@ export function getClientIp(req: Request | { headers: Headers }): string {
     hasWarnedProxy = true;
   }
   if (isTrustedProxy) {
+    const cfIp = req.headers.get("cf-connecting-ip");
+    if (cfIp) return cfIp.trim();
+
     const forwarded = req.headers.get("x-forwarded-for");
     if (forwarded) {
       const firstIp = forwarded.split(",")[0]?.trim();
@@ -32,12 +37,13 @@ export function getClientIp(req: Request | { headers: Headers }): string {
 }
 
 /**
- * DB-Backed Rate Limiter
- * Atomic check and increment using Prisma & PostgreSQL:
+ * DB-Backed & Redis-Optional Rate Limiter
+ * When EXAM_RUNTIME_REDIS_RATELIMIT=true and REDIS_URL exists: uses Redis INCR + EXPIRE.
+ * Falls back transparently to PostgreSQL atomic upsert:
  * INSERT INTO "RateLimit" ... ON CONFLICT (key, "windowStart") DO UPDATE SET count = "RateLimit".count + 1 RETURNING count;
  *
  * Decision (docs/DECISIONS.md):
- * Fails OPEN on database errors for customer-facing flows (like coupon preview)
+ * Fails OPEN on database/cache errors for customer-facing flows (like coupon preview)
  * to avoid blocking genuine user checkouts when the DB encounters transient issues.
  */
 export async function checkRateLimit(
@@ -50,6 +56,24 @@ export async function checkRateLimit(
   // Compute discrete bucket start
   const windowStartMs = Math.floor(nowMs / windowMs) * windowMs;
   const windowStartDate = new Date(windowStartMs);
+
+  if (isExamRedisRateLimitEnabled() && redis) {
+    try {
+      const rKey = `rl:${key}:${windowStartMs}`;
+      const count = await redis.incr(rKey);
+      if (count === 1) {
+        await redis.expire(rKey, windowSeconds + 5);
+      }
+      return {
+        allowed: count <= limit,
+        count,
+        limit,
+        windowSeconds,
+      };
+    } catch (redisErr) {
+      console.warn("[RateLimit] Redis error while checking rate limit (falling back to DB):", redisErr);
+    }
+  }
 
   try {
     // Opportunistic cleanup (~1% chance): delete windows older than 1 hour
