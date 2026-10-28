@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { invalidateAllExamCaches } from "@/lib/exam-runtime/cache-invalidation";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function PATCH(
@@ -171,6 +172,7 @@ export async function PATCH(
 
     revalidateTag("exam-series");
     revalidatePath("/test-series");
+    await invalidateAllExamCaches(id);
 
     return NextResponse.json({
       success: true,
@@ -272,6 +274,7 @@ export async function DELETE(
     const { revalidatePath, revalidateTag } = await import("next/cache");
     revalidateTag("exam-series");
     revalidatePath("/test-series");
+    await invalidateAllExamCaches(id);
 
     return NextResponse.json({ success: true, message: "Test deleted successfully" });
   } catch (error: any) {

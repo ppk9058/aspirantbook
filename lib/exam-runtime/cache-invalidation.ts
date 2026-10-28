@@ -10,6 +10,14 @@ import { prisma } from "../prisma";
 // In-memory version tracker for fast LRU stale-checking
 const questionVersions = new Map<string, { version: string; checkedAt: number }>();
 
+export function clearLocalVersionTracker(testId?: string): void {
+  if (testId) {
+    questionVersions.delete(testId);
+  } else {
+    questionVersions.clear();
+  }
+}
+
 const VERSION_CHECK_TTL_MS = Math.max(
   1000,
   (Number(process.env.EXAM_QUESTIONS_VERSION_CHECK_TTL_SECS) || 60) * 1000

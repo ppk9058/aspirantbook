@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { invalidateAllExamCaches } from "@/lib/exam-runtime/cache-invalidation";
 
 export async function GET(
   _req: NextRequest,
@@ -853,6 +854,8 @@ export async function PUT(
         }
       );
     }
+
+    await invalidateAllExamCaches(id);
 
     revalidateTag("exam-series");
     revalidatePath("/test-series");

@@ -1,6 +1,7 @@
 import { prisma } from "./prisma";
 import { getCached, setCache } from "./redis";
 import { isExamCacheQuestionsEnabled } from "./exam-flags";
+import { getExamQuestionsVersion } from "./exam-runtime/cache-invalidation";
 import crypto from "crypto";
 
 export interface SanitizedQuestionDto {
@@ -35,6 +36,7 @@ export interface SanitizedSectionDto {
 
 export interface SanitizedQuestionSet {
   testId: string;
+  version: string;
   etag: string;
   sections: SanitizedSectionDto[];
 }
@@ -42,14 +44,21 @@ export interface SanitizedQuestionSet {
 /**
  * Returns the sanitized question paper for a test with correct answers and explanations stripped.
  * Zero-leakage guaranteed.
- * Caches in Redis (if available) or in-memory LRU fallback.
+ * P1-1: Includes inter-process version tracking so edits made on another node/process
+ * invalidate the cached questions immediately within the configured TTL (<= 60s).
  */
 export async function getSanitizedQuestionSet(testId: string): Promise<SanitizedQuestionSet | null> {
   const cacheKey = `exam:sanitized-questions:v1:${testId}`;
+  const ttlSecs = Math.max(
+    1,
+    Math.min(60, Number(process.env.EXAM_QUESTIONS_CACHE_TTL_SECS) || 60)
+  );
 
+  let currentVersion = "";
   if (isExamCacheQuestionsEnabled()) {
+    currentVersion = await getExamQuestionsVersion(testId);
     const cached = await getCached<SanitizedQuestionSet>(cacheKey);
-    if (cached) {
+    if (cached && cached.version === currentVersion) {
       return cached;
     }
   }
@@ -106,15 +115,19 @@ export async function getSanitizedQuestionSet(testId: string): Promise<Sanitized
 
   const etag = crypto.createHash("sha256").update(serialized).digest("hex").slice(0, 16);
 
+  if (!currentVersion) {
+    currentVersion = await getExamQuestionsVersion(testId);
+  }
+
   const result: SanitizedQuestionSet = {
     testId,
+    version: currentVersion,
     etag,
     sections: sections as unknown as SanitizedSectionDto[],
   };
 
   if (isExamCacheQuestionsEnabled()) {
-    // Cache for 10 minutes (600s)
-    await setCache(cacheKey, result, 600);
+    await setCache(cacheKey, result, ttlSecs);
   }
 
   return result;
