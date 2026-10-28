@@ -140,6 +140,14 @@ export async function POST(
         const times = answers.map((a) => a.timeSpentSecs ?? 0);
 
         await prisma.$transaction(async (tx) => {
+          const current = await tx.examAttempt.findUnique({
+            where: { id: attemptId },
+            select: { status: true },
+          });
+          if (current?.status === "SUBMITTED") {
+            throw new Error("ATTEMPT_ALREADY_SUBMITTED");
+          }
+
           await tx.$executeRaw`
             INSERT INTO "ExamAttemptAnswer" ("id", "attemptId", "questionId", "selectedOption", "isMarked", "clientSeq", "timeSpentSecs")
             SELECT
@@ -252,6 +260,12 @@ export async function POST(
       { status: 200 }
     );
   } catch (error) {
+    if ((error as any)?.message === "ATTEMPT_ALREADY_SUBMITTED") {
+      return NextResponse.json(
+        { error: "Attempt already submitted" },
+        { status: 409 }
+      );
+    }
     console.error("[POST /api/exam/attempt/:attemptId/sync]", error);
     return NextResponse.json(
       { error: "Internal server error" },
