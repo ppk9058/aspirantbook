@@ -31,3 +31,4 @@ apps/mobile/ios
 coverage
 .nyc_output
 *.tsbuildinfo
+.agents
