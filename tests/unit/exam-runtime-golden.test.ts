@@ -162,7 +162,8 @@ describe("Exam Runtime Performance Optimizations & Parity Suite", () => {
         "x-forwarded-for": "198.51.100.4, 203.0.113.195",
       }),
     };
-    assert.equal(getClientIp(reqWithForwardedOnly), "198.51.100.4", "Must fallback to first IP in X-Forwarded-For");
+    // Under audit2 anti-spoofing security, hops defaults to 1 (right-most trusted proxy)
+    assert.equal(getClientIp(reqWithForwardedOnly), "203.0.113.195", "Must read trusted hop from right of X-Forwarded-For to prevent spoofing");
   });
 
   test("TEST 3: Golden Parity Replay of 50 Attempts (Legacy vs Fast Optimization)", async () => {

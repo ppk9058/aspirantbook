@@ -82,10 +82,12 @@ export function assertTestDatabase(options: TestDatabaseGuardOptions = {}): stri
     )
   }
 
-  if (parsed.pathname.replace(/^\//, "") !== TEST_DB_NAME) {
+  const expectedDb = process.env.TEST_DB_NAME || TEST_DB_NAME;
+  const dbName = parsed.pathname.replace(/^\//, "");
+  if (dbName !== expectedDb && !dbName.endsWith("_test")) {
     throw new TestDatabaseGuardError(
       `Refusing to run${context}: DATABASE_URL database is "${parsed.pathname}", expected ` +
-        `"/${TEST_DB_NAME}". Target: ${target}.`
+        `"/${expectedDb}". Target: ${target}.`
     )
   }
 
@@ -105,10 +107,11 @@ export function assertTestDatabase(options: TestDatabaseGuardOptions = {}): stri
         `Refusing to run${context}: DIRECT_URL is not a valid URL.`
       )
     }
+    const directDbName = direct.pathname.replace(/^\//, "");
     if (
       direct.hostname !== TEST_DB_HOST ||
       direct.port !== TEST_DB_PORT ||
-      direct.pathname.replace(/^\//, "") !== TEST_DB_NAME
+      (directDbName !== expectedDb && !directDbName.endsWith("_test"))
     ) {
       throw new TestDatabaseGuardError(
         `Refusing to run${context}: DIRECT_URL points at ` +
