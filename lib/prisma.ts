@@ -1,6 +1,42 @@
 import { PrismaClient } from '@prisma/client'
 import { assertTestDatabase } from './test-db-guard'
 
+export function validateDatabaseConnectionLimit(url = process.env.DATABASE_URL): {
+  hasLimit: boolean;
+  limit: number | null;
+} {
+  if (!url) return { hasLimit: false, limit: null };
+  try {
+    const parsed = new URL(url);
+    const limitStr = parsed.searchParams.get("connection_limit");
+    if (!limitStr) {
+      const msg =
+        "[Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.";
+      if (
+        process.env.EXAM_REQUIRE_POOL_LIMIT === "true" ||
+        process.env.EXAM_REQUIRE_POOL_LIMIT === "1"
+      ) {
+        throw new Error(`[POOL_LIMIT_ENFORCEMENT_ERROR] ${msg}`);
+      }
+      console.warn(msg);
+      return { hasLimit: false, limit: null };
+    }
+    const limit = parseInt(limitStr, 10);
+    return { hasLimit: true, limit: isNaN(limit) ? null : limit };
+  } catch (err) {
+    if (
+      err instanceof Error &&
+      err.message.includes("[POOL_LIMIT_ENFORCEMENT_ERROR]")
+    ) {
+      throw err;
+    }
+    return { hasLimit: false, limit: null };
+  }
+}
+
+// Enforce connection limits check
+validateDatabaseConnectionLimit();
+
 // Fail closed before Prisma opens a connection: whenever the process declares
 // itself a test process (APP_ENV=test, the pinned prefix for every test and DB
 // script) the target must be the Docker test database.
