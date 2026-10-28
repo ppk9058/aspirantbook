@@ -1,0 +1,51 @@
+# Task Execution & Evidence Ledger
+
+**Branch:** `perf/exam-runtime-v2`  
+**Base Worktree:** `/Users/praveenkumar/ws-perf-v2`  
+**Starting Commit:** `2281365`  
+**Audit Standard:** Skeptical Senior Auditor (Strict Evidence Protocol)
+
+---
+
+## Task Progress Table
+
+| Task ID | Description | Status | Commit SHA | Evidence Path | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **A1** | Claim audit & report rewrite | DONE | [pending commit] | `docs/evidence/claims-register.md`, `docs/perf/*` | Audited all claims, classified into PROVEN/DISPROVEN/UNPROVEN, rewrote 4 docs with retraction sections |
+| **A2** | tsc truth across 3 trees | NOT_STARTED | - | `docs/evidence/raw/tsc-*.txt` | Compare 1b48ec91, c603168, current tip; diff tsconfig, scan suppressions |
+| **A3** | Intentional behaviour changes with flags OFF | NOT_STARTED | - | `docs/evidence/raw/parity-diff.txt` | Enumerate, pin with tests, golden parity |
+| **A4** | Stripe placeholder lazy initialisation | NOT_STARTED | - | `docs/evidence/raw/stripe-test.txt` | Lazy init, fails closed in prod without key, build succeeds |
+| **A5** | force-dynamic review | NOT_STARTED | - | `docs/evidence/raw/force-dynamic-audit.txt` | Review added force-dynamic, revert unjustified |
+| **A6** | Migration safety & additive check | NOT_STARTED | - | `docs/evidence/raw/migration-safety.txt` | Test on 100k attempts, verify IF NOT EXISTS, run check-migrations-additive |
+| **A7** | Honest baselines (Docker build/size/memory) | NOT_STARTED | - | `docs/evidence/legacy-build.patch`, `docs/evidence/raw/docker-baseline.txt` | Build legacy vs current, measure size, build time, memory |
+| **A8** | Ranking correctness at scale | NOT_STARTED | - | `docs/evidence/raw/ranking-correctness.txt` | Property test (1000+ datasets), consistency, 1k/10k/100k/300k scale EXPLAIN, concurrency |
+| **A9** | Flag performance root causes & fixes | NOT_STARTED | - | `docs/evidence/raw/flag-overhead-analysis.txt` | Analyze SQL counts, version-check overhead, CPU/mem profile |
+| **A10** | Rigorous load methodology | NOT_STARTED | - | `tools/loadtest/results/`, `docs/evidence/raw/load-*.txt` | Real Docker, Toxiproxy, 3 scenarios, 5 reps, bootstrap 95% CI |
+| **A11** | Correctness invariants verification | NOT_STARTED | - | `docs/evidence/raw/load-invariants.txt` | Automated checks after every load run with SQL |
+| **A12** | Connection evidence & pool limit verification | NOT_STARTED | - | `docs/evidence/raw/connection-evidence.txt` | pg_stat_activity measured with unset vs set |
+| **A13** | Rate limit hardening (server & mobile) | NOT_STARTED | - | `docs/evidence/raw/ratelimit-hardening.txt` | Fail-open, per-auth & IP, 429 Retry-After, mobile debounce + fake clock |
+| **A14** | Entitlement thundering herd measurement | NOT_STARTED | - | `docs/evidence/raw/entitlements-herd.txt` | Measure 300-user start herd, evaluate caching necessity |
+| **A15** | Final verdict table in RESULTS.md & RUNBOOK update | NOT_STARTED | - | `docs/perf/RESULTS.md`, `docs/perf/RUNBOOK.md` | Rollout order only for PROVEN-FASTER flags |
+| **B1** | Real Google OAuth & token verification | NOT_STARTED | - | - | On feat/launch-blockers branch |
+| **B2** | Dependency security (audit & next-auth upgrade) | NOT_STARTED | - | - | `npm audit --audit-level=critical` = 0 |
+| **B3** | No local-disk writes (PERSIST_BACKEND db/fs, S3/MinIO) | NOT_STARTED | - | - | Read-only container test with zero EROFS |
+| **B4** | Client IP / TRUST_PROXY hardening | NOT_STARTED | - | - | Single getClientIp(), CF-Connecting-IP safe parsing |
+| **B5** | Razorpay webhook verification & idempotency | NOT_STARTED | - | - | Raw body HMAC-SHA256, timingSafeEqual, event idempotency table |
+| **B6** | Legal and account pages (/refund, /contact, /data-deletion, /privacy) | NOT_STARTED | - | - | Real data processors, owner placeholders, deletion API |
+| **B7** | Email provider abstraction (Brevo + Resend fallback) | NOT_STARTED | - | - | Local SMTP test, DB outbox |
+| **B8** | Turnstile server verification | NOT_STARTED | - | - | Fail closed, client widget |
+| **B9** | Centralized domain & brand configuration | NOT_STARTED | - | - | Replace hardcoded strings with config |
+| **B10** | CI workflow & tsc ratchet | NOT_STARTED | - | - | `.github/workflows/ci.yml`, dependabot, ratchet script |
+| **B11** | Mobile config guards | NOT_STARTED | - | - | `npm run check:release`, HTTPS check |
+| **B12** | Health endpoint verification | NOT_STARTED | - | - | Read-only container test, no secrets leaked |
+| **C1** | Measure before compacting (10k seeded attempts) | NOT_STARTED | - | - | On feat/attempt-compaction branch |
+| **C2** | Reader & writer inventory | NOT_STARTED | - | - | Full grep inventory of ExamAttemptAnswer readers/writers |
+| **C3** | Compact archive table & dry-run job design | NOT_STARTED | - | - | Additive schema, transparent fallback |
+| **C4** | Compaction verifier script | NOT_STARTED | - | - | `scripts/verify-compaction` 100% match |
+| **C5** | Compaction evidence & crash consistency | NOT_STARTED | - | - | Space measurements, byte-identical responses, kill -9 test |
+| **C6** | Boundaries check & unmeasured savings disclaimer | NOT_STARTED | - | - | Leave feat/ai-layer untouched |
+| **Z1** | Clean-room fresh temporary clone verification | NOT_STARTED | - | - | Run verification on fresh clones of all branches |
+| **Z2** | Test accounting (pre-existing vs new, diff summary) | NOT_STARTED | - | - | Full test counts and diff |
+| **Z3** | Merge conflict prediction across 3 branches | NOT_STARTED | - | - | Trial merge / merge-tree analysis |
+| **Z4** | Final report & claims register final state | NOT_STARTED | - | - | English, max ~80 lines, honest headline numbers |
+| **Z5** | Isolation & safety proof | NOT_STARTED | - | - | Zero supabase.co hits, zero remote pushes |
