@@ -1,10 +1,39 @@
 import Stripe from "stripe"
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "sk_test_placeholder_for_build"
+let _stripeInstance: Stripe | null = null
 
-export const stripe = new Stripe(stripeSecretKey, {
-    apiVersion: "2025-02-24.acacia" as any,
-    typescript: true,
+export function isStripeConfigured(): boolean {
+    const key = process.env.STRIPE_SECRET_KEY
+    return Boolean(key && key.trim() !== "")
+}
+
+export function getStripeClient(): Stripe {
+    const key = process.env.STRIPE_SECRET_KEY
+    if (!key || key.trim() === "") {
+        throw new Error("Stripe is not configured: STRIPE_SECRET_KEY is missing")
+    }
+
+    if (!_stripeInstance) {
+        _stripeInstance = new Stripe(key, {
+            apiVersion: "2025-02-24.acacia" as any,
+            typescript: true,
+        })
+    }
+    return _stripeInstance
+}
+
+// Lazy Proxy for backward-compatible `import { stripe } from "@/lib/payments/stripe"`
+// Import time evaluation will NOT throw during build phase (NEXT_PHASE=phase-production-build)
+// Calling any method/property at runtime without STRIPE_SECRET_KEY fails closed.
+export const stripe = new Proxy({} as Stripe, {
+    get(_target, prop, receiver) {
+        const client = getStripeClient()
+        const value = Reflect.get(client, prop, receiver)
+        if (typeof value === "function") {
+            return value.bind(client)
+        }
+        return value
+    },
 })
 
 // Price IDs for subscription plans (set these in Stripe Dashboard)
@@ -26,7 +55,8 @@ export async function createCheckoutSession({
     successUrl: string
     cancelUrl: string
 }) {
-    const session = await stripe.checkout.sessions.create({
+    const client = getStripeClient()
+    const session = await client.checkout.sessions.create({
         customer_email: userEmail,
         client_reference_id: userId,
         mode: "subscription",
@@ -48,7 +78,8 @@ export async function createCheckoutSession({
 }
 
 export async function cancelSubscription(subscriptionId: string) {
-    const subscription = await stripe.subscriptions.cancel(subscriptionId)
+    const client = getStripeClient()
+    const subscription = await client.subscriptions.cancel(subscriptionId)
     return subscription
 }
 
@@ -56,9 +87,10 @@ export async function updateSubscription(
     subscriptionId: string,
     newPriceId: string
 ) {
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+    const client = getStripeClient()
+    const subscription = await client.subscriptions.retrieve(subscriptionId)
 
-    const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+    const updatedSubscription = await client.subscriptions.update(subscriptionId, {
         items: [
             {
                 id: subscription.items.data[0].id,
@@ -72,6 +104,7 @@ export async function updateSubscription(
 }
 
 export async function getSubscription(subscriptionId: string) {
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+    const client = getStripeClient()
+    const subscription = await client.subscriptions.retrieve(subscriptionId)
     return subscription
 }
