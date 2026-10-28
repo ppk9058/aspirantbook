@@ -28,19 +28,41 @@ import { formatUtcToIst } from "@/lib/demo/slot-utils"
 export const dynamic = "force-dynamic"
 
 export default async function TeacherDashboardPage() {
-  const doubts = await getAllDoubts().catch(() => [])
-  const pendingDoubts = doubts.filter((d) => d.status === "PENDING")
-  const batches = await getAllBatches().catch(() => [])
+  /**
+   * Phase D: these three reads swallowed every error with `.catch(() => [])`, so
+   * a failed query rendered "0 pending doubts" and "no classes" as if that were
+   * the truth. Each failure is now collected and shown in a banner below.
+   */
+  const failedSections: string[] = []
 
-  const demoSlots = await prisma.demoSlot.findMany({
-    where: { status: { in: ["SCHEDULED", "LIVE"] } },
-    include: {
-      course: { select: { id: true, slug: true, title: true } },
-      _count: { select: { bookings: true } },
-    },
-    orderBy: [{ status: "desc" }, { startTime: "asc" }],
-    take: 5,
-  }).catch(() => [])
+  const doubts = await getAllDoubts().catch((error) => {
+    console.error("Teacher dashboard: doubts failed to load", error)
+    failedSections.push("student doubts")
+    return []
+  })
+  const pendingDoubts = doubts.filter((d) => d.status === "PENDING")
+
+  const batches = await getAllBatches().catch((error) => {
+    console.error("Teacher dashboard: batches failed to load", error)
+    failedSections.push("batches")
+    return []
+  })
+
+  const demoSlots = await prisma.demoSlot
+    .findMany({
+      where: { status: { in: ["SCHEDULED", "LIVE"] } },
+      include: {
+        course: { select: { id: true, slug: true, title: true } },
+        _count: { select: { bookings: true } },
+      },
+      orderBy: [{ status: "desc" }, { startTime: "asc" }],
+      take: 5,
+    })
+    .catch((error) => {
+      console.error("Teacher dashboard: demo slots failed to load", error)
+      failedSections.push("live classes")
+      return []
+    })
 
   const scheduledClasses = demoSlots.map((s) => {
     const ist = formatUtcToIst(s.startTime)
@@ -57,6 +79,25 @@ export default async function TeacherDashboardPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      {failedSections.length > 0 && (
+        <div
+          role="alert"
+          data-testid="teacher-dashboard-error"
+          className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 dark:border-amber-500/40 dark:bg-amber-950/30 dark:text-amber-200"
+        >
+          <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-amber-500 text-[11px] font-black text-white">
+            !
+          </span>
+          <div className="min-w-0 text-xs sm:text-sm">
+            <p className="font-bold">Some dashboard data could not be loaded.</p>
+            <p className="mt-0.5">
+              {failedSections.join(", ")} {failedSections.length === 1 ? "is" : "are"} unavailable right
+              now. The numbers below exclude them; reload to try again.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Welcome Banner */}
       <div className="relative overflow-hidden bg-gradient-to-r from-[#05192D] via-[#0a2540] to-[#0d2f52] rounded-3xl p-6 sm:p-8 text-white shadow-xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">

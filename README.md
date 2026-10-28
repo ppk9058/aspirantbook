@@ -414,9 +414,8 @@ aspirantbook includes a complete digital eBook store, authoring studio, and secu
 - **Logged-In Student Checkout**: Adds to cart (or clicks "Buy Now") -> clicks "Place Order" -> immediately creates server order and launches Razorpay window -> handles dismissal (cart saved), failure (retry toast), or duplicate ownership alerts.
 
 ### 5. Production Storage Readiness
-- Atomic writes and mutex locking via `atomicWriteJson` (`lib/books/storage.ts`) serialize writes to `data/books.json`, `data/book-orders.json`, and `data/book-wishlist.json`.
-- Filesystem writes occur in `data/*.json`, `public/uploads/books-sample/`, and `uploads/secure-books/`.
-- **Serverless Warning**: Local filesystem persistence is ephemeral on serverless platforms (e.g., Vercel lambdas). The `BookStorageDriver` interface in `lib/books/storage.ts` is architected to swap in S3 / Supabase Storage drivers (`S3StorageDriver`) for multi-instance cloud deployments.
+- Catalogue, orders, wishlist, coupons and settings persist in Postgres through Prisma (`lib/books/bookService.ts`). `data/books.json`, `data/book-orders.json` and `data/book-coupons.json` are import fixtures only; `scripts/backfill-phase3.ts` upserts them once.
+- Uploaded assets go to object storage via `lib/s3.ts` / `lib/aws-s3.ts`. No runtime data is written to the filesystem, so the app is safe on multi-instance serverless deployments.
 
 ### 6. Environment Variables
 ```env

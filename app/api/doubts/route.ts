@@ -6,18 +6,32 @@ import { logAuditEvent } from "@/lib/audit/audit-logger"
 export async function GET(request: NextRequest) {
   try {
     const userContext = await getCurrentUserContext()
+
+    // Phase D: the board used to be readable by anyone, including visitors with
+    // no session, and every row carried the asker's email address.
+    if (!userContext.isAuthenticated) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    const isStaff = userContext.role === "ADMIN" || userContext.role === "TEACHER"
     const { searchParams } = new URL(request.url)
     const status = searchParams.get("status") as "PENDING" | "ANSWERED" | undefined
     const subject = searchParams.get("subject") || undefined
     const filterStudent = searchParams.get("myOnly") === "true"
 
     const doubts = await getAllDoubts({
-      studentId: filterStudent && userContext.role === "STUDENT" ? userContext.userId : undefined,
+      studentId: !isStaff && filterStudent ? userContext.userId : undefined,
       status: status || undefined,
       subject: subject || undefined,
     })
 
-    return NextResponse.json({ success: true, doubts })
+    // The doubt board is shared, but a learner has no reason to see another
+    // learner's email address.
+    const visible = isStaff
+      ? doubts
+      : doubts.map(({ studentEmail: _studentEmail, ...doubt }) => doubt)
+
+    return NextResponse.json({ success: true, doubts: visible })
   } catch (error: any) {
     console.error("GET /api/doubts error:", error)
     return NextResponse.json({ error: error.message || "Failed to fetch doubts" }, { status: 500 })
@@ -78,6 +92,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (action === "upvote") {
+      if (!userContext.isAuthenticated) {
+        return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+      }
       const updated = await upvoteDoubt(id)
       return NextResponse.json({ success: true, doubt: updated })
     }

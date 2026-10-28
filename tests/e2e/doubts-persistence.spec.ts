@@ -79,4 +79,49 @@ test.describe("C2 doubts persist and are not seeded", () => {
     }
     await expect(page.getByText("Why is vectorization faster than Python's native for-loops")).toHaveCount(0);
   });
+
+  test("the doubt board requires a session and never exposes emails to learners", async ({
+    page,
+    request,
+  }) => {
+    test.setTimeout(180_000);
+    await prisma.$connect();
+
+    await prisma.doubt.deleteMany({ where: { questionText: { contains: "C2 privacy doubt" } } });
+
+    // Phase D: the board used to be readable with no session at all.
+    const anonymous = await request.get(`${BASE_URL}/api/doubts`);
+    expect(anonymous.status(), "anonymous visitors must not read the board").toBe(401);
+
+    const nonce = newNonce();
+    const asker = await createActor(nonce, "FREE", "doubts-privacy");
+    const viewer = await createActor(nonce, "FREE", "doubts-viewer");
+
+    await prisma.doubt.create({
+      data: {
+        studentId: asker.id,
+        studentName: "Privacy Fixture",
+        studentEmail: asker.email,
+        subject: "Privacy",
+        questionText: `C2 privacy doubt ${nonce}`,
+        status: "PENDING",
+      },
+    });
+
+    await loginThroughUi(page, viewer.email);
+
+    const res = await page.request.get(`${BASE_URL}/api/doubts`);
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    const rows = body.doubts as Array<Record<string, unknown>>;
+    expect(rows.length).toBeGreaterThan(0);
+    expect(
+      rows.some((row) => "studentEmail" in row),
+      "a learner must not receive other learners' email addresses"
+    ).toBe(false);
+
+    // Cleanup for this test's rows and users.
+    await prisma.doubt.deleteMany({ where: { questionText: { contains: "C2 privacy doubt" } } });
+    await prisma.user.deleteMany({ where: { id: { in: [asker.id, viewer.id] } } });
+  });
 });
