@@ -1,0 +1,9 @@
+Command: npx tsc --noEmit (apps/mobile)
+Git SHA: 91c57b0f33d8ab3eb24eea7308b47996be84aff0
+Timestamp: 2026-10-28T23:01:09.100Z
+Exit Code: 2
+
+error TS2688: Cannot find type definition file for 'jest'.
+  The file is in the program because:
+    Entry point of type library 'jest' specified in compilerOptions
+tsconfig.json(2,14): error TS6053: File 'expo/tsconfig.base' not found.

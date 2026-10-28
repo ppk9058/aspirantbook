@@ -12,7 +12,7 @@
 | Task ID | Description | Status | Commit SHA | Evidence Path | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **A1** | Claim audit & report rewrite | DONE | `53f6455` | `docs/evidence/claims-register.md`, `docs/perf/*` | Audited all claims, classified into PROVEN/DISPROVEN/UNPROVEN, rewrote 4 docs with retraction sections |
-| **A2** | tsc truth across 3 trees | NOT_STARTED | - | `docs/evidence/raw/tsc-*.txt` | Compare 1b48ec91, c603168, current tip; diff tsconfig, scan suppressions |
+| **A2** | tsc truth across 3 trees | DONE | [pending commit] | `docs/evidence/raw/tsc-*.txt`, `docs/evidence/raw/tsc-truth-analysis.md` | Base: 65, c603168: 67, Tip: 0 (web/shared), mobile: 2 config errors. Root cause identified & verified. |
 | **A3** | Intentional behaviour changes with flags OFF | NOT_STARTED | - | `docs/evidence/raw/parity-diff.txt` | Enumerate, pin with tests, golden parity |
 | **A4** | Stripe placeholder lazy initialisation | NOT_STARTED | - | `docs/evidence/raw/stripe-test.txt` | Lazy init, fails closed in prod without key, build succeeds |
 | **A5** | force-dynamic review | NOT_STARTED | - | `docs/evidence/raw/force-dynamic-audit.txt` | Review added force-dynamic, revert unjustified |
