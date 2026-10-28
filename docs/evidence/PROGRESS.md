@@ -11,7 +11,7 @@
 
 | Task ID | Description | Status | Commit SHA | Evidence Path | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **A1** | Claim audit & report rewrite | DONE | [pending commit] | `docs/evidence/claims-register.md`, `docs/perf/*` | Audited all claims, classified into PROVEN/DISPROVEN/UNPROVEN, rewrote 4 docs with retraction sections |
+| **A1** | Claim audit & report rewrite | DONE | `53f6455` | `docs/evidence/claims-register.md`, `docs/perf/*` | Audited all claims, classified into PROVEN/DISPROVEN/UNPROVEN, rewrote 4 docs with retraction sections |
 | **A2** | tsc truth across 3 trees | NOT_STARTED | - | `docs/evidence/raw/tsc-*.txt` | Compare 1b48ec91, c603168, current tip; diff tsconfig, scan suppressions |
 | **A3** | Intentional behaviour changes with flags OFF | NOT_STARTED | - | `docs/evidence/raw/parity-diff.txt` | Enumerate, pin with tests, golden parity |
 | **A4** | Stripe placeholder lazy initialisation | NOT_STARTED | - | `docs/evidence/raw/stripe-test.txt` | Lazy init, fails closed in prod without key, build succeeds |
