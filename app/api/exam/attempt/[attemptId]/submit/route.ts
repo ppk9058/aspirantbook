@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
 import { getAttemptRanking } from "@/lib/exam-ranking";
 import { examDeadline } from "@/lib/exam-deadline";
+import { checkExamWebRateLimit } from "@/lib/exam-runtime/exam-rate-limit";
 
 interface AnswerPayload {
   questionId: string;
@@ -21,6 +22,9 @@ export async function POST(
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const rl = await checkExamWebRateLimit(req, "submit", session.user.id);
+    if (!rl.allowed) return rl.response!;
 
     const { attemptId } = await params;
     if (!attemptId) {

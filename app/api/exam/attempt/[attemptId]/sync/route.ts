@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { gradeExamAttempt } from "@/lib/exam-grading";
 import { isExamBatchSyncEnabled } from "@/lib/exam-flags";
 import { DEADLINE_EXPIRED_MESSAGE, examDeadline } from "@/lib/exam-deadline";
+import { checkExamWebRateLimit } from "@/lib/exam-runtime/exam-rate-limit";
 import crypto from "crypto";
 
 interface AnswerPayload {
@@ -23,6 +24,9 @@ export async function POST(
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const rl = await checkExamWebRateLimit(req, "sync", session.user.id);
+    if (!rl.allowed) return rl.response!;
 
     const { attemptId } = await params;
     if (!attemptId) {

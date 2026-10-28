@@ -5,6 +5,7 @@ import { gradeExamAttempt } from "@/lib/exam-grading";
 import { getAttemptRanking } from "@/lib/exam-ranking";
 import { getQuizSlug } from "@/lib/current-affairs/slugs";
 import { canViewSolutions } from "@/lib/exam/access-control";
+import { checkExamWebRateLimit } from "@/lib/exam-runtime/exam-rate-limit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -24,6 +25,9 @@ export async function GET(
         }
       );
     }
+
+    const rl = await checkExamWebRateLimit(_req, "result", session.user.id);
+    if (!rl.allowed) return rl.response!;
 
     const { attemptId } = await params;
     if (!attemptId) {

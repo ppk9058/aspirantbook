@@ -5,6 +5,7 @@ import { gradeExamAttempt } from "@/lib/exam-grading";
 import { checkTestAccess } from "@/lib/auth/entitlements";
 import { isExamCacheQuestionsEnabled } from "@/lib/exam-flags";
 import { getSanitizedQuestionSet } from "@/lib/exam-questions-cache";
+import { checkExamWebRateLimit } from "@/lib/exam-runtime/exam-rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +13,9 @@ export async function POST(req: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const rl = await checkExamWebRateLimit(req, "start", session.user.id);
+    if (!rl.allowed) return rl.response!;
 
     const body = await req.json();
     const { testId, language, retake } = body as {

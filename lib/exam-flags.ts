@@ -22,3 +22,8 @@ export function isExamCacheLeaderboardEnabled(): boolean {
 export function isExamRedisRateLimitEnabled(): boolean {
   return process.env.EXAM_RUNTIME_REDIS_RATELIMIT === "true" || process.env.EXAM_RUNTIME_REDIS_RATELIMIT === "1";
 }
+
+export function isExamRateLimitEnabled(): boolean {
+  return process.env.EXAM_RATE_LIMIT_ENABLED === "true" || process.env.EXAM_RATE_LIMIT_ENABLED === "1";
+}
+

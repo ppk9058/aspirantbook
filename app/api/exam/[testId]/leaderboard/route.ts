@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getTestRankings } from "@/lib/exam-ranking";
 import { canViewLeaderboard } from "@/lib/exam/access-control";
+import { checkExamWebRateLimit } from "@/lib/exam-runtime/exam-rate-limit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -24,6 +25,9 @@ export async function GET(
         }
       );
     }
+
+    const rl = await checkExamWebRateLimit(req, "leaderboard", session.user.id);
+    if (!rl.allowed) return rl.response!;
 
     const { testId } = await params;
     if (!testId || typeof testId !== "string") {

@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { SubmitAnswersRequestSchema } from "@aspirantbook/shared";
 import { apiSuccess, apiError, handleApiError, getRequestId } from "@/lib/api/v1/response";
 import { getViewer } from "@/lib/api/v1/viewer";
-import { checkV1RateLimit } from "@/lib/api/v1/rate-limit";
+import { checkExamV1RateLimit } from "@/lib/exam-runtime/exam-rate-limit";
 import { syncAttemptAnswers } from "@/lib/services/exam.service";
 
 export const dynamic = "force-dynamic";
@@ -18,8 +18,8 @@ export async function PUT(
       return apiError("UNAUTHORIZED", "Authentication required to sync answers", 401, undefined, reqId);
     }
 
-    // High frequency sync: 120 syncs per minute
-    const rl = await checkV1RateLimit(req, "attempt_answers_sync", 120, 60, viewer.userId);
+    // High frequency sync: 60 syncs per minute
+    const rl = await checkExamV1RateLimit(req, "sync", viewer.userId);
     if (!rl.allowed) return rl.response!;
 
     const body = await req.json().catch(() => ({}));

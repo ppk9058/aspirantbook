@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { apiSuccess, apiError, handleApiError, getRequestId } from "@/lib/api/v1/response";
 import { getViewer } from "@/lib/api/v1/viewer";
+import { checkExamV1RateLimit } from "@/lib/exam-runtime/exam-rate-limit";
 import { getTestLeaderboard } from "@/lib/services/exam.service";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,9 @@ export async function GET(
     if (!viewer.userId) {
       return apiError("UNAUTHORIZED", "Please log in to view the leaderboard", 401, undefined, reqId);
     }
+
+    const rl = await checkExamV1RateLimit(req, "leaderboard", viewer.userId);
+    if (!rl.allowed) return rl.response!;
 
     const { id } = await params;
     const { searchParams } = new URL(req.url);
