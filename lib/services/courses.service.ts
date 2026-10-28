@@ -224,6 +224,18 @@ export async function enrollFreeCourse(
   };
 }
 
+/**
+ * B13: this read used to load the whole course (every chapter, every lesson,
+ * including each lesson's content and slides) to find one lesson, and then write
+ * to `Progress` — a mutation on a GET, executed before the access check, so even
+ * a locked lesson created a progress row for the learner.
+ *
+ * It now selects just the course header row, the requested lesson (verified to
+ * belong to the course), and a list of lesson ids for prev/next navigation.
+ * Nothing is written: progress is recorded only through the explicit progress
+ * endpoint. Missing media/duration is returned as null instead of a
+ * sample-video URL and a made-up "10 mins".
+ */
 export async function getCourseLesson(
   viewer: Viewer,
   courseSlug: string,
@@ -234,15 +246,12 @@ export async function getCourseLesson(
       OR: [{ id: courseSlug }, { slug: courseSlug }],
       isPublished: true,
     },
-    include: {
-      chapters: {
-        orderBy: { order: "asc" },
-        include: {
-          lessons: {
-            orderBy: { order: "asc" },
-          },
-        },
-      },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      price: true,
+      isPremium: true,
     },
   });
 
@@ -250,66 +259,55 @@ export async function getCourseLesson(
     throw new Error("NOT_FOUND: Course not found");
   }
 
-  // Find target lesson
-  let targetLesson: any = null;
-  let targetChapterTitle = "";
-  let allOrderedLessons: any[] = [];
-
-  for (const ch of course.chapters) {
-    for (const l of ch.lessons) {
-      allOrderedLessons.push(l);
-      if (l.id === lessonId) {
-        targetLesson = l;
-        targetChapterTitle = ch.title;
-      }
-    }
-  }
+  const targetLesson = await prisma.lesson.findFirst({
+    where: {
+      id: lessonId,
+      chapter: { courseId: course.id },
+    },
+    select: {
+      id: true,
+      title: true,
+      videoUrl: true,
+      content: true,
+      duration: true,
+      durationText: true,
+      isTrial: true,
+      chapter: { select: { title: true } },
+    },
+  });
 
   if (!targetLesson) {
     throw new Error("NOT_FOUND: Lesson not found");
   }
 
-  // Check enrollment
+  // Read-only access state. No upsert: opening a lesson is a GET.
   let isEnrolled = false;
   let isCompleted = false;
 
   if (viewer.userId) {
-    const enrollment = await prisma.enrollment.findUnique({
-      where: {
-        userId_courseId: {
-          userId: viewer.userId,
-          courseId: course.id,
+    const [enrollment, progress] = await Promise.all([
+      prisma.enrollment.findUnique({
+        where: {
+          userId_courseId: {
+            userId: viewer.userId,
+            courseId: course.id,
+          },
         },
-      },
-    });
+        select: { id: true },
+      }),
+      prisma.progress.findUnique({
+        where: {
+          userId_lessonId: {
+            userId: viewer.userId,
+            lessonId,
+          },
+        },
+        select: { completed: true },
+      }),
+    ]);
+
     isEnrolled = Boolean(enrollment);
-
-    const progress = await prisma.progress.findUnique({
-      where: {
-        userId_lessonId: {
-          userId: viewer.userId,
-          lessonId,
-        },
-      },
-    });
     isCompleted = Boolean(progress?.completed);
-
-    // Update lastAccessed
-    await prisma.progress.upsert({
-      where: {
-        userId_lessonId: {
-          userId: viewer.userId,
-          lessonId,
-        },
-      },
-      update: { lastAccessed: new Date() },
-      create: {
-        userId: viewer.userId,
-        lessonId,
-        completed: false,
-        timeSpent: 0,
-      },
-    });
   }
 
   const isCourseFree = (course.price ?? 0) === 0 || !course.isPremium;
@@ -319,20 +317,32 @@ export async function getCourseLesson(
     throw new Error("FORBIDDEN: Lesson is locked. Please enroll in this course to watch.");
   }
 
-  const targetIdx = allOrderedLessons.findIndex((l) => l.id === lessonId);
-  const prevLessonId = targetIdx > 0 ? allOrderedLessons[targetIdx - 1].id : null;
+  // Ids only: enough to compute prev/next in the same chapter-then-lesson order
+  // the old full include used, without loading any lesson bodies.
+  const orderedLessons = await prisma.lesson.findMany({
+    where: { chapter: { courseId: course.id } },
+    select: { id: true },
+    orderBy: [{ chapter: { order: "asc" } }, { order: "asc" }],
+  });
+
+  const targetIdx = orderedLessons.findIndex((l) => l.id === lessonId);
+  const prevLessonId = targetIdx > 0 ? orderedLessons[targetIdx - 1].id : null;
   const nextLessonId =
-    targetIdx < allOrderedLessons.length - 1 ? allOrderedLessons[targetIdx + 1].id : null;
+    targetIdx >= 0 && targetIdx < orderedLessons.length - 1
+      ? orderedLessons[targetIdx + 1].id
+      : null;
 
   return {
     id: targetLesson.id,
     title: targetLesson.title,
     courseTitle: course.title,
     courseSlug: course.slug,
-    chapterTitle: targetChapterTitle,
-    videoUrl: targetLesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    content: targetLesson.content,
-    durationText: targetLesson.durationText || `${targetLesson.duration || 10} mins`,
+    chapterTitle: targetLesson.chapter.title,
+    videoUrl: targetLesson.videoUrl ?? null,
+    content: targetLesson.content ?? null,
+    durationText:
+      targetLesson.durationText ??
+      (targetLesson.duration ? `${targetLesson.duration} mins` : null),
     isCompleted,
     isLocked: false,
     navigation: {
