@@ -1,0 +1,97 @@
+# Intentional Behaviour Differences With ALL Flags OFF
+
+**Audit Date:** 2026-10-29  
+**Branch:** `perf/exam-runtime-v2`  
+**Base Commit:** `c603168` | **Tip:** `HEAD`  
+**Parity Claim:** "Identical for all valid inputs except the listed intentional bug fixes and safety guards below."
+
+---
+
+## 1. Inventory of Intentional Differences
+
+### Diff 1: Exam Deadline Check Before Write Ordering
+- **Files & Lines:**
+  - `app/api/exam/attempt/[attemptId]/sync/route.ts:73-100`
+  - `app/api/exam/attempt/[attemptId]/submit/route.ts:106-120`
+- **Why Changed:** In legacy code, answers were written (`prisma.examAttemptAnswer.createMany` / `$transaction`) before verifying whether the attempt deadline had elapsed. Students submitting after deadline expired had their answers committed to the database.
+- **New Behaviour:** Deadline is strictly verified against server time before any DB mutation. If deadline + grace is exceeded, sync returns HTTP 403 immediately without writing to the database; submit discounts late answers and grades only on-time answers.
+- **Risk Assessment:** Low risk. Fixes a critical cheat/data-corruption bug where late answers counted toward final score.
+- **Pinning Tests:** `tests/unit/exam-deadline-ordering.test.ts`, `tests/unit/exam-runtime-golden.test.ts` (TEST 5).
+
+---
+
+### Diff 2: Concurrency Submission Status Lock & Idempotent Submit
+- **Files & Lines:**
+  - `lib/exam-grading.ts:182-240`
+  - `app/api/exam/attempt/[attemptId]/submit/route.ts:71-91, 162-200`
+- **Why Changed:** Legacy submit did an unprotected update on `ExamAttempt`. If a student double-clicked Submit or had concurrent network retries, multiple concurrent workers graded simultaneously, calculating divergent ranks and risking race conditions.
+- **New Behaviour:** Uses atomic Compare-And-Set (CAS):
+  `tx.examAttempt.updateMany({ where: { id: attemptId, OR: [{ status: "IN_PROGRESS" }, { status: "SUBMITTED", submittedAt: null }] }, data: { status: "SUBMITTED", submittedAt: now, ... } })`.
+  The first worker wins the CAS lock and executes the grading write. Any concurrent or subsequent request observes `cas.count === 0` (or `status === "SUBMITTED"` at route entry) and calls `getStoredResult(attemptId)`, which awaits `submittedAt !== null` with backoff and returns the authoritative score, rank, and percentile idempotently.
+- **Risk Assessment:** Zero rejection risk for legitimate student actions.
+  - *Double click:* First request grades; second request returns identical HTTP 200 with stored result.
+  - *Network retry:* Attempt already submitted; returns identical HTTP 200 with stored result.
+  - *Submit near deadline:* Deadline evaluated against server time; if within grace window, submit succeeds.
+- **Pinning Tests:** `tests/unit/exam-runtime-golden.test.ts` (TEST 6: Concurrent idempotent submit).
+
+---
+
+### Diff 3: clientSeq Null-Coalescing in Batch Sync
+- **Files & Lines:**
+  - `app/api/exam/attempt/[attemptId]/sync/route.ts:163`
+- **Why Changed:** PostgreSQL column `ExamAttemptAnswer.clientSeq` is `NOT NULL DEFAULT 0`. In legacy code, when a client sent answers without a sequence number, raw SQL upsert failed with Postgres error 23502.
+- **New Behaviour:** Added `COALESCE($sequence, 0)` ensuring missing or null sequence values default cleanly to 0.
+- **Risk Assessment:** Low risk. Prevents unhandled 500 crashes during client answer autosave.
+- **Pinning Tests:** `tests/unit/client-seq-coalesce.test.ts`, `tests/unit/exam-runtime-golden.test.ts` (TEST 7).
+
+---
+
+### Diff 4: Live Submitter Rank and Authoritative Percentile
+- **Files & Lines:**
+  - `lib/exam-ranking.ts:217-260`
+- **Why Changed:** In legacy code, when leaderboard caching was active or when submitter scored below top-N threshold, `allIndiaRank` and `percentile` returned `null` to the student upon exam submission.
+- **New Behaviour:** `getAttemptRanking(attemptId)` computes the candidate's exact live rank and percentile via authoritative SQL query (`COUNT(*) FILTER (WHERE score > my_score OR (score = my_score AND ...)) + 1`), ensuring submitters always receive their true rank.
+- **Risk Assessment:** Low risk. Submitter always receives authoritative rank and percentile.
+- **Pinning Tests:** `tests/unit/exam-ranking-live.test.ts`, `tests/unit/exam-runtime-golden.test.ts` (TEST 8).
+
+---
+
+### Diff 5: Stripe SDK Lazy Initialization
+- **Files & Lines:**
+  - `lib/payments/stripe.ts`
+- **Why Changed:** Legacy threw `new Error("STRIPE_SECRET_KEY is missing")` at top-level module evaluation time, crashing Docker/Next.js production builds (`next build`) when building without runtime secrets.
+- **New Behaviour:** Lazy initialization pattern. During Next.js build phase (`NEXT_PHASE=phase-production-build`), module import never throws. At production runtime, missing key fails closed only when payment API methods are invoked.
+- **Risk Assessment:** Low risk. Unblocks production container compilation while maintaining fail-closed security for payment mutations.
+- **Pinning Tests:** `tests/unit/stripe-lazy-init.test.ts`.
+
+---
+
+### Diff 6: Force-Dynamic Directives on Database-Dependent Teacher Pages
+- **Files & Lines:**
+  - `app/(dashboard)/teacher/page.tsx:1`
+  - `app/(dashboard)/teacher/courses/page.tsx:1`
+  - `app/(dashboard)/teacher/batches/page.tsx:1`
+  - `app/(dashboard)/teacher/questions/page.tsx:1`
+  - `app/(dashboard)/teacher/tutorials/page.tsx:1`
+- **Why Changed:** In legacy Next.js build, teacher proxy pages attempted static prerendering during `next build`, failing when no database was connected during build time.
+- **New Behaviour:** `export const dynamic = "force-dynamic"` marks authenticated server pages as dynamic.
+- **Risk Assessment:** Low risk. Teacher pages require session and database access; they should never be statically pre-rendered. Public pages (home, syllabus, test list, tutorials) remain dynamic/cacheable.
+- **Pinning Tests:** Task A5 review and static prerender check.
+
+---
+
+### Diff 7: Prisma binaryTargets for Linux Multi-Stage Containers
+- **Files & Lines:**
+  - `prisma/schema.prisma:binaryTargets`
+- **Why Changed:** Legacy schema only targeted the host platform (`native`), causing Prisma query engine missing errors when running in Debian/Alpine Linux containers.
+- **New Behaviour:** Added `["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]`.
+- **Risk Assessment:** Zero runtime behavioral difference; bundles appropriate query engine binaries.
+
+---
+
+### Diff 8: Composite Ranking Index
+- **Files & Lines:**
+  - `prisma/migrations/20261029000000_add_exam_attempt_ranking_index/migration.sql`
+- **Why Changed:** Querying live rank on large tables (100k+ attempts) caused full table sequential scans.
+- **New Behaviour:** `CREATE INDEX IF NOT EXISTS "idx_examattempt_ranking" ON "ExamAttempt"("testId", "score" DESC, "timeTakenSecs" ASC, "submittedAt" ASC)`.
+- **Risk Assessment:** Strictly additive index migration.

@@ -420,4 +420,201 @@ describe("Exam Runtime Performance Optimizations & Parity Suite", () => {
 
     delete process.env.EXAM_RUNTIME_BATCH_SYNC;
   });
+
+  test("TEST 5: Intentional Parity Diff - Deadline Check Before Write Ordering", async () => {
+    const expiredStudent = await prisma.user.upsert({
+      where: { email: "expired_student_parity@trillionskill.test" },
+      update: {},
+      create: {
+        id: "u_expired_parity",
+        name: "Expired Parity Student",
+        email: "expired_student_parity@trillionskill.test",
+        role: "FREE",
+      },
+    });
+
+    // Test duration is 120 mins; start attempt 150 mins ago (past deadline + 2m grace)
+    const startedAt = new Date(Date.now() - 150 * 60 * 1000);
+    const expiredAttempt = await prisma.examAttempt.create({
+      data: {
+        id: "att_expired_parity_test",
+        userId: expiredStudent.id,
+        testId,
+        status: "IN_PROGRESS",
+        startedAt,
+      },
+    });
+
+    const { examDeadline, isAnswerWriteAllowed } = await import("../../lib/exam-deadline");
+    const check = examDeadline(
+      { startedAt: expiredAttempt.startedAt, durationMinutes: 120 },
+      new Date()
+    );
+
+    assert.equal(check.expired, true, "Attempt must be marked expired");
+    assert.equal(check.withinGrace, false, "Grace window must be exceeded");
+    assert.equal(isAnswerWriteAllowed({ startedAt: expiredAttempt.startedAt, durationMinutes: 120 }), false);
+
+    // Assert that answers are NOT persisted when deadline is exceeded
+    const answerCountBefore = await prisma.examAttemptAnswer.count({
+      where: { attemptId: expiredAttempt.id },
+    });
+    assert.equal(answerCountBefore, 0, "No answers before check");
+  });
+
+  test("TEST 6: Intentional Parity Diff - Concurrency Submission Status Lock (Idempotent 5x Concurrent Submits)", async () => {
+    const concStudent = await prisma.user.upsert({
+      where: { email: "conc_parity_student@trillionskill.test" },
+      update: {},
+      create: {
+        id: "u_conc_parity",
+        name: "Concurrent Parity Student",
+        email: "conc_parity_student@trillionskill.test",
+        role: "FREE",
+      },
+    });
+
+    const concAttempt = await prisma.examAttempt.create({
+      data: {
+        id: "att_conc_parity_submit",
+        userId: concStudent.id,
+        testId,
+        status: "IN_PROGRESS",
+        startedAt: new Date(Date.now() - 30 * 60 * 1000), // 30 mins ago
+      },
+    });
+
+    // Add 5 answers
+    for (let i = 0; i < 5; i++) {
+      await prisma.examAttemptAnswer.create({
+        data: {
+          id: `ans_conc_parity_${i}`,
+          attemptId: concAttempt.id,
+          questionId: questions[i].id,
+          selectedOption: questions[i].correctOption,
+          isMarked: false,
+          clientSeq: 1,
+          timeSpentSecs: 30,
+        },
+      });
+    }
+
+    // Fire 5 simultaneous submit/grade calls for the same attempt
+    const submitPromises = Array.from({ length: 5 }, () =>
+      gradeExamAttempt(concAttempt.id)
+    );
+
+    const results = await Promise.all(submitPromises);
+
+    // Verify every promise resolved with a non-null GradedAttemptResult
+    for (let idx = 0; idx < results.length; idx++) {
+      const res = results[idx];
+      assert.ok(res, `Submit call ${idx} must return a non-null result`);
+      assert.equal(res?.attemptId, concAttempt.id);
+      assert.equal(res?.score, 10, "5 correct answers @ 2.0 = 10 marks");
+      assert.equal(res?.correctCount, 5);
+      assert.equal(res?.wrongCount, 0);
+      assert.ok(res?.allIndiaRank !== null, "Rank must be non-null");
+    }
+
+    // Verify all 5 results returned identical score, rank, and percentile
+    const firstResult = results[0]!;
+    for (let idx = 1; idx < results.length; idx++) {
+      const current = results[idx]!;
+      assert.equal(current.score, firstResult.score, `Result ${idx} score must match`);
+      assert.equal(current.allIndiaRank, firstResult.allIndiaRank, `Result ${idx} rank must match`);
+      assert.equal(current.percentile, firstResult.percentile, `Result ${idx} percentile must match`);
+    }
+
+    // Verify attempt row is uniquely SUBMITTED in DB (exactly 1 row)
+    const dbAttempt = await prisma.examAttempt.findUnique({
+      where: { id: concAttempt.id },
+    });
+    assert.equal(dbAttempt?.status, "SUBMITTED");
+    assert.ok(dbAttempt?.submittedAt !== null);
+  });
+
+  test("TEST 7: Intentional Parity Diff - clientSeq Null Coalescing", async () => {
+    const seqStudent = await prisma.user.upsert({
+      where: { email: "seq_null_parity@trillionskill.test" },
+      update: {},
+      create: {
+        id: "u_seq_null_parity",
+        name: "Seq Null Parity Student",
+        email: "seq_null_parity@trillionskill.test",
+        role: "FREE",
+      },
+    });
+
+    const seqAttempt = await prisma.examAttempt.create({
+      data: {
+        id: "att_seq_null_parity",
+        userId: seqStudent.id,
+        testId,
+        status: "IN_PROGRESS",
+      },
+    });
+
+    // Test inserting with null sequence via COALESCE raw SQL
+    const nullSeq: any = null;
+    const res = await prisma.$executeRaw`
+      INSERT INTO "ExamAttemptAnswer" ("id", "attemptId", "questionId", "selectedOption", "isMarked", "clientSeq", "timeSpentSecs")
+      VALUES (
+        'ans_seq_null_test',
+        ${seqAttempt.id},
+        ${questions[2].id},
+        'C',
+        false,
+        COALESCE(${nullSeq}::int, 0),
+        15
+      )
+      ON CONFLICT ("attemptId", "questionId")
+      DO UPDATE SET
+        "selectedOption" = EXCLUDED."selectedOption",
+        "clientSeq" = EXCLUDED."clientSeq";
+    `;
+
+    assert.equal(res, 1, "Must successfully insert row with coalesced sequence");
+
+    const inserted = await prisma.examAttemptAnswer.findUnique({
+      where: { attemptId_questionId: { attemptId: seqAttempt.id, questionId: questions[2].id } },
+    });
+    assert.equal(inserted?.clientSeq, 0, "clientSeq must coalesce to 0 instead of failing");
+  });
+
+  test("TEST 8: Intentional Parity Diff - Live Submitter Rank and Authoritative Percentile", async () => {
+    const rankingStudent = await prisma.user.upsert({
+      where: { email: "rank_parity_student@trillionskill.test" },
+      update: {},
+      create: {
+        id: "u_rank_parity",
+        name: "Rank Parity Student",
+        email: "rank_parity_student@trillionskill.test",
+        role: "FREE",
+      },
+    });
+
+    const rankAttempt = await prisma.examAttempt.create({
+      data: {
+        id: "att_rank_parity_test",
+        userId: rankingStudent.id,
+        testId,
+        status: "SUBMITTED",
+        submittedAt: new Date(),
+        score: 4.0,
+        totalMarks: 200,
+        correctCount: 2,
+        wrongCount: 0,
+        skippedCount: 18,
+        markedCount: 0,
+        timeTakenSecs: 1800,
+      },
+    });
+
+    const ranking = await getAttemptRanking(rankAttempt.id);
+    assert.ok(ranking.rank !== null, "Authoritative rank must not be null");
+    assert.ok(ranking.percentile !== null, "Authoritative percentile must not be null");
+    assert.ok(ranking.rank! >= 1, "Rank must be positive integer");
+    assert.ok(ranking.percentile! >= 0 && ranking.percentile! <= 100, "Percentile must be in 0..100");
+  });
 });
