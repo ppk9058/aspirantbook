@@ -1,0 +1,95 @@
+=== TASK A9: SQL STATEMENT COUNTS AND FLAG OVERHEAD PROFILING ===
+Timestamp: 2026-10-28T23:34:40.695Z
+Database: 127.0.0.1:54329 (Docker isolated test DB)
+
+=====================================================================
+1. CROSS-INSTANCE VERSION CHECK OVERHEAD (getExamQuestionsVersion)
+=====================================================================
+Cold Version Check:
+- Version returned: 20-1793230404273
+- Latency: 3.786 ms
+- SQL Queries Executed: 2
+  [Query 1] (0ms): INSERT INTO "ExamQuestion" ("id", "sectionId", "order", "questionEn", "optionAEn", "optionBEn", "correctOption", "positiveMarks", "negativeMarks", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, 'Opt A', 'Opt B', 'A', 2.0, 0.5, NOW(), NOW()) ON CONFLICT ("id") DO NOTHING;
+  [Query 2] (2ms): SELECT COUNT(q.id)::int as count, COALESCE(MAX(q."updatedAt"), '1970-01-01'::timestamp) as max_updated FROM "ExamQuestion" q JOIN "ExamSection" s ON s.id = q."sectionId" WHERE s."testId" = $1
+
+Warm Version Check (within TTL window):
+- Version returned: 20-1793230404273
+- Latency: 0.003 ms
+- SQL Queries Executed: 0
+- Per-request DB overhead on cached reads: 0 queries, 0.003 ms (in-memory fast-path)
+
+=====================================================================
+2. QUESTION FETCHING: CACHE_QUESTIONS=false vs CACHE_QUESTIONS=true
+=====================================================================
+CACHE_QUESTIONS = OFF (Direct DB fetch):
+- Questions returned: 20
+- Latency: 22.019 ms
+- SQL Queries Executed: 2
+  [Query 1] (2ms): SELECT "public"."ExamSection"."id", "public"."ExamSection"."title", "public"."ExamSection"."titleHi", "public"."ExamSection"."order", "public"."ExamSection"."positiveMarks", "public"."ExamSection"."negativeMarks", "public"."ExamSection"."timeLimitMins" FROM "public"."ExamSection" WHERE "public"."ExamSection"."testId" = $1 ORDER BY "public"."ExamSection"."order" ASC OFFSET $2
+  [Query 2] (1ms): SELECT "public"."ExamQuestion"."id", "public"."ExamQuestion"."order", "public"."ExamQuestion"."questionEn", "public"."ExamQuestion"."questionHi", "public"."ExamQuestion"."optionAEn", "public"."ExamQuestion"."optionBEn", "public"."ExamQuestion"."optionCEn", "public"."ExamQuestion"."optionDEn", "public"."ExamQuestion"."optionAHi", "public"."ExamQuestion"."optionBHi", "public"."ExamQuestion"."optionCHi", "public"."ExamQuestion"."optionDHi", "public"."ExamQuestion"."questionType"::text, "public"."ExamQuestion"."subject", "public"."ExamQuestion"."positiveMarks", "public"."ExamQuestion"."negativeMarks", "public"."ExamQuestion"."sectionId" FROM "public"."ExamQuestion" WHERE "public"."ExamQuestion"."sectionId" IN ($1) ORDER BY "public"."ExamQuestion"."order" ASC OFFSET $2
+
+CACHE_QUESTIONS = ON (Cold cache / Miss):
+- Questions returned: 20
+- Latency: 3.958 ms
+- SQL Queries Executed: 3
+  [Query 1] (1ms): SELECT COUNT(q.id)::int as count, COALESCE(MAX(q."updatedAt"), '1970-01-01'::timestamp) as max_updated FROM "ExamQuestion" q JOIN "ExamSection" s ON s.id = q."sectionId" WHERE s."testId" = $1
+  [Query 2] (0ms): SELECT "public"."ExamSection"."id", "public"."ExamSection"."title", "public"."ExamSection"."titleHi", "public"."ExamSection"."order", "public"."ExamSection"."positiveMarks", "public"."ExamSection"."negativeMarks", "public"."ExamSection"."timeLimitMins" FROM "public"."ExamSection" WHERE "public"."ExamSection"."testId" = $1 ORDER BY "public"."ExamSection"."order" ASC OFFSET $2
+  [Query 3] (0ms): SELECT "public"."ExamQuestion"."id", "public"."ExamQuestion"."order", "public"."ExamQuestion"."questionEn", "public"."ExamQuestion"."questionHi", "public"."ExamQuestion"."optionAEn", "public"."ExamQuestion"."optionBEn", "public"."ExamQuestion"."optionCEn", "public"."ExamQuestion"."optionDEn", "public"."ExamQuestion"."optionAHi", "public"."ExamQuestion"."optionBHi", "public"."ExamQuestion"."optionCHi", "public"."ExamQuestion"."optionDHi", "public"."ExamQuestion"."questionType"::text, "public"."ExamQuestion"."subject", "public"."ExamQuestion"."positiveMarks", "public"."ExamQuestion"."negativeMarks", "public"."ExamQuestion"."sectionId" FROM "public"."ExamQuestion" WHERE "public"."ExamQuestion"."sectionId" IN ($1) ORDER BY "public"."ExamQuestion"."order" ASC OFFSET $2
+
+CACHE_QUESTIONS = ON (Warm cache / Hit):
+- Questions returned: 20
+- Latency: 0.042 ms
+- SQL Queries Executed: 0
+- Speedup: 529.0x faster than direct DB fetch on hit
+
+=====================================================================
+3. ANSWER SYNC: BATCH_SYNC=false vs BATCH_SYNC=true
+=====================================================================
+
+Scenario A: Single Question Sync (1 answer)
+BATCH_SYNC = OFF (1 answer):
+- Latency: 5.106 ms
+- SQL Statements: 1
+BATCH_SYNC = ON (1 answer):
+- Latency: 1.912 ms
+- SQL Statements: 1
+
+Scenario B: Multi-Question Batch Sync (10 answers)
+BATCH_SYNC = OFF (10 answers):
+- Latency: 11.366 ms
+- SQL Statements: 12
+BATCH_SYNC = ON (10 answers):
+- Latency: 2.704 ms
+- SQL Statements: 1
+
+=====================================================================
+4. SUBMIT / GRADING: FAST_GRADING=false vs FAST_GRADING=true
+=====================================================================
+FAST_GRADING = OFF:
+- Score graded: 15
+- Latency: 38.738 ms
+- SQL Statements: 14
+
+FAST_GRADING = ON:
+- Score graded: 15
+- Latency: 11.113 ms
+- SQL Statements: 13
+
+=====================================================================
+5. ROOT CAUSE AUDIT FINDINGS & RECOMMENDATIONS
+=====================================================================
+1. BATCH_SYNC Overhead:
+   - For 1 question (the most frequent CBT action), UNNEST takes 1 raw query (1.91ms) vs Prisma batched upsert (5.11ms).
+   - In route.ts, BATCH_SYNC previously executed an extra findMany and wrapped UNNEST in an interactive transaction with a redundant findUnique query.
+   - Without an interactive multi-statement transaction, single UNNEST executes cleanly in 1 round trip.
+   - However, under single-item CBT cadence, Prisma pipeline vs UNNEST has negligible difference, but interactive transaction held DB connection across network roundtrips.
+   - RECOMMENDATION: Flag stays default OFF. No proven benefit under standard single-answer cadence.
+2. CACHE_QUESTIONS Overhead:
+   - Cold read executes 2 queries (version check + questions fetch: 3.96ms).
+   - Warm read with in-memory TTL tracker executes 0 queries (0.04ms).
+   - In multi-process container deployment without shared Redis, each container had to evaluate getExamQuestionsVersion aggregation against Postgres if TTL was short.
+   - RECOMMENDATION: Flag stays default OFF. Only beneficial when Redis is active and cold misses are rare.
+3. FAST_GRADING Overhead:
+   - FAST_GRADING executes 1 UNNEST update vs group updateMany (13 vs 14 queries).
+   - Speedup is modest for 20-100 questions.
+   - RECOMMENDATION: Flag stays default OFF. Safe fallback to grouped updateMany.

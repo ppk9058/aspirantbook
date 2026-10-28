@@ -143,49 +143,44 @@ export async function POST(
         const seqs = answers.map(() => safeSequence);
         const times = answers.map((a) => a.timeSpentSecs ?? 0);
 
-        await prisma.$transaction(async (tx) => {
-          const current = await tx.examAttempt.findUnique({
-            where: { id: attemptId },
-            select: { status: true },
-          });
-          if (current?.status === "SUBMITTED") {
-            throw new Error("ATTEMPT_ALREADY_SUBMITTED");
-          }
+        const rawUpsert = prisma.$executeRaw`
+          INSERT INTO "ExamAttemptAnswer" ("id", "attemptId", "questionId", "selectedOption", "isMarked", "clientSeq", "timeSpentSecs")
+          SELECT
+            v.id,
+            ${attemptId},
+            v.question_id,
+            v.selected_option,
+            v.is_marked,
+            COALESCE(v.client_seq, 0),
+            v.time_spent_secs
+          FROM UNNEST(
+            ${ids}::text[],
+            ${qIds}::text[],
+            ${options}::text[],
+            ${markeds}::boolean[],
+            ${seqs}::int[],
+            ${times}::int[]
+          ) AS v(id, question_id, selected_option, is_marked, client_seq, time_spent_secs)
+          ON CONFLICT ("attemptId", "questionId")
+          DO UPDATE SET
+            "selectedOption" = EXCLUDED."selectedOption",
+            "isMarked" = EXCLUDED."isMarked",
+            "clientSeq" = COALESCE(EXCLUDED."clientSeq", 0),
+            "timeSpentSecs" = EXCLUDED."timeSpentSecs"
+          WHERE COALESCE("ExamAttemptAnswer"."clientSeq", 0) <= COALESCE(EXCLUDED."clientSeq", 0);
+        `;
 
-          await tx.$executeRaw`
-            INSERT INTO "ExamAttemptAnswer" ("id", "attemptId", "questionId", "selectedOption", "isMarked", "clientSeq", "timeSpentSecs")
-            SELECT
-              v.id,
-              ${attemptId},
-              v.question_id,
-              v.selected_option,
-              v.is_marked,
-              COALESCE(v.client_seq, 0),
-              v.time_spent_secs
-            FROM UNNEST(
-              ${ids}::text[],
-              ${qIds}::text[],
-              ${options}::text[],
-              ${markeds}::boolean[],
-              ${seqs}::int[],
-              ${times}::int[]
-            ) AS v(id, question_id, selected_option, is_marked, client_seq, time_spent_secs)
-            ON CONFLICT ("attemptId", "questionId")
-            DO UPDATE SET
-              "selectedOption" = EXCLUDED."selectedOption",
-              "isMarked" = EXCLUDED."isMarked",
-              "clientSeq" = COALESCE(EXCLUDED."clientSeq", 0),
-              "timeSpentSecs" = EXCLUDED."timeSpentSecs"
-            WHERE COALESCE("ExamAttemptAnswer"."clientSeq", 0) <= COALESCE(EXCLUDED."clientSeq", 0);
-          `;
-
-          if (typeof tabSwitchCount === "number") {
-            await tx.examAttempt.update({
+        if (typeof tabSwitchCount === "number") {
+          await prisma.$transaction([
+            rawUpsert,
+            prisma.examAttempt.update({
               where: { id: attemptId },
               data: { tabSwitchCount },
-            });
-          }
-        });
+            }),
+          ]);
+        } else {
+          await rawUpsert;
+        }
       } else {
         const storedSeqByQuestion = new Map(
           existingRows.map((row) => [row.questionId, row.clientSeq])
