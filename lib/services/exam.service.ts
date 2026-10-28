@@ -32,11 +32,51 @@ import { DEADLINE_EXPIRED_MESSAGE, examDeadline } from "@/lib/exam-deadline";
  * matches 0 rows and is dropped, exactly like the old read-then-decide code,
  * and a row created between the read and the transaction is protected too.
  */
+import { isExamBatchSyncEnabled } from "@/lib/exam-flags";
+import crypto from "crypto";
+
 async function applyAnswerBatch(
   attemptId: string,
   answers: Array<z.infer<typeof AnswerItemSyncSchema>>
 ): Promise<number> {
   if (answers.length === 0) return 0;
+
+  if (isExamBatchSyncEnabled()) {
+    const ids = answers.map(() => crypto.randomUUID());
+    const qIds = answers.map((a) => a.questionId);
+    const options = answers.map((a) => a.selectedOption ?? null);
+    const markeds = answers.map((a) => a.isMarked ?? false);
+    const seqs = answers.map((a) => a.sequenceNumber ?? 0);
+    const times = answers.map((a) => a.timeSpentSecs ?? 0);
+
+    await prisma.$executeRaw`
+      INSERT INTO "ExamAttemptAnswer" ("id", "attemptId", "questionId", "selectedOption", "isMarked", "clientSeq", "timeSpentSecs")
+      SELECT
+        v.id,
+        ${attemptId},
+        v.question_id,
+        v.selected_option,
+        v.is_marked,
+        COALESCE(v.client_seq, 0),
+        v.time_spent_secs
+      FROM UNNEST(
+        ${ids}::text[],
+        ${qIds}::text[],
+        ${options}::text[],
+        ${markeds}::boolean[],
+        ${seqs}::int[],
+        ${times}::int[]
+      ) AS v(id, question_id, selected_option, is_marked, client_seq, time_spent_secs)
+      ON CONFLICT ("attemptId", "questionId")
+      DO UPDATE SET
+        "selectedOption" = EXCLUDED."selectedOption",
+        "isMarked" = EXCLUDED."isMarked",
+        "clientSeq" = COALESCE(EXCLUDED."clientSeq", 0),
+        "timeSpentSecs" = EXCLUDED."timeSpentSecs"
+      WHERE COALESCE("ExamAttemptAnswer"."clientSeq", 0) <= COALESCE(EXCLUDED."clientSeq", 0);
+    `;
+    return answers.length;
+  }
 
   const questionIds = Array.from(new Set(answers.map((a) => a.questionId)));
   const existingRows = await prisma.examAttemptAnswer.findMany({
