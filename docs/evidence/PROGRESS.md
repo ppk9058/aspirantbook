@@ -15,7 +15,7 @@
 | **A2** | tsc truth across 3 trees | DONE | `d642d57` | `docs/evidence/raw/tsc-*.txt`, `docs/evidence/raw/tsc-truth-analysis.md` | Base: 65, c603168: 67, Tip: 0 (web/shared), mobile: 2 config errors. Root cause identified & verified. |
 | **A3** | Intentional behaviour changes with flags OFF | DONE | `62d34e1` | `docs/evidence/raw/parity-diff.txt`, `docs/evidence/raw/exam-runtime-golden-5x.txt` | Enumerated 8 intentional diffs, pinned by tests 5-8 in golden parity suite, verified 5x passes |
 | **A4** | Stripe placeholder lazy initialisation | DONE | `2b5c6d9` | `docs/evidence/raw/stripe-test.txt` | Replaced placeholder with lazy proxy, fails closed at runtime, health shows "payments: not configured", passed 5x |
-| **A5** | force-dynamic review | DONE | [pending commit] | `docs/evidence/raw/force-dynamic-audit.txt` | Audited all 20 added pages/sitemaps in branch; all verified session/auth/db scoped; confirmed public pages cacheable |
+| **A5** | force-dynamic review | DONE | `856bbe3` | `docs/evidence/raw/force-dynamic-audit.txt` | Audited all 20 added pages/sitemaps in branch; all verified session/auth/db scoped; confirmed public pages cacheable |
 | **A6** | Migration safety & additive check | NOT_STARTED | - | `docs/evidence/raw/migration-safety.txt` | Test on 100k attempts, verify IF NOT EXISTS, run check-migrations-additive |
 | **A7** | Honest baselines (Docker build/size/memory) | NOT_STARTED | - | `docs/evidence/legacy-build.patch`, `docs/evidence/raw/docker-baseline.txt` | Build legacy vs current, measure size, build time, memory |
 | **A8** | Ranking correctness at scale | NOT_STARTED | - | `docs/evidence/raw/ranking-correctness.txt` | Property test (1000+ datasets), consistency, 1k/10k/100k/300k scale EXPLAIN, concurrency |
