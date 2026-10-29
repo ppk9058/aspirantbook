@@ -1,63 +1,24 @@
 === FRESH CLONE: PRODUCTION BUILD ===
-Git SHA: 11717ac4245d2a9883fa59d45ed0b4dff226fe07
-Timestamp: 2026-10-29T14:47:19Z
+Git SHA: c38b82af48a2171b46b7f591f0dfbfc3f1f36bc9
+Timestamp: 2026-10-29T16:09:56Z
 Command: npm run build
 
 
 > aspirantbook@0.1.0 build
 > next build
 
- ⚠ `devIndicators.appIsrStatus` is deprecated and no longer configurable. Please remove it from next.config.js.
- ⚠ `devIndicators.buildActivity` is deprecated and no longer configurable. Please remove it from next.config.js.
    ▲ Next.js 15.5.28
    - Experiments (use with caution):
      · staleTimes
      · optimizePackageImports
 
    Creating an optimized production build ...
- ⚠ Compiled with warnings in 1779ms
-
-./node_modules/jose/dist/webapi/lib/deflate.js
-A Node.js API is used (CompressionStream at line: 31) which is not supported in the Edge Runtime.
-Learn more: https://nextjs.org/docs/api-reference/edge-runtime
-
-Import trace for requested module:
-./node_modules/jose/dist/webapi/lib/deflate.js
-./node_modules/jose/dist/webapi/lib/jwe_encrypt.js
-./node_modules/jose/dist/webapi/jwt/encrypt.js
-./node_modules/jose/dist/webapi/index.js
-./node_modules/@auth/core/jwt.js
-./node_modules/@auth/core/lib/init.js
-./node_modules/@auth/core/lib/index.js
-./node_modules/@auth/core/index.js
-./node_modules/next-auth/index.js
-
-./node_modules/jose/dist/webapi/lib/deflate.js
-A Node.js API is used (DecompressionStream at line: 34) which is not supported in the Edge Runtime.
-Learn more: https://nextjs.org/docs/api-reference/edge-runtime
-
-Import trace for requested module:
-./node_modules/jose/dist/webapi/lib/deflate.js
-./node_modules/jose/dist/webapi/lib/jwe_encrypt.js
-./node_modules/jose/dist/webapi/jwt/encrypt.js
-./node_modules/jose/dist/webapi/index.js
-./node_modules/@auth/core/jwt.js
-./node_modules/@auth/core/lib/init.js
-./node_modules/@auth/core/lib/index.js
-./node_modules/@auth/core/index.js
-./node_modules/next-auth/index.js
-
- ✓ Compiled successfully in 96s
+ ✓ Compiled successfully in 29.9s
    Skipping validation of types
    Skipping linting
    Collecting page data ...
    Generating static pages (0/162) ...
    Generating static pages (40/162) 
- ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
- ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
- ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
- ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
- ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
    Generating static pages (80/162) 
    Generating static pages (121/162) 
  ✓ Generating static pages (162/162)
@@ -71,11 +32,11 @@ Route (app)                                                Size  First Load JS  
 ├ ƒ /admin/analytics                                      730 B         104 kB
 ├ ƒ /admin/assessments                                  2.12 kB         109 kB
 ├ ƒ /admin/assessments/[id]/attempts                      203 B         112 kB
-├ ƒ /admin/assessments/[id]/edit                          137 B         116 kB
-├ ƒ /admin/assessments/create                             137 B         116 kB
+├ ƒ /admin/assessments/[id]/edit                          136 B         116 kB
+├ ƒ /admin/assessments/create                             136 B         116 kB
 ├ ƒ /admin/audit                                        3.13 kB         110 kB
 ├ ƒ /admin/batches                                        180 B         119 kB
-├ ƒ /admin/batches/[id]/edit                              137 B         116 kB
+├ ƒ /admin/batches/[id]/edit                              136 B         116 kB
 ├ ƒ /admin/batches/new                                    137 B         116 kB
 ├ ƒ /admin/book-studio                                    139 B         127 kB
 ├ ƒ /admin/books                                        12.5 kB         132 kB
@@ -87,7 +48,7 @@ Route (app)                                                Size  First Load JS  
 ├ ƒ /admin/content-engine/export                        6.96 kB         130 kB
 ├ ƒ /admin/content-engine/gates                         7.39 kB         131 kB
 ├ ƒ /admin/content-engine/hindi                         12.1 kB         135 kB
-├ ƒ /admin/content-engine/practice                      7.03 kB         130 kB
+├ ƒ /admin/content-engine/practice                      7.02 kB         130 kB
 ├ ƒ /admin/courses                                        235 B         107 kB
 ├ ƒ /admin/courses/[id]/edit                              148 B         148 kB
 ├ ƒ /admin/courses/new                                    730 B         104 kB
@@ -95,29 +56,29 @@ Route (app)                                                Size  First Load JS  
 ├ ƒ /admin/dashboard                                      235 B         107 kB
 ├ ƒ /admin/data-deletion                                8.61 kB         132 kB
 ├ ƒ /admin/exercises                                    1.78 kB         108 kB
-├ ƒ /admin/exercises/[id]/edit                            136 B         116 kB
-├ ƒ /admin/exercises/create                               136 B         116 kB
+├ ƒ /admin/exercises/[id]/edit                            137 B         116 kB
+├ ƒ /admin/exercises/create                               137 B         116 kB
 ├ ƒ /admin/homepage-cards                               8.46 kB         127 kB
 ├ ƒ /admin/pyqs                                           158 B         160 kB
-├ ƒ /admin/pyqs/categories                                137 B         115 kB
+├ ƒ /admin/pyqs/categories                                136 B         115 kB
 ├ ƒ /admin/pyqs/leads                                     235 B         107 kB
-├ ƒ /admin/pyqs/upload                                    137 B         116 kB
+├ ƒ /admin/pyqs/upload                                    136 B         116 kB
 ├ ƒ /admin/seo                                            730 B         104 kB
 ├ ƒ /admin/settings                                     10.3 kB         121 kB
 ├ ƒ /admin/test-series                                    224 B         216 kB
-├ ƒ /admin/test-series/[testId]/edit                      184 B         133 kB
+├ ƒ /admin/test-series/[testId]/edit                      183 B         133 kB
 ├ ƒ /admin/test-series/[testId]/review                     2 kB         116 kB
 ├ ƒ /admin/test-series/create                             206 B         195 kB
-├ ƒ /admin/test-series/package/[id]                       181 B         231 kB
+├ ƒ /admin/test-series/package/[id]                       180 B         231 kB
 ├ ƒ /admin/test-series/packages                           150 B         131 kB
-├ ƒ /admin/tracks                                       1.78 kB         145 kB
+├ ƒ /admin/tracks                                       1.77 kB         145 kB
 ├ ƒ /admin/tracks/[id]                                  37.3 kB         219 kB
 ├ ƒ /admin/tracks/create                                  197 B         179 kB
 ├ ƒ /admin/tutorials                                      146 B         137 kB
-├ ƒ /admin/tutorials/[id]/edit                            197 B         249 kB
-├ ƒ /admin/tutorials/new                                  208 B         174 kB
+├ ƒ /admin/tutorials/[id]/edit                            196 B         249 kB
+├ ƒ /admin/tutorials/new                                  206 B         174 kB
 ├ ƒ /admin/users                                        4.49 kB         118 kB
-├ ƒ /admin/users/[id]                                   10.8 kB         131 kB
+├ ƒ /admin/users/[id]                                   10.8 kB         130 kB
 ├ ƒ /api/admin/audit                                      730 B         104 kB
 ├ ƒ /api/admin/batches                                    730 B         104 kB
 ├ ƒ /api/admin/batches/[id]                               730 B         104 kB
@@ -315,8 +276,8 @@ Route (app)                                                Size  First Load JS  
 ├ ● /batches/[slug]                                     12.3 kB         131 kB
 ├ ○ /books                                              4.44 kB         153 kB
 ├ ƒ /books/[slug]                                       9.68 kB         158 kB
-├ ○ /books/cart                                         3.91 kB         148 kB
-├ ○ /books/orders                                       2.82 kB         151 kB
+├ ○ /books/cart                                         3.92 kB         148 kB
+├ ○ /books/orders                                       2.81 kB         151 kB
 ├ ○ /books/wishlist                                     3.04 kB         151 kB
 ├ ○ /checkout                                           15.5 kB         148 kB
 ├ ○ /code-along                                           730 B         104 kB
@@ -324,13 +285,13 @@ Route (app)                                                Size  First Load JS  
 ├ ƒ /courses                                            17.3 kB         180 kB
 ├ ƒ /courses/[slug]                                     35.2 kB         243 kB
 ├ ƒ /courses/[slug]/demo                                15.5 kB         125 kB
-├ ƒ /courses/[slug]/learn/[lessonId]                    11.5 kB         126 kB
+├ ƒ /courses/[slug]/learn/[lessonId]                    11.6 kB         127 kB
 ├ ƒ /current-affairs-quizzes                            11.3 kB         153 kB
 ├ ƒ /current-affairs-quizzes/[slug]                     3.49 kB         113 kB
 ├ ƒ /current-affairs-quizzes/[slug]/instructions        5.35 kB         115 kB
 ├ ƒ /dashboard                                          16.7 kB         211 kB
 ├ ○ /data-deletion                                       2.4 kB         114 kB
-├ ○ /doubts                                              5.8 kB         122 kB
+├ ○ /doubts                                             5.79 kB         122 kB
 ├ ƒ /forgot-password                                    3.99 kB         118 kB
 ├ ○ /forms                                                235 B         107 kB
 ├ ƒ /forms/[slug]                                       6.96 kB         119 kB
@@ -343,7 +304,7 @@ Route (app)                                                Size  First Load JS  
 ├ ○ /leaderboard                                          730 B         104 kB
 ├ ○ /learn                                                730 B         104 kB
 ├ ƒ /learn/[courseSlug]                                   730 B         104 kB
-├ ƒ /learn/[courseSlug]/[lessonId]                      17.8 kB         176 kB
+├ ƒ /learn/[courseSlug]/[lessonId]                      17.7 kB         176 kB
 ├ ○ /login                                              4.33 kB         131 kB
 ├ ƒ /my-learning                                        8.45 kB         123 kB
 ├ ƒ /my-tests                                             140 B         121 kB
@@ -362,15 +323,15 @@ Route (app)                                                Size  First Load JS  
 ├ ○ /question-answer                                      235 B         107 kB          1h      1y
 ├ ○ /question-answer/[exam]                               235 B         107 kB
 ├ ○ /question-answer/[exam]/[subject]                     235 B         107 kB
-├ ○ /question-answer/[exam]/[subject]/[slug]              140 B         128 kB
+├ ○ /question-answer/[exam]/[subject]/[slug]              141 B         128 kB
 ├ ○ /question-answer/[exam]/[subject]/topic/[topic]       235 B         107 kB
 ├ ƒ /question-answer/sitemap.xml                          730 B         104 kB
 ├ ○ /refund                                               203 B         112 kB
-├ ƒ /register                                           6.08 kB         123 kB
+├ ƒ /register                                           6.09 kB         123 kB
 ├ ƒ /reset-password                                     4.68 kB         118 kB
 ├ ○ /robots.txt                                           730 B         104 kB
 ├ ƒ /search                                               203 B         112 kB
-├ ƒ /settings                                            6.7 kB         133 kB
+├ ƒ /settings                                           6.69 kB         133 kB
 ├ ƒ /settings/subscription                                235 B         107 kB
 ├ ○ /sitemap.xml                                          730 B         104 kB          1h      1y
 ├ ƒ /subscription                                         235 B         107 kB
@@ -379,7 +340,7 @@ Route (app)                                                Size  First Load JS  
 ├ ƒ /teacher/batches/[id]/edit                            137 B         116 kB
 ├ ○ /teacher/batches/new                                  137 B         116 kB
 ├ ƒ /teacher/book-studio                                  139 B         127 kB
-├ ○ /teacher/classes                                    5.38 kB         112 kB
+├ ○ /teacher/classes                                    5.37 kB         112 kB
 ├ ƒ /teacher/classes/[id]/edit                          4.49 kB         111 kB
 ├ ○ /teacher/classes/new                                4.67 kB         111 kB
 ├ ƒ /teacher/courses                                      235 B         107 kB
@@ -387,30 +348,30 @@ Route (app)                                                Size  First Load JS  
 ├ ƒ /teacher/courses/new                                  730 B         104 kB
 ├ ƒ /teacher/current-affairs                              158 B         160 kB
 ├ ƒ /teacher/pyqs                                         158 B         160 kB
-├ ƒ /teacher/pyqs/categories                              137 B         115 kB
+├ ƒ /teacher/pyqs/categories                              136 B         115 kB
 ├ ƒ /teacher/pyqs/leads                                   235 B         107 kB
 ├ ƒ /teacher/pyqs/upload                                  137 B         116 kB
-├ ○ /teacher/questions                                     5 kB         117 kB
+├ ○ /teacher/questions                                  4.99 kB         117 kB
 ├ ○ /teacher/test-series                                  224 B         216 kB
 ├ ƒ /teacher/test-series/[testId]/edit                    184 B         133 kB
 ├ ƒ /teacher/test-series/[testId]/review                   2 kB         116 kB
 ├ ƒ /teacher/test-series/[testId]/submissions           4.64 kB         113 kB
-├ ○ /teacher/test-series/create                           205 B         195 kB
-├ ƒ /teacher/test-series/package/[id]                     181 B         231 kB
-├ ○ /teacher/test-series/packages                         150 B         131 kB
-├ ○ /teacher/tests/new                                  3.86 kB         110 kB
+├ ○ /teacher/test-series/create                           204 B         195 kB
+├ ƒ /teacher/test-series/package/[id]                     180 B         231 kB
+├ ○ /teacher/test-series/packages                         149 B         131 kB
+├ ○ /teacher/tests/new                                  3.85 kB         110 kB
 ├ ƒ /teacher/tutorials                                    146 B         137 kB
-├ ƒ /teacher/tutorials/[id]/edit                          196 B         249 kB
-├ ƒ /teacher/tutorials/new                                208 B         174 kB
+├ ƒ /teacher/tutorials/[id]/edit                          195 B         249 kB
+├ ƒ /teacher/tutorials/new                                206 B         174 kB
 ├ ○ /terms                                                203 B         112 kB
 ├ ○ /test-series                                          12 kB         185 kB
 ├ ƒ /test-series/[id]                                   14.8 kB         170 kB
 ├ ƒ /test-series/[id]/attempt                           18.1 kB         124 kB
-├ ƒ /test-series/[id]/declaration                       5.26 kB         115 kB
+├ ƒ /test-series/[id]/declaration                       5.27 kB         115 kB
 ├ ƒ /test-series/[id]/instructions                      4.75 kB         114 kB
 ├ ƒ /test-series/[id]/leaderboard                       3.72 kB         117 kB
-├ ƒ /test-series/[id]/print                             4.24 kB         107 kB
-├ ƒ /test-series/[id]/result                              12 kB         122 kB
+├ ƒ /test-series/[id]/print                             4.25 kB         107 kB
+├ ƒ /test-series/[id]/result                            12.1 kB         122 kB
 ├ ƒ /test-series/[id]/solutions                         11.1 kB         121 kB
 ├ ƒ /test-series/my-tests                                 140 B         121 kB
 ├ ƒ /tracks                                               169 B         107 kB
@@ -419,7 +380,7 @@ Route (app)                                                Size  First Load JS  
 ├ ƒ /tracks/career/[slug]                                3.1 kB         117 kB
 ├ ○ /tracks/skills                                        730 B         104 kB
 ├ ƒ /tutorials                                          9.73 kB         153 kB
-├ ƒ /tutorials/[slug]                                   2.36 kB         145 kB
+├ ƒ /tutorials/[slug]                                   2.37 kB         145 kB
 └ ƒ /verify-email                                       3.84 kB         118 kB
 + First Load JS shared by all                            103 kB
   ├ chunks/31255-a457412f88a8b68a.js                    46.1 kB
@@ -427,11 +388,9 @@ Route (app)                                                Size  First Load JS  
   └ other shared chunks (total)                         2.77 kB
 
 
-ƒ Middleware                                            88.4 kB
+ƒ Middleware                                            88.5 kB
 
 ○  (Static)   prerendered as static content
 ●  (SSG)      prerendered as static HTML (uses generateStaticParams)
 ƒ  (Dynamic)  server-rendered on demand
 
-
-Exit Code: 0
