@@ -88,10 +88,34 @@ After every load run, the automated invariant verification script executed again
 
 ---
 
-## 4. Analysis of Flag Slowdowns
+## 6. Audited Final Verdict Table (Task A15)
 
-1. **Throughput Inversion**: Enabling all flags drops throughput from 86.0 RPS to 70.6 RPS at 0ms and increases Submit P95 from 117ms to 219ms.
-2. **Suspected Root Causes to Investigate in Task A9**:
-   - Cross-instance version check overhead (`getExamQuestionsVersion` / `getExamLeaderboardVersion`) executing additional database round trips on every read request.
-   - Database connection contention or connection-pool overhead inside the container.
-   - Resource saturation of the load-test runner process running concurrently on the host.
+| Component | Metric | Legacy (`c603168` flags OFF) | Current (flags OFF) | Current (`FAST_GRADING`) | Current (`ALL_ON`) | Rollout recommendation |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`start_herd` (0 ms)** | Throughput (RPS) | N/A (Build fails unpatched) | 59.2 RPS [56.7, 60.0] | 58.2 RPS [57.6, 59.5] | 59.6 RPS [58.9, 60.1] | **HOLD (Default OFF)** |
+| **`start_herd` (0 ms)** | P95 Latency (ms) | N/A (Build fails unpatched) | 816 ms [307, 880] | 439 ms [311, 781] | 548 ms [289, 712] | **HOLD (Default OFF)** |
+| **`start_herd` (40 ms)** | Throughput (RPS) | N/A (Build fails unpatched) | 34.1 RPS [32.5, 34.2] | 34.2 RPS [33.7, 34.5] | 33.4 RPS [32.9, 33.8] | **HOLD (Default OFF)** |
+| **`start_herd` (40 ms)** | P95 Latency (ms) | N/A (Build fails unpatched) | 4391 ms [4133, 4780] | 4256 ms [4190, 4551] | 4373 ms [4167, 4434] | **HOLD (Default OFF)** |
+| **`submit_burst` (0 ms)** | Throughput (RPS) | N/A (Build fails unpatched) | 57.4 RPS [56.7, 63.6] | 59.6 RPS [53.5, 63.8] | 60.8 RPS [54.0, 62.8] | **HOLD (Default OFF)** |
+| **`submit_burst` (0 ms)** | P95 Latency (ms) | N/A (Build fails unpatched) | 2585 ms [2098, 2823] | 2456 ms [2258, 3096] | 2586 ms [2134, 2809] | **HOLD (Default OFF)** |
+| **`submit_burst` (40 ms)** | Throughput (RPS) | N/A (Build fails unpatched) | 21.1 RPS [20.9, 21.2] | 21.0 RPS [20.7, 21.2] | 21.1 RPS [20.9, 21.1] | **HOLD (Default OFF)** |
+| **`submit_burst` (40 ms)** | P95 Latency (ms) | N/A (Build fails unpatched) | 11469 ms [11355, 11635] | 11746 ms [11424, 11973] | 11514 ms [11392, 11644] | **HOLD (Default OFF)** |
+| **`steady` (0 ms)** | Throughput (RPS) | N/A (Build fails unpatched) | 142.8 RPS [133.0, 146.0] | 142.3 RPS [96.8, 148.2] | 146.3 RPS [137.8, 146.7] | **HOLD (Default OFF)** |
+| **`steady` (0 ms)** | P95 Latency (ms) | N/A (Build fails unpatched) | 1385 ms [1023, 1615] | 1148 ms [1030, 3086] | 1118 ms [984, 1582] | **HOLD (Default OFF)** |
+| **`steady` (40 ms)** | Throughput (RPS) | N/A (Build fails unpatched) | 95.9 RPS [64.0, 104.1] | 105.5 RPS [94.3, 105.9] | 102.2 RPS [97.4, 104.1] | **HOLD (Default OFF)** |
+| **`steady` (40 ms)** | P95 Latency (ms) | N/A (Build fails unpatched) | 3223 ms [2199, 13227] | 2364 ms [2234, 5485] | 2522 ms [2174, 2759] | **HOLD (Default OFF)** |
+| **Ranking P95 (100k)** | Top-N Query (ms) | ~25 ms (Seq Scan) | 0.28 ms (`idx_examattempt_ranking`) | 0.28 ms (`idx_examattempt_ranking`) | 0.28 ms (`idx_examattempt_ranking`) | **MERGE INDEX MIGRATION** |
+| **Ranking P95 (100k)** | Live Rank Calculation | N/A (Broken outside top-N) | 43.8 ms | 43.8 ms | 43.8 ms | **MERGE LIVE RANK FIX** |
+| **Entitlement P95 (300 VUs)** | FREE Test P95 | ~55 ms | 53.9 ms (0ms) / 63.7 ms (40ms) | 53.9 ms / 63.7 ms | 53.9 ms / 63.7 ms | **NO CACHE NEEDED (<1000ms SLA)** |
+| **Entitlement P95 (300 VUs)** | PRO Test P95 | ~240 ms | 234 ms (0ms) | 234 ms | 234 ms | **NO CACHE NEEDED (<1000ms SLA)** |
+| **Container Memory** | Idle Memory (MB) | Unmeasured (~185MB patched) | 185 MB | 185 MB | 186 MB | **PRODUCTION READY** |
+| **Container Memory** | Loaded Memory (50 VUs) | Unmeasured (~280-325MB patched) | 282–323 MB | 285–320 MB | 288–330 MB | **BOUND TO 1GB LIMIT** |
+
+---
+
+## 7. Analysis of Flag Overheads & Root Causes (Task A9)
+
+In Task A9, database query profiling (`docs/evidence/raw/flag-overhead-analysis.txt`) isolated why performance flags did not beat baseline:
+1. **Interactive Transaction Roundtrips in `BATCH_SYNC`**: The raw SQL `UNNEST` was previously wrapped in an interactive Prisma transaction that performed sequential roundtrips: `findUnique` attempt verification -> raw SQL `UNNEST` execute -> attempt timestamp update. At 40ms network RTT, 3 roundtrips added 120ms baseline overhead.
+2. **Cross-Instance Version Check Queries**: `CACHE_QUESTIONS` executed an unshared aggregation query on each request to check `getExamQuestionsVersion`. When cached in-memory with a short TTL, this avoided per-request queries, but containerized multi-instance setups require Redis PUB/SUB rather than polling DB version stamps.
+3. **Verdict**: All flags remain default **OFF (`false`)** in staging and production. Deploy only the bug fixes and hardening.

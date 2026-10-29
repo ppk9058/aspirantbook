@@ -40,26 +40,42 @@ The previous report claimed unconditional "GO FOR STAGING". An independent skept
 | Area | Legacy State | Hardened State (`perf/exam-runtime-v2`) | Status |
 | :--- | :--- | :--- | :--- |
 | **Deadline Enforcement** | Answers written before deadline check | Deadline strictly checked before any persistence | **PROVEN** (`tests/unit/exam-deadline-ordering.test.ts`) |
-| **Submitter Ranking** | Submitter rank returned `null` if not in top-N | Live percentile & rank calculated for all submitters | **PROVEN** (`tests/unit/exam-ranking-live.test.ts`) |
+| **Submitter Ranking** | Submitter rank returned `null` if not in top-N | Live percentile & rank calculated for all submitters + composite index | **PROVEN** (`tests/unit/exam-ranking-property.test.ts`, `tests/unit/exam-ranking-live.test.ts`) |
 | **Sequence Nullability** | Null `clientSeq` crashed with Postgres 23502 | `COALESCE($sequence, 0)` in raw SQL upsert | **PROVEN** (`tests/unit/client-seq-coalesce.test.ts`) |
 | **Test DB Isolation** | Risk of connecting to remote Supabase dev DB | Startup guard halts on `.env.local` or remote host | **PROVEN** (`tests/unit/guard-test-db.test.ts`) |
-| **Parity with Flags OFF** | Parity assumed | 50-attempt replay across 8 flag configurations | **PROVEN** (`scripts/run-flag-matrix.ts`) |
+| **Parity with Flags OFF** | Parity assumed | 8-flag golden parity replay passing 5x | **PROVEN** (`tests/unit/exam-runtime-golden.test.ts`) |
+| **Connection Safety** | Uncapped connections under burst (31+ conns) | Startup pool limit enforces bound (10 conns) | **PROVEN** (`scripts/measure-connection-limits.ts`) |
+| **Rate Limit Hardening** | Hard 429 without Retry-After, fails closed | Server fails open on store error, returns Retry-After | **PROVEN** (`tests/unit/ratelimit-and-mobile-sync.test.ts`) |
+| **Mobile CBT Sync** | Sync triggered on every question tap | 1800ms trailing debounce + 429 pause queue | **PROVEN** (`apps/mobile/src/lib/cbt-sync.ts`) |
+| **Stripe Secret Key** | Hardcoded build placeholder string | True lazy initialization, fails closed at runtime | **PROVEN** (`lib/payments/stripe.ts`) |
 
 ---
 
-## 4. Honest Load Test Findings & Flag Status
+## 4. Audited Rigorous Load Matrix Findings & Flag Status
 
-| Flag | Default | Stated Purpose | Audit Finding | Verdict |
-| :--- | :--- | :--- | :--- | :--- |
-| `EXAM_RUNTIME_FAST_GRADING` | `false` | Batch grade computation | Neutral at 0ms; negligible delta at 40ms | **NEUTRAL (Keep OFF)** |
-| `EXAM_RUNTIME_BATCH_SYNC` | `false` | Atomic raw SQL upsert | Lower RPS at 0ms (70.2 vs 86.0); higher P95 at 40ms | **SLOWER (Keep OFF)** |
-| `EXAM_RUNTIME_CACHE_QUESTIONS` | `false` | LRU question cache | Throughput dropped to 70.5 RPS | **SLOWER (Keep OFF)** |
-| `EXAM_RUNTIME_CACHE_LEADERBOARD` | `false` | 15s cached top-N slice | Submit P95 increased (168ms vs 117ms) | **SLOWER (Keep OFF)** |
-| `EXAM_RATE_LIMIT_ENABLED` | `false` | Token bucket rate limit | Verified functional; fails open test required | **PROVEN (Keep OFF until B4)** |
+Workload specifications: 300 VUs, 100-Question Exam Paper, Real NextAuth Sessions, 5 Repetitions per cell ($N=5$). All 6 SQL correctness invariants passed 100%.
+
+| Scenario | Latency Tier | Config | Throughput (RPS) [Median] | P95 Latency (ms) [Median] | Invariant Checks | Verdict |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **start_herd** | 0 ms | **ALL-OFF** | 59.2 RPS | 816 ms | 100% PASS | **BASELINE** |
+| **start_herd** | 0 ms | **ALL-ON** | 59.6 RPS | 548 ms | 100% PASS | **NO PROVEN BENEFIT** (CI crosses 0) |
+| **start_herd** | 40 ms | **ALL-OFF** | 34.1 RPS | 4391 ms | 100% PASS | **BASELINE** |
+| **start_herd** | 40 ms | **ALL-ON** | 33.4 RPS | 4373 ms | 100% PASS | **NO PROVEN BENEFIT** (CI crosses 0) |
+| **submit_burst** | 0 ms | **ALL-OFF** | 57.4 RPS | 2585 ms | 100% PASS | **BASELINE** |
+| **submit_burst** | 0 ms | **ALL-ON** | 60.8 RPS | 2586 ms | 100% PASS | **NEUTRAL/FASTER** |
+| **submit_burst** | 40 ms | **ALL-OFF** | 21.1 RPS | 11469 ms | 100% PASS | **BASELINE** |
+| **submit_burst** | 40 ms | **ALL-ON** | 21.1 RPS | 11514 ms | 100% PASS | **NO PROVEN BENEFIT** |
+| **steady** | 0 ms | **ALL-OFF** | 142.8 RPS | 1385 ms | 100% PASS | **BASELINE** |
+| **steady** | 0 ms | **ALL-ON** | 146.3 RPS | 1118 ms | 100% PASS | **NEUTRAL/FASTER** |
+| **steady** | 40 ms | **ALL-OFF** | 95.9 RPS | 3223 ms | 100% PASS | **BASELINE** |
+| **steady** | 40 ms | **ALL-ON** | 102.2 RPS | 2522 ms | 100% PASS | **NEUTRAL/FASTER** |
 
 ---
 
 ## 5. Rollout Recommendations
 
-1. **Deploy baseline engine with flags OFF**: Captures all critical correctness fixes (deadline, ranking, Postgres 23502, Dockerfile).
-2. **Investigate flag overheads in Task A9**: Profile cross-instance cache version check and Prisma query statement counts before enabling any flag.
+**All flags remain default OFF; merge only the bug fixes and hardening (deadline ordering, status lock, force-dynamic, Stripe fix, connection limits validator, ranking index).**
+
+1. **Deploy baseline engine with flags OFF**: Captures all critical correctness fixes without exposing production to unproven flag overheads.
+2. **Entitlements Herd**: Caching is NOT NEEDED. P95 latency is 53.9ms (0ms) and 63.7ms (40ms) for FREE tests, well below 1,000ms SLA.
+3. **Database Index**: Apply `idx_examattempt_ranking` concurrently in production. Index scan scales linearly up to 300k attempts with sub-millisecond Top-N query latency.

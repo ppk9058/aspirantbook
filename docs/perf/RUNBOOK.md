@@ -20,7 +20,7 @@ All new performance optimizations are isolated behind environment feature flags 
 | `EXAM_RATE_LIMIT_ENABLED` | `false` | Token bucket rate limiting on exam routes | **HOLD** (Keep OFF until TRUST_PROXY hardened) | `false` |
 | `EXAM_REQUIRE_POOL_LIMIT` | `false` | Aborts server boot if `DATABASE_URL` lacks limit | **ENABLED FOR STAGING/PROD** | `true` (Staging/Prod) |
 
-> **IMPORTANT RULE:** Only flags proven faster by rigorous load testing (bootstrap 95% CI excluding 0 in the improving direction) without correctness regressions will be enabled. All flags with no proven benefit stay default `OFF`.
+> **IMPORTANT RULE:** All flags remain default OFF; merge only the bug fixes and hardening (deadline ordering, status lock, force-dynamic, Stripe fix, connection limits validator, ranking index). Only flags proven faster by rigorous load testing (bootstrap 95% CI excluding 0 in the improving direction) without correctness regressions will ever be considered for activation. All flags with no proven benefit stay default `OFF`.
 
 ---
 
