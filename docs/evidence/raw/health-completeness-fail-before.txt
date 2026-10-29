@@ -1,0 +1,105 @@
+=== TASK G4: HEALTH COMPLETENESS FAIL-BEFORE ===
+Git SHA: bc2aa661ffd6365387685b91bb91dfbd2f4aad91
+Timestamp: 2026-10-29T13:58:55Z
+Command: node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/health-completeness.test.ts
+TAP version 13
+# Subtest: Task G4: /api/health Completeness & Hardening
+    # Subtest: 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
+    not ok 1 - 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
+      ---
+      duration_ms: 63.182875
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/health-completeness.test.ts:2:1589'
+      failureType: 'testCodeFailure'
+      error: 'Migration status must be present'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/health-completeness.test.ts:35:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: 2. Correct 'pending migrations' detection when unapplied migration exists on disk
+    not ok 2 - 2. Correct 'pending migrations' detection when unapplied migration exists on disk
+      ---
+      duration_ms: 1.851458
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/health-completeness.test.ts:2:2869'
+      failureType: 'testCodeFailure'
+      error: '(0 , import_route.resetMigrationHealthCache) is not a function'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TypeError'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/health-completeness.test.ts:63:7)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 3. Migration status is cached for 60 seconds
+    not ok 3 - 3. Migration status is cached for 60 seconds
+      ---
+      duration_ms: 0.525042
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/health-completeness.test.ts:2:3799'
+      failureType: 'testCodeFailure'
+      error: '(0 , import_route.resetMigrationHealthCache) is not a function'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TypeError'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/health-completeness.test.ts:68:5)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
+    not ok 4 - 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
+      ---
+      duration_ms: 46.591459
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/health-completeness.test.ts:2:4834'
+      failureType: 'testCodeFailure'
+      error: 'Authed response must include migrations'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/health-completeness.test.ts:110:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 5. Zero credential or secret string leakage across all response bodies
+    ok 5 - 5. Zero credential or secret string leakage across all response bodies
+      ---
+      duration_ms: 24.7855
+      type: 'test'
+      ...
+    # Subtest: 6. Health endpoint works in read-only filesystem environment (zero file writes)
+    ok 6 - 6. Health endpoint works in read-only filesystem environment (zero file writes)
+      ---
+      duration_ms: 22.562041
+      type: 'test'
+      ...
+    1..6
+not ok 1 - Task G4: /api/health Completeness & Hardening
+  ---
+  duration_ms: 160.559334
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/health-completeness.test.ts:2:1163'
+  failureType: 'subtestsFailed'
+  error: '4 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 2
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 530.287334
