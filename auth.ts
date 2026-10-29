@@ -7,6 +7,7 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { checkLoginLockout, recordFailedLoginAttempt, clearLoginLockout } from "@/lib/auth/rate-limiter"
+import { isTurnstileEnabled, verifyTurnstileToken } from "@/lib/security/turnstile"
 
 export class LockedOutError extends CredentialsSignin {
     code = "account_locked"
@@ -21,6 +22,14 @@ export class DeactivatedError extends CredentialsSignin {
     constructor() {
         super("account_deactivated")
         this.code = "account_deactivated"
+    }
+}
+
+export class TurnstileError extends CredentialsSignin {
+    code = "turnstile_failed"
+    constructor(message: string = "turnstile_failed") {
+        super(message)
+        this.code = "turnstile_failed"
     }
 }
 
@@ -118,6 +127,112 @@ export async function handleGoogleSignInCallback({
         ;(user as any).sessionVersion = newUser.sessionVersion
     }
     return true
+}
+
+export async function authorizeCredentials(
+    credentials: Record<string, any>,
+    clientIp: string = "127.0.0.1"
+) {
+    const parsedCredentials = z
+        .object({
+            email: z.string().email(),
+            password: z.string().min(1),
+            turnstileToken: z.string().optional().nullable(),
+            "cf-turnstile-response": z.string().optional().nullable(),
+        })
+        .safeParse(credentials)
+
+    if (!parsedCredentials.success) {
+        return null
+    }
+
+    const rawEmail = parsedCredentials.data.email
+    const email = rawEmail.trim().toLowerCase()
+    const password = parsedCredentials.data.password
+
+    // 1. Turnstile verification behind TURNSTILE_ENABLED (default: false)
+    if (isTurnstileEnabled()) {
+        const turnstileToken =
+            parsedCredentials.data.turnstileToken ||
+            parsedCredentials.data["cf-turnstile-response"] ||
+            null
+        const turnstileCheck = await verifyTurnstileToken(turnstileToken, clientIp)
+        if (!turnstileCheck.success) {
+            throw new TurnstileError(turnstileCheck.error || "Turnstile verification failed")
+        }
+    }
+
+    // Check Lockout first
+    const lockout = await checkLoginLockout(email, clientIp)
+    if (lockout.isLocked) {
+        throw new LockedOutError()
+    }
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { email },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                image: true,
+                password: true,
+                isActive: true,
+                sessionVersion: true,
+                emailVerified: true,
+            },
+        })
+
+        // Constant-time failure simulation against email enumeration
+        if (!user || !user.password) {
+            const failStatus = await recordFailedLoginAttempt(email, clientIp)
+            if (failStatus.isLocked) {
+                throw new LockedOutError()
+            }
+            return null
+        }
+
+        // Check if account is deactivated
+        if (user.isActive === false) {
+            throw new DeactivatedError()
+        }
+
+        const passwordsMatch = await bcrypt.compare(password, user.password)
+        if (!passwordsMatch) {
+            const failStatus = await recordFailedLoginAttempt(email, clientIp)
+            if (failStatus.isLocked) {
+                throw new LockedOutError()
+            }
+            return null
+        }
+
+        // Login succeeded: reset failed attempts & clear lockout
+        await clearLoginLockout(email, clientIp)
+
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            image: user.image,
+            sessionVersion: user.sessionVersion,
+            emailVerified: user.emailVerified ? user.emailVerified.toISOString() : null,
+        }
+    } catch (error) {
+        if (
+            error &&
+            (error instanceof CredentialsSignin ||
+                (error as any).code ||
+                (error as any).name === "LockedOutError" ||
+                (error as any).name === "DeactivatedError" ||
+                (error as any).name === "TurnstileError")
+        ) {
+            throw error
+        }
+        console.error("Authorize database error:", error)
+        return null
+    }
 }
 
 const nextAuthResult = NextAuth({
@@ -236,100 +351,16 @@ const nextAuthResult = NextAuth({
         Credentials({
             id: "credentials",
             async authorize(credentials) {
-                const parsedCredentials = z
-                    .object({ email: z.string().email(), password: z.string().min(1) })
-                    .safeParse(credentials)
-
-                if (!parsedCredentials.success) {
-                    return null
-                }
-
-                const rawEmail = parsedCredentials.data.email
-                const email = rawEmail.trim().toLowerCase()
-                const password = parsedCredentials.data.password
-
                 let clientIp = "127.0.0.1"
                 try {
                     const { headers } = await import("next/headers")
                     const h = await headers()
-                    clientIp =
-                        h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-                        h.get("x-real-ip")?.trim() ||
-                        "127.0.0.1"
+                    const { getClientIp } = await import("@/lib/rate-limit")
+                    clientIp = getClientIp(h)
                 } catch {
                     clientIp = "127.0.0.1"
                 }
-
-                // Check Lockout first
-                const lockout = await checkLoginLockout(email, clientIp)
-                if (lockout.isLocked) {
-                    throw new LockedOutError()
-                }
-
-                try {
-                    const user = await prisma.user.findUnique({
-                        where: { email },
-                        select: {
-                            id: true,
-                            email: true,
-                            name: true,
-                            role: true,
-                            image: true,
-                            password: true,
-                            isActive: true,
-                            sessionVersion: true,
-                            emailVerified: true,
-                        },
-                    })
-
-                    // Constant-time failure simulation against email enumeration
-                    if (!user || !user.password) {
-                        const failStatus = await recordFailedLoginAttempt(email, clientIp)
-                        if (failStatus.isLocked) {
-                            throw new LockedOutError()
-                        }
-                        return null
-                    }
-
-                    // Check if account is deactivated
-                    if (user.isActive === false) {
-                        throw new DeactivatedError()
-                    }
-
-                    const passwordsMatch = await bcrypt.compare(password, user.password)
-                    if (!passwordsMatch) {
-                        const failStatus = await recordFailedLoginAttempt(email, clientIp)
-                        if (failStatus.isLocked) {
-                            throw new LockedOutError()
-                        }
-                        return null
-                    }
-
-                    // Login succeeded: reset failed attempts & clear lockout
-                    await clearLoginLockout(email, clientIp)
-
-                    return {
-                        id: user.id,
-                        email: user.email,
-                        name: user.name,
-                        role: user.role,
-                        image: user.image,
-                        sessionVersion: user.sessionVersion,
-                        emailVerified: user.emailVerified ? user.emailVerified.toISOString() : null,
-                    }
-                } catch (error) {
-                    if (
-                        error &&
-                        (error instanceof CredentialsSignin ||
-                            (error as any).code ||
-                            (error as any).name === "LockedOutError" ||
-                            (error as any).name === "DeactivatedError")
-                    ) {
-                        throw error
-                    }
-                    console.error("Authorize database error:", error)
-                    return null
-                }
+                return authorizeCredentials(credentials as any, clientIp)
             },
         }),
 

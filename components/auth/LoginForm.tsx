@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Loader2, Eye, EyeOff, Phone } from "lucide-react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
+import { TurnstileWidget } from "@/components/security/TurnstileWidget"
 
 interface LoginFormProps {
     onSuccess?: () => void
@@ -24,6 +25,7 @@ export function LoginForm({ onSuccess, isModal = false, initialCallbackUrl }: Lo
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const [rememberMe, setRememberMe] = useState(true)
+    const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
     const { openMobileAuth, closeMobileAuth } = useMobileAuth()
 
     const rawCallback = initialCallbackUrl || (searchParams ? searchParams.get("callbackUrl") : null)
@@ -40,13 +42,16 @@ export function LoginForm({ onSuccess, isModal = false, initialCallbackUrl }: Lo
             const res = await signIn("credentials", {
                 email: normalizedEmail,
                 password,
+                turnstileToken: turnstileToken || undefined,
                 redirect: false,
             })
 
             if (res?.error) {
                 const code = (res as any)?.code || ""
                 const errStr = `${res.error} ${code} ${res.url || ""}`
-                if (code === "account_locked" || errStr.includes("account_locked")) {
+                if (code === "turnstile_failed" || errStr.includes("turnstile_failed")) {
+                    setErrorMessage("Security check required. Please complete the CAPTCHA verification.")
+                } else if (code === "account_locked" || errStr.includes("account_locked")) {
                     setErrorMessage("Too many failed attempts. Your account has been temporarily locked for 15 minutes. Please try again later or reset your password.")
                 } else if (code === "account_deactivated" || errStr.includes("account_deactivated")) {
                     setErrorMessage("Your account has been deactivated. Please contact support.")
@@ -236,6 +241,12 @@ export function LoginForm({ onSuccess, isModal = false, initialCallbackUrl }: Lo
                         Forgot password?
                     </Link>
                 </div>
+
+                {/* Bot protection: Turnstile widget (renders only when NEXT_PUBLIC_TURNSTILE_SITE_KEY is set) */}
+                <TurnstileWidget
+                    onVerify={(token) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken(null)}
+                />
 
                 <div className="pt-2">
                     <Button

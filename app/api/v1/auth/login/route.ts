@@ -30,6 +30,18 @@ export async function POST(req: NextRequest) {
     const ip = getClientIp(req);
     const userAgent = req.headers.get("user-agent");
 
+    // Task G1: Mobile v1 login is exempt from Turnstile (mobile native client cannot render web CAPTCHA widget).
+    // Compromise: Strictly rate-limited per user+IP (5 requests per 60s window) in addition to the per-IP check.
+    const userIpRl = await checkV1RateLimit(
+      req,
+      "auth_login_user",
+      5,
+      60,
+      `${parsed.data.email.trim().toLowerCase()}_${ip}`,
+      { failClosed: true }
+    );
+    if (!userIpRl.allowed) return userIpRl.response!;
+
     const result = await loginWithEmailPassword(parsed.data, ip, userAgent);
 
     return apiSuccess(result, 200, {}, reqId);
