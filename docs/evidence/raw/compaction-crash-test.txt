@@ -1,0 +1,18 @@
+[CRASH-TEST] Step 1: Spawning compaction process...
+[CRASH-TEST] Step 2: Sending SIGKILL (kill -9)...
+[CRASH-TEST] Process terminated via SIGKILL.
+[CRASH-TEST] Mid-crash archived rows in DB: 10020
+[CRASH-TEST] Verified 10020 rows have valid non-empty array blobs.
+[CRASH-TEST] Step 3: Resuming compaction to completion...
+[COMPACTION] Configuration:
+  - Dry Run: false
+  - Batch Size: 500
+  - Days Old: >= 0 (cutoff: 2026-10-29T02:09:39.607Z)
+  - Exam Filter: bench_test_10k
+  - Purge Raw Answers: false
+  - Limit: Unlimited
+[COMPACTION] Found 0 eligible unarchived attempt(s).
+[CRASH-TEST] Final verification:
+  - Total attempts: 10020
+  - Final archived: 10020
+[CRASH-TEST] SUCCESS: Zero corrupt rows, zero duplicates, clean resume verified.

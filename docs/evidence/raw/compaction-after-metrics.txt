@@ -1,0 +1,124 @@
+=== COMPACTION POST-BENCHMARK SUITE ===
+
+[1] Measuring Student Review Latency (Archived)...
+Student Review (Archived) (ms): median=5.35, min=3.87, max=19.81, IQR=1.56, p95=19.81
+
+[2] Storage Sizes Before Purge:
+┌─────────┬──────────────────────┬────────────┬─────────────┬────────────┬─────────────┬────────────┬─────────────┐
+│ (index) │ name                 │ table_size │ table_bytes │ index_size │ index_bytes │ total_size │ total_bytes │
+├─────────┼──────────────────────┼────────────┼─────────────┼────────────┼─────────────┼────────────┼─────────────┤
+│ 0       │ 'ExamAttemptArchive' │ '16 MB'    │ 16408576n   │ '1248 kB'  │ 1277952n    │ '17 MB'    │ 17694720n   │
+│ 1       │ 'ExamAttempt'        │ '1544 kB'  │ 1581056n    │ '2720 kB'  │ 2785280n    │ '4304 kB'  │ 4407296n    │
+│ 2       │ 'ExamAttemptAnswer'  │ '248 kB'   │ 253952n     │ '320 kB'   │ 327680n     │ '600 kB'   │ 614400n     │
+└─────────┴──────────────────────┴────────────┴─────────────┴────────────┴─────────────┴────────────┴─────────────┘
+
+[3] Purging raw ExamAttemptAnswer rows and running VACUUM FULL...
+Purged 0 raw answer rows.
+VACUUM FULL executed successfully.
+
+[4] Storage Sizes After Purge & VACUUM FULL:
+┌─────────┬──────────────────────┬────────────┬─────────────┬────────────┬─────────────┬────────────┬─────────────┐
+│ (index) │ name                 │ table_size │ table_bytes │ index_size │ index_bytes │ total_size │ total_bytes │
+├─────────┼──────────────────────┼────────────┼─────────────┼────────────┼─────────────┼────────────┼─────────────┤
+│ 0       │ 'ExamAttemptArchive' │ '16 MB'    │ 16408576n   │ '1248 kB'  │ 1277952n    │ '17 MB'    │ 17694720n   │
+│ 1       │ 'ExamAttempt'        │ '1544 kB'  │ 1581056n    │ '2720 kB'  │ 2785280n    │ '4304 kB'  │ 4407296n    │
+│ 2       │ 'ExamAttemptAnswer'  │ '0 bytes'  │ 0n          │ '32 kB'    │ 32768n      │ '40 kB'    │ 40960n      │
+└─────────┴──────────────────────┴────────────┴─────────────┴────────────┴─────────────┴────────────┴─────────────┘
+
+[5] Measuring Teacher Question Analytics on Compacted JSONB (n=20)...
+Teacher Analytics (Compacted JSONB) (ms): median=439.82, min=397.67, max=698.95, IQR=105.00, p95=698.95
+
+[6] Measuring Live Submit Latency After Compaction (n=20)...
+Live Submit (ms): median=12.20, min=11.02, max=21.88, IQR=1.66, p95=21.88
+
+=== POST-COMPACTION SUMMARY ===
+{
+  "studentReview": {
+    "n": 20,
+    "min": 3.873124999999959,
+    "max": 19.805958999999916,
+    "median": 5.353770999999995,
+    "q1": 4.436084000000051,
+    "q3": 5.991582999999991,
+    "iqr": 1.5554989999999407,
+    "p95": 19.805958999999916
+  },
+  "teacherAnalytics": {
+    "n": 20,
+    "min": 397.6658749999997,
+    "max": 698.9481250000003,
+    "median": 439.82124999999996,
+    "q1": 406.344208,
+    "q3": 511.34916699999985,
+    "iqr": 105.00495899999987,
+    "p95": 698.9481250000003
+  },
+  "liveSubmit": {
+    "n": 20,
+    "min": 11.018834000000425,
+    "max": 21.87800000000061,
+    "median": 12.195416999998997,
+    "q1": 11.813916999999492,
+    "q3": 13.476042000000234,
+    "iqr": 1.6621250000007421,
+    "p95": 21.87800000000061
+  },
+  "storageBefore": [
+    {
+      "name": "ExamAttemptArchive",
+      "table_size": "16 MB",
+      "table_bytes": "16408576",
+      "index_size": "1248 kB",
+      "index_bytes": "1277952",
+      "total_size": "17 MB",
+      "total_bytes": "17694720"
+    },
+    {
+      "name": "ExamAttempt",
+      "table_size": "1544 kB",
+      "table_bytes": "1581056",
+      "index_size": "2720 kB",
+      "index_bytes": "2785280",
+      "total_size": "4304 kB",
+      "total_bytes": "4407296"
+    },
+    {
+      "name": "ExamAttemptAnswer",
+      "table_size": "248 kB",
+      "table_bytes": "253952",
+      "index_size": "320 kB",
+      "index_bytes": "327680",
+      "total_size": "600 kB",
+      "total_bytes": "614400"
+    }
+  ],
+  "storageAfter": [
+    {
+      "name": "ExamAttemptArchive",
+      "table_size": "16 MB",
+      "table_bytes": "16408576",
+      "index_size": "1248 kB",
+      "index_bytes": "1277952",
+      "total_size": "17 MB",
+      "total_bytes": "17694720"
+    },
+    {
+      "name": "ExamAttempt",
+      "table_size": "1544 kB",
+      "table_bytes": "1581056",
+      "index_size": "2720 kB",
+      "index_bytes": "2785280",
+      "total_size": "4304 kB",
+      "total_bytes": "4407296"
+    },
+    {
+      "name": "ExamAttemptAnswer",
+      "table_size": "0 bytes",
+      "table_bytes": "0",
+      "index_size": "32 kB",
+      "index_bytes": "32768",
+      "total_size": "40 kB",
+      "total_bytes": "40960"
+    }
+  ]
+}

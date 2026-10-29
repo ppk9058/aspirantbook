@@ -210,6 +210,7 @@ export async function GET(
     if (!usedArchive) {
       answers = await prisma.examAttemptAnswer.findMany({
         where: { attemptId },
+        orderBy: { questionId: "asc" },
         include: {
           question: {
             select: {
@@ -355,6 +356,7 @@ export async function GET(
     };
 
     // Subject breakdown
+    const questionMap = new Map(testQuestions.map((q) => [q.id, q]));
     const subjectMap = new Map<
       string,
       {
@@ -368,7 +370,8 @@ export async function GET(
     >();
 
     for (const ans of answers) {
-      const subject = ans.question.subject ?? "Unknown";
+      const subject =
+        ans.question?.subject ?? questionMap.get(ans.questionId)?.subject ?? "Unknown";
       if (!subjectMap.has(subject)) {
         subjectMap.set(subject, {
           subject,
