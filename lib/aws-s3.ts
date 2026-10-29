@@ -58,14 +58,6 @@ function getS3Client(): S3Client {
     }
     return s3Client
 }
-            credentials: {
-                accessKeyId: config.accessKeyId,
-                secretAccessKey: config.secretAccessKey,
-            },
-        })
-    }
-    return s3Client
-}
 
 export interface PresignedUrlOptions {
     key: string

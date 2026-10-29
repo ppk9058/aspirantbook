@@ -71,7 +71,7 @@ describe("Task B9: Centralized Brand & Domain Configuration", () => {
     delete process.env.APP_URL;
     delete process.env.NEXTAUTH_URL;
     delete process.env.VERCEL_URL;
-    process.env.NODE_ENV = "production";
+    (process.env as any).NODE_ENV = "production";
     process.env.CANONICAL_DOMAIN = "aspirantbook.com";
 
     const url = getCanonicalBaseUrl();
@@ -83,7 +83,7 @@ describe("Task B9: Centralized Brand & Domain Configuration", () => {
     delete process.env.APP_URL;
     delete process.env.NEXTAUTH_URL;
     delete process.env.VERCEL_URL;
-    process.env.NODE_ENV = "development";
+    (process.env as any).NODE_ENV = "development";
     process.env.PORT = "3045";
 
     const url = getCanonicalBaseUrl();

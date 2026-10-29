@@ -151,7 +151,7 @@ describe("Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)", 
 
     const res = await logContentAudit({
       entityId,
-      entityType: "course",
+      entityType: "COURSE",
       action: "UPDATE",
       details: { title: "Updated Course Title" },
     });

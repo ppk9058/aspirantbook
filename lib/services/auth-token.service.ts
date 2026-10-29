@@ -296,7 +296,7 @@ export async function loginOrRegisterWithGoogle(
     action: "USER_LOGIN_GOOGLE",
     targetId: user.id,
     ip: ip || undefined,
-    userAgent: userAgent || undefined,
+    details: { userAgent: userAgent || undefined },
   });
 
   return {

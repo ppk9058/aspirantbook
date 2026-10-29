@@ -166,11 +166,11 @@ export async function getPresignedUrl(
 ): Promise<string> {
     try {
         const command = new GetObjectCommand({
-            Bucket: BUCKET_NAME,
+            Bucket: getBucketName(),
             Key: key,
         })
 
-        const url = await getSignedUrl(s3Client, command, { expiresIn })
+        const url = await getSignedUrl(getS3Client(), command, { expiresIn })
         return url
     } catch (error) {
         console.error('S3 presigned URL error:', error)

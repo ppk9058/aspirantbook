@@ -16,7 +16,7 @@ const TEST_ISSUER = "https://accounts.google.com";
 process.env.GOOGLE_CLIENT_IDS = TEST_AUDIENCE;
 process.env.GOOGLE_ID_TOKEN_TEST_SECRET = TEST_SECRET;
 process.env.APP_ENV = "test";
-process.env.NODE_ENV = "test";
+(process.env as any).NODE_ENV = "test";
 
 async function signTestToken(payload: {
   sub: string;
@@ -252,7 +252,7 @@ describe("Task B1: Google OAuth & Mobile Token Security Verification", () => {
     });
 
     assert.equal(allowed, true);
-    assert.equal(userObj.id, created.id);
+    assert.equal((userObj as any).id, created.id);
 
     const user = await prisma.user.findUnique({
       where: { email: existingEmail },

@@ -1,7 +1,7 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ShieldCheck, Lock, Trash2, Heart } from "lucide-react"
+import { ShieldCheck, Lock, Trash2, Heart, FileText } from "lucide-react"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()

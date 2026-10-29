@@ -42,7 +42,7 @@ export async function verifyGoogleIdToken(
   options?: {
     allowedAudiences?: string[];
     clockToleranceSecs?: number;
-    testSigningKey?: jose.KeyLike | Uint8Array;
+    testSigningKey?: any | Uint8Array;
   }
 ): Promise<VerifyGoogleTokenResult> {
   try {
