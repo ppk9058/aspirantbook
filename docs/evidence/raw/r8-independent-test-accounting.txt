@@ -146,7 +146,35 @@ writes / serverless read-only" claim (B3) and was NOT investigated further
 here.
 
 --------------------------------------------------------------------------------
-6. WHAT THIS EVIDENCE DOES AND DOES NOT PROVE
+6. OTHER FRESH-CLONE GATES AT 93cc5ae
+--------------------------------------------------------------------------------
+$ npm run build
+exit code: 0   "✓ Compiled successfully in 3.4min"
+
+$ npm run lint
+exit code: 0   (one pre-existing @next/next/no-img-element warning in
+                components/editor/RoseraRenderer.tsx:1824, no errors)
+
+--------------------------------------------------------------------------------
+7. Z5 MEASUREMENT: "ZERO supabase.co HITS" IS FALSE AS WRITTEN
+--------------------------------------------------------------------------------
+$ git grep -l "supabase.co" | wc -l     -> 23 files
+Breakdown:
+  12 code/config files, of which 11 are deny-lists or guard tests that exist to
+  REJECT remote Supabase (lib/testing/assert-test-db.ts, scripts/guard-test-db.*,
+  scripts/test-*.ts, tests/unit/guard-test-db.test.ts, tests/api-v1-sec1.test.ts)
+  and 1 is a live allowlist:
+     next.config.js:100  connect-src ... https://*.supabase.co
+  11 documentation/historical files (MOBILE_AUDIT.md, MOBILE_EXPO_REPORT.md,
+  REPORT.md, archive/run1/RUN_REPORT_21OCT.md, docs/RUN2_AUDIT.md,
+  docs/content-engine/evidence/migrate_*_dev_db.txt, docs/evidence/PROGRESS.md,
+  docs/evidence/raw/fresh-clone-unit-tests.txt,
+  docs/evidence/raw/health-readonly-container.txt, docs/perf/discovery.md).
+No remote Supabase connection was made in this session; every database used was
+the local Docker instance at 127.0.0.1:54329.
+
+--------------------------------------------------------------------------------
+8. WHAT THIS EVIDENCE DOES AND DOES NOT PROVE
 --------------------------------------------------------------------------------
 PROVEN (raw output above, reproducible):
   - offline `npm ci` reproduces the tree from package-lock at 93cc5ae;
@@ -159,3 +187,14 @@ NOT PROVEN:
   - any GitHub Actions run (workflows were never executed on GitHub);
   - a green unit-test job (the ci.yml invocation fails, and 12-13 suites are
     red for pre-existing environment reasons).
+
+--------------------------------------------------------------------------------
+9. COMMIT STATUS OF THIS FILE
+--------------------------------------------------------------------------------
+This file is UNCOMMITTED. While it was being produced, a second session was
+committing on the same branch in the same worktree (HEAD moved 54bf0a2 ->
+8f1df66 -> c38b82a -> 7d3d66d -> 93cc5ae, with docs/evidence/PROGRESS.md,
+docs/evidence/r8-fresh-clone-verification.md and tests/unit/demo-role-guard.ts
+dirty in the working tree). Committing from this session would have swept up
+that in-flight work, so it was deliberately not committed. Point-in-time
+numbers above were measured outside the shared worktree.
