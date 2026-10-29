@@ -1,0 +1,113 @@
+=== Task C1: Measure Before Compacting (10k attempts / 1M answers) ===
+Database: postgresql://postgres:***@127.0.0.1:54345/trillionskill_compact?connection_limit=10
+
+[1/5] Setting up test exam with 100 questions...
+Current attempts in DB: 0
+
+[2/5] Bulk seeding 10000 attempts and 1000000 answers...
+Progress: 500/10000 attempts seededProgress: 1000/10000 attempts seededProgress: 1500/10000 attempts seededProgress: 2000/10000 attempts seededProgress: 2500/10000 attempts seededProgress: 3000/10000 attempts seededProgress: 3500/10000 attempts seededProgress: 4000/10000 attempts seededProgress: 4500/10000 attempts seededProgress: 5000/10000 attempts seededProgress: 5500/10000 attempts seededProgress: 6000/10000 attempts seededProgress: 6500/10000 attempts seededProgress: 7000/10000 attempts seededProgress: 7500/10000 attempts seededProgress: 8000/10000 attempts seededProgress: 8500/10000 attempts seededProgress: 9000/10000 attempts seededProgress: 9500/10000 attempts seededProgress: 10000/10000 attempts seeded
+Seeding complete!
+
+[3/5] Querying PostgreSQL table & index sizes...
+┌─────────┬─────────────────────┬────────────┬────────────┬────────────┬─────────────┬─────────────┬─────────────┬──────────┐
+│ (index) │ relname             │ table_size │ index_size │ total_size │ table_bytes │ index_bytes │ total_bytes │ est_rows │
+├─────────┼─────────────────────┼────────────┼────────────┼────────────┼─────────────┼─────────────┼─────────────┼──────────┤
+│ 0       │ 'ExamAttempt'       │ '1544 kB'  │ '2696 kB'  │ '4280 kB'  │ 1581056n    │ 2760704n    │ 4382720n    │ 10000n   │
+│ 1       │ 'ExamAttemptAnswer' │ '89 MB'    │ '91 MB'    │ '180 MB'   │ 93093888n   │ 95166464n   │ 188317696n  │ 965000n  │
+└─────────┴─────────────────────┴────────────┴────────────┴────────────┴─────────────┴─────────────┴─────────────┴──────────┘
+Exact count for test bench_test_10k: 10000 attempts, 1000000 answers
+
+[4/5] Measuring query latencies (n=20 runs each)...
+Student review (100 answers): {
+  n: 20,
+  min: 1.54,
+  max: 5.43,
+  median: 1.96,
+  q1: 1.79,
+  q3: 2.25,
+  iqr: 0.47
+}
+Teacher analytics (1M rows aggregated): {
+  n: 20,
+  min: 144.95,
+  max: 311.38,
+  median: 210.12,
+  q1: 183.25,
+  q3: 268.59,
+  iqr: 85.35
+}
+Live submit (1 attempt + 100 answers): {
+  n: 20,
+  min: 10.32,
+  max: 61.44,
+  median: 12.74,
+  q1: 11.86,
+  q3: 14.32,
+  iqr: 2.47
+}
+
+[5/5] Baseline measurements captured successfully!
+{
+  "timestamp": "2026-10-29T01:57:39.023Z",
+  "hardware": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "nodeVersion": "v22.23.4"
+  },
+  "dataset": {
+    "testId": "bench_test_10k",
+    "attemptsCount": 10000,
+    "answersCount": 1000000
+  },
+  "sizes": [
+    {
+      "table": "ExamAttempt",
+      "tableSize": "1544 kB",
+      "indexSize": "2696 kB",
+      "totalSize": "4280 kB",
+      "tableBytes": 1581056,
+      "indexBytes": 2760704,
+      "totalBytes": 4382720,
+      "estRows": 10000
+    },
+    {
+      "table": "ExamAttemptAnswer",
+      "tableSize": "89 MB",
+      "indexSize": "91 MB",
+      "totalSize": "180 MB",
+      "tableBytes": 93093888,
+      "indexBytes": 95166464,
+      "totalBytes": 188317696,
+      "estRows": 965000
+    }
+  ],
+  "latenciesMs": {
+    "studentReview": {
+      "n": 20,
+      "min": 1.54,
+      "max": 5.43,
+      "median": 1.96,
+      "q1": 1.79,
+      "q3": 2.25,
+      "iqr": 0.47
+    },
+    "teacherAnalytics": {
+      "n": 20,
+      "min": 144.95,
+      "max": 311.38,
+      "median": 210.12,
+      "q1": 183.25,
+      "q3": 268.59,
+      "iqr": 85.35
+    },
+    "liveSubmit": {
+      "n": 20,
+      "min": 10.32,
+      "max": 61.44,
+      "median": 12.74,
+      "q1": 11.86,
+      "q3": 14.32,
+      "iqr": 2.47
+    }
+  }
+}
