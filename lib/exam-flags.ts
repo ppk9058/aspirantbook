@@ -27,3 +27,8 @@ export function isExamRateLimitEnabled(): boolean {
   return process.env.EXAM_RATE_LIMIT_ENABLED === "true" || process.env.EXAM_RATE_LIMIT_ENABLED === "1";
 }
 
+export function isExamAttemptCompactionEnabled(): boolean {
+  return process.env.EXAM_ATTEMPT_COMPACTION_ENABLED === "true" || process.env.EXAM_ATTEMPT_COMPACTION_ENABLED === "1";
+}
+
+

@@ -6,6 +6,7 @@ import { getAttemptRanking } from "@/lib/exam-ranking";
 import { getQuizSlug } from "@/lib/current-affairs/slugs";
 import { canViewSolutions } from "@/lib/exam/access-control";
 import { checkExamWebRateLimit } from "@/lib/exam-runtime/exam-rate-limit";
+import { isExamAttemptCompactionEnabled } from "@/lib/exam-flags";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -192,34 +193,49 @@ export async function GET(
         })
       : [];
 
-    // Fetch all answers with question details
-    const answers = await prisma.examAttemptAnswer.findMany({
-      where: { attemptId },
-      include: {
-        question: {
-          select: {
-            id: true,
-            questionEn: true,
-            questionHi: true,
-            optionAEn: true,
-            optionBEn: true,
-            optionCEn: true,
-            optionDEn: true,
-            optionAHi: true,
-            optionBHi: true,
-            optionCHi: true,
-            optionDHi: true,
-            correctOption: true,
-            explanationEn: true,
-            explanationHi: true,
-            subject: true,
-            difficulty: true,
-            positiveMarks: true,
-            negativeMarks: true,
+    // Fetch all answers: if compaction enabled, read archive first, falling back to ExamAttemptAnswer
+    let answers: any[] = [];
+    let usedArchive = false;
+
+    if (isExamAttemptCompactionEnabled()) {
+      const archive = await prisma.examAttemptArchive.findUnique({
+        where: { attemptId },
+      });
+      if (archive && Array.isArray(archive.answersBlob) && testQuestions.length > 0) {
+        answers = archive.answersBlob as any[];
+        usedArchive = true;
+      }
+    }
+
+    if (!usedArchive) {
+      answers = await prisma.examAttemptAnswer.findMany({
+        where: { attemptId },
+        include: {
+          question: {
+            select: {
+              id: true,
+              questionEn: true,
+              questionHi: true,
+              optionAEn: true,
+              optionBEn: true,
+              optionCEn: true,
+              optionDEn: true,
+              optionAHi: true,
+              optionBHi: true,
+              optionCHi: true,
+              optionDHi: true,
+              correctOption: true,
+              explanationEn: true,
+              explanationHi: true,
+              subject: true,
+              difficulty: true,
+              positiveMarks: true,
+              negativeMarks: true,
+            },
           },
         },
-      },
-    });
+      });
+    }
 
     const answerMap = new Map(answers.map((a) => [a.questionId, a]));
 
