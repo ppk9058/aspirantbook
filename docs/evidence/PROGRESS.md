@@ -38,7 +38,7 @@
 | **B10** | CI workflow & tsc ratchet | NOT_STARTED | - | - | `.github/workflows/ci.yml`, dependabot, ratchet script |
 | **B11** | Mobile config guards | NOT_STARTED | - | - | `npm run check:release`, HTTPS check |
 | **B12** | Health endpoint verification | NOT_STARTED | - | - | Read-only container test, no secrets leaked |
-| **C1** | Measure before compacting (10k seeded attempts) | NOT_STARTED | - | - | On feat/attempt-compaction branch |
+| **C1** | Measure before compacting (10k seeded attempts) | DONE | `1a17992` | `docs/evidence/raw/compaction-baseline.txt`, `scripts/measure-compaction-baseline.ts` | 10k attempts / 1M answers seeded; exact sizes: ExamAttemptAnswer table 89MB, index 91MB, total 180MB; student review median 1.96ms, teacher analytics median 210.12ms, live submit median 12.74ms |
 | **C2** | Reader & writer inventory | NOT_STARTED | - | - | Full grep inventory of ExamAttemptAnswer readers/writers |
 | **C3** | Compact archive table & dry-run job design | NOT_STARTED | - | - | Additive schema, transparent fallback |
 | **C4** | Compaction verifier script | NOT_STARTED | - | - | `scripts/verify-compaction` 100% match |
