@@ -1,0 +1,4309 @@
+=== FRESH CLONE: UNIT TESTS ===
+Git SHA: 11717ac4245d2a9883fa59d45ed0b4dff226fe07
+Timestamp: 2026-10-29T14:45:02Z
+Command: node_modules/.bin/tsx --test tests/unit/*.test.ts
+
+TAP version 13
+# Subtest: A7 privileged server-action guard
+    # Subtest: anonymous is rejected
+    ok 1 - anonymous is rejected
+      ---
+      duration_ms: 1.6365
+      type: 'test'
+      ...
+    # Subtest: STUDENT is rejected
+    ok 2 - STUDENT is rejected
+      ---
+      duration_ms: 0.347
+      type: 'test'
+      ...
+    # Subtest: TEACHER is rejected for admin-only actions
+    ok 3 - TEACHER is rejected for admin-only actions
+      ---
+      duration_ms: 0.320416
+      type: 'test'
+      ...
+    # Subtest: ADMIN passes
+    ok 4 - ADMIN passes
+      ---
+      duration_ms: 0.256583
+      type: 'test'
+      ...
+    1..4
+ok 1 - A7 privileged server-action guard
+  ---
+  duration_ms: 4.443292
+  type: 'suite'
+  ...
+# Subtest: A7 tracks mutations fail closed without an admin session
+    # Subtest: createTrack is rejected outside an authenticated admin request
+    ok 1 - createTrack is rejected outside an authenticated admin request
+      ---
+      duration_ms: 3947.296375
+      type: 'test'
+      ...
+    1..1
+ok 2 - A7 tracks mutations fail closed without an admin session
+  ---
+  duration_ms: 3948.046
+  type: 'suite'
+  ...
+# Subtest: B6 admin analytics are measured, not invented
+    # Subtest: derives each course metric from its own definition
+    ok 1 - derives each course metric from its own definition
+      ---
+      duration_ms: 130.600792
+      type: 'test'
+      ...
+    # Subtest: does not write a fabricated login count
+    ok 2 - does not write a fabricated login count
+      ---
+      duration_ms: 48.64675
+      type: 'test'
+      ...
+    # Subtest: splits new and renewal revenue and leaves unmeasurable metrics null
+    ok 3 - splits new and renewal revenue and leaves unmeasurable metrics null
+      ---
+      duration_ms: 134.97075
+      type: 'test'
+      ...
+    # Subtest: keeps the stored values null, not zero, when read back
+    ok 4 - keeps the stored values null, not zero, when read back
+      ---
+      duration_ms: 47.724541
+      type: 'test'
+      ...
+    # Subtest: runs batched work once per item, in order, with bounded concurrency
+    ok 5 - runs batched work once per item, in order, with bounded concurrency
+      ---
+      duration_ms: 34.666041
+      type: 'test'
+      ...
+    # Subtest: pages through ids instead of loading them all at once
+    ok 6 - pages through ids instead of loading them all at once
+      ---
+      duration_ms: 44.8385
+      type: 'test'
+      ...
+    # Subtest: propagates a worker failure instead of returning partial results
+    ok 7 - propagates a worker failure instead of returning partial results
+      ---
+      duration_ms: 1.764625
+      type: 'test'
+      ...
+    1..7
+ok 3 - B6 admin analytics are measured, not invented
+  ---
+  duration_ms: 1128.254375
+  type: 'suite'
+  ...
+# Subtest: A12 course draft allowlist
+    # Subtest: strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+    ok 1 - strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+      ---
+      duration_ms: 12.300917
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status and an out-of-range preview
+    ok 2 - rejects an invalid status and an out-of-range preview
+      ---
+      duration_ms: 2.596417
+      type: 'test'
+      ...
+    # Subtest: accepts every field the course editor actually sends
+    ok 3 - accepts every field the course editor actually sends
+      ---
+      duration_ms: 3.669583
+      type: 'test'
+      ...
+    # Subtest: inline updates use the same allowlist
+    ok 4 - inline updates use the same allowlist
+      ---
+      duration_ms: 0.889042
+      type: 'test'
+      ...
+    # Subtest: parseOrThrow reports the offending field
+    ok 5 - parseOrThrow reports the offending field
+      ---
+      duration_ms: 17.944792
+      type: 'test'
+      ...
+    1..5
+ok 4 - A12 course draft allowlist
+  ---
+  duration_ms: 107.798
+  type: 'suite'
+  ...
+# Subtest: A12 content-engine question PATCH allowlist
+    # Subtest: strips ids, hashes and relations
+    ok 1 - strips ids, hashes and relations
+      ---
+      duration_ms: 38.445458
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status
+    ok 2 - rejects an invalid status
+      ---
+      duration_ms: 1.000958
+      type: 'test'
+      ...
+    1..2
+ok 5 - A12 content-engine question PATCH allowlist
+  ---
+  duration_ms: 61.349583
+  type: 'suite'
+  ...
+# Subtest: A10 CSV formula injection
+    # Subtest: prefixes cells that a spreadsheet would execute
+    ok 1 - prefixes cells that a spreadsheet would execute
+      ---
+      duration_ms: 2.547
+      type: 'test'
+      ...
+    # Subtest: leaves normal cells unchanged and escapes quotes
+    ok 2 - leaves normal cells unchanged and escapes quotes
+      ---
+      duration_ms: 6.004583
+      type: 'test'
+      ...
+    1..2
+ok 6 - A10 CSV formula injection
+  ---
+  duration_ms: 12.485208
+  type: 'suite'
+  ...
+# Subtest: A10 admin password policy
+    # Subtest: rejects the old 6-character minimum
+    ok 1 - rejects the old 6-character minimum
+      ---
+      duration_ms: 4.724125
+      type: 'test'
+      ...
+    # Subtest: accepts a strong password
+    ok 2 - accepts a strong password
+      ---
+      duration_ms: 0.422125
+      type: 'test'
+      ...
+    1..2
+ok 7 - A10 admin password policy
+  ---
+  duration_ms: 5.521958
+  type: 'suite'
+  ...
+# [batches-service] Next data cache unavailable outside a request scope; reading uncached: Invariant: incrementalCache missing in unstable_cache async function readBatchesFileUncached(){const stored=await(0,import_platform_settings.getPlatformSetting)(import_platform_settings.PLATFORM_SETTING_KEYS.batches);return Array.isArray(stored)?stored:[]}
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 0)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 2)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 4)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 5)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 6)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 7)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 8)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 9)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 1)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# Subtest: B1 batches storage is atomic and read errors are fatal
+    # Subtest: keeps every batch when 10 creates run in parallel
+    ok 1 - keeps every batch when 10 creates run in parallel
+      ---
+      duration_ms: 1231.854458
+      type: 'test'
+      ...
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:85:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:104:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: a read error aborts the mutation and never wipes stored batches
+    ok 2 - a read error aborts the mutation and never wipes stored batches
+      ---
+      duration_ms: 83.41025
+      type: 'test'
+      ...
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:110:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:111:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 0)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:113:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 1)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:113:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:124:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:125:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: concurrent updates to different batches do not overwrite each other
+    ok 3 - concurrent updates to different batches do not overwrite each other
+      ---
+      duration_ms: 239.151625
+      type: 'test'
+      ...
+    1..3
+ok 8 - B1 batches storage is atomic and read errors are fatal
+  ---
+  duration_ms: 1925.865917
+  type: 'suite'
+  ...
+# Subtest: A5 book storage key policy
+    # Subtest: rejects traversal, absolute paths and remote URLs
+    ok 1 - rejects traversal, absolute paths and remote URLs
+      ---
+      duration_ms: 2.819292
+      type: 'test'
+      ...
+    # Subtest: accepts storage keys and legacy public paths
+    ok 2 - accepts storage keys and legacy public paths
+      ---
+      duration_ms: 2.410042
+      type: 'test'
+      ...
+    # Subtest: resolves a real key inside the configured root
+    ok 3 - resolves a real key inside the configured root
+      ---
+      duration_ms: 78.988917
+      type: 'test'
+      ...
+    # Subtest: rejects a symlink that escapes the root
+    ok 4 - rejects a symlink that escapes the root
+      ---
+      duration_ms: 3.278792
+      type: 'test'
+      ...
+    # Subtest: a missing file is a 404, never a fabricated PDF
+    ok 5 - a missing file is a 404, never a fabricated PDF
+      ---
+      duration_ms: 7.300167
+      type: 'test'
+      ...
+    # Subtest: traversal input to readBookFile is rejected before touching disk
+    ok 6 - traversal input to readBookFile is rejected before touching disk
+      ---
+      duration_ms: 2.61475
+      type: 'test'
+      ...
+    1..6
+ok 9 - A5 book storage key policy
+  ---
+  duration_ms: 305.436167
+  type: 'suite'
+  ...
+# Subtest: A5/A12 book update allowlist
+    # Subtest: strips unknown fields such as createdBy
+    ok 1 - strips unknown fields such as createdBy
+      ---
+      duration_ms: 14.525166
+      type: 'test'
+      ...
+    # Subtest: rejects a traversal fullPdfUrl
+    ok 2 - rejects a traversal fullPdfUrl
+      ---
+      duration_ms: 2.787041
+      type: 'test'
+      ...
+    # Subtest: rejects an absolute fullPdfUrl
+    ok 3 - rejects an absolute fullPdfUrl
+      ---
+      duration_ms: 2.087958
+      type: 'test'
+      ...
+    1..3
+ok 10 - A5/A12 book update allowlist
+  ---
+  duration_ms: 23.160458
+  type: 'suite'
+  ...
+# Subtest: B-005: books/orders/coupons persist in Postgres
+    # Subtest: a coupon with usageLimit 3 accepts exactly 3 of 10 parallel redemptions
+    ok 1 - a coupon with usageLimit 3 accepts exactly 3 of 10 parallel redemptions
+      ---
+      duration_ms: 910.960417
+      type: 'test'
+      ...
+    # Subtest: fulfilling the same payment twice has exactly one order effect
+    ok 2 - fulfilling the same payment twice has exactly one order effect
+      ---
+      duration_ms: 784.079334
+      type: 'test'
+      ...
+    # Subtest: running the backfill twice creates no duplicates
+    ok 3 - running the backfill twice creates no duplicates
+      ---
+      duration_ms: 10871.924916
+      type: 'test'
+      ...
+    # Subtest: does not write any data/*.json file
+    ok 4 - does not write any data/*.json file
+      ---
+      duration_ms: 75.205041
+      type: 'test'
+      ...
+    1..4
+ok 11 - B-005: books/orders/coupons persist in Postgres
+  ---
+  duration_ms: 12774.54225
+  type: 'suite'
+  ...
+# Subtest: B3 bookstore revenue counts settled orders only
+    # Subtest: counts only completed orders and exposes a paid count
+    ok 1 - counts only completed orders and exposes a paid count
+      ---
+      duration_ms: 74.630416
+      type: 'test'
+      ...
+    # Subtest: returns no fabricated books, orders or coupons in production
+    ok 2 - returns no fabricated books, orders or coupons in production
+      ---
+      duration_ms: 97.505333
+      type: 'test'
+      ...
+    1..2
+ok 12 - B3 bookstore revenue counts settled orders only
+  ---
+  duration_ms: 424.777875
+  type: 'suite'
+  ...
+# Subtest: Task B9: Centralized Brand & Domain Configuration
+    # Subtest: 1. Brand module exports all required brand and legal fields
+    ok 1 - 1. Brand module exports all required brand and legal fields
+      ---
+      duration_ms: 14.560875
+      type: 'test'
+      ...
+    # Subtest: 2. Environment variable overrides work as expected
+    ok 2 - 2. Environment variable overrides work as expected
+      ---
+      duration_ms: 0.714
+      type: 'test'
+      ...
+    # Subtest: 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+    ok 3 - 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+      ---
+      duration_ms: 1.25125
+      type: 'test'
+      ...
+    # Subtest: 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+    ok 4 - 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+      ---
+      duration_ms: 1.095417
+      type: 'test'
+      ...
+    # Subtest: 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+    ok 5 - 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+      ---
+      duration_ms: 1.354542
+      type: 'test'
+      ...
+    # Subtest: 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+    ok 6 - 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+      ---
+      duration_ms: 0.363459
+      type: 'test'
+      ...
+    1..6
+ok 13 - Task B9: Centralized Brand & Domain Configuration
+  ---
+  duration_ms: 21.877083
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P1-1: Cache Invalidation & Inter-Process Versioning Suite
+    # Subtest: 1. Edit question followed by immediate invalidateExamQuestions shows new data on same instance
+    not ok 1 - 1. Edit question followed by immediate invalidateExamQuestions shows new data on same instance
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/cache-invalidation-versioning.test.ts:2:3089'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 2. Cross-process edit is detected via version check without explicit local invalidate
+    not ok 2 - 2. Cross-process edit is detected via version check without explicit local invalidate
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/cache-invalidation-versioning.test.ts:2:3817'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. onAiQuestionTranslationBatchApproved hook invalidates and triggers fresh translation read
+    not ok 3 - 3. onAiQuestionTranslationBatchApproved hook invalidates and triggers fresh translation read
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/cache-invalidation-versioning.test.ts:2:4551'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 14 - P1-1: Cache Invalidation & Inter-Process Versioning Suite
+  ---
+  duration_ms: 288.309209
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/cache-invalidation-versioning.test.ts:2:1451'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.examSeries.upsert()` invocation in
+    /private/tmp/fresh-clone-launch-verify/tests/unit/cache-invalidation-versioning.test.ts:31:44
+    
+      28 before(async () => {
+      29   process.env.EXAM_RUNTIME_CACHE_QUESTIONS = "1";
+      30 
+    → 31   const series = await prisma.examSeries.upsert(
+    Database `trillionskill_perf_v2_test` does not exist
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/cache-invalidation-versioning.test.ts:31:20)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: B10 cache invalidation
+    # Subtest: invalidates the content-engine tag and every public route
+    ok 1 - invalidates the content-engine tag and every public route
+      ---
+      duration_ms: 46.751209
+      type: 'test'
+      ...
+    # Subtest: invalidates on every content-engine question mutation path
+    ok 2 - invalidates on every content-engine question mutation path
+      ---
+      duration_ms: 54.343625
+      type: 'test'
+      ...
+    # Subtest: invalidates the courses tag from every course content server action
+    ok 3 - invalidates the courses tag from every course content server action
+      ---
+      duration_ms: 16.565292
+      type: 'test'
+      ...
+    # Subtest: invalidates the tag on the coupon deactivation branch and the studio routes
+    ok 4 - invalidates the tag on the coupon deactivation branch and the studio routes
+      ---
+      duration_ms: 13.090916
+      type: 'test'
+      ...
+    # Subtest: keeps every cached read on a registered cache tag
+    ok 5 - keeps every cached read on a registered cache tag
+      ---
+      duration_ms: 604.053916
+      type: 'test'
+      ...
+    1..5
+ok 15 - B10 cache invalidation
+  ---
+  duration_ms: 743.641459
+  type: 'suite'
+  ...
+# Subtest: Cache tags are declared and invalidated (B-015, B-019)
+    # Subtest: finds the unstable_cache reads it is meant to guard
+    ok 1 - finds the unstable_cache reads it is meant to guard
+      ---
+      duration_ms: 2.2555
+      type: 'test'
+      ...
+    # Subtest: uses only registered cache tags
+    ok 2 - uses only registered cache tags
+      ---
+      duration_ms: 4.892959
+      type: 'test'
+      ...
+    # Subtest: invalidates every cached tag from at least one mutation path
+    ok 3 - invalidates every cached tag from at least one mutation path
+      ---
+      duration_ms: 182.503
+      type: 'test'
+      ...
+    # Subtest: keeps batches on the shared tagged cache instead of a module-level TTL cache
+    ok 4 - keeps batches on the shared tagged cache instead of a module-level TTL cache
+      ---
+      duration_ms: 0.757625
+      type: 'test'
+      ...
+    1..4
+ok 16 - Cache tags are declared and invalidated (B-015, B-019)
+  ---
+  duration_ms: 196.461334
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task B4: Client IP / TRUST_PROXY Hardening
+    # Subtest: normalizeIp
+        # Subtest: accepts valid IPv4 addresses
+        ok 1 - accepts valid IPv4 addresses
+          ---
+          duration_ms: 57.6775
+          type: 'test'
+          ...
+        # Subtest: accepts valid IPv6 addresses in canonical form
+        ok 2 - accepts valid IPv6 addresses in canonical form
+          ---
+          duration_ms: 12.921959
+          type: 'test'
+          ...
+        # Subtest: normalizes bracketed and port-annotated IPs
+        ok 3 - normalizes bracketed and port-annotated IPs
+          ---
+          duration_ms: 1.616917
+          type: 'test'
+          ...
+        # Subtest: extracts IPv4 from IPv4-mapped IPv6
+        ok 4 - extracts IPv4 from IPv4-mapped IPv6
+          ---
+          duration_ms: 1.550959
+          type: 'test'
+          ...
+        # Subtest: rejects malicious or invalid strings
+        ok 5 - rejects malicious or invalid strings
+          ---
+          duration_ms: 0.463958
+          type: 'test'
+          ...
+        1..5
+    ok 1 - normalizeIp
+      ---
+      duration_ms: 76.911917
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=false (Default - Fail Closed)
+        # Subtest: ignores spoofed X-Forwarded-For headers
+        ok 1 - ignores spoofed X-Forwarded-For headers
+          ---
+          duration_ms: 56.940958
+          type: 'test'
+          ...
+        # Subtest: ignores CF-Connecting-IP header
+        ok 2 - ignores CF-Connecting-IP header
+          ---
+          duration_ms: 0.383375
+          type: 'test'
+          ...
+        # Subtest: ignores X-Real-IP header
+        ok 3 - ignores X-Real-IP header
+          ---
+          duration_ms: 1.552792
+          type: 'test'
+          ...
+        # Subtest: returns 127.0.0.1 when no request is passed
+        ok 4 - returns 127.0.0.1 when no request is passed
+          ---
+          duration_ms: 6.125666
+          type: 'test'
+          ...
+        1..4
+    ok 2 - TRUST_PROXY=false (Default - Fail Closed)
+      ---
+      duration_ms: 65.791417
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+        # Subtest: prioritizes valid CF-Connecting-IP over other headers
+        ok 1 - prioritizes valid CF-Connecting-IP over other headers
+          ---
+          duration_ms: 0.944083
+          type: 'test'
+          ...
+        # Subtest: rejects malicious CF-Connecting-IP and falls back safely
+        ok 2 - rejects malicious CF-Connecting-IP and falls back safely
+          ---
+          duration_ms: 0.451583
+          type: 'test'
+          ...
+        # Subtest: extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+        ok 3 - extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+          ---
+          duration_ms: 0.776792
+          type: 'test'
+          ...
+        # Subtest: extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+        ok 4 - extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+          ---
+          duration_ms: 0.420791
+          type: 'test'
+          ...
+        # Subtest: falls back to X-Real-IP if X-Forwarded-For is missing
+        ok 5 - falls back to X-Real-IP if X-Forwarded-For is missing
+          ---
+          duration_ms: 0.516125
+          type: 'test'
+          ...
+        # Subtest: handles standard Request object and Next.js { headers } container
+        ok 6 - handles standard Request object and Next.js { headers } container
+          ---
+          duration_ms: 4.826584
+          type: 'test'
+          ...
+        1..6
+    ok 3 - TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+      ---
+      duration_ms: 8.355333
+      type: 'suite'
+      ...
+    1..3
+ok 17 - Task B4: Client IP / TRUST_PROXY Hardening
+  ---
+  duration_ms: 152.243167
+  type: 'suite'
+  ...
+# Subtest: P1-2: clientSeq NOT NULL COALESCE & Edge Case Verification
+    # Subtest: 1. Absent and null clientSeq coalesce to 0 without 23502 not-null constraint violation
+    not ok 1 - 1. Absent and null clientSeq coalesce to 0 without 23502 not-null constraint violation
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/client-seq-coalesce.test.ts:2:2912'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 2. Increasing clientSeq values update the record cleanly
+    not ok 2 - 2. Increasing clientSeq values update the record cleanly
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/client-seq-coalesce.test.ts:27:328'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. Out-of-order batches: older packet (seq 2) arriving after seq 5 is rejected
+    not ok 3 - 3. Out-of-order batches: older packet (seq 2) arriving after seq 5 is rejected
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/client-seq-coalesce.test.ts:52:249'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 18 - P1-2: clientSeq NOT NULL COALESCE & Edge Case Verification
+  ---
+  duration_ms: 219.819542
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/client-seq-coalesce.test.ts:2:1294'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.user.upsert()` invocation in
+    /private/tmp/fresh-clone-launch-verify/tests/unit/client-seq-coalesce.test.ts:23:36
+    
+      20 let attemptId: string;
+      21 
+      22 before(async () => {
+    → 23   const user = await prisma.user.upsert(
+    Database `trillionskill_perf_v2_test` does not exist
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/client-seq-coalesce.test.ts:23:18)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: P1-4: Connection limit validator and pg_stat_activity verification
+    # Subtest: passes and parses limit when connection_limit is present in DATABASE_URL
+    ok 1 - passes and parses limit when connection_limit is present in DATABASE_URL
+      ---
+      duration_ms: 72.833875
+      type: 'test'
+      ...
+    # Subtest: warns when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT is unset
+    ok 2 - warns when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT is unset
+      ---
+      duration_ms: 0.628375
+      type: 'test'
+      ...
+    # Subtest: throws error when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT=true
+    ok 3 - throws error when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT=true
+      ---
+      duration_ms: 1.245792
+      type: 'test'
+      ...
+    # Subtest: measures actual backend connections via pg_stat_activity with connection_limit set
+    not ok 4 - measures actual backend connections via pg_stat_activity with connection_limit set
+      ---
+      duration_ms: 149.66475
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/connection-limit-validator.test.ts:2:2783'
+      failureType: 'testCodeFailure'
+      error: |-
+        
+        Invalid `prisma.$executeRaw()` invocation:
+        
+        
+        Database `trillionskill_perf_v2_test` does not exist
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async Promise.all (index 3)
+        async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/connection-limit-validator.test.ts:63:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..4
+not ok 19 - P1-4: Connection limit validator and pg_stat_activity verification
+  ---
+  duration_ms: 232.858834
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/connection-limit-validator.test.ts:2:1228'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [CONTENT_AUDIT_FS] CREATE LESSON b5-test-1793285112000 by anonymous
+# Subtest: B5 content audit events live in the database
+    # Subtest: writes an event to the database and nothing to disk
+    not ok 1 - writes an event to the database and nothing to disk
+      ---
+      duration_ms: 67.323416
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/content-audit-db.test.ts:2:1922'
+      failureType: 'testCodeFailure'
+      error: 'event must be stored in AuditEvent'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/content-audit-db.test.ts:55:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+# [CONTENT_AUDIT_FS] UPDATE COURSE b5-test-1793285112000 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE COURSE b5-test-1793285112000 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE COURSE b5-test-1793285112000 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE COURSE b5-test-1793285112000 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE COURSE b5-test-1793285112000 by anonymous
+    # Subtest: paginates reads newest first
+    not ok 2 - paginates reads newest first
+      ---
+      duration_ms: 10.239083
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/content-audit-db.test.ts:2:2864'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        
+        2 !== 1
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 1
+      actual: 2
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/content-audit-db.test.ts:89:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: backfills the legacy jsonl idempotently
+    ok 3 - backfills the legacy jsonl idempotently
+      ---
+      duration_ms: 68.104042
+      type: 'test'
+      ...
+    1..3
+not ok 20 - B5 content audit events live in the database
+  ---
+  duration_ms: 527.080125
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/content-audit-db.test.ts:2:1260'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: B11 content-engine export is bounded
+    # Subtest: parses the export range and refuses an oversized page
+    ok 1 - parses the export range and refuses an oversized page
+      ---
+      duration_ms: 4.725375
+      type: 'test'
+      ...
+    # Subtest: reports part metadata for the response headers
+    ok 2 - reports part metadata for the response headers
+      ---
+      duration_ms: 0.976166
+      type: 'test'
+      ...
+    # Subtest: refuses a default request that would need several archives
+    ok 3 - refuses a default request that would need several archives
+      ---
+      duration_ms: 0.661042
+      type: 'test'
+      ...
+    # Subtest: reads the corpus in pages without repeats or omissions
+    ok 4 - reads the corpus in pages without repeats or omissions
+      ---
+      duration_ms: 445.422459
+      type: 'test'
+      ...
+    # Subtest: stops at the end of the corpus
+    ok 5 - stops at the end of the corpus
+      ---
+      duration_ms: 39.742458
+      type: 'test'
+      ...
+    1..5
+ok 21 - B11 content-engine export is bounded
+  ---
+  duration_ms: 705.671459
+  type: 'suite'
+  ...
+# Subtest: B9 content-engine search is ANDed with filters
+    # Subtest: keeps the equality filters when a search is present
+    ok 1 - keeps the equality filters when a search is present
+      ---
+      duration_ms: 244.536209
+      type: 'test'
+      ...
+    # Subtest: does not let the search widen the uncategorised filter
+    ok 2 - does not let the search widen the uncategorised filter
+      ---
+      duration_ms: 35.061209
+      type: 'test'
+      ...
+    # Subtest: requires every search token, not the exact phrase
+    ok 3 - requires every search token, not the exact phrase
+      ---
+      duration_ms: 25.463959
+      type: 'test'
+      ...
+    # Subtest: treats LIKE wildcards as literal text
+    ok 4 - treats LIKE wildcards as literal text
+      ---
+      duration_ms: 26.835625
+      type: 'test'
+      ...
+    # Subtest: ANDs search with exam, year and publication state
+    ok 5 - ANDs search with exam, year and publication state
+      ---
+      duration_ms: 29.319333
+      type: 'test'
+      ...
+    # Subtest: still paginates the filtered set
+    ok 6 - still paginates the filtered set
+      ---
+      duration_ms: 43.400875
+      type: 'test'
+      ...
+    1..6
+ok 22 - B9 content-engine search is ANDed with filters
+  ---
+  duration_ms: 826.964541
+  type: 'suite'
+  ...
+# Subtest: B8 content ordering and slug races
+    # Subtest: the unlocked read-then-insert pattern really does duplicate positions
+    ok 1 - the unlocked read-then-insert pattern really does duplicate positions
+      ---
+      duration_ms: 411.602916
+      type: 'test'
+      ...
+    # Subtest: allocates unique chapter positions under concurrency
+    ok 2 - allocates unique chapter positions under concurrency
+      ---
+      duration_ms: 328.158208
+      type: 'test'
+      ...
+    # Subtest: allocates unique lesson positions under concurrency
+    ok 3 - allocates unique lesson positions under concurrency
+      ---
+      duration_ms: 178.242209
+      type: 'test'
+      ...
+    # Subtest: keeps every remaining content create on the locked allocator
+    ok 4 - keeps every remaining content create on the locked allocator
+      ---
+      duration_ms: 17.1315
+      type: 'test'
+      ...
+    # Subtest: maps a slug unique-violation to a conflict on every course create path
+    ok 5 - maps a slug unique-violation to a conflict on every course create path
+      ---
+      duration_ms: 26.09625
+      type: 'test'
+      ...
+    1..5
+ok 23 - B8 content ordering and slug races
+  ---
+  duration_ms: 1131.320584
+  type: 'suite'
+  ...
+# Subtest: B13 getCourseLesson is a narrow, read-only query
+    # Subtest: does not create progress when a lesson is opened
+    ok 1 - does not create progress when a lesson is opened
+      ---
+      duration_ms: 55.623667
+      type: 'test'
+      ...
+    # Subtest: does not bump lastAccessed on an existing progress row
+    ok 2 - does not bump lastAccessed on an existing progress row
+      ---
+      duration_ms: 53.608042
+      type: 'test'
+      ...
+    # Subtest: does not create progress for a locked lesson
+    ok 3 - does not create progress for a locked lesson
+      ---
+      duration_ms: 33.389625
+      type: 'test'
+      ...
+    # Subtest: allows a trial lesson in a premium course without writing progress
+    ok 4 - allows a trial lesson in a premium course without writing progress
+      ---
+      duration_ms: 40.615625
+      type: 'test'
+      ...
+    # Subtest: returns null media and duration instead of a sample video and 10 mins
+    ok 5 - returns null media and duration instead of a sample video and 10 mins
+      ---
+      duration_ms: 99.090292
+      type: 'test'
+      ...
+    # Subtest: keeps course-wide prev/next navigation across chapters
+    ok 6 - keeps course-wide prev/next navigation across chapters
+      ---
+      duration_ms: 102.038042
+      type: 'test'
+      ...
+    # Subtest: rejects a lesson that belongs to a different course
+    ok 7 - rejects a lesson that belongs to a different course
+      ---
+      duration_ms: 7.674542
+      type: 'test'
+      ...
+    # Subtest: reports an unknown or unpublished course as not found
+    ok 8 - reports an unknown or unpublished course as not found
+      ---
+      duration_ms: 3.84575
+      type: 'test'
+      ...
+    1..8
+ok 24 - B13 getCourseLesson is a narrow, read-only query
+  ---
+  duration_ms: 1215.966417
+  type: 'suite'
+  ...
+# Subtest: B2 course metadata is DB-only and never reports a failed write
+    # Subtest: a database write failure rejects instead of returning success
+    ok 1 - a database write failure rejects instead of returning success
+      ---
+      duration_ms: 132.731
+      type: 'test'
+      ...
+    # Subtest: a database read failure rejects instead of falling back to defaults
+    ok 2 - a database read failure rejects instead of falling back to defaults
+      ---
+      duration_ms: 0.6235
+      type: 'test'
+      ...
+    # Subtest: a saved value is read back immediately (no stale module cache)
+    ok 3 - a saved value is read back immediately (no stale module cache)
+      ---
+      duration_ms: 70.990625
+      type: 'test'
+      ...
+    # Subtest: legacy data/course-metadata.json is no longer used as a source
+    ok 4 - legacy data/course-metadata.json is no longer used as a source
+      ---
+      duration_ms: 4.623083
+      type: 'test'
+      ...
+    1..4
+ok 25 - B2 course metadata is DB-only and never reports a failed write
+  ---
+  duration_ms: 441.163375
+  type: 'suite'
+  ...
+# Subtest: A8 course ownership
+    # Subtest: admin can manage every course
+    ok 1 - admin can manage every course
+      ---
+      duration_ms: 3.202833
+      type: 'test'
+      ...
+    # Subtest: a teacher can only manage their own course
+    ok 2 - a teacher can only manage their own course
+      ---
+      duration_ms: 0.338792
+      type: 'test'
+      ...
+    # Subtest: legacy courses without a creator are admin-only for real teachers
+    ok 3 - legacy courses without a creator are admin-only for real teachers
+      ---
+      duration_ms: 0.256542
+      type: 'test'
+      ...
+    # Subtest: students and anonymous callers are always denied
+    ok 4 - students and anonymous callers are always denied
+      ---
+      duration_ms: 0.222458
+      type: 'test'
+      ...
+    # Subtest: missing course or missing user id fails closed
+    ok 5 - missing course or missing user id fails closed
+      ---
+      duration_ms: 0.184042
+      type: 'test'
+      ...
+    # Subtest: assertCanManageCourse distinguishes 401 from 403
+    ok 6 - assertCanManageCourse distinguishes 401 from 403
+      ---
+      duration_ms: 1.175208
+      type: 'test'
+      ...
+    # Subtest: courses with enrollments are archived, never deleted
+    ok 7 - courses with enrollments are archived, never deleted
+      ---
+      duration_ms: 0.33325
+      type: 'test'
+      ...
+    # Subtest: demo identities are never persisted as a creator
+    ok 8 - demo identities are never persisted as a creator
+      ---
+      duration_ms: 3.583291
+      type: 'test'
+      ...
+    1..8
+ok 26 - A8 course ownership
+  ---
+  duration_ms: 13.596833
+  type: 'suite'
+  ...
+# Subtest: B12 dashboard summary uses real rows
+    # Subtest: reports zeros for a guest and never links to an unpublished test
+    ok 1 - reports zeros for a guest and never links to an unpublished test
+      ---
+      duration_ms: 9.6955
+      type: 'test'
+      ...
+    # Subtest: uses the learner's own streak, today's study time and latest lesson
+    ok 2 - uses the learner's own streak, today's study time and latest lesson
+      ---
+      duration_ms: 94.353542
+      type: 'test'
+      ...
+    # Subtest: returns no continue-learning for a learner with no progress
+    ok 3 - returns no continue-learning for a learner with no progress
+      ---
+      duration_ms: 29.096625
+      type: 'test'
+      ...
+    # Subtest: caps the daily goal at 100 percent
+    ok 4 - caps the daily goal at 100 percent
+      ---
+      duration_ms: 81.262583
+      type: 'test'
+      ...
+    1..4
+ok 27 - B12 dashboard summary uses real rows
+  ---
+  duration_ms: 605.974084
+  type: 'suite'
+  ...
+# Subtest: B12 dashboard UI does not invent card values
+    # Subtest: the dashboard page has no fabricated guest stats or course card values
+    ok 1 - the dashboard page has no fabricated guest stats or course card values
+      ---
+      duration_ms: 11.056375
+      type: 'test'
+      ...
+    # Subtest: the tests tab shows fetched tests with loading, error and empty states
+    ok 2 - the tests tab shows fetched tests with loading, error and empty states
+      ---
+      duration_ms: 15.444916
+      type: 'test'
+      ...
+    # Subtest: course cards do not fall back to an invented rating, duration or learner count
+    ok 3 - course cards do not fall back to an invented rating, duration or learner count
+      ---
+      duration_ms: 6.241209
+      type: 'test'
+      ...
+    1..3
+ok 28 - B12 dashboard UI does not invent card values
+  ---
+  duration_ms: 34.393167
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task G2: Data Deletion Queue & Admin Transitions
+    # Subtest: 1. Security: Role Checks (Non-Admin 403)
+        # Subtest: Non-admin (student) gets 403 on admin list route
+        ok 1 - Non-admin (student) gets 403 on admin list route
+          ---
+          duration_ms: 28.805666
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin single get route
+        ok 2 - Non-admin (student) gets 403 on admin single get route
+          ---
+          duration_ms: 1.423542
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin transition patch route
+        ok 3 - Non-admin (student) gets 403 on admin transition patch route
+          ---
+          duration_ms: 1.366584
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: Role Checks (Non-Admin 403)
+      ---
+      duration_ms: 32.498042
+      type: 'suite'
+      ...
+    # Subtest: 2. Admin Queue Listing & Transitions
+        # Subtest: Admin can list deletion requests
+        ok 1 - Admin can list deletion requests
+          ---
+          duration_ms: 42.019834
+          type: 'test'
+          ...
+        # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+        ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+          ---
+          duration_ms: 27.292625
+          type: 'test'
+          ...
+        # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+        ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+          ---
+          duration_ms: 14.035
+          type: 'test'
+          ...
+        # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+        ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+          ---
+          duration_ms: 8.9535
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Admin Queue Listing & Transitions
+      ---
+      duration_ms: 93.821625
+      type: 'suite'
+      ...
+    # Subtest: 3. Authenticated User Deletion Request & Idempotency
+        # Subtest: Authenticated student request creates initial record
+        ok 1 - Authenticated student request creates initial record
+          ---
+          duration_ms: 74.21275
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Authenticated User Deletion Request & Idempotency
+      ---
+      duration_ms: 76.479542
+      type: 'suite'
+      ...
+    1..3
+ok 29 - Task G2: Data Deletion Queue & Admin Transitions
+  ---
+  duration_ms: 315.459666
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Demo chat rate limit is shared, not process-local (B-018)
+    # Subtest: does not keep an in-memory rate limit map in the demo chat route
+    ok 1 - does not keep an in-memory rate limit map in the demo chat route
+      ---
+      duration_ms: 2.590625
+      type: 'test'
+      ...
+    # Subtest: counts requests in Postgres and rejects the second message inside the window
+    ok 2 - counts requests in Postgres and rejects the second message inside the window
+      ---
+      duration_ms: 30.568125
+      type: 'test'
+      ...
+    # Subtest: keeps limits per user
+    ok 3 - keeps limits per user
+      ---
+      duration_ms: 8.820375
+      type: 'test'
+      ...
+    1..3
+ok 30 - Demo chat rate limit is shared, not process-local (B-018)
+  ---
+  duration_ms: 154.016958
+  type: 'suite'
+  ...
+# Subtest: A1 demo-role policy
+    # Subtest: production build always ignores ts_demo_role, even in the test env
+    ok 1 - production build always ignores ts_demo_role, even in the test env
+      ---
+      duration_ms: 5.935042
+      type: 'test'
+      ...
+    # Subtest: test environment enables the demo role
+    ok 2 - test environment enables the demo role
+      ---
+      duration_ms: 0.713291
+      type: 'test'
+      ...
+    # Subtest: explicit demo flag enables the demo role outside test
+    ok 3 - explicit demo flag enables the demo role outside test
+      ---
+      duration_ms: 1.052083
+      type: 'test'
+      ...
+    # Subtest: fails closed when nothing explicitly enables demo mode
+    ok 4 - fails closed when nothing explicitly enables demo mode
+      ---
+      duration_ms: 0.852042
+      type: 'test'
+      ...
+    # Subtest: rejects an unknown role value
+    ok 5 - rejects an unknown role value
+      ---
+      duration_ms: 0.940709
+      type: 'test'
+      ...
+    1..5
+ok 31 - A1 demo-role policy
+  ---
+  duration_ms: 11.997083
+  type: 'suite'
+  ...
+# Subtest: A1 /api/auth/role is inert in production
+    # Subtest: POST returns 404 in production and never sets a cookie
+    ok 1 - POST returns 404 in production and never sets a cookie
+      ---
+      duration_ms: 282.48325
+      type: 'test'
+      ...
+    # Subtest: GET returns 404 in production
+    ok 2 - GET returns 404 in production
+      ---
+      duration_ms: 5.086917
+      type: 'test'
+      ...
+    1..2
+ok 32 - A1 /api/auth/role is inert in production
+  ---
+  duration_ms: 290.988833
+  type: 'suite'
+  ...
+# Subtest: C2 doubts and form submissions live in the database
+    # Subtest: stores a new doubt as a Doubt row, not in data/doubts.json
+    not ok 1 - stores a new doubt as a Doubt row, not in data/doubts.json
+      ---
+      duration_ms: 21.821417
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:2:1812'
+      failureType: 'testCodeFailure'
+      error: 'the doubt must be a database row'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:67:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: answers a doubt and only that row changes
+    not ok 2 - answers a doubt and only that row changes
+      ---
+      duration_ms: 8.743833
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:2:3238'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        + actual - expected
+        
+        + undefined
+        - 'ANSWERED'
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 'ANSWERED'
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:100:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: counts concurrent upvotes without losing one
+    not ok 3 - counts concurrent upvotes without losing one
+      ---
+      duration_ms: 28.745791
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:2:4008'
+      failureType: 'testCodeFailure'
+      error: |-
+        three upvotes must be three rows-worth of increments
+        
+        undefined !== 3
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 3
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:115:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: returns null for an unknown doubt instead of inventing one
+    ok 4 - returns null for an unknown doubt instead of inventing one
+      ---
+      duration_ms: 2.291208
+      type: 'test'
+      ...
+    # Subtest: filters doubts by student, status and subject
+    ok 5 - filters doubts by student, status and subject
+      ---
+      duration_ms: 0.763917
+      type: 'test'
+      ...
+    # Subtest: stores a form submission as a FormSubmission row with JSON answers
+    not ok 6 - stores a form submission as a FormSubmission row with JSON answers
+      ---
+      duration_ms: 9.608417
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:2:5865'
+      failureType: 'testCodeFailure'
+      error: 'the submission must be a database row'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:155:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: no longer writes either store to disk
+    not ok 7 - no longer writes either store to disk
+      ---
+      duration_ms: 4.357583
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:2:6990'
+      failureType: 'testCodeFailure'
+      error: |-
+        lib/doubts-service.ts must not import fs
+        
+        true !== false
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: false
+      actual: true
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:176:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..7
+not ok 33 - C2 doubts and form submissions live in the database
+  ---
+  duration_ms: 194.012792
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:2:1210'
+  failureType: 'subtestsFailed'
+  error: '5 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Task G5: Email Outbox Worker Verification
+    # Subtest: 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+        # Subtest: Rejects request with missing CRON_SECRET (401)
+        ok 1 - Rejects request with missing CRON_SECRET (401)
+          ---
+          duration_ms: 24.862709
+          type: 'test'
+          ...
+        # Subtest: Rejects request with invalid CRON_SECRET (401)
+        ok 2 - Rejects request with invalid CRON_SECRET (401)
+          ---
+          duration_ms: 6.563708
+          type: 'test'
+          ...
+        # Subtest: Accepts request with valid CRON_SECRET (200)
+        ok 3 - Accepts request with valid CRON_SECRET (200)
+          ---
+          duration_ms: 63.648
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+      ---
+      duration_ms: 104.505667
+      type: 'suite'
+      ...
+    # Subtest: 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+        # Subtest: Successfully sends pending row via primary provider (Brevo) and marks SENT
+        ok 1 - Successfully sends pending row via primary provider (Brevo) and marks SENT
+          ---
+          duration_ms: 109.05475
+          type: 'test'
+          ...
+        # Subtest: Falls back to Resend when Brevo fails
+        ok 2 - Falls back to Resend when Brevo fails
+          ---
+          duration_ms: 82.83075
+          type: 'test'
+          ...
+        # Subtest: Backoff schedule: exponential backoff with jitter on total provider failure
+        ok 3 - Backoff schedule: exponential backoff with jitter on total provider failure
+          ---
+          duration_ms: 0.71125
+          type: 'test'
+          ...
+        # Subtest: Transitions to DEAD_LETTER after max attempts exceeded
+        ok 4 - Transitions to DEAD_LETTER after max attempts exceeded
+          ---
+          duration_ms: 99.712
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+      ---
+      duration_ms: 294.329959
+      type: 'suite'
+      ...
+    # Subtest: 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+        # Subtest: Two concurrent workers never send the same row twice
+        ok 1 - Two concurrent workers never send the same row twice
+          ---
+          duration_ms: 154.262875
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+      ---
+      duration_ms: 155.285625
+      type: 'suite'
+      ...
+    1..3
+ok 34 - Task G5: Email Outbox Worker Verification
+  ---
+  duration_ms: 667.540541
+  type: 'suite'
+  ...
+# Subtest: Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+    # Subtest: 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+    ok 1 - 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+      ---
+      duration_ms: 181.012375
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 500: {"error":"Brevo Internal Service Error"}. Attempting fallback (Resend)...
+    # Subtest: 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+    ok 2 - 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+      ---
+      duration_ms: 68.519875
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 502: {"error":"Brevo Bad Gateway"}. Attempting fallback (Resend)...
+# [Email] Fallback provider (Resend) failed: Resend HTTP 429: {"error":"Resend Rate Limit Exceeded"}.
+# [Email] All email delivery providers failed. Queuing message to queued_1793285115906@example.com into EmailOutbox for background retry.
+    # Subtest: 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+    ok 3 - 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+      ---
+      duration_ms: 153.079625
+      type: 'test'
+      ...
+# [DbEmailOutbox] Stored to: dev_test_1793285116057@example.com | Subject: Dev Mode Email Test | Link: none
+    # Subtest: 4. In dev/test when neither key is configured, writes to outbox without failing
+    ok 4 - 4. In dev/test when neither key is configured, writes to outbox without failing
+      ---
+      duration_ms: 64.667333
+      type: 'test'
+      ...
+    1..4
+ok 35 - Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+  ---
+  duration_ms: 535.744583
+  type: 'suite'
+  ...
+# [Email] All email delivery providers failed. Queuing message to c2-production@example.test into EmailOutbox for background retry.
+# [DevEmailOutbox] Sent to: c2-test@example.test | Subject: Recorded in the test outbox | Link: http://127.0.0.1:3045/reset-password?token=c2-token
+# Subtest: C2 email transport fails closed in production
+    # Subtest: reports failure in production when no provider key is configured
+    ok 1 - reports failure in production when no provider key is configured
+      ---
+      duration_ms: 141.5575
+      type: 'test'
+      ...
+    # Subtest: still records to the outbox in the test environment
+    ok 2 - still records to the outbox in the test environment
+      ---
+      duration_ms: 4.860459
+      type: 'test'
+      ...
+    1..2
+ok 36 - C2 email transport fails closed in production
+  ---
+  duration_ms: 148.83325
+  type: 'suite'
+  ...
+# Razorpay credentials not configured
+# RAZORPAY_KEY_SECRET is not configured; cannot verify payment signature
+# Subtest: S3 configuration guards (B-013)
+    # Subtest: getS3Url throws an explicit error instead of building an 'undefined' URL
+    not ok 1 - getS3Url throws an explicit error instead of building an 'undefined' URL
+      ---
+      duration_ms: 11.28425
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/env-guard.test.ts:2:1856'
+      failureType: 'testCodeFailure'
+      error: |-
+        The input did not match the regular expression /S3 is not configured: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_S3_BUCKET_NAME are required/. Input:
+        
+        'Error: S3 is not configured: AWS_ACCESS_KEY_ID (or S3_ACCESS_KEY), AWS_SECRET_ACCESS_KEY (or S3_SECRET_KEY) and AWS_S3_BUCKET_NAME (or S3_BUCKET) are required'
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+      error: 'S3 is not configured: AWS_ACCESS_KEY_ID (or S3_ACCESS_KEY), AWS_SECRET_ACCESS_KEY (or S3_SECRET_KEY) and AWS_S3_BUCKET_NAME (or S3_BUCKET) are required'
+      stack: |-
+        getS3Config (/private/tmp/fresh-clone-launch-verify/lib/aws-s3.ts:23:15)
+        getS3Url (/private/tmp/fresh-clone-launch-verify/lib/aws-s3.ts:104:36)
+        <anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/env-guard.test.ts:61:13)
+        getActual (node:assert:609:5)
+        Function.throws (node:assert:757:24)
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/env-guard.test.ts:60:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+      operator: 'throws'
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/env-guard.test.ts:60:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: generatePresignedUrl rejects with the explicit configuration error
+    ok 2 - generatePresignedUrl rejects with the explicit configuration error
+      ---
+      duration_ms: 53.638709
+      type: 'test'
+      ...
+    # Subtest: deleteFromS3 rejects with the explicit configuration error
+    ok 3 - deleteFromS3 rejects with the explicit configuration error
+      ---
+      duration_ms: 9.538959
+      type: 'test'
+      ...
+    # Subtest: still builds a normal S3 URL when the bucket is configured
+    ok 4 - still builds a normal S3 URL when the bucket is configured
+      ---
+      duration_ms: 1.065583
+      type: 'test'
+      ...
+    1..4
+not ok 37 - S3 configuration guards (B-013)
+  ---
+  duration_ms: 78.382334
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/env-guard.test.ts:2:1793'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Razorpay signature guards (B-012)
+    # Subtest: verifyRazorpaySignature returns false (never throws) when the secret is missing
+    ok 1 - verifyRazorpaySignature returns false (never throws) when the secret is missing
+      ---
+      duration_ms: 2.362041
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpaySignature accepts a correctly signed payload
+    ok 2 - verifyRazorpaySignature accepts a correctly signed payload
+      ---
+      duration_ms: 3.491208
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpayWebhookSignature never falls back to RAZORPAY_KEY_SECRET
+    ok 3 - verifyRazorpayWebhookSignature never falls back to RAZORPAY_KEY_SECRET
+      ---
+      duration_ms: 8.396541
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpayWebhookSignature accepts a correctly signed webhook
+    ok 4 - verifyRazorpayWebhookSignature accepts a correctly signed webhook
+      ---
+      duration_ms: 2.941083
+      type: 'test'
+      ...
+    1..4
+ok 38 - Razorpay signature guards (B-012)
+  ---
+  duration_ms: 18.274667
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# [CONTENT_AUDIT_FS] UPDATE EXAM_TEST t-1 by anonymous
+# [CONTENT_AUDIT_FS] BULK_QUICK_FIRST_N_FREE EXAM_TEST t-1,t-2 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE EXAM_TEST t-1 by anonymous
+# [CONTENT_AUDIT_FS] BULK_REVERT_STATES EXAM_TEST t-1,t-2 by anonymous
+# [CONTENT_AUDIT_FS] ARCHIVE EXAM_TEST test-preserve-1 by anonymous
+# [CONTENT_AUDIT_FS] RESTORE_VERSION EXAM_TEST test-preserve-1 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE EXAM_TEST test-detach-1 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE EXAM_SERIES entity-456 by anonymous
+# Subtest: Automated Checklist Scenarios Integration Suite
+    # Subtest: Scenario 1: Change package slug and resolve via history returns package
+    ok 1 - Scenario 1: Change package slug and resolve via history returns package
+      ---
+      duration_ms: 60.693041
+      type: 'test'
+      ...
+    # Subtest: Scenario 2: Make first N free applies access, and Undo restores state
+    ok 2 - Scenario 2: Make first N free applies access, and Undo restores state
+      ---
+      duration_ms: 6.480084
+      type: 'test'
+      ...
+    # Subtest: Scenario 3: N=-1 and N greater than total tests are rejected
+    ok 3 - Scenario 3: N=-1 and N greater than total tests are rejected
+      ---
+      duration_ms: 0.945583
+      type: 'test'
+      ...
+    # Subtest: Scenario 4: Soft delete (archive) when attempts exist, hard delete when empty
+    ok 4 - Scenario 4: Soft delete (archive) when attempts exist, hard delete when empty
+      ---
+      duration_ms: 0.680541
+      type: 'test'
+      ...
+    # Subtest: Scenario 5: Teacher mutating another author's package gets 403
+    ok 5 - Scenario 5: Teacher mutating another author's package gets 403
+      ---
+      duration_ms: 1.979459
+      type: 'test'
+      ...
+    # Subtest: Scenario 6: IDOR cross-package tampering is blocked
+    ok 6 - Scenario 6: IDOR cross-package tampering is blocked
+      ---
+      duration_ms: 1.193834
+      type: 'test'
+      ...
+    # Subtest: Scenario 7: ts_demo_role cookie authorizes no mutation in production
+    ok 7 - Scenario 7: ts_demo_role cookie authorizes no mutation in production
+      ---
+      duration_ms: 0.6065
+      type: 'test'
+      ...
+    # Subtest: Scenario 8: Archive test then restore it preserves attempts
+    ok 8 - Scenario 8: Archive test then restore it preserves attempts
+      ---
+      duration_ms: 2.940625
+      type: 'test'
+      ...
+    # Subtest: Scenario 9: Detach test moves to Unassigned series excluded from catalogue
+    ok 9 - Scenario 9: Detach test moves to Unassigned series excluded from catalogue
+      ---
+      duration_ms: 3.347583
+      type: 'test'
+      ...
+    # Subtest: Scenario 10: Concurrent save rejected with 409 conflict when updatedAt differs
+    ok 10 - Scenario 10: Concurrent save rejected with 409 conflict when updatedAt differs
+      ---
+      duration_ms: 1.575208
+      type: 'test'
+      ...
+    # Subtest: Scenario 11: writeDualAuditLog writes dual audit logs
+    ok 11 - Scenario 11: writeDualAuditLog writes dual audit logs
+      ---
+      duration_ms: 1.419709
+      type: 'test'
+      ...
+    # Subtest: Scenario 12: Undo rejects with 409 if tests were modified by another session
+    ok 12 - Scenario 12: Undo rejects with 409 if tests were modified by another session
+      ---
+      duration_ms: 6.890542
+      type: 'test'
+      ...
+    # Subtest: Scenario 13: Toast duration constant is set to 20 seconds
+    ok 13 - Scenario 13: Toast duration constant is set to 20 seconds
+      ---
+      duration_ms: 0.588292
+      type: 'test'
+      ...
+    1..13
+ok 39 - Automated Checklist Scenarios Integration Suite
+  ---
+  duration_ms: 92.260541
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P0-1: Exam Deadline Before Write Verification
+    # Subtest: 1. Boundary check: 60 min test with 30s grace allows writes at +20s but rejects at +31s
+    not ok 1 - 1. Boundary check: 60 min test with 30s grace allows writes at +20s but rejects at +31s
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-deadline-ordering.test.ts:2:3131'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 2. syncAttemptAnswers past deadline writes zero rows to ExamAttemptAnswer
+    not ok 2 - 2. syncAttemptAnswers past deadline writes zero rows to ExamAttemptAnswer
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-deadline-ordering.test.ts:2:4115'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. submitTestAttempt past deadline writes zero final answer rows but completes grading
+    not ok 3 - 3. submitTestAttempt past deadline writes zero final answer rows but completes grading
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-deadline-ordering.test.ts:2:4888'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 4. Attempt already submitted rejects concurrent sync writes
+    not ok 4 - 4. Attempt already submitted rejects concurrent sync writes
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-deadline-ordering.test.ts:2:5753'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..4
+not ok 40 - P0-1: Exam Deadline Before Write Verification
+  ---
+  duration_ms: 398.286417
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-deadline-ordering.test.ts:2:1413'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.user.upsert()` invocation in
+    /private/tmp/fresh-clone-launch-verify/tests/unit/exam-deadline-ordering.test.ts:24:36
+    
+      21 
+      22 before(async () => {
+      23   // Setup student user
+    → 24   const user = await prisma.user.upsert(
+    Database `trillionskill_perf_v2_test` does not exist
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-deadline-ordering.test.ts:24:18)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: verifyMutationAuth Unit Tests
+    # Subtest: rejects mutation when session is missing and no demo cookie provided
+    ok 1 - rejects mutation when session is missing and no demo cookie provided
+      ---
+      duration_ms: 64.71675
+      type: 'test'
+      ...
+    # Subtest: rejects mutation for non-creator student role
+    ok 2 - rejects mutation for non-creator student role
+      ---
+      duration_ms: 0.433542
+      type: 'test'
+      ...
+    # Subtest: blocks ts_demo_role cookie fallback in production environment
+    ok 3 - blocks ts_demo_role cookie fallback in production environment
+      ---
+      duration_ms: 0.358959
+      type: 'test'
+      ...
+    # Subtest: enforces teacher ownership: rejects teacher trying to mutate another author's content
+    ok 4 - enforces teacher ownership: rejects teacher trying to mutate another author's content
+      ---
+      duration_ms: 0.226959
+      type: 'test'
+      ...
+    # Subtest: authorizes teacher mutating their own content
+    ok 5 - authorizes teacher mutating their own content
+      ---
+      duration_ms: 0.606708
+      type: 'test'
+      ...
+    # Subtest: admin bypasses teacher ownership check
+    ok 6 - admin bypasses teacher ownership check
+      ---
+      duration_ms: 0.169959
+      type: 'test'
+      ...
+    1..6
+ok 41 - verifyMutationAuth Unit Tests
+  ---
+  duration_ms: 68.22875
+  type: 'suite'
+  ...
+# Subtest: IDOR Protection Unit Tests (verifyTestBelongsToPackage)
+    # Subtest: allows test when seriesId matches packageId
+    ok 1 - allows test when seriesId matches packageId
+      ---
+      duration_ms: 0.4035
+      type: 'test'
+      ...
+    # Subtest: blocks test when seriesId does not match packageId (cross-package tampering IDOR)
+    ok 2 - blocks test when seriesId does not match packageId (cross-package tampering IDOR)
+      ---
+      duration_ms: 0.649875
+      type: 'test'
+      ...
+    # Subtest: blocks test when testSeriesId is missing
+    ok 3 - blocks test when testSeriesId is missing
+      ---
+      duration_ms: 0.415792
+      type: 'test'
+      ...
+    1..3
+ok 42 - IDOR Protection Unit Tests (verifyTestBelongsToPackage)
+  ---
+  duration_ms: 2.392666
+  type: 'suite'
+  ...
+# Subtest: Soft vs Hard Delete Decision Unit Tests (decideDeleteAction)
+    # Subtest: decides hard_delete when item has 0 attempts, 0 enrollments, and 0 payments
+    ok 1 - decides hard_delete when item has 0 attempts, 0 enrollments, and 0 payments
+      ---
+      duration_ms: 0.375333
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has student attempts
+    ok 2 - decides archive (soft delete) when item has student attempts
+      ---
+      duration_ms: 1.1265
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has active enrollments
+    ok 3 - decides archive (soft delete) when item has active enrollments
+      ---
+      duration_ms: 0.432458
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has verified payments
+    ok 4 - decides archive (soft delete) when item has verified payments
+      ---
+      duration_ms: 0.192583
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has multiple dependencies
+    ok 5 - decides archive (soft delete) when item has multiple dependencies
+      ---
+      duration_ms: 0.137792
+      type: 'test'
+      ...
+    1..5
+ok 43 - Soft vs Hard Delete Decision Unit Tests (decideDeleteAction)
+  ---
+  duration_ms: 2.631209
+  type: 'suite'
+  ...
+# Subtest: Exam Metrics & Single Source of Truth Tests
+    # Subtest: calculatePackageMetricsSummary correctly computes status and attempt counts
+    ok 1 - calculatePackageMetricsSummary correctly computes status and attempt counts
+      ---
+      duration_ms: 31.79275
+      type: 'test'
+      ...
+    # Subtest: calculatePackageMetricsSummary handles empty array safely
+    ok 2 - calculatePackageMetricsSummary handles empty array safely
+      ---
+      duration_ms: 0.48825
+      type: 'test'
+      ...
+    # Subtest: computePackageMetrics calculates average score percentage correctly without zero division
+    ok 3 - computePackageMetrics calculates average score percentage correctly without zero division
+      ---
+      duration_ms: 0.897834
+      type: 'test'
+      ...
+    # Subtest: computePackageMetrics safely handles series with 0 attempts and 0 tests
+    ok 4 - computePackageMetrics safely handles series with 0 attempts and 0 tests
+      ---
+      duration_ms: 0.514041
+      type: 'test'
+      ...
+    # Subtest: isAnalyticsUser correctly filters out staff and test emails
+    ok 5 - isAnalyticsUser correctly filters out staff and test emails
+      ---
+      duration_ms: 0.28625
+      type: 'test'
+      ...
+    # Subtest: getAnalyticsUserWhere returns role excluding staff and test domains
+    ok 6 - getAnalyticsUserWhere returns role excluding staff and test domains
+      ---
+      duration_ms: 2.232708
+      type: 'test'
+      ...
+    1..6
+ok 44 - Exam Metrics & Single Source of Truth Tests
+  ---
+  duration_ms: 38.654375
+  type: 'suite'
+  ...
+# Subtest: Exam Labels & Enums Formatting Tests
+    # Subtest: formatTestType maps test types correctly
+    ok 1 - formatTestType maps test types correctly
+      ---
+      duration_ms: 0.738042
+      type: 'test'
+      ...
+    # Subtest: formatDifficulty maps difficulties correctly
+    ok 2 - formatDifficulty maps difficulties correctly
+      ---
+      duration_ms: 1.272709
+      type: 'test'
+      ...
+    # Subtest: formatLanguage maps language codes correctly
+    ok 3 - formatLanguage maps language codes correctly
+      ---
+      duration_ms: 0.474916
+      type: 'test'
+      ...
+    1..3
+ok 45 - Exam Labels & Enums Formatting Tests
+  ---
+  duration_ms: 4.152
+  type: 'suite'
+  ...
+# Subtest: System Series Slugs Tests
+    # Subtest: SYSTEM_SERIES_SLUGS contains unassigned tests system series
+    ok 1 - SYSTEM_SERIES_SLUGS contains unassigned tests system series
+      ---
+      duration_ms: 0.330916
+      type: 'test'
+      ...
+    1..1
+ok 46 - System Series Slugs Tests
+  ---
+  duration_ms: 0.459625
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P0-2: Correct Ranking Design Suite
+    # Subtest: 1. Ties and 1, 2, 2, 4 tie rule parity with legacy calculation
+    not ok 1 - 1. Ties and 1, 2, 2, 4 tie rule parity with legacy calculation
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-live.test.ts:2:3040'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 2. Submitter rank non-null right after submit with cache warm and cold
+    not ok 2 - 2. Submitter rank non-null right after submit with cache warm and cold
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-live.test.ts:2:4935'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. Percentile bounds: exactly 100 for sole candidate, between 0 and 100 for N candidates
+    not ok 3 - 3. Percentile bounds: exactly 100 for sole candidate, between 0 and 100 for N candidates
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-live.test.ts:2:5898'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 4. 2 concurrent submits both receive non-null rankings and correct total counts
+    not ok 4 - 4. 2 concurrent submits both receive non-null rankings and correct total counts
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-live.test.ts:2:6848'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..4
+not ok 47 - P0-2: Correct Ranking Design Suite
+  ---
+  duration_ms: 304.0535
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-live.test.ts:2:1435'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.examSeries.upsert()` invocation in
+    /private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-live.test.ts:31:44
+    
+      28 
+      29 before(async () => {
+      30   // 1. Create series and test
+    → 31   const series = await prisma.examSeries.upsert(
+    Database `trillionskill_perf_v2_test` does not exist
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-live.test.ts:31:20)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Generating 1000 synthetic randomized attempt datasets...
+# Bulk inserting 1000 attempts...
+# Verifying 100 random samples between SQL live-rank and independent in-memory reference...
+# Property test passed: 100% of sampled attempts matched independent reference ranking!
+# Subtest: Task A8: Ranking Correctness & Concurrency Suite
+    # Subtest: A8(a) Property Test: 1000+ random datasets match independent reference 100%
+    ok 1 - A8(a) Property Test: 1000+ random datasets match independent reference 100%
+      ---
+      duration_ms: 16676.837417
+      type: 'test'
+      ...
+# Consistency test passed: Live rank strictly equals top-N list positions!
+    # Subtest: A8(b) Consistency: Live rank equals position in fully sorted list & top-N never contradicts it
+    ok 2 - A8(b) Consistency: Live rank equals position in fully sorted list & top-N never contradicts it
+      ---
+      duration_ms: 2617.919833
+      type: 'test'
+      ...
+# Concurrency test passed: 50 simultaneous submits received unique-consistent ranks (1..50)!
+    # Subtest: A8(d) Concurrency: 50 simultaneous submits; every submitter gets non-null unique-consistent rank
+    ok 3 - A8(d) Concurrency: 50 simultaneous submits; every submitter gets non-null unique-consistent rank
+      ---
+      duration_ms: 3229.699333
+      type: 'test'
+      ...
+    1..3
+ok 48 - Task A8: Ranking Correctness & Concurrency Suite
+  ---
+  duration_ms: 22707.084584
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P1-5: Exam Route Rate Limiting Hardening
+    # Subtest: Flag OFF: rate limiter allows requests indefinitely without 429
+    ok 1 - Flag OFF: rate limiter allows requests indefinitely without 429
+      ---
+      duration_ms: 61.979708
+      type: 'test'
+      ...
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:48:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:48:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:48:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:48:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:48:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:53:24)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+    # Subtest: Flag ON: bursts exceeding limit are rejected with 429 and Retry-After header (Web)
+    not ok 2 - Flag ON: bursts exceeding limit are rejected with 429 and Retry-After header (Web)
+      ---
+      duration_ms: 561.081334
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:2:1996'
+      failureType: 'testCodeFailure'
+      error: |-
+        Request exceeding limit must be blocked
+        
+        true !== false
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: false
+      actual: true
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:54:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:76:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:76:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:76:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:76:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:76:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:76:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:76:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:76:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:76:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:76:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Database `trillionskill_perf_v2_test` does not exist
+#     at ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:80:24)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+    # Subtest: Flag ON: bursts exceeding limit are rejected with 429 and Retry-After header (Mobile v1)
+    not ok 3 - Flag ON: bursts exceeding limit are rejected with 429 and Retry-After header (Mobile v1)
+      ---
+      duration_ms: 578.448958
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:2:3212'
+      failureType: 'testCodeFailure'
+      error: |-
+        Request exceeding start limit must be blocked
+        
+        true !== false
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: false
+      actual: true
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:81:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..3
+not ok 49 - P1-5: Exam Route Rate Limiting Hardening
+  ---
+  duration_ms: 1205.759417
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:2:1250'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Starting 50-attempt golden replay comparison...
+# Subtest: Exam Runtime Performance Optimizations & Parity Suite
+    # Subtest: TEST 1: Zero leakage in question set delivery and cache
+    ok 1 - TEST 1: Zero leakage in question set delivery and cache
+      ---
+      duration_ms: 83.584541
+      type: 'test'
+      ...
+    # Subtest: TEST 2: Cloudflare CF-Connecting-IP extraction when TRUST_PROXY=true
+    ok 2 - TEST 2: Cloudflare CF-Connecting-IP extraction when TRUST_PROXY=true
+      ---
+      duration_ms: 46.523834
+      type: 'test'
+      ...
+# All 50 attempts produced 100% byte-identical scoring, percentile and rank across both legacy and fast paths!
+    # Subtest: TEST 3: Golden Parity Replay of 50 Attempts (Legacy vs Fast Optimization)
+    ok 3 - TEST 3: Golden Parity Replay of 50 Attempts (Legacy vs Fast Optimization)
+      ---
+      duration_ms: 23826.038
+      type: 'test'
+      ...
+    # Subtest: TEST 4: Batch Sync Equivalence & Monotonic Sequence Guard
+    ok 4 - TEST 4: Batch Sync Equivalence & Monotonic Sequence Guard
+      ---
+      duration_ms: 1282.112959
+      type: 'test'
+      ...
+    # Subtest: TEST 5: Intentional Parity Diff - Deadline Check Before Write Ordering
+    ok 5 - TEST 5: Intentional Parity Diff - Deadline Check Before Write Ordering
+      ---
+      duration_ms: 34.207875
+      type: 'test'
+      ...
+    # Subtest: TEST 6: Intentional Parity Diff - Concurrency Submission Status Lock (Idempotent 5x Concurrent Submits)
+    ok 6 - TEST 6: Intentional Parity Diff - Concurrency Submission Status Lock (Idempotent 5x Concurrent Submits)
+      ---
+      duration_ms: 251.104166
+      type: 'test'
+      ...
+    # Subtest: TEST 7: Intentional Parity Diff - clientSeq Null Coalescing
+    ok 7 - TEST 7: Intentional Parity Diff - clientSeq Null Coalescing
+      ---
+      duration_ms: 23.058375
+      type: 'test'
+      ...
+    # Subtest: TEST 8: Intentional Parity Diff - Live Submitter Rank and Authoritative Percentile
+    ok 8 - TEST 8: Intentional Parity Diff - Live Submitter Rank and Authoritative Percentile
+      ---
+      duration_ms: 31.652667
+      type: 'test'
+      ...
+    1..8
+ok 50 - Exam Runtime Performance Optimizations & Parity Suite
+  ---
+  duration_ms: 26469.9025
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task E: Correctness & Edge Case Verification Suite
+    # Subtest: E.1: Question cache invalidation & stale read measurement
+    not ok 1 - E.1: Question cache invalidation & stale read measurement
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:2:4001'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: E.2: Rank and percentile right after student submit with Leaderboard Cache ON
+    not ok 2 - E.2: Rank and percentile right after student submit with Leaderboard Cache ON
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:2:4998'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: E.2b: Leaderboard tie-breaking logic audit
+    not ok 3 - E.2b: Leaderboard tie-breaking logic audit
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:2:6490'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: E.3: Deadline grace period enforcement check
+    not ok 4 - E.3: Deadline grace period enforcement check
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:2:7646'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: E.4: clientSeq edge cases with raw SQL upsert
+    not ok 5 - E.4: clientSeq edge cases with raw SQL upsert
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:2:8172'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: E.5: FAST_GRADING edge cases (0 answers, 1 answer, unanswered, deleted, null correctOption)
+    not ok 6 - E.5: FAST_GRADING edge cases (0 answers, 1 answer, unanswered, deleted, null correctOption)
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:35:337'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: E.6: Zero-leakage verified on question payload
+    not ok 7 - E.6: Zero-leakage verified on question payload
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:35:2229'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..7
+not ok 51 - Task E: Correctness & Edge Case Verification Suite
+  ---
+  duration_ms: 282.360417
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:2:1355'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.user.upsert()` invocation in
+    /private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:29:34
+    
+      26 
+      27 before(async () => {
+      28   // 1. Create clean test user fixtures
+    → 29   const u1 = await prisma.user.upsert(
+    Database `trillionskill_perf_v2_test` does not exist
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:29:16)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task B1: Google OAuth & Mobile Token Security Verification
+    # Subtest: 1. verifyGoogleIdToken succeeds for legitimate token with email_verified=true
+    ok 1 - 1. verifyGoogleIdToken succeeds for legitimate token with email_verified=true
+      ---
+      duration_ms: 76.222167
+      type: 'test'
+      ...
+    # Subtest: 2. Security: verifyGoogleIdToken rejects unverified email (prevents account takeover)
+    ok 2 - 2. Security: verifyGoogleIdToken rejects unverified email (prevents account takeover)
+      ---
+      duration_ms: 7.220041
+      type: 'test'
+      ...
+    # Subtest: 3. Security: verifyGoogleIdToken rejects untrusted audience
+    ok 3 - 3. Security: verifyGoogleIdToken rejects untrusted audience
+      ---
+      duration_ms: 2.915541
+      type: 'test'
+      ...
+    # Subtest: 4. Security: verifyGoogleIdToken rejects untrusted issuer
+    ok 4 - 4. Security: verifyGoogleIdToken rejects untrusted issuer
+      ---
+      duration_ms: 4.332959
+      type: 'test'
+      ...
+    # Subtest: 5. Security: verifyGoogleIdToken rejects expired token
+    ok 5 - 5. Security: verifyGoogleIdToken rejects expired token
+      ---
+      duration_ms: 7.070917
+      type: 'test'
+      ...
+    # Subtest: 6. Mobile endpoint POST /api/v1/auth/google verifies token and creates session
+    ok 6 - 6. Mobile endpoint POST /api/v1/auth/google verifies token and creates session
+      ---
+      duration_ms: 260.634916
+      type: 'test'
+      ...
+    # Subtest: 7. Mobile endpoint rejects account takeover when email is unverified
+    ok 7 - 7. Mobile endpoint rejects account takeover when email is unverified
+      ---
+      duration_ms: 44.893708
+      type: 'test'
+      ...
+# [OAuth Security] Google signin rejected: email_verified is false or missing for web_victim_1793285120792@example.com
+    # Subtest: 8. Web signIn callback rejects unverified Google email (account takeover defense)
+    ok 8 - 8. Web signIn callback rejects unverified Google email (account takeover defense)
+      ---
+      duration_ms: 30.2765
+      type: 'test'
+      ...
+    # Subtest: 9. Web signIn callback links verified Google account to existing user
+    ok 9 - 9. Web signIn callback links verified Google account to existing user
+      ---
+      duration_ms: 54.158708
+      type: 'test'
+      ...
+    # Subtest: 10. Web signIn callback rejects deactivated existing user
+    ok 10 - 10. Web signIn callback rejects deactivated existing user
+      ---
+      duration_ms: 25.620625
+      type: 'test'
+      ...
+    1..10
+ok 52 - Task B1: Google OAuth & Mobile Token Security Verification
+  ---
+  duration_ms: 516.969875
+  type: 'suite'
+  ...
+# Subtest: Phase 0 Safety Harness: Test DB & Environment Guards
+    # Subtest: guardTestDatabase accepts valid local docker test DB URLs
+    ok 1 - guardTestDatabase accepts valid local docker test DB URLs
+      ---
+      duration_ms: 3.421958
+      type: 'test'
+      ...
+    # Subtest: guardTestDatabase rejects supabase.co URLs explicitly
+    ok 2 - guardTestDatabase rejects supabase.co URLs explicitly
+      ---
+      duration_ms: 0.857958
+      type: 'test'
+      ...
+    # Subtest: guardTestDatabase rejects unauthorized hosts and ports
+    ok 3 - guardTestDatabase rejects unauthorized hosts and ports
+      ---
+      duration_ms: 0.307208
+      type: 'test'
+      ...
+    # Subtest: assertNoEnvLocal detects .env.local in directory
+    ok 4 - assertNoEnvLocal detects .env.local in directory
+      ---
+      duration_ms: 6.982959
+      type: 'test'
+      ...
+    # Subtest: assertNoSupabaseEnv detects supabase.co in any env var
+    ok 5 - assertNoSupabaseEnv detects supabase.co in any env var
+      ---
+      duration_ms: 1.377166
+      type: 'test'
+      ...
+    1..5
+ok 53 - Phase 0 Safety Harness: Test DB & Environment Guards
+  ---
+  duration_ms: 15.815792
+  type: 'suite'
+  ...
+# Subtest: Task G4: /api/health Completeness & Hardening
+    # Subtest: 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
+    ok 1 - 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
+      ---
+      duration_ms: 225.399209
+      type: 'test'
+      ...
+    # Subtest: 2. Correct 'pending migrations' detection when unapplied migration exists on disk
+    ok 2 - 2. Correct 'pending migrations' detection when unapplied migration exists on disk
+      ---
+      duration_ms: 78.231125
+      type: 'test'
+      ...
+    # Subtest: 3. Migration status is cached for 60 seconds
+    ok 3 - 3. Migration status is cached for 60 seconds
+      ---
+      duration_ms: 181.682333
+      type: 'test'
+      ...
+    # Subtest: 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
+    ok 4 - 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
+      ---
+      duration_ms: 153.651375
+      type: 'test'
+      ...
+    # Subtest: 5. Zero credential or secret string leakage across all response bodies
+    ok 5 - 5. Zero credential or secret string leakage across all response bodies
+      ---
+      duration_ms: 93.9835
+      type: 'test'
+      ...
+    # Subtest: 6. Health endpoint works in read-only filesystem environment (zero file writes)
+    ok 6 - 6. Health endpoint works in read-only filesystem environment (zero file writes)
+      ---
+      duration_ms: 73.269292
+      type: 'test'
+      ...
+    1..6
+ok 54 - Task G4: /api/health Completeness & Hardening
+  ---
+  duration_ms: 809.089875
+  type: 'suite'
+  ...
+# Subtest: Task B12: Health Endpoint Verification
+    # Subtest: 1. Returns 200 with status ok, uptime, timestamp, commit SHA, and db latency in ms
+    ok 1 - 1. Returns 200 with status ok, uptime, timestamp, commit SHA, and db latency in ms
+      ---
+      duration_ms: 223.592
+      type: 'test'
+      ...
+    # Subtest: 2. Does not leak connection strings, passwords, or secrets in response body
+    ok 2 - 2. Does not leak connection strings, passwords, or secrets in response body
+      ---
+      duration_ms: 107.22025
+      type: 'test'
+      ...
+    1..2
+ok 55 - Task B12: Health Endpoint Verification
+  ---
+  duration_ms: 336.583167
+  type: 'suite'
+  ...
+# Subtest: B-017: hook dependency arrays are exhaustive
+    # Subtest: reports no react-hooks/exhaustive-deps warnings in the fixed components
+    ok 1 - reports no react-hooks/exhaustive-deps warnings in the fixed components
+      ---
+      duration_ms: 20773.825209
+      type: 'test'
+      ...
+    1..1
+ok 56 - B-017: hook dependency arrays are exhaustive
+  ---
+  duration_ms: 20776.978334
+  type: 'suite'
+  ...
+# Subtest: C3 index coverage for the fixed queries
+    # Subtest: has every new index in the database
+    ok 1 - has every new index in the database
+      ---
+      duration_ms: 48.526125
+      type: 'test'
+      ...
+    # Subtest: each index covers the exact filter/sort columns its query uses
+    ok 2 - each index covers the exact filter/sort columns its query uses
+      ---
+      duration_ms: 152.817875
+      type: 'test'
+      ...
+    # Subtest: the C3 migration is additive only
+    ok 3 - the C3 migration is additive only
+      ---
+      duration_ms: 9.388458
+      type: 'test'
+      ...
+    1..3
+ok 57 - C3 index coverage for the fixed queries
+  ---
+  duration_ms: 352.190583
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task B6: Legal Pages, Contact Form & Data Deletion
+    # Subtest: Public Data Deletion Form
+        # Subtest: 1. Rejects missing or invalid email address
+        ok 1 - 1. Rejects missing or invalid email address
+          ---
+          duration_ms: 168.319292
+          type: 'test'
+          ...
+        # Subtest: 2. Rejects request without typing DELETE confirmation
+        ok 2 - 2. Rejects request without typing DELETE confirmation
+          ---
+          duration_ms: 10.50375
+          type: 'test'
+          ...
+# [DevEmailOutbox] Sent to: test_delete_1793285122798@example.com | Subject: Account Data Deletion Request Received - AspirantBook | Link: none
+        # Subtest: 3. Successfully records data deletion request in DB and links userId if user exists
+        ok 3 - 3. Successfully records data deletion request in DB and links userId if user exists
+          ---
+          duration_ms: 47.396458
+          type: 'test'
+          ...
+        1..3
+    ok 1 - Public Data Deletion Form
+      ---
+      duration_ms: 228.851792
+      type: 'suite'
+      ...
+    # Subtest: Contact Form Submission
+        # Subtest: 4. Rejects incomplete contact form fields
+        ok 1 - 4. Rejects incomplete contact form fields
+          ---
+          duration_ms: 16.87825
+          type: 'test'
+          ...
+        # Subtest: 5. Successfully records contact message in form submission storage
+        ok 2 - 5. Successfully records contact message in form submission storage
+          ---
+          duration_ms: 22.74925
+          type: 'test'
+          ...
+        1..2
+    ok 2 - Contact Form Submission
+      ---
+      duration_ms: 40.679625
+      type: 'suite'
+      ...
+    1..2
+ok 58 - Task B6: Legal Pages, Contact Form & Data Deletion
+  ---
+  duration_ms: 940.628375
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P1-6: Mobile v1 exam.service.ts perf port & query counts
+    # Subtest: Query counts: flag OFF (legacy) executes multiple queries vs flag ON (batch) executing 1 query
+    not ok 1 - Query counts: flag OFF (legacy) executes multiple queries vs flag ON (batch) executing 1 query
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/mobile-v1-exam-service-perf.test.ts:2:3265'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Submit test attempt grades properly and computes live rank and percentile
+    not ok 2 - Submit test attempt grades properly and computes live rank and percentile
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/mobile-v1-exam-service-perf.test.ts:2:5350'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: Deadline rejection: expired attempt sync throws BAD_REQUEST before writing any rows
+    not ok 3 - Deadline rejection: expired attempt sync throws BAD_REQUEST before writing any rows
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/mobile-v1-exam-service-perf.test.ts:2:6402'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 59 - P1-6: Mobile v1 exam.service.ts perf port & query counts
+  ---
+  duration_ms: 305.040625
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/mobile-v1-exam-service-perf.test.ts:2:1320'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.user.upsert()` invocation in
+    /private/tmp/fresh-clone-launch-verify/tests/unit/mobile-v1-exam-service-perf.test.ts:29:36
+    
+      26 let userId: string;
+      27 
+      28 before(async () => {
+    → 29   const user = await prisma.user.upsert(
+    Database `trillionskill_perf_v2_test` does not exist
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/private/tmp/fresh-clone-launch-verify/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/mobile-v1-exam-service-perf.test.ts:29:18)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [DbEmailOutbox] Stored to: test_outbox_1793285124222@example.com | Subject: Test DB Outbox Subject | Link: none
+# Subtest: Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+    # Subtest: 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+    ok 1 - 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+      ---
+      duration_ms: 117.888083
+      type: 'test'
+      ...
+    # Subtest: 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+    ok 2 - 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 58.583917
+      type: 'test'
+      ...
+    # Subtest: 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+    ok 3 - 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 41.55725
+      type: 'test'
+      ...
+# [CONTENT_AUDIT] UPDATE COURSE entity_1793285124440 by anonymous
+    # Subtest: 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+    ok 4 - 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 57.708833
+      type: 'test'
+      ...
+# [DevEmailOutbox] Sent to: legacy_1793285124748@example.com | Subject: Legacy FS Outbox Subject | Link: none
+    # Subtest: 5. S3/MinIO compatible client uploads file and generates signed URL
+    ok 5 - 5. S3/MinIO compatible client uploads file and generates signed URL
+      ---
+      duration_ms: 249.383583
+      type: 'test'
+      ...
+    # Subtest: 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+    ok 6 - 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+      ---
+      duration_ms: 1.58275
+      type: 'test'
+      ...
+    1..6
+ok 60 - Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+  ---
+  duration_ms: 588.947125
+  type: 'suite'
+  ...
+# Subtest: B7 money is dual-written in minor units
+    # Subtest: converts major units to exact minor units
+    ok 1 - converts major units to exact minor units
+      ---
+      duration_ms: 2.965042
+      type: 'test'
+      ...
+    # Subtest: dual-writes amountMinor on every production payment write
+    ok 2 - dual-writes amountMinor on every production payment write
+      ---
+      duration_ms: 1538.269833
+      type: 'test'
+      ...
+    # Subtest: stores amount and amountMinor consistently on a real row
+    ok 3 - stores amount and amountMinor consistently on a real row
+      ---
+      duration_ms: 49.623
+      type: 'test'
+      ...
+    # Subtest: indexes Subscription.providerId for the webhook lookups
+    ok 4 - indexes Subscription.providerId for the webhook lookups
+      ---
+      duration_ms: 3.034083
+      type: 'test'
+      ...
+    1..4
+ok 61 - B7 money is dual-written in minor units
+  ---
+  duration_ms: 1786.541167
+  type: 'suite'
+  ...
+# [batches-service] Next data cache unavailable outside a request scope; reading uncached: Invariant: incrementalCache missing in unstable_cache async function readBatchesFileUncached(){const stored=await(0,import_platform_settings.getPlatformSetting)(import_platform_settings.PLATFORM_SETTING_KEYS.batches);return Array.isArray(stored)?stored:[]}
+# Subtest: S5: settings, batches and wishlist persist in the database
+    # Subtest: platform settings round trip through PlatformSetting
+    ok 1 - platform settings round trip through PlatformSetting
+      ---
+      duration_ms: 45.753916
+      type: 'test'
+      ...
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/phase3-settings-batches-wishlist.test.ts:88:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: batches are written to the database and read back
+    ok 2 - batches are written to the database and read back
+      ---
+      duration_ms: 109.585041
+      type: 'test'
+      ...
+    # Subtest: two parallel wishlist adds from different users keep both rows
+    ok 3 - two parallel wishlist adds from different users keep both rows
+      ---
+      duration_ms: 175.225209
+      type: 'test'
+      ...
+    # Subtest: never writes the legacy data/*.json files
+    ok 4 - never writes the legacy data/*.json files
+      ---
+      duration_ms: 2.441083
+      type: 'test'
+      ...
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/private/tmp/fresh-clone-launch-verify/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/private/tmp/fresh-clone-launch-verify/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/private/tmp/fresh-clone-launch-verify/lib/batches-service.ts:158:3)
+#     at async SuiteContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/phase3-settings-batches-wishlist.test.ts:62:39)
+#     at async TestHook.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.runHook (node:internal/test_runner/test:965:9)
+#     at async Suite.run (node:internal/test_runner/test:1443:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+    1..4
+ok 62 - S5: settings, batches and wishlist persist in the database
+  ---
+  duration_ms: 647.163292
+  type: 'suite'
+  ...
+# Subtest: PRISMA_LOG_QUERIES Production Guard (O10)
+    # Subtest: strictly disables query logging in production even if PRISMA_LOG_QUERIES=1
+    ok 1 - strictly disables query logging in production even if PRISMA_LOG_QUERIES=1
+      ---
+      duration_ms: 34.844
+      type: 'test'
+      ...
+    # Subtest: strictly disables query logging in production when PRISMA_LOG_QUERIES is unset or 0
+    ok 2 - strictly disables query logging in production when PRISMA_LOG_QUERIES is unset or 0
+      ---
+      duration_ms: 0.487
+      type: 'test'
+      ...
+    # Subtest: allows query logging in development or test when PRISMA_LOG_QUERIES=1
+    ok 3 - allows query logging in development or test when PRISMA_LOG_QUERIES=1
+      ---
+      duration_ms: 1.6115
+      type: 'test'
+      ...
+    # Subtest: defaults to no query logging in development or test when PRISMA_LOG_QUERIES is unset or 0
+    ok 4 - defaults to no query logging in development or test when PRISMA_LOG_QUERIES is unset or 0
+      ---
+      duration_ms: 0.281625
+      type: 'test'
+      ...
+    1..4
+ok 63 - PRISMA_LOG_QUERIES Production Guard (O10)
+  ---
+  duration_ms: 39.911041
+  type: 'suite'
+  ...
+# Subtest: Expo Push Notification Service
+    # Subtest: validates Expo push tokens correctly
+    ok 1 - validates Expo push tokens correctly
+      ---
+      duration_ms: 35.03925
+      type: 'test'
+      ...
+    # Subtest: splits large message arrays into chunks of 100
+    ok 2 - splits large message arrays into chunks of 100
+      ---
+      duration_ms: 2.058083
+      type: 'test'
+      ...
+    # Subtest: sends push chunk and purges DeviceNotRegistered tokens
+    ok 3 - sends push chunk and purges DeviceNotRegistered tokens
+      ---
+      duration_ms: 5.068459
+      type: 'test'
+      ...
+    # Subtest: sends push to user with valid registered tokens
+    ok 4 - sends push to user with valid registered tokens
+      ---
+      duration_ms: 2.37425
+      type: 'test'
+      ...
+    # Subtest: sends batched pushes across multiple users, deduplicating tokens
+    ok 5 - sends batched pushes across multiple users, deduplicating tokens
+      ---
+      duration_ms: 4.620083
+      type: 'test'
+      ...
+    1..5
+ok 64 - Expo Push Notification Service
+  ---
+  duration_ms: 54.421708
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: A16 client IP derivation
+    # Subtest: ignores forwarded headers when no proxy is trusted
+    ok 1 - ignores forwarded headers when no proxy is trusted
+      ---
+      duration_ms: 52.084291
+      type: 'test'
+      ...
+    # Subtest: takes the right-most trusted hop, not the client-supplied left entry
+    ok 2 - takes the right-most trusted hop, not the client-supplied left entry
+      ---
+      duration_ms: 3.50375
+      type: 'test'
+      ...
+    # Subtest: honours TRUST_PROXY_HOPS for multi-proxy deployments
+    ok 3 - honours TRUST_PROXY_HOPS for multi-proxy deployments
+      ---
+      duration_ms: 1.036417
+      type: 'test'
+      ...
+    # Subtest: rejects non-IP garbage instead of keying buckets on it
+    ok 4 - rejects non-IP garbage instead of keying buckets on it
+      ---
+      duration_ms: 8.244875
+      type: 'test'
+      ...
+    # Subtest: normalises ports, brackets and IPv4-mapped IPv6
+    ok 5 - normalises ports, brackets and IPv4-mapped IPv6
+      ---
+      duration_ms: 44.760041
+      type: 'test'
+      ...
+# [RateLimit] Database error while checking a fail-closed limit (rejecting): Error: connection terminated
+#     at Proxy.import_prisma.prisma.$queryRawUnsafe (/private/tmp/fresh-clone-launch-verify/tests/unit/rate-limit-ip.test.ts:112:13)
+#     at checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:37)
+#     at TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/rate-limit-ip.test.ts:114:23)
+#     at Test.runInAsyncScope (node:async_hooks:214:14)
+#     at Test.run (node:internal/test_runner/test:1047:25)
+#     at Test.start (node:internal/test_runner/test:944:17)
+#     at node:internal/test_runner/test:1440:71
+#     at node:internal/per_context/primordials:466:82
+#     at new Promise (<anonymous>)
+#     at new SafePromise (node:internal/per_context/primordials:435:3)
+# [RateLimit] Database error while checking rate limit (failing OPEN): Error: connection terminated
+#     at Proxy.import_prisma.prisma.$queryRawUnsafe (/private/tmp/fresh-clone-launch-verify/tests/unit/rate-limit-ip.test.ts:122:13)
+#     at checkRateLimit (/private/tmp/fresh-clone-launch-verify/lib/rate-limit.ts:179:37)
+#     at TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/rate-limit-ip.test.ts:124:23)
+#     at Test.runInAsyncScope (node:async_hooks:214:14)
+#     at Test.run (node:internal/test_runner/test:1047:25)
+#     at Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+#     at Test.postRun (node:internal/test_runner/test:1173:19)
+#     at Test.run (node:internal/test_runner/test:1101:12)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+    # Subtest: distinct client IPs produce distinct limiter buckets
+    ok 6 - distinct client IPs produce distinct limiter buckets
+      ---
+      duration_ms: 168.988167
+      type: 'test'
+      ...
+    1..6
+ok 65 - A16 client IP derivation
+  ---
+  duration_ms: 333.499042
+  type: 'suite'
+  ...
+# Subtest: A16 fail-closed limiter
+    # Subtest: rejects when the database fails and failClosed is set
+    ok 1 - rejects when the database fails and failClosed is set
+      ---
+      duration_ms: 13.404916
+      type: 'test'
+      ...
+    # Subtest: still fails open for customer-facing flows by default
+    ok 2 - still fails open for customer-facing flows by default
+      ---
+      duration_ms: 2.057166
+      type: 'test'
+      ...
+    1..2
+ok 66 - A16 fail-closed limiter
+  ---
+  duration_ms: 19.237709
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task A13: Rate Limit Hardening & Mobile CBT Sync Suite
+    # Subtest: Server Rate Limiting Hardening
+        # Subtest: 1. Server rate limiter fails OPEN on database error (never throws 500)
+        ok 1 - 1. Server rate limiter fails OPEN on database error (never throws 500)
+          ---
+          duration_ms: 141.773958
+          type: 'test'
+          ...
+        # Subtest: 2. Rate limit key combines (userId OR IP) + route action
+        ok 2 - 2. Rate limit key combines (userId OR IP) + route action
+          ---
+          duration_ms: 17.202125
+          type: 'test'
+          ...
+        # Subtest: 3. On limit exceeded: returns 429 status, Retry-After header, and body { error, retryAfter }
+        ok 3 - 3. On limit exceeded: returns 429 status, Retry-After header, and body { error, retryAfter }
+          ---
+          duration_ms: 132.719375
+          type: 'test'
+          ...
+        1..3
+    ok 1 - Server Rate Limiting Hardening
+      ---
+      duration_ms: 294.042
+      type: 'suite'
+      ...
+# [CbtSyncManager] Received 429 rate limit. Pausing sync for 1s until 2026-10-29T14:45:34.548Z
+    # Subtest: Mobile CBT Sync Client Engine
+        # Subtest: 4. Client-side debounce: 10 burst taps in 5 seconds coalesce into <=2 sync calls
+        ok 1 - 4. Client-side debounce: 10 burst taps in 5 seconds coalesce into <=2 sync calls
+          ---
+          duration_ms: 6138.472125
+          type: 'test'
+          ...
+        # Subtest: 5. Answers are immediately persisted to local storage upon tap
+        ok 2 - 5. Answers are immediately persisted to local storage upon tap
+          ---
+          duration_ms: 65.291292
+          type: 'test'
+          ...
+        # Subtest: 6. On 429 response: parses Retry-After, pauses sync, and queues answers without loss
+        ok 3 - 6. On 429 response: parses Retry-After, pauses sync, and queues answers without loss
+          ---
+          duration_ms: 1232.267208
+          type: 'test'
+          ...
+        1..3
+    ok 2 - Mobile CBT Sync Client Engine
+      ---
+      duration_ms: 7486.902916
+      type: 'suite'
+      ...
+    1..2
+ok 67 - Task A13: Rate Limit Hardening & Mobile CBT Sync Suite
+  ---
+  duration_ms: 7784.538208
+  type: 'suite'
+  ...
+# Subtest: V3: Razorpay credentials fail closed
+    # Subtest: has no placeholder key id
+    ok 1 - has no placeholder key id
+      ---
+      duration_ms: 5.489833
+      type: 'test'
+      ...
+    # Subtest: throws instead of using a placeholder secret
+    ok 2 - throws instead of using a placeholder secret
+      ---
+      duration_ms: 1.1315
+      type: 'test'
+      ...
+    # Subtest: throws when only one credential is present
+    ok 3 - throws when only one credential is present
+      ---
+      duration_ms: 0.473042
+      type: 'test'
+      ...
+    # Subtest: builds one client when both credentials are present
+    ok 4 - builds one client when both credentials are present
+      ---
+      duration_ms: 81.262792
+      type: 'test'
+      ...
+    # Subtest: only treats an explicit test environment as test mode
+    ok 5 - only treats an explicit test environment as test mode
+      ---
+      duration_ms: 1.683584
+      type: 'test'
+      ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Razorpay order creation failed: Error: Razorpay is not configured: set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET (no placeholder fallback)
+#     at getRazorpayClient (/private/tmp/fresh-clone-launch-verify/lib/payments/razorpay-config.ts:31:11)
+#     at createRazorpayOrder (/private/tmp/fresh-clone-launch-verify/lib/actions/payment/razorpay.ts:252:27)
+#     at async waitForActual (node:assert:644:5)
+#     at async Function.rejects (node:assert:767:25)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/razorpay-config-fail-closed.test.ts:107:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: createRazorpayOrder rejects a missing secret outside test mode (no mock order)
+    ok 6 - createRazorpayOrder rejects a missing secret outside test mode (no mock order)
+      ---
+      duration_ms: 1416.880334
+      type: 'test'
+      ...
+    1..6
+ok 68 - V3: Razorpay credentials fail closed
+  ---
+  duration_ms: 1512.586334
+  type: 'suite'
+  ...
+# Razorpay credentials not configured
+# Razorpay webhook secret is not configured; failing closed
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=600s
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=-300s
+# Subtest: Task B5: Razorpay Webhook Verification & Idempotency
+    # Subtest: 1. Missing signature header fails closed with 400
+    ok 1 - 1. Missing signature header fails closed with 400
+      ---
+      duration_ms: 15.953459
+      type: 'test'
+      ...
+    # Subtest: 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+    ok 2 - 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+      ---
+      duration_ms: 3.265042
+      type: 'test'
+      ...
+    # Subtest: 3. Wrong signature fails closed with 400
+    ok 3 - 3. Wrong signature fails closed with 400
+      ---
+      duration_ms: 5.167625
+      type: 'test'
+      ...
+    # Subtest: 4. Tampered body (signature for body A, sent body B) fails closed with 400
+    ok 4 - 4. Tampered body (signature for body A, sent body B) fails closed with 400
+      ---
+      duration_ms: 5.017708
+      type: 'test'
+      ...
+    # Subtest: 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+    ok 5 - 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+      ---
+      duration_ms: 4.265292
+      type: 'test'
+      ...
+    # Subtest: 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+    ok 6 - 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+      ---
+      duration_ms: 2.878083
+      type: 'test'
+      ...
+    # Subtest: 7. Valid webhook with recent timestamp persists event and processes successfully
+    ok 7 - 7. Valid webhook with recent timestamp persists event and processes successfully
+      ---
+      duration_ms: 34.270334
+      type: 'test'
+      ...
+# [RazorpayWebhook] Duplicate webhook event test_evt_idempotent_1793285128221_i8nw8e ignored
+    # Subtest: 8. Idempotency: duplicate event ID returns 200 without reprocessing
+    ok 8 - 8. Idempotency: duplicate event ID returns 200 without reprocessing
+      ---
+      duration_ms: 134.958916
+      type: 'test'
+      ...
+    1..8
+ok 69 - Task B5: Razorpay Webhook Verification & Idempotency
+  ---
+  duration_ms: 376.789292
+  type: 'suite'
+  ...
+# Subtest: re-auth token single use (database backed)
+    # Subtest: consumes a token once and rejects the second use
+    ok 1 - consumes a token once and rejects the second use
+      ---
+      duration_ms: 1499.083041
+      type: 'test'
+      ...
+    # Subtest: allows exactly one of many parallel consumptions
+    ok 2 - allows exactly one of many parallel consumptions
+      ---
+      duration_ms: 358.845375
+      type: 'test'
+      ...
+    1..2
+ok 70 - re-auth token single use (database backed)
+  ---
+  duration_ms: 2003.272916
+  type: 'suite'
+  ...
+# Subtest: Task A4: Stripe Lazy Initialization & Health Checks
+    # Subtest: 1. Module import succeeds with no key during NEXT_PHASE=phase-production-build
+    ok 1 - 1. Module import succeeds with no key during NEXT_PHASE=phase-production-build
+      ---
+      duration_ms: 490.360708
+      type: 'test'
+      ...
+    # Subtest: 2. Runtime without key fails closed on first payment call with clear error
+    ok 2 - 2. Runtime without key fails closed on first payment call with clear error
+      ---
+      duration_ms: 3.1555
+      type: 'test'
+      ...
+    # Subtest: 3. /api/health returns 'payments: not configured' without leaking secrets
+    ok 3 - 3. /api/health returns 'payments: not configured' without leaking secrets
+      ---
+      duration_ms: 1087.020042
+      type: 'test'
+      ...
+    # Subtest: 4. /api/health returns 'payments: configured' when key is present
+    ok 4 - 4. /api/health returns 'payments: configured' when key is present
+      ---
+      duration_ms: 595.2245
+      type: 'test'
+      ...
+    # Subtest: 5. No placeholder string remains anywhere in code files
+    ok 5 - 5. No placeholder string remains anywhere in code files
+      ---
+      duration_ms: 1616.002458
+      type: 'test'
+      ...
+    1..5
+ok 71 - Task A4: Stripe Lazy Initialization & Health Checks
+  ---
+  duration_ms: 3796.860208
+  type: 'suite'
+  ...
+# Subtest: teacher dashboard reports failed reads
+    # Subtest: is request-rendered, not prerendered at build time
+    ok 1 - is request-rendered, not prerendered at build time
+      ---
+      duration_ms: 8.360375
+      type: 'test'
+      ...
+    # Subtest: does not swallow read failures with an empty catch
+    ok 2 - does not swallow read failures with an empty catch
+      ---
+      duration_ms: 1.426375
+      type: 'test'
+      ...
+    # Subtest: logs and records every failed section
+    ok 3 - logs and records every failed section
+      ---
+      duration_ms: 0.668166
+      type: 'test'
+      ...
+    # Subtest: renders a visible alert for the failed sections
+    ok 4 - renders a visible alert for the failed sections
+      ---
+      duration_ms: 1.352667
+      type: 'test'
+      ...
+    1..4
+ok 72 - teacher dashboard reports failed reads
+  ---
+  duration_ms: 14.765125
+  type: 'suite'
+  ...
+# Subtest: S0: test-database guard
+    # Subtest: accepts only the Docker test database
+    ok 1 - accepts only the Docker test database
+      ---
+      duration_ms: 6.317333
+      type: 'test'
+      ...
+    # Subtest: rejects a remote host
+    ok 2 - rejects a remote host
+      ---
+      duration_ms: 1.966709
+      type: 'test'
+      ...
+    # Subtest: rejects the right host on the wrong port
+    not ok 3 - rejects the right host on the wrong port
+      ---
+      duration_ms: 7.171709
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/test-db-guard.test.ts:2:2703'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected exception.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/test-db-guard.test.ts:66:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: rejects a non-test database name
+    ok 4 - rejects a non-test database name
+      ---
+      duration_ms: 1.429709
+      type: 'test'
+      ...
+    # Subtest: rejects APP_ENV other than test
+    ok 5 - rejects APP_ENV other than test
+      ---
+      duration_ms: 0.312334
+      type: 'test'
+      ...
+    # Subtest: rejects a mismatched DIRECT_URL
+    ok 6 - rejects a mismatched DIRECT_URL
+      ---
+      duration_ms: 0.423417
+      type: 'test'
+      ...
+    # Subtest: never leaks the password into the description
+    ok 7 - never leaks the password into the description
+      ---
+      duration_ms: 0.25575
+      type: 'test'
+      ...
+    # Subtest: aborts the Prisma entry point before connecting
+    ok 8 - aborts the Prisma entry point before connecting
+      ---
+      duration_ms: 9193.42575
+      type: 'test'
+      ...
+    # Subtest: aborts the api-v1/contract test entry point before connecting
+    ok 9 - aborts the api-v1/contract test entry point before connecting
+      ---
+      duration_ms: 4388.872083
+      type: 'test'
+      ...
+    # Subtest: aborts the Playwright entry point before starting the webServer
+    ok 10 - aborts the Playwright entry point before starting the webServer
+      ---
+      duration_ms: 4389.826167
+      type: 'test'
+      ...
+    1..10
+not ok 73 - S0: test-database guard
+  ---
+  duration_ms: 17995.617125
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/test-db-guard.test.ts:2:2132'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Task B10: TypeScript Ratchet Verification
+    # Subtest: 1. Ratchet passes when error count matches baseline
+    ok 1 - 1. Ratchet passes when error count matches baseline
+      ---
+      duration_ms: 23090.799041
+      type: 'test'
+      ...
+    # Subtest: 2. Ratchet suggests lower count when current < baseline
+    ok 2 - 2. Ratchet suggests lower count when current < baseline
+      ---
+      duration_ms: 9216.43225
+      type: 'test'
+      ...
+    # Subtest: 3. Ratchet fails closed when error count exceeds baseline
+    ok 3 - 3. Ratchet fails closed when error count exceeds baseline
+      ---
+      duration_ms: 8817.5645
+      type: 'test'
+      ...
+    1..3
+ok 74 - Task B10: TypeScript Ratchet Verification
+  ---
+  duration_ms: 41126.798958
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task G1: Turnstile on Login Verification
+    # Subtest: Flag OFF (Default - Unchanged Login)
+        # Subtest: 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
+        ok 1 - 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
+          ---
+          duration_ms: 571.143875
+          type: 'test'
+          ...
+        1..1
+    ok 1 - Flag OFF (Default - Unchanged Login)
+      ---
+      duration_ms: 572.557333
+      type: 'suite'
+      ...
+    # Subtest: Flag ON (TURNSTILE_ENABLED=true)
+        # Subtest: 2. Fails with TurnstileError when token is missing
+        ok 1 - 2. Fails with TurnstileError when token is missing
+          ---
+          duration_ms: 12.761792
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 3. Fails with TurnstileError when token is invalid
+        ok 2 - 3. Fails with TurnstileError when token is invalid
+          ---
+          duration_ms: 119.985125
+          type: 'test'
+          ...
+        # Subtest: 4. Succeeds when token is valid (mock)
+        ok 3 - 4. Succeeds when token is valid (mock)
+          ---
+          duration_ms: 529.245083
+          type: 'test'
+          ...
+        # Subtest: 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
+        ok 4 - 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
+          ---
+          duration_ms: 1.791625
+          type: 'test'
+          ...
+        1..4
+    ok 2 - Flag ON (TURNSTILE_ENABLED=true)
+      ---
+      duration_ms: 665.371708
+      type: 'suite'
+      ...
+    # Subtest: Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
+        # Subtest: 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
+        ok 1 - 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
+          ---
+          duration_ms: 491.843458
+          type: 'test'
+          ...
+        # Subtest: 7. Mobile login is rate-limited per user+IP
+        ok 2 - 7. Mobile login is rate-limited per user+IP
+          ---
+          duration_ms: 3145.5095
+          type: 'test'
+          ...
+        1..2
+    ok 3 - Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
+      ---
+      duration_ms: 3638.185416
+      type: 'suite'
+      ...
+    1..3
+ok 75 - Task G1: Turnstile on Login Verification
+  ---
+  duration_ms: 5656.480833
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task B8: Turnstile Server-Side Verification
+    # Subtest: Flag OFF (Default - Dev/Test Uninterrupted)
+        # Subtest: 1. Returns success immediately when TURNSTILE_ENABLED is not true
+        ok 1 - 1. Returns success immediately when TURNSTILE_ENABLED is not true
+          ---
+          duration_ms: 9.468542
+          type: 'test'
+          ...
+# [Turnstile] Security failure: TURNSTILE_ENABLED=true but TURNSTILE_SECRET_KEY is not configured! Failing closed.
+        # Subtest: 2. Contact form passes without Turnstile token when flag is OFF
+        ok 2 - 2. Contact form passes without Turnstile token when flag is OFF
+          ---
+          duration_ms: 364.378625
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Flag OFF (Default - Dev/Test Uninterrupted)
+      ---
+      duration_ms: 378.07
+      type: 'suite'
+      ...
+    # Subtest: Flag ON (TURNSTILE_ENABLED=true)
+        # Subtest: 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+        ok 1 - 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+          ---
+          duration_ms: 2.218625
+          type: 'test'
+          ...
+        # Subtest: 4. Fails with 400 when token is missing or empty
+        ok 2 - 4. Fails with 400 when token is missing or empty
+          ---
+          duration_ms: 0.945166
+          type: 'test'
+          ...
+        # Subtest: 5. Validates token with Cloudflare and returns success when valid
+        ok 3 - 5. Validates token with Cloudflare and returns success when valid
+          ---
+          duration_ms: 128.856041
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 6. Rejects with 400 when Cloudflare reports invalid-input-response
+        ok 4 - 6. Rejects with 400 when Cloudflare reports invalid-input-response
+          ---
+          duration_ms: 21.820959
+          type: 'test'
+          ...
+# [Turnstile] Cloudflare siteverify request timed out
+        # Subtest: 7. Rejects with 504 when Cloudflare endpoint times out
+        ok 5 - 7. Rejects with 504 when Cloudflare endpoint times out
+          ---
+          duration_ms: 160.0285
+          type: 'test'
+          ...
+        # Subtest: 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+        ok 6 - 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+          ---
+          duration_ms: 13.476834
+          type: 'test'
+          ...
+        1..6
+    ok 2 - Flag ON (TURNSTILE_ENABLED=true)
+      ---
+      duration_ms: 329.239583
+      type: 'suite'
+      ...
+    1..2
+ok 76 - Task B8: Turnstile Server-Side Verification
+  ---
+  duration_ms: 3776.12025
+  type: 'suite'
+  ...
+# Subtest: Step 1 Unit Tests: Exact Goal Matching & No Substring Leaks
+    # Subtest: UPSC, BPSC, SSC must NOT match skills
+    ok 1 - UPSC, BPSC, SSC must NOT match skills
+      ---
+      duration_ms: 2.108042
+      type: 'test'
+      ...
+    # Subtest: C matches skills ONLY as an exact token
+    ok 2 - C matches skills ONLY as an exact token
+      ---
+      duration_ms: 1.198042
+      type: 'test'
+      ...
+    # Subtest: Target goal exact matching works as expected
+    ok 3 - Target goal exact matching works as expected
+      ---
+      duration_ms: 1.794584
+      type: 'test'
+      ...
+    # Subtest: Explicit alias mapping resolves properly
+    ok 4 - Explicit alias mapping resolves properly
+      ---
+      duration_ms: 6.287792
+      type: 'test'
+      ...
+    # Subtest: validateOrMapCanonicalGoals validates properly
+    ok 5 - validateOrMapCanonicalGoals validates properly
+      ---
+      duration_ms: 0.769542
+      type: 'test'
+      ...
+    1..5
+ok 77 - Step 1 Unit Tests: Exact Goal Matching & No Substring Leaks
+  ---
+  duration_ms: 15.053042
+  type: 'suite'
+  ...
+# Subtest: A6 upload name policy
+    # Subtest: rejects traversal and path segments
+    ok 1 - rejects traversal and path segments
+      ---
+      duration_ms: 2.75125
+      type: 'test'
+      ...
+    # Subtest: rejects svg, html, php and double extensions
+    ok 2 - rejects svg, html, php and double extensions
+      ---
+      duration_ms: 8.622417
+      type: 'test'
+      ...
+    # Subtest: rejects hidden files and missing extensions
+    ok 3 - rejects hidden files and missing extensions
+      ---
+      duration_ms: 0.644583
+      type: 'test'
+      ...
+    # Subtest: accepts ordinary image and document names
+    ok 4 - accepts ordinary image and document names
+      ---
+      duration_ms: 0.344583
+      type: 'test'
+      ...
+    # Subtest: the dangerous list covers executable and markup types
+    ok 5 - the dangerous list covers executable and markup types
+      ---
+      duration_ms: 0.242125
+      type: 'test'
+      ...
+    1..5
+ok 78 - A6 upload name policy
+  ---
+  duration_ms: 14.124042
+  type: 'suite'
+  ...
+# Subtest: A6 upload content validation
+    # Subtest: uses a server-generated name, never the caller name
+    ok 1 - uses a server-generated name, never the caller name
+      ---
+      duration_ms: 2.250459
+      type: 'test'
+      ...
+    # Subtest: rejects html content disguised as an image
+    ok 2 - rejects html content disguised as an image
+      ---
+      duration_ms: 5.616459
+      type: 'test'
+      ...
+    # Subtest: rejects svg content even with an image mime
+    ok 3 - rejects svg content even with an image mime
+      ---
+      duration_ms: 2.08375
+      type: 'test'
+      ...
+    # Subtest: oversized uploads are a 413
+    ok 4 - oversized uploads are a 413
+      ---
+      duration_ms: 0.831958
+      type: 'test'
+      ...
+    # Subtest: a valid PDF is accepted
+    ok 5 - a valid PDF is accepted
+      ---
+      duration_ms: 2.205208
+      type: 'test'
+      ...
+    1..5
+ok 79 - A6 upload content validation
+  ---
+  duration_ms: 14.417958
+  type: 'suite'
+  ...
+# Subtest: A6 storage fallback
+    # Subtest: test environment stores under public/uploads with a generated name
+    ok 1 - test environment stores under public/uploads with a generated name
+      ---
+      duration_ms: 43.352292
+      type: 'test'
+      ...
+    # Subtest: private visibility stays outside /public
+    ok 2 - private visibility stays outside /public
+      ---
+      duration_ms: 9.108375
+      type: 'test'
+      ...
+    # Subtest: a rejected upload never reaches storage
+    ok 3 - a rejected upload never reaches storage
+      ---
+      duration_ms: 1.117042
+      type: 'test'
+      ...
+    1..3
+ok 80 - A6 storage fallback
+  ---
+  duration_ms: 54.127333
+  type: 'suite'
+  ...
+# [user-goal] database read failed: Error: database is down
+#     at Object.getGoal (/private/tmp/fresh-clone-launch-verify/tests/unit/user-goal-store.test.ts:71:15)
+#     at GET (/private/tmp/fresh-clone-launch-verify/lib/goals/user-goal-store.ts:97:31)
+#     at async TestContext.<anonymous> (/private/tmp/fresh-clone-launch-verify/tests/unit/user-goal-store.test.ts:74:17)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# Subtest: B-007: goal storage is the database only
+    # Subtest: reads a stored goal through the DB client
+    ok 1 - reads a stored goal through the DB client
+      ---
+      duration_ms: 84.958541
+      type: 'test'
+      ...
+    # Subtest: returns null when the user has no goal (no memory fallback)
+    ok 2 - returns null when the user has no goal (no memory fallback)
+      ---
+      duration_ms: 0.363125
+      type: 'test'
+      ...
+    # Subtest: propagates DB read failures instead of using a cached value
+    ok 3 - propagates DB read failures instead of using a cached value
+      ---
+      duration_ms: 0.679125
+      type: 'test'
+      ...
+    # Subtest: propagates DB write failures instead of claiming success
+    ok 4 - propagates DB write failures instead of claiming success
+      ---
+      duration_ms: 0.392125
+      type: 'test'
+      ...
+    # Subtest: serialises and de-duplicates goals on write
+    ok 5 - serialises and de-duplicates goals on write
+      ---
+      duration_ms: 0.609125
+      type: 'test'
+      ...
+    # Subtest: GET returns 503 when the DB read throws
+    ok 6 - GET returns 503 when the DB read throws
+      ---
+      duration_ms: 114.906167
+      type: 'test'
+      ...
+    # Subtest: GET returns the stored goal for a signed-in user
+    ok 7 - GET returns the stored goal for a signed-in user
+      ---
+      duration_ms: 9.402292
+      type: 'test'
+      ...
+    # Subtest: GET returns an empty goal for a guest
+    ok 8 - GET returns an empty goal for a guest
+      ---
+      duration_ms: 46.295958
+      type: 'test'
+      ...
+    1..8
+ok 81 - B-007: goal storage is the database only
+  ---
+  duration_ms: 262.748958
+  type: 'suite'
+  ...
+# Subtest: B-007: goal round trip through the real test database
+    # Subtest: writes a goal and reads it back through the DB path
+    ok 1 - writes a goal and reads it back through the DB path
+      ---
+      duration_ms: 408.804125
+      type: 'test'
+      ...
+    1..1
+ok 82 - B-007: goal round trip through the real test database
+  ---
+  duration_ms: 472.346584
+  type: 'suite'
+  ...
+# Subtest: A11 stored XSS sanitizer
+    # Subtest: neutralises: <script>alert(1)</script>
+    ok 1 - neutralises: <script>alert(1)</script>
+      ---
+      duration_ms: 8.175542
+      type: 'test'
+      ...
+    # Subtest: neutralises: <SCRIPT type="text/javascript">alert(1)</SCRIPT>
+    ok 2 - neutralises: <SCRIPT type="text/javascript">alert(1)</SCRIPT>
+      ---
+      duration_ms: 6.9
+      type: 'test'
+      ...
+    # Subtest: neutralises: <script src="https://evil.test/x.js"></script>
+    ok 3 - neutralises: <script src="https://evil.test/x.js"></script>
+      ---
+      duration_ms: 0.228042
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror=alert(1)>
+    ok 4 - neutralises: <img src=x onerror=alert(1)>
+      ---
+      duration_ms: 0.15575
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror="alert(1)">
+    ok 5 - neutralises: <img src=x onerror="alert(1)">
+      ---
+      duration_ms: 0.13
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror='alert(1)'>
+    ok 6 - neutralises: <img src=x onerror='alert(1)'>
+      ---
+      duration_ms: 0.638
+      type: 'test'
+      ...
+    # Subtest: neutralises: <svg/onload=alert(1)>
+    ok 7 - neutralises: <svg/onload=alert(1)>
+      ---
+      duration_ms: 0.215083
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href="javascript:alert(1)">click</a>
+    ok 8 - neutralises: <a href="javascript:alert(1)">click</a>
+      ---
+      duration_ms: 0.391125
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href='javascript:alert(1)'>click</a>
+    ok 9 - neutralises: <a href='javascript:alert(1)'>click</a>
+      ---
+      duration_ms: 0.516125
+      type: 'test'
+      ...
+    # Subtest: neutralises: <iframe src="https://evil.test"></iframe>
+    ok 10 - neutralises: <iframe src="https://evil.test"></iframe>
+      ---
+      duration_ms: 1.440417
+      type: 'test'
+      ...
+    # Subtest: neutralises: <object data="x"></object>
+    ok 11 - neutralises: <object data="x"></object>
+      ---
+      duration_ms: 0.248
+      type: 'test'
+      ...
+    # Subtest: neutralises: <embed src="x">
+    ok 12 - neutralises: <embed src="x">
+      ---
+      duration_ms: 0.732459
+      type: 'test'
+      ...
+    # Subtest: neutralises: <form action="/x"><input></form>
+    ok 13 - neutralises: <form action="/x"><input></form>
+      ---
+      duration_ms: 0.342625
+      type: 'test'
+      ...
+    # Subtest: neutralises: <style>body{background:url(javascript:alert(1))}
+    ok 14 - neutralises: <style>body{background:url(javascript:alert(1))}
+      ---
+      duration_ms: 3.549958
+      type: 'test'
+      ...
+    # Subtest: neutralises: <div style="width:expression(alert(1))">x</div>
+    ok 15 - neutralises: <div style="width:expression(alert(1))">x</div>
+      ---
+      duration_ms: 0.195625
+      type: 'test'
+      ...
+    # Subtest: neutralises: </script><script>alert(1)</script>
+    ok 16 - neutralises: </script><script>alert(1)</script>
+      ---
+      duration_ms: 0.105458
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href="java\\tscript:alert(1)">tab trick</a>
+    ok 17 - neutralises: <a href="java\\tscript:alert(1)">tab trick</a>
+      ---
+      duration_ms: 0.100792
+      type: 'test'
+      ...
+    # Subtest: keeps harmless formatting
+    ok 18 - keeps harmless formatting
+      ---
+      duration_ms: 0.220333
+      type: 'test'
+      ...
+    1..18
+ok 83 - A11 stored XSS sanitizer
+  ---
+  duration_ms: 28.64
+  type: 'suite'
+  ...
+1..83
+# tests 410
+# suites 101
+# pass 374
+# fail 12
+# cancelled 24
+# skipped 0
+# todo 0
+# duration_ms 71908.840625
+
+Exit Code: 1

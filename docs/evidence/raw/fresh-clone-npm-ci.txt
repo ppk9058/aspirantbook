@@ -1,0 +1,45 @@
+=== FRESH CLONE: NPM CI ===
+Git SHA: 11717ac4245d2a9883fa59d45ed0b4dff226fe07
+Timestamp: 2026-10-29T14:11:20Z
+Command: npm ci
+
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+> aspirantbook@0.1.0 postinstall
+> prisma generate
+
+Prisma schema loaded from prisma/schema.prisma
+┌─────────────────────────────────────────────────────────┐
+│  Update available 6.19.0 -> 8.0.0-rc.28                 │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
+✔ Generated Prisma Client (v6.19.0) to ./node_modules/@prisma/client in 374ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+
+
+added 786 packages, and audited 789 packages in 1m
+
+190 packages are looking for funding
+  run `npm fund` for details
+
+27 vulnerabilities (1 low, 6 moderate, 20 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+Exit Code: 0

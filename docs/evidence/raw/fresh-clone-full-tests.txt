@@ -1,0 +1,3219 @@
+=== FRESH CLONE: FULL TEST SUITE ===
+Git SHA: 11717ac4245d2a9883fa59d45ed0b4dff226fe07
+Timestamp: 2026-10-29T14:13:38Z
+Command: node --test --test-concurrency=1 node_modules/.bin/tsx tests/unit/*.test.ts
+
+TAP version 13
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/auth/action-guards' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/admin-action-guards.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/auth/action-guards'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/admin-action-guards.test.ts
+not ok 1 - tests/unit/admin-action-guards.test.ts
+  ---
+  duration_ms: 141.305
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/admin-action-guards.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/admin-analytics.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/admin-analytics.test.ts
+not ok 2 - tests/unit/admin-analytics.test.ts
+  ---
+  duration_ms: 109.583791
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/admin-analytics.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/validation/admin-payloads' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/admin-mass-assignment.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/validation/admin-payloads'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/admin-mass-assignment.test.ts
+not ok 3 - tests/unit/admin-mass-assignment.test.ts
+  ---
+  duration_ms: 95.642708
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/admin-mass-assignment.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/admin/csv' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/admin-users-hardening.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/admin/csv'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/admin-users-hardening.test.ts
+not ok 4 - tests/unit/admin-users-hardening.test.ts
+  ---
+  duration_ms: 93.69075
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/admin-users-hardening.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/batches-concurrency.test.ts
+not ok 5 - tests/unit/batches-concurrency.test.ts
+  ---
+  duration_ms: 105.843959
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/batches-concurrency.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19615) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: A5 book storage key policy
+    # Subtest: rejects traversal, absolute paths and remote URLs
+    not ok 1 - rejects traversal, absolute paths and remote URLs
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:31:3'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: accepts storage keys and legacy public paths
+    not ok 2 - accepts storage keys and legacy public paths
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:49:3'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: resolves a real key inside the configured root
+    not ok 3 - resolves a real key inside the configured root
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:56:3'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: rejects a symlink that escapes the root
+    not ok 4 - rejects a symlink that escapes the root
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:63:3'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: a missing file is a 404, never a fabricated PDF
+    not ok 5 - a missing file is a 404, never a fabricated PDF
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:70:3'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: traversal input to readBookFile is rejected before touching disk
+    not ok 6 - traversal input to readBookFile is rejected before touching disk
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:77:3'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..6
+not ok 6 - A5 book storage key policy
+  ---
+  duration_ms: 4.568083
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:30:1'
+  failureType: 'hookFailed'
+  error: "Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/books/book-file-storage' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts"
+  code: 'ERR_MODULE_NOT_FOUND'
+  stack: |-
+    finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    moduleResolve (node:internal/modules/esm/resolve:865:10)
+    defaultResolve (node:internal/modules/esm/resolve:989:11)
+    #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+    ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+    ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    ModuleLoader.import (node:internal/modules/esm/loader:679:21)
+    defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31)
+  ...
+# Subtest: A5/A12 book update allowlist
+    # Subtest: strips unknown fields such as createdBy
+    not ok 1 - strips unknown fields such as createdBy
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:86:3'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: rejects a traversal fullPdfUrl
+    not ok 2 - rejects a traversal fullPdfUrl
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:98:3'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: rejects an absolute fullPdfUrl
+    not ok 3 - rejects an absolute fullPdfUrl
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:103:3'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 7 - A5/A12 book update allowlist
+  ---
+  duration_ms: 0.754
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts:85:1'
+  failureType: 'hookFailed'
+  error: "Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/books/book-file-storage' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/book-file-storage.test.ts"
+  code: 'ERR_MODULE_NOT_FOUND'
+  stack: |-
+    finalizeResolution (node:internal/modules/esm/resolve:275:11)
+    moduleResolve (node:internal/modules/esm/resolve:865:10)
+    defaultResolve (node:internal/modules/esm/resolve:989:11)
+    #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+    ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+    ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+    TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+    ModuleLoader.import (node:internal/modules/esm/loader:679:21)
+    defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31)
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/books-db-persistence.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/books-db-persistence.test.ts
+not ok 7 - tests/unit/books-db-persistence.test.ts
+  ---
+  duration_ms: 104.801709
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/books-db-persistence.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/bookstore-stats.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/bookstore-stats.test.ts
+not ok 8 - tests/unit/bookstore-stats.test.ts
+  ---
+  duration_ms: 94.316833
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/bookstore-stats.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/brand-config.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/brand-config.test.ts
+not ok 9 - tests/unit/brand-config.test.ts
+  ---
+  duration_ms: 92.42525
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/brand-config.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/exam-questions-cache' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/cache-invalidation-versioning.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/exam-questions-cache'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/cache-invalidation-versioning.test.ts
+not ok 10 - tests/unit/cache-invalidation-versioning.test.ts
+  ---
+  duration_ms: 122.790209
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/cache-invalidation-versioning.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/cache-invalidation.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/cache-invalidation.test.ts
+not ok 11 - tests/unit/cache-invalidation.test.ts
+  ---
+  duration_ms: 97.510583
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/cache-invalidation.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/cache-tag-coverage.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/cache-tag-coverage.test.ts
+not ok 12 - tests/unit/cache-tag-coverage.test.ts
+  ---
+  duration_ms: 98.171542
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/cache-tag-coverage.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/client-ip-trust-proxy.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/client-ip-trust-proxy.test.ts
+not ok 13 - tests/unit/client-ip-trust-proxy.test.ts
+  ---
+  duration_ms: 110.795208
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/client-ip-trust-proxy.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/scripts/guard-test-db' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/client-seq-coalesce.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/scripts/guard-test-db'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/client-seq-coalesce.test.ts
+not ok 14 - tests/unit/client-seq-coalesce.test.ts
+  ---
+  duration_ms: 115.433
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/client-seq-coalesce.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/prisma' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/connection-limit-validator.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/prisma'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/connection-limit-validator.test.ts
+not ok 15 - tests/unit/connection-limit-validator.test.ts
+  ---
+  duration_ms: 118.554042
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/connection-limit-validator.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/content-audit-db.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/content-audit-db.test.ts
+not ok 16 - tests/unit/content-audit-db.test.ts
+  ---
+  duration_ms: 96.042334
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/content-audit-db.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/content-engine-export.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/content-engine-export.test.ts
+not ok 17 - tests/unit/content-engine-export.test.ts
+  ---
+  duration_ms: 97.619458
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/content-engine-export.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/content-engine-search.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/content-engine-search.test.ts
+not ok 18 - tests/unit/content-engine-search.test.ts
+  ---
+  duration_ms: 102.881625
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/content-engine-search.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/content-order-race.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/content-order-race.test.ts
+not ok 19 - tests/unit/content-order-race.test.ts
+  ---
+  duration_ms: 97.88875
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/content-order-race.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/course-lesson-read.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/course-lesson-read.test.ts
+not ok 20 - tests/unit/course-lesson-read.test.ts
+  ---
+  duration_ms: 101.357042
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/course-lesson-read.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/course-metadata-db.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/course-metadata-db.test.ts
+not ok 21 - tests/unit/course-metadata-db.test.ts
+  ---
+  duration_ms: 96.445125
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/course-metadata-db.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/auth/course-access' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/course-ownership.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/auth/course-access'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/course-ownership.test.ts
+not ok 22 - tests/unit/course-ownership.test.ts
+  ---
+  duration_ms: 91.111583
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/course-ownership.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/dashboard-summary.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/dashboard-summary.test.ts
+not ok 23 - tests/unit/dashboard-summary.test.ts
+  ---
+  duration_ms: 100.329
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/dashboard-summary.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/data-deletion-queue.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/data-deletion-queue.test.ts
+not ok 24 - tests/unit/data-deletion-queue.test.ts
+  ---
+  duration_ms: 124.8415
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/data-deletion-queue.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/demo-chat-rate-limit.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/demo-chat-rate-limit.test.ts
+not ok 25 - tests/unit/demo-chat-rate-limit.test.ts
+  ---
+  duration_ms: 97.14975
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/demo-chat-rate-limit.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/auth/demo-role' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/demo-role-policy.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/auth/demo-role'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/demo-role-policy.test.ts
+not ok 26 - tests/unit/demo-role-policy.test.ts
+  ---
+  duration_ms: 99.282584
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/demo-role-policy.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/doubts-forms-db.test.ts
+not ok 27 - tests/unit/doubts-forms-db.test.ts
+  ---
+  duration_ms: 101.826791
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/doubts-forms-db.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/email-outbox-worker.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/email-outbox-worker.test.ts
+not ok 28 - tests/unit/email-outbox-worker.test.ts
+  ---
+  duration_ms: 155.57775
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/email-outbox-worker.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/email-provider-abstraction.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/email-provider-abstraction.test.ts
+not ok 29 - tests/unit/email-provider-abstraction.test.ts
+  ---
+  duration_ms: 140.442667
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/email-provider-abstraction.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/email-transport.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/email-transport.test.ts
+not ok 30 - tests/unit/email-transport.test.ts
+  ---
+  duration_ms: 101.945
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/email-transport.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/env-guard.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/env-guard.test.ts
+not ok 31 - tests/unit/env-guard.test.ts
+  ---
+  duration_ms: 102.577708
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/env-guard.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/prisma' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/exam-checklist-scenarios.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/prisma'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-checklist-scenarios.test.ts
+not ok 32 - tests/unit/exam-checklist-scenarios.test.ts
+  ---
+  duration_ms: 109.272583
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-checklist-scenarios.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/exam-deadline' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/exam-deadline-ordering.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/exam-deadline'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-deadline-ordering.test.ts
+not ok 33 - tests/unit/exam-deadline-ordering.test.ts
+  ---
+  duration_ms: 118.645042
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-deadline-ordering.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/exam/audit-helper' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/exam-mutations-auth.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/exam/audit-helper'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-mutations-auth.test.ts
+not ok 34 - tests/unit/exam-mutations-auth.test.ts
+  ---
+  duration_ms: 95.155833
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-mutations-auth.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/exam/metrics' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/exam-packages-tests.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/exam/metrics'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-packages-tests.test.ts
+not ok 35 - tests/unit/exam-packages-tests.test.ts
+  ---
+  duration_ms: 114.342792
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-packages-tests.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/exam-ranking' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-live.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/exam-ranking'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-ranking-live.test.ts
+not ok 36 - tests/unit/exam-ranking-live.test.ts
+  ---
+  duration_ms: 247.35
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-live.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/exam-ranking' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-property.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/exam-ranking'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-ranking-property.test.ts
+not ok 37 - tests/unit/exam-ranking-property.test.ts
+  ---
+  duration_ms: 172.231167
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-ranking-property.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/exam-runtime/exam-rate-limit'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-rate-limiting.test.ts
+not ok 38 - tests/unit/exam-rate-limiting.test.ts
+  ---
+  duration_ms: 115.375166
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-rate-limiting.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/exam-grading' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-golden.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/exam-grading'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-runtime-golden.test.ts
+not ok 39 - tests/unit/exam-runtime-golden.test.ts
+  ---
+  duration_ms: 137.826292
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-golden.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/exam-grading' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/exam-grading'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-runtime-verification-review.test.ts
+not ok 40 - tests/unit/exam-runtime-verification-review.test.ts
+  ---
+  duration_ms: 122.590291
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/exam-runtime-verification-review.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/google-oauth-security.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/google-oauth-security.test.ts
+not ok 41 - tests/unit/google-oauth-security.test.ts
+  ---
+  duration_ms: 130.482167
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/google-oauth-security.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/scripts/guard-test-db' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/guard-test-db.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/scripts/guard-test-db'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/guard-test-db.test.ts
+not ok 42 - tests/unit/guard-test-db.test.ts
+  ---
+  duration_ms: 92.991792
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/guard-test-db.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/app' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/health-completeness.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/health-completeness.test.ts
+not ok 43 - tests/unit/health-completeness.test.ts
+  ---
+  duration_ms: 117.591458
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/health-completeness.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/app' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/health-endpoint.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/health-endpoint.test.ts
+not ok 44 - tests/unit/health-endpoint.test.ts
+  ---
+  duration_ms: 111.978666
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/health-endpoint.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19656) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/tests/unit/hook-deps.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: B-017: hook dependency arrays are exhaustive
+    # Subtest: reports no react-hooks/exhaustive-deps warnings in the fixed components
+    ok 1 - reports no react-hooks/exhaustive-deps warnings in the fixed components
+      ---
+      duration_ms: 2697.876583
+      type: 'test'
+      ...
+    1..1
+ok 46 - B-017: hook dependency arrays are exhaustive
+  ---
+  duration_ms: 2698.783042
+  type: 'suite'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/index-coverage.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/index-coverage.test.ts
+not ok 46 - tests/unit/index-coverage.test.ts
+  ---
+  duration_ms: 102.466
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/index-coverage.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/legal-pages-and-deletion.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/legal-pages-and-deletion.test.ts
+not ok 47 - tests/unit/legal-pages-and-deletion.test.ts
+  ---
+  duration_ms: 117.297083
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/legal-pages-and-deletion.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/services/exam.service' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/mobile-v1-exam-service-perf.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/services/exam.service'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/mobile-v1-exam-service-perf.test.ts
+not ok 48 - tests/unit/mobile-v1-exam-service-perf.test.ts
+  ---
+  duration_ms: 121.823458
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/mobile-v1-exam-service-perf.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/no-local-disk-writes.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/no-local-disk-writes.test.ts
+not ok 49 - tests/unit/no-local-disk-writes.test.ts
+  ---
+  duration_ms: 133.953167
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/no-local-disk-writes.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/payment-amount-minor.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/payment-amount-minor.test.ts
+not ok 50 - tests/unit/payment-amount-minor.test.ts
+  ---
+  duration_ms: 97.223625
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/payment-amount-minor.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/phase3-settings-batches-wishlist.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/phase3-settings-batches-wishlist.test.ts
+not ok 51 - tests/unit/phase3-settings-batches-wishlist.test.ts
+  ---
+  duration_ms: 102.11525
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/phase3-settings-batches-wishlist.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/prisma-log-guard.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/prisma-log-guard.test.ts
+not ok 52 - tests/unit/prisma-log-guard.test.ts
+  ---
+  duration_ms: 88.700209
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/prisma-log-guard.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/services/push.service' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/push-service.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/services/push.service'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/push-service.test.ts
+not ok 53 - tests/unit/push-service.test.ts
+  ---
+  duration_ms: 93.177625
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/push-service.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/rate-limit-ip.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/rate-limit-ip.test.ts
+not ok 54 - tests/unit/rate-limit-ip.test.ts
+  ---
+  duration_ms: 94.273667
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/rate-limit-ip.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/rate-limit' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/ratelimit-and-mobile-sync.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/rate-limit'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/ratelimit-and-mobile-sync.test.ts
+not ok 55 - tests/unit/ratelimit-and-mobile-sync.test.ts
+  ---
+  duration_ms: 94.607583
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/ratelimit-and-mobile-sync.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/razorpay-config-fail-closed.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/razorpay-config-fail-closed.test.ts
+not ok 56 - tests/unit/razorpay-config-fail-closed.test.ts
+  ---
+  duration_ms: 98.188375
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/razorpay-config-fail-closed.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/run_main:123
+#     triggerUncaughtException(
+#     ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/node_modules/next/server' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/razorpay-webhook-verification.test.ts
+# Did you mean to import "next/server.js"?
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/node_modules/next/server'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/razorpay-webhook-verification.test.ts
+not ok 57 - tests/unit/razorpay-webhook-verification.test.ts
+  ---
+  duration_ms: 115.87
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/razorpay-webhook-verification.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/reauth-token-single-use.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/reauth-token-single-use.test.ts
+not ok 58 - tests/unit/reauth-token-single-use.test.ts
+  ---
+  duration_ms: 100.261125
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/reauth-token-single-use.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19674) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Task A4: Stripe Lazy Initialization & Health Checks
+    # Subtest: 1. Module import succeeds with no key during NEXT_PHASE=phase-production-build
+    not ok 1 - 1. Module import succeeds with no key during NEXT_PHASE=phase-production-build
+      ---
+      duration_ms: 0.956375
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts:13:3'
+      failureType: 'testCodeFailure'
+      error: "Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/payments/stripe' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts"
+      code: 'ERR_MODULE_NOT_FOUND'
+      stack: |-
+        finalizeResolution (node:internal/modules/esm/resolve:275:11)
+        moduleResolve (node:internal/modules/esm/resolve:865:10)
+        defaultResolve (node:internal/modules/esm/resolve:989:11)
+        #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+        ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+        ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+        onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+        TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+        ModuleLoader.import (node:internal/modules/esm/loader:679:21)
+        defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31)
+      ...
+    # Subtest: 2. Runtime without key fails closed on first payment call with clear error
+    not ok 2 - 2. Runtime without key fails closed on first payment call with clear error
+      ---
+      duration_ms: 0.392917
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts:22:3'
+      failureType: 'testCodeFailure'
+      error: "Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/payments/stripe' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts"
+      code: 'ERR_MODULE_NOT_FOUND'
+      stack: |-
+        finalizeResolution (node:internal/modules/esm/resolve:275:11)
+        moduleResolve (node:internal/modules/esm/resolve:865:10)
+        defaultResolve (node:internal/modules/esm/resolve:989:11)
+        #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+        ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+        ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+        onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+        TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+        ModuleLoader.import (node:internal/modules/esm/loader:679:21)
+        defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31)
+      ...
+    # Subtest: 3. /api/health returns 'payments: not configured' without leaking secrets
+    not ok 3 - 3. /api/health returns 'payments: not configured' without leaking secrets
+      ---
+      duration_ms: 0.269917
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts:59:3'
+      failureType: 'testCodeFailure'
+      error: "Cannot find module '/private/tmp/fresh-clone-launch-verify/app/api/health/route' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts"
+      code: 'ERR_MODULE_NOT_FOUND'
+      stack: |-
+        finalizeResolution (node:internal/modules/esm/resolve:275:11)
+        moduleResolve (node:internal/modules/esm/resolve:865:10)
+        defaultResolve (node:internal/modules/esm/resolve:989:11)
+        #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+        ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+        ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+        onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+        TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+        ModuleLoader.import (node:internal/modules/esm/loader:679:21)
+        defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31)
+      ...
+    # Subtest: 4. /api/health returns 'payments: configured' when key is present
+    not ok 4 - 4. /api/health returns 'payments: configured' when key is present
+      ---
+      duration_ms: 0.346708
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts:76:3'
+      failureType: 'testCodeFailure'
+      error: "Cannot find module '/private/tmp/fresh-clone-launch-verify/app/api/health/route' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts"
+      code: 'ERR_MODULE_NOT_FOUND'
+      stack: |-
+        finalizeResolution (node:internal/modules/esm/resolve:275:11)
+        moduleResolve (node:internal/modules/esm/resolve:865:10)
+        defaultResolve (node:internal/modules/esm/resolve:989:11)
+        #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+        ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+        ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+        onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:680:36)
+        TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+        ModuleLoader.import (node:internal/modules/esm/loader:679:21)
+        defaultImportModuleDynamicallyForModule (node:internal/modules/esm/utils:222:31)
+      ...
+    # Subtest: 5. No placeholder string remains anywhere in code files
+    not ok 5 - 5. No placeholder string remains anywhere in code files
+      ---
+      duration_ms: 0.119917
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts:89:3'
+      failureType: 'testCodeFailure'
+      error: '__dirname is not defined'
+      code: 'ERR_TEST_FAILURE'
+      name: 'ReferenceError'
+      stack: |-
+        TestContext.<anonymous> (file:///private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts:90:34)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..5
+not ok 60 - Task A4: Stripe Lazy Initialization & Health Checks
+  ---
+  duration_ms: 3.060291
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/stripe-lazy-init.test.ts:6:1'
+  failureType: 'subtestsFailed'
+  error: '5 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19675) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/tests/unit/teacher-dashboard-errors.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: teacher dashboard reports failed reads
+    # Subtest: is request-rendered, not prerendered at build time
+    ok 1 - is request-rendered, not prerendered at build time
+      ---
+      duration_ms: 0.571958
+      type: 'test'
+      ...
+    # Subtest: does not swallow read failures with an empty catch
+    ok 2 - does not swallow read failures with an empty catch
+      ---
+      duration_ms: 0.24075
+      type: 'test'
+      ...
+    # Subtest: logs and records every failed section
+    ok 3 - logs and records every failed section
+      ---
+      duration_ms: 0.274833
+      type: 'test'
+      ...
+    # Subtest: renders a visible alert for the failed sections
+    ok 4 - renders a visible alert for the failed sections
+      ---
+      duration_ms: 0.086917
+      type: 'test'
+      ...
+    1..4
+ok 61 - teacher dashboard reports failed reads
+  ---
+  duration_ms: 2.096375
+  type: 'suite'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/test-db-guard.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/test-db-guard.test.ts
+not ok 61 - tests/unit/test-db-guard.test.ts
+  ---
+  duration_ms: 97.535292
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/test-db-guard.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19677) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/tests/unit/tsc-ratchet.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Task B10: TypeScript Ratchet Verification
+    # Subtest: 1. Ratchet passes when error count matches baseline
+    ok 1 - 1. Ratchet passes when error count matches baseline
+      ---
+      duration_ms: 6207.798459
+      type: 'test'
+      ...
+    # Subtest: 2. Ratchet suggests lower count when current < baseline
+    ok 2 - 2. Ratchet suggests lower count when current < baseline
+      ---
+      duration_ms: 5540.168792
+      type: 'test'
+      ...
+    # Subtest: 3. Ratchet fails closed when error count exceeds baseline
+    ok 3 - 3. Ratchet fails closed when error count exceeds baseline
+      ---
+      duration_ms: 5613.767583
+      type: 'test'
+      ...
+    1..3
+ok 63 - Task B10: TypeScript Ratchet Verification
+  ---
+  duration_ms: 17363.0015
+  type: 'suite'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/turnstile-login.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/turnstile-login.test.ts
+not ok 63 - tests/unit/turnstile-login.test.ts
+  ---
+  duration_ms: 141.1775
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/turnstile-login.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/turnstile-verification.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/turnstile-verification.test.ts
+not ok 64 - tests/unit/turnstile-verification.test.ts
+  ---
+  duration_ms: 130.102833
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/turnstile-verification.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/tutorials-goal-categories' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/tutorials-goal-categories.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/tutorials-goal-categories'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/tutorials-goal-categories.test.ts
+not ok 65 - tests/unit/tutorials-goal-categories.test.ts
+  ---
+  duration_ms: 94.507542
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/tutorials-goal-categories.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/security/upload-policy' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/upload-policy.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/security/upload-policy'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/upload-policy.test.ts
+not ok 66 - tests/unit/upload-policy.test.ts
+  ---
+  duration_ms: 95.342667
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/upload-policy.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/user-goal-store.test.ts
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:772:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:859:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/user-goal-store.test.ts
+not ok 67 - tests/unit/user-goal-store.test.ts
+  ---
+  duration_ms: 93.447833
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/user-goal-store.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/lib/security/sanitizer' imported from /private/tmp/fresh-clone-launch-verify/tests/unit/xss-sanitizer.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/lib/security/sanitizer'
+# }
+# Node.js v22.23.4
+# Subtest: tests/unit/xss-sanitizer.test.ts
+not ok 68 - tests/unit/xss-sanitizer.test.ts
+  ---
+  duration_ms: 89.599708
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/tests/unit/xss-sanitizer.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..69
+# tests 85
+# suites 6
+# pass 8
+# fail 68
+# cancelled 9
+# skipped 0
+# todo 0
+# duration_ms 27870.55725
+
+Unit Tests Exit Code: 1
+
+=== FRESH CLONE: MOBILE TESTS ===
+Command: cd apps/mobile && node --test tests/*.test.ts
+TAP version 13
+# (node:19772) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/account-and-search.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/apps/mobile/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Phase 7: Account, Settings, Search, and Pass Parity
+not ok 1 - Phase 7: Account, Settings, Search, and Pass Parity
+  ---
+  duration_ms: 0.40075
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/account-and-search.test.ts:6:1'
+  failureType: 'testCodeFailure'
+  error: '__dirname is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    SuiteContext.<anonymous> (file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/account-and-search.test.ts:7:29)
+    Suite.runInAsyncScope (node:async_hooks:214:14)
+    Suite.createBuild (node:internal/test_runner/test:1402:13)
+    new Suite (node:internal/test_runner/test:1393:28)
+    Test.createSubtest (node:internal/test_runner/test:808:18)
+    run (node:internal/test_runner/harness:302:28)
+    test (node:internal/test_runner/harness:316:12)
+    file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/account-and-search.test.ts:6:1
+    ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/storage' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/account-deletion-flow.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/storage'
+# }
+# Node.js v22.23.4
+# Subtest: tests/account-deletion-flow.test.ts
+not ok 2 - tests/account-deletion-flow.test.ts
+  ---
+  duration_ms: 181.428959
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/account-deletion-flow.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19774) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/alert-allowlist.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/apps/mobile/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: T6: Alert.alert Cleanup & Allow-List Enforcement
+    # Subtest: enforces that all Alert.alert occurrences match the explicit allow-list and count is <= 12
+    not ok 1 - enforces that all Alert.alert occurrences match the explicit allow-list and count is <= 12
+      ---
+      duration_ms: 0.700083
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/alert-allowlist.test.ts:63:3'
+      failureType: 'testCodeFailure'
+      error: '__dirname is not defined'
+      code: 'ERR_TEST_FAILURE'
+      name: 'ReferenceError'
+      stack: |-
+        TestContext.<anonymous> (file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/alert-allowlist.test.ts:64:30)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Test.start (node:internal/test_runner/test:944:17)
+        node:internal/test_runner/test:1440:71
+        node:internal/per_context/primordials:466:82
+        new Promise (<anonymous>)
+        new SafePromise (node:internal/per_context/primordials:435:3)
+        node:internal/per_context/primordials:466:9
+        Array.map (<anonymous>)
+      ...
+    # Subtest: enforces that all Alert.alert occurrences have a literal array of >=2 buttons
+    not ok 2 - enforces that all Alert.alert occurrences have a literal array of >=2 buttons
+      ---
+      duration_ms: 0.160334
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/alert-allowlist.test.ts:99:3'
+      failureType: 'testCodeFailure'
+      error: 'require is not defined'
+      code: 'ERR_TEST_FAILURE'
+      name: 'ReferenceError'
+      stack: |-
+        TestContext.<anonymous> (file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/alert-allowlist.test.ts:104:16)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    1..2
+not ok 3 - T6: Alert.alert Cleanup & Allow-List Enforcement
+  ---
+  duration_ms: 1.68175
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/alert-allowlist.test.ts:48:1'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/api-url' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/api-dynamic-base.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/api-url'
+# }
+# Node.js v22.23.4
+# Subtest: tests/api-dynamic-base.test.ts
+not ok 4 - tests/api-dynamic-base.test.ts
+  ---
+  duration_ms: 171.798708
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/api-dynamic-base.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/api-url' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/api-url-precedence.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/api-url'
+# }
+# Node.js v22.23.4
+# Subtest: tests/api-url-precedence.test.ts
+not ok 5 - tests/api-url-precedence.test.ts
+  ---
+  duration_ms: 182.984875
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/api-url-precedence.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/auth-errors' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/auth-error-text.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/auth-errors'
+# }
+# Node.js v22.23.4
+# Subtest: tests/auth-error-text.test.ts
+not ok 6 - tests/auth-error-text.test.ts
+  ---
+  duration_ms: 171.321709
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/auth-error-text.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19778) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/auth-flow.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/apps/mobile/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Phase 8: Login and Register Parity
+not ok 7 - Phase 8: Login and Register Parity
+  ---
+  duration_ms: 0.384791
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/auth-flow.test.ts:6:1'
+  failureType: 'testCodeFailure'
+  error: '__dirname is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    SuiteContext.<anonymous> (file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/auth-flow.test.ts:7:30)
+    Suite.runInAsyncScope (node:async_hooks:214:14)
+    Suite.createBuild (node:internal/test_runner/test:1402:13)
+    new Suite (node:internal/test_runner/test:1393:28)
+    Test.createSubtest (node:internal/test_runner/test:808:18)
+    run (node:internal/test_runner/harness:302:28)
+    test (node:internal/test_runner/harness:316:12)
+    file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/auth-flow.test.ts:6:1
+    ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/query-persistence' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/auth-logout-cache.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/query-persistence'
+# }
+# Node.js v22.23.4
+# Subtest: tests/auth-logout-cache.test.ts
+not ok 8 - tests/auth-logout-cache.test.ts
+  ---
+  duration_ms: 201.8945
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/auth-logout-cache.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-timer' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/cbt-engine.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-timer'
+# }
+# Node.js v22.23.4
+# Subtest: tests/cbt-engine.test.ts
+not ok 9 - tests/cbt-engine.test.ts
+  ---
+  duration_ms: 166.264292
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/cbt-engine.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-sync' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/cbt-persistence.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-sync'
+# }
+# Node.js v22.23.4
+# Subtest: tests/cbt-persistence.test.ts
+not ok 10 - tests/cbt-persistence.test.ts
+  ---
+  duration_ms: 169.547208
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/cbt-persistence.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-selection' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/cbt-selection.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-selection'
+# }
+# Node.js v22.23.4
+# Subtest: tests/cbt-selection.test.ts
+not ok 11 - tests/cbt-selection.test.ts
+  ---
+  duration_ms: 165.283125
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/cbt-selection.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-sync' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/cbt-sqlite-durability.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-sync'
+# }
+# Node.js v22.23.4
+# Subtest: tests/cbt-sqlite-durability.test.ts
+not ok 12 - tests/cbt-sqlite-durability.test.ts
+  ---
+  duration_ms: 171.489792
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/cbt-sqlite-durability.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-sync' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/cbt-submit-guards.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-sync'
+# }
+# Node.js v22.23.4
+# Subtest: tests/cbt-submit-guards.test.ts
+not ok 13 - tests/cbt-submit-guards.test.ts
+  ---
+  duration_ms: 157.119042
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/cbt-submit-guards.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19785) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/check-release-config.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/apps/mobile/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Task B11: Mobile Release Config Guard
+    # Subtest: 1. Passes cleanly on standard production release configuration
+    ok 1 - 1. Passes cleanly on standard production release configuration
+      ---
+      duration_ms: 1.531
+      type: 'test'
+      ...
+    # Subtest: 2. Fails when production API_URL uses insecure http://
+    ok 2 - 2. Fails when production API_URL uses insecure http://
+      ---
+      duration_ms: 0.427333
+      type: 'test'
+      ...
+    # Subtest: 3. Fails when production API_URL points to localhost
+    ok 3 - 3. Fails when production API_URL points to localhost
+      ---
+      duration_ms: 0.350833
+      type: 'test'
+      ...
+    # Subtest: 4. Fails when production API_URL points to emulator IP 10.0.2.2
+    ok 4 - 4. Fails when production API_URL points to emulator IP 10.0.2.2
+      ---
+      duration_ms: 0.231625
+      type: 'test'
+      ...
+    # Subtest: 5. App config release guard throws at runtime when production build has insecure URL
+    not ok 5 - 5. App config release guard throws at runtime when production build has insecure URL
+      ---
+      duration_ms: 1.303958
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/check-release-config.test.ts:45:3'
+      failureType: 'testCodeFailure'
+      error: |-
+        The input did not match the regular expression /Mobile Release Guard/. Input:
+        
+        "Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/app.config' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/check-release-config.test.ts"
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual: "Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/app.config' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/check-release-config.test.ts"
+      operator: 'match'
+      stack: |-
+        Object.<anonymous> (file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/check-release-config.test.ts:63:18)
+        expectedException (node:assert:576:17)
+        expectsError (node:assert:701:21)
+        Function.rejects (node:assert:767:3)
+        async TestContext.<anonymous> (file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/check-release-config.test.ts:54:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..5
+not ok 14 - Task B11: Mobile Release Config Guard
+  ---
+  duration_ms: 5.125333
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/check-release-config.test.ts:5:1'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19786) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/courses-and-home.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/apps/mobile/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Phase 6: Courses, Video Player, My-Learning, and Tracks Parity
+not ok 15 - Phase 6: Courses, Video Player, My-Learning, and Tracks Parity
+  ---
+  duration_ms: 1.036125
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/courses-and-home.test.ts:6:1'
+  failureType: 'testCodeFailure'
+  error: '__dirname is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    SuiteContext.<anonymous> (file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/courses-and-home.test.ts:7:29)
+    Suite.runInAsyncScope (node:async_hooks:214:14)
+    Suite.createBuild (node:internal/test_runner/test:1402:13)
+    new Suite (node:internal/test_runner/test:1393:28)
+    Test.createSubtest (node:internal/test_runner/test:808:18)
+    run (node:internal/test_runner/harness:302:28)
+    test (node:internal/test_runner/harness:316:12)
+    file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/courses-and-home.test.ts:6:1
+    ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/course-progress' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/courses-ux-polish.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/course-progress'
+# }
+# Node.js v22.23.4
+# Subtest: tests/courses-ux-polish.test.ts
+not ok 16 - tests/courses-ux-polish.test.ts
+  ---
+  duration_ms: 152.951125
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/courses-ux-polish.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/data-deletion' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/data-deletion-module.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/data-deletion'
+# }
+# Node.js v22.23.4
+# Subtest: tests/data-deletion-module.test.ts
+not ok 17 - tests/data-deletion-module.test.ts
+  ---
+  duration_ms: 151.045416
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/data-deletion-module.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/exam-access-ui' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/exam-access-ui.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/exam-access-ui'
+# }
+# Node.js v22.23.4
+# Subtest: tests/exam-access-ui.test.ts
+not ok 18 - tests/exam-access-ui.test.ts
+  ---
+  duration_ms: 152.330834
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/exam-access-ui.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19790) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/fake-data-scan.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/apps/mobile/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: T9 Fake Data Scan & Real API Integration Audit
+    # Subtest: Screen files must exist and be discovered
+    ok 1 - Screen files must exist and be discovered
+      ---
+      duration_ms: 0.633459
+      type: 'test'
+      ...
+    # Subtest: Zero screens import from mock/fixture paths
+    ok 2 - Zero screens import from mock/fixture paths
+      ---
+      duration_ms: 12.175083
+      type: 'test'
+      ...
+    # Subtest: Zero screens declare mock/fake data arrays (mockQuestions, sampleCourses, fakeProgress)
+    ok 3 - Zero screens declare mock/fake data arrays (mockQuestions, sampleCourses, fakeProgress)
+      ---
+      duration_ms: 4.464708
+      type: 'test'
+      ...
+    # Subtest: Data screens wire into real API client or WebOnlyScreen
+    ok 4 - Data screens wire into real API client or WebOnlyScreen
+      ---
+      duration_ms: 0.922292
+      type: 'test'
+      ...
+    # Subtest: Subscription screen wires into real GET /api/v1/subscriptions via getPurchases
+    ok 5 - Subscription screen wires into real GET /api/v1/subscriptions via getPurchases
+      ---
+      duration_ms: 0.160334
+      type: 'test'
+      ...
+    # Subtest: app.config.ts has no hardcoded IP or localhost fallbacks
+    not ok 6 - app.config.ts has no hardcoded IP or localhost fallbacks
+      ---
+      duration_ms: 0.52625
+      type: 'test'
+      location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/fake-data-scan.test.ts:117:3'
+      failureType: 'testCodeFailure'
+      error: 'app.config.ts must not contain localhost fallback'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/fake-data-scan.test.ts:121:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: apps/mobile/src has zero hardcoded IP literals and zero localhost fallbacks
+    ok 7 - apps/mobile/src has zero hardcoded IP literals and zero localhost fallbacks
+      ---
+      duration_ms: 18.111708
+      type: 'test'
+      ...
+    1..7
+not ok 19 - T9 Fake Data Scan & Real API Integration Audit
+  ---
+  duration_ms: 38.029416
+  type: 'suite'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/fake-data-scan.test.ts:24:1'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19791) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/guest-and-goal-parity.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/apps/mobile/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: A4: KI-9 Guest State Cleanup & KI-13 GoalBar Copy Standardization
+    # Subtest: KI-9: MobileAppHeader gates notificationDot strictly behind isAuthenticated
+    ok 1 - KI-9: MobileAppHeader gates notificationDot strictly behind isAuthenticated
+      ---
+      duration_ms: 1.274959
+      type: 'test'
+      ...
+    # Subtest: KI-9: Home screen gates streakBadge strictly behind isAuthenticated and real streak data > 0
+    ok 2 - KI-9: Home screen gates streakBadge strictly behind isAuthenticated and real streak data > 0
+      ---
+      duration_ms: 0.606
+      type: 'test'
+      ...
+    # Subtest: KI-13: Home, Courses, and Tests standardize GoalBar copy to 'Goal: <exam>' and 'Change'
+    ok 3 - KI-13: Home, Courses, and Tests standardize GoalBar copy to 'Goal: <exam>' and 'Change'
+      ---
+      duration_ms: 1.144459
+      type: 'test'
+      ...
+    1..3
+ok 20 - A4: KI-9 Guest State Cleanup & KI-13 GoalBar Copy Standardization
+  ---
+  duration_ms: 4.030083
+  type: 'suite'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/latex-parser' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/math-corpus.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/latex-parser'
+# }
+# Node.js v22.23.4
+# Subtest: tests/math-corpus.test.ts
+not ok 21 - tests/math-corpus.test.ts
+  ---
+  duration_ms: 131.639958
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/math-corpus.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/latex-parser' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/math-renderer.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/latex-parser'
+# }
+# Node.js v22.23.4
+# Subtest: tests/math-renderer.test.ts
+not ok 22 - tests/math-renderer.test.ts
+  ---
+  duration_ms: 164.308
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/math-renderer.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-timer' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/offline-hardening.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-timer'
+# }
+# Node.js v22.23.4
+# Subtest: tests/offline-hardening.test.ts
+not ok 23 - tests/offline-hardening.test.ts
+  ---
+  duration_ms: 233.454208
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/offline-hardening.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/pdf-manager' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/pdf-manager.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/pdf-manager'
+# }
+# Node.js v22.23.4
+# Subtest: tests/pdf-manager.test.ts
+not ok 24 - tests/pdf-manager.test.ts
+  ---
+  duration_ms: 173.754125
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/pdf-manager.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/pdf-manager' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/pdf-offline-caching.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/pdf-manager'
+# }
+# Node.js v22.23.4
+# Subtest: tests/pdf-offline-caching.test.ts
+not ok 25 - tests/pdf-offline-caching.test.ts
+  ---
+  duration_ms: 164.123625
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/pdf-offline-caching.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/push' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/push-notifications-flow.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/push'
+# }
+# Node.js v22.23.4
+# Subtest: tests/push-notifications-flow.test.ts
+not ok 26 - tests/push-notifications-flow.test.ts
+  ---
+  duration_ms: 170.978542
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/push-notifications-flow.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/pdf-manager' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/pyq-and-ca.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/pdf-manager'
+# }
+# Node.js v22.23.4
+# Subtest: tests/pyq-and-ca.test.ts
+not ok 27 - tests/pyq-and-ca.test.ts
+  ---
+  duration_ms: 152.15025
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/pyq-and-ca.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/query-keys' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/query-keys.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/query-keys'
+# }
+# Node.js v22.23.4
+# Subtest: tests/query-keys.test.ts
+not ok 28 - tests/query-keys.test.ts
+  ---
+  duration_ms: 146.547
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/query-keys.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/reader-storage' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/reader-storage.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/reader-storage'
+# }
+# Node.js v22.23.4
+# Subtest: tests/reader-storage.test.ts
+not ok 29 - tests/reader-storage.test.ts
+  ---
+  duration_ms: 196.359167
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/reader-storage.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/query-persistence' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/reliability-offline.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/query-persistence'
+# }
+# Node.js v22.23.4
+# Subtest: tests/reliability-offline.test.ts
+not ok 30 - tests/reliability-offline.test.ts
+  ---
+  duration_ms: 252.151792
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/reliability-offline.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# (node:19802) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///private/tmp/fresh-clone-launch-verify/apps/mobile/tests/route-manifest-mutation.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /private/tmp/fresh-clone-launch-verify/apps/mobile/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: T10 Route Manifest Integrity & Mutation Test
+    # Subtest: routeExistsOnDisk resolves all canonical static routes
+    ok 1 - routeExistsOnDisk resolves all canonical static routes
+      ---
+      duration_ms: 2.8165
+      type: 'test'
+      ...
+    # Subtest: routeExistsOnDisk resolves all dynamic routes
+    ok 2 - routeExistsOnDisk resolves all dynamic routes
+      ---
+      duration_ms: 3.805584
+      type: 'test'
+      ...
+    # Subtest: Every router navigation target across src/** maps to a real route on disk
+    ok 3 - Every router navigation target across src/** maps to a real route on disk
+      ---
+      duration_ms: 19.067417
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF: Deliberately broken route targets are caught and fail routeExistsOnDisk
+    ok 4 - MUTATION PROOF: Deliberately broken route targets are caught and fail routeExistsOnDisk
+      ---
+      duration_ms: 2.733875
+      type: 'test'
+      ...
+    1..4
+ok 31 - T10 Route Manifest Integrity & Mutation Test
+  ---
+  duration_ms: 31.0595
+  type: 'suite'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/use-debounce' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/search-filters.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/use-debounce'
+# }
+# Node.js v22.23.4
+# Subtest: tests/search-filters.test.ts
+not ok 32 - tests/search-filters.test.ts
+  ---
+  duration_ms: 247.825625
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/search-filters.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/shell-navigation' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/shell-and-navigation.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/shell-navigation'
+# }
+# Node.js v22.23.4
+# Subtest: tests/shell-and-navigation.test.ts
+not ok 33 - tests/shell-and-navigation.test.ts
+  ---
+  duration_ms: 261.027125
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/shell-and-navigation.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-sync' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/sqlite-adapter-contract.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-sync'
+# }
+# Node.js v22.23.4
+# Subtest: tests/sqlite-adapter-contract.test.ts
+not ok 34 - tests/sqlite-adapter-contract.test.ts
+  ---
+  duration_ms: 250.692875
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/sqlite-adapter-contract.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-timer' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/test-series-flow.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/cbt-timer'
+# }
+# Node.js v22.23.4
+# Subtest: tests/test-series-flow.test.ts
+not ok 35 - tests/test-series-flow.test.ts
+  ---
+  duration_ms: 234.772083
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/test-series-flow.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/theme/tokens' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/theme-and-tokens.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/theme/tokens'
+# }
+# Node.js v22.23.4
+# Subtest: tests/theme-and-tokens.test.ts
+not ok 36 - tests/theme-and-tokens.test.ts
+  ---
+  duration_ms: 203.760958
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/theme-and-tokens.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/video-player-helper' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/video-player.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/video-player-helper'
+# }
+# Node.js v22.23.4
+# Subtest: tests/video-player.test.ts
+not ok 37 - tests/video-player.test.ts
+  ---
+  duration_ms: 181.895916
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/video-player.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/web-links' imported from /private/tmp/fresh-clone-launch-verify/apps/mobile/tests/web-links.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///private/tmp/fresh-clone-launch-verify/apps/mobile/src/lib/web-links'
+# }
+# Node.js v22.23.4
+# Subtest: tests/web-links.test.ts
+not ok 38 - tests/web-links.test.ts
+  ---
+  duration_ms: 189.185208
+  type: 'test'
+  location: '/private/tmp/fresh-clone-launch-verify/apps/mobile/tests/web-links.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..38
+# tests 51
+# suites 8
+# pass 17
+# fail 34
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1130.33525
+
+Mobile Tests Exit Code: 1
