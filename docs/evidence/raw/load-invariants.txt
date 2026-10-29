@@ -1,0 +1,29 @@
+=== TASK A11: CORRECTNESS INVARIANTS UNDER LOAD VERIFICATION ===
+Timestamp: 2026-10-29T00:28:55.057Z
+Database: postgresql://postgres:testpassword123@127.0.0.1:54335/trillionskill_perf_v2_test
+
+[PASS] zero_double_grading: Exactly one ExamAttempt row with status=SUBMITTED per (user, test)
+  SQL: SELECT "userId", "testId", COUNT(*)::int as count FROM "ExamAttempt" WHERE "testId" = 'et_perf_100q' AND status = 'SUBMITTED' GROUP BY "userId", "testId" HAVING COUNT(*) > 1;
+  Expected: 0 duplicate pairs | Actual: 0 duplicate pairs
+
+[PASS] score_regrade_parity: Recorded attempt score matches question-by-question re-grade 100%
+  SQL: SELECT a.id, a.score as recorded_score, ROUND(COALESCE(SUM(ans."marksAwarded"), 0)::numeric, 2) as calculated_score FROM "ExamAttempt" a LEFT JOIN "ExamAttemptAnswer" ans ON ans."attemptId" = a.id WHERE a."testId" = 'et_perf_100q' AND a.status = 'SUBMITTED' GROUP BY a.id, a.score HAVING ABS(a.score - ROUND(COALESCE(SUM(ans."marksAwarded"), 0)::numeric, 2)) > 0.01;
+  Expected: 0 mismatches | Actual: 0 mismatches
+
+[PASS] percentile_monotonicity: Higher score strictly implies equal or higher percentile
+  SQL: SELECT a1.id as id1, a1.score as s1, a1.percentile as p1, a2.id as id2, a2.score as s2, a2.percentile as p2 FROM "ExamAttempt" a1 JOIN "ExamAttempt" a2 ON a1."testId" = a2."testId" WHERE a1."testId" = 'et_perf_100q' AND a1.status = 'SUBMITTED' AND a2.status = 'SUBMITTED' AND a1.percentile IS NOT NULL AND a2.percentile IS NOT NULL AND a1.score > a2.score AND a1.percentile < a2.percentile;
+  Expected: 0 inversions | Actual: 0 inversions
+
+[PASS] no_orphaned_answers: All ExamAttemptAnswer rows reference a valid existing ExamAttempt
+  SQL: SELECT COUNT(*)::int as count FROM "ExamAttemptAnswer" ans LEFT JOIN "ExamAttempt" att ON att.id = ans."attemptId" WHERE att.id IS NULL;
+  Expected: 0 orphaned answers | Actual: 0 orphaned answers
+
+[PASS] client_seq_monotonic: Zero negative or invalid client sequence numbers stored
+  SQL: SELECT COUNT(*)::int as count FROM "ExamAttemptAnswer" WHERE "clientSeq" IS NOT NULL AND "clientSeq" < 0;
+  Expected: 0 invalid sequences | Actual: 0 invalid sequences
+
+[PASS] answers_stored_integrity: All marked answers reflected in attempt's final answer breakdown (no lost updates)
+  SQL: SELECT a.id, a."correctCount" + a."wrongCount" as answered_count, COUNT(ans.id)::int as stored_count FROM "ExamAttempt" a LEFT JOIN "ExamAttemptAnswer" ans ON ans."attemptId" = a.id AND ans."selectedOption" IS NOT NULL WHERE a."testId" = 'et_perf_100q' AND a.status = 'SUBMITTED' GROUP BY a.id, a."correctCount", a."wrongCount" HAVING (a."correctCount" + a."wrongCount") > COUNT(ans.id);
+  Expected: 0 missing updates | Actual: 0 missing updates
+
+FINAL VERDICT: All invariants PASSED 100%

@@ -1,0 +1,23 @@
+{
+  "runIndex": 1,
+  "scenario": "steady",
+  "flags": "ALL_OFF",
+  "latencyMs": 0,
+  "timestamp": "2026-10-28T23:51:47.562Z",
+  "durationSec": 31.6,
+  "totalRequests": 466,
+  "throughputRps": 14.8,
+  "syncP50": 22,
+  "syncP95": 41,
+  "syncP99": 146,
+  "submitP50": 0,
+  "submitP95": 0,
+  "submitP99": 0,
+  "maxDbConns": 2,
+  "avgDbConns": 1,
+  "cpuAppPercent": 3.7,
+  "memAppMb": 279.5,
+  "cpuDbPercent": 3.7,
+  "memDbMb": 85.8,
+  "invariantsPassed": true
+}

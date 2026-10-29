@@ -1,0 +1,392 @@
+[
+  {
+    "scenario": "start_herd",
+    "latencyMs": 0,
+    "allOff": {
+      "throughput": {
+        "median": 59.2,
+        "iqr": 0.6,
+        "min": 56.7,
+        "max": 60,
+        "n": 5
+      },
+      "p95": {
+        "median": 816,
+        "iqr": 298,
+        "min": 307,
+        "max": 880,
+        "n": 5
+      }
+    },
+    "allOn": {
+      "throughput": {
+        "median": 59.6,
+        "iqr": 0.8,
+        "min": 58.9,
+        "max": 60.1,
+        "n": 5
+      },
+      "p95": {
+        "median": 548,
+        "iqr": 139,
+        "min": 289,
+        "max": 712,
+        "n": 5
+      }
+    },
+    "fastGrading": {
+      "throughput": {
+        "median": 58.2,
+        "iqr": 1,
+        "min": 57.6,
+        "max": 59.5,
+        "n": 5
+      },
+      "p95": {
+        "median": 439,
+        "iqr": 340,
+        "min": 311,
+        "max": 781,
+        "n": 5
+      }
+    },
+    "pairedAllOnVsOff": {
+      "throughputDiff": 0.4,
+      "throughput95CI": [
+        -0.8,
+        2.9
+      ],
+      "p95LatencyDiff": -268,
+      "p95Latency95CI": [
+        -527,
+        241
+      ],
+      "verdict": "NO PROVEN BENEFIT"
+    }
+  },
+  {
+    "scenario": "start_herd",
+    "latencyMs": 40,
+    "allOff": {
+      "throughput": {
+        "median": 34.1,
+        "iqr": 0.9,
+        "min": 32.5,
+        "max": 34.2,
+        "n": 5
+      },
+      "p95": {
+        "median": 4391,
+        "iqr": 581,
+        "min": 4133,
+        "max": 4780,
+        "n": 5
+      }
+    },
+    "allOn": {
+      "throughput": {
+        "median": 33.4,
+        "iqr": 0.5,
+        "min": 32.9,
+        "max": 33.8,
+        "n": 5
+      },
+      "p95": {
+        "median": 4373,
+        "iqr": 202,
+        "min": 4167,
+        "max": 4434,
+        "n": 5
+      }
+    },
+    "fastGrading": {
+      "throughput": {
+        "median": 34.2,
+        "iqr": 0.2,
+        "min": 33.7,
+        "max": 34.5,
+        "n": 5
+      },
+      "p95": {
+        "median": 4256,
+        "iqr": 60,
+        "min": 4190,
+        "max": 4551,
+        "n": 5
+      }
+    },
+    "pairedAllOnVsOff": {
+      "throughputDiff": -0.7,
+      "throughput95CI": [
+        -1.2,
+        0.9
+      ],
+      "p95LatencyDiff": -18,
+      "p95Latency95CI": [
+        -577,
+        268
+      ],
+      "verdict": "NO PROVEN BENEFIT"
+    }
+  },
+  {
+    "scenario": "submit_burst",
+    "latencyMs": 0,
+    "allOff": {
+      "throughput": {
+        "median": 57.4,
+        "iqr": 1.2,
+        "min": 56.7,
+        "max": 63.6,
+        "n": 5
+      },
+      "p95": {
+        "median": 2585,
+        "iqr": 95,
+        "min": 2098,
+        "max": 2823,
+        "n": 5
+      }
+    },
+    "allOn": {
+      "throughput": {
+        "median": 60.8,
+        "iqr": 2.4,
+        "min": 54,
+        "max": 62.8,
+        "n": 5
+      },
+      "p95": {
+        "median": 2586,
+        "iqr": 481,
+        "min": 2134,
+        "max": 2809,
+        "n": 5
+      }
+    },
+    "fastGrading": {
+      "throughput": {
+        "median": 59.6,
+        "iqr": 2.2,
+        "min": 53.5,
+        "max": 63.8,
+        "n": 5
+      },
+      "p95": {
+        "median": 2456,
+        "iqr": 135,
+        "min": 2258,
+        "max": 3096,
+        "n": 5
+      }
+    },
+    "pairedAllOnVsOff": {
+      "throughputDiff": 3.4,
+      "throughput95CI": [
+        -4.6,
+        5.4
+      ],
+      "p95LatencyDiff": 1,
+      "p95Latency95CI": [
+        -455,
+        488
+      ],
+      "verdict": "NEUTRAL/FASTER"
+    }
+  },
+  {
+    "scenario": "submit_burst",
+    "latencyMs": 40,
+    "allOff": {
+      "throughput": {
+        "median": 21.1,
+        "iqr": 0,
+        "min": 20.9,
+        "max": 21.2,
+        "n": 5
+      },
+      "p95": {
+        "median": 11469,
+        "iqr": 163,
+        "min": 11355,
+        "max": 11635,
+        "n": 5
+      }
+    },
+    "allOn": {
+      "throughput": {
+        "median": 21.1,
+        "iqr": 0.1,
+        "min": 20.9,
+        "max": 21.1,
+        "n": 5
+      },
+      "p95": {
+        "median": 11514,
+        "iqr": 200,
+        "min": 11392,
+        "max": 11644,
+        "n": 5
+      }
+    },
+    "fastGrading": {
+      "throughput": {
+        "median": 21,
+        "iqr": 0.2,
+        "min": 20.7,
+        "max": 21.2,
+        "n": 5
+      },
+      "p95": {
+        "median": 11746,
+        "iqr": 209,
+        "min": 11424,
+        "max": 11973,
+        "n": 5
+      }
+    },
+    "pairedAllOnVsOff": {
+      "throughputDiff": 0,
+      "throughput95CI": [
+        -0.2,
+        0.2
+      ],
+      "p95LatencyDiff": 45,
+      "p95Latency95CI": [
+        -184,
+        231
+      ],
+      "verdict": "NO PROVEN BENEFIT"
+    }
+  },
+  {
+    "scenario": "steady",
+    "latencyMs": 0,
+    "allOff": {
+      "throughput": {
+        "median": 142.8,
+        "iqr": 1.6,
+        "min": 133,
+        "max": 146,
+        "n": 5
+      },
+      "p95": {
+        "median": 1385,
+        "iqr": 213,
+        "min": 1023,
+        "max": 1615,
+        "n": 5
+      }
+    },
+    "allOn": {
+      "throughput": {
+        "median": 146.3,
+        "iqr": 0.4,
+        "min": 137.8,
+        "max": 146.7,
+        "n": 5
+      },
+      "p95": {
+        "median": 1118,
+        "iqr": 159,
+        "min": 984,
+        "max": 1582,
+        "n": 5
+      }
+    },
+    "fastGrading": {
+      "throughput": {
+        "median": 142.3,
+        "iqr": 19.5,
+        "min": 96.8,
+        "max": 148.2,
+        "n": 5
+      },
+      "p95": {
+        "median": 1148,
+        "iqr": 1197,
+        "min": 1030,
+        "max": 3086,
+        "n": 5
+      }
+    },
+    "pairedAllOnVsOff": {
+      "throughputDiff": 3.5,
+      "throughput95CI": [
+        -5,
+        13.3
+      ],
+      "p95LatencyDiff": -267,
+      "p95Latency95CI": [
+        -497,
+        197
+      ],
+      "verdict": "NEUTRAL/FASTER"
+    }
+  },
+  {
+    "scenario": "steady",
+    "latencyMs": 40,
+    "allOff": {
+      "throughput": {
+        "median": 95.9,
+        "iqr": 20.8,
+        "min": 64,
+        "max": 104.1,
+        "n": 5
+      },
+      "p95": {
+        "median": 3223,
+        "iqr": 2819,
+        "min": 2199,
+        "max": 13227,
+        "n": 5
+      }
+    },
+    "allOn": {
+      "throughput": {
+        "median": 102.2,
+        "iqr": 4.1,
+        "min": 97.4,
+        "max": 104.1,
+        "n": 5
+      },
+      "p95": {
+        "median": 2522,
+        "iqr": 138,
+        "min": 2174,
+        "max": 2759,
+        "n": 5
+      }
+    },
+    "fastGrading": {
+      "throughput": {
+        "median": 105.5,
+        "iqr": 0.7,
+        "min": 94.3,
+        "max": 105.9,
+        "n": 5
+      },
+      "p95": {
+        "median": 2364,
+        "iqr": 216,
+        "min": 2234,
+        "max": 5485,
+        "n": 5
+      }
+    },
+    "pairedAllOnVsOff": {
+      "throughputDiff": 6.3,
+      "throughput95CI": [
+        -4.6,
+        38.2
+      ],
+      "p95LatencyDiff": -701,
+      "p95Latency95CI": [
+        -10705,
+        336
+      ],
+      "verdict": "NEUTRAL/FASTER"
+    }
+  }
+]

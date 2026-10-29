@@ -114,15 +114,16 @@ export async function seed100qTest() {
       },
     });
 
-    await prisma.examAttempt.create({
+    const peerAtt = await prisma.examAttempt.create({
       data: {
+        id: `att_peer_${p}`,
         userId: peerUser.id,
         testId: test.id,
         status: "SUBMITTED",
         language: "English",
         startedAt: new Date(Date.now() - 3600 * 1000 * 2),
         submittedAt: new Date(Date.now() - 3600 * 1000 + p * 60 * 1000),
-        score: 50 + p * 5,
+        score: (25 + p * 2) * 2 - 10 * 0.66,
         totalMarks: 200,
         correctCount: 25 + p * 2,
         wrongCount: 10,
@@ -131,6 +132,32 @@ export async function seed100qTest() {
         timeTakenSecs: 3000 + p * 50,
       },
     });
+
+    const peerAnswers = [];
+    const correctTarget = 25 + p * 2;
+    for (let qi = 0; qi < correctTarget; qi++) {
+      peerAnswers.push({
+        id: `ans_peer_${p}_${qi + 1}`,
+        attemptId: peerAtt.id,
+        questionId: questions[qi].id,
+        selectedOption: questions[qi].correctOption,
+        isCorrect: true,
+        marksAwarded: 2.0,
+        timeSpentSecs: 30,
+      });
+    }
+    for (let qi = correctTarget; qi < correctTarget + 10; qi++) {
+      peerAnswers.push({
+        id: `ans_peer_${p}_${qi + 1}`,
+        attemptId: peerAtt.id,
+        questionId: questions[qi].id,
+        selectedOption: questions[qi].correctOption === "A" ? "B" : "A",
+        isCorrect: false,
+        marksAwarded: -0.66,
+        timeSpentSecs: 30,
+      });
+    }
+    await prisma.examAttemptAnswer.createMany({ data: peerAnswers });
   }
 
   console.log(`[Seed 100Q] Successfully seeded test ${test.id} with 100 questions and 20 peer attempts.`);

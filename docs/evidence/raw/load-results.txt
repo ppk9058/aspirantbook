@@ -1,0 +1,40 @@
+# Audited Load Methodology & Performance Verification (Task A10 & A11)
+
+**Hardware:** Apple M1 (8 cores), 8GB RAM, macOS 26.4 (Darwin 25E246)
+**Stack:** Next.js 15.1.4, Docker multi-stage container `trillionskill-perf-app:latest` (595 MB)
+**Database:** PostgreSQL 16 via Toxiproxy (downstream latency injected: 0ms, 40ms)
+**Workload:** 300 VUs, 100-Question Exam Paper, Real NextAuth Sessions, 5 Repetitions per cell ($N=5$)
+
+## Matrix Results Table
+
+| Scenario | Latency Tier | Config | Throughput (RPS) [Median, IQR, [Min, Max]] | P95 Latency (ms) [Median, IQR, [Min, Max]] | Active DB Conns | Verdict |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **start_herd** | 0 ms | **ALL-OFF** | 59.2 RPS (IQR 0.6) [56.7, 60] | 816 ms (IQR 298) [307, 880] | 10–11 | **BASELINE** |
+| **start_herd** | 0 ms | **FAST_GRADING** | 58.2 RPS (IQR 1) [57.6, 59.5] | 439 ms (IQR 340) [311, 781] | 10–11 | NEUTRAL |
+| **start_herd** | 0 ms | **ALL-ON** | 59.6 RPS (IQR 0.8) [58.9, 60.1] | 548 ms (IQR 139) [289, 712] | 10–11 | **NO PROVEN BENEFIT** |
+| **start_herd** | 40 ms | **ALL-OFF** | 34.1 RPS (IQR 0.9) [32.5, 34.2] | 4391 ms (IQR 581) [4133, 4780] | 10–11 | **BASELINE** |
+| **start_herd** | 40 ms | **FAST_GRADING** | 34.2 RPS (IQR 0.2) [33.7, 34.5] | 4256 ms (IQR 60) [4190, 4551] | 10–11 | NEUTRAL |
+| **start_herd** | 40 ms | **ALL-ON** | 33.4 RPS (IQR 0.5) [32.9, 33.8] | 4373 ms (IQR 202) [4167, 4434] | 10–11 | **NO PROVEN BENEFIT** |
+| **submit_burst** | 0 ms | **ALL-OFF** | 57.4 RPS (IQR 1.2) [56.7, 63.6] | 2585 ms (IQR 95) [2098, 2823] | 10–11 | **BASELINE** |
+| **submit_burst** | 0 ms | **FAST_GRADING** | 59.6 RPS (IQR 2.2) [53.5, 63.8] | 2456 ms (IQR 135) [2258, 3096] | 10–11 | NEUTRAL |
+| **submit_burst** | 0 ms | **ALL-ON** | 60.8 RPS (IQR 2.4) [54, 62.8] | 2586 ms (IQR 481) [2134, 2809] | 10–11 | **NEUTRAL/FASTER** |
+| **submit_burst** | 40 ms | **ALL-OFF** | 21.1 RPS (IQR 0) [20.9, 21.2] | 11469 ms (IQR 163) [11355, 11635] | 10–11 | **BASELINE** |
+| **submit_burst** | 40 ms | **FAST_GRADING** | 21 RPS (IQR 0.2) [20.7, 21.2] | 11746 ms (IQR 209) [11424, 11973] | 10–11 | NEUTRAL |
+| **submit_burst** | 40 ms | **ALL-ON** | 21.1 RPS (IQR 0.1) [20.9, 21.1] | 11514 ms (IQR 200) [11392, 11644] | 10–11 | **NO PROVEN BENEFIT** |
+| **steady** | 0 ms | **ALL-OFF** | 142.8 RPS (IQR 1.6) [133, 146] | 1385 ms (IQR 213) [1023, 1615] | 10–11 | **BASELINE** |
+| **steady** | 0 ms | **FAST_GRADING** | 142.3 RPS (IQR 19.5) [96.8, 148.2] | 1148 ms (IQR 1197) [1030, 3086] | 10–11 | NEUTRAL |
+| **steady** | 0 ms | **ALL-ON** | 146.3 RPS (IQR 0.4) [137.8, 146.7] | 1118 ms (IQR 159) [984, 1582] | 10–11 | **NEUTRAL/FASTER** |
+| **steady** | 40 ms | **ALL-OFF** | 95.9 RPS (IQR 20.8) [64, 104.1] | 3223 ms (IQR 2819) [2199, 13227] | 10–11 | **BASELINE** |
+| **steady** | 40 ms | **FAST_GRADING** | 105.5 RPS (IQR 0.7) [94.3, 105.9] | 2364 ms (IQR 216) [2234, 5485] | 10–11 | NEUTRAL |
+| **steady** | 40 ms | **ALL-ON** | 102.2 RPS (IQR 4.1) [97.4, 104.1] | 2522 ms (IQR 138) [2174, 2759] | 10–11 | **NEUTRAL/FASTER** |
+
+## Bootstrap 95% Confidence Intervals (2,000 Resamples)
+
+| Scenario | Latency Tier | Median $\Delta$ Throughput | Bootstrap 95% CI (Throughput) | Median $\Delta$ P95 Latency | Bootstrap 95% CI (Latency) | Verdict |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **start_herd** | 0 ms | +0.4 RPS | [-0.8, 2.9] | -268 ms | [-527, 241] | **NO PROVEN BENEFIT** |
+| **start_herd** | 40 ms | -0.7 RPS | [-1.2, 0.9] | -18 ms | [-577, 268] | **NO PROVEN BENEFIT** |
+| **submit_burst** | 0 ms | +3.4 RPS | [-4.6, 5.4] | +1 ms | [-455, 488] | **NEUTRAL/FASTER** |
+| **submit_burst** | 40 ms | 0 RPS | [-0.2, 0.2] | +45 ms | [-184, 231] | **NO PROVEN BENEFIT** |
+| **steady** | 0 ms | +3.5 RPS | [-5, 13.3] | -267 ms | [-497, 197] | **NEUTRAL/FASTER** |
+| **steady** | 40 ms | +6.3 RPS | [-4.6, 38.2] | -701 ms | [-10705, 336] | **NEUTRAL/FASTER** |
