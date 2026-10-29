@@ -8,6 +8,23 @@ const apiUrlSource = configuredApiUrl
   : (isDevMode ? "derived" : "unconfigured");
 const startupDisplayUrl = configuredApiUrl || (isDevMode ? `http://<metro-host>:${configuredApiPort}` : "UNCONFIGURED");
 
+const isProductionBuild =
+  process.env.EXPO_PUBLIC_APP_ENV === "production" ||
+  process.env.EAS_BUILD_PROFILE === "production";
+
+if (isProductionBuild) {
+  if (!configuredApiUrl || !configuredApiUrl.startsWith("https://")) {
+    throw new Error(
+      `[Mobile Release Guard] Production builds must use HTTPS for EXPO_PUBLIC_API_URL. Received: "${configuredApiUrl || "EMPTY"}". Insecure HTTP or localhost is strictly disallowed.`
+    );
+  }
+  if (/localhost|127\.0\.0\.1|10\.0\.2\.2|192\.168\./i.test(configuredApiUrl)) {
+    throw new Error(
+      `[Mobile Release Guard] Production builds cannot point to local or emulator IP: "${configuredApiUrl}".`
+    );
+  }
+}
+
 if (isDevMode) {
   console.log(`[API] Resolved Base URL: ${startupDisplayUrl} (source: ${apiUrlSource})`);
 }

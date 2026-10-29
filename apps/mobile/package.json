@@ -7,7 +7,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "test": "npx tsx --test tests/**/*.test.ts",
-    "test:ui": "jest"
+    "test:ui": "jest",
+    "check:release": "node scripts/check-release-config.mjs"
   },
   "dependencies": {
     "@aspirantbook/shared": "file:../../packages/shared",

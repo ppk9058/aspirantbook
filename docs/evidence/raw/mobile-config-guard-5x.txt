@@ -1,0 +1,243 @@
+=== TASK B11: MOBILE CONFIG GUARD 5X RUN ===
+Git SHA: 01e9d0094800e5fb1646ca3a7190e06393fb58a0
+Timestamp: 2026-10-29T01:50:48Z
+--- RUN 1 ---
+TAP version 13
+# Subtest: Task B11: Mobile Release Config Guard
+    # Subtest: 1. Passes cleanly on standard production release configuration
+    ok 1 - 1. Passes cleanly on standard production release configuration
+      ---
+      duration_ms: 1.736208
+      type: 'test'
+      ...
+    # Subtest: 2. Fails when production API_URL uses insecure http://
+    ok 2 - 2. Fails when production API_URL uses insecure http://
+      ---
+      duration_ms: 0.59625
+      type: 'test'
+      ...
+    # Subtest: 3. Fails when production API_URL points to localhost
+    ok 3 - 3. Fails when production API_URL points to localhost
+      ---
+      duration_ms: 0.371041
+      type: 'test'
+      ...
+    # Subtest: 4. Fails when production API_URL points to emulator IP 10.0.2.2
+    ok 4 - 4. Fails when production API_URL points to emulator IP 10.0.2.2
+      ---
+      duration_ms: 0.361542
+      type: 'test'
+      ...
+    # Subtest: 5. App config release guard throws at runtime when production build has insecure URL
+    ok 5 - 5. App config release guard throws at runtime when production build has insecure URL
+      ---
+      duration_ms: 12.754708
+      type: 'test'
+      ...
+    1..5
+ok 1 - Task B11: Mobile Release Config Guard
+  ---
+  duration_ms: 17.5225
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 352.567042
+--- RUN 2 ---
+TAP version 13
+# Subtest: Task B11: Mobile Release Config Guard
+    # Subtest: 1. Passes cleanly on standard production release configuration
+    ok 1 - 1. Passes cleanly on standard production release configuration
+      ---
+      duration_ms: 0.908167
+      type: 'test'
+      ...
+    # Subtest: 2. Fails when production API_URL uses insecure http://
+    ok 2 - 2. Fails when production API_URL uses insecure http://
+      ---
+      duration_ms: 0.329542
+      type: 'test'
+      ...
+    # Subtest: 3. Fails when production API_URL points to localhost
+    ok 3 - 3. Fails when production API_URL points to localhost
+      ---
+      duration_ms: 0.206459
+      type: 'test'
+      ...
+    # Subtest: 4. Fails when production API_URL points to emulator IP 10.0.2.2
+    ok 4 - 4. Fails when production API_URL points to emulator IP 10.0.2.2
+      ---
+      duration_ms: 0.261958
+      type: 'test'
+      ...
+    # Subtest: 5. App config release guard throws at runtime when production build has insecure URL
+    ok 5 - 5. App config release guard throws at runtime when production build has insecure URL
+      ---
+      duration_ms: 6.345625
+      type: 'test'
+      ...
+    1..5
+ok 1 - Task B11: Mobile Release Config Guard
+  ---
+  duration_ms: 8.95175
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 215.589625
+--- RUN 3 ---
+TAP version 13
+# Subtest: Task B11: Mobile Release Config Guard
+    # Subtest: 1. Passes cleanly on standard production release configuration
+    ok 1 - 1. Passes cleanly on standard production release configuration
+      ---
+      duration_ms: 0.821417
+      type: 'test'
+      ...
+    # Subtest: 2. Fails when production API_URL uses insecure http://
+    ok 2 - 2. Fails when production API_URL uses insecure http://
+      ---
+      duration_ms: 0.321416
+      type: 'test'
+      ...
+    # Subtest: 3. Fails when production API_URL points to localhost
+    ok 3 - 3. Fails when production API_URL points to localhost
+      ---
+      duration_ms: 0.212166
+      type: 'test'
+      ...
+    # Subtest: 4. Fails when production API_URL points to emulator IP 10.0.2.2
+    ok 4 - 4. Fails when production API_URL points to emulator IP 10.0.2.2
+      ---
+      duration_ms: 0.194458
+      type: 'test'
+      ...
+    # Subtest: 5. App config release guard throws at runtime when production build has insecure URL
+    ok 5 - 5. App config release guard throws at runtime when production build has insecure URL
+      ---
+      duration_ms: 7.359291
+      type: 'test'
+      ...
+    1..5
+ok 1 - Task B11: Mobile Release Config Guard
+  ---
+  duration_ms: 9.822209
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 211.648084
+--- RUN 4 ---
+TAP version 13
+# Subtest: Task B11: Mobile Release Config Guard
+    # Subtest: 1. Passes cleanly on standard production release configuration
+    ok 1 - 1. Passes cleanly on standard production release configuration
+      ---
+      duration_ms: 0.808333
+      type: 'test'
+      ...
+    # Subtest: 2. Fails when production API_URL uses insecure http://
+    ok 2 - 2. Fails when production API_URL uses insecure http://
+      ---
+      duration_ms: 0.323
+      type: 'test'
+      ...
+    # Subtest: 3. Fails when production API_URL points to localhost
+    ok 3 - 3. Fails when production API_URL points to localhost
+      ---
+      duration_ms: 0.214917
+      type: 'test'
+      ...
+    # Subtest: 4. Fails when production API_URL points to emulator IP 10.0.2.2
+    ok 4 - 4. Fails when production API_URL points to emulator IP 10.0.2.2
+      ---
+      duration_ms: 0.2035
+      type: 'test'
+      ...
+    # Subtest: 5. App config release guard throws at runtime when production build has insecure URL
+    ok 5 - 5. App config release guard throws at runtime when production build has insecure URL
+      ---
+      duration_ms: 7.662375
+      type: 'test'
+      ...
+    1..5
+ok 1 - Task B11: Mobile Release Config Guard
+  ---
+  duration_ms: 10.12225
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 211.581709
+--- RUN 5 ---
+TAP version 13
+# Subtest: Task B11: Mobile Release Config Guard
+    # Subtest: 1. Passes cleanly on standard production release configuration
+    ok 1 - 1. Passes cleanly on standard production release configuration
+      ---
+      duration_ms: 0.90575
+      type: 'test'
+      ...
+    # Subtest: 2. Fails when production API_URL uses insecure http://
+    ok 2 - 2. Fails when production API_URL uses insecure http://
+      ---
+      duration_ms: 0.327208
+      type: 'test'
+      ...
+    # Subtest: 3. Fails when production API_URL points to localhost
+    ok 3 - 3. Fails when production API_URL points to localhost
+      ---
+      duration_ms: 0.207292
+      type: 'test'
+      ...
+    # Subtest: 4. Fails when production API_URL points to emulator IP 10.0.2.2
+    ok 4 - 4. Fails when production API_URL points to emulator IP 10.0.2.2
+      ---
+      duration_ms: 0.195208
+      type: 'test'
+      ...
+    # Subtest: 5. App config release guard throws at runtime when production build has insecure URL
+    ok 5 - 5. App config release guard throws at runtime when production build has insecure URL
+      ---
+      duration_ms: 7.227
+      type: 'test'
+      ...
+    1..5
+ok 1 - Task B11: Mobile Release Config Guard
+  ---
+  duration_ms: 9.8825
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 217.720709
