@@ -1,6 +1,7 @@
 import { cache } from "react"
 import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+import Google from "next-auth/providers/google"
 import { authConfig } from "./auth.config"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
@@ -27,6 +28,97 @@ const isSecureCookie =
     process.env.NODE_ENV === "production" &&
     !process.env.NEXTAUTH_URL?.startsWith("http://") &&
     !process.env.AUTH_URL?.startsWith("http://")
+
+export async function handleGoogleSignInCallback({
+    user,
+    account,
+    profile,
+}: {
+    user: any
+    account: any
+    profile?: any
+}): Promise<boolean> {
+    const isEmailVerified = Boolean(
+        profile?.email_verified === true ||
+        (profile as any)?.email_verified === "true"
+    )
+    if (!isEmailVerified || !user.email) {
+        console.warn(`[OAuth Security] Google signin rejected: email_verified is false or missing for ${user?.email}`)
+        return false // Reject unverified email (prevents account takeover)
+    }
+
+    const email = user.email.toLowerCase().trim()
+    const existingUser = await prisma.user.findUnique({
+        where: { email },
+        include: { accounts: true },
+    })
+
+    if (existingUser) {
+        if (existingUser.isActive === false) {
+            return false
+        }
+        // Link account if not already linked
+        const alreadyLinked = existingUser.accounts.some(
+            (acc) => acc.provider === "google" && acc.providerAccountId === account?.providerAccountId
+        )
+        if (!alreadyLinked && account?.providerAccountId) {
+            await prisma.account.create({
+                data: {
+                    userId: existingUser.id,
+                    type: account.type || "oauth",
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId,
+                    access_token: account.access_token,
+                    refresh_token: account.refresh_token,
+                    expires_at: account.expires_at,
+                    token_type: account.token_type,
+                    scope: account.scope,
+                    id_token: account.id_token,
+                },
+            })
+        }
+        if (!existingUser.emailVerified) {
+            await prisma.user.update({
+                where: { id: existingUser.id },
+                data: { emailVerified: new Date() },
+            })
+        }
+        user.id = existingUser.id
+        ;(user as any).role = existingUser.role
+        ;(user as any).sessionVersion = existingUser.sessionVersion
+    } else {
+        // New user registration via Google
+        const newUser = await prisma.user.create({
+            data: {
+                email,
+                name: user.name || (profile as any)?.name || "Student",
+                image: user.image || (profile as any)?.picture || null,
+                emailVerified: new Date(),
+                role: "FREE",
+                isActive: true,
+                accounts: account?.providerAccountId
+                    ? {
+                          create: {
+                              type: account.type || "oauth",
+                              provider: account.provider,
+                              providerAccountId: account.providerAccountId,
+                              access_token: account.access_token,
+                              refresh_token: account.refresh_token,
+                              expires_at: account.expires_at,
+                              token_type: account.token_type,
+                              scope: account.scope,
+                              id_token: account.id_token,
+                          },
+                      }
+                    : undefined,
+            },
+        })
+        user.id = newUser.id
+        ;(user as any).role = newUser.role
+        ;(user as any).sessionVersion = newUser.sessionVersion
+    }
+    return true
+}
 
 const nextAuthResult = NextAuth({
     ...authConfig,
@@ -125,8 +217,21 @@ const nextAuthResult = NextAuth({
             }
             return session
         },
+        async signIn({ user, account, profile }) {
+            if (account?.provider === "google") {
+                return handleGoogleSignInCallback({ user, account, profile })
+            }
+            return true
+        },
     },
     providers: [
+        // Real Google OAuth Provider
+        Google({
+            clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+            allowDangerousEmailAccountLinking: false, // Strict: never link blindly
+        }),
+
         // Standard email + password login
         Credentials({
             id: "credentials",

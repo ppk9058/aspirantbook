@@ -18,7 +18,9 @@ import {
   RegisterRequest,
   LoginResponseDto,
   DeviceSessionDto,
+  GoogleAuthRequest,
 } from "@aspirantbook/shared";
+import { GoogleTokenPayload } from "@/lib/auth/google-token-verifier";
 
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const ACCESS_TOKEN_EXPIRES_IN_SECS = 15 * 60; // 15 minutes
@@ -167,6 +169,134 @@ export async function loginWithEmailPassword(
     targetId: session.id,
     ip,
     details: { platform: input.platform, deviceName: input.deviceName },
+  });
+
+  return {
+    tokens: {
+      accessToken,
+      refreshToken: rawRefreshToken,
+      expiresIn: ACCESS_TOKEN_EXPIRES_IN_SECS,
+      tokenType: "Bearer",
+    },
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      image: user.image,
+      phoneNumber: user.phoneNumber,
+      goal: user.selectedGoal,
+      emailVerified: user.emailVerified,
+      isActive: user.isActive,
+    },
+  };
+}
+
+export async function loginOrRegisterWithGoogle(
+  payload: GoogleTokenPayload,
+  input: GoogleAuthRequest,
+  ip?: string | null,
+  userAgent?: string | null
+): Promise<LoginResponseDto> {
+  const email = payload.email.trim().toLowerCase();
+
+  // Security: email_verified MUST be true
+  if (!payload.email_verified) {
+    throw new Error("FORBIDDEN: Google email is not verified. Account takeover rejected.");
+  }
+
+  // Find or create user
+  let user = await prisma.user.findUnique({
+    where: { email },
+    include: { accounts: true },
+  });
+
+  if (user) {
+    if (user.isActive === false) {
+      throw new Error("FORBIDDEN: Account deactivated");
+    }
+
+    // Link Google account if not already linked
+    const alreadyLinked = user.accounts.some(
+      (acc) => acc.provider === "google" && acc.providerAccountId === payload.sub
+    );
+    if (!alreadyLinked) {
+      await prisma.account.create({
+        data: {
+          userId: user.id,
+          type: "oauth",
+          provider: "google",
+          providerAccountId: payload.sub,
+        },
+      });
+    }
+
+    if (!user.emailVerified) {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() },
+        include: { accounts: true },
+      });
+    }
+  } else {
+    // Register new user via Google
+    user = await prisma.user.create({
+      data: {
+        email,
+        name: payload.name || "Student",
+        image: payload.picture || null,
+        emailVerified: new Date(),
+        role: "FREE",
+        isActive: true,
+        accounts: {
+          create: {
+            type: "oauth",
+            provider: "google",
+            providerAccountId: payload.sub,
+          },
+        },
+      },
+      include: { accounts: true },
+    });
+  }
+
+  // Create device session
+  const familyId = crypto.randomUUID();
+  const rawRefreshToken = generateOpaqueRefreshToken();
+  const refreshTokenHash = hashRefreshToken(rawRefreshToken);
+  const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+
+  const session = await prisma.deviceSession.create({
+    data: {
+      userId: user.id,
+      refreshTokenHash,
+      familyId,
+      deviceName: input.deviceName || null,
+      platform: input.platform || "android",
+      appVersion: input.appVersion || null,
+      ip: ip || null,
+      userAgent: userAgent || null,
+      expiresAt,
+    },
+  });
+
+  scheduleDeviceSessionPrune();
+
+  const accessToken = await createAccessToken({
+    sub: user.id,
+    email: user.email || "",
+    role: user.role,
+    sessionVersion: user.sessionVersion,
+    familyId: session.familyId,
+    sessionId: session.id,
+  });
+
+  await logAuditEvent({
+    actorId: user.id,
+    action: "USER_LOGIN_GOOGLE",
+    targetId: user.id,
+    ip: ip || undefined,
+    userAgent: userAgent || undefined,
   });
 
   return {

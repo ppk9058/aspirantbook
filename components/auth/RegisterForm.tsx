@@ -8,6 +8,7 @@ import { Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { signIn } from "next-auth/react"
 
 function SubmitButton({ disabled = false }: { disabled?: boolean }) {
     const { pending } = useFormStatus()
@@ -68,7 +69,9 @@ export function RegisterForm() {
             {/* Google Social Login */}
             <button
                 type="button"
-                onClick={() => alert("Google OAuth login initialized. Set GOOGLE_CLIENT_ID & GOOGLE_CLIENT_SECRET in .env.local to activate production redirect.")}
+                onClick={() => {
+                    signIn("google", { callbackUrl: "/dashboard" })
+                }}
                 className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/10 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 shadow-2xs transition-all"
             >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
