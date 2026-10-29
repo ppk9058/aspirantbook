@@ -38,6 +38,50 @@ export async function handleRazorpayWebhook(request: NextRequest): Promise<NextR
         return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 })
     }
 
+    // Replay window check: reject events whose timestamp is older than 5 minutes
+    if (event.created_at) {
+        const eventTimeSec = typeof event.created_at === "number" ? event.created_at : Number.parseInt(event.created_at, 10)
+        if (!Number.isNaN(eventTimeSec)) {
+            const eventTimeMs = eventTimeSec > 1e11 ? eventTimeSec : eventTimeSec * 1000
+            const nowMs = Date.now()
+            const ageMs = nowMs - eventTimeMs
+            const MAX_AGE_MS = 5 * 60 * 1000 // 5 minutes
+            if (ageMs > MAX_AGE_MS || ageMs < -60000) {
+                console.warn(`[RazorpayWebhook] Rejected event outside 5-minute replay window: age=${Math.round(ageMs / 1000)}s`)
+                return NextResponse.json({ error: "Webhook event timestamp outside acceptable 5-minute replay window" }, { status: 400 })
+            }
+        }
+    }
+
+    // Idempotency: extract unique event ID and deduplicate via RazorpayWebhookEvent table
+    const payment = event.payload?.payment?.entity || event.payload?.order?.entity
+    const orderId = payment?.order_id || event.payload?.order?.entity?.id
+    const eventId =
+        request.headers.get("x-razorpay-event-id") ||
+        event.id ||
+        event.event_id ||
+        (payment?.id ? `${event.event}_${payment.id}` : null)
+
+    let persistedEvent = false
+    if (eventId) {
+        try {
+            await prisma.razorpayWebhookEvent.create({
+                data: {
+                    eventId,
+                    eventType: event.event || "unknown",
+                    payload: event,
+                },
+            })
+            persistedEvent = true
+        } catch (err: any) {
+            if (err?.code === "P2002" || err?.message?.includes("Unique constraint")) {
+                console.log(`[RazorpayWebhook] Duplicate webhook event ${eventId} ignored`)
+                return NextResponse.json({ received: true, duplicate: true, eventId }, { status: 200 })
+            }
+            console.warn("[RazorpayWebhook] Could not persist RazorpayWebhookEvent, proceeding:", err)
+        }
+    }
+
     try {
         if (event.event === "payment.captured" || event.event === "order.paid") {
             const payment = event.payload?.payment?.entity || event.payload?.order?.entity
@@ -146,6 +190,9 @@ export async function handleRazorpayWebhook(request: NextRequest): Promise<NextR
 
         return NextResponse.json({ received: true })
     } catch (error) {
+        if (persistedEvent && eventId) {
+            await prisma.razorpayWebhookEvent.delete({ where: { eventId } }).catch(() => {})
+        }
         console.error("Razorpay webhook error:", error)
         return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 })
     }

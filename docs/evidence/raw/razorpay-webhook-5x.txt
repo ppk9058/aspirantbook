@@ -1,0 +1,358 @@
+=== TASK B5: RAZORPAY WEBHOOK 5X RUN ===
+Git SHA: 8c2b1f83c40eaf8570699682e1306207b2405921
+Timestamp: 2026-10-29T01:25:23Z
+--- RUN 1 ---
+TAP version 13
+# Razorpay credentials not configured
+# Razorpay webhook secret is not configured; failing closed
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=601s
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=-299s
+# Subtest: Task B5: Razorpay Webhook Verification & Idempotency
+    # Subtest: 1. Missing signature header fails closed with 400
+    ok 1 - 1. Missing signature header fails closed with 400
+      ---
+      duration_ms: 4.000708
+      type: 'test'
+      ...
+    # Subtest: 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+    ok 2 - 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+      ---
+      duration_ms: 1.070333
+      type: 'test'
+      ...
+    # Subtest: 3. Wrong signature fails closed with 400
+    ok 3 - 3. Wrong signature fails closed with 400
+      ---
+      duration_ms: 1.53875
+      type: 'test'
+      ...
+    # Subtest: 4. Tampered body (signature for body A, sent body B) fails closed with 400
+    ok 4 - 4. Tampered body (signature for body A, sent body B) fails closed with 400
+      ---
+      duration_ms: 1.235166
+      type: 'test'
+      ...
+    # Subtest: 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+    ok 5 - 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+      ---
+      duration_ms: 1.247792
+      type: 'test'
+      ...
+    # Subtest: 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+    ok 6 - 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+      ---
+      duration_ms: 0.7825
+      type: 'test'
+      ...
+    # Subtest: 7. Valid webhook with recent timestamp persists event and processes successfully
+    ok 7 - 7. Valid webhook with recent timestamp persists event and processes successfully
+      ---
+      duration_ms: 13.049417
+      type: 'test'
+      ...
+# [RazorpayWebhook] Duplicate webhook event test_evt_idempotent_1793237123953_fksh9r ignored
+    # Subtest: 8. Idempotency: duplicate event ID returns 200 without reprocessing
+    ok 8 - 8. Idempotency: duplicate event ID returns 200 without reprocessing
+      ---
+      duration_ms: 30.596791
+      type: 'test'
+      ...
+    1..8
+ok 1 - Task B5: Razorpay Webhook Verification & Idempotency
+  ---
+  duration_ms: 95.241709
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 448.555875
+--- RUN 2 ---
+TAP version 13
+# Razorpay credentials not configured
+# Razorpay webhook secret is not configured; failing closed
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=600s
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=-300s
+# Subtest: Task B5: Razorpay Webhook Verification & Idempotency
+    # Subtest: 1. Missing signature header fails closed with 400
+    ok 1 - 1. Missing signature header fails closed with 400
+      ---
+      duration_ms: 4.27475
+      type: 'test'
+      ...
+    # Subtest: 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+    ok 2 - 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+      ---
+      duration_ms: 1.092791
+      type: 'test'
+      ...
+    # Subtest: 3. Wrong signature fails closed with 400
+    ok 3 - 3. Wrong signature fails closed with 400
+      ---
+      duration_ms: 1.547416
+      type: 'test'
+      ...
+    # Subtest: 4. Tampered body (signature for body A, sent body B) fails closed with 400
+    ok 4 - 4. Tampered body (signature for body A, sent body B) fails closed with 400
+      ---
+      duration_ms: 1.235542
+      type: 'test'
+      ...
+    # Subtest: 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+    ok 5 - 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+      ---
+      duration_ms: 1.232875
+      type: 'test'
+      ...
+    # Subtest: 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+    ok 6 - 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+      ---
+      duration_ms: 0.770334
+      type: 'test'
+      ...
+    # Subtest: 7. Valid webhook with recent timestamp persists event and processes successfully
+    ok 7 - 7. Valid webhook with recent timestamp persists event and processes successfully
+      ---
+      duration_ms: 15.466084
+      type: 'test'
+      ...
+# [RazorpayWebhook] Duplicate webhook event test_evt_idempotent_1793237124443_38jfe ignored
+    # Subtest: 8. Idempotency: duplicate event ID returns 200 without reprocessing
+    ok 8 - 8. Idempotency: duplicate event ID returns 200 without reprocessing
+      ---
+      duration_ms: 31.983583
+      type: 'test'
+      ...
+    1..8
+ok 1 - Task B5: Razorpay Webhook Verification & Idempotency
+  ---
+  duration_ms: 98.462583
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 431.517375
+--- RUN 3 ---
+TAP version 13
+# Razorpay credentials not configured
+# Razorpay webhook secret is not configured; failing closed
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=601s
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=-299s
+# Subtest: Task B5: Razorpay Webhook Verification & Idempotency
+    # Subtest: 1. Missing signature header fails closed with 400
+    ok 1 - 1. Missing signature header fails closed with 400
+      ---
+      duration_ms: 4.47675
+      type: 'test'
+      ...
+    # Subtest: 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+    ok 2 - 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+      ---
+      duration_ms: 1.40375
+      type: 'test'
+      ...
+    # Subtest: 3. Wrong signature fails closed with 400
+    ok 3 - 3. Wrong signature fails closed with 400
+      ---
+      duration_ms: 2.300292
+      type: 'test'
+      ...
+    # Subtest: 4. Tampered body (signature for body A, sent body B) fails closed with 400
+    ok 4 - 4. Tampered body (signature for body A, sent body B) fails closed with 400
+      ---
+      duration_ms: 1.469791
+      type: 'test'
+      ...
+    # Subtest: 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+    ok 5 - 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+      ---
+      duration_ms: 1.66625
+      type: 'test'
+      ...
+    # Subtest: 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+    ok 6 - 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+      ---
+      duration_ms: 1.399208
+      type: 'test'
+      ...
+    # Subtest: 7. Valid webhook with recent timestamp persists event and processes successfully
+    ok 7 - 7. Valid webhook with recent timestamp persists event and processes successfully
+      ---
+      duration_ms: 14.603041
+      type: 'test'
+      ...
+# [RazorpayWebhook] Duplicate webhook event test_evt_idempotent_1793237124949_rs4yrb ignored
+    # Subtest: 8. Idempotency: duplicate event ID returns 200 without reprocessing
+    ok 8 - 8. Idempotency: duplicate event ID returns 200 without reprocessing
+      ---
+      duration_ms: 32.46475
+      type: 'test'
+      ...
+    1..8
+ok 1 - Task B5: Razorpay Webhook Verification & Idempotency
+  ---
+  duration_ms: 108.453541
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 451.372875
+--- RUN 4 ---
+TAP version 13
+# Razorpay credentials not configured
+# Razorpay webhook secret is not configured; failing closed
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=601s
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=-299s
+# Subtest: Task B5: Razorpay Webhook Verification & Idempotency
+    # Subtest: 1. Missing signature header fails closed with 400
+    ok 1 - 1. Missing signature header fails closed with 400
+      ---
+      duration_ms: 4.081083
+      type: 'test'
+      ...
+    # Subtest: 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+    ok 2 - 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+      ---
+      duration_ms: 1.06
+      type: 'test'
+      ...
+    # Subtest: 3. Wrong signature fails closed with 400
+    ok 3 - 3. Wrong signature fails closed with 400
+      ---
+      duration_ms: 1.535458
+      type: 'test'
+      ...
+    # Subtest: 4. Tampered body (signature for body A, sent body B) fails closed with 400
+    ok 4 - 4. Tampered body (signature for body A, sent body B) fails closed with 400
+      ---
+      duration_ms: 1.226666
+      type: 'test'
+      ...
+    # Subtest: 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+    ok 5 - 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+      ---
+      duration_ms: 1.235375
+      type: 'test'
+      ...
+    # Subtest: 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+    ok 6 - 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+      ---
+      duration_ms: 0.763417
+      type: 'test'
+      ...
+    # Subtest: 7. Valid webhook with recent timestamp persists event and processes successfully
+    ok 7 - 7. Valid webhook with recent timestamp persists event and processes successfully
+      ---
+      duration_ms: 11.877167
+      type: 'test'
+      ...
+# [RazorpayWebhook] Duplicate webhook event test_evt_idempotent_1793237125706_2f62sb ignored
+    # Subtest: 8. Idempotency: duplicate event ID returns 200 without reprocessing
+    ok 8 - 8. Idempotency: duplicate event ID returns 200 without reprocessing
+      ---
+      duration_ms: 29.926666
+      type: 'test'
+      ...
+    1..8
+ok 1 - Task B5: Razorpay Webhook Verification & Idempotency
+  ---
+  duration_ms: 93.849583
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 681.770875
+--- RUN 5 ---
+TAP version 13
+# Razorpay credentials not configured
+# Razorpay webhook secret is not configured; failing closed
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=600s
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=-300s
+# Subtest: Task B5: Razorpay Webhook Verification & Idempotency
+    # Subtest: 1. Missing signature header fails closed with 400
+    ok 1 - 1. Missing signature header fails closed with 400
+      ---
+      duration_ms: 4.871541
+      type: 'test'
+      ...
+    # Subtest: 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+    ok 2 - 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+      ---
+      duration_ms: 1.237583
+      type: 'test'
+      ...
+    # Subtest: 3. Wrong signature fails closed with 400
+    ok 3 - 3. Wrong signature fails closed with 400
+      ---
+      duration_ms: 1.743125
+      type: 'test'
+      ...
+    # Subtest: 4. Tampered body (signature for body A, sent body B) fails closed with 400
+    ok 4 - 4. Tampered body (signature for body A, sent body B) fails closed with 400
+      ---
+      duration_ms: 1.413208
+      type: 'test'
+      ...
+    # Subtest: 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+    ok 5 - 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+      ---
+      duration_ms: 1.4035
+      type: 'test'
+      ...
+    # Subtest: 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+    ok 6 - 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+      ---
+      duration_ms: 0.869542
+      type: 'test'
+      ...
+    # Subtest: 7. Valid webhook with recent timestamp persists event and processes successfully
+    ok 7 - 7. Valid webhook with recent timestamp persists event and processes successfully
+      ---
+      duration_ms: 14.4875
+      type: 'test'
+      ...
+# [RazorpayWebhook] Duplicate webhook event test_evt_idempotent_1793237126208_k9ell ignored
+    # Subtest: 8. Idempotency: duplicate event ID returns 200 without reprocessing
+    ok 8 - 8. Idempotency: duplicate event ID returns 200 without reprocessing
+      ---
+      duration_ms: 33.869667
+      type: 'test'
+      ...
+    1..8
+ok 1 - Task B5: Razorpay Webhook Verification & Idempotency
+  ---
+  duration_ms: 109.275084
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 456.818834
