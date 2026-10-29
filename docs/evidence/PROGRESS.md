@@ -56,6 +56,24 @@
 | **G5** | Email outbox worker | DONE | `ea7a99b` + remediation | `docs/evidence/raw/email-outbox-5x.txt`, `docs/evidence/raw/email-outbox-fail-before.txt`, `tests/unit/email-outbox-worker.test.ts`, `tests/unit/email-outbox-remediation.test.ts`, `lib/email/outbox-worker.ts`, `app/api/internal/email-outbox/route.ts`, `scripts/process-email-outbox.ts`, `.github/workflows/email-outbox-cron.yml.disabled` | FOR UPDATE SKIP LOCKED on real Postgres, backoff+jitter bounds, dead-letter, deterministic per-attempt idempotency key with no re-send, Brevo->Resend order, CRON_SECRET equal-length wrong secret returns 401, CLI runner. Cron stub renamed to `.yml.disabled` and all triggers commented out (zero active triggers). 5 new + 8 existing tests passed 5x; fail-before at be36a3e. |
 | **G6** | Brevo transport decision | DONE | `63229b3` | `docs/evidence/email-transport.md` | Documented Brevo REST API decision, architectural rationale (ports, connection pooling, zero deps, errors), required env vars (BREVO_API_KEY, BREVO_API_URL, EMAIL_FROM), explicit confirmation SMTP not implemented |
 | **G7** | LIVE-UNVERIFIED register | DONE | `969f382` | `docs/evidence/live-unverified.md` | Documented 8 third-party integrations (Google OAuth web/mobile, Razorpay webhook, Brevo, Resend, Turnstile, S3/R2, Cloudflare CF-Connecting-IP/origin lock, Play Console data-deletion), mocks tested, live unverified scope, exact env vars, step-by-step owner verification, expected results |
+| **R7b** | B-001 demo role production guard backport | DONE | `25eb816` | `docs/evidence/raw/b001-demo-role-5x.txt`, `docs/evidence/raw/b001-demo-role-fail-before.txt`, `tests/unit/demo-role-guard.test.ts` | Cherry-picked commit 6799f6b from fix/demo-role-prod-guard. Resolved all 20 conflicts preserving guard behaviour: ts_demo_role never trusted in production (`NODE_ENV=production`) across middleware.ts, lib/auth/rbac.ts, app/admin/layout.tsx, and all studios/routes. Non-vacuous test fails before at ab99e4d on all 3 components (middleware: 200!=307; rbac: 'ADMIN'!='ADMIN'; layout: false!=true) and passes 5x after. G1 and G4 5x evidence refreshed at new tip. |
+
+---
+
+## B-001 Backport Conflict Resolution Log (R7b)
+
+- **Source:** Branch `fix/demo-role-prod-guard`, Commit `6799f6b534a47148ca08cee9637261791ab9c6fc`
+- **Destination:** Branch `feat/launch-blockers`
+- **Backport Commit:** `25eb8161f3e606531eb6d956af1e6dbdbdcde78f`
+- **Resolutions (20 conflicting files):**
+  1. `lib/auth/demo-role.ts`: Preserved single entrypoint `getDemoRole(source)` and `resolveDemoRole(rawValue, env)`. Guarded strictly: `if (env.NODE_ENV === "production") return false`. Preserved backwards-compatible `normalizeDemoRole` and `isDemoModeEnabled` aliases.
+  2. `lib/auth/rbac.ts`: Wrapped cookie retrieval in try/catch to maintain resilience in non-request contexts; extracted role via `getDemoRole(cookieStore)`. Rejects cookie in production, preventing admin elevation.
+  3. `middleware.ts`: Retained CSRF request origin verification (`verifyRequestOrigin`, `CSRF_EXEMPT_PREFIXES`); resolved demo role via `getDemoRole(req)`. Rejects demo cookie in production (`/admin` -> 307 redirect to `/login`; `/api/admin` -> 401).
+  4. `app/admin/layout.tsx` & `app/(dashboard)/admin/layout.tsx`: Resolved demo role via `getDemoRole(cookieStore)`; redirects unauthorized users to `/` in production.
+  5. `app/(dashboard)/teacher/book-studio/page.tsx`, `app/admin/book-studio/page.tsx`, `app/admin/books/page.tsx`: Unified cookie read to `getDemoRole(cookieStore)`.
+  6. `app/api/auth/role/route.ts`: Protected GET and POST behind `isDemoRoleEnabled()` (returns 404 in production); cookie read uses `getDemoRole(cookieStore)`.
+  7. `components/layout/DashboardShell.tsx`: Maintained client-side production short-circuit `if (process.env.NODE_ENV === "production") return`.
+  8. Exam package/test API endpoints (`packages/[id]/duplicate`, `packages/[id]/restore`, `packages/[id]`, `packages`, `test/[id]/archive`, `test/[id]/detach`, `test/[id]/duplicate`, `test/bulk`, `test/export`, `test/reorder`): Unified demo role resolution via `getDemoRole(cookieStore)`.
 
 ---
 

@@ -1,10 +1,41 @@
 Command: for i in 1..5; node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/turnstile-login.test.ts
 Exit Code: 0 (all five runs)
-Timestamp (UTC): 2026-10-29T15:06:26Z
-Git SHA: d35724df3110fe170c6e74ed6cc8a8c19ccb11f5
+Timestamp (UTC): 2026-10-29T15:54:20Z
+Git SHA: 25eb8161f3e606531eb6d956af1e6dbdbdcde78f
 Evidence commit descends from implementation commit fbc136d.
-Implementation diff fbc136d..HEAD (auth.ts lib/security/turnstile.ts app/api/v1/auth/login/route.ts):
-(empty = implementation unchanged)
+Implementation diff fbc136d..HEAD (auth.ts lib/security/turnstile.ts app/api/v1/auth/login/route.ts components/security/TurnstileWidget.tsx):
+diff --git a/components/security/TurnstileWidget.tsx b/components/security/TurnstileWidget.tsx
+index 478bc7a..c1ef535 100644
+--- a/components/security/TurnstileWidget.tsx
++++ b/components/security/TurnstileWidget.tsx
+@@ -42,12 +42,10 @@ export function TurnstileWidget({
+   const widgetIdRef = useRef<string | null>(null)
+   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+ 
+-  // If site key is not configured, gracefully skip rendering without throwing
+-  if (!siteKey) {
+-    return null
+-  }
+-
+   useEffect(() => {
++    // If site key is not configured, gracefully skip rendering without throwing
++    if (!siteKey) return
++
+     let isMounted = true
+ 
+     function renderWidget() {
+@@ -107,6 +105,11 @@ export function TurnstileWidget({
+     }
+   }, [siteKey, theme, size, onVerify, onError, onExpire])
+ 
++  // Hooks are declared unconditionally above; the widget itself is optional.
++  if (!siteKey) {
++    return null
++  }
++
+   return (
+     <div className="my-2 flex justify-center">
+       <div ref={containerRef} className="min-h-[65px]" />
 
 --- RUN 1 ---
 TAP version 13
@@ -13,39 +44,39 @@ TAP version 13
         # Subtest: 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
         ok 1 - 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
           ---
-          duration_ms: 136.919958
+          duration_ms: 336.866958
           type: 'test'
           ...
         1..1
     ok 1 - Flag OFF (Default - Unchanged Login)
       ---
-      duration_ms: 137.512375
+      duration_ms: 338.708833
       type: 'suite'
       ...
     # Subtest: Flag ON (TURNSTILE_ENABLED=true)
         # Subtest: 2. Fails with TurnstileError when token is missing
         ok 1 - 2. Fails with TurnstileError when token is missing
           ---
-          duration_ms: 4.064209
+          duration_ms: 8.059583
           type: 'test'
           ...
 # [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
         # Subtest: 3. Fails with TurnstileError when token is invalid
         ok 2 - 3. Fails with TurnstileError when token is invalid
           ---
-          duration_ms: 21.825209
+          duration_ms: 94.548125
           type: 'test'
           ...
         # Subtest: 4. Succeeds when token is valid (mock)
         ok 3 - 4. Succeeds when token is valid (mock)
           ---
-          duration_ms: 130.770917
+          duration_ms: 307.244458
           type: 'test'
           ...
         # Subtest: 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
         ok 4 - 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
           ---
-          duration_ms: 1.705167
+          duration_ms: 8.432459
           type: 'test'
           ...
 # [31m[auth][error][0m CredentialsSignin: Security check required. Please complete the CAPTCHA verification.. Read more at https://errors.authjs.dev\#credentialssignin
@@ -53,75 +84,75 @@ TAP version 13
         # Subtest: 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
         ok 5 - 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
           ---
-          duration_ms: 14.604375
+          duration_ms: 60.449708
           type: 'test'
           ...
         # Subtest: 5c. Register server action rejects a missing Turnstile token
         ok 6 - 5c. Register server action rejects a missing Turnstile token
           ---
-          duration_ms: 8.793083
+          duration_ms: 31.693833
           type: 'test'
           ...
 # [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
         # Subtest: 5d. Register server action rejects an invalid Turnstile token
         ok 7 - 5d. Register server action rejects an invalid Turnstile token
           ---
-          duration_ms: 6.332416
+          duration_ms: 25.362541
           type: 'test'
           ...
         # Subtest: 5e. Password-reset request action rejects a missing Turnstile token
         ok 8 - 5e. Password-reset request action rejects a missing Turnstile token
           ---
-          duration_ms: 5.632292
+          duration_ms: 22.420167
           type: 'test'
           ...
         # Subtest: 5f. Contact form rejects a missing Turnstile token
         ok 9 - 5f. Contact form rejects a missing Turnstile token
           ---
-          duration_ms: 4.075708
+          duration_ms: 16.102667
           type: 'test'
           ...
         1..9
     ok 2 - Flag ON (TURNSTILE_ENABLED=true)
       ---
-      duration_ms: 198.674208
+      duration_ms: 576.854
       type: 'suite'
       ...
     # Subtest: Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
         # Subtest: 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
         ok 1 - 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
           ---
-          duration_ms: 159.24525
+          duration_ms: 411.466042
           type: 'test'
           ...
         # Subtest: 7. Mobile login is rate-limited per user+IP
         ok 2 - 7. Mobile login is rate-limited per user+IP
           ---
-          duration_ms: 838.95275
+          duration_ms: 2169.93375
           type: 'test'
           ...
         # Subtest: 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
         ok 3 - 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
           ---
-          duration_ms: 953.439917
+          duration_ms: 3482.155
           type: 'test'
           ...
         # Subtest: 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
         ok 4 - 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
           ---
-          duration_ms: 934.348541
+          duration_ms: 3074.314208
           type: 'test'
           ...
         1..4
     ok 3 - Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
       ---
-      duration_ms: 2886.297125
+      duration_ms: 9139.480666
       type: 'suite'
       ...
     1..3
 ok 1 - Task G1: Turnstile on Login Verification
   ---
-  duration_ms: 3450.844417
+  duration_ms: 10676.983292
   type: 'suite'
   ...
 1..1
@@ -132,8 +163,7 @@ ok 1 - Task G1: Turnstile on Login Verification
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 4393.012584
-EXIT=0
+# duration_ms 13037.719959
 --- RUN 2 ---
 TAP version 13
 # Subtest: Task G1: Turnstile on Login Verification
@@ -141,39 +171,39 @@ TAP version 13
         # Subtest: 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
         ok 1 - 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
           ---
-          duration_ms: 134.192875
+          duration_ms: 293.226083
           type: 'test'
           ...
         1..1
     ok 1 - Flag OFF (Default - Unchanged Login)
       ---
-      duration_ms: 134.801084
+      duration_ms: 294.815583
       type: 'suite'
       ...
     # Subtest: Flag ON (TURNSTILE_ENABLED=true)
         # Subtest: 2. Fails with TurnstileError when token is missing
         ok 1 - 2. Fails with TurnstileError when token is missing
           ---
-          duration_ms: 3.576542
+          duration_ms: 8.395208
           type: 'test'
           ...
 # [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
         # Subtest: 3. Fails with TurnstileError when token is invalid
         ok 2 - 3. Fails with TurnstileError when token is invalid
           ---
-          duration_ms: 25.3635
+          duration_ms: 56.339833
           type: 'test'
           ...
         # Subtest: 4. Succeeds when token is valid (mock)
         ok 3 - 4. Succeeds when token is valid (mock)
           ---
-          duration_ms: 130.710167
+          duration_ms: 343.230666
           type: 'test'
           ...
         # Subtest: 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
         ok 4 - 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
           ---
-          duration_ms: 1.526584
+          duration_ms: 14.134625
           type: 'test'
           ...
 # [31m[auth][error][0m CredentialsSignin: Security check required. Please complete the CAPTCHA verification.. Read more at https://errors.authjs.dev\#credentialssignin
@@ -181,75 +211,75 @@ TAP version 13
         # Subtest: 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
         ok 5 - 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
           ---
-          duration_ms: 14.715
+          duration_ms: 79.756792
           type: 'test'
           ...
         # Subtest: 5c. Register server action rejects a missing Turnstile token
         ok 6 - 5c. Register server action rejects a missing Turnstile token
           ---
-          duration_ms: 5.837208
+          duration_ms: 70.490208
           type: 'test'
           ...
 # [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
         # Subtest: 5d. Register server action rejects an invalid Turnstile token
         ok 7 - 5d. Register server action rejects an invalid Turnstile token
           ---
-          duration_ms: 5.78725
+          duration_ms: 28.801625
           type: 'test'
           ...
         # Subtest: 5e. Password-reset request action rejects a missing Turnstile token
         ok 8 - 5e. Password-reset request action rejects a missing Turnstile token
           ---
-          duration_ms: 6.498542
+          duration_ms: 29.415208
           type: 'test'
           ...
         # Subtest: 5f. Contact form rejects a missing Turnstile token
         ok 9 - 5f. Contact form rejects a missing Turnstile token
           ---
-          duration_ms: 4.139667
+          duration_ms: 19.366458
           type: 'test'
           ...
         1..9
     ok 2 - Flag ON (TURNSTILE_ENABLED=true)
       ---
-      duration_ms: 199.001167
+      duration_ms: 652.596125
       type: 'suite'
       ...
     # Subtest: Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
         # Subtest: 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
         ok 1 - 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
           ---
-          duration_ms: 155.062209
+          duration_ms: 399.741958
           type: 'test'
           ...
         # Subtest: 7. Mobile login is rate-limited per user+IP
         ok 2 - 7. Mobile login is rate-limited per user+IP
           ---
-          duration_ms: 826.697041
+          duration_ms: 1715.3455
           type: 'test'
           ...
         # Subtest: 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
         ok 3 - 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
           ---
-          duration_ms: 971.558708
+          duration_ms: 2103.282042
           type: 'test'
           ...
         # Subtest: 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
         ok 4 - 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
           ---
-          duration_ms: 956.696209
+          duration_ms: 2114.708458
           type: 'test'
           ...
         1..4
     ok 3 - Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
       ---
-      duration_ms: 2910.347542
+      duration_ms: 6333.92875
       type: 'suite'
       ...
     1..3
 ok 1 - Task G1: Turnstile on Login Verification
   ---
-  duration_ms: 3414.832875
+  duration_ms: 7762.914583
   type: 'suite'
   ...
 1..1
@@ -260,8 +290,7 @@ ok 1 - Task G1: Turnstile on Login Verification
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 3936.706
-EXIT=0
+# duration_ms 10893.078875
 --- RUN 3 ---
 TAP version 13
 # Subtest: Task G1: Turnstile on Login Verification
@@ -269,39 +298,39 @@ TAP version 13
         # Subtest: 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
         ok 1 - 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
           ---
-          duration_ms: 139.095459
+          duration_ms: 309.583042
           type: 'test'
           ...
         1..1
     ok 1 - Flag OFF (Default - Unchanged Login)
       ---
-      duration_ms: 139.680333
+      duration_ms: 311.174375
       type: 'suite'
       ...
     # Subtest: Flag ON (TURNSTILE_ENABLED=true)
         # Subtest: 2. Fails with TurnstileError when token is missing
         ok 1 - 2. Fails with TurnstileError when token is missing
           ---
-          duration_ms: 2.776625
+          duration_ms: 6.20975
           type: 'test'
           ...
 # [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
         # Subtest: 3. Fails with TurnstileError when token is invalid
         ok 2 - 3. Fails with TurnstileError when token is invalid
           ---
-          duration_ms: 19.271417
+          duration_ms: 49.32725
           type: 'test'
           ...
         # Subtest: 4. Succeeds when token is valid (mock)
         ok 3 - 4. Succeeds when token is valid (mock)
           ---
-          duration_ms: 132.372625
+          duration_ms: 338.683209
           type: 'test'
           ...
         # Subtest: 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
         ok 4 - 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
           ---
-          duration_ms: 3.004125
+          duration_ms: 9.510958
           type: 'test'
           ...
 # [31m[auth][error][0m CredentialsSignin: Security check required. Please complete the CAPTCHA verification.. Read more at https://errors.authjs.dev\#credentialssignin
@@ -309,75 +338,75 @@ TAP version 13
         # Subtest: 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
         ok 5 - 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
           ---
-          duration_ms: 15.455166
+          duration_ms: 54.262459
           type: 'test'
           ...
         # Subtest: 5c. Register server action rejects a missing Turnstile token
         ok 6 - 5c. Register server action rejects a missing Turnstile token
           ---
-          duration_ms: 8.147
+          duration_ms: 25.762125
           type: 'test'
           ...
 # [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
         # Subtest: 5d. Register server action rejects an invalid Turnstile token
         ok 7 - 5d. Register server action rejects an invalid Turnstile token
           ---
-          duration_ms: 6.940042
+          duration_ms: 20.135875
           type: 'test'
           ...
         # Subtest: 5e. Password-reset request action rejects a missing Turnstile token
         ok 8 - 5e. Password-reset request action rejects a missing Turnstile token
           ---
-          duration_ms: 8.1515
+          duration_ms: 21.634416
           type: 'test'
           ...
         # Subtest: 5f. Contact form rejects a missing Turnstile token
         ok 9 - 5f. Contact form rejects a missing Turnstile token
           ---
-          duration_ms: 5.460667
+          duration_ms: 16.620166
           type: 'test'
           ...
         1..9
     ok 2 - Flag ON (TURNSTILE_ENABLED=true)
       ---
-      duration_ms: 202.447708
+      duration_ms: 544.94075
       type: 'suite'
       ...
     # Subtest: Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
         # Subtest: 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
         ok 1 - 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
           ---
-          duration_ms: 189.830792
+          duration_ms: 380.188167
           type: 'test'
           ...
         # Subtest: 7. Mobile login is rate-limited per user+IP
         ok 2 - 7. Mobile login is rate-limited per user+IP
           ---
-          duration_ms: 840.300458
+          duration_ms: 1843.344458
           type: 'test'
           ...
         # Subtest: 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
         ok 3 - 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
           ---
-          duration_ms: 922.413125
+          duration_ms: 2361.627167
           type: 'test'
           ...
         # Subtest: 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
         ok 4 - 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
           ---
-          duration_ms: 1015.62825
+          duration_ms: 2205.577334
           type: 'test'
           ...
         1..4
     ok 3 - Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
       ---
-      duration_ms: 2968.522125
+      duration_ms: 6791.654458
       type: 'suite'
       ...
     1..3
 ok 1 - Task G1: Turnstile on Login Verification
   ---
-  duration_ms: 3502.106459
+  duration_ms: 8116.5085
   type: 'suite'
   ...
 1..1
@@ -388,8 +417,7 @@ ok 1 - Task G1: Turnstile on Login Verification
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 4000.380375
-EXIT=0
+# duration_ms 9896.183584
 --- RUN 4 ---
 TAP version 13
 # Subtest: Task G1: Turnstile on Login Verification
@@ -397,39 +425,39 @@ TAP version 13
         # Subtest: 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
         ok 1 - 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
           ---
-          duration_ms: 139.7235
+          duration_ms: 365.694792
           type: 'test'
           ...
         1..1
     ok 1 - Flag OFF (Default - Unchanged Login)
       ---
-      duration_ms: 140.324833
+      duration_ms: 367.909667
       type: 'suite'
       ...
     # Subtest: Flag ON (TURNSTILE_ENABLED=true)
         # Subtest: 2. Fails with TurnstileError when token is missing
         ok 1 - 2. Fails with TurnstileError when token is missing
           ---
-          duration_ms: 4.758708
+          duration_ms: 15.103792
           type: 'test'
           ...
 # [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
         # Subtest: 3. Fails with TurnstileError when token is invalid
         ok 2 - 3. Fails with TurnstileError when token is invalid
           ---
-          duration_ms: 26.58075
+          duration_ms: 84.275292
           type: 'test'
           ...
         # Subtest: 4. Succeeds when token is valid (mock)
         ok 3 - 4. Succeeds when token is valid (mock)
           ---
-          duration_ms: 137.448208
+          duration_ms: 311.173417
           type: 'test'
           ...
         # Subtest: 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
         ok 4 - 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
           ---
-          duration_ms: 2.309292
+          duration_ms: 5.9595
           type: 'test'
           ...
 # [31m[auth][error][0m CredentialsSignin: Security check required. Please complete the CAPTCHA verification.. Read more at https://errors.authjs.dev\#credentialssignin
@@ -437,75 +465,75 @@ TAP version 13
         # Subtest: 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
         ok 5 - 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
           ---
-          duration_ms: 17.802292
+          duration_ms: 63.160333
           type: 'test'
           ...
         # Subtest: 5c. Register server action rejects a missing Turnstile token
         ok 6 - 5c. Register server action rejects a missing Turnstile token
           ---
-          duration_ms: 7.201667
+          duration_ms: 26.889916
           type: 'test'
           ...
 # [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
         # Subtest: 5d. Register server action rejects an invalid Turnstile token
         ok 7 - 5d. Register server action rejects an invalid Turnstile token
           ---
-          duration_ms: 7.924167
+          duration_ms: 21.951875
           type: 'test'
           ...
         # Subtest: 5e. Password-reset request action rejects a missing Turnstile token
         ok 8 - 5e. Password-reset request action rejects a missing Turnstile token
           ---
-          duration_ms: 8.346334
+          duration_ms: 23.955375
           type: 'test'
           ...
         # Subtest: 5f. Contact form rejects a missing Turnstile token
         ok 9 - 5f. Contact form rejects a missing Turnstile token
           ---
-          duration_ms: 7.477625
+          duration_ms: 16.427875
           type: 'test'
           ...
         1..9
     ok 2 - Flag ON (TURNSTILE_ENABLED=true)
       ---
-      duration_ms: 220.99075
+      duration_ms: 571.505792
       type: 'suite'
       ...
     # Subtest: Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
         # Subtest: 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
         ok 1 - 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
           ---
-          duration_ms: 286.394792
+          duration_ms: 409.989667
           type: 'test'
           ...
         # Subtest: 7. Mobile login is rate-limited per user+IP
         ok 2 - 7. Mobile login is rate-limited per user+IP
           ---
-          duration_ms: 1156.454958
+          duration_ms: 1973.745084
           type: 'test'
           ...
         # Subtest: 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
         ok 3 - 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
           ---
-          duration_ms: 976.909209
+          duration_ms: 2241.412708
           type: 'test'
           ...
         # Subtest: 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
         ok 4 - 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
           ---
-          duration_ms: 956.816291
+          duration_ms: 2372.856834
           type: 'test'
           ...
         1..4
     ok 3 - Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
       ---
-      duration_ms: 3376.915792
+      duration_ms: 6999.40625
       type: 'suite'
       ...
     1..3
 ok 1 - Task G1: Turnstile on Login Verification
   ---
-  duration_ms: 4016.809709
+  duration_ms: 8522.004416
   type: 'suite'
   ...
 1..1
@@ -516,8 +544,7 @@ ok 1 - Task G1: Turnstile on Login Verification
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 4571.815417
-EXIT=0
+# duration_ms 11038.192791
 --- RUN 5 ---
 TAP version 13
 # Subtest: Task G1: Turnstile on Login Verification
@@ -525,39 +552,39 @@ TAP version 13
         # Subtest: 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
         ok 1 - 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
           ---
-          duration_ms: 134.06275
+          duration_ms: 318.524959
           type: 'test'
           ...
         1..1
     ok 1 - Flag OFF (Default - Unchanged Login)
       ---
-      duration_ms: 134.632666
+      duration_ms: 323.664375
       type: 'suite'
       ...
     # Subtest: Flag ON (TURNSTILE_ENABLED=true)
         # Subtest: 2. Fails with TurnstileError when token is missing
         ok 1 - 2. Fails with TurnstileError when token is missing
           ---
-          duration_ms: 4.059375
+          duration_ms: 8.954708
           type: 'test'
           ...
 # [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
         # Subtest: 3. Fails with TurnstileError when token is invalid
         ok 2 - 3. Fails with TurnstileError when token is invalid
           ---
-          duration_ms: 21.20575
+          duration_ms: 65.912458
           type: 'test'
           ...
         # Subtest: 4. Succeeds when token is valid (mock)
         ok 3 - 4. Succeeds when token is valid (mock)
           ---
-          duration_ms: 134.583583
+          duration_ms: 301.356
           type: 'test'
           ...
         # Subtest: 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
         ok 4 - 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
           ---
-          duration_ms: 1.715833
+          duration_ms: 8.072291
           type: 'test'
           ...
 # [31m[auth][error][0m CredentialsSignin: Security check required. Please complete the CAPTCHA verification.. Read more at https://errors.authjs.dev\#credentialssignin
@@ -565,75 +592,75 @@ TAP version 13
         # Subtest: 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
         ok 5 - 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
           ---
-          duration_ms: 14.544333
+          duration_ms: 63.993958
           type: 'test'
           ...
         # Subtest: 5c. Register server action rejects a missing Turnstile token
         ok 6 - 5c. Register server action rejects a missing Turnstile token
           ---
-          duration_ms: 8.541917
+          duration_ms: 17.880833
           type: 'test'
           ...
 # [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
         # Subtest: 5d. Register server action rejects an invalid Turnstile token
         ok 7 - 5d. Register server action rejects an invalid Turnstile token
           ---
-          duration_ms: 7.743625
+          duration_ms: 18.78075
           type: 'test'
           ...
         # Subtest: 5e. Password-reset request action rejects a missing Turnstile token
         ok 8 - 5e. Password-reset request action rejects a missing Turnstile token
           ---
-          duration_ms: 6.004791
+          duration_ms: 22.528458
           type: 'test'
           ...
         # Subtest: 5f. Contact form rejects a missing Turnstile token
         ok 9 - 5f. Contact form rejects a missing Turnstile token
           ---
-          duration_ms: 8.267458
+          duration_ms: 14.550708
           type: 'test'
           ...
         1..9
     ok 2 - Flag ON (TURNSTILE_ENABLED=true)
       ---
-      duration_ms: 207.507625
+      duration_ms: 525.089417
       type: 'suite'
       ...
     # Subtest: Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
         # Subtest: 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
         ok 1 - 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
           ---
-          duration_ms: 160.546542
+          duration_ms: 413.310334
           type: 'test'
           ...
         # Subtest: 7. Mobile login is rate-limited per user+IP
         ok 2 - 7. Mobile login is rate-limited per user+IP
           ---
-          duration_ms: 1027.784833
+          duration_ms: 2649.13
           type: 'test'
           ...
         # Subtest: 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
         ok 3 - 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
           ---
-          duration_ms: 987.371334
+          duration_ms: 2162.241666
           type: 'test'
           ...
         # Subtest: 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
         ok 4 - 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
           ---
-          duration_ms: 1099.322125
+          duration_ms: 2110.017625
           type: 'test'
           ...
         1..4
     ok 3 - Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
       ---
-      duration_ms: 3275.340833
+      duration_ms: 7335.895417
       type: 'suite'
       ...
     1..3
 ok 1 - Task G1: Turnstile on Login Verification
   ---
-  duration_ms: 3786.805125
+  duration_ms: 8618.501209
   type: 'suite'
   ...
 1..1
@@ -644,5 +671,4 @@ ok 1 - Task G1: Turnstile on Login Verification
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 4297.067709
-EXIT=0
+# duration_ms 10837.587917

@@ -1,0 +1,366 @@
+Command: for i in 1..5; node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/demo-role-guard.test.ts
+Exit Code: 0 (all 5 runs)
+Timestamp (UTC): 2026-10-29T15:52:48Z
+Git SHA: 25eb8161f3e606531eb6d956af1e6dbdbdcde78f
+Purpose: PASS-AFTER for B-001 backport (ts_demo_role production guard on feat/launch-blockers)
+
+--- RUN 1 ---
+TAP version 13
+# Subtest: B-001 demo role guard
+    # Subtest: production never resolves a demo role, even with every flag set
+    ok 1 - production never resolves a demo role, even with every flag set
+      ---
+      duration_ms: 29.103959
+      type: 'test'
+      ...
+    # Subtest: development without explicit demo mode does not resolve a demo role
+    ok 2 - development without explicit demo mode does not resolve a demo role
+      ---
+      duration_ms: 3.993334
+      type: 'test'
+      ...
+    # Subtest: demo mode works when explicitly enabled or in the test environment
+    ok 3 - demo mode works when explicitly enabled or in the test environment
+      ---
+      duration_ms: 2.870167
+      type: 'test'
+      ...
+    # Subtest: unknown cookie values are rejected
+    ok 4 - unknown cookie values are rejected
+      ---
+      duration_ms: 2.855375
+      type: 'test'
+      ...
+    # Subtest: getDemoRole accepts a NextRequest and a next/headers cookie store
+    ok 5 - getDemoRole accepts a NextRequest and a next/headers cookie store
+      ---
+      duration_ms: 10.442083
+      type: 'test'
+      ...
+    # Subtest: middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+    ok 6 - middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+      ---
+      duration_ms: 572.327167
+      type: 'test'
+      ...
+    # Subtest: lib/auth/rbac.ts rejects ts_demo_role cookie in production
+    ok 7 - lib/auth/rbac.ts rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 186.115541
+      type: 'test'
+      ...
+    # Subtest: app/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 8 - app/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 789.652917
+      type: 'test'
+      ...
+    # Subtest: middleware still honours the demo flow in the test environment
+    ok 9 - middleware still honours the demo flow in the test environment
+      ---
+      duration_ms: 138.555292
+      type: 'test'
+      ...
+    1..9
+ok 1 - B-001 demo role guard
+  ---
+  duration_ms: 1743.726375
+  type: 'suite'
+  ...
+1..1
+# tests 9
+# suites 1
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2642.719
+--- RUN 2 ---
+TAP version 13
+# Subtest: B-001 demo role guard
+    # Subtest: production never resolves a demo role, even with every flag set
+    ok 1 - production never resolves a demo role, even with every flag set
+      ---
+      duration_ms: 19.970291
+      type: 'test'
+      ...
+    # Subtest: development without explicit demo mode does not resolve a demo role
+    ok 2 - development without explicit demo mode does not resolve a demo role
+      ---
+      duration_ms: 18.171625
+      type: 'test'
+      ...
+    # Subtest: demo mode works when explicitly enabled or in the test environment
+    ok 3 - demo mode works when explicitly enabled or in the test environment
+      ---
+      duration_ms: 1.630458
+      type: 'test'
+      ...
+    # Subtest: unknown cookie values are rejected
+    ok 4 - unknown cookie values are rejected
+      ---
+      duration_ms: 3.032334
+      type: 'test'
+      ...
+    # Subtest: getDemoRole accepts a NextRequest and a next/headers cookie store
+    ok 5 - getDemoRole accepts a NextRequest and a next/headers cookie store
+      ---
+      duration_ms: 15.423833
+      type: 'test'
+      ...
+    # Subtest: middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+    ok 6 - middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+      ---
+      duration_ms: 746.526709
+      type: 'test'
+      ...
+    # Subtest: lib/auth/rbac.ts rejects ts_demo_role cookie in production
+    ok 7 - lib/auth/rbac.ts rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 234.186125
+      type: 'test'
+      ...
+    # Subtest: app/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 8 - app/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 523.745
+      type: 'test'
+      ...
+    # Subtest: middleware still honours the demo flow in the test environment
+    ok 9 - middleware still honours the demo flow in the test environment
+      ---
+      duration_ms: 11.721834
+      type: 'test'
+      ...
+    1..9
+ok 1 - B-001 demo role guard
+  ---
+  duration_ms: 1580.25675
+  type: 'suite'
+  ...
+1..1
+# tests 9
+# suites 1
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2332.752125
+--- RUN 3 ---
+TAP version 13
+# Subtest: B-001 demo role guard
+    # Subtest: production never resolves a demo role, even with every flag set
+    ok 1 - production never resolves a demo role, even with every flag set
+      ---
+      duration_ms: 24.553916
+      type: 'test'
+      ...
+    # Subtest: development without explicit demo mode does not resolve a demo role
+    ok 2 - development without explicit demo mode does not resolve a demo role
+      ---
+      duration_ms: 7.169875
+      type: 'test'
+      ...
+    # Subtest: demo mode works when explicitly enabled or in the test environment
+    ok 3 - demo mode works when explicitly enabled or in the test environment
+      ---
+      duration_ms: 2.159209
+      type: 'test'
+      ...
+    # Subtest: unknown cookie values are rejected
+    ok 4 - unknown cookie values are rejected
+      ---
+      duration_ms: 2.537875
+      type: 'test'
+      ...
+    # Subtest: getDemoRole accepts a NextRequest and a next/headers cookie store
+    ok 5 - getDemoRole accepts a NextRequest and a next/headers cookie store
+      ---
+      duration_ms: 10.058708
+      type: 'test'
+      ...
+    # Subtest: middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+    ok 6 - middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+      ---
+      duration_ms: 601.652916
+      type: 'test'
+      ...
+    # Subtest: lib/auth/rbac.ts rejects ts_demo_role cookie in production
+    ok 7 - lib/auth/rbac.ts rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 179.694333
+      type: 'test'
+      ...
+    # Subtest: app/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 8 - app/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 457.670959
+      type: 'test'
+      ...
+    # Subtest: middleware still honours the demo flow in the test environment
+    ok 9 - middleware still honours the demo flow in the test environment
+      ---
+      duration_ms: 11.236542
+      type: 'test'
+      ...
+    1..9
+ok 1 - B-001 demo role guard
+  ---
+  duration_ms: 1301.853458
+  type: 'suite'
+  ...
+1..1
+# tests 9
+# suites 1
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2009.005584
+--- RUN 4 ---
+TAP version 13
+# Subtest: B-001 demo role guard
+    # Subtest: production never resolves a demo role, even with every flag set
+    ok 1 - production never resolves a demo role, even with every flag set
+      ---
+      duration_ms: 22.279875
+      type: 'test'
+      ...
+    # Subtest: development without explicit demo mode does not resolve a demo role
+    ok 2 - development without explicit demo mode does not resolve a demo role
+      ---
+      duration_ms: 6.269292
+      type: 'test'
+      ...
+    # Subtest: demo mode works when explicitly enabled or in the test environment
+    ok 3 - demo mode works when explicitly enabled or in the test environment
+      ---
+      duration_ms: 1.628375
+      type: 'test'
+      ...
+    # Subtest: unknown cookie values are rejected
+    ok 4 - unknown cookie values are rejected
+      ---
+      duration_ms: 1.870459
+      type: 'test'
+      ...
+    # Subtest: getDemoRole accepts a NextRequest and a next/headers cookie store
+    ok 5 - getDemoRole accepts a NextRequest and a next/headers cookie store
+      ---
+      duration_ms: 9.122916
+      type: 'test'
+      ...
+    # Subtest: middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+    ok 6 - middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+      ---
+      duration_ms: 361.314333
+      type: 'test'
+      ...
+    # Subtest: lib/auth/rbac.ts rejects ts_demo_role cookie in production
+    ok 7 - lib/auth/rbac.ts rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 194.520875
+      type: 'test'
+      ...
+    # Subtest: app/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 8 - app/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 593.155209
+      type: 'test'
+      ...
+    # Subtest: middleware still honours the demo flow in the test environment
+    ok 9 - middleware still honours the demo flow in the test environment
+      ---
+      duration_ms: 19.837708
+      type: 'test'
+      ...
+    1..9
+ok 1 - B-001 demo role guard
+  ---
+  duration_ms: 1215.672583
+  type: 'suite'
+  ...
+1..1
+# tests 9
+# suites 1
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2035.992917
+--- RUN 5 ---
+TAP version 13
+# Subtest: B-001 demo role guard
+    # Subtest: production never resolves a demo role, even with every flag set
+    ok 1 - production never resolves a demo role, even with every flag set
+      ---
+      duration_ms: 22.592166
+      type: 'test'
+      ...
+    # Subtest: development without explicit demo mode does not resolve a demo role
+    ok 2 - development without explicit demo mode does not resolve a demo role
+      ---
+      duration_ms: 6.016125
+      type: 'test'
+      ...
+    # Subtest: demo mode works when explicitly enabled or in the test environment
+    ok 3 - demo mode works when explicitly enabled or in the test environment
+      ---
+      duration_ms: 1.555917
+      type: 'test'
+      ...
+    # Subtest: unknown cookie values are rejected
+    ok 4 - unknown cookie values are rejected
+      ---
+      duration_ms: 1.943333
+      type: 'test'
+      ...
+    # Subtest: getDemoRole accepts a NextRequest and a next/headers cookie store
+    ok 5 - getDemoRole accepts a NextRequest and a next/headers cookie store
+      ---
+      duration_ms: 10.055542
+      type: 'test'
+      ...
+    # Subtest: middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+    ok 6 - middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+      ---
+      duration_ms: 452.383583
+      type: 'test'
+      ...
+    # Subtest: lib/auth/rbac.ts rejects ts_demo_role cookie in production
+    ok 7 - lib/auth/rbac.ts rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 189.618584
+      type: 'test'
+      ...
+    # Subtest: app/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 8 - app/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 507.419708
+      type: 'test'
+      ...
+    # Subtest: middleware still honours the demo flow in the test environment
+    ok 9 - middleware still honours the demo flow in the test environment
+      ---
+      duration_ms: 10.295417
+      type: 'test'
+      ...
+    1..9
+ok 1 - B-001 demo role guard
+  ---
+  duration_ms: 1208.353625
+  type: 'suite'
+  ...
+1..1
+# tests 9
+# suites 1
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2033.483209

@@ -1,0 +1,152 @@
+Command: node node_modules/.bin/tsx --test tests/unit/demo-role-guard.test.ts (temp worktree at ab99e4d6ece72f5d962efa8ba2acd8f6d7a12fa7)
+Exit Code: 1
+Timestamp (UTC): 2026-10-29T15:51:44Z
+Git SHA: ab99e4d6ece72f5d962efa8ba2acd8f6d7a12fa7
+Purpose: FAIL-BEFORE for B-001; parent of implementation commit 6799f6b; tests run against unpatched code.
+Right-reason failures:
+- middleware: test 6 failed with '200 !== 307' because the unpatched middleware trusted raw req.cookies.get("ts_demo_role") and allowed access to /admin with 200 OK.
+- rbac: test 7 failed with 'Production rbac must NOT grant ADMIN role from cookie' (actual: 'ADMIN') because unpatched lib/auth/rbac.ts trusted cookieStore.get("ts_demo_role") in production.
+- layout: test 8 failed with 'AdminLayout must redirect unauthorized user in production' (actual: false !== true) because unpatched app/admin/layout.tsx rendered children and did not redirect to / when ts_demo_role=ADMIN was present in production.
+- helper functions: tests 1-5 failed because lib/auth/demo-role.ts did not exist in unpatched code.
+
+▶ B-001 demo role guard
+  ✖ production never resolves a demo role, even with every flag set (13.442083ms)
+  ✖ development without explicit demo mode does not resolve a demo role (4.5475ms)
+  ✖ demo mode works when explicitly enabled or in the test environment (3.593083ms)
+  ✖ unknown cookie values are rejected (7.445833ms)
+  ✖ getDemoRole accepts a NextRequest and a next/headers cookie store (3.38275ms)
+  ✖ middleware rejects a demo ADMIN cookie in production for /admin and /api/admin (524.252083ms)
+  ✖ lib/auth/rbac.ts rejects ts_demo_role cookie in production (157.691167ms)
+  ✖ app/admin/layout.tsx rejects ts_demo_role cookie in production (452.191625ms)
+  ✔ middleware still honours the demo flow in the test environment (10.449375ms)
+✖ B-001 demo role guard (1180.783833ms)
+ℹ tests 9
+ℹ suites 1
+ℹ pass 1
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1698.057958
+
+✖ failing tests:
+
+test at tests/unit/demo-role-guard.test.ts:2:2226
+✖ production never resolves a demo role, even with every flag set (13.442083ms)
+  AssertionError [ERR_ASSERTION]: lib/auth/demo-role module must exist
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-b001-fail/tests/unit/demo-role-guard.test.ts:57:12)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1442:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/demo-role-guard.test.ts:2:2644
+✖ development without explicit demo mode does not resolve a demo role (4.5475ms)
+  AssertionError [ERR_ASSERTION]: lib/auth/demo-role module must exist
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-b001-fail/tests/unit/demo-role-guard.test.ts:67:12)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/demo-role-guard.test.ts:2:3027
+✖ demo mode works when explicitly enabled or in the test environment (3.593083ms)
+  AssertionError [ERR_ASSERTION]: lib/auth/demo-role module must exist
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-b001-fail/tests/unit/demo-role-guard.test.ts:74:12)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/demo-role-guard.test.ts:2:3419
+✖ unknown cookie values are rejected (7.445833ms)
+  AssertionError [ERR_ASSERTION]: lib/auth/demo-role module must exist
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-b001-fail/tests/unit/demo-role-guard.test.ts:81:12)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/demo-role-guard.test.ts:2:3821
+✖ getDemoRole accepts a NextRequest and a next/headers cookie store (3.38275ms)
+  AssertionError [ERR_ASSERTION]: lib/auth/demo-role module must exist
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-b001-fail/tests/unit/demo-role-guard.test.ts:89:12)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/demo-role-guard.test.ts:2:4433
+✖ middleware rejects a demo ADMIN cookie in production for /admin and /api/admin (524.252083ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 307
+  
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-b001-fail/tests/unit/demo-role-guard.test.ts:123:14)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 307,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/demo-role-guard.test.ts:2:5583
+✖ lib/auth/rbac.ts rejects ts_demo_role cookie in production (157.691167ms)
+  AssertionError [ERR_ASSERTION]: Production rbac must NOT grant ADMIN role from cookie
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-b001-fail/tests/unit/demo-role-guard.test.ts:164:14)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'ADMIN',
+    expected: 'ADMIN',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/demo-role-guard.test.ts:2:6727
+✖ app/admin/layout.tsx rejects ts_demo_role cookie in production (452.191625ms)
+  AssertionError [ERR_ASSERTION]: AdminLayout must redirect unauthorized user in production
+  
+  false !== true
+  
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-b001-fail/tests/unit/demo-role-guard.test.ts:208:14)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

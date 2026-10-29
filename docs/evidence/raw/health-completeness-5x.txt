@@ -1,50 +1,71 @@
 === TASK G4: HEALTH COMPLETENESS 5X RUN ===
-Git SHA: bc2aa661ffd6365387685b91bb91dfbd2f4aad91
-Timestamp: 2026-10-29T14:01:45Z
+Git SHA: 25eb8161f3e606531eb6d956af1e6dbdbdcde78f
+Timestamp: 2026-10-29T15:55:31Z
 Command: for i in 1 2 3 4 5; do node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/health-completeness.test.ts; done
+Implementation diff d0035fc..HEAD (lib/health/health-service.ts app/api/health/route.ts):
+diff --git a/lib/health/health-service.ts b/lib/health/health-service.ts
+index 0afe6ff..0d915db 100644
+--- a/lib/health/health-service.ts
++++ b/lib/health/health-service.ts
+@@ -3,13 +3,13 @@ import { isStripeConfigured } from "@/lib/payments/stripe";
+ import { getPersistBackend } from "@/lib/storage/persist-backend";
+ import fs from "fs";
+ import path from "path";
++import { execSync } from "child_process";
+ 
+ function getGitCommitSha(): string {
+   if (process.env.GIT_COMMIT) return process.env.GIT_COMMIT.trim();
+   if (process.env.NEXT_PUBLIC_GIT_COMMIT) return process.env.NEXT_PUBLIC_GIT_COMMIT.trim();
+   if (process.env.VERCEL_GIT_COMMIT_SHA) return process.env.VERCEL_GIT_COMMIT_SHA.trim();
+   try {
+-    const { execSync } = require("child_process");
+     return execSync("git rev-parse HEAD", { encoding: "utf-8", timeout: 1000 }).trim();
+   } catch {
+     return "unknown";
+
 --- RUN 1 ---
 TAP version 13
 # Subtest: Task G4: /api/health Completeness & Hardening
     # Subtest: 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
     ok 1 - 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
       ---
-      duration_ms: 67.031084
+      duration_ms: 134.618792
       type: 'test'
       ...
     # Subtest: 2. Correct 'pending migrations' detection when unapplied migration exists on disk
     ok 2 - 2. Correct 'pending migrations' detection when unapplied migration exists on disk
       ---
-      duration_ms: 25.4925
+      duration_ms: 30.110458
       type: 'test'
       ...
     # Subtest: 3. Migration status is cached for 60 seconds
     ok 3 - 3. Migration status is cached for 60 seconds
       ---
-      duration_ms: 46.612417
+      duration_ms: 54.970542
       type: 'test'
       ...
     # Subtest: 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
     ok 4 - 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
       ---
-      duration_ms: 50.58425
+      duration_ms: 59.357708
       type: 'test'
       ...
     # Subtest: 5. Zero credential or secret string leakage across all response bodies
     ok 5 - 5. Zero credential or secret string leakage across all response bodies
       ---
-      duration_ms: 23.763208
+      duration_ms: 28.668125
       type: 'test'
       ...
     # Subtest: 6. Health endpoint works in read-only filesystem environment (zero file writes)
     ok 6 - 6. Health endpoint works in read-only filesystem environment (zero file writes)
       ---
-      duration_ms: 23.876084
+      duration_ms: 28.128417
       type: 'test'
       ...
     1..6
 ok 1 - Task G4: /api/health Completeness & Hardening
   ---
-  duration_ms: 238.420458
+  duration_ms: 337.065459
   type: 'suite'
   ...
 1..1
@@ -55,50 +76,50 @@ ok 1 - Task G4: /api/health Completeness & Hardening
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 627.126875
+# duration_ms 1202.455458
 --- RUN 2 ---
 TAP version 13
 # Subtest: Task G4: /api/health Completeness & Hardening
     # Subtest: 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
     ok 1 - 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
       ---
-      duration_ms: 67.992042
+      duration_ms: 92.000291
       type: 'test'
       ...
     # Subtest: 2. Correct 'pending migrations' detection when unapplied migration exists on disk
     ok 2 - 2. Correct 'pending migrations' detection when unapplied migration exists on disk
       ---
-      duration_ms: 26.621292
+      duration_ms: 34.71175
       type: 'test'
       ...
     # Subtest: 3. Migration status is cached for 60 seconds
     ok 3 - 3. Migration status is cached for 60 seconds
       ---
-      duration_ms: 48.414917
+      duration_ms: 66.987417
       type: 'test'
       ...
     # Subtest: 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
     ok 4 - 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
       ---
-      duration_ms: 48.909875
+      duration_ms: 67.997791
       type: 'test'
       ...
     # Subtest: 5. Zero credential or secret string leakage across all response bodies
     ok 5 - 5. Zero credential or secret string leakage across all response bodies
       ---
-      duration_ms: 24.506625
+      duration_ms: 33.250667
       type: 'test'
       ...
     # Subtest: 6. Health endpoint works in read-only filesystem environment (zero file writes)
     ok 6 - 6. Health endpoint works in read-only filesystem environment (zero file writes)
       ---
-      duration_ms: 24.389875
+      duration_ms: 30.090792
       type: 'test'
       ...
     1..6
 ok 1 - Task G4: /api/health Completeness & Hardening
   ---
-  duration_ms: 241.937625
+  duration_ms: 326.504792
   type: 'suite'
   ...
 1..1
@@ -109,50 +130,50 @@ ok 1 - Task G4: /api/health Completeness & Hardening
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 605.473208
+# duration_ms 1327.044667
 --- RUN 3 ---
 TAP version 13
 # Subtest: Task G4: /api/health Completeness & Hardening
     # Subtest: 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
     ok 1 - 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
       ---
-      duration_ms: 65.162916
+      duration_ms: 121.225208
       type: 'test'
       ...
     # Subtest: 2. Correct 'pending migrations' detection when unapplied migration exists on disk
     ok 2 - 2. Correct 'pending migrations' detection when unapplied migration exists on disk
       ---
-      duration_ms: 26.46525
+      duration_ms: 44.130792
       type: 'test'
       ...
     # Subtest: 3. Migration status is cached for 60 seconds
     ok 3 - 3. Migration status is cached for 60 seconds
       ---
-      duration_ms: 45.818292
+      duration_ms: 75.7255
       type: 'test'
       ...
     # Subtest: 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
     ok 4 - 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
       ---
-      duration_ms: 49.469209
+      duration_ms: 78.2675
       type: 'test'
       ...
     # Subtest: 5. Zero credential or secret string leakage across all response bodies
     ok 5 - 5. Zero credential or secret string leakage across all response bodies
       ---
-      duration_ms: 24.784166
+      duration_ms: 43.110417
       type: 'test'
       ...
     # Subtest: 6. Health endpoint works in read-only filesystem environment (zero file writes)
     ok 6 - 6. Health endpoint works in read-only filesystem environment (zero file writes)
       ---
-      duration_ms: 24.164042
+      duration_ms: 48.89725
       type: 'test'
       ...
     1..6
 ok 1 - Task G4: /api/health Completeness & Hardening
   ---
-  duration_ms: 236.943208
+  duration_ms: 413.607916
   type: 'suite'
   ...
 1..1
@@ -163,50 +184,50 @@ ok 1 - Task G4: /api/health Completeness & Hardening
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 603.128834
+# duration_ms 1169.665375
 --- RUN 4 ---
 TAP version 13
 # Subtest: Task G4: /api/health Completeness & Hardening
     # Subtest: 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
     ok 1 - 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
       ---
-      duration_ms: 70.501708
+      duration_ms: 234.4115
       type: 'test'
       ...
     # Subtest: 2. Correct 'pending migrations' detection when unapplied migration exists on disk
     ok 2 - 2. Correct 'pending migrations' detection when unapplied migration exists on disk
       ---
-      duration_ms: 30.60575
+      duration_ms: 71.7865
       type: 'test'
       ...
     # Subtest: 3. Migration status is cached for 60 seconds
     ok 3 - 3. Migration status is cached for 60 seconds
       ---
-      duration_ms: 53.9245
+      duration_ms: 136.492792
       type: 'test'
       ...
     # Subtest: 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
     ok 4 - 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
       ---
-      duration_ms: 49.757167
+      duration_ms: 139.101
       type: 'test'
       ...
     # Subtest: 5. Zero credential or secret string leakage across all response bodies
     ok 5 - 5. Zero credential or secret string leakage across all response bodies
       ---
-      duration_ms: 24.777167
+      duration_ms: 72.17825
       type: 'test'
       ...
     # Subtest: 6. Health endpoint works in read-only filesystem environment (zero file writes)
     ok 6 - 6. Health endpoint works in read-only filesystem environment (zero file writes)
       ---
-      duration_ms: 23.545333
+      duration_ms: 80.376291
       type: 'test'
       ...
     1..6
 ok 1 - Task G4: /api/health Completeness & Hardening
   ---
-  duration_ms: 254.186625
+  duration_ms: 741.15325
   type: 'suite'
   ...
 1..1
@@ -217,50 +238,50 @@ ok 1 - Task G4: /api/health Completeness & Hardening
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 612.080834
+# duration_ms 2119.137959
 --- RUN 5 ---
 TAP version 13
 # Subtest: Task G4: /api/health Completeness & Hardening
     # Subtest: 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
     ok 1 - 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
       ---
-      duration_ms: 67.820667
+      duration_ms: 161.677
       type: 'test'
       ...
     # Subtest: 2. Correct 'pending migrations' detection when unapplied migration exists on disk
     ok 2 - 2. Correct 'pending migrations' detection when unapplied migration exists on disk
       ---
-      duration_ms: 26.068542
+      duration_ms: 59.101
       type: 'test'
       ...
     # Subtest: 3. Migration status is cached for 60 seconds
     ok 3 - 3. Migration status is cached for 60 seconds
       ---
-      duration_ms: 47.726542
+      duration_ms: 118.107458
       type: 'test'
       ...
     # Subtest: 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
     ok 4 - 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
       ---
-      duration_ms: 49.0995
+      duration_ms: 128.957417
       type: 'test'
       ...
     # Subtest: 5. Zero credential or secret string leakage across all response bodies
     ok 5 - 5. Zero credential or secret string leakage across all response bodies
       ---
-      duration_ms: 25.038417
+      duration_ms: 77.853958
       type: 'test'
       ...
     # Subtest: 6. Health endpoint works in read-only filesystem environment (zero file writes)
     ok 6 - 6. Health endpoint works in read-only filesystem environment (zero file writes)
       ---
-      duration_ms: 23.715834
+      duration_ms: 74.223708
       type: 'test'
       ...
     1..6
 ok 1 - Task G4: /api/health Completeness & Hardening
   ---
-  duration_ms: 240.961334
+  duration_ms: 625.579375
   type: 'suite'
   ...
 1..1
@@ -271,5 +292,4 @@ ok 1 - Task G4: /api/health Completeness & Hardening
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 620.217209
-=== ALL 5 RUNS PASSED ===
+# duration_ms 2209.069083
