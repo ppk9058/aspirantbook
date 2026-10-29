@@ -55,7 +55,7 @@
 | **G4** | /api/health completeness | DONE | `d0035fc` | `docs/evidence/raw/health-completeness-5x.txt`, `docs/evidence/raw/health-completeness-fail-before.txt`, `tests/unit/health-completeness.test.ts` | Added applied/pending migrations telemetry with 60s cache; paymentsConfigured, storageBackend, emailProviders booleans/names; HEALTH_DETAILS_TOKEN gate; zero secret leakage (>8 chars env assert); 6 tests passed 5x |
 | **G5** | Email outbox worker | DONE | `ea7a99b` | `docs/evidence/raw/email-outbox-5x.txt`, `docs/evidence/raw/email-outbox-fail-before.txt`, `tests/unit/email-outbox-worker.test.ts`, `lib/email/outbox-worker.ts`, `app/api/internal/email-outbox/route.ts`, `scripts/process-email-outbox.ts`, `.github/workflows/email-outbox-cron.yml` | FOR UPDATE SKIP LOCKED batch claiming, backoff with jitter, dead-lettering, provider fallback Brevo->Resend, idempotency keys, CRON_SECRET constant-time auth, disabled workflow stub, CLI runner; 8 tests passed 5x |
 | **G6** | Brevo transport decision | DONE | `63229b3` | `docs/evidence/email-transport.md` | Documented Brevo REST API decision, architectural rationale (ports, connection pooling, zero deps, errors), required env vars (BREVO_API_KEY, BREVO_API_URL, EMAIL_FROM), explicit confirmation SMTP not implemented |
-| **G7** | LIVE-UNVERIFIED register | NOT_STARTED | - | - | Next task |
+| **G7** | LIVE-UNVERIFIED register | DONE | `969f382` | `docs/evidence/live-unverified.md` | Documented 8 third-party integrations (Google OAuth web/mobile, Razorpay webhook, Brevo, Resend, Turnstile, S3/R2, Cloudflare CF-Connecting-IP/origin lock, Play Console data-deletion), mocks tested, live unverified scope, exact env vars, step-by-step owner verification, expected results |
 
 ---
 
