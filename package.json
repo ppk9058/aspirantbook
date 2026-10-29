@@ -79,8 +79,8 @@
     "ioredis": "^5.8.2",
     "katex": "^0.18.9",
     "lucide-react": "^0.468.0",
-    "next": "15.1.4",
-    "next-auth": "^5.0.0-beta.25",
+    "next": "15.5.28",
+    "next-auth": "^5.0.0-beta.32",
     "pdfjs-dist": "^4.9.155",
     "razorpay": "^2.9.6",
     "react": "^19.0.0",
@@ -94,10 +94,18 @@
     "sonner": "^2.0.7",
     "stripe": "^17.7.0",
     "superjson": "^2.2.2",
-    "swiper": "^12.0.3",
+    "swiper": "^12.1.2",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.25.76"
+  },
+  "overrides": {
+    "@auth/core": "0.41.3",
+    "fast-xml-parser": "5.11.2",
+    "protobufjs": "7.6.6",
+    "monaco-editor": {
+      "dompurify": "3.4.17"
+    }
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
