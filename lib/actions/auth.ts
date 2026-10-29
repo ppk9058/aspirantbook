@@ -18,6 +18,7 @@ import {
 } from "@/lib/auth/tokens"
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
+import { verifyTurnstileToken } from "@/lib/security/turnstile"
 
 const RegisterSchema = z.object({
     name: z.string().trim().min(2, "Name must be at least 2 characters"),
@@ -62,6 +63,13 @@ export async function register(prevState: any, formData: FormData) {
     const rateLimit = await checkRateLimit(`register:${clientIp}`, maxAttempts, 3600, { failClosed: true })
     if (!rateLimit.allowed) {
         return { error: "Too many registration attempts from this network. Please try again later." }
+    }
+
+    // Bot protection: Turnstile server-side verification (behind TURNSTILE_ENABLED flag)
+    const turnstileToken = (formData.get("cf-turnstile-response") || formData.get("turnstileToken")) as string | null
+    const turnstileCheck = await verifyTurnstileToken(turnstileToken, clientIp)
+    if (!turnstileCheck.success) {
+        return { error: turnstileCheck.error || "Security verification failed. Please try again." }
     }
 
     const normalizedEmail = email.trim().toLowerCase()
@@ -259,6 +267,13 @@ export async function requestPasswordResetAction(prevState: any, formData: FormD
 
     if (!ipLimit.allowed || !emailLimit.allowed) {
         return { error: "Too many password reset requests. Please try again in an hour." }
+    }
+
+    // Bot protection: Turnstile server-side verification (behind TURNSTILE_ENABLED flag)
+    const turnstileToken = (formData.get("cf-turnstile-response") || formData.get("turnstileToken")) as string | null
+    const turnstileCheck = await verifyTurnstileToken(turnstileToken, clientIp)
+    if (!turnstileCheck.success) {
+        return { error: turnstileCheck.error || "Security verification failed. Please try again." }
     }
 
     // Safe uniform response to prevent user enumeration

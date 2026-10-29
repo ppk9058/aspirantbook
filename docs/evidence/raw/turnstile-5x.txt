@@ -1,0 +1,418 @@
+=== TASK B8: TURNSTILE VERIFICATION 5X RUN ===
+Git SHA: 54e9b4478eb9d15f60eee0b57601e1b2d0517078
+Timestamp: 2026-10-29T01:38:50Z
+--- RUN 1 ---
+TAP version 13
+# Subtest: Task B8: Turnstile Server-Side Verification
+    # Subtest: Flag OFF (Default - Dev/Test Uninterrupted)
+        # Subtest: 1. Returns success immediately when TURNSTILE_ENABLED is not true
+        ok 1 - 1. Returns success immediately when TURNSTILE_ENABLED is not true
+          ---
+          duration_ms: 0.972875
+          type: 'test'
+          ...
+# [Turnstile] Security failure: TURNSTILE_ENABLED=true but TURNSTILE_SECRET_KEY is not configured! Failing closed.
+        # Subtest: 2. Contact form passes without Turnstile token when flag is OFF
+        ok 2 - 2. Contact form passes without Turnstile token when flag is OFF
+          ---
+          duration_ms: 82.733166
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Flag OFF (Default - Dev/Test Uninterrupted)
+      ---
+      duration_ms: 84.297958
+      type: 'suite'
+      ...
+    # Subtest: Flag ON (TURNSTILE_ENABLED=true)
+        # Subtest: 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+        ok 1 - 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+          ---
+          duration_ms: 1.028792
+          type: 'test'
+          ...
+        # Subtest: 4. Fails with 400 when token is missing or empty
+        ok 2 - 4. Fails with 400 when token is missing or empty
+          ---
+          duration_ms: 0.314708
+          type: 'test'
+          ...
+        # Subtest: 5. Validates token with Cloudflare and returns success when valid
+        ok 3 - 5. Validates token with Cloudflare and returns success when valid
+          ---
+          duration_ms: 21.26275
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 6. Rejects with 400 when Cloudflare reports invalid-input-response
+        ok 4 - 6. Rejects with 400 when Cloudflare reports invalid-input-response
+          ---
+          duration_ms: 6.266208
+          type: 'test'
+          ...
+# [Turnstile] Cloudflare siteverify request timed out
+        # Subtest: 7. Rejects with 504 when Cloudflare endpoint times out
+        ok 5 - 7. Rejects with 504 when Cloudflare endpoint times out
+          ---
+          duration_ms: 156.549083
+          type: 'test'
+          ...
+        # Subtest: 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+        ok 6 - 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+          ---
+          duration_ms: 8.525209
+          type: 'test'
+          ...
+        1..6
+    ok 2 - Flag ON (TURNSTILE_ENABLED=true)
+      ---
+      duration_ms: 194.872875
+      type: 'suite'
+      ...
+    1..2
+ok 1 - Task B8: Turnstile Server-Side Verification
+  ---
+  duration_ms: 3297.546458
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 3
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3757.93925
+--- RUN 2 ---
+TAP version 13
+# Subtest: Task B8: Turnstile Server-Side Verification
+    # Subtest: Flag OFF (Default - Dev/Test Uninterrupted)
+        # Subtest: 1. Returns success immediately when TURNSTILE_ENABLED is not true
+        ok 1 - 1. Returns success immediately when TURNSTILE_ENABLED is not true
+          ---
+          duration_ms: 0.866917
+          type: 'test'
+          ...
+# [Turnstile] Security failure: TURNSTILE_ENABLED=true but TURNSTILE_SECRET_KEY is not configured! Failing closed.
+        # Subtest: 2. Contact form passes without Turnstile token when flag is OFF
+        ok 2 - 2. Contact form passes without Turnstile token when flag is OFF
+          ---
+          duration_ms: 64.846958
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Flag OFF (Default - Dev/Test Uninterrupted)
+      ---
+      duration_ms: 66.234375
+      type: 'suite'
+      ...
+    # Subtest: Flag ON (TURNSTILE_ENABLED=true)
+        # Subtest: 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+        ok 1 - 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+          ---
+          duration_ms: 1.02425
+          type: 'test'
+          ...
+        # Subtest: 4. Fails with 400 when token is missing or empty
+        ok 2 - 4. Fails with 400 when token is missing or empty
+          ---
+          duration_ms: 0.297875
+          type: 'test'
+          ...
+        # Subtest: 5. Validates token with Cloudflare and returns success when valid
+        ok 3 - 5. Validates token with Cloudflare and returns success when valid
+          ---
+          duration_ms: 17.976917
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 6. Rejects with 400 when Cloudflare reports invalid-input-response
+        ok 4 - 6. Rejects with 400 when Cloudflare reports invalid-input-response
+          ---
+          duration_ms: 5.54175
+          type: 'test'
+          ...
+# [Turnstile] Cloudflare siteverify request timed out
+        # Subtest: 7. Rejects with 504 when Cloudflare endpoint times out
+        ok 5 - 7. Rejects with 504 when Cloudflare endpoint times out
+          ---
+          duration_ms: 155.864042
+          type: 'test'
+          ...
+        # Subtest: 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+        ok 6 - 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+          ---
+          duration_ms: 11.000708
+          type: 'test'
+          ...
+        1..6
+    ok 2 - Flag ON (TURNSTILE_ENABLED=true)
+      ---
+      duration_ms: 192.523542
+      type: 'suite'
+      ...
+    1..2
+ok 1 - Task B8: Turnstile Server-Side Verification
+  ---
+  duration_ms: 3273.315542
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 3
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3580.129792
+--- RUN 3 ---
+TAP version 13
+# Subtest: Task B8: Turnstile Server-Side Verification
+    # Subtest: Flag OFF (Default - Dev/Test Uninterrupted)
+        # Subtest: 1. Returns success immediately when TURNSTILE_ENABLED is not true
+        ok 1 - 1. Returns success immediately when TURNSTILE_ENABLED is not true
+          ---
+          duration_ms: 0.865167
+          type: 'test'
+          ...
+# [Turnstile] Security failure: TURNSTILE_ENABLED=true but TURNSTILE_SECRET_KEY is not configured! Failing closed.
+        # Subtest: 2. Contact form passes without Turnstile token when flag is OFF
+        ok 2 - 2. Contact form passes without Turnstile token when flag is OFF
+          ---
+          duration_ms: 62.93125
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Flag OFF (Default - Dev/Test Uninterrupted)
+      ---
+      duration_ms: 64.319584
+      type: 'suite'
+      ...
+    # Subtest: Flag ON (TURNSTILE_ENABLED=true)
+        # Subtest: 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+        ok 1 - 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+          ---
+          duration_ms: 0.908875
+          type: 'test'
+          ...
+        # Subtest: 4. Fails with 400 when token is missing or empty
+        ok 2 - 4. Fails with 400 when token is missing or empty
+          ---
+          duration_ms: 0.279917
+          type: 'test'
+          ...
+        # Subtest: 5. Validates token with Cloudflare and returns success when valid
+        ok 3 - 5. Validates token with Cloudflare and returns success when valid
+          ---
+          duration_ms: 19.123042
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 6. Rejects with 400 when Cloudflare reports invalid-input-response
+        ok 4 - 6. Rejects with 400 when Cloudflare reports invalid-input-response
+          ---
+          duration_ms: 5.824625
+          type: 'test'
+          ...
+# [Turnstile] Cloudflare siteverify request timed out
+        # Subtest: 7. Rejects with 504 when Cloudflare endpoint times out
+        ok 5 - 7. Rejects with 504 when Cloudflare endpoint times out
+          ---
+          duration_ms: 155.922083
+          type: 'test'
+          ...
+        # Subtest: 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+        ok 6 - 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+          ---
+          duration_ms: 6.920125
+          type: 'test'
+          ...
+        1..6
+    ok 2 - Flag ON (TURNSTILE_ENABLED=true)
+      ---
+      duration_ms: 189.758792
+      type: 'suite'
+      ...
+    1..2
+ok 1 - Task B8: Turnstile Server-Side Verification
+  ---
+  duration_ms: 3273.579292
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 3
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3605.857458
+--- RUN 4 ---
+TAP version 13
+# Subtest: Task B8: Turnstile Server-Side Verification
+    # Subtest: Flag OFF (Default - Dev/Test Uninterrupted)
+        # Subtest: 1. Returns success immediately when TURNSTILE_ENABLED is not true
+        ok 1 - 1. Returns success immediately when TURNSTILE_ENABLED is not true
+          ---
+          duration_ms: 1.600708
+          type: 'test'
+          ...
+# [Turnstile] Security failure: TURNSTILE_ENABLED=true but TURNSTILE_SECRET_KEY is not configured! Failing closed.
+        # Subtest: 2. Contact form passes without Turnstile token when flag is OFF
+        ok 2 - 2. Contact form passes without Turnstile token when flag is OFF
+          ---
+          duration_ms: 77.094875
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Flag OFF (Default - Dev/Test Uninterrupted)
+      ---
+      duration_ms: 79.348708
+      type: 'suite'
+      ...
+    # Subtest: Flag ON (TURNSTILE_ENABLED=true)
+        # Subtest: 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+        ok 1 - 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+          ---
+          duration_ms: 0.907458
+          type: 'test'
+          ...
+        # Subtest: 4. Fails with 400 when token is missing or empty
+        ok 2 - 4. Fails with 400 when token is missing or empty
+          ---
+          duration_ms: 0.26675
+          type: 'test'
+          ...
+        # Subtest: 5. Validates token with Cloudflare and returns success when valid
+        ok 3 - 5. Validates token with Cloudflare and returns success when valid
+          ---
+          duration_ms: 19.3755
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 6. Rejects with 400 when Cloudflare reports invalid-input-response
+        ok 4 - 6. Rejects with 400 when Cloudflare reports invalid-input-response
+          ---
+          duration_ms: 5.391792
+          type: 'test'
+          ...
+# [Turnstile] Cloudflare siteverify request timed out
+        # Subtest: 7. Rejects with 504 when Cloudflare endpoint times out
+        ok 5 - 7. Rejects with 504 when Cloudflare endpoint times out
+          ---
+          duration_ms: 154.121583
+          type: 'test'
+          ...
+        # Subtest: 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+        ok 6 - 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+          ---
+          duration_ms: 4.21825
+          type: 'test'
+          ...
+        1..6
+    ok 2 - Flag ON (TURNSTILE_ENABLED=true)
+      ---
+      duration_ms: 184.9055
+      type: 'suite'
+      ...
+    1..2
+ok 1 - Task B8: Turnstile Server-Side Verification
+  ---
+  duration_ms: 3282.418042
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 3
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3605.055833
+--- RUN 5 ---
+TAP version 13
+# Subtest: Task B8: Turnstile Server-Side Verification
+    # Subtest: Flag OFF (Default - Dev/Test Uninterrupted)
+        # Subtest: 1. Returns success immediately when TURNSTILE_ENABLED is not true
+        ok 1 - 1. Returns success immediately when TURNSTILE_ENABLED is not true
+          ---
+          duration_ms: 0.8605
+          type: 'test'
+          ...
+# [Turnstile] Security failure: TURNSTILE_ENABLED=true but TURNSTILE_SECRET_KEY is not configured! Failing closed.
+        # Subtest: 2. Contact form passes without Turnstile token when flag is OFF
+        ok 2 - 2. Contact form passes without Turnstile token when flag is OFF
+          ---
+          duration_ms: 122.432583
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Flag OFF (Default - Dev/Test Uninterrupted)
+      ---
+      duration_ms: 123.84375
+      type: 'suite'
+      ...
+    # Subtest: Flag ON (TURNSTILE_ENABLED=true)
+        # Subtest: 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+        ok 1 - 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+          ---
+          duration_ms: 2.308583
+          type: 'test'
+          ...
+        # Subtest: 4. Fails with 400 when token is missing or empty
+        ok 2 - 4. Fails with 400 when token is missing or empty
+          ---
+          duration_ms: 0.371375
+          type: 'test'
+          ...
+        # Subtest: 5. Validates token with Cloudflare and returns success when valid
+        ok 3 - 5. Validates token with Cloudflare and returns success when valid
+          ---
+          duration_ms: 24.211583
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 6. Rejects with 400 when Cloudflare reports invalid-input-response
+        ok 4 - 6. Rejects with 400 when Cloudflare reports invalid-input-response
+          ---
+          duration_ms: 5.238
+          type: 'test'
+          ...
+# [Turnstile] Cloudflare siteverify request timed out
+        # Subtest: 7. Rejects with 504 when Cloudflare endpoint times out
+        ok 5 - 7. Rejects with 504 when Cloudflare endpoint times out
+          ---
+          duration_ms: 155.484542
+          type: 'test'
+          ...
+        # Subtest: 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+        ok 6 - 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+          ---
+          duration_ms: 4.987125
+          type: 'test'
+          ...
+        1..6
+    ok 2 - Flag ON (TURNSTILE_ENABLED=true)
+      ---
+      duration_ms: 193.350959
+      type: 'suite'
+      ...
+    1..2
+ok 1 - Task B8: Turnstile Server-Side Verification
+  ---
+  duration_ms: 3335.679417
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 3
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3649.118667

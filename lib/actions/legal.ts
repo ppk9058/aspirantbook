@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { createFormSubmission } from "@/lib/forms-service";
 import { sendEmail } from "@/lib/email";
+import { verifyTurnstileToken } from "@/lib/security/turnstile";
 
 const DataDeletionSchema = z.object({
   email: z.string().trim().email("Please provide a valid email address"),
@@ -114,6 +115,13 @@ export async function submitContactForm(prevState: any, formData: FormData) {
   const rateLimit = await checkRateLimit(`contact-form:${clientIp}`, maxAttempts, 3600, { failClosed: true });
   if (!rateLimit.allowed) {
     return { success: false, error: "Too many contact submissions. Please try again later." };
+  }
+
+  // Turnstile verification behind TURNSTILE_ENABLED flag
+  const turnstileToken = (formData.get("cf-turnstile-response") || formData.get("turnstileToken")) as string | null;
+  const turnstileCheck = await verifyTurnstileToken(turnstileToken, clientIp);
+  if (!turnstileCheck.success) {
+    return { success: false, error: turnstileCheck.error || "Security verification failed. Please try again." };
   }
 
   const raw = {
