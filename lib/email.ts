@@ -1,5 +1,7 @@
 import fs from "fs"
 import path from "path"
+import { prisma } from "@/lib/prisma"
+import { isDbPersist } from "@/lib/storage/persist-backend"
 
 export interface SendEmailOptions {
     to: string
@@ -58,6 +60,28 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions): 
 
     // In dev / test or when no production key is configured: log to dev-only outbox
     if (isDevOrTest) {
+        if (isDbPersist()) {
+            try {
+                const record = await prisma.emailOutbox.create({
+                    data: {
+                        to,
+                        subject,
+                        html,
+                        text,
+                        link,
+                        token,
+                        status: hasProvider ? "SENT" : "PENDING",
+                        provider: hasProvider ? "resend" : "dev",
+                    },
+                })
+                console.log(`[DbEmailOutbox] Stored to: ${to} | Subject: ${subject} | Link: ${link || "none"}`)
+                return { success: true, id: record.id }
+            } catch (err) {
+                console.error("[DbEmailOutbox] Failed to write outbox record:", err)
+                return { success: false }
+            }
+        }
+
         try {
             if (!fs.existsSync(OUTBOX_DIR)) {
                 fs.mkdirSync(OUTBOX_DIR, { recursive: true })
@@ -119,6 +143,28 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions): 
 }
 
 export async function readLatestDevEmail(to?: string): Promise<DevEmail | null> {
+    if (isDbPersist()) {
+        try {
+            const entry = await prisma.emailOutbox.findFirst({
+                where: to ? { to: { equals: to, mode: "insensitive" } } : {},
+                orderBy: { createdAt: "desc" },
+            })
+            if (!entry) return null
+            return {
+                id: entry.id,
+                to: entry.to,
+                subject: entry.subject,
+                html: entry.html || "",
+                text: entry.text || undefined,
+                link: entry.link || undefined,
+                token: entry.token || undefined,
+                createdAt: entry.createdAt.toISOString(),
+            }
+        } catch {
+            return null
+        }
+    }
+
     try {
         if (!fs.existsSync(OUTBOX_FILE)) return null
         const content = fs.readFileSync(OUTBOX_FILE, "utf-8").trim()

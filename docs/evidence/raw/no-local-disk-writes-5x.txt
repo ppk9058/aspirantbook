@@ -1,0 +1,285 @@
+=== RUN 1 ===
+TAP version 13
+# [DbEmailOutbox] Stored to: test_outbox_1793236556576@example.com | Subject: Test DB Outbox Subject | Link: none
+# Subtest: Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+    # Subtest: 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+    ok 1 - 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+      ---
+      duration_ms: 52.757916
+      type: 'test'
+      ...
+    # Subtest: 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+    ok 2 - 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 13.846542
+      type: 'test'
+      ...
+    # Subtest: 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+    ok 3 - 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 7.899708
+      type: 'test'
+      ...
+# [CONTENT_AUDIT] UPDATE course entity_1793236556651 by anonymous
+    # Subtest: 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+    ok 4 - 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 7.6565
+      type: 'test'
+      ...
+# [DevEmailOutbox] Sent to: legacy_1793236556691@example.com | Subject: Legacy FS Outbox Subject | Link: none
+    # Subtest: 5. S3/MinIO compatible client uploads file and generates signed URL
+    ok 5 - 5. S3/MinIO compatible client uploads file and generates signed URL
+      ---
+      duration_ms: 32.637333
+      type: 'test'
+      ...
+    # Subtest: 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+    ok 6 - 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+      ---
+      duration_ms: 0.590625
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+  ---
+  duration_ms: 137.918292
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 829.828167
+=== RUN 2 ===
+TAP version 13
+# [DbEmailOutbox] Stored to: test_outbox_1793236557862@example.com | Subject: Test DB Outbox Subject | Link: none
+# Subtest: Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+    # Subtest: 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+    ok 1 - 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+      ---
+      duration_ms: 30.533
+      type: 'test'
+      ...
+    # Subtest: 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+    ok 2 - 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 11.701375
+      type: 'test'
+      ...
+    # Subtest: 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+    ok 3 - 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 6.6205
+      type: 'test'
+      ...
+# [CONTENT_AUDIT] UPDATE course entity_1793236557912 by anonymous
+    # Subtest: 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+    ok 4 - 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 7.7045
+      type: 'test'
+      ...
+# [DevEmailOutbox] Sent to: legacy_1793236557952@example.com | Subject: Legacy FS Outbox Subject | Link: none
+    # Subtest: 5. S3/MinIO compatible client uploads file and generates signed URL
+    ok 5 - 5. S3/MinIO compatible client uploads file and generates signed URL
+      ---
+      duration_ms: 32.164333
+      type: 'test'
+      ...
+    # Subtest: 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+    ok 6 - 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+      ---
+      duration_ms: 0.716583
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+  ---
+  duration_ms: 108.659208
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 630.555084
+=== RUN 3 ===
+TAP version 13
+# [DbEmailOutbox] Stored to: test_outbox_1793236559142@example.com | Subject: Test DB Outbox Subject | Link: none
+# Subtest: Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+    # Subtest: 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+    ok 1 - 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+      ---
+      duration_ms: 35.809208
+      type: 'test'
+      ...
+    # Subtest: 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+    ok 2 - 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 10.987209
+      type: 'test'
+      ...
+    # Subtest: 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+    ok 3 - 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 6.638875
+      type: 'test'
+      ...
+# [CONTENT_AUDIT] UPDATE course entity_1793236559196 by anonymous
+    # Subtest: 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+    ok 4 - 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 6.281708
+      type: 'test'
+      ...
+# [DevEmailOutbox] Sent to: legacy_1793236559233@example.com | Subject: Legacy FS Outbox Subject | Link: none
+    # Subtest: 5. S3/MinIO compatible client uploads file and generates signed URL
+    ok 5 - 5. S3/MinIO compatible client uploads file and generates signed URL
+      ---
+      duration_ms: 30.4535
+      type: 'test'
+      ...
+    # Subtest: 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+    ok 6 - 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+      ---
+      duration_ms: 0.579125
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+  ---
+  duration_ms: 109.818834
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 639.76975
+=== RUN 4 ===
+TAP version 13
+# [DbEmailOutbox] Stored to: test_outbox_1793236560392@example.com | Subject: Test DB Outbox Subject | Link: none
+# Subtest: Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+    # Subtest: 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+    ok 1 - 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+      ---
+      duration_ms: 31.670333
+      type: 'test'
+      ...
+    # Subtest: 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+    ok 2 - 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 13.703334
+      type: 'test'
+      ...
+    # Subtest: 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+    ok 3 - 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 8.072208
+      type: 'test'
+      ...
+# [CONTENT_AUDIT] UPDATE course entity_1793236560446 by anonymous
+    # Subtest: 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+    ok 4 - 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 8.19475
+      type: 'test'
+      ...
+# [DevEmailOutbox] Sent to: legacy_1793236560487@example.com | Subject: Legacy FS Outbox Subject | Link: none
+    # Subtest: 5. S3/MinIO compatible client uploads file and generates signed URL
+    ok 5 - 5. S3/MinIO compatible client uploads file and generates signed URL
+      ---
+      duration_ms: 32.8105
+      type: 'test'
+      ...
+    # Subtest: 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+    ok 6 - 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+      ---
+      duration_ms: 0.63475
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+  ---
+  duration_ms: 114.396083
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 660.093
+=== RUN 5 ===
+TAP version 13
+# [DbEmailOutbox] Stored to: test_outbox_1793236561657@example.com | Subject: Test DB Outbox Subject | Link: none
+# Subtest: Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+    # Subtest: 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+    ok 1 - 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+      ---
+      duration_ms: 35.583167
+      type: 'test'
+      ...
+    # Subtest: 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+    ok 2 - 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 12.956958
+      type: 'test'
+      ...
+    # Subtest: 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+    ok 3 - 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 6.512334
+      type: 'test'
+      ...
+# [CONTENT_AUDIT] UPDATE course entity_1793236561712 by anonymous
+    # Subtest: 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+    ok 4 - 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 6.343
+      type: 'test'
+      ...
+# [DevEmailOutbox] Sent to: legacy_1793236561750@example.com | Subject: Legacy FS Outbox Subject | Link: none
+    # Subtest: 5. S3/MinIO compatible client uploads file and generates signed URL
+    ok 5 - 5. S3/MinIO compatible client uploads file and generates signed URL
+      ---
+      duration_ms: 30.898
+      type: 'test'
+      ...
+    # Subtest: 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+    ok 6 - 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+      ---
+      duration_ms: 1.119667
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+  ---
+  duration_ms: 114.319167
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 629.379167

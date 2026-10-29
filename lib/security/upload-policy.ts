@@ -137,11 +137,10 @@ export function validateUploadForStorage(
 }
 
 function isS3Configured(): boolean {
-  return Boolean(
-    process.env.AWS_ACCESS_KEY_ID &&
-      process.env.AWS_SECRET_ACCESS_KEY &&
-      (process.env.AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET)
-  )
+  const hasKey = Boolean(process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY)
+  const hasSecret = Boolean(process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY)
+  const hasBucket = Boolean(process.env.AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || process.env.S3_BUCKET)
+  return Boolean(hasKey && hasSecret && hasBucket)
 }
 
 export interface StoredUpload {

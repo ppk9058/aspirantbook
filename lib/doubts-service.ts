@@ -1,4 +1,27 @@
 import { prisma } from "@/lib/prisma"
+import { isDbPersist } from "@/lib/storage/persist-backend"
+import fs from "fs"
+import path from "path"
+
+const DOUBTS_FILE = path.join(process.cwd(), "data", "doubts.json")
+
+function readDoubtsFs(): StudentDoubt[] {
+  try {
+    if (!fs.existsSync(DOUBTS_FILE)) return []
+    const content = fs.readFileSync(DOUBTS_FILE, "utf-8")
+    return JSON.parse(content)
+  } catch {
+    return []
+  }
+}
+
+function writeDoubtsFs(doubts: StudentDoubt[]): void {
+  const dir = path.dirname(DOUBTS_FILE)
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true })
+  }
+  fs.writeFileSync(DOUBTS_FILE, JSON.stringify(doubts, null, 2), "utf-8")
+}
 
 export interface DoubtAttachment {
   name: string
@@ -88,6 +111,14 @@ export async function getAllDoubts(filter?: {
   status?: "PENDING" | "ANSWERED"
   subject?: string
 }): Promise<StudentDoubt[]> {
+  if (!isDbPersist()) {
+    let list = readDoubtsFs()
+    if (filter?.studentId) list = list.filter((d) => d.studentId === filter.studentId)
+    if (filter?.status) list = list.filter((d) => d.status === filter.status)
+    if (filter?.subject) list = list.filter((d) => d.subject === filter.subject)
+    return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  }
+
   const rows = await prisma.doubt.findMany({
     where: {
       ...(filter?.studentId ? { studentId: filter.studentId } : {}),
@@ -101,6 +132,10 @@ export async function getAllDoubts(filter?: {
 }
 
 export async function getDoubtById(id: string): Promise<StudentDoubt | null> {
+  if (!isDbPersist()) {
+    const list = readDoubtsFs()
+    return list.find((d) => d.id === id) || null
+  }
   const row = await prisma.doubt.findUnique({ where: { id } })
   return row ? toStudentDoubt(row) : null
 }
@@ -114,6 +149,26 @@ export async function createDoubt(data: {
   questionText: string
   attachment?: DoubtAttachment
 }): Promise<StudentDoubt> {
+  if (!isDbPersist()) {
+    const list = readDoubtsFs()
+    const newDoubt: StudentDoubt = {
+      id: `doubt_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      studentId: data.studentId,
+      studentName: data.studentName,
+      studentEmail: data.studentEmail,
+      subject: data.subject,
+      topic: data.topic,
+      questionText: data.questionText,
+      attachment: data.attachment,
+      status: "PENDING",
+      createdAt: new Date().toISOString(),
+      upvotes: 0,
+    }
+    list.unshift(newDoubt)
+    writeDoubtsFs(list)
+    return newDoubt
+  }
+
   // The client sends whatever id is in its session; store the row even when that
   // user no longer exists rather than failing the question outright.
   const student = data.studentId
@@ -145,6 +200,18 @@ export async function answerDoubt(
   teacherName: string,
   answerText: string
 ): Promise<StudentDoubt | null> {
+  if (!isDbPersist()) {
+    const list = readDoubtsFs()
+    const doubt = list.find((d) => d.id === id)
+    if (!doubt) return null
+    doubt.status = "ANSWERED"
+    doubt.teacherName = teacherName
+    doubt.teacherAnswer = answerText
+    doubt.answeredAt = new Date().toISOString()
+    writeDoubtsFs(list)
+    return doubt
+  }
+
   const existing = await prisma.doubt.findUnique({ where: { id }, select: { id: true } })
   if (!existing) return null
 
@@ -162,6 +229,15 @@ export async function answerDoubt(
 }
 
 export async function upvoteDoubt(id: string): Promise<StudentDoubt | null> {
+  if (!isDbPersist()) {
+    const list = readDoubtsFs()
+    const doubt = list.find((d) => d.id === id)
+    if (!doubt) return null
+    doubt.upvotes = (doubt.upvotes || 0) + 1
+    writeDoubtsFs(list)
+    return doubt
+  }
+
   const existing = await prisma.doubt.findUnique({ where: { id }, select: { id: true } })
   if (!existing) return null
 

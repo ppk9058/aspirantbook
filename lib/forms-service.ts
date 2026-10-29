@@ -1,7 +1,30 @@
 import { Prisma } from "@prisma/client"
+import fs from "fs"
+import path from "path"
 
 import { prisma } from "@/lib/prisma"
+import { isDbPersist } from "@/lib/storage/persist-backend"
 import { FormField, FormDefinition, FormSubmission, FORM_DEFINITIONS } from "./forms-config"
+
+const FORMS_FILE = path.join(process.cwd(), "data", "form-submissions.json")
+
+function readFormsFs(): FormSubmission[] {
+  try {
+    if (!fs.existsSync(FORMS_FILE)) return []
+    const content = fs.readFileSync(FORMS_FILE, "utf-8")
+    return JSON.parse(content)
+  } catch {
+    return []
+  }
+}
+
+function writeFormsFs(submissions: FormSubmission[]): void {
+  const dir = path.dirname(FORMS_FILE)
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true })
+  }
+  fs.writeFileSync(FORMS_FILE, JSON.stringify(submissions, null, 2), "utf-8")
+}
 
 export type { FormField, FormDefinition, FormSubmission }
 export { FORM_DEFINITIONS }
@@ -21,6 +44,13 @@ export async function getFormSubmissions(filter?: {
   formSlug?: string
   userId?: string
 }): Promise<FormSubmission[]> {
+  if (!isDbPersist()) {
+    let list = readFormsFs()
+    if (filter?.formSlug) list = list.filter((s) => s.formSlug === filter.formSlug)
+    if (filter?.userId) list = list.filter((s) => s.userId === filter.userId)
+    return list.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+  }
+
   const rows = await prisma.formSubmission.findMany({
     where: {
       ...(filter?.formSlug ? { formSlug: filter.formSlug } : {}),
@@ -53,6 +83,25 @@ export async function createFormSubmission(data: {
   attachmentUrl?: string
   attachmentName?: string
 }): Promise<FormSubmission> {
+  if (!isDbPersist()) {
+    const list = readFormsFs()
+    const submission: FormSubmission = {
+      id: `sub_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      formSlug: data.formSlug,
+      userId: data.userId,
+      userName: data.userName,
+      userEmail: data.userEmail,
+      data: data.formData ?? {},
+      attachmentUrl: data.attachmentUrl,
+      attachmentName: data.attachmentName,
+      status: "SUBMITTED",
+      submittedAt: new Date().toISOString(),
+    }
+    list.unshift(submission)
+    writeFormsFs(list)
+    return submission
+  }
+
   const user = data.userId
     ? await prisma.user.findUnique({ where: { id: data.userId }, select: { id: true } })
     : null

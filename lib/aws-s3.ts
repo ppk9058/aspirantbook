@@ -6,6 +6,8 @@ interface S3Config {
     bucketName: string
     accessKeyId: string
     secretAccessKey: string
+    endpoint?: string
+    forcePathStyle?: boolean
 }
 
 /**
@@ -13,21 +15,29 @@ interface S3Config {
  * required environment variable is missing (instead of crashing on a non-null assertion).
  */
 function getS3Config(): S3Config {
-    const accessKeyId = process.env.AWS_ACCESS_KEY_ID
-    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
-    const bucketName = process.env.AWS_S3_BUCKET_NAME
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY
+    const bucketName = process.env.AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || process.env.S3_BUCKET
 
     if (!accessKeyId || !secretAccessKey || !bucketName) {
         throw new Error(
-            "S3 is not configured: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_S3_BUCKET_NAME are required"
+            "S3 is not configured: AWS_ACCESS_KEY_ID (or S3_ACCESS_KEY), AWS_SECRET_ACCESS_KEY (or S3_SECRET_KEY) and AWS_S3_BUCKET_NAME (or S3_BUCKET) are required"
         )
     }
 
+    const endpoint = process.env.S3_ENDPOINT || process.env.AWS_ENDPOINT
+    const forcePathStyle =
+        process.env.S3_FORCE_PATH_STYLE === "true" ||
+        process.env.AWS_S3_FORCE_PATH_STYLE === "true" ||
+        Boolean(endpoint && (endpoint.includes("127.0.0.1") || endpoint.includes("localhost")))
+
     return {
-        region: process.env.AWS_REGION || "us-east-1",
+        region: process.env.AWS_REGION || process.env.S3_REGION || "us-east-1",
         bucketName,
         accessKeyId,
         secretAccessKey,
+        endpoint,
+        forcePathStyle,
     }
 }
 
@@ -38,6 +48,16 @@ function getS3Client(): S3Client {
         const config = getS3Config()
         s3Client = new S3Client({
             region: config.region,
+            endpoint: config.endpoint,
+            forcePathStyle: config.forcePathStyle,
+            credentials: {
+                accessKeyId: config.accessKeyId,
+                secretAccessKey: config.secretAccessKey,
+            },
+        })
+    }
+    return s3Client
+}
             credentials: {
                 accessKeyId: config.accessKeyId,
                 secretAccessKey: config.secretAccessKey,

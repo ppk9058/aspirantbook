@@ -3,6 +3,12 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { buildAuditDedupeKey } from "@/lib/audit/audit-event-key"
+import { isDbPersist } from "@/lib/storage/persist-backend"
+import fs from "fs"
+import path from "path"
+
+const AUDIT_DIR = path.join(process.cwd(), ".content-audit")
+const AUDIT_FILE = path.join(AUDIT_DIR, "audit-events.jsonl")
 import type {
     AuditAction,
     AuditEntityType,
@@ -54,6 +60,18 @@ export async function logContentAudit({
             details,
         }
 
+        if (!isDbPersist()) {
+            try {
+                if (!fs.existsSync(AUDIT_DIR)) fs.mkdirSync(AUDIT_DIR, { recursive: true })
+                fs.appendFileSync(AUDIT_FILE, JSON.stringify(event) + "\n", "utf-8")
+                console.log(`[CONTENT_AUDIT_FS] ${action} ${entityType} ${entityId} by ${event.userEmail}`)
+                return { success: true as const }
+            } catch (fsErr) {
+                console.error("Failed to append to legacy audit-events.jsonl:", fsErr)
+                return { success: false as const }
+            }
+        }
+
         await prisma.auditEvent.create({
             data: {
                 dedupeKey: buildAuditDedupeKey(event),
@@ -98,6 +116,27 @@ export async function getRecentAuditEvents(
 
     const take = Math.min(Math.max(1, options.limit ?? 20), MAX_AUDIT_PAGE_SIZE)
     const skip = Math.max(0, options.offset ?? 0)
+
+    if (!isDbPersist()) {
+        try {
+            if (!fs.existsSync(AUDIT_FILE)) return []
+            const content = fs.readFileSync(AUDIT_FILE, "utf-8").trim()
+            if (!content) return []
+            const lines = content.split("\n").filter(Boolean)
+            let events: ContentAuditEvent[] = []
+            for (let i = lines.length - 1; i >= 0; i--) {
+                try {
+                    const parsed = JSON.parse(lines[i])
+                    if (options.entityType && parsed.entityType !== options.entityType) continue
+                    if (options.entityId && parsed.entityId !== options.entityId) continue
+                    events.push(parsed)
+                } catch {}
+            }
+            return events.slice(skip, skip + take)
+        } catch {
+            return []
+        }
+    }
 
     try {
         const rows = await prisma.auditEvent.findMany({

@@ -1738,3 +1738,51 @@ model FormSubmission {
   @@index([submittedAt])
   @@index([formSlug, submittedAt])
 }
+
+/// B3 / B7: Email outbox stored in Postgres when PERSIST_BACKEND=db.
+model EmailOutbox {
+  id        String    @id @default(cuid())
+  to        String
+  subject   String
+  html      String?
+  text      String?
+  link      String?
+  token     String?
+  status    String    @default("PENDING") // PENDING, SENT, FAILED
+  provider  String?   // brevo, resend, smtp, dev
+  error     String?
+  attempts  Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sentAt    DateTime?
+
+  @@index([status, createdAt])
+  @@index([to])
+}
+
+/// B5: Razorpay webhook idempotency event tracking table.
+model RazorpayWebhookEvent {
+  id          String   @id @default(cuid())
+  eventId     String   @unique
+  eventType   String
+  payload     Json
+  processedAt DateTime @default(now())
+
+  @@index([eventType])
+}
+
+/// B6: User data deletion requests for privacy and regulatory compliance.
+model DataDeletionRequest {
+  id          String    @id @default(cuid())
+  userId      String?
+  email       String
+  reason      String?
+  status      String    @default("PENDING") // PENDING, PROCESSING, COMPLETED, REJECTED
+  requestedAt DateTime  @default(now())
+  processedAt DateTime?
+  adminNotes  String?
+
+  @@index([status])
+  @@index([email])
+}
+

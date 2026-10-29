@@ -6,16 +6,33 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
-// Initialize S3 client
-const s3Client = new S3Client({
-    region: process.env.AWS_REGION || 'us-east-1',
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-    },
-})
+// Lazily resolve S3 client with S3 / MinIO compatibility
+export function getS3Client(): S3Client {
+    const s3Endpoint = process.env.S3_ENDPOINT || process.env.AWS_ENDPOINT
+    const s3ForcePathStyle =
+        process.env.S3_FORCE_PATH_STYLE === 'true' ||
+        process.env.AWS_S3_FORCE_PATH_STYLE === 'true' ||
+        Boolean(s3Endpoint && (s3Endpoint.includes('127.0.0.1') || s3Endpoint.includes('localhost')))
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || 'aspirantbook-uploads'
+    return new S3Client({
+        region: process.env.AWS_REGION || process.env.S3_REGION || 'us-east-1',
+        endpoint: s3Endpoint || undefined,
+        forcePathStyle: s3ForcePathStyle,
+        credentials: {
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY || '',
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY || '',
+        },
+    })
+}
+
+export function getBucketName(): string {
+    return (
+        process.env.AWS_S3_BUCKET_NAME ||
+        process.env.AWS_S3_BUCKET ||
+        process.env.S3_BUCKET ||
+        'aspirantbook-uploads'
+    )
+}
 
 // File type configurations
 export const FILE_CONFIGS = {
@@ -74,22 +91,31 @@ export async function uploadToS3(
     const key = customPath || `${config.folder}/${timestamp}-${randomString}-${fileName}`
 
     try {
+        const client = getS3Client()
+        const bucketName = getBucketName()
+        const s3Endpoint = process.env.S3_ENDPOINT || process.env.AWS_ENDPOINT
+        const s3ForcePathStyle =
+            process.env.S3_FORCE_PATH_STYLE === 'true' ||
+            process.env.AWS_S3_FORCE_PATH_STYLE === 'true' ||
+            Boolean(s3Endpoint && (s3Endpoint.includes('127.0.0.1') || s3Endpoint.includes('localhost')))
+
         // Convert File to Buffer
         const buffer = Buffer.from(await file.arrayBuffer())
 
         const command = new PutObjectCommand({
-            Bucket: BUCKET_NAME,
+            Bucket: bucketName,
             Key: key,
             Body: buffer,
             ContentType: file.type,
-            // Make files publicly readable (optional, remove if you want private files)
-            // ACL: 'public-read',
         })
 
-        await s3Client.send(command)
+        await client.send(command)
 
         // Construct URL
-        const url = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`
+        const region = process.env.AWS_REGION || process.env.S3_REGION || 'us-east-1'
+        const url = s3Endpoint
+            ? (s3ForcePathStyle ? `${s3Endpoint}/${bucketName}/${key}` : `https://${bucketName}.${new URL(s3Endpoint).host}/${key}`)
+            : `https://${bucketName}.s3.${region}.amazonaws.com/${key}`
 
         return { url, key }
     } catch (error) {
@@ -99,16 +125,31 @@ export async function uploadToS3(
 }
 
 /**
+ * Get a presigned download URL for private files
+ */
+export async function getPrivateFileSignedUrl(key: string, expiresIn = 3600): Promise<string> {
+    const client = getS3Client()
+    const bucketName = getBucketName()
+    const command = new GetObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+    })
+    return getSignedUrl(client, command, { expiresIn })
+}
+
+/**
  * Delete a file from S3
  */
 export async function deleteFromS3(key: string): Promise<void> {
     try {
+        const client = getS3Client()
+        const bucketName = getBucketName()
         const command = new DeleteObjectCommand({
-            Bucket: BUCKET_NAME,
+            Bucket: bucketName,
             Key: key,
         })
 
-        await s3Client.send(command)
+        await client.send(command)
     } catch (error) {
         console.error('S3 delete error:', error)
         throw new Error('Failed to delete file from S3')
@@ -175,4 +216,10 @@ export function extractS3Key(url: string): string | null {
     }
 }
 
-export default s3Client
+const s3ClientProxy = new Proxy({} as S3Client, {
+    get(_target, prop) {
+        return (getS3Client() as any)[prop]
+    },
+})
+
+export default s3ClientProxy
