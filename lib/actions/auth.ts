@@ -16,7 +16,7 @@ import {
     consumePasswordResetToken,
     sendPasswordChangedEmail,
 } from "@/lib/auth/tokens"
-import { checkRateLimit } from "@/lib/rate-limit"
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
 
 const RegisterSchema = z.object({
@@ -53,10 +53,7 @@ export async function register(prevState: any, formData: FormData) {
     try {
         const { headers } = await import("next/headers")
         const h = await headers()
-        clientIp =
-            h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-            h.get("x-real-ip")?.trim() ||
-            "127.0.0.1"
+        clientIp = getClientIp(h)
     } catch {
         clientIp = "127.0.0.1"
     }
@@ -192,10 +189,7 @@ export async function resendVerificationEmailAction(prevState: any, formData: Fo
     try {
         const { headers } = await import("next/headers")
         const h = await headers()
-        clientIp =
-            h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-            h.get("x-real-ip")?.trim() ||
-            "127.0.0.1"
+        clientIp = getClientIp(h)
     } catch {
         clientIp = "127.0.0.1"
     }
@@ -251,10 +245,7 @@ export async function requestPasswordResetAction(prevState: any, formData: FormD
     try {
         const { headers } = await import("next/headers")
         const h = await headers()
-        clientIp =
-            h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-            h.get("x-real-ip")?.trim() ||
-            "127.0.0.1"
+        clientIp = getClientIp(h)
     } catch {
         clientIp = "127.0.0.1"
     }

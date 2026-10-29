@@ -1,5 +1,6 @@
 import dns from "dns"
 import { promisify } from "util"
+import { getClientIp } from "@/lib/rate-limit"
 
 const reverseDns = promisify(dns.reverse)
 const lookupDns = promisify(dns.lookup)
@@ -69,10 +70,7 @@ export async function isVerifiedSearchEngineCrawler(
 
   if (inputOrUa && typeof inputOrUa.get === "function") {
     userAgent = inputOrUa.get("user-agent") || inputOrUa.get("User-Agent")
-    clientIp =
-      inputOrUa.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      inputOrUa.get("x-real-ip") ||
-      "127.0.0.1"
+    clientIp = getClientIp(inputOrUa as any)
   } else if (typeof inputOrUa === "string") {
     userAgent = inputOrUa
     clientIp = ip || "127.0.0.1"

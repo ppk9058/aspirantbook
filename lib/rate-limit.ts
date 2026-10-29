@@ -2,6 +2,7 @@ import { prisma } from "./prisma";
 import { isExamRedisRateLimitEnabled } from "./exam-flags";
 import { redis } from "./redis";
 import crypto from "crypto";
+import net from "net";
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -35,8 +36,9 @@ const IPV6_RE = /^(?=.*:)[0-9a-fA-F:]+$/;
  */
 export function normalizeIp(raw: string | null | undefined): string | null {
   if (!raw) return null;
+  if (typeof raw !== "string" || raw.length > 256) return null;
   let value = raw.trim().replace(/^"(.*)"$/, "$1").trim();
-  if (!value) return null;
+  if (!value || value.length > 256) return null;
 
   // [::1] or [::1]:443
   if (value.startsWith("[")) {
@@ -52,8 +54,20 @@ export function normalizeIp(raw: string | null | undefined): string | null {
   const mapped = value.match(/^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/i);
   if (mapped) value = mapped[1];
 
-  if (IPV4_RE.test(value)) return value;
-  if (IPV6_RE.test(value)) return value.toLowerCase();
+  const ipType = net.isIP(value);
+  if (ipType === 4) return value;
+  if (ipType === 6) return value.toLowerCase();
+  return null;
+}
+
+function extractHeaders(req?: Request | { headers: Headers } | Headers): Headers | null {
+  if (!req) return null;
+  if ("get" in req && typeof (req as any).get === "function") {
+    return req as Headers;
+  }
+  if ("headers" in req && req.headers && typeof (req.headers as any).get === "function") {
+    return req.headers as Headers;
+  }
   return null;
 }
 
@@ -61,45 +75,46 @@ export function normalizeIp(raw: string | null | undefined): string | null {
  * Safely extract the client IP.
  *
  * Forwarded headers are only read when TRUST_PROXY=true, and the value is taken
- * from the right of the X-Forwarded-For chain based on TRUST_PROXY_HOPS (the
- * number of proxies we control, default 1). Taking the right-most trusted hop
- * rather than the left-most entry means a client cannot spoof its address by
- * sending its own X-Forwarded-For: the trusted proxy appends the real peer and
- * our read position excludes the client-supplied prefix.
+ * from CF-Connecting-IP (validated) or the right of the X-Forwarded-For chain
+ * based on TRUST_PROXY_HOPS. When TRUST_PROXY=false, all forwarding headers are
+ * strictly ignored to prevent IP spoofing attacks.
  */
-export function getClientIp(req: Request | { headers: Headers }): string {
+export function getClientIp(req?: Request | { headers: Headers } | Headers): string {
   const isTrustedProxy = process.env.TRUST_PROXY === "true";
 
-  if (process.env.NODE_ENV === "production" && !isTrustedProxy && !hasWarnedProxy) {
-    console.warn(
-      "[RateLimit] TRUST_PROXY is not set to 'true'. Client IP will default to 127.0.0.1. Set TRUST_PROXY=true (and TRUST_PROXY_HOPS) when running behind Nginx/Cloudflare/AWS ALB."
-    );
-    hasWarnedProxy = true;
+  if (!isTrustedProxy) {
+    // Hardening: strictly ignore all forwarding headers when TRUST_PROXY is false
+    return "127.0.0.1";
   }
 
-  if (isTrustedProxy) {
-    const cfIp = normalizeIp(req.headers.get("cf-connecting-ip"));
-    if (cfIp) return cfIp;
-
-    const hops = Math.max(
-      1,
-      Number.parseInt(process.env.TRUST_PROXY_HOPS ?? "1", 10) || 1
-    );
-
-    const forwarded = req.headers.get("x-forwarded-for");
-    if (forwarded) {
-      const chain = forwarded
-        .split(",")
-        .map((entry) => entry.trim())
-        .filter(Boolean);
-      // chain[len - hops]: the address the outermost trusted proxy saw.
-      const candidate = normalizeIp(chain[chain.length - hops]);
-      if (candidate) return candidate;
-    }
-
-    const realIp = normalizeIp(req.headers.get("x-real-ip"));
-    if (realIp) return realIp;
+  const headers = extractHeaders(req);
+  if (!headers) {
+    return "127.0.0.1";
   }
+
+  // 1. CF-Connecting-IP (strictly validated as an IP)
+  const cfIp = normalizeIp(headers.get("cf-connecting-ip"));
+  if (cfIp) return cfIp;
+
+  // 2. Safe right-most trusted hop of X-Forwarded-For
+  const hops = Math.max(
+    1,
+    Number.parseInt(process.env.TRUST_PROXY_HOPS ?? "1", 10) || 1
+  );
+
+  const forwarded = headers.get("x-forwarded-for");
+  if (forwarded) {
+    const chain = forwarded
+      .split(",")
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+    const candidate = normalizeIp(chain[chain.length - hops]);
+    if (candidate) return candidate;
+  }
+
+  // 3. X-Real-IP fallback
+  const realIp = normalizeIp(headers.get("x-real-ip"));
+  if (realIp) return realIp;
 
   return "127.0.0.1";
 }

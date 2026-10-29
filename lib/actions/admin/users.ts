@@ -6,16 +6,13 @@ import { revalidatePath } from "next/cache"
 import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/auth/tokens"
 import bcrypt from "bcryptjs"
 import { MAX_CSV_USERS, csvCell } from "@/lib/admin/csv"
+import { getClientIp as getSafeClientIp } from "@/lib/rate-limit"
 
 async function getClientIp(): Promise<string> {
     try {
         const { headers } = await import("next/headers")
         const h = await headers()
-        return (
-            h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-            h.get("x-real-ip")?.trim() ||
-            "127.0.0.1"
-        )
+        return getSafeClientIp(h)
     } catch {
         return "127.0.0.1"
     }

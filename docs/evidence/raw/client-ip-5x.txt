@@ -1,0 +1,648 @@
+=== TASK B4: CLIENT IP / TRUST_PROXY 5X RUN ===
+Git SHA: a8507f91a49a563274ca8e0373edfe6facd94599
+Timestamp: 2026-10-29T01:22:32Z
+--- RUN 1 ---
+TAP version 13
+# Subtest: Task B4: Client IP / TRUST_PROXY Hardening
+    # Subtest: normalizeIp
+        # Subtest: accepts valid IPv4 addresses
+        ok 1 - accepts valid IPv4 addresses
+          ---
+          duration_ms: 13.2655
+          type: 'test'
+          ...
+        # Subtest: accepts valid IPv6 addresses in canonical form
+        ok 2 - accepts valid IPv6 addresses in canonical form
+          ---
+          duration_ms: 4.932875
+          type: 'test'
+          ...
+        # Subtest: normalizes bracketed and port-annotated IPs
+        ok 3 - normalizes bracketed and port-annotated IPs
+          ---
+          duration_ms: 0.471625
+          type: 'test'
+          ...
+        # Subtest: extracts IPv4 from IPv4-mapped IPv6
+        ok 4 - extracts IPv4 from IPv4-mapped IPv6
+          ---
+          duration_ms: 0.371541
+          type: 'test'
+          ...
+        # Subtest: rejects malicious or invalid strings
+        ok 5 - rejects malicious or invalid strings
+          ---
+          duration_ms: 0.170292
+          type: 'test'
+          ...
+        1..5
+    ok 1 - normalizeIp
+      ---
+      duration_ms: 20.107375
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=false (Default - Fail Closed)
+        # Subtest: ignores spoofed X-Forwarded-For headers
+        ok 1 - ignores spoofed X-Forwarded-For headers
+          ---
+          duration_ms: 19.121458
+          type: 'test'
+          ...
+        # Subtest: ignores CF-Connecting-IP header
+        ok 2 - ignores CF-Connecting-IP header
+          ---
+          duration_ms: 0.295291
+          type: 'test'
+          ...
+        # Subtest: ignores X-Real-IP header
+        ok 3 - ignores X-Real-IP header
+          ---
+          duration_ms: 0.393916
+          type: 'test'
+          ...
+        # Subtest: returns 127.0.0.1 when no request is passed
+        ok 4 - returns 127.0.0.1 when no request is passed
+          ---
+          duration_ms: 0.272
+          type: 'test'
+          ...
+        1..4
+    ok 2 - TRUST_PROXY=false (Default - Fail Closed)
+      ---
+      duration_ms: 23.477875
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+        # Subtest: prioritizes valid CF-Connecting-IP over other headers
+        ok 1 - prioritizes valid CF-Connecting-IP over other headers
+          ---
+          duration_ms: 0.598042
+          type: 'test'
+          ...
+        # Subtest: rejects malicious CF-Connecting-IP and falls back safely
+        ok 2 - rejects malicious CF-Connecting-IP and falls back safely
+          ---
+          duration_ms: 0.229333
+          type: 'test'
+          ...
+        # Subtest: extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+        ok 3 - extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+          ---
+          duration_ms: 0.323833
+          type: 'test'
+          ...
+        # Subtest: extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+        ok 4 - extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+          ---
+          duration_ms: 0.188583
+          type: 'test'
+          ...
+        # Subtest: falls back to X-Real-IP if X-Forwarded-For is missing
+        ok 5 - falls back to X-Real-IP if X-Forwarded-For is missing
+          ---
+          duration_ms: 0.243333
+          type: 'test'
+          ...
+        # Subtest: handles standard Request object and Next.js { headers } container
+        ok 6 - handles standard Request object and Next.js { headers } container
+          ---
+          duration_ms: 1.325958
+          type: 'test'
+          ...
+        1..6
+    ok 3 - TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+      ---
+      duration_ms: 3.092584
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task B4: Client IP / TRUST_PROXY Hardening
+  ---
+  duration_ms: 47.245541
+  type: 'suite'
+  ...
+1..1
+# tests 15
+# suites 4
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 344.532875
+--- RUN 2 ---
+TAP version 13
+# Subtest: Task B4: Client IP / TRUST_PROXY Hardening
+    # Subtest: normalizeIp
+        # Subtest: accepts valid IPv4 addresses
+        ok 1 - accepts valid IPv4 addresses
+          ---
+          duration_ms: 14.136792
+          type: 'test'
+          ...
+        # Subtest: accepts valid IPv6 addresses in canonical form
+        ok 2 - accepts valid IPv6 addresses in canonical form
+          ---
+          duration_ms: 5.691291
+          type: 'test'
+          ...
+        # Subtest: normalizes bracketed and port-annotated IPs
+        ok 3 - normalizes bracketed and port-annotated IPs
+          ---
+          duration_ms: 0.55125
+          type: 'test'
+          ...
+        # Subtest: extracts IPv4 from IPv4-mapped IPv6
+        ok 4 - extracts IPv4 from IPv4-mapped IPv6
+          ---
+          duration_ms: 0.409
+          type: 'test'
+          ...
+        # Subtest: rejects malicious or invalid strings
+        ok 5 - rejects malicious or invalid strings
+          ---
+          duration_ms: 0.192709
+          type: 'test'
+          ...
+        1..5
+    ok 1 - normalizeIp
+      ---
+      duration_ms: 21.96075
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=false (Default - Fail Closed)
+        # Subtest: ignores spoofed X-Forwarded-For headers
+        ok 1 - ignores spoofed X-Forwarded-For headers
+          ---
+          duration_ms: 16.390833
+          type: 'test'
+          ...
+        # Subtest: ignores CF-Connecting-IP header
+        ok 2 - ignores CF-Connecting-IP header
+          ---
+          duration_ms: 0.393833
+          type: 'test'
+          ...
+        # Subtest: ignores X-Real-IP header
+        ok 3 - ignores X-Real-IP header
+          ---
+          duration_ms: 3.150667
+          type: 'test'
+          ...
+        # Subtest: returns 127.0.0.1 when no request is passed
+        ok 4 - returns 127.0.0.1 when no request is passed
+          ---
+          duration_ms: 0.346791
+          type: 'test'
+          ...
+        1..4
+    ok 2 - TRUST_PROXY=false (Default - Fail Closed)
+      ---
+      duration_ms: 20.747792
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+        # Subtest: prioritizes valid CF-Connecting-IP over other headers
+        ok 1 - prioritizes valid CF-Connecting-IP over other headers
+          ---
+          duration_ms: 0.431209
+          type: 'test'
+          ...
+        # Subtest: rejects malicious CF-Connecting-IP and falls back safely
+        ok 2 - rejects malicious CF-Connecting-IP and falls back safely
+          ---
+          duration_ms: 0.197375
+          type: 'test'
+          ...
+        # Subtest: extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+        ok 3 - extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+          ---
+          duration_ms: 0.268
+          type: 'test'
+          ...
+        # Subtest: extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+        ok 4 - extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+          ---
+          duration_ms: 0.172875
+          type: 'test'
+          ...
+        # Subtest: falls back to X-Real-IP if X-Forwarded-For is missing
+        ok 5 - falls back to X-Real-IP if X-Forwarded-For is missing
+          ---
+          duration_ms: 0.235333
+          type: 'test'
+          ...
+        # Subtest: handles standard Request object and Next.js { headers } container
+        ok 6 - handles standard Request object and Next.js { headers } container
+          ---
+          duration_ms: 1.181917
+          type: 'test'
+          ...
+        1..6
+    ok 3 - TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+      ---
+      duration_ms: 2.621417
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task B4: Client IP / TRUST_PROXY Hardening
+  ---
+  duration_ms: 45.760666
+  type: 'suite'
+  ...
+1..1
+# tests 15
+# suites 4
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 362.718917
+--- RUN 3 ---
+TAP version 13
+# Subtest: Task B4: Client IP / TRUST_PROXY Hardening
+    # Subtest: normalizeIp
+        # Subtest: accepts valid IPv4 addresses
+        ok 1 - accepts valid IPv4 addresses
+          ---
+          duration_ms: 19.313208
+          type: 'test'
+          ...
+        # Subtest: accepts valid IPv6 addresses in canonical form
+        ok 2 - accepts valid IPv6 addresses in canonical form
+          ---
+          duration_ms: 7.471791
+          type: 'test'
+          ...
+        # Subtest: normalizes bracketed and port-annotated IPs
+        ok 3 - normalizes bracketed and port-annotated IPs
+          ---
+          duration_ms: 0.676458
+          type: 'test'
+          ...
+        # Subtest: extracts IPv4 from IPv4-mapped IPv6
+        ok 4 - extracts IPv4 from IPv4-mapped IPv6
+          ---
+          duration_ms: 0.541208
+          type: 'test'
+          ...
+        # Subtest: rejects malicious or invalid strings
+        ok 5 - rejects malicious or invalid strings
+          ---
+          duration_ms: 0.255458
+          type: 'test'
+          ...
+        1..5
+    ok 1 - normalizeIp
+      ---
+      duration_ms: 29.605
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=false (Default - Fail Closed)
+        # Subtest: ignores spoofed X-Forwarded-For headers
+        ok 1 - ignores spoofed X-Forwarded-For headers
+          ---
+          duration_ms: 21.138125
+          type: 'test'
+          ...
+        # Subtest: ignores CF-Connecting-IP header
+        ok 2 - ignores CF-Connecting-IP header
+          ---
+          duration_ms: 0.44025
+          type: 'test'
+          ...
+        # Subtest: ignores X-Real-IP header
+        ok 3 - ignores X-Real-IP header
+          ---
+          duration_ms: 3.814041
+          type: 'test'
+          ...
+        # Subtest: returns 127.0.0.1 when no request is passed
+        ok 4 - returns 127.0.0.1 when no request is passed
+          ---
+          duration_ms: 0.47825
+          type: 'test'
+          ...
+        1..4
+    ok 2 - TRUST_PROXY=false (Default - Fail Closed)
+      ---
+      duration_ms: 26.6865
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+        # Subtest: prioritizes valid CF-Connecting-IP over other headers
+        ok 1 - prioritizes valid CF-Connecting-IP over other headers
+          ---
+          duration_ms: 0.591917
+          type: 'test'
+          ...
+        # Subtest: rejects malicious CF-Connecting-IP and falls back safely
+        ok 2 - rejects malicious CF-Connecting-IP and falls back safely
+          ---
+          duration_ms: 0.275208
+          type: 'test'
+          ...
+        # Subtest: extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+        ok 3 - extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+          ---
+          duration_ms: 0.364042
+          type: 'test'
+          ...
+        # Subtest: extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+        ok 4 - extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+          ---
+          duration_ms: 0.245625
+          type: 'test'
+          ...
+        # Subtest: falls back to X-Real-IP if X-Forwarded-For is missing
+        ok 5 - falls back to X-Real-IP if X-Forwarded-For is missing
+          ---
+          duration_ms: 0.326125
+          type: 'test'
+          ...
+        # Subtest: handles standard Request object and Next.js { headers } container
+        ok 6 - handles standard Request object and Next.js { headers } container
+          ---
+          duration_ms: 1.690125
+          type: 'test'
+          ...
+        1..6
+    ok 3 - TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+      ---
+      duration_ms: 3.687125
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task B4: Client IP / TRUST_PROXY Hardening
+  ---
+  duration_ms: 60.578208
+  type: 'suite'
+  ...
+1..1
+# tests 15
+# suites 4
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 456.176
+--- RUN 4 ---
+TAP version 13
+# Subtest: Task B4: Client IP / TRUST_PROXY Hardening
+    # Subtest: normalizeIp
+        # Subtest: accepts valid IPv4 addresses
+        ok 1 - accepts valid IPv4 addresses
+          ---
+          duration_ms: 12.174792
+          type: 'test'
+          ...
+        # Subtest: accepts valid IPv6 addresses in canonical form
+        ok 2 - accepts valid IPv6 addresses in canonical form
+          ---
+          duration_ms: 4.771917
+          type: 'test'
+          ...
+        # Subtest: normalizes bracketed and port-annotated IPs
+        ok 3 - normalizes bracketed and port-annotated IPs
+          ---
+          duration_ms: 0.447083
+          type: 'test'
+          ...
+        # Subtest: extracts IPv4 from IPv4-mapped IPv6
+        ok 4 - extracts IPv4 from IPv4-mapped IPv6
+          ---
+          duration_ms: 0.367166
+          type: 'test'
+          ...
+        # Subtest: rejects malicious or invalid strings
+        ok 5 - rejects malicious or invalid strings
+          ---
+          duration_ms: 0.16875
+          type: 'test'
+          ...
+        1..5
+    ok 1 - normalizeIp
+      ---
+      duration_ms: 18.798625
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=false (Default - Fail Closed)
+        # Subtest: ignores spoofed X-Forwarded-For headers
+        ok 1 - ignores spoofed X-Forwarded-For headers
+          ---
+          duration_ms: 14.352709
+          type: 'test'
+          ...
+        # Subtest: ignores CF-Connecting-IP header
+        ok 2 - ignores CF-Connecting-IP header
+          ---
+          duration_ms: 0.317667
+          type: 'test'
+          ...
+        # Subtest: ignores X-Real-IP header
+        ok 3 - ignores X-Real-IP header
+          ---
+          duration_ms: 2.325209
+          type: 'test'
+          ...
+        # Subtest: returns 127.0.0.1 when no request is passed
+        ok 4 - returns 127.0.0.1 when no request is passed
+          ---
+          duration_ms: 0.300542
+          type: 'test'
+          ...
+        1..4
+    ok 2 - TRUST_PROXY=false (Default - Fail Closed)
+      ---
+      duration_ms: 17.731167
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+        # Subtest: prioritizes valid CF-Connecting-IP over other headers
+        ok 1 - prioritizes valid CF-Connecting-IP over other headers
+          ---
+          duration_ms: 0.390042
+          type: 'test'
+          ...
+        # Subtest: rejects malicious CF-Connecting-IP and falls back safely
+        ok 2 - rejects malicious CF-Connecting-IP and falls back safely
+          ---
+          duration_ms: 0.188875
+          type: 'test'
+          ...
+        # Subtest: extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+        ok 3 - extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+          ---
+          duration_ms: 0.237875
+          type: 'test'
+          ...
+        # Subtest: extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+        ok 4 - extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+          ---
+          duration_ms: 0.153209
+          type: 'test'
+          ...
+        # Subtest: falls back to X-Real-IP if X-Forwarded-For is missing
+        ok 5 - falls back to X-Real-IP if X-Forwarded-For is missing
+          ---
+          duration_ms: 0.21
+          type: 'test'
+          ...
+        # Subtest: handles standard Request object and Next.js { headers } container
+        ok 6 - handles standard Request object and Next.js { headers } container
+          ---
+          duration_ms: 1.057125
+          type: 'test'
+          ...
+        1..6
+    ok 3 - TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+      ---
+      duration_ms: 2.361042
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task B4: Client IP / TRUST_PROXY Hardening
+  ---
+  duration_ms: 39.29225
+  type: 'suite'
+  ...
+1..1
+# tests 15
+# suites 4
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 361.782042
+--- RUN 5 ---
+TAP version 13
+# Subtest: Task B4: Client IP / TRUST_PROXY Hardening
+    # Subtest: normalizeIp
+        # Subtest: accepts valid IPv4 addresses
+        ok 1 - accepts valid IPv4 addresses
+          ---
+          duration_ms: 13.516583
+          type: 'test'
+          ...
+        # Subtest: accepts valid IPv6 addresses in canonical form
+        ok 2 - accepts valid IPv6 addresses in canonical form
+          ---
+          duration_ms: 4.966042
+          type: 'test'
+          ...
+        # Subtest: normalizes bracketed and port-annotated IPs
+        ok 3 - normalizes bracketed and port-annotated IPs
+          ---
+          duration_ms: 0.464208
+          type: 'test'
+          ...
+        # Subtest: extracts IPv4 from IPv4-mapped IPv6
+        ok 4 - extracts IPv4 from IPv4-mapped IPv6
+          ---
+          duration_ms: 0.360791
+          type: 'test'
+          ...
+        # Subtest: rejects malicious or invalid strings
+        ok 5 - rejects malicious or invalid strings
+          ---
+          duration_ms: 0.179084
+          type: 'test'
+          ...
+        1..5
+    ok 1 - normalizeIp
+      ---
+      duration_ms: 20.380708
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=false (Default - Fail Closed)
+        # Subtest: ignores spoofed X-Forwarded-For headers
+        ok 1 - ignores spoofed X-Forwarded-For headers
+          ---
+          duration_ms: 14.292167
+          type: 'test'
+          ...
+        # Subtest: ignores CF-Connecting-IP header
+        ok 2 - ignores CF-Connecting-IP header
+          ---
+          duration_ms: 0.242333
+          type: 'test'
+          ...
+        # Subtest: ignores X-Real-IP header
+        ok 3 - ignores X-Real-IP header
+          ---
+          duration_ms: 0.408042
+          type: 'test'
+          ...
+        # Subtest: returns 127.0.0.1 when no request is passed
+        ok 4 - returns 127.0.0.1 when no request is passed
+          ---
+          duration_ms: 0.345459
+          type: 'test'
+          ...
+        1..4
+    ok 2 - TRUST_PROXY=false (Default - Fail Closed)
+      ---
+      duration_ms: 15.638333
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+        # Subtest: prioritizes valid CF-Connecting-IP over other headers
+        ok 1 - prioritizes valid CF-Connecting-IP over other headers
+          ---
+          duration_ms: 0.483
+          type: 'test'
+          ...
+        # Subtest: rejects malicious CF-Connecting-IP and falls back safely
+        ok 2 - rejects malicious CF-Connecting-IP and falls back safely
+          ---
+          duration_ms: 2.576458
+          type: 'test'
+          ...
+        # Subtest: extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+        ok 3 - extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+          ---
+          duration_ms: 0.382958
+          type: 'test'
+          ...
+        # Subtest: extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+        ok 4 - extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+          ---
+          duration_ms: 0.1755
+          type: 'test'
+          ...
+        # Subtest: falls back to X-Real-IP if X-Forwarded-For is missing
+        ok 5 - falls back to X-Real-IP if X-Forwarded-For is missing
+          ---
+          duration_ms: 0.217583
+          type: 'test'
+          ...
+        # Subtest: handles standard Request object and Next.js { headers } container
+        ok 6 - handles standard Request object and Next.js { headers } container
+          ---
+          duration_ms: 1.112833
+          type: 'test'
+          ...
+        1..6
+    ok 3 - TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+      ---
+      duration_ms: 5.121292
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task B4: Client IP / TRUST_PROXY Hardening
+  ---
+  duration_ms: 41.574375
+  type: 'suite'
+  ...
+1..1
+# tests 15
+# suites 4
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 327.611917
