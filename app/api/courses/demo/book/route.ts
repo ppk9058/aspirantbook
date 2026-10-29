@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
+import { getCanonicalBaseUrl } from "@/lib/config/brand"
 import { prisma } from "@/lib/prisma"
 import { normalizePhoneToE164, formatUtcToIst, isSlotExpired } from "@/lib/demo/slot-utils"
 
@@ -120,7 +121,7 @@ export async function POST(req: NextRequest) {
 
     // Format IST labels
     const ist = formatUtcToIst(slot.startTime)
-    const baseUrl = process.env.NEXTAUTH_URL || "https://trillionskill.com"
+    const baseUrl = getCanonicalBaseUrl()
     const demoUrl = `${baseUrl}/courses/${course.slug}/demo`
 
     // 5. Duplicate Prevention: Check if already booked for this slot

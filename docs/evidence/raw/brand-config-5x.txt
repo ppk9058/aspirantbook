@@ -1,0 +1,273 @@
+=== TASK B9: BRAND CONFIGURATION 5X RUN ===
+Git SHA: 0dc129c1f54cab372b0d84fcb6b39a3359f779c1
+Timestamp: 2026-10-29T01:41:52Z
+--- RUN 1 ---
+TAP version 13
+# Subtest: Task B9: Centralized Brand & Domain Configuration
+    # Subtest: 1. Brand module exports all required brand and legal fields
+    ok 1 - 1. Brand module exports all required brand and legal fields
+      ---
+      duration_ms: 2.225666
+      type: 'test'
+      ...
+    # Subtest: 2. Environment variable overrides work as expected
+    ok 2 - 2. Environment variable overrides work as expected
+      ---
+      duration_ms: 0.337166
+      type: 'test'
+      ...
+    # Subtest: 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+    ok 3 - 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+      ---
+      duration_ms: 0.620667
+      type: 'test'
+      ...
+    # Subtest: 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+    ok 4 - 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+      ---
+      duration_ms: 0.526292
+      type: 'test'
+      ...
+    # Subtest: 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+    ok 5 - 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+      ---
+      duration_ms: 0.300875
+      type: 'test'
+      ...
+    # Subtest: 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+    ok 6 - 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+      ---
+      duration_ms: 0.176334
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task B9: Centralized Brand & Domain Configuration
+  ---
+  duration_ms: 5.19
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 269.099125
+--- RUN 2 ---
+TAP version 13
+# Subtest: Task B9: Centralized Brand & Domain Configuration
+    # Subtest: 1. Brand module exports all required brand and legal fields
+    ok 1 - 1. Brand module exports all required brand and legal fields
+      ---
+      duration_ms: 1.959541
+      type: 'test'
+      ...
+    # Subtest: 2. Environment variable overrides work as expected
+    ok 2 - 2. Environment variable overrides work as expected
+      ---
+      duration_ms: 0.281667
+      type: 'test'
+      ...
+    # Subtest: 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+    ok 3 - 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+      ---
+      duration_ms: 0.538542
+      type: 'test'
+      ...
+    # Subtest: 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+    ok 4 - 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+      ---
+      duration_ms: 0.464958
+      type: 'test'
+      ...
+    # Subtest: 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+    ok 5 - 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+      ---
+      duration_ms: 0.257583
+      type: 'test'
+      ...
+    # Subtest: 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+    ok 6 - 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+      ---
+      duration_ms: 0.153209
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task B9: Centralized Brand & Domain Configuration
+  ---
+  duration_ms: 4.51675
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 232.304209
+--- RUN 3 ---
+TAP version 13
+# Subtest: Task B9: Centralized Brand & Domain Configuration
+    # Subtest: 1. Brand module exports all required brand and legal fields
+    ok 1 - 1. Brand module exports all required brand and legal fields
+      ---
+      duration_ms: 1.752291
+      type: 'test'
+      ...
+    # Subtest: 2. Environment variable overrides work as expected
+    ok 2 - 2. Environment variable overrides work as expected
+      ---
+      duration_ms: 0.266542
+      type: 'test'
+      ...
+    # Subtest: 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+    ok 3 - 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+      ---
+      duration_ms: 0.484792
+      type: 'test'
+      ...
+    # Subtest: 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+    ok 4 - 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+      ---
+      duration_ms: 0.418792
+      type: 'test'
+      ...
+    # Subtest: 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+    ok 5 - 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+      ---
+      duration_ms: 0.232584
+      type: 'test'
+      ...
+    # Subtest: 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+    ok 6 - 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+      ---
+      duration_ms: 0.140708
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task B9: Centralized Brand & Domain Configuration
+  ---
+  duration_ms: 4.066292
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 206.855458
+--- RUN 4 ---
+TAP version 13
+# Subtest: Task B9: Centralized Brand & Domain Configuration
+    # Subtest: 1. Brand module exports all required brand and legal fields
+    ok 1 - 1. Brand module exports all required brand and legal fields
+      ---
+      duration_ms: 1.921625
+      type: 'test'
+      ...
+    # Subtest: 2. Environment variable overrides work as expected
+    ok 2 - 2. Environment variable overrides work as expected
+      ---
+      duration_ms: 0.281875
+      type: 'test'
+      ...
+    # Subtest: 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+    ok 3 - 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+      ---
+      duration_ms: 1.685
+      type: 'test'
+      ...
+    # Subtest: 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+    ok 4 - 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+      ---
+      duration_ms: 0.514
+      type: 'test'
+      ...
+    # Subtest: 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+    ok 5 - 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+      ---
+      duration_ms: 0.250625
+      type: 'test'
+      ...
+    # Subtest: 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+    ok 6 - 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+      ---
+      duration_ms: 0.766334
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task B9: Centralized Brand & Domain Configuration
+  ---
+  duration_ms: 6.278833
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 225.525375
+--- RUN 5 ---
+TAP version 13
+# Subtest: Task B9: Centralized Brand & Domain Configuration
+    # Subtest: 1. Brand module exports all required brand and legal fields
+    ok 1 - 1. Brand module exports all required brand and legal fields
+      ---
+      duration_ms: 1.944042
+      type: 'test'
+      ...
+    # Subtest: 2. Environment variable overrides work as expected
+    ok 2 - 2. Environment variable overrides work as expected
+      ---
+      duration_ms: 0.295166
+      type: 'test'
+      ...
+    # Subtest: 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+    ok 3 - 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+      ---
+      duration_ms: 0.544875
+      type: 'test'
+      ...
+    # Subtest: 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+    ok 4 - 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+      ---
+      duration_ms: 0.470209
+      type: 'test'
+      ...
+    # Subtest: 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+    ok 5 - 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+      ---
+      duration_ms: 0.26
+      type: 'test'
+      ...
+    # Subtest: 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+    ok 6 - 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+      ---
+      duration_ms: 0.1555
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task B9: Centralized Brand & Domain Configuration
+  ---
+  duration_ms: 4.541625
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 230.841042

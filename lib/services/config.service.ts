@@ -1,5 +1,6 @@
 import { AppConfigDto, DEFAULT_CONFIG } from "@aspirantbook/shared";
 import { NextRequest } from "next/server";
+import { getCanonicalBaseUrl } from "@/lib/config/brand";
 
 export function getAppConfig(req?: NextRequest | Request): AppConfigDto {
   const isMaintenance = process.env.MAINTENANCE_MODE === "true";
@@ -23,7 +24,7 @@ export function getAppConfig(req?: NextRequest | Request): AppConfigDto {
       }
     }
     if (!websiteUrl) {
-      websiteUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === "production" ? "https://aspirantbook.com" : "http://localhost:3000");
+      websiteUrl = getCanonicalBaseUrl();
     }
   }
 
