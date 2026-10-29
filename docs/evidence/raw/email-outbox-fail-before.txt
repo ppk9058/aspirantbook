@@ -1,48 +1,127 @@
-=== TASK G5: EMAIL OUTBOX FAIL-BEFORE ===
+Command: node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/email-outbox-remediation.test.ts in temp worktree be36a3e
+Exit Code: 1
+Timestamp (UTC): 2026-10-29T15:24:57Z
 Git SHA: be36a3ebf008a62e1e2cd6594e98806177d3e2de
-Timestamp: 2026-10-29T14:03:28Z
-Command: node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/email-outbox-worker.test.ts
+Right-reason failures: worker/route modules absent; no .disabled workflow stub existed yet.
+
 TAP version 13
-# node:internal/modules/cjs/loader:1430
-#   const err = new Error(message);
-#               ^
-# Error: Cannot find module '@/lib/email/outbox-worker'
-# Require stack:
-# - /Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts
-#     at node:internal/modules/cjs/loader:1430:15
-#     at nextResolveSimple (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1004)
-#     at /Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:2630
-#     at /Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1542
-#     at resolveTsPaths (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:4:760)
-#     at /Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1102
-#     at m._resolveFilename (file:///Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-B7jrtLTO.mjs:1:789)
-#     at defaultResolveImpl (node:internal/modules/cjs/loader:1040:19)
-#     at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1045:22)
-#     at Function._load (node:internal/modules/cjs/loader:1216:25) {
-#   code: 'MODULE_NOT_FOUND',
-#   requireStack: [
-#     '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts'
-#   ]
-# }
-# Node.js v22.23.4
-# Subtest: tests/unit/email-outbox-worker.test.ts
-not ok 1 - tests/unit/email-outbox-worker.test.ts
+# Subtest: Task G5 remediation: retry, idempotency, cron auth, workflow triggers
+    # Subtest: 1. A failed delivery is retried: attempts increments, nextRetryAt is set with jittered backoff
+    not ok 1 - 1. A failed delivery is retried: attempts increments, nextRetryAt is set with jittered backoff
+      ---
+      duration_ms: 71.608084
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:2:3970'
+      failureType: 'testCodeFailure'
+      error: 'Email outbox worker module must exist'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        requireWorker (/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:98:12)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:104:5)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: 2. Idempotency key is deterministic per attempt and a second worker pass does not re-send the row
+    not ok 2 - 2. Idempotency key is deterministic per attempt and a second worker pass does not re-send the row
+      ---
+      duration_ms: 2.79975
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:2:5289'
+      failureType: 'testCodeFailure'
+      error: 'Email outbox worker module must exist'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        requireWorker (/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:98:12)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:133:5)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 3. Provider order is Brevo first, then Resend when Brevo fails
+    not ok 3 - 3. Provider order is Brevo first, then Resend when Brevo fails
+      ---
+      duration_ms: 1.888042
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:2:6560'
+      failureType: 'testCodeFailure'
+      error: 'Email outbox worker module must exist'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        requireWorker (/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:98:12)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:168:5)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 4. CRON_SECRET: a wrong secret of the SAME length returns 401 without throwing
+    not ok 4 - 4. CRON_SECRET: a wrong secret of the SAME length returns 401 without throwing
+      ---
+      duration_ms: 1.71
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:2:7008'
+      failureType: 'testCodeFailure'
+      error: 'Email outbox route module must exist'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:184:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 5. The disabled cron stub has no active triggers (not loaded by GitHub Actions)
+    not ok 5 - 5. The disabled cron stub has no active triggers (not loaded by GitHub Actions)
+      ---
+      duration_ms: 1.941667
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:2:7781'
+      failureType: 'testCodeFailure'
+      error: 'The disabled stub must be kept for documentation'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:208:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..5
+not ok 1 - Task G5 remediation: retry, idempotency, cron auth, workflow triggers
   ---
-  duration_ms: 281.096875
-  type: 'test'
-  location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:1:1'
-  failureType: 'testCodeFailure'
-  exitCode: 1
-  signal: ~
-  error: 'test failed'
+  duration_ms: 127.6495
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch-fail-g5/tests/unit/email-outbox-remediation.test.ts:2:1518'
+  failureType: 'subtestsFailed'
+  error: '5 subtests failed'
   code: 'ERR_TEST_FAILURE'
   ...
 1..1
-# tests 1
-# suites 0
+# tests 5
+# suites 1
 # pass 0
-# fail 1
+# fail 5
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 288.947708
+# duration_ms 688.58125

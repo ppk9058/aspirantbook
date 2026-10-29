@@ -1,0 +1,49 @@
+Command: git grep -n 'process.env.BREVO_API_KEY|...' -- ':!docs' ':!*.md'; git grep -ni 'nodemailer|smtp-relay|SMTP_HOST|...' -- ':!docs' ':!*.md'; test ! -f .github/workflows/email-outbox-cron.yml
+Exit Code: 0
+Timestamp (UTC): 2026-10-29T15:25:16Z
+Git SHA: a59f135efeec8b5399e252e624fdc6d25cf51743
+
+=== TRANSPORT ENV READS ===
+lib/email.ts:36:    const fromRaw = process.env.EMAIL_FROM || "AspirantBook <no-reply@aspirantbook.com>"
+lib/email.ts:45:    const apiKey = process.env.BREVO_API_KEY
+lib/email.ts:51:    const endpoint = process.env.BREVO_API_URL || "https://api.brevo.com/v3/smtp/email"
+lib/email.ts:87:    const apiKey = process.env.RESEND_API_KEY
+lib/email.ts:94:    const endpoint = process.env.RESEND_API_URL || "https://api.resend.com/emails"
+lib/email.ts:131:    const hasBrevo = Boolean(process.env.BREVO_API_KEY)
+lib/email.ts:132:    const hasResend = Boolean(process.env.RESEND_API_KEY)
+lib/email/outbox-worker.ts:26:  const fromRaw = process.env.EMAIL_FROM || "AspirantBook <no-reply@aspirantbook.com>";
+lib/email/outbox-worker.ts:41:  const apiKey = process.env.BREVO_API_KEY;
+lib/email/outbox-worker.ts:47:  const endpoint = process.env.BREVO_API_URL || "https://api.brevo.com/v3/smtp/email";
+lib/email/outbox-worker.ts:94:  const apiKey = process.env.RESEND_API_KEY;
+lib/email/outbox-worker.ts:101:  const endpoint = process.env.RESEND_API_URL || "https://api.resend.com/emails";
+lib/email/outbox-worker.ts:204:    if (process.env.BREVO_API_KEY) {
+lib/email/outbox-worker.ts:223:    if (!sentSuccessfully && process.env.RESEND_API_KEY) {
+lib/health/health-service.ts:115:      brevo: Boolean(process.env.BREVO_API_KEY),
+lib/health/health-service.ts:116:      resend: Boolean(process.env.RESEND_API_KEY),
+tests/unit/email-outbox-worker.test.ts:85:    process.env.BREVO_API_KEY = "mock_brevo_key";
+tests/unit/email-outbox-worker.test.ts:86:    process.env.BREVO_API_URL = `http://127.0.0.1:${mockPort}/brevo`;
+tests/unit/email-outbox-worker.test.ts:87:    process.env.RESEND_API_KEY = "mock_resend_key";
+tests/unit/email-outbox-worker.test.ts:88:    process.env.RESEND_API_URL = `http://127.0.0.1:${mockPort}/resend`;
+tests/unit/email-provider-abstraction.test.ts:70:    process.env.BREVO_API_KEY = "test_brevo_key";
+tests/unit/email-provider-abstraction.test.ts:71:    process.env.BREVO_API_URL = `http://127.0.0.1:${mockPort}/brevo`;
+tests/unit/email-provider-abstraction.test.ts:72:    process.env.RESEND_API_KEY = "test_resend_key";
+tests/unit/email-provider-abstraction.test.ts:73:    process.env.RESEND_API_URL = `http://127.0.0.1:${mockPort}/resend`;
+tests/unit/email-provider-abstraction.test.ts:154:    delete process.env.BREVO_API_KEY;
+tests/unit/email-provider-abstraction.test.ts:155:    delete process.env.RESEND_API_KEY;
+tests/unit/email-transport.test.ts:36:    delete process.env.RESEND_API_KEY
+tests/unit/email-transport.test.ts:53:    delete process.env.RESEND_API_KEY
+tests/unit/health-completeness.test.ts:118:    process.env.BREVO_API_KEY = "xkeysib-9876543210abcdef9876543210";
+tests/unit/health-completeness.test.ts:119:    process.env.RESEND_API_KEY = "re_1234567890abcdef1234567890";
+
+=== SMTP SOURCE GREP (expected: only package-lock peer metadata) ===
+package-lock.json:223:        "nodemailer": "^7.0.7 || ^8.0.5"
+package-lock.json:232:        "nodemailer": {
+package-lock.json:10569:        "nodemailer": "^7.0.7 || ^8.0.5",
+package-lock.json:10579:        "nodemailer": {
+
+=== SMTP IMPORTS IN SOURCE (expected: none) ===
+none
+
+=== WORKFLOW ACTIVE TRIGGER CHECK ===
+active .yml absent
+.disabled stub present

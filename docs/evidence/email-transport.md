@@ -83,3 +83,30 @@ To operate the Brevo email provider in staging or production, the following envi
 - **No SMTP client library:** Neither `nodemailer` nor any other SMTP transport library is present or imported in the codebase.
 - **No SMTP credentials accepted:** Environment variables such as `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, or `BREVO_SMTP_KEY` are **not read**, parsed, or supported by any application code.
 - **Decision:** As instructed in Task G6, supporting both transports is unnecessary maintenance overhead. The REST API is fully functional, covered by unit and integration tests, and remains the sole supported Brevo transport mechanism.
+
+---
+
+## 6. R6 Verification: Exact Env Vars Read By Code, and SMTP Absence
+
+The tables above were checked against the source tree (not against other docs). Every
+variable below is actually read by application code:
+
+| Variable | Read at |
+| :--- | :--- |
+| `BREVO_API_KEY` | `lib/email.ts:45`, `lib/email/outbox-worker.ts:41`, `lib/health/health-service.ts:115` |
+| `BREVO_API_URL` | `lib/email.ts:51`, `lib/email/outbox-worker.ts:47` |
+| `EMAIL_FROM` | `lib/email.ts:36`, `lib/email/outbox-worker.ts:26` |
+| `RESEND_API_KEY` | `lib/email.ts:87`, `lib/email/outbox-worker.ts:94`, `lib/health/health-service.ts:116` |
+| `RESEND_API_URL` | `lib/email.ts:94`, `lib/email/outbox-worker.ts:101` |
+
+`EMAIL_OUTBOX_MAX_ATTEMPTS` and `EMAIL_OUTBOX_BACKOFF_BASE_SEC` are additionally read by
+`lib/email/outbox-worker.ts` for retry policy; they are not transport credentials.
+
+SMTP absence check (run on the tracked source tree, excluding docs and the lockfile):
+`git grep -ni "nodemailer|smtp-relay|SMTP_HOST|SMTP_PORT|SMTP_USER|SMTP_PASS|createTransport"`.
+Result: **zero source hits**. The only `nodemailer` strings in the repository are
+optional peer-dependency metadata inside `package-lock.json`; no `nodemailer` import,
+SMTP transport, SMTP host/port/user/password variable, or `createTransport` call exists
+in application code. SMTP remains **NOT IMPLEMENTED**.
+
+Evidence command/output: `docs/evidence/raw/g6-email-transport-verify.txt`.

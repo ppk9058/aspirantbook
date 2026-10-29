@@ -1,16 +1,20 @@
 name: Email Outbox Worker (Disabled Stub)
 
-# DISABLED scheduled-workflow stub
-# To enable: remove the 'if: false' condition and configure CRON_SECRET and APP_URL secrets.
-on:
-  schedule:
-    - cron: '*/5 * * * *' # Every 5 minutes
-  workflow_dispatch:
+# DISABLED scheduled-workflow stub.
+# This file intentionally has a .disabled extension so GitHub Actions does NOT
+# load it and there are ZERO active triggers (no schedule, no workflow_dispatch).
+# To enable: rename to email-outbox-cron.yml, restore the trigger block below,
+# remove the 'if: false' condition, and configure CRON_SECRET and APP_URL secrets.
+#
+# on:
+#   schedule:
+#     - cron: '*/5 * * * *' # Every 5 minutes
+#   workflow_dispatch:
 
 jobs:
   process-email-outbox:
     runs-on: ubuntu-latest
-    if: false # STUB: explicitly disabled as per launch requirements
+    # if: false # STUB: was explicitly disabled before the file was renamed
     steps:
       - name: Trigger Email Outbox Worker Route
         run: |
