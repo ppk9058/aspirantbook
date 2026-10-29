@@ -77,9 +77,15 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/privacy#data-deletion" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
-                  <Trash2 className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Data Deletion Instructions</span>
+                <Link href="/refund" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Refund Policy</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/data-deletion" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
+                  <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Data Deletion Request</span>
                 </Link>
               </li>
             </ul>
@@ -91,12 +97,18 @@ export default function Footer() {
               Support
             </h4>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Have questions regarding exams or your account? Reach out to support@aspirantbook.com.
+              Have questions regarding exams or your account? Reach out via our contact page.
             </p>
-            <div className="pt-1">
+            <div className="pt-1 flex flex-col gap-1.5">
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline"
+              >
+                Contact Support Desk &rarr;
+              </Link>
               <Link
                 href="/settings"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:underline"
               >
                 Manage Account &amp; Privacy in Settings &rarr;
               </Link>
@@ -109,7 +121,9 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:underline">Privacy</Link>
             <Link href="/terms" className="hover:underline">Terms</Link>
-            <Link href="/settings" className="hover:underline">Settings</Link>
+            <Link href="/refund" className="hover:underline">Refunds</Link>
+            <Link href="/contact" className="hover:underline">Contact</Link>
+            <Link href="/data-deletion" className="hover:underline">Data Deletion</Link>
           </div>
         </div>
       </div>

@@ -270,6 +270,19 @@ export async function deleteAccount(password: string) {
             },
         })
 
+        // Log completion in DataDeletionRequest table
+        await prisma.dataDeletionRequest.create({
+            data: {
+                userId: session.user.id,
+                email: user.email,
+                reason: "Authenticated in-app self-service deletion",
+                status: "COMPLETED",
+                processedAt: new Date(),
+            },
+        }).catch((err) => {
+            console.error("Failed to log DataDeletionRequest record:", err)
+        })
+
         return { success: true }
     } catch (error) {
         console.error("Error deleting account:", error)
