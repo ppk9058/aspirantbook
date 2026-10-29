@@ -1,48 +1,221 @@
-=== TASK G2: DATA DELETION QUEUE FAIL-BEFORE ===
-Git SHA: 259651da8000bb739bb6415a2a91e7b55e641c0d
-Timestamp: 2026-10-29T13:47:54Z
-Command: node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/data-deletion-queue.test.ts
+Command: node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/data-deletion-remediation.test.ts in temp worktrees
+Exit Code: 1 (both fail-before runs)
+Timestamp (UTC): 2026-10-29T15:09:08Z
+Git SHA: 259651d (pre-G2) and 042caaf (pre-401-remediation)
+
+===== A) PRE-G2 COMMIT 259651d: feature absent =====
 TAP version 13
-# node:internal/modules/cjs/loader:1430
-#   const err = new Error(message);
-#               ^
-# Error: Cannot find module '@/app/api/admin/data-deletion/route'
-# Require stack:
-# - /Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts
-#     at node:internal/modules/cjs/loader:1430:15
-#     at nextResolveSimple (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1004)
-#     at /Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:2630
-#     at /Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1542
-#     at resolveTsPaths (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:4:760)
-#     at /Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:4:1102
-#     at m._resolveFilename (file:///Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-B7jrtLTO.mjs:1:789)
-#     at defaultResolveImpl (node:internal/modules/cjs/loader:1040:19)
-#     at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1045:22)
-#     at Function._load (node:internal/modules/cjs/loader:1216:25) {
-#   code: 'MODULE_NOT_FOUND',
-#   requireStack: [
-#     '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts'
-#   ]
-# }
-# Node.js v22.23.4
-# Subtest: tests/unit/data-deletion-queue.test.ts
-not ok 1 - tests/unit/data-deletion-queue.test.ts
+# Subtest: Task G2 remediation: deletion idempotency, audit trail, queue authorization
+    # Subtest: a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+    not ok 1 - a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+      ---
+      duration_ms: 3.092375
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:2:3648'
+      failureType: 'testCodeFailure'
+      error: 'POST /api/v1/data-deletion module must exist'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        requireRoute (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:28:10)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:95:5)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: b) idempotency does not leak across users (one user's pending request is not reused for another)
+    not ok 2 - b) idempotency does not leak across users (one user's pending request is not reused for another)
+      ---
+      duration_ms: 0.398709
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:2:4963'
+      failureType: 'testCodeFailure'
+      error: 'POST /api/v1/data-deletion module must exist'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        requireRoute (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:28:10)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:128:5)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+    not ok 3 - c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+      ---
+      duration_ms: 0.235333
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:2:6326'
+      failureType: 'testCodeFailure'
+      error: 'POST /api/v1/data-deletion module must exist'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        requireRoute (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:28:10)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:162:5)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+    not ok 4 - d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+      ---
+      duration_ms: 0.404875
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:2:7421'
+      failureType: 'testCodeFailure'
+      error: 'PATCH /api/admin/data-deletion/[id] module must exist'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        requireRoute (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:28:10)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:195:5)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+    not ok 5 - e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+      ---
+      duration_ms: 0.505542
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:2:9635'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, scandir '/Users/praveenkumar/ws-launch-fail-g2/app/api/admin/data-deletion'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readdirSync (node:fs:1590:26)
+        listQueueRouteFiles (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:34:26)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:246:30)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: f) the authenticated status route returns 401 unauthenticated
+    not ok 6 - f) the authenticated status route returns 401 unauthenticated
+      ---
+      duration_ms: 0.27425
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:2:11772'
+      failureType: 'testCodeFailure'
+      error: 'GET /api/v1/data-deletion module must exist'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: ~
+      operator: '=='
+      stack: |-
+        requireRoute (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:28:10)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:301:5)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..6
+not ok 1 - Task G2 remediation: deletion idempotency, audit trail, queue authorization
   ---
-  duration_ms: 288.260875
-  type: 'test'
-  location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:1:1'
-  failureType: 'testCodeFailure'
-  exitCode: 1
-  signal: ~
-  error: 'test failed'
+  duration_ms: 141.32925
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch-fail-g2/tests/unit/data-deletion-remediation.test.ts:2:2107'
+  failureType: 'subtestsFailed'
+  error: '6 subtests failed'
   code: 'ERR_TEST_FAILURE'
   ...
 1..1
-# tests 1
-# suites 0
+# tests 6
+# suites 1
 # pass 0
+# fail 6
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 858.930375
+
+===== B) PRE-401-FIX COMMIT 042caaf: G2 present, queue auth still 403 =====
+TAP version 13
+# Subtest: Task G2 remediation: deletion idempotency, audit trail, queue authorization
+    # Subtest: a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+    ok 1 - a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+      ---
+      duration_ms: 22.765208
+      type: 'test'
+      ...
+    # Subtest: b) idempotency does not leak across users (one user's pending request is not reused for another)
+    ok 2 - b) idempotency does not leak across users (one user's pending request is not reused for another)
+      ---
+      duration_ms: 12.450542
+      type: 'test'
+      ...
+    # Subtest: c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+    ok 3 - c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+      ---
+      duration_ms: 8.226417
+      type: 'test'
+      ...
+    # Subtest: d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+    ok 4 - d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+      ---
+      duration_ms: 31.200667
+      type: 'test'
+      ...
+    # Subtest: e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+    not ok 5 - e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+      ---
+      duration_ms: 7.4245
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch-fail-g2b/tests/unit/data-deletion-remediation.test.ts:2:9635'
+      failureType: 'testCodeFailure'
+      error: |-
+        GET [id]/route.ts must return 401 unauthenticated
+        
+        403 !== 401
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 401
+      actual: 403
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g2b/tests/unit/data-deletion-remediation.test.ts:284:16)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: f) the authenticated status route returns 401 unauthenticated
+    ok 6 - f) the authenticated status route returns 401 unauthenticated
+      ---
+      duration_ms: 1.263375
+      type: 'test'
+      ...
+    1..6
+not ok 1 - Task G2 remediation: deletion idempotency, audit trail, queue authorization
+  ---
+  duration_ms: 268.596792
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch-fail-g2b/tests/unit/data-deletion-remediation.test.ts:2:2107'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 5
 # fail 1
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 296.341125
+# duration_ms 981.529666

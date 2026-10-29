@@ -1,7 +1,287 @@
-=== TASK G2: DATA DELETION QUEUE 5X RUN ===
-Git SHA: 259651da8000bb739bb6415a2a91e7b55e641c0d
-Timestamp: 2026-10-29T13:52:39Z
-Command: for i in 1 2 3 4 5; do node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/data-deletion-queue.test.ts; done
+Command: (new) node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/data-deletion-remediation.test.ts 5x; (existing) ... tests/unit/data-deletion-queue.test.ts 5x
+Exit Code: 0 (all ten runs)
+Timestamp (UTC): 2026-10-29T15:09:08Z
+Git SHA: 042caaf5085d3f349c0faced4fa615d1cf23bc7c
+Implementation diff 5ea9744..HEAD for G2 files:
+
+===== NEW REMEDIATION TESTS 5x =====
+--- RUN 1 ---
+TAP version 13
+# Subtest: Task G2 remediation: deletion idempotency, audit trail, queue authorization
+    # Subtest: a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+    ok 1 - a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+      ---
+      duration_ms: 25.554625
+      type: 'test'
+      ...
+    # Subtest: b) idempotency does not leak across users (one user's pending request is not reused for another)
+    ok 2 - b) idempotency does not leak across users (one user's pending request is not reused for another)
+      ---
+      duration_ms: 14.529625
+      type: 'test'
+      ...
+    # Subtest: c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+    ok 3 - c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+      ---
+      duration_ms: 7.737042
+      type: 'test'
+      ...
+    # Subtest: d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+    ok 4 - d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+      ---
+      duration_ms: 26.589584
+      type: 'test'
+      ...
+    # Subtest: e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+    ok 5 - e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+      ---
+      duration_ms: 10.545583
+      type: 'test'
+      ...
+    # Subtest: f) the authenticated status route returns 401 unauthenticated
+    ok 6 - f) the authenticated status route returns 401 unauthenticated
+      ---
+      duration_ms: 0.599834
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task G2 remediation: deletion idempotency, audit trail, queue authorization
+  ---
+  duration_ms: 292.135417
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1114.214666
+EXIT=0
+--- RUN 2 ---
+TAP version 13
+# Subtest: Task G2 remediation: deletion idempotency, audit trail, queue authorization
+    # Subtest: a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+    ok 1 - a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+      ---
+      duration_ms: 22.388667
+      type: 'test'
+      ...
+    # Subtest: b) idempotency does not leak across users (one user's pending request is not reused for another)
+    ok 2 - b) idempotency does not leak across users (one user's pending request is not reused for another)
+      ---
+      duration_ms: 15.272417
+      type: 'test'
+      ...
+    # Subtest: c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+    ok 3 - c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+      ---
+      duration_ms: 8.9955
+      type: 'test'
+      ...
+    # Subtest: d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+    ok 4 - d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+      ---
+      duration_ms: 20.927625
+      type: 'test'
+      ...
+    # Subtest: e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+    ok 5 - e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+      ---
+      duration_ms: 5.634542
+      type: 'test'
+      ...
+    # Subtest: f) the authenticated status route returns 401 unauthenticated
+    ok 6 - f) the authenticated status route returns 401 unauthenticated
+      ---
+      duration_ms: 0.436875
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task G2 remediation: deletion idempotency, audit trail, queue authorization
+  ---
+  duration_ms: 197.837708
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 632.80775
+EXIT=0
+--- RUN 3 ---
+TAP version 13
+# Subtest: Task G2 remediation: deletion idempotency, audit trail, queue authorization
+    # Subtest: a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+    ok 1 - a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+      ---
+      duration_ms: 21.599833
+      type: 'test'
+      ...
+    # Subtest: b) idempotency does not leak across users (one user's pending request is not reused for another)
+    ok 2 - b) idempotency does not leak across users (one user's pending request is not reused for another)
+      ---
+      duration_ms: 14.257625
+      type: 'test'
+      ...
+    # Subtest: c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+    ok 3 - c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+      ---
+      duration_ms: 9.37675
+      type: 'test'
+      ...
+    # Subtest: d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+    ok 4 - d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+      ---
+      duration_ms: 25.544833
+      type: 'test'
+      ...
+    # Subtest: e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+    ok 5 - e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+      ---
+      duration_ms: 6.3595
+      type: 'test'
+      ...
+    # Subtest: f) the authenticated status route returns 401 unauthenticated
+    ok 6 - f) the authenticated status route returns 401 unauthenticated
+      ---
+      duration_ms: 0.42075
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task G2 remediation: deletion idempotency, audit trail, queue authorization
+  ---
+  duration_ms: 201.734667
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 665.011458
+EXIT=0
+--- RUN 4 ---
+TAP version 13
+# Subtest: Task G2 remediation: deletion idempotency, audit trail, queue authorization
+    # Subtest: a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+    ok 1 - a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+      ---
+      duration_ms: 21.851708
+      type: 'test'
+      ...
+    # Subtest: b) idempotency does not leak across users (one user's pending request is not reused for another)
+    ok 2 - b) idempotency does not leak across users (one user's pending request is not reused for another)
+      ---
+      duration_ms: 16.621917
+      type: 'test'
+      ...
+    # Subtest: c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+    ok 3 - c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+      ---
+      duration_ms: 9.467167
+      type: 'test'
+      ...
+    # Subtest: d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+    ok 4 - d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+      ---
+      duration_ms: 25.149
+      type: 'test'
+      ...
+    # Subtest: e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+    ok 5 - e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+      ---
+      duration_ms: 6.373459
+      type: 'test'
+      ...
+    # Subtest: f) the authenticated status route returns 401 unauthenticated
+    ok 6 - f) the authenticated status route returns 401 unauthenticated
+      ---
+      duration_ms: 0.432333
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task G2 remediation: deletion idempotency, audit trail, queue authorization
+  ---
+  duration_ms: 205.088542
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 615.568584
+EXIT=0
+--- RUN 5 ---
+TAP version 13
+# Subtest: Task G2 remediation: deletion idempotency, audit trail, queue authorization
+    # Subtest: a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+    ok 1 - a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+      ---
+      duration_ms: 25.82675
+      type: 'test'
+      ...
+    # Subtest: b) idempotency does not leak across users (one user's pending request is not reused for another)
+    ok 2 - b) idempotency does not leak across users (one user's pending request is not reused for another)
+      ---
+      duration_ms: 17.024208
+      type: 'test'
+      ...
+    # Subtest: c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+    ok 3 - c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+      ---
+      duration_ms: 11.493042
+      type: 'test'
+      ...
+    # Subtest: d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+    ok 4 - d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+      ---
+      duration_ms: 31.727667
+      type: 'test'
+      ...
+    # Subtest: e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+    ok 5 - e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+      ---
+      duration_ms: 7.924291
+      type: 'test'
+      ...
+    # Subtest: f) the authenticated status route returns 401 unauthenticated
+    ok 6 - f) the authenticated status route returns 401 unauthenticated
+      ---
+      duration_ms: 0.50625
+      type: 'test'
+      ...
+    1..6
+ok 1 - Task G2 remediation: deletion idempotency, audit trail, queue authorization
+  ---
+  duration_ms: 220.131625
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 683.37925
+EXIT=0
+
+===== EXISTING G2 QUEUE TESTS 5x =====
 --- RUN 1 ---
 TAP version 13
 # Subtest: Task G2: Data Deletion Queue & Admin Transitions
@@ -9,75 +289,75 @@ TAP version 13
         # Subtest: Non-admin (student) gets 403 on admin list route
         ok 1 - Non-admin (student) gets 403 on admin list route
           ---
-          duration_ms: 4.7545
+          duration_ms: 4.44575
           type: 'test'
           ...
         # Subtest: Non-admin (student) gets 403 on admin single get route
         ok 2 - Non-admin (student) gets 403 on admin single get route
           ---
-          duration_ms: 0.661166
+          duration_ms: 0.625708
           type: 'test'
           ...
         # Subtest: Non-admin (student) gets 403 on admin transition patch route
         ok 3 - Non-admin (student) gets 403 on admin transition patch route
           ---
-          duration_ms: 0.740083
+          duration_ms: 0.683667
           type: 'test'
           ...
         1..3
     ok 1 - 1. Security: Role Checks (Non-Admin 403)
       ---
-      duration_ms: 6.67725
+      duration_ms: 6.184541
       type: 'suite'
       ...
     # Subtest: 2. Admin Queue Listing & Transitions
         # Subtest: Admin can list deletion requests
         ok 1 - Admin can list deletion requests
           ---
-          duration_ms: 26.905834
+          duration_ms: 22.197959
           type: 'test'
           ...
         # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
         ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
           ---
-          duration_ms: 14.224
+          duration_ms: 12.77225
           type: 'test'
           ...
         # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
         ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
           ---
-          duration_ms: 5.679625
+          duration_ms: 6.123292
           type: 'test'
           ...
         # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
         ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
           ---
-          duration_ms: 2.777542
+          duration_ms: 2.737042
           type: 'test'
           ...
         1..4
     ok 2 - 2. Admin Queue Listing & Transitions
       ---
-      duration_ms: 50.10075
+      duration_ms: 44.340916
       type: 'suite'
       ...
     # Subtest: 3. Authenticated User Deletion Request & Idempotency
         # Subtest: Authenticated student request creates initial record
         ok 1 - Authenticated student request creates initial record
           ---
-          duration_ms: 35.872791
+          duration_ms: 41.800041
           type: 'test'
           ...
         1..1
     ok 3 - 3. Authenticated User Deletion Request & Idempotency
       ---
-      duration_ms: 36.099334
+      duration_ms: 42.000208
       type: 'suite'
       ...
     1..3
 ok 1 - Task G2: Data Deletion Queue & Admin Transitions
   ---
-  duration_ms: 169.512208
+  duration_ms: 210.106375
   type: 'suite'
   ...
 1..1
@@ -88,7 +368,8 @@ ok 1 - Task G2: Data Deletion Queue & Admin Transitions
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 788.56475
+# duration_ms 1075.835542
+EXIT=0
 --- RUN 2 ---
 TAP version 13
 # Subtest: Task G2: Data Deletion Queue & Admin Transitions
@@ -96,75 +377,75 @@ TAP version 13
         # Subtest: Non-admin (student) gets 403 on admin list route
         ok 1 - Non-admin (student) gets 403 on admin list route
           ---
-          duration_ms: 4.385959
+          duration_ms: 4.338666
           type: 'test'
           ...
         # Subtest: Non-admin (student) gets 403 on admin single get route
         ok 2 - Non-admin (student) gets 403 on admin single get route
           ---
-          duration_ms: 0.602375
+          duration_ms: 0.599834
           type: 'test'
           ...
         # Subtest: Non-admin (student) gets 403 on admin transition patch route
         ok 3 - Non-admin (student) gets 403 on admin transition patch route
           ---
-          duration_ms: 0.660958
+          duration_ms: 0.662
           type: 'test'
           ...
         1..3
     ok 1 - 1. Security: Role Checks (Non-Admin 403)
       ---
-      duration_ms: 6.074708
+      duration_ms: 6.020625
       type: 'suite'
       ...
     # Subtest: 2. Admin Queue Listing & Transitions
         # Subtest: Admin can list deletion requests
         ok 1 - Admin can list deletion requests
           ---
-          duration_ms: 20.640083
+          duration_ms: 21.141333
           type: 'test'
           ...
         # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
         ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
           ---
-          duration_ms: 10.561208
+          duration_ms: 11.762083
           type: 'test'
           ...
         # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
         ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
           ---
-          duration_ms: 7.137792
+          duration_ms: 5.43725
           type: 'test'
           ...
         # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
         ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
           ---
-          duration_ms: 3.813583
+          duration_ms: 3.313625
           type: 'test'
           ...
         1..4
     ok 2 - 2. Admin Queue Listing & Transitions
       ---
-      duration_ms: 42.701416
+      duration_ms: 42.166959
       type: 'suite'
       ...
     # Subtest: 3. Authenticated User Deletion Request & Idempotency
         # Subtest: Authenticated student request creates initial record
         ok 1 - Authenticated student request creates initial record
           ---
-          duration_ms: 35.413125
+          duration_ms: 40.005084
           type: 'test'
           ...
         1..1
     ok 3 - 3. Authenticated User Deletion Request & Idempotency
       ---
-      duration_ms: 35.616708
+      duration_ms: 40.192708
       type: 'suite'
       ...
     1..3
 ok 1 - Task G2: Data Deletion Queue & Admin Transitions
   ---
-  duration_ms: 133.679834
+  duration_ms: 138.717
   type: 'suite'
   ...
 1..1
@@ -175,7 +456,8 @@ ok 1 - Task G2: Data Deletion Queue & Admin Transitions
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 602.47925
+# duration_ms 603.525208
+EXIT=0
 --- RUN 3 ---
 TAP version 13
 # Subtest: Task G2: Data Deletion Queue & Admin Transitions
@@ -183,75 +465,75 @@ TAP version 13
         # Subtest: Non-admin (student) gets 403 on admin list route
         ok 1 - Non-admin (student) gets 403 on admin list route
           ---
-          duration_ms: 5.284083
+          duration_ms: 4.535792
           type: 'test'
           ...
         # Subtest: Non-admin (student) gets 403 on admin single get route
         ok 2 - Non-admin (student) gets 403 on admin single get route
           ---
-          duration_ms: 0.766
+          duration_ms: 0.59975
           type: 'test'
           ...
         # Subtest: Non-admin (student) gets 403 on admin transition patch route
         ok 3 - Non-admin (student) gets 403 on admin transition patch route
           ---
-          duration_ms: 0.707916
+          duration_ms: 0.670791
           type: 'test'
           ...
         1..3
     ok 1 - 1. Security: Role Checks (Non-Admin 403)
       ---
-      duration_ms: 7.21625
+      duration_ms: 6.274542
       type: 'suite'
       ...
     # Subtest: 2. Admin Queue Listing & Transitions
         # Subtest: Admin can list deletion requests
         ok 1 - Admin can list deletion requests
           ---
-          duration_ms: 26.513459
+          duration_ms: 19.881667
           type: 'test'
           ...
         # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
         ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
           ---
-          duration_ms: 12.715042
+          duration_ms: 11.428791
           type: 'test'
           ...
         # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
         ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
           ---
-          duration_ms: 5.39825
+          duration_ms: 6.998792
           type: 'test'
           ...
         # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
         ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
           ---
-          duration_ms: 4.594208
+          duration_ms: 2.736583
           type: 'test'
           ...
         1..4
     ok 2 - 2. Admin Queue Listing & Transitions
       ---
-      duration_ms: 49.836125
+      duration_ms: 41.555792
       type: 'suite'
       ...
     # Subtest: 3. Authenticated User Deletion Request & Idempotency
         # Subtest: Authenticated student request creates initial record
         ok 1 - Authenticated student request creates initial record
           ---
-          duration_ms: 34.3445
+          duration_ms: 38.348042
           type: 'test'
           ...
         1..1
     ok 3 - 3. Authenticated User Deletion Request & Idempotency
       ---
-      duration_ms: 34.5515
+      duration_ms: 38.535667
       type: 'suite'
       ...
     1..3
 ok 1 - Task G2: Data Deletion Queue & Admin Transitions
   ---
-  duration_ms: 141.076708
+  duration_ms: 129.410584
   type: 'suite'
   ...
 1..1
@@ -262,7 +544,8 @@ ok 1 - Task G2: Data Deletion Queue & Admin Transitions
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 644.203042
+# duration_ms 608.174667
+EXIT=0
 --- RUN 4 ---
 TAP version 13
 # Subtest: Task G2: Data Deletion Queue & Admin Transitions
@@ -270,75 +553,75 @@ TAP version 13
         # Subtest: Non-admin (student) gets 403 on admin list route
         ok 1 - Non-admin (student) gets 403 on admin list route
           ---
-          duration_ms: 5.180042
+          duration_ms: 4.434834
           type: 'test'
           ...
         # Subtest: Non-admin (student) gets 403 on admin single get route
         ok 2 - Non-admin (student) gets 403 on admin single get route
           ---
-          duration_ms: 0.702167
+          duration_ms: 0.610334
           type: 'test'
           ...
         # Subtest: Non-admin (student) gets 403 on admin transition patch route
         ok 3 - Non-admin (student) gets 403 on admin transition patch route
           ---
-          duration_ms: 0.703916
+          duration_ms: 0.671291
           type: 'test'
           ...
         1..3
     ok 1 - 1. Security: Role Checks (Non-Admin 403)
       ---
-      duration_ms: 7.068833
+      duration_ms: 6.158708
       type: 'suite'
       ...
     # Subtest: 2. Admin Queue Listing & Transitions
         # Subtest: Admin can list deletion requests
         ok 1 - Admin can list deletion requests
           ---
-          duration_ms: 21.851375
+          duration_ms: 23.840959
           type: 'test'
           ...
         # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
         ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
           ---
-          duration_ms: 11.404917
+          duration_ms: 11.419958
           type: 'test'
           ...
         # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
         ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
           ---
-          duration_ms: 5.375083
+          duration_ms: 5.800042
           type: 'test'
           ...
         # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
         ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
           ---
-          duration_ms: 2.774958
+          duration_ms: 4.198625
           type: 'test'
           ...
         1..4
     ok 2 - 2. Admin Queue Listing & Transitions
       ---
-      duration_ms: 41.917375
+      duration_ms: 46.227208
       type: 'suite'
       ...
     # Subtest: 3. Authenticated User Deletion Request & Idempotency
         # Subtest: Authenticated student request creates initial record
         ok 1 - Authenticated student request creates initial record
           ---
-          duration_ms: 35.243292
+          duration_ms: 40.942334
           type: 'test'
           ...
         1..1
     ok 3 - 3. Authenticated User Deletion Request & Idempotency
       ---
-      duration_ms: 35.43775
+      duration_ms: 41.146917
       type: 'suite'
       ...
     1..3
 ok 1 - Task G2: Data Deletion Queue & Admin Transitions
   ---
-  duration_ms: 135.470792
+  duration_ms: 144.355542
   type: 'suite'
   ...
 1..1
@@ -349,7 +632,8 @@ ok 1 - Task G2: Data Deletion Queue & Admin Transitions
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 613.91525
+# duration_ms 623.309708
+EXIT=0
 --- RUN 5 ---
 TAP version 13
 # Subtest: Task G2: Data Deletion Queue & Admin Transitions
@@ -357,75 +641,75 @@ TAP version 13
         # Subtest: Non-admin (student) gets 403 on admin list route
         ok 1 - Non-admin (student) gets 403 on admin list route
           ---
-          duration_ms: 5.117958
+          duration_ms: 4.741708
           type: 'test'
           ...
         # Subtest: Non-admin (student) gets 403 on admin single get route
         ok 2 - Non-admin (student) gets 403 on admin single get route
           ---
-          duration_ms: 0.764667
+          duration_ms: 0.6475
           type: 'test'
           ...
         # Subtest: Non-admin (student) gets 403 on admin transition patch route
         ok 3 - Non-admin (student) gets 403 on admin transition patch route
           ---
-          duration_ms: 0.822959
+          duration_ms: 0.671291
           type: 'test'
           ...
         1..3
     ok 1 - 1. Security: Role Checks (Non-Admin 403)
       ---
-      duration_ms: 7.181583
+      duration_ms: 6.5035
       type: 'suite'
       ...
     # Subtest: 2. Admin Queue Listing & Transitions
         # Subtest: Admin can list deletion requests
         ok 1 - Admin can list deletion requests
           ---
-          duration_ms: 22.79725
+          duration_ms: 30.217542
           type: 'test'
           ...
         # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
         ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
           ---
-          duration_ms: 12.238333
+          duration_ms: 15.090333
           type: 'test'
           ...
         # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
         ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
           ---
-          duration_ms: 5.490792
+          duration_ms: 6.283417
           type: 'test'
           ...
         # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
         ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
           ---
-          duration_ms: 2.764584
+          duration_ms: 3.274375
           type: 'test'
           ...
         1..4
     ok 2 - 2. Admin Queue Listing & Transitions
       ---
-      duration_ms: 43.811458
+      duration_ms: 55.401583
       type: 'suite'
       ...
     # Subtest: 3. Authenticated User Deletion Request & Idempotency
         # Subtest: Authenticated student request creates initial record
         ok 1 - Authenticated student request creates initial record
           ---
-          duration_ms: 31.01925
+          duration_ms: 42.4885
           type: 'test'
           ...
         1..1
     ok 3 - 3. Authenticated User Deletion Request & Idempotency
       ---
-      duration_ms: 31.218333
+      duration_ms: 42.685625
       type: 'suite'
       ...
     1..3
 ok 1 - Task G2: Data Deletion Queue & Admin Transitions
   ---
-  duration_ms: 135.315625
+  duration_ms: 158.882625
   type: 'suite'
   ...
 1..1
@@ -436,5 +720,5 @@ ok 1 - Task G2: Data Deletion Queue & Admin Transitions
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 608.109209
-=== ALL 5 RUNS PASSED ===
+# duration_ms 630.0695
+EXIT=0

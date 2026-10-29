@@ -15,8 +15,11 @@ export async function GET(
 ) {
   try {
     const userContext = await getCurrentUserContext();
+    if (!userContext.isAuthenticated) {
+      return NextResponse.json({ error: "Unauthorized: Authentication required" }, { status: 401 });
+    }
     if (userContext.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized: Requires ADMIN role" }, { status: 403 });
+      return NextResponse.json({ error: "Forbidden: Requires ADMIN role" }, { status: 403 });
     }
 
     const { id } = await params;
@@ -41,8 +44,11 @@ export async function PATCH(
 ) {
   try {
     const userContext = await getCurrentUserContext();
+    if (!userContext.isAuthenticated) {
+      return NextResponse.json({ error: "Unauthorized: Authentication required" }, { status: 401 });
+    }
     if (userContext.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized: Requires ADMIN role" }, { status: 403 });
+      return NextResponse.json({ error: "Forbidden: Requires ADMIN role" }, { status: 403 });
     }
 
     const { id } = await params;

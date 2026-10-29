@@ -1,4 +1,6 @@
 import test, { describe } from "node:test";
+import fs from "node:fs";
+import path from "node:path";
 import assert from "node:assert/strict";
 import {
   getPublicDeletionUrl,
@@ -81,5 +83,52 @@ describe("Mobile Data Deletion Pure Module", () => {
     assert.equal(res.ok, true);
     assert.equal(calledEndpoint, "/api/v1/data-deletion");
     assert.equal(res.request?.status, "IN_REVIEW");
+  });
+
+  test("5. Already-pending request is surfaced as existing (isExisting=true)", async () => {
+    const mockClient = {
+      post: async () => ({
+        ok: true,
+        data: {
+          id: "del_existing",
+          status: "IN_REVIEW",
+          requestedAt: new Date().toISOString(),
+          isExisting: true,
+        },
+      }),
+    };
+
+    const res = await submitMobileDeletionRequest(mockClient as any, "Retry tap");
+    assert.equal(res.ok, true);
+    assert.equal(res.data?.isExisting, true);
+    assert.equal(res.data?.status, "IN_REVIEW");
+  });
+
+  test("6. API error is returned as a visible error string, not swallowed", async () => {
+    const mockClient = {
+      post: async () => ({
+        ok: false,
+        error: { message: "Authentication required to submit data deletion request" },
+      }),
+    };
+
+    const res = await submitMobileDeletionRequest(mockClient as any);
+    assert.equal(res.ok, false);
+    assert.match(res.error || "", /Authentication required/);
+  });
+
+  test("7. Unknown status falls back to a neutral label instead of crashing", () => {
+    const unknown = formatDeletionStatus("SOMETHING_NEW");
+    assert.equal(unknown.variant, "neutral");
+    assert.equal(unknown.label, "SOMETHING_NEW");
+  });
+
+  test("8. Settings screen really calls the authenticated deletion API and displays request status", () => {
+    const source = fs.readFileSync(path.join(process.cwd(), "src/app/settings.tsx"), "utf8");
+    assert.match(source, /submitMobileDeletionRequest\(/, "Settings must submit via the /api/v1/data-deletion helper");
+    assert.match(source, /fetchMobileDeletionStatus\(/, "Settings must fetch the current request status");
+    assert.match(source, /formatDeletionStatus\(/, "Settings must render the request status label");
+    assert.match(source, /settings-deletion-status/, "Settings must show a status element");
+    assert.doesNotMatch(source, /api\.deleteMe\(/, "Settings must not bypass the queue with an immediate delete call");
   });
 });

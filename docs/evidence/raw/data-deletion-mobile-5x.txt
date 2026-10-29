@@ -1,0 +1,340 @@
+Command: cd apps/mobile && npx tsx --test tests/data-deletion-module.test.ts (5x)
+Exit Code: 0
+Timestamp (UTC): 2026-10-29T15:09:08Z
+Git SHA: 042caaf5085d3f349c0faced4fa615d1cf23bc7c
+
+--- RUN 1 ---
+TAP version 13
+# Subtest: Mobile Data Deletion Pure Module
+    # Subtest: 1. Constructs valid public data-deletion web URL
+    ok 1 - 1. Constructs valid public data-deletion web URL
+      ---
+      duration_ms: 1.115917
+      type: 'test'
+      ...
+    # Subtest: 2. Correctly formats and classifies all 4 deletion statuses
+    ok 2 - 2. Correctly formats and classifies all 4 deletion statuses
+      ---
+      duration_ms: 0.172
+      type: 'test'
+      ...
+    # Subtest: 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+    ok 3 - 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+      ---
+      duration_ms: 1.014584
+      type: 'test'
+      ...
+    # Subtest: 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+    ok 4 - 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+      ---
+      duration_ms: 0.387125
+      type: 'test'
+      ...
+    # Subtest: 5. Already-pending request is surfaced as existing (isExisting=true)
+    ok 5 - 5. Already-pending request is surfaced as existing (isExisting=true)
+      ---
+      duration_ms: 0.220916
+      type: 'test'
+      ...
+    # Subtest: 6. API error is returned as a visible error string, not swallowed
+    ok 6 - 6. API error is returned as a visible error string, not swallowed
+      ---
+      duration_ms: 1.176917
+      type: 'test'
+      ...
+    # Subtest: 7. Unknown status falls back to a neutral label instead of crashing
+    ok 7 - 7. Unknown status falls back to a neutral label instead of crashing
+      ---
+      duration_ms: 0.23725
+      type: 'test'
+      ...
+    # Subtest: 8. Settings screen really calls the authenticated deletion API and displays request status
+    ok 8 - 8. Settings screen really calls the authenticated deletion API and displays request status
+      ---
+      duration_ms: 0.819333
+      type: 'test'
+      ...
+    1..8
+ok 1 - Mobile Data Deletion Pure Module
+  ---
+  duration_ms: 7.438041
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 349.320708
+EXIT=0
+--- RUN 2 ---
+TAP version 13
+# Subtest: Mobile Data Deletion Pure Module
+    # Subtest: 1. Constructs valid public data-deletion web URL
+    ok 1 - 1. Constructs valid public data-deletion web URL
+      ---
+      duration_ms: 0.922958
+      type: 'test'
+      ...
+    # Subtest: 2. Correctly formats and classifies all 4 deletion statuses
+    ok 2 - 2. Correctly formats and classifies all 4 deletion statuses
+      ---
+      duration_ms: 0.159583
+      type: 'test'
+      ...
+    # Subtest: 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+    ok 3 - 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+      ---
+      duration_ms: 0.696416
+      type: 'test'
+      ...
+    # Subtest: 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+    ok 4 - 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+      ---
+      duration_ms: 0.265084
+      type: 'test'
+      ...
+    # Subtest: 5. Already-pending request is surfaced as existing (isExisting=true)
+    ok 5 - 5. Already-pending request is surfaced as existing (isExisting=true)
+      ---
+      duration_ms: 0.119541
+      type: 'test'
+      ...
+    # Subtest: 6. API error is returned as a visible error string, not swallowed
+    ok 6 - 6. API error is returned as a visible error string, not swallowed
+      ---
+      duration_ms: 0.173
+      type: 'test'
+      ...
+    # Subtest: 7. Unknown status falls back to a neutral label instead of crashing
+    ok 7 - 7. Unknown status falls back to a neutral label instead of crashing
+      ---
+      duration_ms: 0.175917
+      type: 'test'
+      ...
+    # Subtest: 8. Settings screen really calls the authenticated deletion API and displays request status
+    ok 8 - 8. Settings screen really calls the authenticated deletion API and displays request status
+      ---
+      duration_ms: 0.359041
+      type: 'test'
+      ...
+    1..8
+ok 1 - Mobile Data Deletion Pure Module
+  ---
+  duration_ms: 3.848708
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 245.94775
+EXIT=0
+--- RUN 3 ---
+TAP version 13
+# Subtest: Mobile Data Deletion Pure Module
+    # Subtest: 1. Constructs valid public data-deletion web URL
+    ok 1 - 1. Constructs valid public data-deletion web URL
+      ---
+      duration_ms: 1.783334
+      type: 'test'
+      ...
+    # Subtest: 2. Correctly formats and classifies all 4 deletion statuses
+    ok 2 - 2. Correctly formats and classifies all 4 deletion statuses
+      ---
+      duration_ms: 0.588958
+      type: 'test'
+      ...
+    # Subtest: 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+    ok 3 - 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+      ---
+      duration_ms: 3.138208
+      type: 'test'
+      ...
+    # Subtest: 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+    ok 4 - 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+      ---
+      duration_ms: 2.419834
+      type: 'test'
+      ...
+    # Subtest: 5. Already-pending request is surfaced as existing (isExisting=true)
+    ok 5 - 5. Already-pending request is surfaced as existing (isExisting=true)
+      ---
+      duration_ms: 1.988625
+      type: 'test'
+      ...
+    # Subtest: 6. API error is returned as a visible error string, not swallowed
+    ok 6 - 6. API error is returned as a visible error string, not swallowed
+      ---
+      duration_ms: 0.522458
+      type: 'test'
+      ...
+    # Subtest: 7. Unknown status falls back to a neutral label instead of crashing
+    ok 7 - 7. Unknown status falls back to a neutral label instead of crashing
+      ---
+      duration_ms: 0.473792
+      type: 'test'
+      ...
+    # Subtest: 8. Settings screen really calls the authenticated deletion API and displays request status
+    ok 8 - 8. Settings screen really calls the authenticated deletion API and displays request status
+      ---
+      duration_ms: 1.048208
+      type: 'test'
+      ...
+    1..8
+ok 1 - Mobile Data Deletion Pure Module
+  ---
+  duration_ms: 15.335916
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 474.787875
+EXIT=0
+--- RUN 4 ---
+TAP version 13
+# Subtest: Mobile Data Deletion Pure Module
+    # Subtest: 1. Constructs valid public data-deletion web URL
+    ok 1 - 1. Constructs valid public data-deletion web URL
+      ---
+      duration_ms: 1.528416
+      type: 'test'
+      ...
+    # Subtest: 2. Correctly formats and classifies all 4 deletion statuses
+    ok 2 - 2. Correctly formats and classifies all 4 deletion statuses
+      ---
+      duration_ms: 0.236167
+      type: 'test'
+      ...
+    # Subtest: 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+    ok 3 - 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+      ---
+      duration_ms: 1.040292
+      type: 'test'
+      ...
+    # Subtest: 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+    ok 4 - 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+      ---
+      duration_ms: 0.539958
+      type: 'test'
+      ...
+    # Subtest: 5. Already-pending request is surfaced as existing (isExisting=true)
+    ok 5 - 5. Already-pending request is surfaced as existing (isExisting=true)
+      ---
+      duration_ms: 0.173625
+      type: 'test'
+      ...
+    # Subtest: 6. API error is returned as a visible error string, not swallowed
+    ok 6 - 6. API error is returned as a visible error string, not swallowed
+      ---
+      duration_ms: 0.25425
+      type: 'test'
+      ...
+    # Subtest: 7. Unknown status falls back to a neutral label instead of crashing
+    ok 7 - 7. Unknown status falls back to a neutral label instead of crashing
+      ---
+      duration_ms: 0.267542
+      type: 'test'
+      ...
+    # Subtest: 8. Settings screen really calls the authenticated deletion API and displays request status
+    ok 8 - 8. Settings screen really calls the authenticated deletion API and displays request status
+      ---
+      duration_ms: 0.5935
+      type: 'test'
+      ...
+    1..8
+ok 1 - Mobile Data Deletion Pure Module
+  ---
+  duration_ms: 6.092708
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 462.875167
+EXIT=0
+--- RUN 5 ---
+TAP version 13
+# Subtest: Mobile Data Deletion Pure Module
+    # Subtest: 1. Constructs valid public data-deletion web URL
+    ok 1 - 1. Constructs valid public data-deletion web URL
+      ---
+      duration_ms: 1.092833
+      type: 'test'
+      ...
+    # Subtest: 2. Correctly formats and classifies all 4 deletion statuses
+    ok 2 - 2. Correctly formats and classifies all 4 deletion statuses
+      ---
+      duration_ms: 0.261334
+      type: 'test'
+      ...
+    # Subtest: 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+    ok 3 - 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+      ---
+      duration_ms: 0.919208
+      type: 'test'
+      ...
+    # Subtest: 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+    ok 4 - 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+      ---
+      duration_ms: 0.408958
+      type: 'test'
+      ...
+    # Subtest: 5. Already-pending request is surfaced as existing (isExisting=true)
+    ok 5 - 5. Already-pending request is surfaced as existing (isExisting=true)
+      ---
+      duration_ms: 0.19075
+      type: 'test'
+      ...
+    # Subtest: 6. API error is returned as a visible error string, not swallowed
+    ok 6 - 6. API error is returned as a visible error string, not swallowed
+      ---
+      duration_ms: 0.246458
+      type: 'test'
+      ...
+    # Subtest: 7. Unknown status falls back to a neutral label instead of crashing
+    ok 7 - 7. Unknown status falls back to a neutral label instead of crashing
+      ---
+      duration_ms: 0.237583
+      type: 'test'
+      ...
+    # Subtest: 8. Settings screen really calls the authenticated deletion API and displays request status
+    ok 8 - 8. Settings screen really calls the authenticated deletion API and displays request status
+      ---
+      duration_ms: 0.454917
+      type: 'test'
+      ...
+    1..8
+ok 1 - Mobile Data Deletion Pure Module
+  ---
+  duration_ms: 5.011792
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 1
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 463.689209
+EXIT=0

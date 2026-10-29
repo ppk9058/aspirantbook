@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch, Modal, TextInput, Alert, Linking } from "react-native";
-import { useRouter } from "expo-router";
 import { User, Moon, Shield, Target, ChevronRight, LogOut, AlertTriangle, X, ExternalLink } from "lucide-react-native";
 import { AppShell } from "../components/shell/AppShell";
 import { Card } from "../components/primitives/Card";
@@ -10,14 +9,16 @@ import { useTheme } from "../theme/ThemeProvider";
 import { useGoal } from "../context/GoalContext";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
-import { Storage } from "../lib/storage";
-import { clearAllCachedPdfs } from "../lib/pdf-manager";
-import { getPublicDeletionUrl } from "../lib/data-deletion";
+import {
+  getPublicDeletionUrl,
+  submitMobileDeletionRequest,
+  fetchMobileDeletionStatus,
+  formatDeletionStatus,
+} from "../lib/data-deletion";
 
 type SettingsTab = "goal" | "profile" | "appearance" | "security";
 
 export default function SettingsScreen() {
-  const router = useRouter();
   const { colors, tokens, isDark, toggleTheme } = useTheme();
   const { selectedGoal, openGoalModal } = useGoal();
   const { user, isAuthenticated, logout } = useAuth();
@@ -30,6 +31,20 @@ export default function SettingsScreen() {
   const [deletePassword, setDeletePassword] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletionStatus, setDeletionStatus] = useState<string | null>(null);
+
+  // Load the current deletion-request status so returning users see where their
+  // request stands instead of submitting duplicates.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let active = true;
+    fetchMobileDeletionStatus(api).then((res) => {
+      if (active && res.ok && res.request) setDeletionStatus(res.request.status);
+    });
+    return () => {
+      active = false;
+    };
+  }, [isAuthenticated]);
 
   const handleDeleteAccount = async () => {
     if (deleteConfirmText.trim() !== "DELETE") {
@@ -40,24 +55,27 @@ export default function SettingsScreen() {
     setIsDeleting(true);
     setDeleteError(null);
     try {
-      const res = await api.deleteMe({
-        confirmation: deleteConfirmText.trim(),
-        password: deletePassword.trim() || undefined,
-      });
+      // G2: submit an authenticated deletion REQUEST to the queue-backed API.
+      // The account is processed by an admin per the statutory procedure; the
+      // app must not silently wipe local credentials before that happens.
+      const res = await submitMobileDeletionRequest(
+        api,
+        "User requested deletion via mobile app settings"
+      );
 
       if (!res.ok) {
-        setDeleteError(res.error?.message || "Failed to delete account. Please verify your credentials.");
+        setDeleteError(res.error || "Failed to submit account deletion request. Please try again.");
         return;
       }
 
-      // Successful deletion: wipe storage and local session, redirect to guest
-      await Storage.clearAllAuthTokens();
-      await clearAllCachedPdfs();
-      await logout();
+      setDeletionStatus(res.data?.status || "PENDING");
       setDeleteModalVisible(false);
-      router.replace("/(tabs)/home");
+      Alert.alert(
+        "Request submitted",
+        "Your account deletion request has been received. You can track its status in Settings > Security."
+      );
     } catch (err: any) {
-      setDeleteError(err?.message || "An unexpected error occurred during account deletion.");
+      setDeleteError(err?.message || "An unexpected error occurred while submitting the deletion request.");
     } finally {
       setIsDeleting(false);
     }
@@ -256,6 +274,25 @@ export default function SettingsScreen() {
                   size="md"
                   icon={<Shield size={16} color={colors.primary} />}
                 />
+
+                {deletionStatus ? (
+                  <View
+                    testID="settings-deletion-status"
+                    style={{
+                      backgroundColor: colors.surfaceSecondary,
+                      borderRadius: 8,
+                      padding: 10,
+                      marginTop: 8,
+                    }}
+                  >
+                    <Text style={{ color: colors.textPrimary, fontWeight: "700", fontSize: 13 }}>
+                      Deletion request: {formatDeletionStatus(deletionStatus).label}
+                    </Text>
+                    <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>
+                      {formatDeletionStatus(deletionStatus).description}
+                    </Text>
+                  </View>
+                ) : null}
 
                 <TouchableOpacity
                   testID="settings-delete-account-button"
