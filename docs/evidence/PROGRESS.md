@@ -44,7 +44,7 @@
 | **C4** | Compaction verifier script | NOT_STARTED | - | - | `scripts/verify-compaction` 100% match |
 | **C5** | Compaction evidence & crash consistency | NOT_STARTED | - | - | Space measurements, byte-identical responses, kill -9 test |
 | **C6** | Boundaries check & unmeasured savings disclaimer | NOT_STARTED | - | - | Leave feat/ai-layer untouched |
-| **Z1** | Clean-room fresh temporary clone verification | DONE | `c38b82a` | `docs/evidence/raw/fresh-clone-*.txt` | Verified on fresh isolated clone (`ws-fresh-r8`): npm ci, prisma generate, tsc-ratchet (0<=0, exit 0), npm run lint (0 errors), npm run build (162/162 static pages, exit 0), full unit test suite executed and documented. |
+| **Z1** | Clean-room fresh temporary clone verification | DONE | `c38b82a` | `docs/evidence/r8-fresh-clone-verification.md`, `docs/evidence/raw/fresh-clone-*.txt` | Verified on fresh isolated clone (`ws-fresh-r8`): npm ci, prisma generate, tsc-ratchet (0<=0, exit 0), npm run lint (0 errors), npm run build (162/162 static pages, exit 0), full unit test suite executed and documented in dedicated report. |
 | **Z2** | Test accounting (pre-existing vs new, diff summary) | NOT_STARTED | - | - | Full test counts and diff |
 | **Z3** | Merge conflict prediction across 3 branches | NOT_STARTED | - | - | Trial merge / merge-tree analysis |
 | **Z4** | Final report & claims register final state | NOT_STARTED | - | - | English, max ~80 lines, honest headline numbers |
