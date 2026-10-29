@@ -1754,7 +1754,8 @@ model EmailOutbox {
   attempts  Int       @default(0)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  sentAt    DateTime?
+  sentAt      DateTime?
+  nextRetryAt DateTime?
 
   @@index([status, createdAt])
   @@index([to])

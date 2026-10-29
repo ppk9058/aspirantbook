@@ -1,0 +1,238 @@
+=== TASK B7: EMAIL PROVIDER ABSTRACTION 5X RUN ===
+Git SHA: 3de19c4fc80f02d9b6b4a32011f93d97c7c27678
+Timestamp: 2026-10-29T01:35:52Z
+--- RUN 1 ---
+TAP version 13
+# Subtest: Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+    # Subtest: 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+    ok 1 - 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+      ---
+      duration_ms: 59.738083
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 500: {"error":"Brevo Internal Service Error"}. Attempting fallback (Resend)...
+    # Subtest: 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+    ok 2 - 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+      ---
+      duration_ms: 9.414125
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 502: {"error":"Brevo Bad Gateway"}. Attempting fallback (Resend)...
+# [Email] Fallback provider (Resend) failed: Resend HTTP 429: {"error":"Resend Rate Limit Exceeded"}.
+# [Email] All email delivery providers failed. Queuing message to queued_1793237753379@example.com into EmailOutbox for background retry.
+    # Subtest: 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+    ok 3 - 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+      ---
+      duration_ms: 48.938083
+      type: 'test'
+      ...
+# [DbEmailOutbox] Stored to: dev_test_1793237753428@example.com | Subject: Dev Mode Email Test | Link: none
+    # Subtest: 4. In dev/test when neither key is configured, writes to outbox without failing
+    ok 4 - 4. In dev/test when neither key is configured, writes to outbox without failing
+      ---
+      duration_ms: 6.709375
+      type: 'test'
+      ...
+    1..4
+ok 1 - Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+  ---
+  duration_ms: 145.912084
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 436.219625
+--- RUN 2 ---
+TAP version 13
+# Subtest: Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+    # Subtest: 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+    ok 1 - 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+      ---
+      duration_ms: 40.862375
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 500: {"error":"Brevo Internal Service Error"}. Attempting fallback (Resend)...
+    # Subtest: 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+    ok 2 - 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+      ---
+      duration_ms: 6.649041
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 502: {"error":"Brevo Bad Gateway"}. Attempting fallback (Resend)...
+# [Email] Fallback provider (Resend) failed: Resend HTTP 429: {"error":"Resend Rate Limit Exceeded"}.
+# [Email] All email delivery providers failed. Queuing message to queued_1793237753840@example.com into EmailOutbox for background retry.
+    # Subtest: 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+    ok 3 - 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+      ---
+      duration_ms: 34.780584
+      type: 'test'
+      ...
+# [DbEmailOutbox] Stored to: dev_test_1793237753875@example.com | Subject: Dev Mode Email Test | Link: none
+    # Subtest: 4. In dev/test when neither key is configured, writes to outbox without failing
+    ok 4 - 4. In dev/test when neither key is configured, writes to outbox without failing
+      ---
+      duration_ms: 7.465625
+      type: 'test'
+      ...
+    1..4
+ok 1 - Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+  ---
+  duration_ms: 109.267333
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 388.571958
+--- RUN 3 ---
+TAP version 13
+# Subtest: Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+    # Subtest: 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+    ok 1 - 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+      ---
+      duration_ms: 38.265459
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 500: {"error":"Brevo Internal Service Error"}. Attempting fallback (Resend)...
+    # Subtest: 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+    ok 2 - 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+      ---
+      duration_ms: 6.3645
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 502: {"error":"Brevo Bad Gateway"}. Attempting fallback (Resend)...
+# [Email] Fallback provider (Resend) failed: Resend HTTP 429: {"error":"Resend Rate Limit Exceeded"}.
+# [Email] All email delivery providers failed. Queuing message to queued_1793237754285@example.com into EmailOutbox for background retry.
+    # Subtest: 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+    ok 3 - 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+      ---
+      duration_ms: 45.979208
+      type: 'test'
+      ...
+# [DbEmailOutbox] Stored to: dev_test_1793237754331@example.com | Subject: Dev Mode Email Test | Link: none
+    # Subtest: 4. In dev/test when neither key is configured, writes to outbox without failing
+    ok 4 - 4. In dev/test when neither key is configured, writes to outbox without failing
+      ---
+      duration_ms: 3.870666
+      type: 'test'
+      ...
+    1..4
+ok 1 - Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+  ---
+  duration_ms: 113.284333
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 375.774833
+--- RUN 4 ---
+TAP version 13
+# Subtest: Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+    # Subtest: 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+    ok 1 - 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+      ---
+      duration_ms: 39.512917
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 500: {"error":"Brevo Internal Service Error"}. Attempting fallback (Resend)...
+    # Subtest: 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+    ok 2 - 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+      ---
+      duration_ms: 6.867041
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 502: {"error":"Brevo Bad Gateway"}. Attempting fallback (Resend)...
+# [Email] Fallback provider (Resend) failed: Resend HTTP 429: {"error":"Resend Rate Limit Exceeded"}.
+# [Email] All email delivery providers failed. Queuing message to queued_1793237754711@example.com into EmailOutbox for background retry.
+    # Subtest: 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+    ok 3 - 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+      ---
+      duration_ms: 33.942667
+      type: 'test'
+      ...
+# [DbEmailOutbox] Stored to: dev_test_1793237754745@example.com | Subject: Dev Mode Email Test | Link: none
+    # Subtest: 4. In dev/test when neither key is configured, writes to outbox without failing
+    ok 4 - 4. In dev/test when neither key is configured, writes to outbox without failing
+      ---
+      duration_ms: 4.881167
+      type: 'test'
+      ...
+    1..4
+ok 1 - Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+  ---
+  duration_ms: 104.354167
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 365.390083
+--- RUN 5 ---
+TAP version 13
+# Subtest: Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+    # Subtest: 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+    ok 1 - 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+      ---
+      duration_ms: 41.4745
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 500: {"error":"Brevo Internal Service Error"}. Attempting fallback (Resend)...
+    # Subtest: 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+    ok 2 - 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+      ---
+      duration_ms: 7.061375
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 502: {"error":"Brevo Bad Gateway"}. Attempting fallback (Resend)...
+# [Email] Fallback provider (Resend) failed: Resend HTTP 429: {"error":"Resend Rate Limit Exceeded"}.
+# [Email] All email delivery providers failed. Queuing message to queued_1793237755138@example.com into EmailOutbox for background retry.
+    # Subtest: 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+    ok 3 - 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+      ---
+      duration_ms: 33.86425
+      type: 'test'
+      ...
+# [DbEmailOutbox] Stored to: dev_test_1793237755172@example.com | Subject: Dev Mode Email Test | Link: none
+    # Subtest: 4. In dev/test when neither key is configured, writes to outbox without failing
+    ok 4 - 4. In dev/test when neither key is configured, writes to outbox without failing
+      ---
+      duration_ms: 6.759458
+      type: 'test'
+      ...
+    1..4
+ok 1 - Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+  ---
+  duration_ms: 108.495875
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 373.553292
