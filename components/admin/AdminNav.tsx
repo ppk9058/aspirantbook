@@ -28,6 +28,7 @@ import {
     Sparkles,
     Book,
     Globe,
+    Trash2,
 } from "lucide-react"
 import Image from "next/image"
 
@@ -57,6 +58,7 @@ const adminNavigation = [
     { icon: Users, name: "Users & Roles", href: "/admin/users", matchPrefix: "/admin/users" },
     { icon: BarChart3, name: "Analytics", href: "/admin/analytics", matchPrefix: "/admin/analytics" },
     { icon: Shield, name: "Audit Logs", href: "/admin/audit", matchPrefix: "/admin/audit" },
+    { icon: Trash2, name: "Data Deletion", href: "/admin/data-deletion", matchPrefix: "/admin/data-deletion", adminOnly: true },
     { icon: Settings, name: "Settings", href: "/admin/settings", matchPrefix: "/admin/settings" },
 ]
 

@@ -1,0 +1,440 @@
+=== TASK G2: DATA DELETION QUEUE 5X RUN ===
+Git SHA: 259651da8000bb739bb6415a2a91e7b55e641c0d
+Timestamp: 2026-10-29T13:52:39Z
+Command: for i in 1 2 3 4 5; do node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/data-deletion-queue.test.ts; done
+--- RUN 1 ---
+TAP version 13
+# Subtest: Task G2: Data Deletion Queue & Admin Transitions
+    # Subtest: 1. Security: Role Checks (Non-Admin 403)
+        # Subtest: Non-admin (student) gets 403 on admin list route
+        ok 1 - Non-admin (student) gets 403 on admin list route
+          ---
+          duration_ms: 4.7545
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin single get route
+        ok 2 - Non-admin (student) gets 403 on admin single get route
+          ---
+          duration_ms: 0.661166
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin transition patch route
+        ok 3 - Non-admin (student) gets 403 on admin transition patch route
+          ---
+          duration_ms: 0.740083
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: Role Checks (Non-Admin 403)
+      ---
+      duration_ms: 6.67725
+      type: 'suite'
+      ...
+    # Subtest: 2. Admin Queue Listing & Transitions
+        # Subtest: Admin can list deletion requests
+        ok 1 - Admin can list deletion requests
+          ---
+          duration_ms: 26.905834
+          type: 'test'
+          ...
+        # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+        ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+          ---
+          duration_ms: 14.224
+          type: 'test'
+          ...
+        # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+        ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+          ---
+          duration_ms: 5.679625
+          type: 'test'
+          ...
+        # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+        ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+          ---
+          duration_ms: 2.777542
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Admin Queue Listing & Transitions
+      ---
+      duration_ms: 50.10075
+      type: 'suite'
+      ...
+    # Subtest: 3. Authenticated User Deletion Request & Idempotency
+        # Subtest: Authenticated student request creates initial record
+        ok 1 - Authenticated student request creates initial record
+          ---
+          duration_ms: 35.872791
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Authenticated User Deletion Request & Idempotency
+      ---
+      duration_ms: 36.099334
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task G2: Data Deletion Queue & Admin Transitions
+  ---
+  duration_ms: 169.512208
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 4
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 788.56475
+--- RUN 2 ---
+TAP version 13
+# Subtest: Task G2: Data Deletion Queue & Admin Transitions
+    # Subtest: 1. Security: Role Checks (Non-Admin 403)
+        # Subtest: Non-admin (student) gets 403 on admin list route
+        ok 1 - Non-admin (student) gets 403 on admin list route
+          ---
+          duration_ms: 4.385959
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin single get route
+        ok 2 - Non-admin (student) gets 403 on admin single get route
+          ---
+          duration_ms: 0.602375
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin transition patch route
+        ok 3 - Non-admin (student) gets 403 on admin transition patch route
+          ---
+          duration_ms: 0.660958
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: Role Checks (Non-Admin 403)
+      ---
+      duration_ms: 6.074708
+      type: 'suite'
+      ...
+    # Subtest: 2. Admin Queue Listing & Transitions
+        # Subtest: Admin can list deletion requests
+        ok 1 - Admin can list deletion requests
+          ---
+          duration_ms: 20.640083
+          type: 'test'
+          ...
+        # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+        ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+          ---
+          duration_ms: 10.561208
+          type: 'test'
+          ...
+        # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+        ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+          ---
+          duration_ms: 7.137792
+          type: 'test'
+          ...
+        # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+        ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+          ---
+          duration_ms: 3.813583
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Admin Queue Listing & Transitions
+      ---
+      duration_ms: 42.701416
+      type: 'suite'
+      ...
+    # Subtest: 3. Authenticated User Deletion Request & Idempotency
+        # Subtest: Authenticated student request creates initial record
+        ok 1 - Authenticated student request creates initial record
+          ---
+          duration_ms: 35.413125
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Authenticated User Deletion Request & Idempotency
+      ---
+      duration_ms: 35.616708
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task G2: Data Deletion Queue & Admin Transitions
+  ---
+  duration_ms: 133.679834
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 4
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 602.47925
+--- RUN 3 ---
+TAP version 13
+# Subtest: Task G2: Data Deletion Queue & Admin Transitions
+    # Subtest: 1. Security: Role Checks (Non-Admin 403)
+        # Subtest: Non-admin (student) gets 403 on admin list route
+        ok 1 - Non-admin (student) gets 403 on admin list route
+          ---
+          duration_ms: 5.284083
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin single get route
+        ok 2 - Non-admin (student) gets 403 on admin single get route
+          ---
+          duration_ms: 0.766
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin transition patch route
+        ok 3 - Non-admin (student) gets 403 on admin transition patch route
+          ---
+          duration_ms: 0.707916
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: Role Checks (Non-Admin 403)
+      ---
+      duration_ms: 7.21625
+      type: 'suite'
+      ...
+    # Subtest: 2. Admin Queue Listing & Transitions
+        # Subtest: Admin can list deletion requests
+        ok 1 - Admin can list deletion requests
+          ---
+          duration_ms: 26.513459
+          type: 'test'
+          ...
+        # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+        ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+          ---
+          duration_ms: 12.715042
+          type: 'test'
+          ...
+        # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+        ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+          ---
+          duration_ms: 5.39825
+          type: 'test'
+          ...
+        # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+        ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+          ---
+          duration_ms: 4.594208
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Admin Queue Listing & Transitions
+      ---
+      duration_ms: 49.836125
+      type: 'suite'
+      ...
+    # Subtest: 3. Authenticated User Deletion Request & Idempotency
+        # Subtest: Authenticated student request creates initial record
+        ok 1 - Authenticated student request creates initial record
+          ---
+          duration_ms: 34.3445
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Authenticated User Deletion Request & Idempotency
+      ---
+      duration_ms: 34.5515
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task G2: Data Deletion Queue & Admin Transitions
+  ---
+  duration_ms: 141.076708
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 4
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 644.203042
+--- RUN 4 ---
+TAP version 13
+# Subtest: Task G2: Data Deletion Queue & Admin Transitions
+    # Subtest: 1. Security: Role Checks (Non-Admin 403)
+        # Subtest: Non-admin (student) gets 403 on admin list route
+        ok 1 - Non-admin (student) gets 403 on admin list route
+          ---
+          duration_ms: 5.180042
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin single get route
+        ok 2 - Non-admin (student) gets 403 on admin single get route
+          ---
+          duration_ms: 0.702167
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin transition patch route
+        ok 3 - Non-admin (student) gets 403 on admin transition patch route
+          ---
+          duration_ms: 0.703916
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: Role Checks (Non-Admin 403)
+      ---
+      duration_ms: 7.068833
+      type: 'suite'
+      ...
+    # Subtest: 2. Admin Queue Listing & Transitions
+        # Subtest: Admin can list deletion requests
+        ok 1 - Admin can list deletion requests
+          ---
+          duration_ms: 21.851375
+          type: 'test'
+          ...
+        # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+        ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+          ---
+          duration_ms: 11.404917
+          type: 'test'
+          ...
+        # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+        ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+          ---
+          duration_ms: 5.375083
+          type: 'test'
+          ...
+        # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+        ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+          ---
+          duration_ms: 2.774958
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Admin Queue Listing & Transitions
+      ---
+      duration_ms: 41.917375
+      type: 'suite'
+      ...
+    # Subtest: 3. Authenticated User Deletion Request & Idempotency
+        # Subtest: Authenticated student request creates initial record
+        ok 1 - Authenticated student request creates initial record
+          ---
+          duration_ms: 35.243292
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Authenticated User Deletion Request & Idempotency
+      ---
+      duration_ms: 35.43775
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task G2: Data Deletion Queue & Admin Transitions
+  ---
+  duration_ms: 135.470792
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 4
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 613.91525
+--- RUN 5 ---
+TAP version 13
+# Subtest: Task G2: Data Deletion Queue & Admin Transitions
+    # Subtest: 1. Security: Role Checks (Non-Admin 403)
+        # Subtest: Non-admin (student) gets 403 on admin list route
+        ok 1 - Non-admin (student) gets 403 on admin list route
+          ---
+          duration_ms: 5.117958
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin single get route
+        ok 2 - Non-admin (student) gets 403 on admin single get route
+          ---
+          duration_ms: 0.764667
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin transition patch route
+        ok 3 - Non-admin (student) gets 403 on admin transition patch route
+          ---
+          duration_ms: 0.822959
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: Role Checks (Non-Admin 403)
+      ---
+      duration_ms: 7.181583
+      type: 'suite'
+      ...
+    # Subtest: 2. Admin Queue Listing & Transitions
+        # Subtest: Admin can list deletion requests
+        ok 1 - Admin can list deletion requests
+          ---
+          duration_ms: 22.79725
+          type: 'test'
+          ...
+        # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+        ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+          ---
+          duration_ms: 12.238333
+          type: 'test'
+          ...
+        # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+        ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+          ---
+          duration_ms: 5.490792
+          type: 'test'
+          ...
+        # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+        ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+          ---
+          duration_ms: 2.764584
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Admin Queue Listing & Transitions
+      ---
+      duration_ms: 43.811458
+      type: 'suite'
+      ...
+    # Subtest: 3. Authenticated User Deletion Request & Idempotency
+        # Subtest: Authenticated student request creates initial record
+        ok 1 - Authenticated student request creates initial record
+          ---
+          duration_ms: 31.01925
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Authenticated User Deletion Request & Idempotency
+      ---
+      duration_ms: 31.218333
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task G2: Data Deletion Queue & Admin Transitions
+  ---
+  duration_ms: 135.315625
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 4
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 608.109209
+=== ALL 5 RUNS PASSED ===

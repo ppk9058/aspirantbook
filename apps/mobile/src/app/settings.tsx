@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch, Modal, TextInput, Alert } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch, Modal, TextInput, Alert, Linking } from "react-native";
 import { useRouter } from "expo-router";
-import { User, Moon, Shield, Target, ChevronRight, LogOut, AlertTriangle, X } from "lucide-react-native";
+import { User, Moon, Shield, Target, ChevronRight, LogOut, AlertTriangle, X, ExternalLink } from "lucide-react-native";
 import { AppShell } from "../components/shell/AppShell";
 import { Card } from "../components/primitives/Card";
 import { Chip } from "../components/primitives/Chip";
@@ -12,6 +12,7 @@ import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
 import { Storage } from "../lib/storage";
 import { clearAllCachedPdfs } from "../lib/pdf-manager";
+import { getPublicDeletionUrl } from "../lib/data-deletion";
 
 type SettingsTab = "goal" | "profile" | "appearance" | "security";
 
@@ -282,6 +283,20 @@ export default function SettingsScreen() {
                   <Text style={{ color: colors.danger, fontWeight: "600", fontSize: 13 }}>
                     Permanently Delete Account
                   </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    const url = getPublicDeletionUrl();
+                    Linking.openURL(url).catch(() => {});
+                  }}
+                  style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 4, padding: 8 }}
+                  testID="open-public-deletion-url"
+                >
+                  <Text style={{ color: colors.textSecondary, fontSize: 12, textDecorationLine: "underline" }}>
+                    Public web deletion form (/data-deletion)
+                  </Text>
+                  <ExternalLink size={12} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
             ) : (

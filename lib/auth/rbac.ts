@@ -19,8 +19,13 @@ export interface UserContext {
  */
 export async function getCurrentUserContext(): Promise<UserContext> {
   const session = await auth()
-  const cookieStore = await cookies()
-  const demoRoleCookie = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
+  let demoRoleCookie: string | undefined = undefined
+  try {
+    const cookieStore = await cookies()
+    demoRoleCookie = normalizeDemoRole(cookieStore.get("ts_demo_role")?.value)
+  } catch {
+    // Outside Next.js request scope (e.g. unit tests or background scripts)
+  }
 
   // Authentic session role always takes precedence; fallback to demo cookie for unauthenticated testing
   let rawRole: string | undefined = session?.user?.role
