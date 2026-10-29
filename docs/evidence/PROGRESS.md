@@ -49,3 +49,38 @@
 | **Z3** | Merge conflict prediction across 3 branches | NOT_STARTED | - | - | Trial merge / merge-tree analysis |
 | **Z4** | Final report & claims register final state | NOT_STARTED | - | - | English, max ~80 lines, honest headline numbers |
 | **Z5** | Isolation & safety proof | NOT_STARTED | - | - | Zero supabase.co hits, zero remote pushes |
+| **G1** | Turnstile on login | BLOCKED(disk) | `0e481dc` | `docs/evidence/raw/disk-check.txt` | Pre-flight disk space check: 2.4Gi available (< 15 GB required). |
+| **G2** | Data-deletion admin queue and mobile entry | BLOCKED(disk) | `0e481dc` | `docs/evidence/raw/disk-check.txt` | Pre-flight disk space check: 2.4Gi available (< 15 GB required). |
+| **G3** | CI additions | BLOCKED(disk) | `0e481dc` | `docs/evidence/raw/disk-check.txt` | Pre-flight disk space check: 2.4Gi available (< 15 GB required). |
+| **G4** | /api/health completeness | BLOCKED(disk) | `0e481dc` | `docs/evidence/raw/disk-check.txt` | Pre-flight disk space check: 2.4Gi available (< 15 GB required). |
+| **G5** | Email outbox worker | BLOCKED(disk) | `0e481dc` | `docs/evidence/raw/disk-check.txt` | Pre-flight disk space check: 2.4Gi available (< 15 GB required). |
+| **G6** | Brevo transport decision | BLOCKED(disk) | `0e481dc` | `docs/evidence/raw/disk-check.txt` | Pre-flight disk space check: 2.4Gi available (< 15 GB required). |
+| **G7** | LIVE-UNVERIFIED register | BLOCKED(disk) | `0e481dc` | `docs/evidence/raw/disk-check.txt` | Pre-flight disk space check: 2.4Gi available (< 15 GB required). |
+
+---
+
+## Launch Blocker Verification (G1-G7 Setup Check)
+
+### Disk Space Guard
+- **Status:** `BLOCKED(disk)`
+- **Available Disk:** 2.4Gi (< 15 GB threshold)
+- **Evidence:** `docs/evidence/raw/disk-check.txt`
+
+#### Output of `df -h && docker system df`:
+```
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1   228Gi    12Gi   2.4Gi    83%    458k   26M    2%   /
+devfs            203Ki   203Ki     0Bi   100%     702     0  100%   /dev
+/dev/disk3s6     228Gi   6.5Gi   2.4Gi    73%       8   26M    0%   /System/Volumes/VM
+/dev/disk3s2     228Gi   8.4Gi   2.4Gi    78%    1.4k   26M    0%   /System/Volumes/Preboot
+/dev/disk3s4     228Gi   8.5Mi   2.4Gi     1%     108   26M    0%   /System/Volumes/Update
+/dev/disk2s2     500Mi   6.0Mi   478Mi     2%       1  4.9M    0%   /System/Volumes/xarts
+/dev/disk2s1     500Mi   5.7Mi   478Mi     2%      35  4.9M    0%   /System/Volumes/iSCPreboot
+/dev/disk2s3     500Mi   5.8Mi   478Mi     2%      83  4.9M    0%   /System/Volumes/Hardware
+/dev/disk3s5     228Gi   198Gi   2.4Gi    99%    3.4M   26M   12%   /System/Volumes/Data
+map auto_home      0Bi     0Bi     0Bi   100%       0     0     -   /System/Volumes/Data/home
+Cannot connect to the Docker daemon at unix:///Users/praveenkumar/.docker/run/docker.sock. Is the docker daemon running?
+```
+Execution stopped per SETUP contract instruction:
+"First run df -h on the host and docker system df. If free disk < 15 GB, write BLOCKED(disk) with the output to PROGRESS.md and stop. Do not run destructive docker prune commands yourself."
+
