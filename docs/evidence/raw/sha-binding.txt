@@ -1,0 +1,68 @@
+Command: git merge-base --is-ancestor <evidence-sha> <task-commit>; git diff --stat <evidence-sha> <task-commit> -- <impl-files>
+Exit Code: 0 (per-command exit codes recorded inline)
+Timestamp (UTC): 2026-10-29T15:02:47Z
+Git SHA: de27ae591a994486755491551e86676e48dcde0a
+
+=== G1: evidence b33ef65 -> task fbc136d ===
+merge-base --is-ancestor exit: 0
+--- git diff --stat b33ef65 fbc136d -- auth.ts lib/security/turnstile.ts app/api/v1/auth/login/route.ts apps/mobile/src/app/settings.tsx tests/unit/turnstile-login.test.ts ---
+ app/api/v1/auth/login/route.ts     |  12 ++
+ auth.ts                            | 205 ++++++++++++++++++-------------
+ tests/unit/turnstile-login.test.ts | 245 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 375 insertions(+), 87 deletions(-)
+
+=== G2: evidence 259651d -> task 5ea9744 ===
+merge-base --is-ancestor exit: 0
+--- git diff --stat 259651d 5ea9744 -- app/api/admin/data-deletion app/api/v1/data-deletion apps/mobile/src/lib/data-deletion.ts apps/mobile/src/app/settings.tsx tests/unit/data-deletion-queue.test.ts ---
+ app/api/admin/data-deletion/[id]/route.ts | 133 ++++++++++++++++
+ app/api/admin/data-deletion/route.ts      |  37 +++++
+ app/api/v1/data-deletion/route.ts         | 131 ++++++++++++++++
+ apps/mobile/src/app/settings.tsx          |  19 ++-
+ apps/mobile/src/lib/data-deletion.ts      |  94 +++++++++++
+ tests/unit/data-deletion-queue.test.ts    | 253 ++++++++++++++++++++++++++++++
+ 6 files changed, 665 insertions(+), 2 deletions(-)
+
+=== G3: evidence 36c5894 -> task d1873c8 ===
+merge-base --is-ancestor exit: 0
+--- git diff --stat 36c5894 d1873c8 -- .github/workflows/ci.yml ---
+ .github/workflows/ci.yml | 95 +++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 94 insertions(+), 1 deletion(-)
+
+=== G4: evidence bc2aa66 -> task d0035fc ===
+merge-base --is-ancestor exit: 0
+--- git diff --stat bc2aa66 d0035fc -- lib/health/health-service.ts app/api/health/route.ts tests/unit/health-completeness.test.ts ---
+ app/api/health/route.ts                |  52 ++-------
+ lib/health/health-service.ts           | 121 +++++++++++++++++++++
+ tests/unit/health-completeness.test.ts | 187 +++++++++++++++++++++++++++++++++
+ 3 files changed, 315 insertions(+), 45 deletions(-)
+
+=== G5: evidence be36a3e -> task ea7a99b ===
+merge-base --is-ancestor exit: 0
+--- git diff --stat be36a3e ea7a99b -- lib/email/outbox-worker.ts app/api/internal/email-outbox/route.ts tests/unit/email-outbox-worker.test.ts .github/workflows/email-outbox-cron.yml ---
+ .github/workflows/email-outbox-cron.yml |  20 +++
+ app/api/internal/email-outbox/route.ts  |  41 +++++
+ lib/email/outbox-worker.ts              | 287 ++++++++++++++++++++++++++++++++
+ tests/unit/email-outbox-worker.test.ts  | 248 +++++++++++++++++++++++++++
+ 4 files changed, 596 insertions(+)
+
+=== G6: evidence 6f6eef1 -> task 63229b3 ===
+merge-base --is-ancestor exit: 1
+--- git diff --stat 6f6eef1 63229b3 -- docs/evidence/email-transport.md ---
+
+=== G7: evidence 11717ac -> task 969f382 ===
+merge-base --is-ancestor exit: 1
+--- git diff --stat 11717ac 969f382 -- docs/evidence/live-unverified.md ---
+
+=== CORRECTION: G6 / G7 evidence SHAs ===
+G6 is a documentation-only deliverable. The evidence file docs/evidence/email-transport.md was
+created IN commit 63229b3 itself. 6f6eef1 is its child (the PROGRESS.md update), so the
+merge-base test against 6f6eef1 correctly returns 1. Binding: evidence commit == 63229b3.
+G7 is a documentation-only deliverable. docs/evidence/live-unverified.md was created IN commit
+969f382 itself. 11717ac is its child (the PROGRESS.md update). Binding: evidence commit == 969f382.
+
+=== CONCLUSION ===
+For G1, G2, G3, G4 and G5 the recorded evidence header SHA is the documentation commit that
+PRECEDED the implementation commit. `git diff --stat` proves the implementation/test files were
+added after the evidence run. Therefore all five evidence sets are NOT bound to the implementation
+and are replaced by fresh 5x runs in this remediation (see *-pass-after / *-5x files with the new
+evidence-commit SHA and an implementation-diff check against the original task commit).
