@@ -1,0 +1,161 @@
+=== R8 / Z2: INDEPENDENT FRESH-CLONE TEST ACCOUNTING (BEFORE vs AFTER) ===
+Author: independent verification pass (separate from the R8 report in
+        docs/evidence/r8-fresh-clone-verification.md)
+Timestamps (UTC): 2026-10-29T18:5xZ .. 2026-10-29T19:5xZ
+Baseline commit (BEFORE): b33ef657a8168fd6f242b81903a69f5c4d5ea58f
+Tip commit      (AFTER):  93cc5ae48377c4e044f1b0a415b3bf15f642ef7e
+Both trees were isolated clones/worktrees with their OWN node_modules and
+their OWN freshly created database on the local Docker test server
+(127.0.0.1:54329). No remote host, no .env.local, no writes outside these
+throw-away directories.
+
+NOTE ON EVIDENCE INTEGRITY: the worktree /Users/praveenkumar/ws-launch is
+being used concurrently by another session on the same branch. The first
+scratch clone (/private/var/.../ws-fresh-r8) was re-pointed by that session
+mid-measurement (reflog: 54bf0a2 -> 8f1df66 -> c38b82a -> 93cc5ae), so every
+number below was RE-MEASURED in a private pinned clone
+(/private/var/.../ws-r8-pinned) whose HEAD was printed before and after each
+run. Nothing in this file is derived from the moved clone.
+
+--------------------------------------------------------------------------------
+1. CLEAN INSTALL, SCHEMA AND MIGRATIONS AT THE TIP (93cc5ae)
+--------------------------------------------------------------------------------
+$ git clone --no-hardlinks --branch feat/launch-blockers <repo> ws-r8-pinned
+HEAD = 93cc5ae48377c4e044f1b0a415b3bf15f642ef7e
+
+$ npm ci --offline --no-audit --no-fund
+exit code: 0        (added 786 packages in 37s; postinstall ran prisma generate)
+Note: registry.npmjs.org is unreachable from this machine (DNS ENOTFOUND), so
+the install was served from the local npm cache. A networked install was NOT
+proven.
+
+$ docker exec trillionskill-test-db psql ... CREATE DATABASE trillionskill_r8pin_test
+$ DATABASE_URL=... DIRECT_URL=... npx prisma migrate deploy
+exit code: 0        migrations applied: 31    pending: 0
+
+$ node scripts/check-migrations-additive.mjs
+exit code: 0        "[PASS] All migrations are strictly additive. Scanned 32
+                    migration folders with zero unallowlisted violations."
+
+$ node scripts/check-tsc-ratchet.mjs
+exit code: 0        "[PASS] TypeScript error count matches ratchet baseline (0 <= 0)."
+
+Baseline tree b33ef65 was migrated onto its own empty database the same way:
+migrations applied: 31, exit code 0. `diff` of prisma/migrations between
+b33ef65 and 93cc5ae is EMPTY, and package.json/package-lock.json are unchanged
+between the two commits, so the two runs are dependency-identical.
+
+--------------------------------------------------------------------------------
+2. THE UNIT-TEST COMMAND THAT ci.yml ACTUALLY RUNS IS BROKEN
+--------------------------------------------------------------------------------
+.github/workflows/ci.yml:163 (job "test"):
+  run: node --test --test-concurrency=1 node_modules/.bin/tsx tests/unit/*.test.ts
+
+Executed verbatim in the pinned clean clone, with the DB URL CI provides:
+exit code: 1
+# tests 89
+# pass 8
+# fail 72
+# cancelled 9
+
+Root cause: `node --test <file...>` treats `node_modules/.bin/tsx` as a test
+file and loads every *.test.ts with plain Node (no tsx loader, no tsconfig
+`@/*` path alias), so almost every suite dies at import time:
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '<root>/lib/...'
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@/lib' imported from
+                                 tests/unit/test-db-guard.test.ts
+The working invocation used by the existing script `test:content-engine`
+(package.json) is `tsx --test ...`. G3's recorded evidence
+(docs/evidence/raw/ci-additions-verify.txt) has sections 1-8 and NO unit-test
+section at all, i.e. this command was never executed before this measurement.
+
+--------------------------------------------------------------------------------
+3. BEFORE / AFTER ACCOUNTING WITH A WORKING RUNNER
+--------------------------------------------------------------------------------
+Command used for both sides (identical flags, identical env, fresh DB each):
+  APP_ENV=test NODE_ENV=test DATABASE_URL=<local> DIRECT_URL=<local> \
+    npx tsx --test --test-concurrency=1 tests/unit/*.test.ts
+
+BEFORE  b33ef65   exit 1   tests 381  pass 341  fail 12  cancelled 28
+AFTER   93cc5ae   exit 1   tests 441  pass 400  fail 13  cancelled 28
+Delta             +60 tests, +59 pass, +1 fail, 0 new cancellations
+
+Failing suites BEFORE (13, all pre-existing):
+  P1-1 Cache Invalidation & Inter-Process Versioning
+  P1-2 clientSeq NOT NULL COALESCE & Edge Case
+  P1-4 Connection limit validator / pg_stat_activity
+  B5 content audit events live in the database
+  B2 course metadata is DB-only and never reports a failed write
+  C2 doubts and form submissions live in the database
+  S3 configuration guards (B-013)
+  P0-1 Exam Deadline Before Write
+  P0-2 Correct Ranking Design
+  P1-5 Exam Route Rate Limiting Hardening
+  Task E Correctness & Edge Case Verification
+  P1-6 Mobile v1 exam.service.ts perf port & query counts
+  S0 test-database guard
+
+Failing suites AFTER (14) = the same 13 PLUS:
+  Task G1 Turnstile on Login Verification      <-- the only new failure
+
+Representative pre-existing causes observed (unchanged by this branch):
+  - tests/unit/cache-invalidation-versioning.test.ts hardcodes a database named
+    `trillionskill_perf_v2_test`
+    -> "Database `trillionskill_perf_v2_test` does not exist"
+  - S3 guards assert the un-configured error text, which depends on ambient
+    AWS_*/S3_* env
+  - S0 subtest "rejects the right host on the wrong port" -> "Missing expected
+    exception." (fails identically at b33ef65)
+
+Conclusion for R8/Z2: the test file changes on this branch are additive only
+(`git diff --name-status b33ef65..HEAD -- tests/ apps/mobile/tests/ packages/shared`
+lists 8 files, all status "A", zero M/D), and they add no new failure once the
+environment provides two secrets (section 4). The suite as a whole has NEVER
+been green from a clean environment at b33ef65 either, so the earlier claim
+"fresh clone full unit suite passes" is false in both directions.
+
+--------------------------------------------------------------------------------
+4. G1 (TURNSTILE ON LOGIN) AT THE TIP
+--------------------------------------------------------------------------------
+Same pinned clone, same fresh DB, only two extra ambient variables set
+(NEXTAUTH_SECRET/AUTH_SECRET + AUTH_TRUST_HOST), G1 file run 5 times:
+
+run1 exit=0  # pass 14  # fail 0
+run2 exit=0  # pass 14  # fail 0
+run3 exit=0  # pass 14  # fail 0
+run4 exit=0  # pass 14  # fail 0
+run5 exit=0  # pass 14  # fail 0
+SHA printed before/after all five runs: 93cc5ae
+
+Without those two variables the file fails exactly one subtest:
+  not ok 5b. HTTP-level NextAuth credentials callback ...
+    expected: 200   actual: 500      (GET /api/auth/csrf)
+i.e. the failure is env provisioning, not a weakened assertion. ci.yml's
+"test" job sets only APP_ENV, NODE_ENV, DATABASE_URL, DIRECT_URL, so G1 is red
+in CI as the workflow stands.
+
+--------------------------------------------------------------------------------
+5. SIDE OBSERVATION (out of the G1-G7 scope, reported, not changed)
+--------------------------------------------------------------------------------
+Running the unit suite in a clean clone creates runtime JSON under `data/`
+(e.g. data/batches.json, data/books.json, data/form-submissions.json;
+632 KB after two runs). lib/storage/persist-backend.ts:8 defaults to
+`process.env.PERSIST_BACKEND || "fs"`, i.e. filesystem persistence is the
+default when the variable is unset. This is relevant to the "no local-disk
+writes / serverless read-only" claim (B3) and was NOT investigated further
+here.
+
+--------------------------------------------------------------------------------
+6. WHAT THIS EVIDENCE DOES AND DOES NOT PROVE
+--------------------------------------------------------------------------------
+PROVEN (raw output above, reproducible):
+  - offline `npm ci` reproduces the tree from package-lock at 93cc5ae;
+  - schema applies from zero on an empty Postgres (31/0) and stays additive;
+  - tsc ratchet is 0/0 at the tip;
+  - the branch's test changes are pure additions;
+  - G1 passes 5/5 on a fresh DB with only two secret env vars.
+NOT PROVEN:
+  - `npm ci` against the network (registry unreachable here);
+  - any GitHub Actions run (workflows were never executed on GitHub);
+  - a green unit-test job (the ci.yml invocation fails, and 12-13 suites are
+    red for pre-existing environment reasons).

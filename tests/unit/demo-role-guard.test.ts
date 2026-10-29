@@ -234,4 +234,110 @@ describe("B-001 demo role guard", () => {
       restoreEnv()
     }
   })
+
+  test("app/api/auth/role GET and POST return 404 in production", async () => {
+    try {
+      setEnv("NODE_ENV", "production")
+      delete process.env.DEMO_MODE_ENABLED
+      delete process.env.ENABLE_DEMO_ROLE
+      delete process.env.APP_ENV
+
+      const { GET, POST } = await import("../../app/api/auth/role/route")
+      const getRes = await GET()
+      assert.equal(getRes.status, 404, "GET /api/auth/role must return 404 in production")
+
+      const postReq = new NextRequest("http://127.0.0.1:3045/api/auth/role", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ role: "ADMIN" }),
+      })
+      const postRes = await POST(postReq)
+      assert.equal(postRes.status, 404, "POST /api/auth/role must return 404 in production")
+    } finally {
+      restoreEnv()
+    }
+  })
+
+  test("app/(dashboard)/admin/layout.tsx rejects ts_demo_role cookie in production", async () => {
+    try {
+      setEnv("NODE_ENV", "production")
+      delete process.env.DEMO_MODE_ENABLED
+      delete process.env.ENABLE_DEMO_ROLE
+      delete process.env.APP_ENV
+
+      const nextHeaders = require("next/headers")
+      const authModule = require("../../auth")
+      const mockCookies = {
+        get: (name: string) => (name === "ts_demo_role" ? { value: "ADMIN" } : undefined),
+      }
+
+      require.cache[require.resolve("next/headers")]!.exports = {
+        ...nextHeaders,
+        cookies: async () => mockCookies,
+        headers: async () => ({ get: () => "" }),
+      }
+      require.cache[require.resolve("../../auth")]!.exports = {
+        ...authModule,
+        auth: async () => null,
+      }
+
+      const DashboardAdminLayout = (await import("../../app/(dashboard)/admin/layout")).default
+      let redirected = false
+      let redirectTarget = ""
+      try {
+        await DashboardAdminLayout({ children: "admin-secret-content" as any })
+      } catch (err: any) {
+        if (err?.digest?.startsWith("NEXT_REDIRECT")) {
+          redirected = true
+          redirectTarget = err.digest
+        } else {
+          throw err
+        }
+      }
+
+      assert.equal(redirected, true, "DashboardAdminLayout must redirect unauthorized user in production")
+      assert.match(redirectTarget, /;\/;307;/, "DashboardAdminLayout must redirect to /")
+    } finally {
+      restoreEnv()
+    }
+  })
+
+  test("exam API route rejects ts_demo_role=ADMIN in production with 401", async () => {
+    try {
+      setEnv("NODE_ENV", "production")
+      delete process.env.DEMO_MODE_ENABLED
+      delete process.env.ENABLE_DEMO_ROLE
+      delete process.env.APP_ENV
+
+      const nextHeaders = require("next/headers")
+      const authModule = require("../../auth")
+      const mockCookies = {
+        get: (name: string) => (name === "ts_demo_role" ? { value: "ADMIN" } : undefined),
+      }
+
+      require.cache[require.resolve("next/headers")]!.exports = {
+        ...nextHeaders,
+        cookies: async () => mockCookies,
+        headers: async () => ({ get: () => "" }),
+      }
+      require.cache[require.resolve("../../auth")]!.exports = {
+        ...authModule,
+        auth: async () => null,
+      }
+
+      const { POST: bulkPost } = await import("../../app/api/exam/test/bulk/route")
+      const req = new NextRequest("http://127.0.0.1:3045/api/exam/test/bulk", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          cookie: "ts_demo_role=ADMIN",
+        },
+        body: JSON.stringify({ testIds: ["test-1"], action: "archive" }),
+      })
+      const res = await bulkPost(req)
+      assert.ok([401, 403].includes(res.status), `Expected 401 or 403, got ${res.status}`)
+    } finally {
+      restoreEnv()
+    }
+  })
 })

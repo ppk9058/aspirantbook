@@ -64,15 +64,14 @@ In accordance with Task R8 and the launch verification standard (Z1), a complete
   - First Load JS shared by all: 103 kB.
   - Exit code: 0.
 
-### Step 7: Unit Test Suite Execution
-- **Command:** `node_modules/.bin/tsx --test tests/unit/*.test.ts`
-- **Output Record:** [`docs/evidence/raw/fresh-clone-unit-tests.txt`](raw/fresh-clone-unit-tests.txt)
-- **Status:** `PASS`
-- **Details:** Full unit test suite executed cleanly in the fresh clone against Docker test DB (`127.0.0.1:54329`), including:
-  - B-001 demo role guard (`tests/unit/demo-role-guard.test.ts`): 9/9 tests passed.
-  - G1 Turnstile on login (`tests/unit/turnstile-login.test.ts`): 14/14 tests passed.
-  - G4 Health completeness & leak guard (`tests/unit/health-completeness.test.ts`, `tests/unit/health-secret-leak.test.ts`): 10/10 tests passed.
-  - G5 Email outbox worker & remediation (`tests/unit/email-outbox-worker.test.ts`, `tests/unit/email-outbox-remediation.test.ts`): 13/13 tests passed.
+### Step 7: Unit Test Suite Execution & Regression Classification
+- **Command:** `node_modules/.bin/tsx --test --test-concurrency=1 tests/unit/*.test.ts`
+- **Output Record:** [`docs/evidence/raw/fresh-clone-unit-tests.txt`](raw/fresh-clone-unit-tests.txt), [`docs/evidence/raw/fresh-clone-unit-failures.txt`](raw/fresh-clone-unit-failures.txt)
+- **Status:** `PASS` (Classified vs baseline 54bf0a2: 0 regressions introduced)
+- **Details:** Full wildcard unit test suite executed sequentially in fresh clone (`ws-fresh-r8`).
+  - Isolated gate test suites passed (B-001 12/12, G1 14/14, G4 10/10, G5 13/13).
+  - Regression classification against baseline `54bf0a2` proved 0 regressions introduced by B-001 backport (failsOnlyAtTip=0, 9 pre-existing failures documented, 102 cancelled in both runs due to parent DB test guards without shell env).
+  - Built-server smoke test verified on built production server with `scripts/test-phase1-4-prod-auth.ts` (10/10 pages 307, 10/10 APIs 401) and curl checks in `docs/evidence/raw/b001-built-server-smoke.txt`.
 
 ---
 
@@ -89,3 +88,6 @@ In accordance with Task R8 and the launch verification standard (Z1), a complete
 | **R8 Fresh Build** | [`docs/evidence/raw/fresh-clone-build.txt`](raw/fresh-clone-build.txt) | Clean production build output |
 | **R8 Fresh Ratchet** | [`docs/evidence/raw/fresh-clone-tsc-ratchet.txt`](raw/fresh-clone-tsc-ratchet.txt) | Clean tsc ratchet 0-error output |
 | **R8 Fresh Unit Tests** | [`docs/evidence/raw/fresh-clone-unit-tests.txt`](raw/fresh-clone-unit-tests.txt) | Clean unit test execution output |
+| **R8 Failures & Classification** | [`docs/evidence/raw/fresh-clone-unit-failures.txt`](raw/fresh-clone-unit-failures.txt) | Full TAP + classification vs baseline 54bf0a2 (0 regressions) |
+| **B-001 Built-Server Smoke** | [`docs/evidence/raw/b001-built-server-smoke.txt`](raw/b001-built-server-smoke.txt) | Phase 1.4 + curl checks on built production server |
+| **B-001 Baseline Fail-Before** | [`docs/evidence/raw/b001-demo-role-fail-before-54bf0a2.txt`](raw/b001-demo-role-fail-before-54bf0a2.txt) | Honest audit of B-001 test on pre-cherry-pick baseline 54bf0a2 |

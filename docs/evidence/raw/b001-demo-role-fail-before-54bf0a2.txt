@@ -1,0 +1,68 @@
+Command: node_modules/.bin/tsx --test tests/unit/demo-role-guard.test.ts (in worktree at 54bf0a2)
+Exit Code: 1
+Timestamp (UTC): 2026-10-29T18:07:29Z
+Git SHA: 54bf0a2
+Findings:
+- Tests 6, 7, 8, and 9 PASS at 54bf0a2.
+- Explanation: The production guards in middleware.ts, lib/auth/rbac.ts, and app/admin/layout.tsx were ALREADY present on feat/launch-blockers at 54bf0a2 (hardened in earlier launch blocker work).
+- Tests 1-5 FAIL because the unified helper module lib/auth/demo-role.ts (specifically getDemoRole and resolveDemoRole) was introduced by commit 6799f6b / 25eb816. At 54bf0a2, lib/auth/demo-role.ts had only normalizeDemoRole and isDemoModeEnabled.
+- Honest assessment: B-001 (commit 6799f6b) unified the helper and hardened sub-routes (book-studio, exam packages), but the core trio (middleware, rbac, admin layout) already rejected demo cookies in production on feat/launch-blockers.
+
+▶ B-001 demo role guard
+  ✖ production never resolves a demo role, even with every flag set (133.506291ms)
+  ✖ development without explicit demo mode does not resolve a demo role (21.844834ms)
+  ✖ demo mode works when explicitly enabled or in the test environment (30.452416ms)
+  ✖ unknown cookie values are rejected (15.933625ms)
+  ✖ getDemoRole accepts a NextRequest and a next/headers cookie store (49.898792ms)
+  ✔ middleware rejects a demo ADMIN cookie in production for /admin and /api/admin (2518.274917ms)
+  ✔ lib/auth/rbac.ts rejects ts_demo_role cookie in production (1900.230292ms)
+  ✔ app/admin/layout.tsx rejects ts_demo_role cookie in production (5145.4805ms)
+  ✔ middleware still honours the demo flow in the test environment (100.045583ms)
+✖ B-001 demo role guard (9921.561666ms)
+ℹ tests 9
+ℹ suites 1
+ℹ pass 4
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12693.454625
+
+✖ failing tests:
+
+test at tests/unit/demo-role-guard.test.ts:2:2226
+✖ production never resolves a demo role, even with every flag set (133.506291ms)
+  TypeError: mod.resolveDemoRole is not a function
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-baseline-54bf0a2/tests/unit/demo-role-guard.test.ts:59:11)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1442:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+
+test at tests/unit/demo-role-guard.test.ts:2:2644
+✖ development without explicit demo mode does not resolve a demo role (21.844834ms)
+  TypeError: mod.resolveDemoRole is not a function
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-baseline-54bf0a2/tests/unit/demo-role-guard.test.ts:68:22)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+
+test at tests/unit/demo-role-guard.test.ts:2:3027
+✖ demo mode works when explicitly enabled or in the test environment (30.452416ms)
+  TypeError: mod.resolveDemoRole is not a function
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-baseline-54bf0a2/tests/unit/demo-role-guard.test.ts:75:22)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+
+test at tests/unit/demo-role-guard.test.ts:2:3419
+✖ unknown cookie values are rejected (15.933625ms)
+  TypeError: mod.resolveDemoRole is not a function
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-baseline-54bf0a2/tests/unit/demo-role-guard.test.ts:82:22)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+
+test at tests/unit/demo-role-guard.test.ts:2:3821
+✖ getDemoRole accepts a NextRequest and a next/headers cookie store (49.898792ms)
+  TypeError: mod.getDemoRole is not a function
+      at TestContext.<anonymous> (/Users/praveenkumar/ws-baseline-54bf0a2/tests/unit/demo-role-guard.test.ts:96:24)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)

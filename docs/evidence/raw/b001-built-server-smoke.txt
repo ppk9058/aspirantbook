@@ -1,0 +1,128 @@
+=== BUILT-SERVER SMOKE TEST (NODE_ENV=production next start) ===
+Timestamp: 2026-10-29T18:31:22Z
+Git SHA: 93cc5ae48377c4e044f1b0a415b3bf15f642ef7e
+Port: 3045
+Environment: NODE_ENV=production
+
+--- PART 1: scripts/test-phase1-4-prod-auth.ts ---
+=== PHASE 1.4: PRODUCTION MODE AUTH GUARD VERIFICATION ===
+Target: http://127.0.0.1:3045 (NODE_ENV=production)
+
+Step 1: Authenticating via app real auth path...
+✓ Real ADMIN session cookie obtained: authjs.session-token=eyJhbGciOiJkaX...
+✓ Real TEACHER session cookie obtained: authjs.session-token=eyJhbGciOiJkaX...
+
+=======================================================
+A. TESTING ALL 10 ADMIN PAGES
+=======================================================
+Page /admin/content-engine            | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/add        | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/aliases    | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/assign     | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/categories | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/export     | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/gates      | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/hindi      | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/content-engine/practice   | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+Page /admin/seo                       | Anon: 307 | demo-Admin: 307 | demo-Teach: 307 | real-Teach: 307 | real-ADMIN: 200 | Status: PASS
+
+=======================================================
+B. TESTING ALL 10 API ROUTES
+=======================================================
+API  GET  /api/admin/content-engine/aliases      | Anon: 401 | demo-Admin: 401 | demo-Teach: 401 | real-Teach: 403 | real-ADMIN: 200 | Status: PASS
+API  POST /api/admin/content-engine/assign       | Anon: 401 | demo-Admin: 401 | demo-Teach: 401 | real-Teach: 403 | real-ADMIN: 400 | Status: PASS
+API  POST /api/admin/content-engine/batch        | Anon: 401 | demo-Admin: 401 | demo-Teach: 401 | real-Teach: 403 | real-ADMIN: 400 | Status: PASS
+API  GET  /api/admin/content-engine/export       | Anon: 401 | demo-Admin: 401 | demo-Teach: 401 | real-Teach: 403 | real-ADMIN: 200 | Status: PASS
+API  POST /api/admin/content-engine/hindi/import | Anon: 401 | demo-Admin: 401 | demo-Teach: 401 | real-Teach: 403 | real-ADMIN: 400 | Status: PASS
+API  PATCH /api/admin/content-engine/hindi/review | Anon: 401 | demo-Admin: 401 | demo-Teach: 401 | real-Teach: 403 | real-ADMIN: 500 | Status: PASS
+API  POST /api/admin/content-engine/publish      | Anon: 401 | demo-Admin: 401 | demo-Teach: 401 | real-Teach: 403 | real-ADMIN: 400 | Status: PASS
+API  GET  /api/admin/content-engine/questions    | Anon: 401 | demo-Admin: 401 | demo-Teach: 401 | real-Teach: 403 | real-ADMIN: 200 | Status: PASS
+API  POST /api/admin/content-engine/recategorise | Anon: 401 | demo-Admin: 401 | demo-Teach: 401 | real-Teach: 403 | real-ADMIN: 200 | Status: PASS
+API  GET  /api/admin/content-engine/settings     | Anon: 401 | demo-Admin: 401 | demo-Teach: 401 | real-Teach: 403 | real-ADMIN: 200 | Status: PASS
+
+=======================================================
+SUMMARY: Pages PASS: true (10/10) | APIs PASS: true (10/10)
+=======================================================
+Exit code: 0
+
+--- PART 2: CURL CHECKS WITH ts_demo_role COOKIE IN PRODUCTION ---
+1. GET /admin with Cookie: ts_demo_role=ADMIN (expect 307 redirect to /login)
+HTTP_STATUS: 307
+REDIRECT_URL: http://127.0.0.1:3045/login
+
+2. GET /admin/courses with Cookie: ts_demo_role=ADMIN (expect 307 redirect to /login)
+HTTP_STATUS: 307
+REDIRECT_URL: http://127.0.0.1:3045/login
+
+3. GET /api/admin/courses with Cookie: ts_demo_role=ADMIN (expect 401 Unauthorized)
+HTTP/1.1 401 Unauthorized
+X-DNS-Prefetch-Control: on
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://api.razorpay.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https: http:; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com blob: data:; connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://*.amazonaws.com https://*.supabase.co wss:; media-src 'self' https: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://api.razorpay.com; frame-ancestors 'self';
+content-type: application/json
+set-cookie: authjs.csrf-token=33bd40fe6aab02027d974e19c706e0bf718e0c986b065db274e8ec9eab1ef374%7C327c58109032c90351943ef7982906f179f85f86e9dca46445d93efbed7f773b; Path=/; HttpOnly; SameSite=Lax
+set-cookie: authjs.callback-url=http%3A%2F%2F127.0.0.1%3A3000; Path=/; HttpOnly; SameSite=Lax
+Vary: Accept-Encoding
+Date: Thu, 29 Oct 2026 18:31:27 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"error":"Unauthorized"}
+4. GET /api/auth/role with Cookie: ts_demo_role=ADMIN (expect 404 Not Found)
+HTTP/1.1 404 Not Found
+X-DNS-Prefetch-Control: on
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://api.razorpay.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https: http:; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com blob: data:; connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://*.amazonaws.com https://*.supabase.co wss:; media-src 'self' https: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://api.razorpay.com; frame-ancestors 'self';
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch
+content-type: application/json
+Date: Thu, 29 Oct 2026 18:31:27 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"error":"Not found"}
+5. POST /api/auth/role with Cookie: ts_demo_role=ADMIN (expect 404 Not Found)
+HTTP/1.1 404 Not Found
+X-DNS-Prefetch-Control: on
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://api.razorpay.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https: http:; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com blob: data:; connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://*.amazonaws.com https://*.supabase.co wss:; media-src 'self' https: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://api.razorpay.com; frame-ancestors 'self';
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch
+content-type: application/json
+Date: Thu, 29 Oct 2026 18:31:27 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"error":"Not found"}
+6. POST /api/exam/test/bulk with Cookie: ts_demo_role=ADMIN (expect 401 Unauthorized)
+HTTP/1.1 401 Unauthorized
+X-DNS-Prefetch-Control: on
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://api.razorpay.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https: http:; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com blob: data:; connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://*.amazonaws.com https://*.supabase.co wss:; media-src 'self' https: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://api.razorpay.com; frame-ancestors 'self';
+set-cookie: authjs.csrf-token=cf1de1727712614f6024a9737ceb8a2df648caf35d838d4d3ef89f887190ef74%7C532217fcbcf30640c02e193fad3109ae331389b2f3930df2d4e392f886182c66; Path=/; HttpOnly; SameSite=Lax
+set-cookie: authjs.callback-url=http%3A%2F%2F127.0.0.1%3A3000; Path=/; HttpOnly; SameSite=Lax
+vary: RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch
+content-type: application/json
+Date: Thu, 29 Oct 2026 18:31:27 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"error":"Unauthorized: Active session required"}
