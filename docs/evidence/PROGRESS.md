@@ -51,8 +51,8 @@
 | **Z5** | Isolation & safety proof | NOT_STARTED | - | - | Zero supabase.co hits, zero remote pushes |
 | **G1** | Turnstile on login | DONE | `fbc136d` | `docs/evidence/raw/turnstile-login-5x.txt`, `docs/evidence/raw/turnstile-login-fail-before.txt`, `tests/unit/turnstile-login.test.ts` | Server-side Turnstile on credentials authorize behind TURNSTILE_ENABLED (default OFF); direct-call bypass blocked; mobile exempt with per user+IP rate limit (5 req/min); 7 tests passed 5x |
 | **G2** | Data-deletion admin queue and mobile entry | DONE | `5ea9744` | `docs/evidence/raw/data-deletion-queue-5x.txt`, `docs/evidence/raw/data-deletion-queue-fail-before.txt`, `tests/unit/data-deletion-queue.test.ts`, `docs/evidence/deletion-procedure.md` | Admin queue page + API with transitions (PENDING -> IN_REVIEW -> COMPLETED | REJECTED); terminal guards; AuditLog per transition; idempotent user request; mobile entry + pure module tests; deletion-procedure.md; 8+4 tests passed 5x |
-| **G3** | CI additions | NOT_STARTED | - | - | Next task |
-| **G4** | /api/health completeness | NOT_STARTED | - | - | Pending |
+| **G3** | CI additions | DONE | `d1873c8` | `docs/evidence/raw/ci-additions-verify.txt`, `.github/workflows/ci.yml` | Added docker build (no push/secrets), npm audit --audit-level=critical (root/shared/mobile), Postgres service container unit tests, migrations-check (additive + deploy on service DB), disabled staging/prod stubs; YAML validated & all run commands locally executed (NOT on GitHub) |
+| **G4** | /api/health completeness | NOT_STARTED | - | - | Next task |
 | **G5** | Email outbox worker | NOT_STARTED | - | - | Pending |
 | **G6** | Brevo transport decision | NOT_STARTED | - | - | Pending |
 | **G7** | LIVE-UNVERIFIED register | NOT_STARTED | - | - | Pending |
