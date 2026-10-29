@@ -6,8 +6,11 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env.test" });
 
 import { prisma } from "@/lib/prisma";
-import { authorizeCredentials, TurnstileError } from "@/auth";
+import { authorizeCredentials } from "@/auth";
 import { POST as mobileLoginRoute } from "@/app/api/v1/auth/login/route";
+import { GET as nextAuthGet, POST as nextAuthPost } from "@/app/api/auth/[...nextauth]/route";
+import { register, requestPasswordResetAction } from "@/lib/actions/auth";
+import { submitContactForm } from "@/lib/actions/legal";
 import { NextRequest } from "next/server";
 
 describe("Task G1: Turnstile on Login Verification", () => {
@@ -62,11 +65,20 @@ describe("Task G1: Turnstile on Login Verification", () => {
     process.env = { ...originalEnv };
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     receivedRequests = [];
     mockStatus = 200;
     mockBody = { success: true };
     process.env = { ...originalEnv };
+    // Reset the static-IP buckets used by the server-action tests so repeated
+    // 5x runs are independent (mobile tests use random keys of their own).
+    await prisma.rateLimit.deleteMany({
+      where: {
+        key: {
+          in: ["register:127.0.0.1", "forgot-ip:127.0.0.1", "contact-form:127.0.0.1"],
+        },
+      },
+    });
   });
 
   afterEach(() => {
@@ -104,7 +116,7 @@ describe("Task G1: Turnstile on Login Verification", () => {
           });
         },
         (err: any) => {
-          assert.ok(err instanceof TurnstileError || err?.code === "turnstile_failed");
+          assert.ok(err?.code === "turnstile_failed", `expected turnstile_failed, got ${err?.code || err?.message}`);
           return true;
         }
       );
@@ -125,7 +137,7 @@ describe("Task G1: Turnstile on Login Verification", () => {
           });
         },
         (err: any) => {
-          assert.ok(err instanceof TurnstileError || err?.code === "turnstile_failed");
+          assert.ok(err?.code === "turnstile_failed", `expected turnstile_failed, got ${err?.code || err?.message}`);
           return true;
         }
       );
@@ -162,10 +174,104 @@ describe("Task G1: Turnstile on Login Verification", () => {
           });
         },
         (err: any) => {
-          assert.ok(err instanceof TurnstileError || err?.code === "turnstile_failed");
+          assert.ok(err?.code === "turnstile_failed", `expected turnstile_failed, got ${err?.code || err?.message}`);
           return true;
         }
       );
+    });
+
+    test("5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session", async () => {
+      // Exercise the real NextAuth route handler, including CSRF token handling,
+      // exactly as a browser or scripted attacker would. A direct authorize() call
+      // is already covered above; this proves the bypass is blocked over HTTP too.
+      const base = "http://127.0.0.1:3000";
+
+      const csrfRes = await nextAuthGet(new NextRequest(`${base}/api/auth/csrf`));
+      assert.equal(csrfRes.status, 200);
+      const csrfJson = (await csrfRes.json()) as { csrfToken: string };
+      assert.ok(csrfJson.csrfToken, "NextAuth must issue a CSRF token");
+
+      const setCookie = csrfRes.headers.getSetCookie
+        ? csrfRes.headers.getSetCookie()
+        : [csrfRes.headers.get("set-cookie")].filter(Boolean);
+      const cookie = setCookie
+        .map((entry) => String(entry).split(";")[0])
+        .join("; ");
+      assert.ok(cookie.includes("authjs.csrf-token"), "CSRF cookie must be present");
+
+      const body = new URLSearchParams({
+        csrfToken: csrfJson.csrfToken,
+        email: testEmail,
+        password: testPassword,
+        callbackUrl: `${base}/dashboard`,
+      });
+
+      const res = await nextAuthPost(
+        new NextRequest(`${base}/api/auth/callback/credentials`, {
+          method: "POST",
+          headers: {
+            "content-type": "application/x-www-form-urlencoded",
+            cookie,
+          },
+          body: body.toString(),
+        })
+      );
+
+      const location = res.headers.get("location") || "";
+      const sessionCookie = (res.headers.getSetCookie ? res.headers.getSetCookie() : [])
+        .join(";");
+
+      assert.ok(
+        !/authjs\.session-token|next-auth\.session-token/.test(sessionCookie),
+        `Must not issue a session cookie without Turnstile (location: ${location})`
+      );
+      assert.match(location, /error=/i, "Must redirect to the login error state, not a signed-in page");
+      assert.equal(receivedRequests.length, 0, "Missing token must be rejected before contacting Cloudflare");
+    });
+
+    test("5c. Register server action rejects a missing Turnstile token", async () => {
+      const formData = new FormData();
+      formData.set("name", "Turnstile Register");
+      formData.set("email", `g1_register_${Date.now()}@example.com`);
+      formData.set("password", "ValidPassword123!");
+
+      const res = await register(null, formData);
+      assert.ok("error" in res && res.error, "Registration must be rejected without a token");
+      assert.match(String(res.error), /Security check required|Bot verification failed/i);
+    });
+
+    test("5d. Register server action rejects an invalid Turnstile token", async () => {
+      mockBody = { success: false, "error-codes": ["invalid-input-response"] };
+      const formData = new FormData();
+      formData.set("name", "Turnstile Register");
+      formData.set("email", `g1_register_invalid_${Date.now()}@example.com`);
+      formData.set("password", "ValidPassword123!");
+      formData.set("cf-turnstile-response", "invalid_expired_token");
+
+      const res = await register(null, formData);
+      assert.ok("error" in res && res.error, "Registration must be rejected with an invalid token");
+      assert.match(String(res.error), /Bot verification failed/i);
+    });
+
+    test("5e. Password-reset request action rejects a missing Turnstile token", async () => {
+      const formData = new FormData();
+      formData.set("email", `g1_reset_${Date.now()}@example.com`);
+
+      const res = await requestPasswordResetAction(null, formData);
+      assert.ok("error" in res && res.error, "Reset request must be rejected without a token");
+      assert.match(String(res.error), /Security check required|Bot verification failed/i);
+    });
+
+    test("5f. Contact form rejects a missing Turnstile token", async () => {
+      const formData = new FormData();
+      formData.set("name", "Turnstile Contact");
+      formData.set("email", `g1_contact_${Date.now()}@example.com`);
+      formData.set("subject", "Bot protection check");
+      formData.set("message", "This submission must be rejected without a Turnstile token.");
+
+      const res = await submitContactForm(null, formData);
+      assert.equal(res.success, false);
+      assert.match(String(res.error), /Security check required|Bot verification failed/i);
     });
   });
 
@@ -240,6 +346,63 @@ describe("Task G1: Turnstile on Login Verification", () => {
       assert.match(json6.error.code, /TOO_MANY_REQUESTS|RATE_LIMITED/);
 
       await prisma.user.deleteMany({ where: { email: mobileRlEmail } });
+    });
+
+    test("8. Rate-limit key includes user+IP: the same user on a different IP is counted separately", async () => {
+      const email = `mobile_key_ip_${Date.now()}@example.com`;
+      const hashedPassword = await bcrypt.hash(testPassword, 10);
+      await prisma.user.create({
+        data: { email, password: hashedPassword, name: "Mobile Key IP", role: "FREE", isActive: true },
+      });
+
+      const ipA = `10.77.10.${Math.floor(Math.random() * 200)}`;
+      const ipB = `10.77.11.${Math.floor(Math.random() * 200)}`;
+
+      const makeReq = (ip: string) =>
+        new NextRequest("http://127.0.0.1:3000/api/v1/auth/login", {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-forwarded-for": ip },
+          body: JSON.stringify({ email, password: testPassword }),
+        });
+
+      for (let i = 0; i < 5; i++) {
+        assert.equal((await mobileLoginRoute(makeReq(ipA))).status, 200);
+      }
+      // Same user, same IP -> exhausted.
+      assert.equal((await mobileLoginRoute(makeReq(ipA))).status, 429);
+      // Same user, DIFFERENT IP -> a distinct key, so still allowed.
+      assert.equal((await mobileLoginRoute(makeReq(ipB))).status, 200);
+
+      await prisma.user.deleteMany({ where: { email } });
+    });
+
+    test("9. Rate-limit key includes user+IP: a different user on the same IP is counted separately", async () => {
+      const emailA = `mobile_key_user_a_${Date.now()}@example.com`;
+      const emailB = `mobile_key_user_b_${Date.now()}@example.com`;
+      const hashedPassword = await bcrypt.hash(testPassword, 10);
+      await prisma.user.createMany({
+        data: [
+          { email: emailA, password: hashedPassword, name: "Mobile Key A", role: "FREE", isActive: true },
+          { email: emailB, password: hashedPassword, name: "Mobile Key B", role: "FREE", isActive: true },
+        ],
+      });
+
+      const sharedIp = `10.77.12.${Math.floor(Math.random() * 200)}`;
+      const makeReq = (email: string) =>
+        new NextRequest("http://127.0.0.1:3000/api/v1/auth/login", {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-forwarded-for": sharedIp },
+          body: JSON.stringify({ email, password: testPassword }),
+        });
+
+      for (let i = 0; i < 5; i++) {
+        assert.equal((await mobileLoginRoute(makeReq(emailA))).status, 200);
+      }
+      assert.equal((await mobileLoginRoute(makeReq(emailA))).status, 429);
+      // Different user, SAME IP -> a distinct key, so still allowed.
+      assert.equal((await mobileLoginRoute(makeReq(emailB))).status, 200);
+
+      await prisma.user.deleteMany({ where: { email: { in: [emailA, emailB] } } });
     });
   });
 });

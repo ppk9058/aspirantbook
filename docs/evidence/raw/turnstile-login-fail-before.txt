@@ -1,22 +1,25 @@
-=== TASK G1: TURNSTILE LOGIN FAIL-BEFORE ===
+Command: node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/turnstile-login.test.ts (temp worktree /Users/praveenkumar/ws-launch-fail-g1 at b33ef65)
+Exit Code: 1
+Timestamp (UTC): 2026-10-29T15:06:26Z
 Git SHA: b33ef657a8168fd6f242b81903a69f5c4d5ea58f
-Timestamp: 2026-10-29T13:39:37Z
-Command: node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/turnstile-login.test.ts
+Purpose: FAIL-BEFORE for G1; parent of implementation commit fbc136d; only the new test file was copied.
+Right-reason failures: test 5b failed with 'Must not issue a session cookie without Turnstile' (old route issued a session); tests 7-9 failed because the old mobile route had no user+IP limit. Tests 5c-5f are confirmation tests for pre-existing B8 behaviour and pass on old code by design.
+
 TAP version 13
 # Subtest: Task G1: Turnstile on Login Verification
     # Subtest: Flag OFF (Default - Unchanged Login)
         # Subtest: 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
         not ok 1 - 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
           ---
-          duration_ms: 0.868125
+          duration_ms: 3.922166
           type: 'test'
-          location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:2:2784'
+          location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:3086'
           failureType: 'testCodeFailure'
           error: '(0 , import_auth.authorizeCredentials) is not a function'
           code: 'ERR_TEST_FAILURE'
           name: 'TypeError'
           stack: |-
-            TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:80:26)
+            TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:92:26)
             Test.runInAsyncScope (node:async_hooks:214:14)
             Test.run (node:internal/test_runner/test:1047:25)
             async Promise.all (index 0)
@@ -28,9 +31,9 @@ TAP version 13
         1..1
     not ok 1 - Flag OFF (Default - Unchanged Login)
       ---
-      duration_ms: 1.246583
+      duration_ms: 7.02275
       type: 'suite'
-      location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:2:2711'
+      location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:3013'
       failureType: 'subtestsFailed'
       error: '1 subtest failed'
       code: 'ERR_TEST_FAILURE'
@@ -41,19 +44,22 @@ TAP version 13
         # Subtest: 2. Fails with TurnstileError when token is missing
         not ok 1 - 2. Fails with TurnstileError when token is missing
           ---
-          duration_ms: 0.980792
+          duration_ms: 3.044375
           type: 'test'
-          location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:2:3536'
+          location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:3838'
           failureType: 'testCodeFailure'
-          error: "Right-hand side of 'instanceof' is not an object"
-          code: 'ERR_TEST_FAILURE'
-          name: 'TypeError'
+          error: 'expected turnstile_failed, got (0 , import_auth.authorizeCredentials) is not a function'
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: true
+          actual: false
+          operator: '=='
           stack: |-
-            Object.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:107:21)
+            Object.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:119:18)
             expectedException (node:assert:576:17)
             expectsError (node:assert:701:21)
             Function.rejects (node:assert:767:3)
-            async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:99:7)
+            async TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:111:7)
             async Test.run (node:internal/test_runner/test:1054:7)
             async Promise.all (index 0)
             async Suite.run (node:internal/test_runner/test:1442:7)
@@ -62,34 +68,37 @@ TAP version 13
         # Subtest: 3. Fails with TurnstileError when token is invalid
         not ok 2 - 3. Fails with TurnstileError when token is invalid
           ---
-          duration_ms: 0.630375
+          duration_ms: 2.12625
           type: 'test'
-          location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:2:3880'
+          location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:4199'
           failureType: 'testCodeFailure'
-          error: "Right-hand side of 'instanceof' is not an object"
-          code: 'ERR_TEST_FAILURE'
-          name: 'TypeError'
+          error: 'expected turnstile_failed, got (0 , import_auth.authorizeCredentials) is not a function'
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: true
+          actual: false
+          operator: '=='
           stack: |-
-            Object.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:128:21)
+            Object.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:140:18)
             expectedException (node:assert:576:17)
             expectsError (node:assert:701:21)
             Function.rejects (node:assert:767:3)
-            async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:119:7)
+            async TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:131:7)
             async Test.run (node:internal/test_runner/test:1054:7)
             async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
           ...
         # Subtest: 4. Succeeds when token is valid (mock)
         not ok 3 - 4. Succeeds when token is valid (mock)
           ---
-          duration_ms: 1.132375
+          duration_ms: 2.408625
           type: 'test'
-          location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:2:4384'
+          location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:4720'
           failureType: 'testCodeFailure'
           error: '(0 , import_auth.authorizeCredentials) is not a function'
           code: 'ERR_TEST_FAILURE'
           name: 'TypeError'
           stack: |-
-            TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:142:26)
+            TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:154:26)
             Test.runInAsyncScope (node:async_hooks:214:14)
             Test.run (node:internal/test_runner/test:1047:25)
             async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
@@ -97,87 +106,177 @@ TAP version 13
         # Subtest: 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
         not ok 4 - 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
           ---
-          duration_ms: 0.2985
+          duration_ms: 1.488333
           type: 'test'
-          location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:2:4906'
+          location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:5242'
           failureType: 'testCodeFailure'
-          error: "Right-hand side of 'instanceof' is not an object"
-          code: 'ERR_TEST_FAILURE'
-          name: 'TypeError'
+          error: 'expected turnstile_failed, got (0 , import_auth.authorizeCredentials) is not a function'
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: true
+          actual: false
+          operator: '=='
           stack: |-
-            Object.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:165:21)
+            Object.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:177:18)
             expectedException (node:assert:576:17)
             expectsError (node:assert:701:21)
             Function.rejects (node:assert:767:3)
-            async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:155:7)
+            async TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:167:7)
             async Test.run (node:internal/test_runner/test:1054:7)
             async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
           ...
-        1..4
+        # Subtest: 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
+        not ok 5 - 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
+          ---
+          duration_ms: 148.960167
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:5665'
+          failureType: 'testCodeFailure'
+          error: 'Must not issue a session cookie without Turnstile (location: http://localhost:3000)'
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: true
+          actual: false
+          operator: '=='
+          stack: |-
+            TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:224:14)
+            async Test.run (node:internal/test_runner/test:1054:7)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        # Subtest: 5c. Register server action rejects a missing Turnstile token
+        ok 6 - 5c. Register server action rejects a missing Turnstile token
+          ---
+          duration_ms: 6.611625
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 5d. Register server action rejects an invalid Turnstile token
+        ok 7 - 5d. Register server action rejects an invalid Turnstile token
+          ---
+          duration_ms: 18.083375
+          type: 'test'
+          ...
+        # Subtest: 5e. Password-reset request action rejects a missing Turnstile token
+        ok 8 - 5e. Password-reset request action rejects a missing Turnstile token
+          ---
+          duration_ms: 8.223542
+          type: 'test'
+          ...
+        # Subtest: 5f. Contact form rejects a missing Turnstile token
+        ok 9 - 5f. Contact form rejects a missing Turnstile token
+          ---
+          duration_ms: 5.542541
+          type: 'test'
+          ...
+        1..9
     not ok 2 - Flag ON (TURNSTILE_ENABLED=true)
       ---
-      duration_ms: 3.385083
+      duration_ms: 197.352625
       type: 'suite'
-      location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:2:3259'
+      location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:3561'
       failureType: 'subtestsFailed'
-      error: '4 subtests failed'
+      error: '5 subtests failed'
       code: 'ERR_TEST_FAILURE'
       ...
     # Subtest: Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
         # Subtest: 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
         ok 1 - 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
           ---
-          duration_ms: 215.404625
+          duration_ms: 151.0085
           type: 'test'
           ...
         # Subtest: 7. Mobile login is rate-limited per user+IP
         not ok 2 - 7. Mobile login is rate-limited per user+IP
           ---
-          duration_ms: 282.628167
+          duration_ms: 916.683291
           type: 'test'
-          location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:2:6377'
+          location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:10607'
           failureType: 'testCodeFailure'
           error: |-
             Expected values to be strictly equal:
             
-            429 !== 200
+            200 !== 429
             
           code: 'ERR_ASSERTION'
           name: 'AssertionError'
-          expected: 200
-          actual: 429
+          expected: 429
+          actual: 200
           operator: 'strictEqual'
           stack: |-
-            TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:219:16)
+            TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:343:14)
             async Test.run (node:internal/test_runner/test:1054:7)
             async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
           ...
-        1..2
+        # Subtest: 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
+        not ok 3 - 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
+          ---
+          duration_ms: 908.898083
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:11738'
+          failureType: 'testCodeFailure'
+          error: |-
+            Expected values to be strictly equal:
+            
+            200 !== 429
+            
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: 429
+          actual: 200
+          operator: 'strictEqual'
+          stack: |-
+            TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:372:14)
+            async Test.run (node:internal/test_runner/test:1054:7)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        # Subtest: 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
+        not ok 4 - 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
+          ---
+          duration_ms: 918.837291
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:12803'
+          failureType: 'testCodeFailure'
+          error: |-
+            Expected values to be strictly equal:
+            
+            200 !== 429
+            
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: 429
+          actual: 200
+          operator: 'strictEqual'
+          stack: |-
+            TestContext.<anonymous> (/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:401:14)
+            async Test.run (node:internal/test_runner/test:1054:7)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        1..4
     not ok 3 - Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
       ---
-      duration_ms: 498.529458
+      duration_ms: 2895.840833
       type: 'suite'
-      location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:2:5315'
+      location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:9514'
       failureType: 'subtestsFailed'
-      error: '1 subtest failed'
+      error: '3 subtests failed'
       code: 'ERR_TEST_FAILURE'
       ...
     1..3
 not ok 1 - Task G1: Turnstile on Login Verification
   ---
-  duration_ms: 694.861292
+  duration_ms: 3317.580792
   type: 'suite'
-  location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:2:1346'
+  location: '/Users/praveenkumar/ws-launch-fail-g1/tests/unit/turnstile-login.test.ts:2:1505'
   failureType: 'subtestsFailed'
   error: '3 subtests failed'
   code: 'ERR_TEST_FAILURE'
   ...
 1..1
-# tests 7
+# tests 14
 # suites 4
-# pass 1
-# fail 6
+# pass 5
+# fail 9
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1273.768625
+# duration_ms 4092.981334
