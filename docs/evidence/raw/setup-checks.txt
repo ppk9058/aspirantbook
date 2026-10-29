@@ -1,0 +1,71 @@
+Command: df -h; docker system df; git status; git fsck --no-dangling; git worktree list; git log --oneline -20
+Exit Code: 0
+Timestamp (UTC): 2026-10-29T15:02:27Z
+Git SHA: bc5536c98e9699cab72e1d3c0c3bd4f9543834eb
+Branch: feat/launch-blockers
+
+=== WORKTREE ===
+/Users/praveenkumar/ws-launch
+
+=== DF -H ===
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1   228Gi    12Gi    46Gi    21%    458k  481M    0%   /
+devfs            207Ki   207Ki     0Bi   100%     715     0  100%   /dev
+/dev/disk3s6     228Gi   3.0Gi    46Gi     7%       3  481M    0%   /System/Volumes/VM
+/dev/disk3s2     228Gi   8.4Gi    46Gi    16%    1.4k  481M    0%   /System/Volumes/Preboot
+/dev/disk3s4     228Gi   8.6Mi    46Gi     1%     108  481M    0%   /System/Volumes/Update
+/dev/disk2s2     500Mi   6.0Mi   478Mi     2%       1  4.9M    0%   /System/Volumes/xarts
+/dev/disk2s1     500Mi   5.7Mi   478Mi     2%      35  4.9M    0%   /System/Volumes/iSCPreboot
+/dev/disk2s3     500Mi   5.8Mi   478Mi     2%      83  4.9M    0%   /System/Volumes/Hardware
+/dev/disk3s5     228Gi   158Gi    46Gi    78%    3.3M  481M    1%   /System/Volumes/Data
+map auto_home      0Bi     0Bi     0Bi   100%       0     0     -   /System/Volumes/Data/home
+
+=== DOCKER SYSTEM DF ===
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          7         7         2.999GB   28.48MB (0%)
+Containers      8         2         155.6kB   114.7kB (73%)
+Local Volumes   12        6         1.075GB   869.5MB (80%)
+Build Cache     3         0         40.34MB   40.34MB
+
+=== GIT STATUS ===
+On branch feat/launch-blockers
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	docs/evidence/raw/setup-checks.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+=== GIT FSCK --NO-DANGLING ===
+
+=== GIT WORKTREE LIST ===
+/Users/praveenkumar/TrillionSkill         c603168 [perf/exam-runtime]
+/Users/praveenkumar/TrillionSkill-audit2  f8d0fe3 [fix/audit2-hardening]
+/Users/praveenkumar/TrillionSkill-phone   16d9aa6 (detached HEAD)
+/Users/praveenkumar/TrillionSkill-run8d   9ed1d3e (detached HEAD)
+/Users/praveenkumar/TrillionSkill-run9    fde8b68 (detached HEAD)
+/Users/praveenkumar/ws-base-1b48ec91      1b48ec9 (detached HEAD)
+/Users/praveenkumar/ws-compact            5aba322 [feat/attempt-compaction]
+/Users/praveenkumar/ws-launch             bc5536c [feat/launch-blockers]
+/Users/praveenkumar/ws-perf-v2            16f1d9a [perf/exam-runtime-v2]
+
+=== GIT LOG --ONELINE (TASK COMMITS) ===
+bc5536c docs: add fresh temporary clone clean-room verification outputs
+11717ac docs: record Task G7 DONE in PROGRESS.md
+969f382 docs: create comprehensive LIVE-UNVERIFIED integration register (G7)
+6f6eef1 docs: record Task G6 DONE in PROGRESS.md
+63229b3 docs(email): record Brevo REST API transport decision (G6)
+95a7a8d docs: record Task G5 DONE in PROGRESS.md
+ea7a99b feat(email): implement email outbox worker with retry, backoff, concurrency safety and cron trigger (G5)
+be36a3e docs: record Task G4 DONE in PROGRESS.md
+d0035fc feat(health): add migration status, storage backend, email providers, and token gating (Task G4)
+bc2aa66 docs: record Task G3 DONE in PROGRESS.md
+d1873c8 ci: add docker build, npm audit, migrations check, and staging/prod stubs (Task G3)
+36c5894 docs: record Task G2 DONE in PROGRESS.md
+5ea9744 feat(privacy): add data deletion admin queue, status transitions, and mobile entry (Task G2)
+259651d docs: record Task G1 DONE in PROGRESS.md
+fbc136d feat(auth): add Turnstile verification on web credentials login and mobile rate-limiting (Task G1)
+b33ef65 docs: record BLOCKED(disk) for tasks G1-G7 in PROGRESS.md
+0e481dc docs: record Task B12 DONE in PROGRESS.md
+be6f9fd feat(health): hardened /api/health endpoint with commit SHA, uptime, and DB latency (Task B12) - Return 200 with status: ok, timestamp, git commit SHA, uptime, and database latency in ms - Zero credential/secret leakage verified against Postgres connection strings, passwords, and API keys - Resilient in read-only container mode - 2 unit tests passed 5x
+45f2f1c docs: record Task B11 DONE in PROGRESS.md
+aed8b26 feat(mobile): release config guard enforcing HTTPS and bundle identifiers (Task B11) - Add apps/mobile/scripts/check-release-config (npm run check:release) - Require HTTPS for production API_URL in eas.json and reject localhost/emulator IPs - Add runtime Mobile Release Guard in app.config.ts - Validate iOS/Android package identifiers match com.aspirantbook.app - 5 unit tests verifying production pass, http/localhost/10.0.2.2 rejection, and runtime throw (5x passed)
