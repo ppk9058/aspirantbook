@@ -42,12 +42,10 @@ export function TurnstileWidget({
   const widgetIdRef = useRef<string | null>(null)
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
-  // If site key is not configured, gracefully skip rendering without throwing
-  if (!siteKey) {
-    return null
-  }
-
   useEffect(() => {
+    // If site key is not configured, gracefully skip rendering without throwing
+    if (!siteKey) return
+
     let isMounted = true
 
     function renderWidget() {
@@ -106,6 +104,11 @@ export function TurnstileWidget({
       }
     }
   }, [siteKey, theme, size, onVerify, onError, onExpire])
+
+  // Hooks are declared unconditionally above; the widget itself is optional.
+  if (!siteKey) {
+    return null
+  }
 
   return (
     <div className="my-2 flex justify-center">

@@ -1,0 +1,22 @@
+Command: npm run lint; npx tsc --noEmit; node scripts/check-tsc-ratchet.mjs
+Exit Code: 0, 0, 0
+Timestamp (UTC): 2026-10-29T15:36:00Z
+Git SHA: a59f135efeec8b5399e252e624fdc6d25cf51743
+
+=== npm run lint (tail) ===
+231:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/editor/RoseraRenderer.tsx
+1824:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+=== npx tsc --noEmit ===
+(empty = zero errors)
+=== tsc ratchet ===
+[tsc-ratchet] Current checked-in baseline: 0 error(s)
+[tsc-ratchet] Running npx tsc --noEmit...
+[tsc-ratchet] Current tsc error count: 0
+
+✅ [PASS] TypeScript error count matches ratchet baseline (0 <= 0).
+
+EXIT=0

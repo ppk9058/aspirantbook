@@ -3,13 +3,13 @@ import { isStripeConfigured } from "@/lib/payments/stripe";
 import { getPersistBackend } from "@/lib/storage/persist-backend";
 import fs from "fs";
 import path from "path";
+import { execSync } from "child_process";
 
 function getGitCommitSha(): string {
   if (process.env.GIT_COMMIT) return process.env.GIT_COMMIT.trim();
   if (process.env.NEXT_PUBLIC_GIT_COMMIT) return process.env.NEXT_PUBLIC_GIT_COMMIT.trim();
   if (process.env.VERCEL_GIT_COMMIT_SHA) return process.env.VERCEL_GIT_COMMIT_SHA.trim();
   try {
-    const { execSync } = require("child_process");
     return execSync("git rev-parse HEAD", { encoding: "utf-8", timeout: 1000 }).trim();
   } catch {
     return "unknown";
