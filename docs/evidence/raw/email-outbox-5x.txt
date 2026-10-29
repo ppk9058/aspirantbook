@@ -1,0 +1,447 @@
+=== TASK G5: EMAIL OUTBOX 5x VERIFICATION ===
+Git SHA: be36a3ebf008a62e1e2cd6594e98806177d3e2de
+Timestamp: 2026-10-29T14:05:49Z
+Command: 5x node --env-file=.env.test node_modules/.bin/tsx --test tests/unit/email-outbox-worker.test.ts
+
+--- RUN 1 OF 5 ---
+TAP version 13
+# Subtest: Task G5: Email Outbox Worker Verification
+    # Subtest: 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+        # Subtest: Rejects request with missing CRON_SECRET (401)
+        ok 1 - Rejects request with missing CRON_SECRET (401)
+          ---
+          duration_ms: 4.89175
+          type: 'test'
+          ...
+        # Subtest: Rejects request with invalid CRON_SECRET (401)
+        ok 2 - Rejects request with invalid CRON_SECRET (401)
+          ---
+          duration_ms: 0.775542
+          type: 'test'
+          ...
+        # Subtest: Accepts request with valid CRON_SECRET (200)
+        ok 3 - Accepts request with valid CRON_SECRET (200)
+          ---
+          duration_ms: 46.79925
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+      ---
+      duration_ms: 53.148166
+      type: 'suite'
+      ...
+    # Subtest: 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+        # Subtest: Successfully sends pending row via primary provider (Brevo) and marks SENT
+        ok 1 - Successfully sends pending row via primary provider (Brevo) and marks SENT
+          ---
+          duration_ms: 35.778458
+          type: 'test'
+          ...
+        # Subtest: Falls back to Resend when Brevo fails
+        ok 2 - Falls back to Resend when Brevo fails
+          ---
+          duration_ms: 15.841417
+          type: 'test'
+          ...
+        # Subtest: Backoff schedule: exponential backoff with jitter on total provider failure
+        ok 3 - Backoff schedule: exponential backoff with jitter on total provider failure
+          ---
+          duration_ms: 0.323667
+          type: 'test'
+          ...
+        # Subtest: Transitions to DEAD_LETTER after max attempts exceeded
+        ok 4 - Transitions to DEAD_LETTER after max attempts exceeded
+          ---
+          duration_ms: 16.447458
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+      ---
+      duration_ms: 69.14075
+      type: 'suite'
+      ...
+    # Subtest: 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+        # Subtest: Two concurrent workers never send the same row twice
+        ok 1 - Two concurrent workers never send the same row twice
+          ---
+          duration_ms: 52.336541
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+      ---
+      duration_ms: 52.5205
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task G5: Email Outbox Worker Verification
+  ---
+  duration_ms: 213.414666
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 4
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 556.979708
+Run 1 Exit Code: 0
+--- RUN 2 OF 5 ---
+TAP version 13
+# Subtest: Task G5: Email Outbox Worker Verification
+    # Subtest: 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+        # Subtest: Rejects request with missing CRON_SECRET (401)
+        ok 1 - Rejects request with missing CRON_SECRET (401)
+          ---
+          duration_ms: 4.045625
+          type: 'test'
+          ...
+        # Subtest: Rejects request with invalid CRON_SECRET (401)
+        ok 2 - Rejects request with invalid CRON_SECRET (401)
+          ---
+          duration_ms: 0.732375
+          type: 'test'
+          ...
+        # Subtest: Accepts request with valid CRON_SECRET (200)
+        ok 3 - Accepts request with valid CRON_SECRET (200)
+          ---
+          duration_ms: 28.351375
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+      ---
+      duration_ms: 33.758833
+      type: 'suite'
+      ...
+    # Subtest: 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+        # Subtest: Successfully sends pending row via primary provider (Brevo) and marks SENT
+        ok 1 - Successfully sends pending row via primary provider (Brevo) and marks SENT
+          ---
+          duration_ms: 30.628291
+          type: 'test'
+          ...
+        # Subtest: Falls back to Resend when Brevo fails
+        ok 2 - Falls back to Resend when Brevo fails
+          ---
+          duration_ms: 14.793
+          type: 'test'
+          ...
+        # Subtest: Backoff schedule: exponential backoff with jitter on total provider failure
+        ok 3 - Backoff schedule: exponential backoff with jitter on total provider failure
+          ---
+          duration_ms: 0.310541
+          type: 'test'
+          ...
+        # Subtest: Transitions to DEAD_LETTER after max attempts exceeded
+        ok 4 - Transitions to DEAD_LETTER after max attempts exceeded
+          ---
+          duration_ms: 14.799667
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+      ---
+      duration_ms: 61.249375
+      type: 'suite'
+      ...
+    # Subtest: 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+        # Subtest: Two concurrent workers never send the same row twice
+        ok 1 - Two concurrent workers never send the same row twice
+          ---
+          duration_ms: 43.854625
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+      ---
+      duration_ms: 44.049208
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task G5: Email Outbox Worker Verification
+  ---
+  duration_ms: 159.869917
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 4
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 445.41325
+Run 2 Exit Code: 0
+--- RUN 3 OF 5 ---
+TAP version 13
+# Subtest: Task G5: Email Outbox Worker Verification
+    # Subtest: 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+        # Subtest: Rejects request with missing CRON_SECRET (401)
+        ok 1 - Rejects request with missing CRON_SECRET (401)
+          ---
+          duration_ms: 4.140125
+          type: 'test'
+          ...
+        # Subtest: Rejects request with invalid CRON_SECRET (401)
+        ok 2 - Rejects request with invalid CRON_SECRET (401)
+          ---
+          duration_ms: 0.858292
+          type: 'test'
+          ...
+        # Subtest: Accepts request with valid CRON_SECRET (200)
+        ok 3 - Accepts request with valid CRON_SECRET (200)
+          ---
+          duration_ms: 31.787125
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+      ---
+      duration_ms: 37.445833
+      type: 'suite'
+      ...
+    # Subtest: 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+        # Subtest: Successfully sends pending row via primary provider (Brevo) and marks SENT
+        ok 1 - Successfully sends pending row via primary provider (Brevo) and marks SENT
+          ---
+          duration_ms: 33.584125
+          type: 'test'
+          ...
+        # Subtest: Falls back to Resend when Brevo fails
+        ok 2 - Falls back to Resend when Brevo fails
+          ---
+          duration_ms: 16.077917
+          type: 'test'
+          ...
+        # Subtest: Backoff schedule: exponential backoff with jitter on total provider failure
+        ok 3 - Backoff schedule: exponential backoff with jitter on total provider failure
+          ---
+          duration_ms: 0.328875
+          type: 'test'
+          ...
+        # Subtest: Transitions to DEAD_LETTER after max attempts exceeded
+        ok 4 - Transitions to DEAD_LETTER after max attempts exceeded
+          ---
+          duration_ms: 15.131041
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+      ---
+      duration_ms: 65.856833
+      type: 'suite'
+      ...
+    # Subtest: 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+        # Subtest: Two concurrent workers never send the same row twice
+        ok 1 - Two concurrent workers never send the same row twice
+          ---
+          duration_ms: 54.187333
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+      ---
+      duration_ms: 54.376375
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task G5: Email Outbox Worker Verification
+  ---
+  duration_ms: 178.750917
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 4
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 459.219042
+Run 3 Exit Code: 0
+--- RUN 4 OF 5 ---
+TAP version 13
+# Subtest: Task G5: Email Outbox Worker Verification
+    # Subtest: 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+        # Subtest: Rejects request with missing CRON_SECRET (401)
+        ok 1 - Rejects request with missing CRON_SECRET (401)
+          ---
+          duration_ms: 4.054875
+          type: 'test'
+          ...
+        # Subtest: Rejects request with invalid CRON_SECRET (401)
+        ok 2 - Rejects request with invalid CRON_SECRET (401)
+          ---
+          duration_ms: 0.734625
+          type: 'test'
+          ...
+        # Subtest: Accepts request with valid CRON_SECRET (200)
+        ok 3 - Accepts request with valid CRON_SECRET (200)
+          ---
+          duration_ms: 30.104959
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+      ---
+      duration_ms: 35.522542
+      type: 'suite'
+      ...
+    # Subtest: 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+        # Subtest: Successfully sends pending row via primary provider (Brevo) and marks SENT
+        ok 1 - Successfully sends pending row via primary provider (Brevo) and marks SENT
+          ---
+          duration_ms: 30.406625
+          type: 'test'
+          ...
+        # Subtest: Falls back to Resend when Brevo fails
+        ok 2 - Falls back to Resend when Brevo fails
+          ---
+          duration_ms: 14.811042
+          type: 'test'
+          ...
+        # Subtest: Backoff schedule: exponential backoff with jitter on total provider failure
+        ok 3 - Backoff schedule: exponential backoff with jitter on total provider failure
+          ---
+          duration_ms: 0.320583
+          type: 'test'
+          ...
+        # Subtest: Transitions to DEAD_LETTER after max attempts exceeded
+        ok 4 - Transitions to DEAD_LETTER after max attempts exceeded
+          ---
+          duration_ms: 15.180167
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+      ---
+      duration_ms: 61.427125
+      type: 'suite'
+      ...
+    # Subtest: 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+        # Subtest: Two concurrent workers never send the same row twice
+        ok 1 - Two concurrent workers never send the same row twice
+          ---
+          duration_ms: 43.74175
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+      ---
+      duration_ms: 43.924
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task G5: Email Outbox Worker Verification
+  ---
+  duration_ms: 161.668334
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 4
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 444.540917
+Run 4 Exit Code: 0
+--- RUN 5 OF 5 ---
+TAP version 13
+# Subtest: Task G5: Email Outbox Worker Verification
+    # Subtest: 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+        # Subtest: Rejects request with missing CRON_SECRET (401)
+        ok 1 - Rejects request with missing CRON_SECRET (401)
+          ---
+          duration_ms: 4.139042
+          type: 'test'
+          ...
+        # Subtest: Rejects request with invalid CRON_SECRET (401)
+        ok 2 - Rejects request with invalid CRON_SECRET (401)
+          ---
+          duration_ms: 0.859042
+          type: 'test'
+          ...
+        # Subtest: Accepts request with valid CRON_SECRET (200)
+        ok 3 - Accepts request with valid CRON_SECRET (200)
+          ---
+          duration_ms: 30.317334
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+      ---
+      duration_ms: 35.960916
+      type: 'suite'
+      ...
+    # Subtest: 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+        # Subtest: Successfully sends pending row via primary provider (Brevo) and marks SENT
+        ok 1 - Successfully sends pending row via primary provider (Brevo) and marks SENT
+          ---
+          duration_ms: 32.726917
+          type: 'test'
+          ...
+        # Subtest: Falls back to Resend when Brevo fails
+        ok 2 - Falls back to Resend when Brevo fails
+          ---
+          duration_ms: 14.759583
+          type: 'test'
+          ...
+        # Subtest: Backoff schedule: exponential backoff with jitter on total provider failure
+        ok 3 - Backoff schedule: exponential backoff with jitter on total provider failure
+          ---
+          duration_ms: 0.301084
+          type: 'test'
+          ...
+        # Subtest: Transitions to DEAD_LETTER after max attempts exceeded
+        ok 4 - Transitions to DEAD_LETTER after max attempts exceeded
+          ---
+          duration_ms: 14.692125
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+      ---
+      duration_ms: 63.196
+      type: 'suite'
+      ...
+    # Subtest: 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+        # Subtest: Two concurrent workers never send the same row twice
+        ok 1 - Two concurrent workers never send the same row twice
+          ---
+          duration_ms: 51.471208
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+      ---
+      duration_ms: 51.647667
+      type: 'suite'
+      ...
+    1..3
+ok 1 - Task G5: Email Outbox Worker Verification
+  ---
+  duration_ms: 171.914583
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 4
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 452.177959
+Run 5 Exit Code: 0
+Overall Result: ALL 5 RUNS PASSED
+Overall Exit Code: 0

@@ -1,0 +1,20 @@
+name: Email Outbox Worker (Disabled Stub)
+
+# DISABLED scheduled-workflow stub
+# To enable: remove the 'if: false' condition and configure CRON_SECRET and APP_URL secrets.
+on:
+  schedule:
+    - cron: '*/5 * * * *' # Every 5 minutes
+  workflow_dispatch:
+
+jobs:
+  process-email-outbox:
+    runs-on: ubuntu-latest
+    if: false # STUB: explicitly disabled as per launch requirements
+    steps:
+      - name: Trigger Email Outbox Worker Route
+        run: |
+          curl -f -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.APP_URL }}/api/internal/email-outbox"
