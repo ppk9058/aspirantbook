@@ -1,0 +1,75 @@
+Command: DOCKER_BUILDKIT=0 docker build -t trillionskill:g4-readonly -f Dockerfile . ; docker run -d --name g4-readonly --read-only --add-host=host.docker.internal:host-gateway -p 3999:3000 -e DATABASE_URL=<test-db-url-from-.env.test-with-host-rewritten> -e DIRECT_URL=<same> -e NEXTAUTH_SECRET=<synthetic-dummy> -e HEALTH_DETAILS_TOKEN=<synthetic-dummy> trillionskill:g4-readonly ; curl /api/health (public + detailed)
+Exit Code: 0 (build 0, run 0, both curls 0)
+Timestamp (UTC): 2026-10-29T15:23:17Z
+Git SHA: 20ff805dbbe976de0aa97330400a2473f7801103
+Secrets redacted in the command line above; no credential values are printed in this file.
+
+=== IMAGE BUILD (tail) ===
+Step 32/32 : CMD ["node", "server.js"]
+ ---> Running in 11c2717376fb
+ ---> Removed intermediate container 11c2717376fb
+ ---> 6455261f4e1d
+Successfully built 6455261f4e1d
+Successfully tagged trillionskill:g4-readonly
+
+=== READ-ONLY ENFORCEMENT ===
+HostConfig.ReadonlyRootfs=true
+HostConfig.Tmpfs=null (no tmpfs was needed)
+
+=== CONTAINER STATUS ===
+Up 27 seconds (healthy)
+
+=== CURL OUTPUT ===
+--- public ---
+curl_exit=0
+HTTP/1.1 200 OK
+X-DNS-Prefetch-Control: on
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://api.razorpay.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https: http:; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com blob: data:; connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://*.amazonaws.com https://*.supabase.co wss:; media-src 'self' https: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://api.razorpay.com; frame-ancestors 'self';
+set-cookie: authjs.csrf-token=194fff0b6560d72c24f75a63fe409b8b195970be0882bf9c6c1cb0d794de195a%7Cfe8a9988e751d3fc4511fad2067dad43d51aa1c7ad5efcc2e19876a825f65cf4; Path=/; HttpOnly; SameSite=Lax
+set-cookie: authjs.callback-url=http%3A%2F%2F127.0.0.1%3A3999; Path=/; HttpOnly; SameSite=Lax
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+content-type: application/json
+Date: Thu, 29 Oct 2026 15:23:02 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"status":"ok","timestamp":"2026-10-29T15:23:02.771Z","commit":"unknown","uptime":12,"database":{"status":"healthy","latencyMs":20},"payments":"not configured","totalLatencyMs":47}
+--- detailed ---
+curl_exit=0
+HTTP/1.1 200 OK
+X-DNS-Prefetch-Control: on
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://api.razorpay.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https: http:; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com blob: data:; connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://*.amazonaws.com https://*.supabase.co wss:; media-src 'self' https: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://api.razorpay.com; frame-ancestors 'self';
+set-cookie: authjs.csrf-token=f62c837e4fe0800ce0aacf566ad469f409b9f925a8bfe42adc3a05d0e6bc8438%7Cf3970a662fbfc5bf10ac7693905d23afa3ba1749bc1c918888c95122d7a5537b; Path=/; HttpOnly; SameSite=Lax
+set-cookie: authjs.callback-url=http%3A%2F%2F127.0.0.1%3A3999; Path=/; HttpOnly; SameSite=Lax
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+content-type: application/json
+Date: Thu, 29 Oct 2026 15:23:02 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"status":"ok","timestamp":"2026-10-29T15:23:02.848Z","commit":"unknown","uptime":12,"database":{"status":"healthy","latencyMs":5},"payments":"not configured","totalLatencyMs":12,"migrations":{"applied":31,"pending":0},"paymentsConfigured":false,"storageBackend":"fs","emailProviders":{"brevo":false,"resend":false}}
+=== CONTAINER LOGS (tail) ===
+   ▲ Next.js 15.5.28
+   - Local:        http://localhost:3000
+   - Network:      http://0.0.0.0:3000
+
+ ✓ Starting...
+ ✓ Ready in 277ms
+/bin/sh: 1: git: not found
+/bin/sh: 1: git: not found
+/bin/sh: 1: git: not found
+
+=== SECRET GREP IN CAPTURED OUTPUT ===
+no credential strings in captured health output
