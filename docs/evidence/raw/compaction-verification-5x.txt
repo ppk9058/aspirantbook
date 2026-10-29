@@ -1,0 +1,200 @@
+=== RUN 1 ===
+TAP version 13
+# [VERIFY-COMPACTION] Starting verification:
+#   - Exam ID filter: bench_test_10k
+#   - Target sample size: 1000
+# [VERIFY-COMPACTION] Sampled 1000 attempt(s) for verification.
+# [VERIFY-COMPACTION] Verified 200/1000 attempts (20000 answers).
+# [VERIFY-COMPACTION] Verified 400/1000 attempts (40000 answers).
+# [VERIFY-COMPACTION] Verified 600/1000 attempts (60000 answers).
+# [VERIFY-COMPACTION] Verified 800/1000 attempts (80000 answers).
+# [VERIFY-COMPACTION] Verified 1000/1000 attempts (100000 answers).
+# [VERIFICATION SUMMARY]
+#   - Sampled Attempts: 1000
+#   - Total Answers Verified: 100000
+#   - Mismatches: 0
+#   - Match Rate: 100.00%
+#   - Elapsed Time: 2.67 s
+# Subtest: Task C4: Compaction Verifier Test Suite
+    # Subtest: 1. Verifier confirms 100% field-by-field match across archived attempts
+    ok 1 - 1. Verifier confirms 100% field-by-field match across archived attempts
+      ---
+      duration_ms: 2667.648583
+      type: 'test'
+      ...
+    1..1
+ok 1 - Task C4: Compaction Verifier Test Suite
+  ---
+  duration_ms: 2668.37725
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3072.772792
+EXIT: 0
+=== RUN 2 ===
+TAP version 13
+# [VERIFY-COMPACTION] Starting verification:
+#   - Exam ID filter: bench_test_10k
+#   - Target sample size: 1000
+# [VERIFY-COMPACTION] Sampled 1000 attempt(s) for verification.
+# [VERIFY-COMPACTION] Verified 200/1000 attempts (20000 answers).
+# [VERIFY-COMPACTION] Verified 400/1000 attempts (40000 answers).
+# [VERIFY-COMPACTION] Verified 600/1000 attempts (60000 answers).
+# [VERIFY-COMPACTION] Verified 800/1000 attempts (80000 answers).
+# [VERIFY-COMPACTION] Verified 1000/1000 attempts (100000 answers).
+# [VERIFICATION SUMMARY]
+#   - Sampled Attempts: 1000
+#   - Total Answers Verified: 100000
+#   - Mismatches: 0
+#   - Match Rate: 100.00%
+#   - Elapsed Time: 2.59 s
+# Subtest: Task C4: Compaction Verifier Test Suite
+    # Subtest: 1. Verifier confirms 100% field-by-field match across archived attempts
+    ok 1 - 1. Verifier confirms 100% field-by-field match across archived attempts
+      ---
+      duration_ms: 2593.027375
+      type: 'test'
+      ...
+    1..1
+ok 1 - Task C4: Compaction Verifier Test Suite
+  ---
+  duration_ms: 2593.735625
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2852.130708
+EXIT: 0
+=== RUN 3 ===
+TAP version 13
+# [VERIFY-COMPACTION] Starting verification:
+#   - Exam ID filter: bench_test_10k
+#   - Target sample size: 1000
+# [VERIFY-COMPACTION] Sampled 1000 attempt(s) for verification.
+# [VERIFY-COMPACTION] Verified 200/1000 attempts (20000 answers).
+# [VERIFY-COMPACTION] Verified 400/1000 attempts (40000 answers).
+# [VERIFY-COMPACTION] Verified 600/1000 attempts (60000 answers).
+# [VERIFY-COMPACTION] Verified 800/1000 attempts (80000 answers).
+# [VERIFY-COMPACTION] Verified 1000/1000 attempts (100000 answers).
+# [VERIFICATION SUMMARY]
+#   - Sampled Attempts: 1000
+#   - Total Answers Verified: 100000
+#   - Mismatches: 0
+#   - Match Rate: 100.00%
+#   - Elapsed Time: 2.43 s
+# Subtest: Task C4: Compaction Verifier Test Suite
+    # Subtest: 1. Verifier confirms 100% field-by-field match across archived attempts
+    ok 1 - 1. Verifier confirms 100% field-by-field match across archived attempts
+      ---
+      duration_ms: 2427.432042
+      type: 'test'
+      ...
+    1..1
+ok 1 - Task C4: Compaction Verifier Test Suite
+  ---
+  duration_ms: 2428.200375
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2676.108125
+EXIT: 0
+=== RUN 4 ===
+TAP version 13
+# [VERIFY-COMPACTION] Starting verification:
+#   - Exam ID filter: bench_test_10k
+#   - Target sample size: 1000
+# [VERIFY-COMPACTION] Sampled 1000 attempt(s) for verification.
+# [VERIFY-COMPACTION] Verified 200/1000 attempts (20000 answers).
+# [VERIFY-COMPACTION] Verified 400/1000 attempts (40000 answers).
+# [VERIFY-COMPACTION] Verified 600/1000 attempts (60000 answers).
+# [VERIFY-COMPACTION] Verified 800/1000 attempts (80000 answers).
+# [VERIFY-COMPACTION] Verified 1000/1000 attempts (100000 answers).
+# [VERIFICATION SUMMARY]
+#   - Sampled Attempts: 1000
+#   - Total Answers Verified: 100000
+#   - Mismatches: 0
+#   - Match Rate: 100.00%
+#   - Elapsed Time: 2.48 s
+# Subtest: Task C4: Compaction Verifier Test Suite
+    # Subtest: 1. Verifier confirms 100% field-by-field match across archived attempts
+    ok 1 - 1. Verifier confirms 100% field-by-field match across archived attempts
+      ---
+      duration_ms: 2481.114709
+      type: 'test'
+      ...
+    1..1
+ok 1 - Task C4: Compaction Verifier Test Suite
+  ---
+  duration_ms: 2481.892667
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2734.289125
+EXIT: 0
+=== RUN 5 ===
+TAP version 13
+# [VERIFY-COMPACTION] Starting verification:
+#   - Exam ID filter: bench_test_10k
+#   - Target sample size: 1000
+# [VERIFY-COMPACTION] Sampled 1000 attempt(s) for verification.
+# [VERIFY-COMPACTION] Verified 200/1000 attempts (20000 answers).
+# [VERIFY-COMPACTION] Verified 400/1000 attempts (40000 answers).
+# [VERIFY-COMPACTION] Verified 600/1000 attempts (60000 answers).
+# [VERIFY-COMPACTION] Verified 800/1000 attempts (80000 answers).
+# [VERIFY-COMPACTION] Verified 1000/1000 attempts (100000 answers).
+# [VERIFICATION SUMMARY]
+#   - Sampled Attempts: 1000
+#   - Total Answers Verified: 100000
+#   - Mismatches: 0
+#   - Match Rate: 100.00%
+#   - Elapsed Time: 2.91 s
+# Subtest: Task C4: Compaction Verifier Test Suite
+    # Subtest: 1. Verifier confirms 100% field-by-field match across archived attempts
+    ok 1 - 1. Verifier confirms 100% field-by-field match across archived attempts
+      ---
+      duration_ms: 2909.766083
+      type: 'test'
+      ...
+    1..1
+ok 1 - Task C4: Compaction Verifier Test Suite
+  ---
+  duration_ms: 2910.586292
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3373.117917
+EXIT: 0

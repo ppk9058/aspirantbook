@@ -1,0 +1,17 @@
+[VERIFY-COMPACTION] Starting verification:
+  - Exam ID filter: bench_test_10k
+  - Target sample size: 1000
+[VERIFY-COMPACTION] Sampled 1000 attempt(s) for verification.
+[VERIFY-COMPACTION] Verified 200/1000 attempts (20000 answers).
+[VERIFY-COMPACTION] Verified 400/1000 attempts (40000 answers).
+[VERIFY-COMPACTION] Verified 600/1000 attempts (60000 answers).
+[VERIFY-COMPACTION] Verified 800/1000 attempts (80000 answers).
+[VERIFY-COMPACTION] Verified 1000/1000 attempts (100000 answers).
+
+[VERIFICATION SUMMARY]
+  - Sampled Attempts: 1000
+  - Total Answers Verified: 100000
+  - Mismatches: 0
+  - Match Rate: 100.00%
+  - Elapsed Time: 2.68 s
+
