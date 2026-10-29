@@ -21,7 +21,7 @@ describe("Task A4: Stripe Lazy Initialization & Health Checks", () => {
 
   test("2. Runtime without key fails closed on first payment call with clear error", async () => {
     delete process.env.STRIPE_SECRET_KEY;
-    process.env.NODE_ENV = "production";
+    (process.env as any).NODE_ENV = "production";
     delete process.env.NEXT_PHASE;
 
     const { createCheckoutSession, stripe } = await import("../../lib/payments/stripe");
@@ -119,7 +119,7 @@ describe("Task A4: Stripe Lazy Initialization & Health Checks", () => {
 
   // Restore env
   process.env.STRIPE_SECRET_KEY = origStripeKey;
-  process.env.NODE_ENV = origNodeEnv;
+  (process.env as any).NODE_ENV = origNodeEnv;
   process.env.NEXT_PHASE = origNextPhase;
   process.env.RAZORPAY_KEY_ID = origRazorpayKey;
   process.env.RAZORPAY_KEY_SECRET = origRazorpaySecret;
