@@ -8,6 +8,7 @@ export interface RateLimitResult {
   count: number;
   limit: number;
   windowSeconds: number;
+  remainingSeconds: number;
 }
 
 export interface RateLimitOptions {
@@ -125,6 +126,7 @@ export async function checkRateLimit(
   // Compute discrete bucket start
   const windowStartMs = Math.floor(nowMs / windowMs) * windowMs;
   const windowStartDate = new Date(windowStartMs);
+  const remainingSeconds = Math.max(1, Math.ceil((windowStartMs + windowMs - nowMs) / 1000));
 
   if (isExamRedisRateLimitEnabled() && redis) {
     try {
@@ -138,6 +140,7 @@ export async function checkRateLimit(
         count,
         limit,
         windowSeconds,
+        remainingSeconds,
       };
     } catch (redisErr) {
       console.warn("[RateLimit] Redis error while checking rate limit (falling back to DB):", redisErr);
@@ -179,6 +182,7 @@ export async function checkRateLimit(
       count,
       limit,
       windowSeconds,
+      remainingSeconds,
     };
   } catch (error: any) {
     if (failClosed) {
@@ -191,6 +195,7 @@ export async function checkRateLimit(
         count: 0,
         limit,
         windowSeconds,
+        remainingSeconds,
       };
     }
     console.error("[RateLimit] Database error while checking rate limit (failing OPEN):", error);
@@ -199,6 +204,7 @@ export async function checkRateLimit(
       count: 0,
       limit,
       windowSeconds,
+      remainingSeconds,
     };
   }
 }

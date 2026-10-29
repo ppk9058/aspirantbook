@@ -47,11 +47,14 @@ export async function checkExamWebRateLimit(
     return {
       allowed: false,
       response: NextResponse.json(
-        { error: "Too many requests. Please try again later." },
+        {
+          error: "Too many requests. Please try again later.",
+          retryAfter: res.remainingSeconds,
+        },
         {
           status: 429,
           headers: {
-            "Retry-After": String(res.windowSeconds),
+            "Retry-After": String(res.remainingSeconds),
           },
         }
       ),
@@ -79,7 +82,7 @@ export async function checkExamV1RateLimit(
   if (!res.allowed) {
     const headers = new Headers({
       "Content-Type": "application/json; charset=utf-8",
-      "Retry-After": String(res.windowSeconds),
+      "Retry-After": String(res.remainingSeconds),
       "Cache-Control": "no-store, max-age=0",
     });
     return {
@@ -90,7 +93,7 @@ export async function checkExamV1RateLimit(
           error: {
             code: "TOO_MANY_REQUESTS",
             message: "Rate limit exceeded. Please wait before retrying.",
-            details: { retryAfter: res.windowSeconds },
+            details: { retryAfter: res.remainingSeconds },
           },
         },
         {
