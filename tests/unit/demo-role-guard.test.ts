@@ -149,12 +149,12 @@ describe("B-001 demo role guard", () => {
         get: (name: string) => (name === "ts_demo_role" ? { value: "ADMIN" } : undefined),
       }
 
-      require.cache[require.resolve("next/headers")].exports = {
+      require.cache[require.resolve("next/headers")]!.exports = {
         ...nextHeaders,
         cookies: async () => mockCookies,
         headers: async () => ({ get: () => "" }),
       }
-      require.cache[require.resolve("../../auth")].exports = {
+      require.cache[require.resolve("../../auth")]!.exports = {
         ...authModule,
         auth: async () => null,
       }
@@ -181,12 +181,12 @@ describe("B-001 demo role guard", () => {
         get: (name: string) => (name === "ts_demo_role" ? { value: "ADMIN" } : undefined),
       }
 
-      require.cache[require.resolve("next/headers")].exports = {
+      require.cache[require.resolve("next/headers")]!.exports = {
         ...nextHeaders,
         cookies: async () => mockCookies,
         headers: async () => ({ get: () => "" }),
       }
-      require.cache[require.resolve("../../auth")].exports = {
+      require.cache[require.resolve("../../auth")]!.exports = {
         ...authModule,
         auth: async () => null,
       }
