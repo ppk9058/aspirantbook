@@ -2,13 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 
 const HOST_PORTS: Record<string, string[]> = {
-  "127.0.0.1": ["54329", "54330", "54335", "54336"],
-  "localhost": ["54329", "54330", "54335", "54336"],
-  "test-db": ["5432", "54330", "54335", "54336"],
-  "postgres": ["5432", "54330", "54335", "54336"],
+  "127.0.0.1": ["54329", "54330", "54335", "54336", "54340"],
+  "localhost": ["54329", "54330", "54335", "54336", "54340"],
+  "test-db": ["5432", "54330", "54335", "54336", "54340"],
+  "postgres": ["5432", "54330", "54335", "54336", "54340"],
   "toxiproxy": ["54336"],
   "trillionskill-test-db": ["5432", "54330"],
   "trillionskill-loadtest-db": ["5432", "54335"],
+  "trillionskill-launch-db": ["5432", "54340"],
 };
 
 export function assertNoEnvLocal(baseDir: string = process.cwd()): void {
