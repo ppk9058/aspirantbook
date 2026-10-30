@@ -30,6 +30,12 @@ const RegisterSchema = z.object({
         .optional()
         .or(z.literal("")),
     selectedGoal: z.string().optional().or(z.literal("")),
+    consent: z.preprocess(
+        (val) => val === "on" || val === "true" || val === true,
+        z.literal(true, {
+            errorMap: () => ({ message: "You must be 13+ and agree to the Terms and Privacy Policy" }),
+        })
+    ),
 })
 
 export async function register(prevState: any, formData: FormData) {
