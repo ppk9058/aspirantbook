@@ -120,6 +120,9 @@ jobs:
   test:
     name: Unit & Security Tests
     runs-on: ubuntu-latest
+    # The test-database guard (lib/test-db-guard.ts) only accepts port 54329 for
+    # 127.0.0.1, so the service is published on 54329 and DATABASE_URL/DIRECT_URL
+    # below point at that port. Nothing here is a real secret.
     services:
       postgres:
         image: postgres:16-alpine
@@ -128,12 +131,21 @@ jobs:
           POSTGRES_PASSWORD: postgres_password
           POSTGRES_DB: trillionskill_test
         ports:
-          - 5432:5432
+          - 54329:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres -d trillionskill_test"
           --health-interval 5s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
+
+    env:
+      APP_ENV: test
+      NODE_ENV: test
+      AUTH_TRUST_HOST: "true"
+      # Dummy CI-only value: long enough for next-auth, never a real secret.
+      NEXTAUTH_SECRET: "ci-dummy-nextauth-secret-not-a-real-secret"
+      DATABASE_URL: "postgresql://postgres:postgres_password@127.0.0.1:54329/trillionskill_test?connection_limit=10"
+      DIRECT_URL: "postgresql://postgres:postgres_password@127.0.0.1:54329/trillionskill_test"
 
     steps:
       - name: Checkout repository
@@ -148,19 +160,26 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Deploy database migrations
-        env:
-          DATABASE_URL: "postgresql://postgres:postgres_password@localhost:5432/trillionskill_test"
-          DIRECT_URL: "postgresql://postgres:postgres_password@localhost:5432/trillionskill_test"
+      - name: Wait for Postgres
+        run: |
+          for i in $(seq 1 30); do
+            if node -e "const net=require('net');const s=net.connect(54329,'127.0.0.1');s.on('connect',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1))"; then
+              echo "Postgres is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Postgres did not become ready in time" >&2
+          exit 1
+
+      - name: Apply schema to the test database
         run: npx prisma migrate deploy
 
+      - name: Verify schema matches the migrations
+        run: npx prisma migrate status
+
       - name: Run unit test suites
-        env:
-          APP_ENV: test
-          NODE_ENV: test
-          DATABASE_URL: "postgresql://postgres:postgres_password@localhost:5432/trillionskill_test"
-          DIRECT_URL: "postgresql://postgres:postgres_password@localhost:5432/trillionskill_test"
-        run: node --test --test-concurrency=1 node_modules/.bin/tsx tests/unit/*.test.ts
+        run: npx tsx --test --test-concurrency=1 tests/unit/*.test.ts
 
   build:
     name: Production Next.js Build
