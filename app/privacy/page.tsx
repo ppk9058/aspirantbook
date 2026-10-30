@@ -2,6 +2,7 @@ import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ShieldCheck, ArrowLeft, Trash2, Mail, Lock, FileText, Server, AlertCircle } from "lucide-react"
+import { getBrandConfig } from "@/lib/config/brand"
 
 export const metadata = {
   title: "Privacy Policy | AspirantBook",
@@ -9,6 +10,11 @@ export const metadata = {
 }
 
 export default function PrivacyPolicyPage() {
+  const brand = getBrandConfig()
+  const grievanceDisplay = brand.grievanceOfficer.includes("@")
+    ? brand.grievanceOfficer
+    : `${brand.grievanceOfficer} (Email: ${brand.grievanceEmail})`
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col">
       {/* Top Header */}
@@ -17,13 +23,13 @@ export default function PrivacyPolicyPage() {
           <Link href="/" className="flex items-center gap-2.5">
             <Image
               src="/aspirant-logo-square.jpg"
-              alt="AspirantBook"
+              alt={brand.brandName}
               width={32}
               height={32}
               className="rounded-lg object-cover"
             />
             <span className="font-extrabold text-base tracking-tight text-slate-950 dark:text-white">
-              AspirantBook
+              {brand.brandName}
             </span>
           </Link>
           <div className="flex items-center gap-4">
@@ -56,7 +62,7 @@ export default function PrivacyPolicyPage() {
               Privacy Policy
             </h1>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              AspirantBook (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;), operated by [OWNER TO CONFIRM: Legal Entity Name], provides competitive examination preparation, Computer-Based Test (CBT) mock simulations, and learning resources via https://aspirantbook.com and our mobile applications.
+              {brand.brandName} (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;), operated by {brand.legalEntityName}, provides competitive examination preparation, Computer-Based Test (CBT) mock simulations, and learning resources via https://{brand.canonicalDomain} and our mobile applications.
             </p>
           </div>
 
@@ -65,10 +71,10 @@ export default function PrivacyPolicyPage() {
             <AlertCircle className="w-5 h-5 text-sky-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
               <p className="font-bold text-slate-950 dark:text-white">Data Controller &amp; Legal Entity Information</p>
-              <p>Entity Name: [OWNER TO CONFIRM: Legal Entity Name]</p>
-              <p>Registered Address: [OWNER TO CONFIRM: Registered Address]</p>
-              <p>Support Email: [OWNER TO CONFIRM: Support Email]</p>
-              <p>Helpline: [OWNER TO CONFIRM: Support Phone Number]</p>
+              <p>Entity Name: {brand.legalEntityName}</p>
+              <p>Registered Address: {brand.registeredAddress}</p>
+              <p>Support Email: <a href={`mailto:${brand.supportEmail}`} className="hover:underline">{brand.supportEmail}</a></p>
+              <p>Helpline: <a href={`tel:${brand.supportPhone.replace(/\s+/g, "")}`} className="hover:underline">{brand.supportPhone}</a></p>
             </div>
           </div>
 
@@ -172,10 +178,10 @@ export default function PrivacyPolicyPage() {
               If you have any questions or grievances regarding this Privacy Policy or data handling practices, please contact our designated Grievance Officer:
             </p>
             <div className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/60 text-xs sm:text-sm text-slate-700 dark:text-slate-300 space-y-1">
-              <p><strong>Grievance Officer:</strong> [OWNER TO CONFIRM: Grievance Officer Name and Contact Email]</p>
-              <p><strong>Support Email:</strong> [OWNER TO CONFIRM: Support Email]</p>
-              <p><strong>Helpline:</strong> [OWNER TO CONFIRM: Support Phone Number]</p>
-              <p><strong>Postal Address:</strong> [OWNER TO CONFIRM: Registered Address]</p>
+              <p><strong>Grievance Officer:</strong> {grievanceDisplay}</p>
+              <p><strong>Support Email:</strong> <a href={`mailto:${brand.supportEmail}`} className="hover:underline">{brand.supportEmail}</a></p>
+              <p><strong>Helpline:</strong> <a href={`tel:${brand.supportPhone.replace(/\s+/g, "")}`} className="hover:underline">{brand.supportPhone}</a></p>
+              <p><strong>Postal Address:</strong> {brand.registeredAddress}</p>
             </div>
             <div className="flex gap-4 pt-2 text-xs font-semibold text-sky-600 dark:text-sky-400">
               <Link href="/terms" className="hover:underline">Terms of Service</Link>

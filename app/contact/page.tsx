@@ -3,6 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, Mail, Phone, MapPin, Clock, ShieldCheck } from "lucide-react"
 import { ContactFormClient } from "./ContactFormClient"
+import { getBrandConfig } from "@/lib/config/brand"
 
 export const metadata = {
   title: "Contact Us | AspirantBook",
@@ -10,6 +11,11 @@ export const metadata = {
 }
 
 export default function ContactPage() {
+  const brand = getBrandConfig()
+  const grievanceDisplay = brand.grievanceOfficer.includes("@")
+    ? brand.grievanceOfficer
+    : `${brand.grievanceOfficer} (${brand.grievanceEmail})`
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col">
       {/* Top Header */}
@@ -18,13 +24,13 @@ export default function ContactPage() {
           <Link href="/" className="flex items-center gap-2.5">
             <Image
               src="/aspirant-logo-square.jpg"
-              alt="AspirantBook"
+              alt={brand.brandName}
               width={32}
               height={32}
               className="rounded-lg object-cover"
             />
-            <span className="font-extrabold text-base tracking-tight text-slate-950 dark:text-white">
-              AspirantBook
+            <span className="font-extrabold text-base tracking-tight text-slate-950 dark:white">
+              {brand.brandName}
             </span>
           </Link>
           <Link
@@ -49,7 +55,7 @@ export default function ContactPage() {
               Contact Us
             </h1>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Have questions about your mock tests, batch enrollments, or book orders? Reach out using the form below or contact our support team directly.
+              Have questions about your mock tests, batch enrollments, or digital course access? Reach out using the form below or contact our support team directly.
             </p>
           </div>
 
@@ -65,7 +71,11 @@ export default function ContactPage() {
                   <Mail className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-bold text-slate-900 dark:text-slate-100">Learner Support</p>
-                    <p className="text-slate-600 dark:text-slate-400">[OWNER TO CONFIRM: Support Email]</p>
+                    <p className="text-slate-600 dark:text-slate-400">
+                      <a href={`mailto:${brand.supportEmail}`} className="hover:underline">
+                        {brand.supportEmail}
+                      </a>
+                    </p>
                   </div>
                 </div>
 
@@ -73,7 +83,11 @@ export default function ContactPage() {
                   <Phone className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-bold text-slate-900 dark:text-slate-100">Helpline / WhatsApp</p>
-                    <p className="text-slate-600 dark:text-slate-400">[OWNER TO CONFIRM: Support Phone Number]</p>
+                    <p className="text-slate-600 dark:text-slate-400">
+                      <a href={`tel:${brand.supportPhone.replace(/\s+/g, "")}`} className="hover:underline">
+                        {brand.supportPhone}
+                      </a>
+                    </p>
                   </div>
                 </div>
 
@@ -81,7 +95,7 @@ export default function ContactPage() {
                   <Clock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-bold text-slate-900 dark:text-slate-100">Operating Hours</p>
-                    <p className="text-slate-600 dark:text-slate-400">[OWNER TO CONFIRM: Support Operating Hours, e.g. Mon-Sat 9:00 AM - 7:00 PM IST]</p>
+                    <p className="text-slate-600 dark:text-slate-400">{brand.supportHours}</p>
                   </div>
                 </div>
 
@@ -89,7 +103,7 @@ export default function ContactPage() {
                   <MapPin className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-bold text-slate-900 dark:text-slate-100">Registered Office</p>
-                    <p className="text-slate-600 dark:text-slate-400">[OWNER TO CONFIRM: Physical Office Address]</p>
+                    <p className="text-slate-600 dark:text-slate-400">{brand.registeredAddress}</p>
                   </div>
                 </div>
               </div>
@@ -104,7 +118,7 @@ export default function ContactPage() {
                   Per the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021:
                 </p>
                 <p className="text-slate-700 dark:text-slate-300 font-medium">
-                  Officer: [OWNER TO CONFIRM: Grievance Officer Name and Contact Email]
+                  Officer: {grievanceDisplay}
                 </p>
               </div>
             </div>

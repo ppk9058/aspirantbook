@@ -1,14 +1,20 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, RefreshCw, AlertCircle, FileText, HelpCircle, Mail, Clock } from "lucide-react"
+import { ArrowLeft, RefreshCw, AlertCircle, FileText, HelpCircle, Mail, ShieldAlert, ShieldCheck } from "lucide-react"
+import { getBrandConfig } from "@/lib/config/brand"
 
 export const metadata = {
   title: "Cancellation & Refund Policy | AspirantBook",
-  description: "Read the official cancellation and refund policy for AspirantBook courses, test series, and study materials.",
+  description: "Read the official cancellation and refund policy for AspirantBook digital courses, live batches, test series, and ePDF books.",
 }
 
 export default function RefundPolicyPage() {
+  const brand = getBrandConfig()
+  const grievanceDisplay = brand.grievanceOfficer.includes("@")
+    ? brand.grievanceOfficer
+    : `${brand.grievanceOfficer} (Email: ${brand.grievanceEmail})`
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col">
       {/* Top Header */}
@@ -17,13 +23,13 @@ export default function RefundPolicyPage() {
           <Link href="/" className="flex items-center gap-2.5">
             <Image
               src="/aspirant-logo-square.jpg"
-              alt="AspirantBook"
+              alt={brand.brandName}
               width={32}
               height={32}
               className="rounded-lg object-cover"
             />
             <span className="font-extrabold text-base tracking-tight text-slate-950 dark:text-white">
-              AspirantBook
+              {brand.brandName}
             </span>
           </Link>
           <Link
@@ -48,7 +54,7 @@ export default function RefundPolicyPage() {
               Cancellation &amp; Refund Policy
             </h1>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              This Cancellation and Refund Policy applies to all digital courses, mock test subscriptions, and physical study materials purchased through AspirantBook (operated by [OWNER TO CONFIRM: Legal Entity Name]).
+              This Cancellation and Refund Policy applies to all digital courses, live batches, test series/mock tests, and ePDF books purchased through {brand.brandName} (operated by {brand.legalEntityName}). Only digital products are sold on this platform.
             </p>
           </div>
 
@@ -57,48 +63,51 @@ export default function RefundPolicyPage() {
             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
               <p className="font-bold">Merchant Information &amp; Legal Address</p>
-              <p>Legal Entity: [OWNER TO CONFIRM: Legal Entity Name]</p>
-              <p>Registered Office: [OWNER TO CONFIRM: Registered Address]</p>
-              <p>Support Contact: [OWNER TO CONFIRM: Support Email]</p>
+              <p>Legal Entity: {brand.legalEntityName}</p>
+              <p>Registered Office: {brand.registeredAddress}</p>
+              <p>Support Contact: <a href={`mailto:${brand.supportEmail}`} className="underline font-medium">{brand.supportEmail}</a></p>
             </div>
           </div>
 
-          {/* Section 1: Digital Courses & Mock Tests */}
+          {/* Section 1: Digital Products Refund Eligibility */}
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-slate-950 dark:text-white flex items-center gap-2">
               <FileText className="w-4 h-4 text-sky-500" />
-              1. Digital Courses &amp; CBT Test Series
+              1. Digital Products Refund Eligibility
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              AspirantBook provides immediate digital access upon successful payment confirmation.
+              {brand.brandName} delivers digital access immediately upon payment. Refunds for digital offerings are governed by the following category-specific terms:
             </p>
-            <ul className="list-disc pl-5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-1.5">
+            <ul className="list-disc pl-5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-2">
               <li>
-                <strong>Refund Window:</strong> Learners may request a refund within [OWNER TO CONFIRM: Refund Window, e.g., 7 days from purchase date] provided less than 15% of the video coursework has been accessed and no more than 1 mock test has been attempted.
+                <strong>Test Series / Mock Tests:</strong> Full refund within 48 hours of purchase provided no test has been started.
               </li>
               <li>
-                <strong>Completed Attempts:</strong> Once a student has submitted 2 or more full-length mock exams or downloaded encrypted study notes, the digital license is considered fully consumed and non-refundable.
+                <strong>Courses / Recorded Lectures:</strong> Refund within 7 days of purchase provided no more than 10% of course content has been accessed.
               </li>
               <li>
-                <strong>Subscription Renewals:</strong> Recurring monthly/annual subscription cancellations take effect at the end of the current billing cycle. Past billing periods are non-refundable.
+                <strong>Live Batches:</strong> Full refund before the first live class; within 7 days of batch start provided no more than 2 live classes were attended.
+              </li>
+              <li>
+                <strong>ePDF Books &amp; Study Notes:</strong> Non-refundable once downloaded or opened, EXCEPT in cases of duplicate payment, incorrect file delivered, or a corrupted/unopenable file that cannot be replaced.
               </li>
             </ul>
           </section>
 
-          {/* Section 2: Physical Books & Study Materials */}
+          {/* Section 2: Guaranteed Refunds & Exclusions */}
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-slate-950 dark:text-white flex items-center gap-2">
-              <Clock className="w-4 h-4 text-emerald-500" />
-              2. Physical Book Orders &amp; Delivery
+              <ShieldAlert className="w-4 h-4 text-emerald-500" />
+              2. Guaranteed Refunds &amp; Exclusions
             </h2>
-            <ul className="list-disc pl-5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-1.5">
-              <li>
-                <strong>Pre-Dispatch Cancellation:</strong> You can cancel a physical book order any time before it has been dispatched from our fulfillment center for a 100% full refund.
-              </li>
-              <li>
-                <strong>Damaged or Defective Copies:</strong> If your book arrives with missing pages, printing errors, or physical damage, notify us within [OWNER TO CONFIRM: Physical Return Window, e.g., 5 days of delivery] with unboxing photographs to receive an immediate replacement or full refund.
-              </li>
-            </ul>
+            <div className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              <p>
+                <strong>Always Refunded:</strong> You are always entitled to a 100% refund in the event of double/duplicate payment deduction, payment debited from your account but access not granted, or cancellation of a course, test series, or batch by us.
+              </p>
+              <p>
+                <strong>Exclusions:</strong> No refunds will be granted in cases of policy abuse, fraudulent activity, unauthorized account sharing, or violation of our Terms of Service.
+              </p>
+            </div>
           </section>
 
           {/* Section 3: Processing Timelines */}
@@ -108,12 +117,8 @@ export default function RefundPolicyPage() {
               3. Refund Processing &amp; Settlement Time
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              Approved refunds are credited directly to the original payment source:
+              Approved refunds are processed within 5-7 working days to the original payment method used during checkout. Note that bank processing or card issuer settlement cycles may add additional time to the credit appearing on your statement.
             </p>
-            <ul className="list-disc pl-5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-1">
-              <li><strong>UPI / Netbanking:</strong> 2 to 5 business days.</li>
-              <li><strong>Credit / Debit Cards:</strong> 5 to 7 business days depending on your issuing bank.</li>
-            </ul>
           </section>
 
           {/* Section 4: How to Request a Refund */}
@@ -123,12 +128,27 @@ export default function RefundPolicyPage() {
               4. How to Submit a Refund Request
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              To request a refund, please contact our support desk with your registered email and Order ID:
+              To request a refund, please contact our support desk with your registered email, Order ID, and specific reason:
             </p>
             <div className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/60 text-xs sm:text-sm text-slate-700 dark:text-slate-300 space-y-1">
-              <p>Email: <a href="mailto:support@aspirantbook.com" className="font-bold underline text-blue-600 dark:text-blue-400">[OWNER TO CONFIRM: Support Email]</a></p>
-              <p>Phone: [OWNER TO CONFIRM: Support Phone Number]</p>
-              <p>Grievance Officer: [OWNER TO CONFIRM: Grievance Officer Name and Contact Email]</p>
+              <p>Email: <a href={`mailto:${brand.supportEmail}`} className="font-bold underline text-blue-600 dark:text-blue-400">{brand.supportEmail}</a></p>
+              <p>Phone / Helpline: <a href={`tel:${brand.supportPhone.replace(/\s+/g, "")}`} className="hover:underline">{brand.supportPhone}</a></p>
+              <p>Operating Hours: {brand.supportHours}</p>
+            </div>
+          </section>
+
+          {/* Section 5: Grievance Redressal */}
+          <section className="space-y-3 p-5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-900/40">
+            <div className="flex items-center gap-2 text-indigo-900 dark:text-indigo-200 font-bold text-sm">
+              <ShieldCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <span>Grievance Redressal Mechanism</span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              In accordance with the Consumer Protection (E-Commerce) Rules, 2020, every grievance received will be acknowledged within 48 hours and resolved within one month from the date of receipt.
+            </p>
+            <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 space-y-0.5">
+              <p><strong>Grievance Officer:</strong> {grievanceDisplay}</p>
+              <p><strong>Direct Escalation:</strong> <a href={`mailto:${brand.grievanceEmail}`} className="underline text-indigo-600 dark:text-indigo-400 font-medium">{brand.grievanceEmail}</a></p>
             </div>
           </section>
         </div>

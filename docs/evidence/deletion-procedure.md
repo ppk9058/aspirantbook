@@ -35,7 +35,7 @@ When an administrator reviews a `DataDeletionRequest` in `/admin/data-deletion`,
      - `password = null`
      - `image = null`
      - Increment `sessionVersion` to revoke all issued JWT tokens.
-- **Retention Rule:** `[OWNER TO CONFIRM: 30-day grace recovery window before irreversible PII wipe]`
+- **Retention Rule:** `[DRAFT - owner/CA to confirm: 30-day recovery before irreversible PII wipe]`
 
 ---
 
@@ -45,7 +45,7 @@ When an administrator reviews a `DataDeletionRequest` in `/admin/data-deletion`,
   1. Retain attempt records linked to the anonymized `userId` so that cohort percentiles, question difficulty ratings, and historical test leaderboards remain statistically valid and tamper-evident.
   2. Individual learner identifying details are decoupled via Category A anonymization.
   3. Clear personalized course bookmarks and individual study goals.
-- **Retention Rule:** `[OWNER TO CONFIRM: Retain anonymized exam answer records indefinitely for cohort analytics or purge after 3 years]`
+- **Retention Rule:** `[DRAFT - owner/CA to confirm: anonymized exam answers retained for analytics]`
 
 ---
 
@@ -54,7 +54,7 @@ When an administrator reviews a `DataDeletionRequest` in `/admin/data-deletion`,
 - **Action:**
   1. **DO NOT DELETE FINANCIAL RECORDS.** Under Indian financial and tax regulations (Section 128 of the Companies Act 2013 and Income Tax Act 1961), all books of account, invoices, payment transaction IDs, and GST details must be maintained in good order for a minimum of 8 statutory fiscal years.
   2. Ensure the user's name on invoices remains archived for auditing while their login account is disabled.
-- **Retention Rule:** `[OWNER TO CONFIRM: Maintain financial payment logs and GST invoices for exactly 8 fiscal years per statutory mandate]`
+- **Retention Rule:** `[DRAFT - owner/CA to confirm: payment logs and GST invoices retained 8 years or as required by law]`
 
 ---
 
@@ -63,7 +63,7 @@ When an administrator reviews a `DataDeletionRequest` in `/admin/data-deletion`,
 - **Action:**
   1. Scrub any personal phone numbers, emails, or names submitted inside open-ended doubt queries.
   2. Disassociate user identity from AI prompt interaction logs.
-- **Retention Rule:** `[OWNER TO CONFIRM: Purge raw doubt attachment screenshots after 90 days; retain anonymized technical query embeddings for model evaluation]`
+- **Retention Rule:** `[DRAFT - owner/CA to confirm: doubt attachments purged after 90 days]`
 
 ---
 

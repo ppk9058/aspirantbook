@@ -2,7 +2,7 @@
  * Centralized Brand & Domain Configuration
  *
  * Provides a single source of truth for the platform brand, legal entity names,
- * canonical domains, support contacts, and canonical URL derivation.
+ * canonical domains, support contacts, operating hours, and canonical URL derivation.
  *
  * All values are overridable via environment variables.
  */
@@ -14,7 +14,9 @@ export interface BrandConfig {
   canonicalDomain: string;
   supportEmail: string;
   supportPhone: string;
+  supportHours: string;
   grievanceOfficer: string;
+  grievanceEmail: string;
   registeredAddress: string;
   copyrightNotice: string;
   socialLinks: {
@@ -38,25 +40,33 @@ export function getBrandConfig(): BrandConfig {
 
   const legalEntityName =
     process.env.LEGAL_ENTITY_NAME ||
-    "[OWNER TO CONFIRM: Legal Entity Name]";
+    "Prince Singh (Sole Proprietor), trading as AspirantBook";
 
   const supportEmail =
     process.env.SUPPORT_EMAIL ||
     process.env.NEXT_PUBLIC_SUPPORT_EMAIL ||
-    "[OWNER TO CONFIRM: Support Email]";
+    "hello@aspirantbook.com";
 
   const supportPhone =
     process.env.SUPPORT_PHONE ||
     process.env.NEXT_PUBLIC_SUPPORT_PHONE ||
-    "[OWNER TO CONFIRM: Support Phone Number]";
+    "+91 8340665934";
+
+  const supportHours =
+    process.env.SUPPORT_HOURS ||
+    "Mon-Sat, 10:00 AM - 6:00 PM IST";
 
   const grievanceOfficer =
     process.env.GRIEVANCE_OFFICER ||
-    "[OWNER TO CONFIRM: Grievance Officer Name and Contact Email]";
+    "Prince Singh";
+
+  const grievanceEmail =
+    process.env.GRIEVANCE_EMAIL ||
+    "grievance@aspirantbook.com";
 
   const registeredAddress =
     process.env.REGISTERED_ADDRESS ||
-    "[OWNER TO CONFIRM: Registered Address]";
+    "Pawar View, RK Puram, Near IIT Delhi, Hauz Khas, New Delhi, Delhi - 110016";
 
   const currentYear = new Date().getFullYear();
 
@@ -67,7 +77,9 @@ export function getBrandConfig(): BrandConfig {
     canonicalDomain,
     supportEmail,
     supportPhone,
+    supportHours,
     grievanceOfficer,
+    grievanceEmail,
     registeredAddress,
     copyrightNotice: `© ${currentYear} ${brandName}. All rights reserved.`,
     socialLinks: {
