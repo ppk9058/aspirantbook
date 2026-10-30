@@ -39,6 +39,31 @@ const RegisterSchema = z.object({
 })
 
 export async function register(prevState: any, formData: FormData) {
+    // 1. Client IP
+    let clientIp = "127.0.0.1"
+    try {
+        const { headers } = await import("next/headers")
+        const h = await headers()
+        clientIp = getClientIp(h)
+    } catch {
+        clientIp = "127.0.0.1"
+    }
+
+    // 2. Bot protection: Turnstile server-side verification (behind TURNSTILE_ENABLED flag)
+    // Run before parsing to fail closed immediately against bots and reject unverified requests
+    const turnstileToken = (formData.get("cf-turnstile-response") || formData.get("turnstileToken")) as string | null
+    const turnstileCheck = await verifyTurnstileToken(turnstileToken, clientIp)
+    if (!turnstileCheck.success) {
+        return { error: turnstileCheck.error || "Security verification failed. Please try again." }
+    }
+
+    // 3. IP Rate limiting
+    const maxAttempts = process.env.APP_ENV === "test" ? 200 : 10
+    const rateLimit = await checkRateLimit(`register:${clientIp}`, maxAttempts, 3600, { failClosed: true })
+    if (!rateLimit.allowed) {
+        return { error: "Too many registration attempts from this network. Please try again later." }
+    }
+
     const rawData = Object.fromEntries(formData.entries())
     const validatedFields = RegisterSchema.safeParse(rawData)
 
@@ -49,33 +74,10 @@ export async function register(prevState: any, formData: FormData) {
 
     const { email, password, name, phoneNumber, selectedGoal } = validatedFields.data
 
-    // 1. Password policy verification
+    // 4. Password policy verification
     const passwordPolicy = validatePasswordPolicy(password)
     if (!passwordPolicy.valid) {
         return { error: passwordPolicy.error }
-    }
-
-    // 2. IP Rate limiting
-    let clientIp = "127.0.0.1"
-    try {
-        const { headers } = await import("next/headers")
-        const h = await headers()
-        clientIp = getClientIp(h)
-    } catch {
-        clientIp = "127.0.0.1"
-    }
-
-    const maxAttempts = process.env.APP_ENV === "test" ? 200 : 10
-    const rateLimit = await checkRateLimit(`register:${clientIp}`, maxAttempts, 3600, { failClosed: true })
-    if (!rateLimit.allowed) {
-        return { error: "Too many registration attempts from this network. Please try again later." }
-    }
-
-    // Bot protection: Turnstile server-side verification (behind TURNSTILE_ENABLED flag)
-    const turnstileToken = (formData.get("cf-turnstile-response") || formData.get("turnstileToken")) as string | null
-    const turnstileCheck = await verifyTurnstileToken(turnstileToken, clientIp)
-    if (!turnstileCheck.success) {
-        return { error: turnstileCheck.error || "Security verification failed. Please try again." }
     }
 
     const normalizedEmail = email.trim().toLowerCase()
