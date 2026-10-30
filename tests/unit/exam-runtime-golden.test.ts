@@ -6,8 +6,11 @@ import { getAttemptRanking, getTestRankings } from "../../lib/exam-ranking";
 import { getSanitizedQuestionSet } from "../../lib/exam-questions-cache";
 import { getClientIp } from "../../lib/rate-limit";
 
-// Force test database
-process.env.DATABASE_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
+// Force test database (an explicitly provided URL wins: CI supplies one)
+process.env.DATABASE_URL =
+  process.env.TEST_DATABASE_URL ||
+  process.env.DATABASE_URL ||
+  "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
 process.env.DIRECT_URL = process.env.DATABASE_URL;
 
 const prisma = new PrismaClient();

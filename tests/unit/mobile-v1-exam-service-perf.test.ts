@@ -10,6 +10,7 @@ import { guardTestDatabase } from "../../scripts/guard-test-db";
 
 const testDbUrl =
   process.env.TEST_DATABASE_URL ||
+  process.env.DATABASE_URL ||
   "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_perf_v2_test";
 process.env.DATABASE_URL = testDbUrl;
 guardTestDatabase(testDbUrl);

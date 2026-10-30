@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from "node:test"
+import { describe, it, beforeEach, after } from "node:test"
 import assert from "node:assert/strict"
 
 import {
@@ -25,6 +25,24 @@ const originalKeySecret = env.RAZORPAY_KEY_SECRET
 const originalAppEnv = env.APP_ENV
 const originalNodeEnv = env.NODE_ENV
 const originalPublicKeyId = env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+const originalDatabaseUrl = env.DATABASE_URL
+const originalDirectUrl = env.DIRECT_URL
+
+// The last test asserts that it only runs against the isolated Docker test
+// database. In a clean CI shell neither URL is set, so the suite sets them
+// itself (and `after` restores the caller's values). An explicitly provided
+// URL is left untouched so the guard assertion can still fail it.
+const CANONICAL_TEST_DB_URL =
+  "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test"
+if (!env.DATABASE_URL) env.DATABASE_URL = CANONICAL_TEST_DB_URL
+if (!env.DIRECT_URL) env.DIRECT_URL = CANONICAL_TEST_DB_URL
+
+after(() => {
+  if (originalDatabaseUrl === undefined) delete env.DATABASE_URL
+  else env.DATABASE_URL = originalDatabaseUrl
+  if (originalDirectUrl === undefined) delete env.DIRECT_URL
+  else env.DIRECT_URL = originalDirectUrl
+})
 
 function restoreEnv() {
   if (originalKeyId === undefined) delete env.RAZORPAY_KEY_ID

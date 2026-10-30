@@ -6,6 +6,7 @@ import { guardTestDatabase } from "../../scripts/guard-test-db";
 
 const testDbUrl =
   process.env.TEST_DATABASE_URL ||
+  process.env.DATABASE_URL ||
   "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_perf_v2_test";
 guardTestDatabase(testDbUrl);
 
@@ -71,7 +72,7 @@ describe("P1-4: Connection limit validator and pg_stat_activity verification", (
       const activeConns = await prismaLimited.$queryRaw<Array<{ count: bigint }>>`
         SELECT COUNT(*)::bigint AS count
         FROM pg_stat_activity
-        WHERE datname = 'trillionskill_perf_v2_test'
+        WHERE datname = current_database()
       `;
       assert.ok(Number(activeConns[0].count) >= 1, "At least 1 active connection should exist");
     } finally {

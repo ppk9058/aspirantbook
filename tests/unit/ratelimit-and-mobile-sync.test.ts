@@ -1,4 +1,4 @@
-import { test, describe, beforeEach, afterEach } from "node:test";
+import { test, describe, before, after, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 
 process.env.DATABASE_URL =
@@ -11,6 +11,27 @@ import { checkExamWebRateLimit } from "../../lib/exam-runtime/exam-rate-limit";
 import { CbtSyncManager, SyncAnswerPayload } from "../../apps/mobile/src/lib/cbt-sync";
 
 describe("Task A13: Rate Limit Hardening & Mobile CBT Sync Suite", () => {
+  // Deterministic keys used by the server rate-limit assertions; cleared before
+  // and after the suite so repeated runs never inherit a shared counter.
+  const EXHAUST_USER_ID = "u_ratelimit_exhaust_test";
+  const EXHAUST_KEY_FRAGMENT = "exam:web:submit:u_u_ratelimit_exhaust_test";
+
+  const originalTrustProxy = process.env.TRUST_PROXY;
+  const originalExamFlag = process.env.EXAM_RATE_LIMIT_ENABLED;
+
+  before(async () => {
+    const { prisma } = await import("../../lib/prisma");
+    await prisma.rateLimit.deleteMany({ where: { key: { contains: EXHAUST_KEY_FRAGMENT } } });
+  });
+
+  after(async () => {
+    const { prisma } = await import("../../lib/prisma");
+    await prisma.rateLimit.deleteMany({ where: { key: { contains: EXHAUST_KEY_FRAGMENT } } });
+    if (originalTrustProxy === undefined) delete process.env.TRUST_PROXY;
+    else process.env.TRUST_PROXY = originalTrustProxy;
+    if (originalExamFlag === undefined) delete process.env.EXAM_RATE_LIMIT_ENABLED;
+    else process.env.EXAM_RATE_LIMIT_ENABLED = originalExamFlag;
+  });
   // =========================================================================
   // 1. SERVER RATE LIMIT HARDENING
   // =========================================================================
@@ -56,7 +77,7 @@ describe("Task A13: Rate Limit Hardening & Mobile CBT Sync Suite", () => {
       } as any;
 
       // Exhaust limit of 5 requests for action 'submit'
-      const userId = "u_ratelimit_exhaust_test";
+      const userId = EXHAUST_USER_ID;
       for (let i = 0; i < 5; i++) {
         await checkExamWebRateLimit(mockReq, "submit", userId);
       }
