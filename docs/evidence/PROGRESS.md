@@ -58,6 +58,8 @@
 | **G7** | LIVE-UNVERIFIED register | DONE | `969f382` | `docs/evidence/live-unverified.md` | Documented 8 third-party integrations (Google OAuth web/mobile, Razorpay webhook, Brevo, Resend, Turnstile, S3/R2, Cloudflare CF-Connecting-IP/origin lock, Play Console data-deletion), mocks tested, live unverified scope, exact env vars, step-by-step owner verification, expected results |
 | **R7b** | B-001 demo role production guard backport | DONE | `25eb816` | `docs/evidence/raw/b001-demo-role-5x.txt`, `docs/evidence/raw/b001-demo-role-fail-before.txt`, `docs/evidence/raw/b001-demo-role-fail-before-54bf0a2.txt`, `tests/unit/demo-role-guard.test.ts` | Cherry-picked commit 6799f6b from fix/demo-role-prod-guard. Resolved all 20 conflicts preserving guard behaviour: ts_demo_role never trusted in production (`NODE_ENV=production`) across middleware.ts, lib/auth/rbac.ts, app/admin/layout.tsx, and all studios/routes. Non-vacuous test fails before at ab99e4d on all 3 components. Honest baseline audit at 54bf0a2 confirmed core trio was already protected on feat/launch-blockers; 25eb816 unified entrypoints into `getDemoRole`. 12/12 tests pass 5x. |
 | **R7c** | R8 regression classification & B-001 built-server smoke | DONE | HEAD | `docs/evidence/raw/fresh-clone-unit-failures.txt`, `docs/evidence/raw/b001-built-server-smoke.txt`, `docs/evidence/raw/b001-demo-role-5x.txt` | Compared tip vs baseline 54bf0a2: 0 regressions introduced (failsOnlyAtTip=0, 9 pre-existing failures listed with root causes, 102 cancelled in both due to test-db guards without env). Built-server smoke (next build + NODE_ENV=production next start): test-phase1-4-prod-auth passed 10/10 pages (307) and 10/10 APIs (401), plus curl checks confirmed /admin (307), /api/admin (401), /api/auth/role (404), and /api/exam/test/bulk (401). |
+| **R7d** | CI unit job and unit-suite triage | DONE | `7950d4b` | `docs/evidence/r7d-ci-and-unit-suite.md`, `docs/evidence/raw/r7d-unit-suite-5x-7950d4b.txt` | Full clean-env unit suite 5x: 444 tests / 444 pass / 0 fail / 0 cancelled, 5/5 green. Triage buckets: env-only, state/ordering, hardcoded db. No tests weakened/deleted. |
+| **R7e** | Launch blockers: Legal placeholders, Consent, Cache staleness, Next 15.5.28 & audit, .env.example completeness | DONE | `708efb7` | `docs/evidence/PROGRESS.md`, `docs/evidence/launch-owner-todo.md`, `docs/evidence/raw/r7d-unit-suite-5x-708efb7.txt` | Task A: brand.ts SSOT, check:launch-placeholders CI job; Task B: RegisterForm consent useState(false) & server action/API enforcement; Task C: test-series userId+goals cache key & GoalProvider invalidation; Task D: Next.js 15.5.28 + eslint-config-next aligned, audit unchanged (0 new), built-server smoke passed; Task E: .env.example 147 vars completeness test. Clean-env 5x unit suite: 460/460 passed (5/5 green). |
 
 ---
 
@@ -157,3 +159,86 @@ wins over `.env.test` because dotenv never overrides an existing variable.
   disk unless a deployment sets `PERSIST_BACKEND=db`.
 - No real GitHub Actions run (pushes are out of scope for R7d); the fixed job is
   reproduced locally only.
+
+---
+
+## R7e — Launch Blockers Hardening & Verification (2026-10-31)
+
+**Worktree:** `/Users/praveenkumar/ws-launch` · **Branch:** `feat/launch-blockers`  
+**Base Commit:** `7950d4b` · **Final Head SHA:** `708efb7`  
+**Evidence Logs:**
+- Full Clean-Env 5x Suite: `docs/evidence/raw/r7d-unit-suite-5x-708efb7.txt`
+- Owner Action Items: `docs/evidence/launch-owner-todo.md`
+- Built-Server Smoke: 10/10 Pages PASS (307), 10/10 APIs PASS (401), direct curls 307/401/404/401
+
+### Summary of Tasks & Results
+
+#### Task A: Legal Placeholders & Brand Single Source of Truth
+- **Single Source of Truth:** Centralized brand and legal information in `lib/config/brand.ts`:
+  - Brand: `AspirantBook` (domain `aspirantbook.com`), legal entity `Prince Singh (Sole Proprietor), trading as AspirantBook`
+  - Physical & registered address: `Pawar View, RK Puram, Near IIT Delhi, Hauz Khas, New Delhi, Delhi - 110016`
+  - Support email: `hello@aspirantbook.com` (eliminated hardcoded `support@aspirantbook.com`)
+  - Support helpline: `+91 8340665934` | Support hours: `Mon-Sat, 10:00 AM - 6:00 PM IST`
+  - Grievance Officer: `Prince Singh`, `grievance@aspirantbook.com`
+- **Consumer Pages Refactored:** Rewrote `app/contact/page.tsx`, `app/privacy/page.tsx`, and `app/refund/page.tsx` to read dynamic brand data from `getBrandConfig()`.
+- **Digital Products Only:** Removed physical book shipping, delivery, and damaged copy text from `app/refund/page.tsx`. Clarified 48-hour mock test refund (0 tests attempted), 7-day course refund (<=10% content), live batch refund (before first class or <=2 classes within 7 days), and non-refundable ePDF books (except corrupt/wrong delivery).
+- **Automated Placeholder Check:** Added `scripts/check-launch-placeholders.mjs` and `npm run check:launch-placeholders` to fail if any `[OWNER TO CONFIRM` remains in `app/` or `lib/`. Integrated into `.github/workflows/ci.yml` as `continue-on-error: true` (documented how to flip to blocking).
+- **Owner Action Items:** Documented all pending non-code items in `docs/evidence/launch-owner-todo.md` (pincode verification, Cloudflare `grievance@` email routing, legal review, support hours, and CA retention review).
+
+#### Task B: Consent Checkbox & Registration Enforcement
+- **Client-Side Default:** Changed `components/auth/RegisterForm.tsx:44` default state from `useState(true)` to `useState(false)`. Form submit button is disabled and blocked until checked.
+- **Server Action & API Enforcement:** Added `consent` validation to `RegisterSchema` in `lib/actions/auth.ts`. Both web `register()` action and `POST /api/v1/auth/register` reject unaccepted consent payloads with 400.
+- **Bot Check Ordering:** Preserved bot mitigation contract by evaluating Turnstile verification prior to field parsing, ensuring bot rejection semantics remain consistent while blocking unconsented user registrations.
+- **Test Evidence:** Added `tests/unit/register-consent.test.ts`. Fail-before: 2 failures. Pass-after: 5/5 green runs.
+
+#### Task C: Cache Staleness Protection
+- **Test Series Cache Key:** Extracted module-level caching logic to `lib/exam/series-cache.ts`. Implemented pure helper `getSeriesCacheKey(userId, selectedGoalIds, filterByGoal)`. Prevents cross-user and cross-goal data leakage when switching users or goals in the same tab.
+- **Goal Provider Invalidation:** Updated `components/providers/GoalProvider.tsx` to export `invalidateCachedUserGoalPromise()`. Added invalidation hooks on `goalChange`, window `storage` events across browser tabs, and when `session?.user?.id` changes.
+- **Test Evidence:** Added `tests/unit/cache-staleness.test.ts` (9 tests covering series key isolation, multi-tab storage sync, and user invalidation). Fail-before: 5 failures. Pass-after: 5/5 green runs.
+
+#### Task D: Dependencies & Production Server Smoke
+- **Next.js Patch Upgrade:** Upgraded `next` to `15.5.28` (latest 15.x patch, avoiding breaking Next 16 / zod 4 changes). Aligned `eslint-config-next` to `15.5.28`.
+- **NPM Audit Counts (`--omit=dev`):**
+  - **Before Upgrade:** 20 vulnerabilities (1 low, 4 moderate, 15 high)
+  - **After Upgrade:** 20 vulnerabilities (1 low, 4 moderate, 15 high)
+  - **Delta:** 0 new vulnerabilities introduced.
+- **Production Server Smoke (`NODE_ENV=production next start -p 3045`):**
+  - `GET http://127.0.0.1:3045/admin` -> HTTP `307` (Redirect to `/login`)
+  - `GET http://127.0.0.1:3045/api/admin` -> HTTP `401`
+  - `GET http://127.0.0.1:3045/api/auth/role` -> HTTP `404` (Disabled in production)
+  - `POST http://127.0.0.1:3045/api/exam/test/bulk` -> HTTP `401`
+  - `scripts/test-phase1-4-prod-auth.ts`: 10/10 Pages PASS (307), 10/10 APIs PASS (401).
+- **Clean-Environment Unit Suite 5x (`scripts/r7d-unit-suite-5x.sh`):**
+  - Executed 5 consecutive runs with `env -i` + CI variables against Docker PostgreSQL on port 54329.
+  - **Result:** 460 tests / 460 pass / 0 fail / 0 cancelled across all 5 runs (5/5 green, 0 failed runs).
+
+#### Task E: `.env.example` Completeness
+- **Comprehensive Variable Inventory:** Audited AST and regex scans across all `process.env.X` accesses and schema definitions.
+- **Grouped & Annotated:** Re-structured `.env.example` into 14 distinct service sections covering 147 variables. Every variable is annotated with `[REQUIRED]` or `[OPTIONAL]`, containing zero actual credentials or secrets.
+- **Completeness Guard Test:** Added `tests/unit/env-example-completeness.test.ts`. Fail-before: caught 91 missing environment variables. Pass-after: 5/5 green runs.
+
+---
+
+### Evidence & Verification Ledger
+
+| Task | Component / Suite | Fail-Before State | Pass-After State (5x Runs) | Commit SHA |
+| :--- | :--- | :--- | :--- | :--- |
+| **Task A** | Launch Placeholders Guard (`scripts/check-launch-placeholders.mjs`) | Failed with 28 unresolved placeholders in `app/` and `lib/` | `0 unresolved placeholders found across 3 files (PASS)` (5/5 green) | `698269f` |
+| **Task B** | Registration Consent Enforcement (`tests/unit/register-consent.test.ts`) | 2 failed (missing consent allowed registration on web action & v1 API) | 6/6 passed across 3 suites (5/5 green) | `03f9131`, `708efb7` |
+| **Task C** | Test Series & Goal Cache Staleness (`tests/unit/cache-staleness.test.ts`) | 5 failed (`seriesModuleCache` & `invalidateCachedUserGoalPromise` undefined) | 9/9 passed across 3 suites (5/5 green) | `e7d0e2f`, `484a970` |
+| **Task D** | Clean-Env Full Unit Suite 5x (`scripts/r7d-unit-suite-5x.sh`) | 11 failures at baseline `653518f` | **460/460 tests pass, 0 fail, 0 cancelled (5/5 green)** | `9b7866d`, `708efb7` |
+| **Task D** | Production Built-Server Smoke (`test-phase1-4-prod-auth.ts` + curls) | N/A (baseline test) | `/admin` 307, `/api/admin` 401, `/api/auth/role` 404, `/api/exam/test/bulk` 401, 10/10 pages & 10/10 APIs pass | `9b7866d` |
+| **Task E** | `.env.example` Completeness Guard (`tests/unit/env-example-completeness.test.ts`) | Failed (91 variables in code missing from `.env.example`) | 1/1 suite passed, 147 variables verified (5/5 green) | `f483029` |
+
+---
+
+### R7e Commits on `feat/launch-blockers`
+
+- `698269f` R7e: legal placeholders SSOT in brand.ts, update legal pages, add placeholder check script and CI job
+- `03f9131` R7e: default consent to false in RegisterForm and enforce on client and server
+- `e7d0e2f` R7e: key test series cache by userId and goals, invalidate goal provider on changes
+- `484a970` R7e: extract series cache helper from page to satisfy Next.js page exports
+- `f483029` R7e: update .env.example with all code variables grouped by service and add completeness test
+- `9b7866d` R7e: align eslint-config-next with next 15.5.28
+- `708efb7` R7e: verify turnstile before schema parse in register action to preserve bot-check failure contract
+
