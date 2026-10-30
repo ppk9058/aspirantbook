@@ -1,0 +1,22 @@
+# R7d-E quick checks (report only)
+# SHA: 5f2b623e10ead9368b6ef0d3e32dea70ed550662
+# date: 2026-10-30T20:30:55Z
+
+## E1 dev OTP bypass guard
+$ grep -rn "ALLOW_DEV_MOBILE_LOGIN" --include=*.ts --include=*.tsx lib app
+  lib/boot-guard.ts:8:  const allowDevBypass = process.env.ALLOW_DEV_MOBILE_LOGIN === "true";
+  lib/boot-guard.ts:38:  // 2. Guard: Refuse to start when NODE_ENV==="production" and ALLOW_DEV_MOBILE_LOGIN==="true"
+  lib/boot-guard.ts:41:      "[CRITICAL SECURITY REFUSAL AT BOOT] ALLOW_DEV_MOBILE_LOGIN is enabled in NODE_ENV=production! " +
+  lib/api/v1/dev-bypass.ts:8: * 2. MUST return true ONLY for ALLOW_DEV_MOBILE_LOGIN === "true" OR (APP_ENV === "test" and connected to local *_test DB).
+  lib/api/v1/dev-bypass.ts:27:    process.env.ALLOW_DEV_MOBILE_LOGIN === "true" ||
+  lib/services/config.service.ts:13:      (process.env.APP_ENV === "test" && process.env.ALLOW_DEV_MOBILE_LOGIN === "true")
+  app/api/auth/mobile-login/route.ts:52:            (!isProduction && process.env.ALLOW_DEV_MOBILE_LOGIN === "true") ||
+
+## importers of the boot guard
+  app/layout.tsx:2:import "@/lib/boot-guard";
+
+## E2 CORS on /api/v1
+$ grep -rn "Access-Control-Allow-Origin" --include=*.ts app lib middleware.ts
+(no matches above = no CORS headers emitted)
+$ grep -rn "export async function OPTIONS" --include=*.ts app/api/v1
+(no matches above = no OPTIONS preflight handlers under /api/v1)

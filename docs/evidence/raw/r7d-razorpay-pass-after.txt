@@ -1,0 +1,66 @@
+# R7d razorpay-config-fail-closed PASS-AFTER
+# SHA: 7950d4b32ffe728f16e5fe58a48bad8d8e54cc62
+# command: env -i ... (CI vars only, NO DATABASE_URL) npx tsx --test tests/unit/razorpay-config-fail-closed.test.ts
+TAP version 13
+# Subtest: V3: Razorpay credentials fail closed
+    # Subtest: has no placeholder key id
+    ok 1 - has no placeholder key id
+      ---
+      duration_ms: 1.302042
+      type: 'test'
+      ...
+    # Subtest: throws instead of using a placeholder secret
+    ok 2 - throws instead of using a placeholder secret
+      ---
+      duration_ms: 0.574458
+      type: 'test'
+      ...
+    # Subtest: throws when only one credential is present
+    ok 3 - throws when only one credential is present
+      ---
+      duration_ms: 0.212625
+      type: 'test'
+      ...
+    # Subtest: builds one client when both credentials are present
+    ok 4 - builds one client when both credentials are present
+      ---
+      duration_ms: 23.524709
+      type: 'test'
+      ...
+    # Subtest: only treats an explicit test environment as test mode
+    ok 5 - only treats an explicit test environment as test mode
+      ---
+      duration_ms: 1.270458
+      type: 'test'
+      ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Razorpay order creation failed: Error: Razorpay is not configured: set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET (no placeholder fallback)
+#     at getRazorpayClient (/Users/praveenkumar/ws-launch/lib/payments/razorpay-config.ts:31:11)
+#     at createRazorpayOrder (/Users/praveenkumar/ws-launch/lib/actions/payment/razorpay.ts:252:27)
+#     at async waitForActual (node:assert:644:5)
+#     at async Function.rejects (node:assert:767:25)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/razorpay-config-fail-closed.test.ts:125:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: createRazorpayOrder rejects a missing secret outside test mode (no mock order)
+    ok 6 - createRazorpayOrder rejects a missing secret outside test mode (no mock order)
+      ---
+      duration_ms: 486.486625
+      type: 'test'
+      ...
+    1..6
+ok 1 - V3: Razorpay credentials fail closed
+  ---
+  duration_ms: 515.048541
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 938.876166

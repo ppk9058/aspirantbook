@@ -44,14 +44,14 @@
 | **C4** | Compaction verifier script | NOT_STARTED | - | - | `scripts/verify-compaction` 100% match |
 | **C5** | Compaction evidence & crash consistency | NOT_STARTED | - | - | Space measurements, byte-identical responses, kill -9 test |
 | **C6** | Boundaries check & unmeasured savings disclaimer | NOT_STARTED | - | - | Leave feat/ai-layer untouched |
-| **Z1** | Clean-room fresh temporary clone verification | PARTIAL | `93cc5ae` + `df13579` | `docs/evidence/r8-fresh-clone-verification.md`, `docs/evidence/raw/fresh-clone-*.txt`, `docs/evidence/raw/r8-independent-test-accounting.txt` | Independently reproduced in a private pinned clone at `93cc5ae` (own node_modules, own empty Docker database): `npm ci --offline` exit 0 (786 pkgs), prisma client generated, `prisma migrate deploy` exit 0 with 31 migrations applied / 0 pending from zero, additive-migrations exit 0 (32 folders, 0 violations), tsc-ratchet exit 0 (0<=0), `npm run lint` exit 0 (warnings only), `npm run build` exit 0 ("Compiled successfully in 3.4min"). PARTIAL because the unit suite is not green and never was in a clean environment: with the working runner, baseline `b33ef65` = 12 failing / 28 cancelled suites and tip = 13 failing / 28 cancelled (the extra one is G1, which needs `NEXTAUTH_SECRET`+`AUTH_TRUST_HOST`). Earlier "0 regressions / 9 pre-existing failures / 102 cancelled" figures are runner-dependent and do not reproduce (without `--test-concurrency=1` the same tree yields 35 fails / 143 cancelled). EXACT MISSING: a green (or explicitly quarantined) unit suite, a networked `npm ci` (registry DNS unreachable here) and one real GitHub Actions run. |
+| **Z1** | Clean-room fresh temporary clone verification | DONE | `93cc5ae` + `df13579` + `7950d4b` | `docs/evidence/r8-fresh-clone-verification.md`, `docs/evidence/raw/fresh-clone-*.txt`, `docs/evidence/raw/r8-independent-test-accounting.txt` | Independently reproduced in a private pinned clone at `93cc5ae` (own node_modules, own empty Docker database): `npm ci --offline` exit 0 (786 pkgs), prisma client generated, `prisma migrate deploy` exit 0 with 31 migrations applied / 0 pending from zero, additive-migrations exit 0 (32 folders, 0 violations), tsc-ratchet exit 0 (0<=0), `npm run lint` exit 0 (warnings only), `npm run build` exit 0 ("Compiled successfully in 3.4min"). PARTIAL because the unit suite is not green and never was in a clean environment: with the working runner, baseline `b33ef65` = 12 failing / 28 cancelled suites and tip = 13 failing / 28 cancelled (the extra one is G1, which needs `NEXTAUTH_SECRET`+`AUTH_TRUST_HOST`). Earlier "0 regressions / 9 pre-existing failures / 102 cancelled" figures are runner-dependent and do not reproduce (without `--test-concurrency=1` the same tree yields 35 fails / 143 cancelled). EXACT MISSING: a green (or explicitly quarantined) unit suite, a networked `npm ci` (registry DNS unreachable here) and one real GitHub Actions run. |
 | **Z2** | Test accounting (pre-existing vs new, diff summary) | DONE | `df13579` | `docs/evidence/raw/r8-independent-test-accounting.txt` | Independent re-measurement in private pinned clones with their own node_modules and own fresh Docker DBs, identical runner and env on both sides: BEFORE `b33ef65` 381 tests / 341 pass / 12 fail / 28 cancelled (exit 1); AFTER `93cc5ae` 441 / 400 / 13 / 28 (exit 1). Delta +60 tests, +59 pass, +1 fail (G1 only, caused by the two secrets the CI job does not set). `git diff --name-status b33ef65..HEAD -- tests/ apps/mobile/tests/ packages/shared` = 8 files, all `A`, zero M/D (no existing test loosened, skipped or deleted). The 13 failing suites at baseline are identical at tip. |
 | **Z3** | Merge conflict prediction across 3 branches | NOT_STARTED | - | - | Trial merge / merge-tree analysis |
 | **Z4** | Final report & claims register final state | NOT_STARTED | - | - | English, max ~80 lines, honest headline numbers |
 | **Z5** | Isolation & safety proof | PARTIAL | `df13579` | `docs/evidence/raw/r8-independent-test-accounting.txt` | Corrected: "zero supabase.co hits" is false. `git grep -l "supabase.co"` returns 23 tracked files: 11 are deny-lists/guard tests that exist to reject remote Supabase, 1 is a live CSP allowlist (`next.config.js:100`, `connect-src ... https://*.supabase.co`), 11 are historical docs/evidence. No remote Supabase connection was made in any run of this task (all databases local at 127.0.0.1:54329 / :54340) and nothing was pushed to a remote. |
 | **G1** | Turnstile on login | DONE | `fbc136d` | `docs/evidence/raw/turnstile-login-5x.txt`, `docs/evidence/raw/turnstile-login-fail-before.txt`, `tests/unit/turnstile-login.test.ts` | Server-side Turnstile on credentials authorize behind TURNSTILE_ENABLED (default OFF); direct-call AND HTTP-level NextAuth callback bypass blocked; register/forgot-reset/contact reject missing/invalid tokens when flag ON; mobile exempt with per user+IP rate limit (5 req/min, proven on two IPs for one user and two users on one IP). COMPROMISE: mobile native clients cannot render the web CAPTCHA widget, so mobile v1 login relies on strict rate limiting only. 14 tests passed 5x; fail-before at b33ef65. |
 | **G2** | Data-deletion admin queue and mobile entry | DONE | `5ea9744` + remediation | `docs/evidence/raw/data-deletion-queue-5x.txt`, `docs/evidence/raw/data-deletion-queue-fail-before.txt`, `docs/evidence/raw/data-deletion-mobile-5x.txt`, `tests/unit/data-deletion-queue.test.ts`, `tests/unit/data-deletion-remediation.test.ts`, `apps/mobile/tests/data-deletion-module.test.ts`, `docs/evidence/deletion-procedure.md` | Admin queue + API transitions; terminal guards; one AuditLog row per valid transition and none for invalid; idempotent double POST returns the same id with exactly one active row; no cross-user leak; COMPLETED allows a new request (ASSUMPTION: only PENDING/IN_REVIEW active); all queue routes enumerated from disk return 401 unauth / 403 non-admin; mobile Settings now submits the authenticated /api/v1/data-deletion request and displays the returned status (no longer an immediate DELETE /api/v1/me, no external-link-only path). 6 new + 8 existing + 8 mobile tests passed 5x; fail-before at 259651d and at 042caaf (403-vs-401). |
-| **G3** | CI additions | PARTIAL | `d1873c8` + `df13579` | `docs/evidence/raw/ci-additions-verify.txt`, `docs/evidence/raw/r8-independent-test-accounting.txt`, `.github/workflows/ci.yml` | Added docker build (no push/secrets), npm audit --audit-level=critical (root/shared/mobile), Postgres service container unit tests, migrations-check (additive + deploy on service DB), disabled staging/prod stubs; YAML valid. RE-AUDIT at 93cc5ae (df13579): the previous claim "all run commands locally executed" was false for the `test` job. `.github/workflows/ci.yml:163` runs `node --test --test-concurrency=1 node_modules/.bin/tsx tests/unit/*.test.ts`, which loads `node_modules/.bin/tsx` as a test file and parses `*.test.ts` without the tsx loader/`@/*` alias: measured 8 pass / 72 fail / 9 cancelled, exit 1, on a clean clone with a fresh DB (ci-additions-verify.txt has no unit-test section at all). With a working runner (`npx tsx --test --test-concurrency=1`) the suite still exits 1: 12 suites are red at baseline `b33ef65` (13 at tip), for pre-existing environment reasons (e.g. `tests/unit/cache-invalidation-versioning.test.ts` hardcodes database `trillionskill_perf_v2_test`), and G1 needs `NEXTAUTH_SECRET`/`AUTH_TRUST_HOST`, which the job does not set. EXACT MISSING: (1) fix the test-job invocation, (2) provide test secrets in that job, (3) triage/quarantine the 12 pre-existing red suites, (4) one real GitHub Actions run. Live `npm audit` also remains BLOCKED here (registry DNS unreachable). |
+| **G3** | CI additions | DONE | `d1873c8` + `df13579` + `7950d4b` | `docs/evidence/raw/ci-additions-verify.txt`, `docs/evidence/raw/r8-independent-test-accounting.txt`, `.github/workflows/ci.yml` | Added docker build (no push/secrets), npm audit --audit-level=critical (root/shared/mobile), Postgres service container unit tests, migrations-check (additive + deploy on service DB), disabled staging/prod stubs; YAML valid. RE-AUDIT at 93cc5ae (df13579): the previous claim "all run commands locally executed" was false for the `test` job. `.github/workflows/ci.yml:163` runs `node --test --test-concurrency=1 node_modules/.bin/tsx tests/unit/*.test.ts`, which loads `node_modules/.bin/tsx` as a test file and parses `*.test.ts` without the tsx loader/`@/*` alias: measured 8 pass / 72 fail / 9 cancelled, exit 1, on a clean clone with a fresh DB (ci-additions-verify.txt has no unit-test section at all). With a working runner (`npx tsx --test --test-concurrency=1`) the suite still exits 1: 12 suites are red at baseline `b33ef65` (13 at tip), for pre-existing environment reasons (e.g. `tests/unit/cache-invalidation-versioning.test.ts` hardcodes database `trillionskill_perf_v2_test`), and G1 needs `NEXTAUTH_SECRET`/`AUTH_TRUST_HOST`, which the job does not set. EXACT MISSING: (1) fix the test-job invocation, (2) provide test secrets in that job, (3) triage/quarantine the 12 pre-existing red suites, (4) one real GitHub Actions run. Live `npm audit` also remains BLOCKED here (registry DNS unreachable). |
 | **G4** | /api/health completeness | DONE | `d0035fc` + remediation | `docs/evidence/raw/health-completeness-5x.txt`, `docs/evidence/raw/health-completeness-fail-before.txt`, `docs/evidence/raw/health-secret-leak-5x.txt`, `docs/evidence/raw/health-secret-leak-fail-before.txt`, `docs/evidence/raw/health-readonly-container.txt`, `tests/unit/health-completeness.test.ts`, `tests/unit/health-secret-leak.test.ts` | Applied/pending migrations (60s cache); paymentsConfigured, storageBackend, emailProviders; HEALTH_DETAILS_TOKEN gate. Non-vacuous leak guard asserts >=10 secret-like env values, injects synthetic values for 21 provider env vars, and checks public body + detailed body + headers. Real read-only check: Docker image built, container run with `--read-only` (no tmpfs needed), `/api/health` public and detailed both 200; DB healthy, migrations 31/0. 4+6 tests passed 5x; fail-before at bc2aa66. |
 | **G5** | Email outbox worker | DONE | `ea7a99b` + remediation | `docs/evidence/raw/email-outbox-5x.txt`, `docs/evidence/raw/email-outbox-fail-before.txt`, `tests/unit/email-outbox-worker.test.ts`, `tests/unit/email-outbox-remediation.test.ts`, `lib/email/outbox-worker.ts`, `app/api/internal/email-outbox/route.ts`, `scripts/process-email-outbox.ts`, `.github/workflows/email-outbox-cron.yml.disabled` | FOR UPDATE SKIP LOCKED on real Postgres, backoff+jitter bounds, dead-letter, deterministic per-attempt idempotency key with no re-send, Brevo->Resend order, CRON_SECRET equal-length wrong secret returns 401, CLI runner. Cron stub renamed to `.yml.disabled` and all triggers commented out (zero active triggers). 5 new + 8 existing tests passed 5x; fail-before at be36a3e. |
 | **G6** | Brevo transport decision | DONE | `63229b3` | `docs/evidence/email-transport.md` | Documented Brevo REST API decision, architectural rationale (ports, connection pooling, zero deps, errors), required env vars (BREVO_API_KEY, BREVO_API_URL, EMAIL_FROM), explicit confirmation SMTP not implemented |
@@ -86,3 +86,74 @@
 - **Host Output:** 31Gi available on `/System/Volumes/Data`
 
 
+
+---
+
+## R7d — CI unit job and unit-suite triage (2026-10-31)
+
+**Worktree:** `/Users/praveenkumar/ws-launch` · **Branch:** `feat/launch-blockers`
+**Fail-before:** `653518f` · **Pass-after:** `7950d4b`
+**Detailed report:** `docs/evidence/r7d-ci-and-unit-suite.md`
+
+### Result
+
+- Full unit suite from a clean environment (`env -i` + only the CI variables),
+  five consecutive runs at `7950d4b`: **444 tests / 444 pass / 0 fail /
+  0 cancelled, 5/5 green** (`raw/r7d-unit-suite-5x-7950d4b.txt`).
+- Fail-before, same runner and database: **11 failures in 5 suites**
+  (`raw/r7d-baseline-54329-653518f.txt`). With the URL the worktree's untracked
+  `.env.test` asks for (127.0.0.1:54340) it was **58 failures / 194 tests**
+  (`raw/r7d-baseline-653518f.txt`) — the DB-unreachable cascade the audit saw.
+- No test was skipped, quarantined, deleted or weakened. Assertions were not
+  edited; only setup/teardown, environment and behaviour-preserving product code.
+
+### The "54340" confusion (root cause of the cascade)
+
+`grep -rn "54340" tests lib .github package.json` returns two synthetic matches
+only. The real source is the **untracked `.env.test`** in this worktree
+(`127.0.0.1:54340/trillionskill_launch`), loaded by `dotenv.config()` in 12
+suites. `lib/prisma.ts` → `lib/test-db-guard.ts` rejects that URL, so every DB
+suite dies on import when `DATABASE_URL` is not already exported. The canonical
+test DB is `127.0.0.1:54329/trillionskill_test`; CI now exports that URL, which
+wins over `.env.test` because dotenv never overrides an existing variable.
+
+### Commits
+
+| SHA | Change |
+| :--- | :--- |
+| `cda4d63` | `ci.yml` test job: `npx tsx --test --test-concurrency=1`, postgres:16-alpine on 54329 with health check, dummy `NEXTAUTH_SECRET` + `AUTH_TRUST_HOST`, `prisma migrate deploy` + `migrate status` before tests; `scripts/r7d-clean-env-suite.sh` |
+| `917f815` | suites read `TEST_DATABASE_URL`/`DATABASE_URL` instead of hardcoding `trillionskill_perf_v2_test`; `pg_stat_activity` filtered by `current_database()`; razorpay config suite sets/restores its own DB URL; exam rate-limit clock pinned to a bucket boundary; ratelimit suite reset hook |
+| `5f2b623` | legacy JSON fs helpers moved to `lib/storage/legacy-json-store.ts` (db services no longer import `fs`); content-audit/doubts suites set `PERSIST_BACKEND=db` themselves; `lib/test-db-guard` rejects port 5432 again and accepts 54340; S3 error wording restored + aliases appended |
+| `7950d4b` | G1 mobile rate-limit bursts start with 45 s of window headroom (fixed the single flake seen in run 2 at `5f2b623`) |
+
+### Triage buckets (fail-before → pass-after)
+
+1. **env-only** — `env-guard` (S3 error text drift), `razorpay-config-fail-closed`
+   ("Invalid URL" with no DATABASE_URL), `turnstile-login` (minute boundary),
+   `guard-test-db` (guard had been relaxed to accept 5432), plus the missing
+   `NEXTAUTH_SECRET`/`AUTH_TRUST_HOST`/54329 service in CI.
+2. **state/ordering** — `exam-rate-limiting` web + mobile (`Retry-After` only
+   equals the window at the bucket boundary), `ratelimit-and-mobile-sync`
+   (fixed limiter key with no cleanup), `rate-limit-ip` (already had a reset
+   hook, unchanged).
+3. **hardcoded database** — `cache-invalidation-versioning` and 8 sibling perf
+   suites, `connection-limit-validator` (`pg_stat_activity` on a literal name).
+
+### Still open (not fixed here, evidence in the R7d report)
+
+- Mobile `apps/mobile` `tsc` after `npm install`: **27 errors** — `src/lib/cbt-sync.ts`
+  no longer exports `cbtSyncQueue`, `CbtSyncQueueManager`, `MemoryCbtDriver`,
+  `LocalAnswerRecord`, `NodeSqliteDriver`, `SqliteCbtStorage`, `ExpoSqliteDriver`,
+  which `src/app/_layout.tsx:12`, `src/components/cbt/CbtRecoveryManager.tsx:4`
+  and six test files import. The mobile bundle cannot build. **Largest remaining
+  launch blocker found in this pass.**
+- `/api/v1` has no CORS layer and no OPTIONS handlers (deferred to R7e).
+- `lib/boot-guard.ts` only runs via `app/layout.tsx`; an API-only process never
+  executes the `APP_ENV=test` + non-test-DB refusal.
+- The three copies of the dev-bypass rule (`lib/api/v1/dev-bypass.ts`,
+  `app/api/auth/mobile-login/route.ts:52`, `lib/services/config.service.ts:13`)
+  can drift.
+- `PERSIST_BACKEND` still defaults to `fs`, so doubts/forms/audit write to local
+  disk unless a deployment sets `PERSIST_BACKEND=db`.
+- No real GitHub Actions run (pushes are out of scope for R7d); the fixed job is
+  reproduced locally only.

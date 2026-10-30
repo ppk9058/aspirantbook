@@ -1,0 +1,70 @@
+# R7d clean-env unit suite, 5 consecutive runs
+# SHA: 5f2b623e10ead9368b6ef0d3e32dea70ed550662
+# branch: feat/launch-blockers
+# date: 2026-10-30T20:30:03Z
+# command: scripts/r7d-clean-env-suite.sh (env -i + CI vars only)
+# DB: postgresql://postgres:***@127.0.0.1:54329/trillionskill_test
+
+===== RUN 1/5 =====
+# SHA: 5f2b623e10ead9368b6ef0d3e32dea70ed550662
+# EXIT:0
+# tests 444
+# suites 105
+# pass 444
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# no failing suites
+
+===== RUN 2/5 =====
+# SHA: 5f2b623e10ead9368b6ef0d3e32dea70ed550662
+# EXIT:1
+# tests 444
+# suites 105
+# pass 443
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+not ok 79 - Task G1: Turnstile on Login Verification
+
+===== RUN 3/5 =====
+# SHA: 5f2b623e10ead9368b6ef0d3e32dea70ed550662
+# EXIT:0
+# tests 444
+# suites 105
+# pass 444
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# no failing suites
+
+===== RUN 4/5 =====
+# SHA: 5f2b623e10ead9368b6ef0d3e32dea70ed550662
+# EXIT:0
+# tests 444
+# suites 105
+# pass 444
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# no failing suites
+
+===== RUN 5/5 =====
+# SHA: 5f2b623e10ead9368b6ef0d3e32dea70ed550662
+# EXIT:0
+# tests 444
+# suites 105
+# pass 444
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# no failing suites
+
+===== SUMMARY =====
+# SHA: 5f2b623e10ead9368b6ef0d3e32dea70ed550662
+# runs: 5, failed runs: 1

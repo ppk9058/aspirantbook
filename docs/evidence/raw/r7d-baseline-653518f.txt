@@ -1,0 +1,2657 @@
+TAP version 13
+# Subtest: A7 privileged server-action guard
+    # Subtest: anonymous is rejected
+    ok 1 - anonymous is rejected
+      ---
+      duration_ms: 0.820042
+      type: 'test'
+      ...
+    # Subtest: STUDENT is rejected
+    ok 2 - STUDENT is rejected
+      ---
+      duration_ms: 0.560166
+      type: 'test'
+      ...
+    # Subtest: TEACHER is rejected for admin-only actions
+    ok 3 - TEACHER is rejected for admin-only actions
+      ---
+      duration_ms: 0.178542
+      type: 'test'
+      ...
+    # Subtest: ADMIN passes
+    ok 4 - ADMIN passes
+      ---
+      duration_ms: 0.129709
+      type: 'test'
+      ...
+    1..4
+ok 1 - A7 privileged server-action guard
+  ---
+  duration_ms: 2.500083
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: A7 tracks mutations fail closed without an admin session
+    # Subtest: createTrack is rejected outside an authenticated admin request
+    not ok 1 - createTrack is rejected outside an authenticated admin request
+      ---
+      duration_ms: 63.398625
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-action-guards.test.ts:2:1975'
+      failureType: 'testCodeFailure'
+      error: 'Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TestDatabaseGuardError'
+      stack: |-
+        assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+        <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+        Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+        Module._compile (node:internal/modules/cjs/loader:1781:14)
+        Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+        Module.load (node:internal/modules/cjs/loader:1505:32)
+        Function._load (node:internal/modules/cjs/loader:1309:12)
+        wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+        Module.require (node:internal/modules/cjs/loader:1527:12)
+        require (node:internal/modules/helpers:147:16)
+      ...
+    1..1
+not ok 2 - A7 tracks mutations fail closed without an admin session
+  ---
+  duration_ms: 70.499167
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/admin-action-guards.test.ts:2:1885'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/admin-analytics.test.ts
+not ok 2 - tests/unit/admin-analytics.test.ts
+  ---
+  duration_ms: 331.022583
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: A12 course draft allowlist
+    # Subtest: strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+    ok 1 - strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+      ---
+      duration_ms: 1.982417
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status and an out-of-range preview
+    ok 2 - rejects an invalid status and an out-of-range preview
+      ---
+      duration_ms: 1.037458
+      type: 'test'
+      ...
+    # Subtest: accepts every field the course editor actually sends
+    ok 3 - accepts every field the course editor actually sends
+      ---
+      duration_ms: 1.012667
+      type: 'test'
+      ...
+    # Subtest: inline updates use the same allowlist
+    ok 4 - inline updates use the same allowlist
+      ---
+      duration_ms: 0.156833
+      type: 'test'
+      ...
+    # Subtest: parseOrThrow reports the offending field
+    ok 5 - parseOrThrow reports the offending field
+      ---
+      duration_ms: 0.520583
+      type: 'test'
+      ...
+    1..5
+ok 4 - A12 course draft allowlist
+  ---
+  duration_ms: 5.663
+  type: 'suite'
+  ...
+# Subtest: A12 content-engine question PATCH allowlist
+    # Subtest: strips ids, hashes and relations
+    ok 1 - strips ids, hashes and relations
+      ---
+      duration_ms: 0.201
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status
+    ok 2 - rejects an invalid status
+      ---
+      duration_ms: 0.368958
+      type: 'test'
+      ...
+    1..2
+ok 5 - A12 content-engine question PATCH allowlist
+  ---
+  duration_ms: 1.001084
+  type: 'suite'
+  ...
+# Subtest: A10 CSV formula injection
+    # Subtest: prefixes cells that a spreadsheet would execute
+    ok 1 - prefixes cells that a spreadsheet would execute
+      ---
+      duration_ms: 0.711542
+      type: 'test'
+      ...
+    # Subtest: leaves normal cells unchanged and escapes quotes
+    ok 2 - leaves normal cells unchanged and escapes quotes
+      ---
+      duration_ms: 0.12275
+      type: 'test'
+      ...
+    1..2
+ok 6 - A10 CSV formula injection
+  ---
+  duration_ms: 1.670167
+  type: 'suite'
+  ...
+# Subtest: A10 admin password policy
+    # Subtest: rejects the old 6-character minimum
+    ok 1 - rejects the old 6-character minimum
+      ---
+      duration_ms: 0.141917
+      type: 'test'
+      ...
+    # Subtest: accepts a strong password
+    ok 2 - accepts a strong password
+      ---
+      duration_ms: 0.080084
+      type: 'test'
+      ...
+    1..2
+ok 7 - A10 admin password policy
+  ---
+  duration_ms: 0.343958
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/batches-concurrency.test.ts
+not ok 5 - tests/unit/batches-concurrency.test.ts
+  ---
+  duration_ms: 494.203791
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: A5 book storage key policy
+    # Subtest: rejects traversal, absolute paths and remote URLs
+    ok 1 - rejects traversal, absolute paths and remote URLs
+      ---
+      duration_ms: 0.648625
+      type: 'test'
+      ...
+    # Subtest: accepts storage keys and legacy public paths
+    ok 2 - accepts storage keys and legacy public paths
+      ---
+      duration_ms: 0.2095
+      type: 'test'
+      ...
+    # Subtest: resolves a real key inside the configured root
+    ok 3 - resolves a real key inside the configured root
+      ---
+      duration_ms: 3.027084
+      type: 'test'
+      ...
+    # Subtest: rejects a symlink that escapes the root
+    ok 4 - rejects a symlink that escapes the root
+      ---
+      duration_ms: 0.840542
+      type: 'test'
+      ...
+    # Subtest: a missing file is a 404, never a fabricated PDF
+    ok 5 - a missing file is a 404, never a fabricated PDF
+      ---
+      duration_ms: 0.4825
+      type: 'test'
+      ...
+    # Subtest: traversal input to readBookFile is rejected before touching disk
+    ok 6 - traversal input to readBookFile is rejected before touching disk
+      ---
+      duration_ms: 0.154625
+      type: 'test'
+      ...
+    1..6
+ok 9 - A5 book storage key policy
+  ---
+  duration_ms: 38.379459
+  type: 'suite'
+  ...
+# Subtest: A5/A12 book update allowlist
+    # Subtest: strips unknown fields such as createdBy
+    ok 1 - strips unknown fields such as createdBy
+      ---
+      duration_ms: 1.392833
+      type: 'test'
+      ...
+    # Subtest: rejects a traversal fullPdfUrl
+    ok 2 - rejects a traversal fullPdfUrl
+      ---
+      duration_ms: 0.575208
+      type: 'test'
+      ...
+    # Subtest: rejects an absolute fullPdfUrl
+    ok 3 - rejects an absolute fullPdfUrl
+      ---
+      duration_ms: 1.060083
+      type: 'test'
+      ...
+    1..3
+ok 10 - A5/A12 book update allowlist
+  ---
+  duration_ms: 3.451625
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/books-db-persistence.test.ts
+not ok 7 - tests/unit/books-db-persistence.test.ts
+  ---
+  duration_ms: 324.054708
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/bookstore-stats.test.ts
+not ok 8 - tests/unit/bookstore-stats.test.ts
+  ---
+  duration_ms: 312.739375
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/bookstore-stats.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Task B9: Centralized Brand & Domain Configuration
+    # Subtest: 1. Brand module exports all required brand and legal fields
+    ok 1 - 1. Brand module exports all required brand and legal fields
+      ---
+      duration_ms: 1.945166
+      type: 'test'
+      ...
+    # Subtest: 2. Environment variable overrides work as expected
+    ok 2 - 2. Environment variable overrides work as expected
+      ---
+      duration_ms: 0.262417
+      type: 'test'
+      ...
+    # Subtest: 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+    ok 3 - 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+      ---
+      duration_ms: 0.442709
+      type: 'test'
+      ...
+    # Subtest: 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+    ok 4 - 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+      ---
+      duration_ms: 0.859833
+      type: 'test'
+      ...
+    # Subtest: 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+    ok 5 - 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+      ---
+      duration_ms: 0.232875
+      type: 'test'
+      ...
+    # Subtest: 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+    ok 6 - 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+      ---
+      duration_ms: 0.128125
+      type: 'test'
+      ...
+    1..6
+ok 13 - Task B9: Centralized Brand & Domain Configuration
+  ---
+  duration_ms: 4.733833
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/cache-invalidation-versioning.test.ts
+not ok 10 - tests/unit/cache-invalidation-versioning.test.ts
+  ---
+  duration_ms: 317.164916
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/cache-invalidation-versioning.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/cache-invalidation.test.ts
+not ok 11 - tests/unit/cache-invalidation.test.ts
+  ---
+  duration_ms: 324.575625
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/cache-invalidation.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Cache tags are declared and invalidated (B-015, B-019)
+    # Subtest: finds the unstable_cache reads it is meant to guard
+    ok 1 - finds the unstable_cache reads it is meant to guard
+      ---
+      duration_ms: 1.551791
+      type: 'test'
+      ...
+    # Subtest: uses only registered cache tags
+    ok 2 - uses only registered cache tags
+      ---
+      duration_ms: 0.718875
+      type: 'test'
+      ...
+    # Subtest: invalidates every cached tag from at least one mutation path
+    ok 3 - invalidates every cached tag from at least one mutation path
+      ---
+      duration_ms: 47.876125
+      type: 'test'
+      ...
+    # Subtest: keeps batches on the shared tagged cache instead of a module-level TTL cache
+    ok 4 - keeps batches on the shared tagged cache instead of a module-level TTL cache
+      ---
+      duration_ms: 0.593666
+      type: 'test'
+      ...
+    1..4
+ok 16 - Cache tags are declared and invalidated (B-015, B-019)
+  ---
+  duration_ms: 52.224375
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/client-ip-trust-proxy.test.ts
+not ok 13 - tests/unit/client-ip-trust-proxy.test.ts
+  ---
+  duration_ms: 333.031
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/client-ip-trust-proxy.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: P1-2: clientSeq NOT NULL COALESCE & Edge Case Verification
+    # Subtest: 1. Absent and null clientSeq coalesce to 0 without 23502 not-null constraint violation
+    ok 1 - 1. Absent and null clientSeq coalesce to 0 without 23502 not-null constraint violation
+      ---
+      duration_ms: 8.282083
+      type: 'test'
+      ...
+    # Subtest: 2. Increasing clientSeq values update the record cleanly
+    ok 2 - 2. Increasing clientSeq values update the record cleanly
+      ---
+      duration_ms: 3.52425
+      type: 'test'
+      ...
+    # Subtest: 3. Out-of-order batches: older packet (seq 2) arriving after seq 5 is rejected
+    ok 3 - 3. Out-of-order batches: older packet (seq 2) arriving after seq 5 is rejected
+      ---
+      duration_ms: 2.461083
+      type: 'test'
+      ...
+    1..3
+ok 18 - P1-2: clientSeq NOT NULL COALESCE & Edge Case Verification
+  ---
+  duration_ms: 150.245125
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/connection-limit-validator.test.ts
+not ok 15 - tests/unit/connection-limit-validator.test.ts
+  ---
+  duration_ms: 311.709542
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/connection-limit-validator.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/content-audit-db.test.ts
+not ok 16 - tests/unit/content-audit-db.test.ts
+  ---
+  duration_ms: 311.665292
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/content-audit-db.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/content-engine-export.test.ts
+not ok 17 - tests/unit/content-engine-export.test.ts
+  ---
+  duration_ms: 313.222584
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-export.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/content-engine-search.test.ts
+not ok 18 - tests/unit/content-engine-search.test.ts
+  ---
+  duration_ms: 311.711166
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-search.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/content-order-race.test.ts
+not ok 19 - tests/unit/content-order-race.test.ts
+  ---
+  duration_ms: 315.686208
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/content-order-race.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/course-lesson-read.test.ts
+not ok 20 - tests/unit/course-lesson-read.test.ts
+  ---
+  duration_ms: 313.875375
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/course-metadata-db.test.ts
+not ok 21 - tests/unit/course-metadata-db.test.ts
+  ---
+  duration_ms: 317.349667
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: A8 course ownership
+    # Subtest: admin can manage every course
+    ok 1 - admin can manage every course
+      ---
+      duration_ms: 0.843583
+      type: 'test'
+      ...
+    # Subtest: a teacher can only manage their own course
+    ok 2 - a teacher can only manage their own course
+      ---
+      duration_ms: 0.109958
+      type: 'test'
+      ...
+    # Subtest: legacy courses without a creator are admin-only for real teachers
+    ok 3 - legacy courses without a creator are admin-only for real teachers
+      ---
+      duration_ms: 0.0925
+      type: 'test'
+      ...
+    # Subtest: students and anonymous callers are always denied
+    ok 4 - students and anonymous callers are always denied
+      ---
+      duration_ms: 0.088834
+      type: 'test'
+      ...
+    # Subtest: missing course or missing user id fails closed
+    ok 5 - missing course or missing user id fails closed
+      ---
+      duration_ms: 0.27675
+      type: 'test'
+      ...
+    # Subtest: assertCanManageCourse distinguishes 401 from 403
+    ok 6 - assertCanManageCourse distinguishes 401 from 403
+      ---
+      duration_ms: 0.812291
+      type: 'test'
+      ...
+    # Subtest: courses with enrollments are archived, never deleted
+    ok 7 - courses with enrollments are archived, never deleted
+      ---
+      duration_ms: 0.239708
+      type: 'test'
+      ...
+    # Subtest: demo identities are never persisted as a creator
+    ok 8 - demo identities are never persisted as a creator
+      ---
+      duration_ms: 0.326041
+      type: 'test'
+      ...
+    1..8
+ok 26 - A8 course ownership
+  ---
+  duration_ms: 4.070875
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/dashboard-summary.test.ts
+not ok 23 - tests/unit/dashboard-summary.test.ts
+  ---
+  duration_ms: 324.882125
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/dashboard-summary.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/data-deletion-queue.test.ts
+not ok 24 - tests/unit/data-deletion-queue.test.ts
+  ---
+  duration_ms: 324.695542
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/data-deletion-remediation.test.ts
+not ok 25 - tests/unit/data-deletion-remediation.test.ts
+  ---
+  duration_ms: 427.574333
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/demo-chat-rate-limit.test.ts
+not ok 26 - tests/unit/demo-chat-rate-limit.test.ts
+  ---
+  duration_ms: 322.181792
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/demo-chat-rate-limit.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: B-001 demo role guard
+    # Subtest: production never resolves a demo role, even with every flag set
+    ok 1 - production never resolves a demo role, even with every flag set
+      ---
+      duration_ms: 15.39075
+      type: 'test'
+      ...
+    # Subtest: development without explicit demo mode does not resolve a demo role
+    ok 2 - development without explicit demo mode does not resolve a demo role
+      ---
+      duration_ms: 1.344125
+      type: 'test'
+      ...
+    # Subtest: demo mode works when explicitly enabled or in the test environment
+    ok 3 - demo mode works when explicitly enabled or in the test environment
+      ---
+      duration_ms: 3.883459
+      type: 'test'
+      ...
+    # Subtest: unknown cookie values are rejected
+    ok 4 - unknown cookie values are rejected
+      ---
+      duration_ms: 1.271458
+      type: 'test'
+      ...
+    # Subtest: getDemoRole accepts a NextRequest and a next/headers cookie store
+    ok 5 - getDemoRole accepts a NextRequest and a next/headers cookie store
+      ---
+      duration_ms: 5.758166
+      type: 'test'
+      ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+    # Subtest: middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+    ok 6 - middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+      ---
+      duration_ms: 436.762417
+      type: 'test'
+      ...
+    # Subtest: lib/auth/rbac.ts rejects ts_demo_role cookie in production
+    ok 7 - lib/auth/rbac.ts rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 93.321167
+      type: 'test'
+      ...
+    # Subtest: app/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 8 - app/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 303.911958
+      type: 'test'
+      ...
+    # Subtest: middleware still honours the demo flow in the test environment
+    ok 9 - middleware still honours the demo flow in the test environment
+      ---
+      duration_ms: 4.659417
+      type: 'test'
+      ...
+    # Subtest: app/api/auth/role GET and POST return 404 in production
+    ok 10 - app/api/auth/role GET and POST return 404 in production
+      ---
+      duration_ms: 14.421
+      type: 'test'
+      ...
+    # Subtest: app/(dashboard)/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 11 - app/(dashboard)/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 7.470042
+      type: 'test'
+      ...
+    # Subtest: exam API route rejects ts_demo_role=ADMIN in production with 401
+    ok 12 - exam API route rejects ts_demo_role=ADMIN in production with 401
+      ---
+      duration_ms: 23.393375
+      type: 'test'
+      ...
+    1..12
+ok 31 - B-001 demo role guard
+  ---
+  duration_ms: 913.898666
+  type: 'suite'
+  ...
+# Subtest: A1 demo-role policy
+    # Subtest: production build always ignores ts_demo_role, even in the test env
+    ok 1 - production build always ignores ts_demo_role, even in the test env
+      ---
+      duration_ms: 0.8965
+      type: 'test'
+      ...
+    # Subtest: test environment enables the demo role
+    ok 2 - test environment enables the demo role
+      ---
+      duration_ms: 0.259958
+      type: 'test'
+      ...
+    # Subtest: explicit demo flag enables the demo role outside test
+    ok 3 - explicit demo flag enables the demo role outside test
+      ---
+      duration_ms: 0.339042
+      type: 'test'
+      ...
+    # Subtest: fails closed when nothing explicitly enables demo mode
+    ok 4 - fails closed when nothing explicitly enables demo mode
+      ---
+      duration_ms: 0.342459
+      type: 'test'
+      ...
+    # Subtest: rejects an unknown role value
+    ok 5 - rejects an unknown role value
+      ---
+      duration_ms: 0.218584
+      type: 'test'
+      ...
+    1..5
+ok 32 - A1 demo-role policy
+  ---
+  duration_ms: 2.844125
+  type: 'suite'
+  ...
+# Subtest: A1 /api/auth/role is inert in production
+    # Subtest: POST returns 404 in production and never sets a cookie
+    ok 1 - POST returns 404 in production and never sets a cookie
+      ---
+      duration_ms: 61.755625
+      type: 'test'
+      ...
+    # Subtest: GET returns 404 in production
+    ok 2 - GET returns 404 in production
+      ---
+      duration_ms: 1.324875
+      type: 'test'
+      ...
+    1..2
+ok 33 - A1 /api/auth/role is inert in production
+  ---
+  duration_ms: 63.570958
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/doubts-forms-db.test.ts
+not ok 29 - tests/unit/doubts-forms-db.test.ts
+  ---
+  duration_ms: 327.585458
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/doubts-forms-db.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/email-outbox-remediation.test.ts
+not ok 30 - tests/unit/email-outbox-remediation.test.ts
+  ---
+  duration_ms: 384.386
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/email-outbox-worker.test.ts
+not ok 31 - tests/unit/email-outbox-worker.test.ts
+  ---
+  duration_ms: 332.161959
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/email-provider-abstraction.test.ts
+not ok 32 - tests/unit/email-provider-abstraction.test.ts
+  ---
+  duration_ms: 314.624416
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/email-provider-abstraction.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/email-transport.test.ts
+not ok 33 - tests/unit/email-transport.test.ts
+  ---
+  duration_ms: 337.857083
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/email-transport.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Razorpay credentials not configured
+# RAZORPAY_KEY_SECRET is not configured; cannot verify payment signature
+# Subtest: S3 configuration guards (B-013)
+    # Subtest: getS3Url throws an explicit error instead of building an 'undefined' URL
+    not ok 1 - getS3Url throws an explicit error instead of building an 'undefined' URL
+      ---
+      duration_ms: 2.898208
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/env-guard.test.ts:2:1856'
+      failureType: 'testCodeFailure'
+      error: |-
+        The input did not match the regular expression /S3 is not configured: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_S3_BUCKET_NAME are required/. Input:
+        
+        'Error: S3 is not configured: AWS_ACCESS_KEY_ID (or S3_ACCESS_KEY), AWS_SECRET_ACCESS_KEY (or S3_SECRET_KEY) and AWS_S3_BUCKET_NAME (or S3_BUCKET) are required'
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+      error: 'S3 is not configured: AWS_ACCESS_KEY_ID (or S3_ACCESS_KEY), AWS_SECRET_ACCESS_KEY (or S3_SECRET_KEY) and AWS_S3_BUCKET_NAME (or S3_BUCKET) are required'
+      stack: |-
+        getS3Config (/Users/praveenkumar/ws-launch/lib/aws-s3.ts:23:15)
+        getS3Url (/Users/praveenkumar/ws-launch/lib/aws-s3.ts:104:36)
+        <anonymous> (/Users/praveenkumar/ws-launch/tests/unit/env-guard.test.ts:61:13)
+        getActual (node:assert:609:5)
+        Function.throws (node:assert:757:24)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/env-guard.test.ts:60:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+      operator: 'throws'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/env-guard.test.ts:60:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: generatePresignedUrl rejects with the explicit configuration error
+    ok 2 - generatePresignedUrl rejects with the explicit configuration error
+      ---
+      duration_ms: 0.486
+      type: 'test'
+      ...
+    # Subtest: deleteFromS3 rejects with the explicit configuration error
+    ok 3 - deleteFromS3 rejects with the explicit configuration error
+      ---
+      duration_ms: 0.476167
+      type: 'test'
+      ...
+    # Subtest: still builds a normal S3 URL when the bucket is configured
+    ok 4 - still builds a normal S3 URL when the bucket is configured
+      ---
+      duration_ms: 0.400833
+      type: 'test'
+      ...
+    1..4
+not ok 39 - S3 configuration guards (B-013)
+  ---
+  duration_ms: 5.112334
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/env-guard.test.ts:2:1793'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Razorpay signature guards (B-012)
+    # Subtest: verifyRazorpaySignature returns false (never throws) when the secret is missing
+    ok 1 - verifyRazorpaySignature returns false (never throws) when the secret is missing
+      ---
+      duration_ms: 0.35075
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpaySignature accepts a correctly signed payload
+    ok 2 - verifyRazorpaySignature accepts a correctly signed payload
+      ---
+      duration_ms: 0.645916
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpayWebhookSignature never falls back to RAZORPAY_KEY_SECRET
+    ok 3 - verifyRazorpayWebhookSignature never falls back to RAZORPAY_KEY_SECRET
+      ---
+      duration_ms: 0.210042
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpayWebhookSignature accepts a correctly signed webhook
+    ok 4 - verifyRazorpayWebhookSignature accepts a correctly signed webhook
+      ---
+      duration_ms: 0.320875
+      type: 'test'
+      ...
+    1..4
+ok 40 - Razorpay signature guards (B-012)
+  ---
+  duration_ms: 1.857208
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-checklist-scenarios.test.ts
+not ok 35 - tests/unit/exam-checklist-scenarios.test.ts
+  ---
+  duration_ms: 323.247375
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-checklist-scenarios.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-deadline-ordering.test.ts
+not ok 36 - tests/unit/exam-deadline-ordering.test.ts
+  ---
+  duration_ms: 329.03975
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-deadline-ordering.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-mutations-auth.test.ts
+not ok 37 - tests/unit/exam-mutations-auth.test.ts
+  ---
+  duration_ms: 317.998792
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-mutations-auth.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-packages-tests.test.ts
+not ok 38 - tests/unit/exam-packages-tests.test.ts
+  ---
+  duration_ms: 319.223875
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-packages-tests.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-ranking-live.test.ts
+not ok 39 - tests/unit/exam-ranking-live.test.ts
+  ---
+  duration_ms: 318.795083
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-live.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-ranking-property.test.ts
+not ok 40 - tests/unit/exam-ranking-property.test.ts
+  ---
+  duration_ms: 340.695625
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-property.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-rate-limiting.test.ts
+not ok 41 - tests/unit/exam-rate-limiting.test.ts
+  ---
+  duration_ms: 376.906084
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-runtime-golden.test.ts
+not ok 42 - tests/unit/exam-runtime-golden.test.ts
+  ---
+  duration_ms: 350.787583
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-runtime-golden.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/exam-runtime-verification-review.test.ts
+not ok 43 - tests/unit/exam-runtime-verification-review.test.ts
+  ---
+  duration_ms: 334.720208
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-runtime-verification-review.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/google-oauth-security.test.ts
+not ok 44 - tests/unit/google-oauth-security.test.ts
+  ---
+  duration_ms: 557.598667
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/google-oauth-security.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Phase 0 Safety Harness: Test DB & Environment Guards
+    # Subtest: guardTestDatabase accepts valid local docker test DB URLs
+    ok 1 - guardTestDatabase accepts valid local docker test DB URLs
+      ---
+      duration_ms: 0.779292
+      type: 'test'
+      ...
+    # Subtest: guardTestDatabase rejects supabase.co URLs explicitly
+    ok 2 - guardTestDatabase rejects supabase.co URLs explicitly
+      ---
+      duration_ms: 0.324
+      type: 'test'
+      ...
+    # Subtest: guardTestDatabase rejects unauthorized hosts and ports
+    ok 3 - guardTestDatabase rejects unauthorized hosts and ports
+      ---
+      duration_ms: 0.565958
+      type: 'test'
+      ...
+    # Subtest: assertNoEnvLocal detects .env.local in directory
+    ok 4 - assertNoEnvLocal detects .env.local in directory
+      ---
+      duration_ms: 0.698416
+      type: 'test'
+      ...
+    # Subtest: assertNoSupabaseEnv detects supabase.co in any env var
+    ok 5 - assertNoSupabaseEnv detects supabase.co in any env var
+      ---
+      duration_ms: 0.242708
+      type: 'test'
+      ...
+    1..5
+ok 51 - Phase 0 Safety Harness: Test DB & Environment Guards
+  ---
+  duration_ms: 3.64875
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/health-completeness.test.ts
+not ok 46 - tests/unit/health-completeness.test.ts
+  ---
+  duration_ms: 375.086541
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/health-completeness.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/health-endpoint.test.ts
+not ok 47 - tests/unit/health-endpoint.test.ts
+  ---
+  duration_ms: 362.706958
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/health-endpoint.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/health-secret-leak.test.ts
+not ok 48 - tests/unit/health-secret-leak.test.ts
+  ---
+  duration_ms: 362.180167
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/health-secret-leak.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: B-017: hook dependency arrays are exhaustive
+    # Subtest: reports no react-hooks/exhaustive-deps warnings in the fixed components
+    ok 1 - reports no react-hooks/exhaustive-deps warnings in the fixed components
+      ---
+      duration_ms: 3756.637917
+      type: 'test'
+      ...
+    1..1
+ok 55 - B-017: hook dependency arrays are exhaustive
+  ---
+  duration_ms: 3757.687375
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/index-coverage.test.ts
+not ok 50 - tests/unit/index-coverage.test.ts
+  ---
+  duration_ms: 331.089417
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/index-coverage.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/legal-pages-and-deletion.test.ts
+not ok 51 - tests/unit/legal-pages-and-deletion.test.ts
+  ---
+  duration_ms: 331.279625
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/legal-pages-and-deletion.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/mobile-v1-exam-service-perf.test.ts
+not ok 52 - tests/unit/mobile-v1-exam-service-perf.test.ts
+  ---
+  duration_ms: 555.265417
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/mobile-v1-exam-service-perf.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/no-local-disk-writes.test.ts
+not ok 53 - tests/unit/no-local-disk-writes.test.ts
+  ---
+  duration_ms: 351.273792
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/no-local-disk-writes.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/payment-amount-minor.test.ts
+not ok 54 - tests/unit/payment-amount-minor.test.ts
+  ---
+  duration_ms: 312.922792
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/payment-amount-minor.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/phase3-settings-batches-wishlist.test.ts
+not ok 55 - tests/unit/phase3-settings-batches-wishlist.test.ts
+  ---
+  duration_ms: 312.114833
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/phase3-settings-batches-wishlist.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/prisma-log-guard.test.ts
+not ok 56 - tests/unit/prisma-log-guard.test.ts
+  ---
+  duration_ms: 310.046083
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/prisma-log-guard.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/push-service.test.ts
+not ok 57 - tests/unit/push-service.test.ts
+  ---
+  duration_ms: 315.104875
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/push-service.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/rate-limit-ip.test.ts
+not ok 58 - tests/unit/rate-limit-ip.test.ts
+  ---
+  duration_ms: 317.469333
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/rate-limit-ip.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/ratelimit-and-mobile-sync.test.ts
+not ok 59 - tests/unit/ratelimit-and-mobile-sync.test.ts
+  ---
+  duration_ms: 322.509708
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/ratelimit-and-mobile-sync.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: V3: Razorpay credentials fail closed
+    # Subtest: has no placeholder key id
+    ok 1 - has no placeholder key id
+      ---
+      duration_ms: 0.839583
+      type: 'test'
+      ...
+    # Subtest: throws instead of using a placeholder secret
+    ok 2 - throws instead of using a placeholder secret
+      ---
+      duration_ms: 0.373917
+      type: 'test'
+      ...
+    # Subtest: throws when only one credential is present
+    ok 3 - throws when only one credential is present
+      ---
+      duration_ms: 0.140334
+      type: 'test'
+      ...
+    # Subtest: builds one client when both credentials are present
+    ok 4 - builds one client when both credentials are present
+      ---
+      duration_ms: 19.55175
+      type: 'test'
+      ...
+    # Subtest: only treats an explicit test environment as test mode
+    ok 5 - only treats an explicit test environment as test mode
+      ---
+      duration_ms: 0.575708
+      type: 'test'
+      ...
+    # Subtest: createRazorpayOrder rejects a missing secret outside test mode (no mock order)
+    not ok 6 - createRazorpayOrder rejects a missing secret outside test mode (no mock order)
+      ---
+      duration_ms: 1.972334
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/razorpay-config-fail-closed.test.ts:2:3468'
+      failureType: 'testCodeFailure'
+      error: |-
+        this test must only run against the isolated test database
+        + actual - expected
+        
+        + '127.0.0.1:54340'
+        - '127.0.0.1:54329'
+                        ^
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: '127.0.0.1:54329'
+      actual: '127.0.0.1:54340'
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/razorpay-config-fail-closed.test.ts:89:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..6
+not ok 66 - V3: Razorpay credentials fail closed
+  ---
+  duration_ms: 24.371458
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/razorpay-config-fail-closed.test.ts:2:1872'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/razorpay-webhook-verification.test.ts
+not ok 61 - tests/unit/razorpay-webhook-verification.test.ts
+  ---
+  duration_ms: 371.580542
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/razorpay-webhook-verification.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/reauth-token-single-use.test.ts
+not ok 62 - tests/unit/reauth-token-single-use.test.ts
+  ---
+  duration_ms: 311.211166
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/reauth-token-single-use.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Task A4: Stripe Lazy Initialization & Health Checks
+    # Subtest: 1. Module import succeeds with no key during NEXT_PHASE=phase-production-build
+    ok 1 - 1. Module import succeeds with no key during NEXT_PHASE=phase-production-build
+      ---
+      duration_ms: 140.526583
+      type: 'test'
+      ...
+    # Subtest: 2. Runtime without key fails closed on first payment call with clear error
+    ok 2 - 2. Runtime without key fails closed on first payment call with clear error
+      ---
+      duration_ms: 1.639042
+      type: 'test'
+      ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+    # Subtest: 3. /api/health returns 'payments: not configured' without leaking secrets
+    not ok 3 - 3. /api/health returns 'payments: not configured' without leaking secrets
+      ---
+      duration_ms: 85.9345
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/stripe-lazy-init.test.ts:2:2730'
+      failureType: 'testCodeFailure'
+      error: 'Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TestDatabaseGuardError'
+      stack: |-
+        assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+        <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+        Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+        Module._compile (node:internal/modules/cjs/loader:1781:14)
+        Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+        Module.load (node:internal/modules/cjs/loader:1505:32)
+        Function._load (node:internal/modules/cjs/loader:1309:12)
+        wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+        Module.require (node:internal/modules/cjs/loader:1527:12)
+        require (node:internal/modules/helpers:147:16)
+      ...
+    # Subtest: 4. /api/health returns 'payments: configured' when key is present
+    not ok 4 - 4. /api/health returns 'payments: configured' when key is present
+      ---
+      duration_ms: 3.911667
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/stripe-lazy-init.test.ts:2:3476'
+      failureType: 'testCodeFailure'
+      error: 'Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TestDatabaseGuardError'
+      stack: |-
+        assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+        <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+        Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+        Module._compile (node:internal/modules/cjs/loader:1781:14)
+        Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+        Module.load (node:internal/modules/cjs/loader:1505:32)
+        Function._load (node:internal/modules/cjs/loader:1309:12)
+        wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+        Module.require (node:internal/modules/cjs/loader:1527:12)
+        require (node:internal/modules/helpers:147:16)
+      ...
+    # Subtest: 5. No placeholder string remains anywhere in code files
+    ok 5 - 5. No placeholder string remains anywhere in code files
+      ---
+      duration_ms: 167.11425
+      type: 'test'
+      ...
+    1..5
+not ok 69 - Task A4: Stripe Lazy Initialization & Health Checks
+  ---
+  duration_ms: 400.318542
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/stripe-lazy-init.test.ts:2:1066'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: teacher dashboard reports failed reads
+    # Subtest: is request-rendered, not prerendered at build time
+    ok 1 - is request-rendered, not prerendered at build time
+      ---
+      duration_ms: 1.114959
+      type: 'test'
+      ...
+    # Subtest: does not swallow read failures with an empty catch
+    ok 2 - does not swallow read failures with an empty catch
+      ---
+      duration_ms: 0.241667
+      type: 'test'
+      ...
+    # Subtest: logs and records every failed section
+    ok 3 - logs and records every failed section
+      ---
+      duration_ms: 0.243
+      type: 'test'
+      ...
+    # Subtest: renders a visible alert for the failed sections
+    ok 4 - renders a visible alert for the failed sections
+      ---
+      duration_ms: 0.087667
+      type: 'test'
+      ...
+    1..4
+ok 70 - teacher dashboard reports failed reads
+  ---
+  duration_ms: 2.473625
+  type: 'suite'
+  ...
+# Subtest: S0: test-database guard
+    # Subtest: accepts only the Docker test database
+    not ok 1 - accepts only the Docker test database
+      ---
+      duration_ms: 1.040792
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/test-db-guard.test.ts:2:2187'
+      failureType: 'testCodeFailure'
+      error: 'Refusing to run: DIRECT_URL points at 127.0.0.1:54340/trillionskill_launch, expected 127.0.0.1:54329/trillionskill_test.'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TestDatabaseGuardError'
+      stack: |-
+        assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:118:13)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/test-db-guard.test.ts:54:18)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Test.start (node:internal/test_runner/test:944:17)
+        node:internal/test_runner/test:1440:71
+        node:internal/per_context/primordials:466:82
+        new Promise (<anonymous>)
+        new SafePromise (node:internal/per_context/primordials:435:3)
+        node:internal/per_context/primordials:466:9
+      ...
+    # Subtest: rejects a remote host
+    ok 2 - rejects a remote host
+      ---
+      duration_ms: 0.3525
+      type: 'test'
+      ...
+    # Subtest: rejects the right host on the wrong port
+    not ok 3 - rejects the right host on the wrong port
+      ---
+      duration_ms: 1.785708
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/test-db-guard.test.ts:2:2703'
+      failureType: 'testCodeFailure'
+      error: |-
+        The validation function is expected to return "true". Received false
+        
+        Caught error:
+        
+        TestDatabaseGuardError: Refusing to run: DIRECT_URL points at 127.0.0.1:54340/trillionskill_launch, expected 127.0.0.1:54329/trillionskill_test.
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/test-db-guard.test.ts:66:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: rejects a non-test database name
+    ok 4 - rejects a non-test database name
+      ---
+      duration_ms: 0.134125
+      type: 'test'
+      ...
+    # Subtest: rejects APP_ENV other than test
+    ok 5 - rejects APP_ENV other than test
+      ---
+      duration_ms: 0.167542
+      type: 'test'
+      ...
+    # Subtest: rejects a mismatched DIRECT_URL
+    ok 6 - rejects a mismatched DIRECT_URL
+      ---
+      duration_ms: 0.104
+      type: 'test'
+      ...
+    # Subtest: never leaks the password into the description
+    ok 7 - never leaks the password into the description
+      ---
+      duration_ms: 0.140792
+      type: 'test'
+      ...
+    # Subtest: aborts the Prisma entry point before connecting
+    ok 8 - aborts the Prisma entry point before connecting
+      ---
+      duration_ms: 1201.385416
+      type: 'test'
+      ...
+    # Subtest: aborts the api-v1/contract test entry point before connecting
+    ok 9 - aborts the api-v1/contract test entry point before connecting
+      ---
+      duration_ms: 1059.36275
+      type: 'test'
+      ...
+    # Subtest: aborts the Playwright entry point before starting the webServer
+    ok 10 - aborts the Playwright entry point before starting the webServer
+      ---
+      duration_ms: 1194.69875
+      type: 'test'
+      ...
+    1..10
+not ok 71 - S0: test-database guard
+  ---
+  duration_ms: 3460.419667
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/test-db-guard.test.ts:2:2132'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Task B10: TypeScript Ratchet Verification
+    # Subtest: 1. Ratchet passes when error count matches baseline
+    ok 1 - 1. Ratchet passes when error count matches baseline
+      ---
+      duration_ms: 8242.316875
+      type: 'test'
+      ...
+    # Subtest: 2. Ratchet suggests lower count when current < baseline
+    ok 2 - 2. Ratchet suggests lower count when current < baseline
+      ---
+      duration_ms: 7307.356334
+      type: 'test'
+      ...
+    # Subtest: 3. Ratchet fails closed when error count exceeds baseline
+    ok 3 - 3. Ratchet fails closed when error count exceeds baseline
+      ---
+      duration_ms: 7559.520792
+      type: 'test'
+      ...
+    1..3
+ok 72 - Task B10: TypeScript Ratchet Verification
+  ---
+  duration_ms: 23110.3125
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/turnstile-login.test.ts
+not ok 67 - tests/unit/turnstile-login.test.ts
+  ---
+  duration_ms: 353.556375
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-login.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/turnstile-verification.test.ts
+not ok 68 - tests/unit/turnstile-verification.test.ts
+  ---
+  duration_ms: 341.782125
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/turnstile-verification.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Step 1 Unit Tests: Exact Goal Matching & No Substring Leaks
+    # Subtest: UPSC, BPSC, SSC must NOT match skills
+    ok 1 - UPSC, BPSC, SSC must NOT match skills
+      ---
+      duration_ms: 0.6635
+      type: 'test'
+      ...
+    # Subtest: C matches skills ONLY as an exact token
+    ok 2 - C matches skills ONLY as an exact token
+      ---
+      duration_ms: 0.213333
+      type: 'test'
+      ...
+    # Subtest: Target goal exact matching works as expected
+    ok 3 - Target goal exact matching works as expected
+      ---
+      duration_ms: 0.125583
+      type: 'test'
+      ...
+    # Subtest: Explicit alias mapping resolves properly
+    ok 4 - Explicit alias mapping resolves properly
+      ---
+      duration_ms: 0.547041
+      type: 'test'
+      ...
+    # Subtest: validateOrMapCanonicalGoals validates properly
+    ok 5 - validateOrMapCanonicalGoals validates properly
+      ---
+      duration_ms: 0.199625
+      type: 'test'
+      ...
+    1..5
+ok 75 - Step 1 Unit Tests: Exact Goal Matching & No Substring Leaks
+  ---
+  duration_ms: 2.617875
+  type: 'suite'
+  ...
+# Subtest: A6 upload name policy
+    # Subtest: rejects traversal and path segments
+    ok 1 - rejects traversal and path segments
+      ---
+      duration_ms: 1.0195
+      type: 'test'
+      ...
+    # Subtest: rejects svg, html, php and double extensions
+    ok 2 - rejects svg, html, php and double extensions
+      ---
+      duration_ms: 0.38875
+      type: 'test'
+      ...
+    # Subtest: rejects hidden files and missing extensions
+    ok 3 - rejects hidden files and missing extensions
+      ---
+      duration_ms: 0.239583
+      type: 'test'
+      ...
+    # Subtest: accepts ordinary image and document names
+    ok 4 - accepts ordinary image and document names
+      ---
+      duration_ms: 0.154583
+      type: 'test'
+      ...
+    # Subtest: the dangerous list covers executable and markup types
+    ok 5 - the dangerous list covers executable and markup types
+      ---
+      duration_ms: 0.11825
+      type: 'test'
+      ...
+    1..5
+ok 76 - A6 upload name policy
+  ---
+  duration_ms: 2.651375
+  type: 'suite'
+  ...
+# Subtest: A6 upload content validation
+    # Subtest: uses a server-generated name, never the caller name
+    ok 1 - uses a server-generated name, never the caller name
+      ---
+      duration_ms: 1.264083
+      type: 'test'
+      ...
+    # Subtest: rejects html content disguised as an image
+    ok 2 - rejects html content disguised as an image
+      ---
+      duration_ms: 0.251875
+      type: 'test'
+      ...
+    # Subtest: rejects svg content even with an image mime
+    ok 3 - rejects svg content even with an image mime
+      ---
+      duration_ms: 0.447625
+      type: 'test'
+      ...
+    # Subtest: oversized uploads are a 413
+    ok 4 - oversized uploads are a 413
+      ---
+      duration_ms: 0.209708
+      type: 'test'
+      ...
+    # Subtest: a valid PDF is accepted
+    ok 5 - a valid PDF is accepted
+      ---
+      duration_ms: 0.352667
+      type: 'test'
+      ...
+    1..5
+ok 77 - A6 upload content validation
+  ---
+  duration_ms: 2.986083
+  type: 'suite'
+  ...
+# Subtest: A6 storage fallback
+    # Subtest: test environment stores under public/uploads with a generated name
+    ok 1 - test environment stores under public/uploads with a generated name
+      ---
+      duration_ms: 8.3235
+      type: 'test'
+      ...
+    # Subtest: private visibility stays outside /public
+    ok 2 - private visibility stays outside /public
+      ---
+      duration_ms: 1.683
+      type: 'test'
+      ...
+    # Subtest: a rejected upload never reaches storage
+    ok 3 - a rejected upload never reaches storage
+      ---
+      duration_ms: 0.431792
+      type: 'test'
+      ...
+    1..3
+ok 78 - A6 storage fallback
+  ---
+  duration_ms: 10.595791
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# /Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81
+#     throw new TestDatabaseGuardError(
+#           ^
+# TestDatabaseGuardError: Refusing to run (lib/prisma.ts): DATABASE_URL port is "54340", expected one of 54329,54330,54335,54336,5432. Target: 127.0.0.1:54340/trillionskill_launch.
+#     at assertTestDatabase (/Users/praveenkumar/ws-launch/lib/test-db-guard.ts:81:11)
+#     at <anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:44:3)
+#     at Object.<anonymous> (/Users/praveenkumar/ws-launch/lib/prisma.ts:66:69)
+#     at Module._compile (node:internal/modules/cjs/loader:1781:14)
+#     at Object.transformer (/Users/praveenkumar/TrillionSkill/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Module.require (node:internal/modules/cjs/loader:1527:12)
+#     at require (node:internal/modules/helpers:147:16)
+# Node.js v22.23.4
+# Subtest: tests/unit/user-goal-store.test.ts
+not ok 71 - tests/unit/user-goal-store.test.ts
+  ---
+  duration_ms: 310.014
+  type: 'test'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/user-goal-store.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: A11 stored XSS sanitizer
+    # Subtest: neutralises: <script>alert(1)</script>
+    ok 1 - neutralises: <script>alert(1)</script>
+      ---
+      duration_ms: 3.391292
+      type: 'test'
+      ...
+    # Subtest: neutralises: <SCRIPT type="text/javascript">alert(1)</SCRIPT>
+    ok 2 - neutralises: <SCRIPT type="text/javascript">alert(1)</SCRIPT>
+      ---
+      duration_ms: 1.752125
+      type: 'test'
+      ...
+    # Subtest: neutralises: <script src="https://evil.test/x.js"></script>
+    ok 3 - neutralises: <script src="https://evil.test/x.js"></script>
+      ---
+      duration_ms: 0.085708
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror=alert(1)>
+    ok 4 - neutralises: <img src=x onerror=alert(1)>
+      ---
+      duration_ms: 0.077667
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror="alert(1)">
+    ok 5 - neutralises: <img src=x onerror="alert(1)">
+      ---
+      duration_ms: 0.06975
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror='alert(1)'>
+    ok 6 - neutralises: <img src=x onerror='alert(1)'>
+      ---
+      duration_ms: 0.152792
+      type: 'test'
+      ...
+    # Subtest: neutralises: <svg/onload=alert(1)>
+    ok 7 - neutralises: <svg/onload=alert(1)>
+      ---
+      duration_ms: 0.065291
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href="javascript:alert(1)">click</a>
+    ok 8 - neutralises: <a href="javascript:alert(1)">click</a>
+      ---
+      duration_ms: 0.142375
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href='javascript:alert(1)'>click</a>
+    ok 9 - neutralises: <a href='javascript:alert(1)'>click</a>
+      ---
+      duration_ms: 0.211417
+      type: 'test'
+      ...
+    # Subtest: neutralises: <iframe src="https://evil.test"></iframe>
+    ok 10 - neutralises: <iframe src="https://evil.test"></iframe>
+      ---
+      duration_ms: 0.3705
+      type: 'test'
+      ...
+    # Subtest: neutralises: <object data="x"></object>
+    ok 11 - neutralises: <object data="x"></object>
+      ---
+      duration_ms: 0.072375
+      type: 'test'
+      ...
+    # Subtest: neutralises: <embed src="x">
+    ok 12 - neutralises: <embed src="x">
+      ---
+      duration_ms: 0.131541
+      type: 'test'
+      ...
+    # Subtest: neutralises: <form action="/x"><input></form>
+    ok 13 - neutralises: <form action="/x"><input></form>
+      ---
+      duration_ms: 0.05375
+      type: 'test'
+      ...
+    # Subtest: neutralises: <style>body{background:url(javascript:alert(1))}
+    ok 14 - neutralises: <style>body{background:url(javascript:alert(1))}
+      ---
+      duration_ms: 0.048125
+      type: 'test'
+      ...
+    # Subtest: neutralises: <div style="width:expression(alert(1))">x</div>
+    ok 15 - neutralises: <div style="width:expression(alert(1))">x</div>
+      ---
+      duration_ms: 0.055
+      type: 'test'
+      ...
+    # Subtest: neutralises: </script><script>alert(1)</script>
+    ok 16 - neutralises: </script><script>alert(1)</script>
+      ---
+      duration_ms: 0.046542
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href="java\\tscript:alert(1)">tab trick</a>
+    ok 17 - neutralises: <a href="java\\tscript:alert(1)">tab trick</a>
+      ---
+      duration_ms: 0.054208
+      type: 'test'
+      ...
+    # Subtest: keeps harmless formatting
+    ok 18 - keeps harmless formatting
+      ---
+      duration_ms: 0.090875
+      type: 'test'
+      ...
+    1..18
+ok 80 - A11 stored XSS sanitizer
+  ---
+  duration_ms: 8.023916
+  type: 'suite'
+  ...
+1..80
+# tests 194
+# suites 29
+# pass 136
+# fail 58
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 57234.321541
