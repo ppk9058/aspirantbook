@@ -4,7 +4,7 @@
 # Node: 22 (Debian Bookworm Slim)
 # -----------------------------------------------------------------------------
 
-FROM node:22-bookworm-slim AS base
+FROM node:25-bookworm-slim AS base
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
     ca-certificates \
