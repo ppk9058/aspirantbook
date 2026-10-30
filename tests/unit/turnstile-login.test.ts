@@ -283,6 +283,22 @@ describe("Task G1: Turnstile on Login Verification", () => {
       process.env.TRUST_PROXY = "true";
     });
 
+    const RATE_LIMIT_WINDOW_MS = 60_000;
+
+    /**
+     * checkRateLimit buckets counters by wall-clock minute. A burst that
+     * straddles a boundary starts a fresh counter, so "the request after the
+     * limit is blocked" becomes a coin flip when the suite is slow or the
+     * machine is busy. Start each burst with headroom instead of relaxing the
+     * assertion.
+     */
+    async function alignToFreshRateLimitWindow() {
+      const remaining = RATE_LIMIT_WINDOW_MS - (Date.now() % RATE_LIMIT_WINDOW_MS);
+      if (remaining < 45_000) {
+        await new Promise((resolve) => setTimeout(resolve, remaining + 50));
+      }
+    }
+
     test("6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true", async () => {
       const uniqueIp = `10.50.${Math.floor(Math.random() * 200)}.${Math.floor(Math.random() * 200)}`;
       const req = new NextRequest("http://127.0.0.1:3000/api/v1/auth/login", {
@@ -306,6 +322,7 @@ describe("Task G1: Turnstile on Login Verification", () => {
     });
 
     test("7. Mobile login is rate-limited per user+IP", async () => {
+      await alignToFreshRateLimitWindow();
       const mobileRlEmail = `mobile_rl_${Date.now()}_${Math.random()}@example.com`;
       const hashedPassword = await bcrypt.hash(testPassword, 10);
       await prisma.user.create({
@@ -349,6 +366,7 @@ describe("Task G1: Turnstile on Login Verification", () => {
     });
 
     test("8. Rate-limit key includes user+IP: the same user on a different IP is counted separately", async () => {
+      await alignToFreshRateLimitWindow();
       const email = `mobile_key_ip_${Date.now()}@example.com`;
       const hashedPassword = await bcrypt.hash(testPassword, 10);
       await prisma.user.create({
@@ -377,6 +395,7 @@ describe("Task G1: Turnstile on Login Verification", () => {
     });
 
     test("9. Rate-limit key includes user+IP: a different user on the same IP is counted separately", async () => {
+      await alignToFreshRateLimitWindow();
       const emailA = `mobile_key_user_a_${Date.now()}@example.com`;
       const emailB = `mobile_key_user_b_${Date.now()}@example.com`;
       const hashedPassword = await bcrypt.hash(testPassword, 10);
