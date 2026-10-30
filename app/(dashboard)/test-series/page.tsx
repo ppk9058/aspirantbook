@@ -46,28 +46,16 @@ const CreateSeriesModal = dynamic(() => import("@/components/exam/CreateSeriesMo
 })
 
 
+import {
+    getSeriesCacheKey,
+    seriesModuleCache,
+    SERIES_CACHE_TTL_MS,
+} from "@/lib/exam/series-cache"
+
 interface CategoryChip {
     id: string
     label: string
 }
-
-export function getSeriesCacheKey(
-    userId: string | null | undefined,
-    goalIds: string[] | null | undefined,
-    filterByGoal: boolean = true
-): string {
-    const uid = userId || "guest"
-    if (!filterByGoal) {
-        return `all::${uid}`
-    }
-    const normalizedGoals = Array.isArray(goalIds)
-        ? [...goalIds].map((g) => g.trim().toLowerCase()).sort().join(",")
-        : ""
-    return `${uid}::${normalizedGoals}`
-}
-
-export const seriesModuleCache = new Map<string, { data: TestSeriesItem[]; timestamp: number }>()
-export const SERIES_CACHE_TTL_MS = 60_000 // 60s memory cache
 
 function isItemMatchingChip(item: TestSeriesItem, chipId: string): boolean {
     if (chipId === "All") return true

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   getSeriesCacheKey,
   seriesModuleCache,
-} from "@/app/(dashboard)/test-series/page";
+} from "@/lib/exam/series-cache";
 import {
   invalidateCachedUserGoalPromise,
   getCachedUserGoalPromise,
