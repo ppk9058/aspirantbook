@@ -118,7 +118,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.1.4",
+    "eslint-config-next": "15.5.28",
     "playwright-core": "^1.63.0",
     "prisma": "^6.2.0",
     "tailwindcss": "^4.0.0",
