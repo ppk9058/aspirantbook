@@ -75,7 +75,12 @@ export function assertTestDatabase(options: TestDatabaseGuardOptions = {}): stri
     )
   }
 
-  const allowedPorts = ["54329", "54330", "54335", "54336", "5432"];
+  // Strict on purpose: the canonical test DB is 127.0.0.1:54329. The extra
+  // ports are the other documented isolated Docker test databases (see
+  // scripts/guard-test-db.ts). The default Postgres port 5432 is deliberately
+  // NOT accepted, so a stray DATABASE_URL pointing at a normal local server is
+  // rejected before Prisma connects.
+  const allowedPorts = ["54329", "54330", "54335", "54336", "54340"];
   const port = parsed.port || "(default)";
   if (!allowedPorts.includes(port)) {
     throw new TestDatabaseGuardError(

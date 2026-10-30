@@ -21,7 +21,8 @@ function getS3Config(): S3Config {
 
     if (!accessKeyId || !secretAccessKey || !bucketName) {
         throw new Error(
-            "S3 is not configured: AWS_ACCESS_KEY_ID (or S3_ACCESS_KEY), AWS_SECRET_ACCESS_KEY (or S3_SECRET_KEY) and AWS_S3_BUCKET_NAME (or S3_BUCKET) are required"
+            "S3 is not configured: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_S3_BUCKET_NAME are required " +
+                "(aliases accepted: S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET)"
         )
     }
 

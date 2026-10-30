@@ -1,29 +1,19 @@
 import { Prisma } from "@prisma/client"
-import fs from "fs"
 import path from "path"
 
 import { prisma } from "@/lib/prisma"
 import { isDbPersist } from "@/lib/storage/persist-backend"
+import { readJsonArray, writeJsonArray } from "@/lib/storage/legacy-json-store"
 import { FormField, FormDefinition, FormSubmission, FORM_DEFINITIONS } from "./forms-config"
 
 const FORMS_FILE = path.join(process.cwd(), "data", "form-submissions.json")
 
 function readFormsFs(): FormSubmission[] {
-  try {
-    if (!fs.existsSync(FORMS_FILE)) return []
-    const content = fs.readFileSync(FORMS_FILE, "utf-8")
-    return JSON.parse(content)
-  } catch {
-    return []
-  }
+  return readJsonArray<FormSubmission>(FORMS_FILE)
 }
 
 function writeFormsFs(submissions: FormSubmission[]): void {
-  const dir = path.dirname(FORMS_FILE)
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-  fs.writeFileSync(FORMS_FILE, JSON.stringify(submissions, null, 2), "utf-8")
+  writeJsonArray(FORMS_FILE, submissions)
 }
 
 export type { FormField, FormDefinition, FormSubmission }

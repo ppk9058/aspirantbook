@@ -28,6 +28,12 @@ import { createFormSubmission, getFormSubmissions } from "@/lib/forms-service"
 const nonce = `c2-${Date.now()}`
 const ROOT = process.cwd()
 
+// B3 made the local-disk backend the legacy default (`PERSIST_BACKEND=fs`).
+// This suite asserts the database path, so it selects that backend itself and
+// restores the previous value afterwards.
+const originalPersistBackend = process.env.PERSIST_BACKEND
+process.env.PERSIST_BACKEND = "db"
+
 describe("C2 doubts and form submissions live in the database", () => {
   let userId = ""
 
@@ -45,6 +51,8 @@ describe("C2 doubts and form submissions live in the database", () => {
     await prisma.formSubmission.deleteMany({ where: { userId } })
     await prisma.user.deleteMany({ where: { id: userId } })
     await prisma.$disconnect()
+    if (originalPersistBackend === undefined) delete process.env.PERSIST_BACKEND
+    else process.env.PERSIST_BACKEND = originalPersistBackend
   })
 
   it("stores a new doubt as a Doubt row, not in data/doubts.json", async () => {

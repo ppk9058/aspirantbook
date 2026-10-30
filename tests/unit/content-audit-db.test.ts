@@ -25,6 +25,12 @@ import { backfillContentAuditFromJsonl } from "@/lib/audit/backfill-content-audi
 
 const entityId = `b5-test-${Date.now()}`
 
+// B3 made the local-disk backend the legacy default (`PERSIST_BACKEND=fs`).
+// This suite asserts the database path, so it selects that backend itself and
+// restores the previous value afterwards.
+const originalPersistBackend = process.env.PERSIST_BACKEND
+process.env.PERSIST_BACKEND = "db"
+
 describe("B5 content audit events live in the database", () => {
   let tmpDir = ""
   let jsonlPath = ""
@@ -40,6 +46,8 @@ describe("B5 content audit events live in the database", () => {
     await prisma.auditEvent.deleteMany({ where: { entityId } })
     await fs.rm(tmpDir, { recursive: true, force: true })
     await prisma.$disconnect()
+    if (originalPersistBackend === undefined) delete process.env.PERSIST_BACKEND
+    else process.env.PERSIST_BACKEND = originalPersistBackend
   })
 
   it("writes an event to the database and nothing to disk", async () => {

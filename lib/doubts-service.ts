@@ -1,26 +1,16 @@
 import { prisma } from "@/lib/prisma"
 import { isDbPersist } from "@/lib/storage/persist-backend"
-import fs from "fs"
+import { readJsonArray, writeJsonArray } from "@/lib/storage/legacy-json-store"
 import path from "path"
 
 const DOUBTS_FILE = path.join(process.cwd(), "data", "doubts.json")
 
 function readDoubtsFs(): StudentDoubt[] {
-  try {
-    if (!fs.existsSync(DOUBTS_FILE)) return []
-    const content = fs.readFileSync(DOUBTS_FILE, "utf-8")
-    return JSON.parse(content)
-  } catch {
-    return []
-  }
+  return readJsonArray<StudentDoubt>(DOUBTS_FILE)
 }
 
 function writeDoubtsFs(doubts: StudentDoubt[]): void {
-  const dir = path.dirname(DOUBTS_FILE)
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-  fs.writeFileSync(DOUBTS_FILE, JSON.stringify(doubts, null, 2), "utf-8")
+  writeJsonArray(DOUBTS_FILE, doubts)
 }
 
 export interface DoubtAttachment {
