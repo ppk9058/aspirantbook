@@ -120,6 +120,18 @@ const STORAGE_GOAL_KEY = "trillion_selected_goal"
 const STORAGE_SUBGOAL_KEY = "trillion_selected_sub_goal"
 let cachedUserGoalPromise: Promise<any> | null = null
 
+export function invalidateCachedUserGoalPromise() {
+    cachedUserGoalPromise = null
+}
+
+export function getCachedUserGoalPromise(): Promise<any> | null {
+    return cachedUserGoalPromise
+}
+
+export function setCachedUserGoalPromise(promise: Promise<any> | null) {
+    cachedUserGoalPromise = promise
+}
+
 export function GoalProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const { data: session, status } = useSession()
@@ -127,6 +139,14 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
     const [selectedSubGoal, setSelectedSubGoal] = useState<SubGoal | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
+
+    const prevUserIdRef = useRef<string | undefined>(session?.user?.id)
+    useEffect(() => {
+        if (prevUserIdRef.current !== session?.user?.id) {
+            prevUserIdRef.current = session?.user?.id
+            invalidateCachedUserGoalPromise()
+        }
+    }, [session?.user?.id])
 
     const selectedGoalIdsRef = useRef<string[]>(selectedGoalIds)
     useEffect(() => {
@@ -231,6 +251,7 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
         }
 
         const handleCustomGoalChange = (e: any) => {
+            invalidateCachedUserGoalPromise()
             const gid = e?.detail?.goalId
             if (gid) {
                 applyGoalsFromRaw(gid)
@@ -242,7 +263,23 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             }
         }
         window.addEventListener("goalChange", handleCustomGoalChange)
-        return () => window.removeEventListener("goalChange", handleCustomGoalChange)
+
+        const handleStorage = (e: StorageEvent) => {
+            if (e.key === STORAGE_GOAL_KEY || e.key === STORAGE_SUBGOAL_KEY || !e.key) {
+                invalidateCachedUserGoalPromise()
+                const savedGoalId = localStorage.getItem(STORAGE_GOAL_KEY)
+                const savedSubGoalId = localStorage.getItem(STORAGE_SUBGOAL_KEY)
+                if (savedGoalId) {
+                    applyGoalsFromRaw(savedGoalId, savedSubGoalId)
+                }
+            }
+        }
+        window.addEventListener("storage", handleStorage)
+
+        return () => {
+            window.removeEventListener("goalChange", handleCustomGoalChange)
+            window.removeEventListener("storage", handleStorage)
+        }
     }, [applyGoalsFromRaw, router, session?.user?.id, status])
 
     const persistAbortControllerRef = useRef<AbortController | null>(null)

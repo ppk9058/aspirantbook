@@ -51,6 +51,24 @@ interface CategoryChip {
     label: string
 }
 
+export function getSeriesCacheKey(
+    userId: string | null | undefined,
+    goalIds: string[] | null | undefined,
+    filterByGoal: boolean = true
+): string {
+    const uid = userId || "guest"
+    if (!filterByGoal) {
+        return `all::${uid}`
+    }
+    const normalizedGoals = Array.isArray(goalIds)
+        ? [...goalIds].map((g) => g.trim().toLowerCase()).sort().join(",")
+        : ""
+    return `${uid}::${normalizedGoals}`
+}
+
+export const seriesModuleCache = new Map<string, { data: TestSeriesItem[]; timestamp: number }>()
+export const SERIES_CACHE_TTL_MS = 60_000 // 60s memory cache
+
 function isItemMatchingChip(item: TestSeriesItem, chipId: string): boolean {
     if (chipId === "All") return true
     const normalizedChip = chipId.trim().toLowerCase()
@@ -265,7 +283,7 @@ export default function TestSeriesPage() {
     useEffect(() => {
         if (!isLoaded) return
         let active = true
-        setSeriesLoading(true)
+
         const activeGoalsParam = selectedGoalIds.length > 0
             ? selectedGoalIds.join(",")
             : (selectedGoal?.id || "")
@@ -273,13 +291,29 @@ export default function TestSeriesPage() {
         const url = filterByGoal
             ? `/api/exam/series/list${goalQuery ? `?${goalQuery}` : ""}`
             : "/api/exam/series/list?includeAll=true"
+
+        const cacheKey = getSeriesCacheKey(session?.user?.id, selectedGoalIds, filterByGoal)
+        const cached = seriesModuleCache.get(cacheKey)
+
+        if (cached && Date.now() - cached.timestamp < SERIES_CACHE_TTL_MS) {
+            setSeriesPackages(cached.data)
+            setSeriesLoading(false)
+            return () => { active = false }
+        }
+
+        setSeriesLoading(true)
         fetch(url)
             .then((res) => res.json())
-            .then((json) => { if (active && json.success && Array.isArray(json.data)) setSeriesPackages(json.data) })
+            .then((json) => {
+                if (active && json.success && Array.isArray(json.data)) {
+                    seriesModuleCache.set(cacheKey, { data: json.data, timestamp: Date.now() })
+                    setSeriesPackages(json.data)
+                }
+            })
             .catch(() => { if (active) setSeriesPackages([]) })
             .finally(() => { if (active) setSeriesLoading(false) })
         return () => { active = false }
-    }, [isLoaded, selectedGoalIds, filterByGoal, selectedGoal?.id])
+    }, [isLoaded, selectedGoalIds, filterByGoal, selectedGoal?.id, session?.user?.id])
 
     const dynamicChips = useMemo<CategoryChip[]>(() => {
         const chips: CategoryChip[] = [{ id: "All", label: "All" }]
