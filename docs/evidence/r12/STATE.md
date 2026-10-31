@@ -21,7 +21,8 @@ HANDOFF: none
 | R12-I | T2 | CHEAP | DONE | 6839cdb | `docs/evidence/raw/r12-i-*.txt` | — | 5 tests, fail-before 5×EXIT:1, pass-after 5×EXIT:0, console.log replaced, authUrl fail-closed, LICENSE added, large files audited |
 
 
-| R12-J | T2 | CHEAP | IN_PROGRESS | af07138 | — | Secret hygiene: .gitleaksignore (<12 chars), gitleaks CI job, replace literal fallbacks, gitleaks scan | Counts by rule, never values |
+| R12-J | T2 | CHEAP | DONE | 2b7ea6d | `docs/evidence/raw/r12-j-*.txt` | — | 4 tests, pass-after 5×EXIT:0, .gitleaksignore <=12 chars, gitleaks CI job, literal fallbacks removed, findings by rule reported |
+
 
 | R12-M | T3 | CHEAP | TODO | — | — | Read SPEC R12-M; write mobile test proposals, verify eas.json, data-safety draft | Do NOT edit mobile tests |
 | R12-Z | — | CHEAP | TODO | — | — | Read SPEC R12-Z; fresh clone final verification, tag `r12-ready-2026-11-01` | Only if all steps DONE |
