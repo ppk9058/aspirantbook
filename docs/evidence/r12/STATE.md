@@ -18,7 +18,8 @@ HANDOFF: none
 | R12-H | T2 | CHEAP | DONE | a7f9228 | `docs/evidence/raw/r12-h-*.txt` | — | npm audit non-breaking fix, next-auth pinned, brace-expansion override, 5× unit suite EXIT:0, tsc 0, lint 0, build 162 routes |
 
 
-| R12-I | T2 | CHEAP | IN_PROGRESS | 30f920c | — | Hygiene: console.log, localhost fallbacks, supabase.co, LICENSE, files >1MB | Grep-based guard tests |
+| R12-I | T2 | CHEAP | DONE | 6839cdb | `docs/evidence/raw/r12-i-*.txt` | — | 5 tests, fail-before 5×EXIT:1, pass-after 5×EXIT:0, console.log replaced, authUrl fail-closed, LICENSE added, large files audited |
+
 
 | R12-J | T2 | CHEAP | TODO | — | — | Read SPEC R12-J; confirm .gitleaksignore, add CI job, replace literal fallbacks | Counts by rule, never values |
 | R12-M | T3 | CHEAP | TODO | — | — | Read SPEC R12-M; write mobile test proposals, verify eas.json, data-safety draft | Do NOT edit mobile tests |
