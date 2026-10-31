@@ -1,0 +1,30 @@
+# SHA: cf5e2ec8a4804b7e77efafd4ca59ac8a206c8a1c
+# DATE: 2026-10-31T20:11:16Z
+# TARGET: DATABASE_URL=<CI shape URL incl. ?connection_limit=10>
+# COMMAND: env -i CI=true npm run seed:test
+---
+
+> aspirantbook@0.1.0 seed:test
+> tsx scripts/seed-docker-test-db.ts
+
+=== SEEDING CORE DEV COURSES & SERIES INTO DOCKER TEST DB ===
+FATAL seeding test DB: PrismaClientInitializationError: 
+Invalid `prisma.user.upsert()` invocation in
+/Users/praveenkumar/ws-launch/scripts/seed-docker-test-db.ts:21:40
+
+  18 console.log("=== SEEDING CORE DEV COURSES & SERIES INTO DOCKER TEST DB ===");
+  19 
+  20 // Create Instructor User if not exists
+→ 21 const instructor = await prisma.user.upsert(
+Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+
+Please make sure to provide valid database credentials for the database server at the configured address.
+    at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    at async run (/Users/praveenkumar/ws-launch/scripts/seed-docker-test-db.ts:21:22) {
+  clientVersion: '6.19.0',
+  errorCode: undefined,
+  retryable: undefined
+}

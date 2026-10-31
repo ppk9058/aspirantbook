@@ -270,5 +270,14 @@ wins over `.env.test` because dotenv never overrides an existing variable.
 | **R10-4** | Mobile test failures investigation & contract audit | BLOCKED | `bad86e0` | `docs/evidence/r10-mobile-contracts.md`, `docs/evidence/raw/r10-3-mobile-tests-*` | Identified 2 pre-existing failures (`deleteMe` vs G2 request flow in `account-and-search.test.ts`; `localhost` in B11 guard vs `fake-data-scan.test.ts`), plus restored Alert vs `alert-allowlist.test.ts`. Confirmed pre-existing at `r7e-green-2026-10-31`. Genuine contract conflicts documented for owner decision; no tests weakened or deleted. |
 | **R10-5** | Dependabot configuration hardening | DONE | `6c0ae51` | `.github/dependabot.yml`, `docs/evidence/raw/r10-5-dependabot-*` | Ignored semver-major for zod, eslint-config-next, next, react, react-native, expo*, jest*, docker node, and @hookform/resolvers; grouped minor/patch updates; open-pull-requests-limit: 3; weekly frequency across all 4 ecosystems. |
 | **R10-6** | Secrets hygiene & gitleaks ignore | DONE | `e65ae52` | `.gitleaksignore`, `docs/evidence/r10-secrets-hygiene.md`, `tests/e2e/razorpay-webhook-idempotency.spec.ts`, `scripts/*` | Replaced hardcoded secret literals in 41 files in scripts/ and tests/e2e/ with process.env reads (fail-closed in scripts). Scanned HEAD: 0 findings <= 12 chars; 30 longer findings documented for owner; DevEmailOutbox token status: expired/unusable. Full clean-env unit suite passed 473/473. |
-| **R10-7** | Final clean-clone verification and tagging | DONE | HEAD | docs/evidence/PROGRESS.md | Verification executed in fresh clone under /tmp: npm ci, tsc (web & mobile), lint, build, unit suite (473/473 pass). Tagged `r10-ready-2026-10-31`. |
+| **R10-7** | Final clean-clone verification and tagging | DONE | `cf5e2ec` | docs/evidence/PROGRESS.md | Verification executed in fresh clone under /tmp: npm ci, tsc (web & mobile), lint, build, unit suite (473/473 pass). Tagged `r10-ready-2026-10-31`. |
+
+---
+
+## R11 master run (CI Seed Fix & Final Verification)
+
+| Task ID | Description | Status | Commit SHA | Evidence Path | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **R11-1** | CI fix: seed database URL resolution & guards | DONE | pending | `scripts/seed-docker-test-db.ts`, `docs/evidence/raw/r11-seed-fail-before-cf5e2ec.txt`, `docs/evidence/raw/r11-seed-pass-after-5x.txt`, `docs/evidence/raw/r11-ci-sim-unit-suite.txt`, `docs/evidence/raw/r11-canonical-local-seed.txt`, `docs/evidence/raw/r11-canonical-unit-suite.txt` | Target URL chosen in order: `SEED_DATABASE_URL` -> `DATABASE_URL` (guarded for `_test` suffix) -> canonical local fallback. Fail-before on CI credentials shape verified (auth failure at `cf5e2ec`). Pass-after 5/5 consecutive successful seeds. Simulated CI clean-env unit suite: 473/473 passed (115 suites). Local fallback flow with canonical password verified. Clean-env suite against canonical DB: 473/473 passed. |
+
 

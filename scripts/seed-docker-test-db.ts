@@ -1,18 +1,44 @@
 import { PrismaClient, Difficulty } from "@prisma/client";
 import { assertTestDb } from "../lib/testing/assert-test-db";
 
-// Ensure environment points to test DB. CI uses the canonical service database;
-// SEED_DATABASE_URL lets a local run seed an isolated throwaway test database
-// (e.g. the R10-2 fresh-DB proof) without touching the canonical one.
+// Ensure environment points to test DB. Target URL is chosen in order:
+// 1. SEED_DATABASE_URL (explicit local/testing seed override)
+// 2. DATABASE_URL (environment-provided database URL, e.g. CI service DB)
+// 3. CANONICAL_TEST_DATABASE_URL (local Docker test DB fallback)
 const CANONICAL_TEST_DATABASE_URL =
   "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
-process.env.TEST_DATABASE_URL =
-  process.env.SEED_DATABASE_URL?.trim() || CANONICAL_TEST_DATABASE_URL;
-process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+
+function resolveTargetUrl(): string {
+  if (process.env.SEED_DATABASE_URL?.trim()) {
+    return process.env.SEED_DATABASE_URL.trim();
+  }
+  const candidate = process.env.DATABASE_URL?.trim();
+  if (candidate) {
+    try {
+      const parsed = new URL(candidate);
+      const dbName = parsed.pathname.replace(/^\//, "");
+      if (dbName.endsWith("_test")) {
+        return candidate;
+      }
+    } catch {
+      // Fall through to canonical fallback or let guards report
+    }
+  }
+  return CANONICAL_TEST_DATABASE_URL;
+}
+
+const targetUrl = resolveTargetUrl();
+
+process.env.TEST_DATABASE_URL = targetUrl;
+process.env.DATABASE_URL = targetUrl;
 
 assertTestDb();
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasources: {
+    db: { url: targetUrl },
+  },
+});
 
 async function run() {
   console.log("=== SEEDING CORE DEV COURSES & SERIES INTO DOCKER TEST DB ===");

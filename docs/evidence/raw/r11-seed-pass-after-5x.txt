@@ -1,0 +1,80 @@
+# SHA: cf5e2ec8a4804b7e77efafd4ca59ac8a206c8a1c (with R11-1 seed URL precedence fix)
+# DATE: 2026-10-31T20:11:39Z
+# TARGET: DATABASE_URL=<CI shape URL incl. ?connection_limit=10>
+# COMMAND: 5x env -i CI=true npm run seed:test
+---
+=== RUN 1 of 5 ===
+
+> aspirantbook@0.1.0 seed:test
+> tsx scripts/seed-docker-test-db.ts
+
+=== SEEDING CORE DEV COURSES & SERIES INTO DOCKER TEST DB ===
+Seeded course: 72nd-bpsc-prelims-current-affairs (c_bpsc_seed) - Price: 1999, Published: true
+Seeded course: generative-ai (c_ai_seed) - Price: 2499, Published: true
+Seeded course: draft-course-hidden (c_draft_seed) - Price: 999, Published: false
+Seeded ExamSeries: bpsc-72nd-2026 (es_bpsc_seed) - Free: true, Pro: false
+Seeded ExamSeries: upsc-prelims-2026 (es_upsc_seed) - Free: false, Pro: true
+Seeded ExamSeries: current-affairs-system-series (cmv5cyek3000oxpzvug9zvj4q) - Free: true, Pro: false
+Seeded CA System Series and UPSC Economy CA quiz.
+Seeding complete on Docker test DB.
+EXIT_CODE:0
+=== RUN 2 of 5 ===
+
+> aspirantbook@0.1.0 seed:test
+> tsx scripts/seed-docker-test-db.ts
+
+=== SEEDING CORE DEV COURSES & SERIES INTO DOCKER TEST DB ===
+Seeded course: 72nd-bpsc-prelims-current-affairs (c_bpsc_seed) - Price: 1999, Published: true
+Seeded course: generative-ai (c_ai_seed) - Price: 2499, Published: true
+Seeded course: draft-course-hidden (c_draft_seed) - Price: 999, Published: false
+Seeded ExamSeries: bpsc-72nd-2026 (es_bpsc_seed) - Free: true, Pro: false
+Seeded ExamSeries: upsc-prelims-2026 (es_upsc_seed) - Free: false, Pro: true
+Seeded ExamSeries: current-affairs-system-series (cmv5cyek3000oxpzvug9zvj4q) - Free: true, Pro: false
+Seeded CA System Series and UPSC Economy CA quiz.
+Seeding complete on Docker test DB.
+EXIT_CODE:0
+=== RUN 3 of 5 ===
+
+> aspirantbook@0.1.0 seed:test
+> tsx scripts/seed-docker-test-db.ts
+
+=== SEEDING CORE DEV COURSES & SERIES INTO DOCKER TEST DB ===
+Seeded course: 72nd-bpsc-prelims-current-affairs (c_bpsc_seed) - Price: 1999, Published: true
+Seeded course: generative-ai (c_ai_seed) - Price: 2499, Published: true
+Seeded course: draft-course-hidden (c_draft_seed) - Price: 999, Published: false
+Seeded ExamSeries: bpsc-72nd-2026 (es_bpsc_seed) - Free: true, Pro: false
+Seeded ExamSeries: upsc-prelims-2026 (es_upsc_seed) - Free: false, Pro: true
+Seeded ExamSeries: current-affairs-system-series (cmv5cyek3000oxpzvug9zvj4q) - Free: true, Pro: false
+Seeded CA System Series and UPSC Economy CA quiz.
+Seeding complete on Docker test DB.
+EXIT_CODE:0
+=== RUN 4 of 5 ===
+
+> aspirantbook@0.1.0 seed:test
+> tsx scripts/seed-docker-test-db.ts
+
+=== SEEDING CORE DEV COURSES & SERIES INTO DOCKER TEST DB ===
+Seeded course: 72nd-bpsc-prelims-current-affairs (c_bpsc_seed) - Price: 1999, Published: true
+Seeded course: generative-ai (c_ai_seed) - Price: 2499, Published: true
+Seeded course: draft-course-hidden (c_draft_seed) - Price: 999, Published: false
+Seeded ExamSeries: bpsc-72nd-2026 (es_bpsc_seed) - Free: true, Pro: false
+Seeded ExamSeries: upsc-prelims-2026 (es_upsc_seed) - Free: false, Pro: true
+Seeded ExamSeries: current-affairs-system-series (cmv5cyek3000oxpzvug9zvj4q) - Free: true, Pro: false
+Seeded CA System Series and UPSC Economy CA quiz.
+Seeding complete on Docker test DB.
+EXIT_CODE:0
+=== RUN 5 of 5 ===
+
+> aspirantbook@0.1.0 seed:test
+> tsx scripts/seed-docker-test-db.ts
+
+=== SEEDING CORE DEV COURSES & SERIES INTO DOCKER TEST DB ===
+Seeded course: 72nd-bpsc-prelims-current-affairs (c_bpsc_seed) - Price: 1999, Published: true
+Seeded course: generative-ai (c_ai_seed) - Price: 2499, Published: true
+Seeded course: draft-course-hidden (c_draft_seed) - Price: 999, Published: false
+Seeded ExamSeries: bpsc-72nd-2026 (es_bpsc_seed) - Free: true, Pro: false
+Seeded ExamSeries: upsc-prelims-2026 (es_upsc_seed) - Free: false, Pro: true
+Seeded ExamSeries: current-affairs-system-series (cmv5cyek3000oxpzvug9zvj4q) - Free: true, Pro: false
+Seeded CA System Series and UPSC Economy CA quiz.
+Seeding complete on Docker test DB.
+EXIT_CODE:0
