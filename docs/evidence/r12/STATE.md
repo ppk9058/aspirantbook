@@ -6,7 +6,7 @@ HANDOFF: none
 |------|------|-------|--------|--------|--------------|-------------|-------|
 | R12-0 | — | CHEAP | DONE | 99df8f5 | `docs/evidence/r12-audit.md` | — | 16 console.log, 35 localhost, 1 supabase.co, no gitleaks CI, no render.yaml, no Sentry, no LICENSE, 0 files >1MB |
 | R12-B | T1 | OPUS | DONE | 3968743 | `docs/evidence/raw/r12-b-*.txt` | — | 9 tests, fail-before 5×EXIT:1, pass-after 5×EXIT:0, no URLs printed |
-| R12-A | T1 | OPUS | TODO | — | — | Read SPEC R12-A; add `render.yaml` + validation test + update runbook | Docker web service, healthCheckPath, env NAMES only |
+| R12-A | T1 | OPUS | IN_PROGRESS | a1e16a9 | — | Add render.yaml + validation test + update runbook | Docker web service, healthCheckPath, env NAMES only |
 | R12-C | T1 | OPUS | TODO | — | — | Read SPEC R12-C; harden CSP in `next.config.js`, remove supabase.co, add header test | No wildcard script-src, exact allow-list |
 | R12-L | T1 | OPUS | TODO | — | — | Read SPEC R12-L; add paymentMode health field + test webhook/order guards | No behaviour change for valid configs |
 | R12-K | T1 | OPUS | TODO | — | — | Read SPEC R12-K; implement deletion executor per `deletion-procedure.md`, tests on real Postgres | Dry-run default, idempotent, never touches payments |
