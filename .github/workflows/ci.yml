@@ -198,6 +198,12 @@ jobs:
       - name: Verify schema matches the migrations
         run: npx prisma migrate status
 
+      # CI applies migrations but never seeds. course-metadata-db.test.ts (and
+      # other suites) need at least one Course row, so seed the same service DB
+      # on 127.0.0.1:54329 before running the suites.
+      - name: Seed the test database
+        run: npm run seed:test
+
       - name: Run unit test suites
         run: npx tsx --test --test-concurrency=1 tests/unit/*.test.ts
 

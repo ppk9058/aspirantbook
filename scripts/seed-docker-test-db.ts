@@ -1,8 +1,13 @@
 import { PrismaClient, Difficulty } from "@prisma/client";
 import { assertTestDb } from "../lib/testing/assert-test-db";
 
-// Ensure environment points to test DB
-process.env.TEST_DATABASE_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
+// Ensure environment points to test DB. CI uses the canonical service database;
+// SEED_DATABASE_URL lets a local run seed an isolated throwaway test database
+// (e.g. the R10-2 fresh-DB proof) without touching the canonical one.
+const CANONICAL_TEST_DATABASE_URL =
+  "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
+process.env.TEST_DATABASE_URL =
+  process.env.SEED_DATABASE_URL?.trim() || CANONICAL_TEST_DATABASE_URL;
 process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
 
 assertTestDb();

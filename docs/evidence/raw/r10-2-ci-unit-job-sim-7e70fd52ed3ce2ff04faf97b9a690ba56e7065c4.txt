@@ -1,0 +1,37 @@
+SHA: 7e70fd52ed3ce2ff04faf97b9a690ba56e7065c4
+DATE: 2026-10-31T23:51:15+05:30
+COMMAND: replay of ci.yml test job (migrate deploy, migrate status, seed:test, unit suite) in clean env
+DB: 127.0.0.1:54329/trillionskill_test (service-style)
+--- migrate deploy ---
+
+31 migrations found in prisma/migrations
+
+
+No pending migrations to apply.
+MIGRATE_EXIT:0
+--- migrate status ---
+
+31 migrations found in prisma/migrations
+
+Database schema is up to date!
+STATUS_EXIT:0
+--- seed:test ---
+Seeded ExamSeries: upsc-prelims-2026 (es_upsc_seed) - Free: false, Pro: true
+Seeded ExamSeries: current-affairs-system-series (cmv5cyek3000oxpzvug9zvj4q) - Free: true, Pro: false
+Seeded CA System Series and UPSC Economy CA quiz.
+Seeding complete on Docker test DB.
+SEED_EXIT:0
+--- unit suite ---
+  duration_ms: 7.622042
+  type: 'suite'
+  ...
+1..93
+# tests 473
+# suites 115
+# pass 473
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 163859.526167
+UNIT_EXIT:0

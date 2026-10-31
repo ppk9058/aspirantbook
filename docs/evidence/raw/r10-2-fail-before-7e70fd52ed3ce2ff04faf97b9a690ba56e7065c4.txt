@@ -1,0 +1,185 @@
+SHA: 7e70fd52ed3ce2ff04faf97b9a690ba56e7065c4
+DATE: 2026-10-31T23:50:35+05:30
+DB: 127.0.0.1:54329/trillionskill_r10_unseeded_test (fresh, migrated, unseeded)
+--- migrate deploy ---
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "trillionskill_r10_unseeded_test", schema "public" at "127.0.0.1:54329"
+
+31 migrations found in prisma/migrations
+
+Applying migration `0_baseline`
+Applying migration `20261006002100_drop_redundant_couponredemption_unique`
+Applying migration `20261006002101_coupon_checks`
+Applying migration `20261006002102_add_rate_limit`
+Applying migration `20261006085000_add_razorpay_columns_to_payment`
+Applying migration `20261009144500_add_series_logo_highlights`
+Applying migration `20261009153000_drop_series_logo_default`
+Applying migration `20261012011000_add_demoslot_created_by_id`
+Applying migration `20261012023000_add_pyq_subject`
+Applying migration `20261012141500_add_current_affairs_pdf`
+Applying migration `20261013235533_add_perf_indexes`
+Applying migration `20261014020000_add_auth_security_tables`
+Applying migration `20261016070000_add_authwall_gate_controls`
+Applying migration `20261018120000_add_exam_series_test_archive`
+Applying migration `20261018130000_add_package_slug_history`
+Applying migration `20261018140000_add_series_package_banner_syllabus_fields`
+Applying migration `20261021010000_add_device_push_token`
+Applying migration `20261021020000_add_device_session`
+Applying migration `20261025220000_add_content_engine_tables`
+Applying migration `20261026211635_phase3_persistence`
+Applying migration `20261026212301_phase3_reauth_token_use`
+Applying migration `20261027000000_audit2_a4_webhook_idempotency`
+Applying migration `20261027010000_audit2_a8_course_ownership`
+Applying migration `20261027020000_audit2_a13_device_rotation`
+Applying migration `20261028173402_audit2_b5_audit_events`
+Applying migration `20261028174115_audit2_b6_revenue_metrics_nullable`
+Applying migration `20261028185540_audit2_c2_doubts_forms`
+Applying migration `20261028190641_audit2_c3_indexes`
+Applying migration `20261029000000_add_exam_attempt_ranking_index`
+Applying migration `20261029120000_launch_blockers_tables`
+Applying migration `20261029130000_add_email_outbox_next_retry`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 0_baseline/
+    └─ migration.sql
+  └─ 20261006002100_drop_redundant_couponredemption_unique/
+    └─ migration.sql
+  └─ 20261006002101_coupon_checks/
+    └─ migration.sql
+  └─ 20261006002102_add_rate_limit/
+    └─ migration.sql
+  └─ 20261006085000_add_razorpay_columns_to_payment/
+    └─ migration.sql
+  └─ 20261009144500_add_series_logo_highlights/
+    └─ migration.sql
+  └─ 20261009153000_drop_series_logo_default/
+    └─ migration.sql
+  └─ 20261012011000_add_demoslot_created_by_id/
+    └─ migration.sql
+  └─ 20261012023000_add_pyq_subject/
+    └─ migration.sql
+  └─ 20261012141500_add_current_affairs_pdf/
+    └─ migration.sql
+  └─ 20261013235533_add_perf_indexes/
+    └─ migration.sql
+  └─ 20261014020000_add_auth_security_tables/
+    └─ migration.sql
+  └─ 20261016070000_add_authwall_gate_controls/
+    └─ migration.sql
+  └─ 20261018120000_add_exam_series_test_archive/
+    └─ migration.sql
+  └─ 20261018130000_add_package_slug_history/
+    └─ migration.sql
+  └─ 20261018140000_add_series_package_banner_syllabus_fields/
+    └─ migration.sql
+  └─ 20261021010000_add_device_push_token/
+    └─ migration.sql
+  └─ 20261021020000_add_device_session/
+    └─ migration.sql
+  └─ 20261025220000_add_content_engine_tables/
+    └─ migration.sql
+  └─ 20261026211635_phase3_persistence/
+    └─ migration.sql
+  └─ 20261026212301_phase3_reauth_token_use/
+    └─ migration.sql
+  └─ 20261027000000_audit2_a4_webhook_idempotency/
+    └─ migration.sql
+  └─ 20261027010000_audit2_a8_course_ownership/
+    └─ migration.sql
+  └─ 20261027020000_audit2_a13_device_rotation/
+    └─ migration.sql
+  └─ 20261028173402_audit2_b5_audit_events/
+    └─ migration.sql
+  └─ 20261028174115_audit2_b6_revenue_metrics_nullable/
+    └─ migration.sql
+  └─ 20261028185540_audit2_c2_doubts_forms/
+    └─ migration.sql
+  └─ 20261028190641_audit2_c3_indexes/
+    └─ migration.sql
+  └─ 20261029000000_add_exam_attempt_ranking_index/
+    └─ migration.sql
+  └─ 20261029120000_launch_blockers_tables/
+    └─ migration.sql
+  └─ 20261029130000_add_email_outbox_next_retry/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+MIGRATE_EXIT:0
+--- course rows ---
+0
+--- test ---
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B2 course metadata is DB-only and never reports a failed write
+    # Subtest: a database write failure rejects instead of returning success
+    not ok 1 - a database write failure rejects instead of returning success
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:2:2036'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: a database read failure rejects instead of falling back to defaults
+    not ok 2 - a database read failure rejects instead of falling back to defaults
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:2:2430'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: a saved value is read back immediately (no stale module cache)
+    not ok 3 - a saved value is read back immediately (no stale module cache)
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:2:2819'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: legacy data/course-metadata.json is no longer used as a source
+    not ok 4 - legacy data/course-metadata.json is no longer used as a source
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:2:3382'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..4
+not ok 1 - B2 course metadata is DB-only and never reports a failed write
+  ---
+  duration_ms: 144.020417
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:2:1245'
+  failureType: 'hookFailed'
+  error: 'test DB needs at least one course (npm run seed:test)'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: ~
+  operator: '=='
+  stack: |-
+    SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:29:12)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 0
+# fail 0
+# cancelled 4
+# skipped 0
+# todo 0
+# duration_ms 468.3555
+TEST_EXIT:1

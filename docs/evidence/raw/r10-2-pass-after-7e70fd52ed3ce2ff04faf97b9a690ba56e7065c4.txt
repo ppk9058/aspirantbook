@@ -1,0 +1,50 @@
+SHA: 7e70fd52ed3ce2ff04faf97b9a690ba56e7065c4
+DATE: 2026-10-31T23:50:51+05:30
+DB: 127.0.0.1:54329/trillionskill_r10_unseeded_test (same DB as fail-before)
+--- seed via npm run seed:test ---
+> aspirantbook@0.1.0 seed:test
+> tsx scripts/seed-docker-test-db.ts
+
+=== SEEDING CORE DEV COURSES & SERIES INTO DOCKER TEST DB ===
+Seeded course: 72nd-bpsc-prelims-current-affairs (c_bpsc_seed) - Price: 1999, Published: true
+Seeded course: generative-ai (c_ai_seed) - Price: 2499, Published: true
+Seeded course: draft-course-hidden (c_draft_seed) - Price: 999, Published: false
+Seeded ExamSeries: bpsc-72nd-2026 (es_bpsc_seed) - Free: true, Pro: false
+Seeded ExamSeries: upsc-prelims-2026 (es_upsc_seed) - Free: false, Pro: true
+Seeded ExamSeries: current-affairs-system-series (cmv5cyek3000oxpzvug9zvj4q) - Free: true, Pro: false
+Seeded CA System Series and UPSC Economy CA quiz.
+Seeding complete on Docker test DB.
+SEED_EXIT:0
+--- course rows after seed ---
+3
+--- test x5 ---
+=== run 1 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:0
+=== run 2 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:0
+=== run 3 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:0
+=== run 4 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:0
+=== run 5 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:0
