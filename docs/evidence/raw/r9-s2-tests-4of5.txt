@@ -1,0 +1,90 @@
+SHA: 186af4b
+DATE: 2026-10-31T22:07:35+05:30
+COMMAND: npx tsx --test tests/unit/persist-backend-production.test.ts tests/unit/boot-guard-wiring.test.ts
+---
+TAP version 13
+# Subtest: R9-S2-G: single dev-bypass policy and server-start boot guard
+    # Subtest: boot guard runs from instrumentation.ts register()
+    ok 1 - boot guard runs from instrumentation.ts register()
+      ---
+      duration_ms: 2.355709
+      type: 'test'
+      ...
+    # Subtest: mobile-login route delegates to isDevBypassAllowed instead of its own copy
+    ok 2 - mobile-login route delegates to isDevBypassAllowed instead of its own copy
+      ---
+      duration_ms: 0.671084
+      type: 'test'
+      ...
+    # Subtest: config.service delegates the OTP bypass decision to isDevBypassAllowed
+    ok 3 - config.service delegates the OTP bypass decision to isDevBypassAllowed
+      ---
+      duration_ms: 0.492542
+      type: 'test'
+      ...
+    # Subtest: the shared policy is closed in production even when the dev flag is set
+    ok 4 - the shared policy is closed in production even when the dev flag is set
+      ---
+      duration_ms: 1.328208
+      type: 'test'
+      ...
+    # Subtest: the shared policy opens for an explicit local test database
+    ok 5 - the shared policy opens for an explicit local test database
+      ---
+      duration_ms: 2.859083
+      type: 'test'
+      ...
+    1..5
+ok 1 - R9-S2-G: single dev-bypass policy and server-start boot guard
+  ---
+  duration_ms: 10.669208
+  type: 'suite'
+  ...
+# [CRITICAL SECURITY REFUSAL AT BOOT] PERSIST_BACKEND resolves to the local-disk backend in NODE_ENV=production! Production deployments are ephemeral and multi-instance: set PERSIST_BACKEND=db.
+# Subtest: R9-S2-F: PERSIST_BACKEND production policy
+    # Subtest: production defaults to the db backend when PERSIST_BACKEND is unset
+    ok 1 - production defaults to the db backend when PERSIST_BACKEND is unset
+      ---
+      duration_ms: 3.148041
+      type: 'test'
+      ...
+    # Subtest: production refuses to boot when PERSIST_BACKEND=fs
+    ok 2 - production refuses to boot when PERSIST_BACKEND=fs
+      ---
+      duration_ms: 2.395083
+      type: 'test'
+      ...
+    # Subtest: production boots when PERSIST_BACKEND=db
+    ok 3 - production boots when PERSIST_BACKEND=db
+      ---
+      duration_ms: 0.810708
+      type: 'test'
+      ...
+    # Subtest: non-production keeps the legacy fs default when PERSIST_BACKEND is unset
+    ok 4 - non-production keeps the legacy fs default when PERSIST_BACKEND is unset
+      ---
+      duration_ms: 0.482708
+      type: 'test'
+      ...
+    # Subtest: an explicit db value wins in non-production
+    ok 5 - an explicit db value wins in non-production
+      ---
+      duration_ms: 0.874375
+      type: 'test'
+      ...
+    1..5
+ok 2 - R9-S2-F: PERSIST_BACKEND production policy
+  ---
+  duration_ms: 10.92275
+  type: 'suite'
+  ...
+1..2
+# tests 10
+# suites 2
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 373.814375
+EXIT:0

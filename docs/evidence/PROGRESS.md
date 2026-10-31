@@ -242,3 +242,13 @@ wins over `.env.test` because dotenv never overrides an existing variable.
 - `9b7866d` R7e: align eslint-config-next with next 15.5.28
 - `708efb7` R7e: verify turnstile before schema parse in register action to preserve bot-check failure contract
 
+
+---
+
+## R9 master run (stages S0-S7)
+
+| Stage | Description | Status | Commit SHA | Evidence Path | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **R9-S0** | Preflight inventory (read-only) | DONE | `baba31a` | `docs/evidence/raw/r9-s0-preflight.txt` | Branch `feat/launch-blockers`, clean tracked tree, 8 `R7e:` commits since `r7d-green-2026-10-31`. 10-minute commit-age gate failed at 69s; OWNER explicitly overrode ("R7e is finished - proceed now") and the exception is recorded. R7e inventory: 7 tasks DONE; PERSIST_BACKEND guard, instrumentation boot-guard and single dev-bypass policy MISSING (handled in S2). Docker 28.5.2 + local Postgres 54329/54340 available. |
+| **R9-S1** | Mobile typecheck repair | PARTIAL | `6c1bce7` | `docs/evidence/raw/r9-s1-mobile-tsc-fail-before.txt`, `r9-s1-web-tsc-pass.txt`, `r9-s1-web-unit-1x.txt`, `r9-s1-mobile-unit-{1..5}of5.txt` | Root cause: `700e4ad` (A13) replaced `apps/mobile/src/lib/cbt-sync.ts` wholesale (576 deletions) without migrating consumers. Restored the queue/driver exports from `700e4ad^` and kept the A13 `CbtSyncManager` additively. Mobile tsc 27 -> 0; web tsc 0; web unit 470/470. Mobile unit 265/267 on all 5 runs: 2 PRE-EXISTING failures already present at `r7d-green-2026-10-31` (`settings.tsx` no longer contains `deleteMe` after the G2 request-flow change; `app.config.ts` release guard contains the literal "localhost"). Not fixed: both need an owner decision (stale test vs product contract) and must not be edited to match. |
+| **R9-S2** | R7e leftovers F + G | DONE | `186af4b` | `docs/evidence/raw/r9-s2-fail-before.txt`, `r9-s2-tests-{1..5}of5.txt`, `r9-s2-b001-prod-smoke.txt`, `r9-s2-boot-guard-fs-refusal.txt` | F: production defaults `PERSIST_BACKEND` to `db`; boot refuses `fs`; `.env.example` marks it REQUIRED. G: `instrumentation.ts` calls `validateBootSecurity()` at server start; mobile-login and config.service now delegate to `isDevBypassAllowed()`. 10/10 new tests green 5x; full unit suite 470/470; built-server B-001: /admin 307, /api/admin 401, /api/auth/role 404, POST /api/exam/test/bulk 401, /api/health 200 (DB healthy, 31 migrations, 0 pending); fs+production start fails in the instrumentation hook. |

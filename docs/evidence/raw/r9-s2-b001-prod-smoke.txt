@@ -1,0 +1,11 @@
+SHA: 186af4b
+DATE: 2026-10-31T22:10:41+05:30
+COMMAND: NODE_ENV=production PERSIST_BACKEND=db next start -p 3045; curl -s -o /dev/null -w '%{http_code}' <path>
+ENV: NODE_ENV=production PERSIST_BACKEND=db APP_ENV unset; DATABASE_URL host=127.0.0.1 port=54329 (local throwaway test DB; credentials not printed)
+---
+GET /admin -> 307
+GET /api/admin -> 401
+GET /api/auth/role -> 404
+POST /api/exam/test/bulk -> 401
+GET /api/health -> 200
+health body: {"status":"ok","timestamp":"2026-10-31T16:40:41.413Z","commit":"186af4b9815b9751131281b734587e6d34cc17d3","uptime":12,"database":{"status":"healthy","latencyMs":7},"payments":"not configured","totalLatencyMs":41,"migrations":{"applied":31,"pending":0},"paymentsConfigured":false,"storageBackend":"db","emailProviders":{"brevo":false,"resend":false}}

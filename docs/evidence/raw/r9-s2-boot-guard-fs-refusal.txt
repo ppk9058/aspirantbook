@@ -1,0 +1,7 @@
+SHA: 186af4b
+DATE: 2026-10-31T22:11:06+05:30
+COMMAND: NODE_ENV=production PERSIST_BACKEND=fs next start -p 3046 (boot-guard via instrumentation.ts register())
+---
+GET /api/health -> 500
+  [cause]: Error: [CRITICAL SECURITY REFUSAL AT BOOT] PERSIST_BACKEND resolves to the local-disk backend in NODE_ENV=production! Production deployments are ephemeral and multi-instance: set PERSIST_BACKEND=db.
+  [cause]: Error: [CRITICAL SECURITY REFUSAL AT BOOT] PERSIST_BACKEND resolves to the local-disk backend in NODE_ENV=production! Production deployments are ephemeral and multi-instance: set PERSIST_BACKEND=db.
