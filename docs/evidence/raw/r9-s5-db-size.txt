@@ -1,0 +1,30 @@
+SHA: 0839f38
+DATE: 2026-10-31T22:47:01+05:30
+COMMAND: psql -f scripts/ops/db-size-report.sql (local 127.0.0.1:54329/trillionskill_test)
+---
+Pager usage is off.
+      database      | database_size | database_bytes 
+--------------------+---------------+----------------
+ trillionskill_test | 19 MB         |       20421655
+(1 row)
+
+    table_name     | total_size | total_bytes | live_rows 
+-------------------+------------+-------------+-----------
+ ExamAttempt       | 1992 kB    |     2039808 |      1122
+ ExamAttemptAnswer | 1632 kB    |     1671168 |      1022
+ Book              | 576 kB     |      589824 |        66
+ AuditLog          | 456 kB     |      466944 |       598
+ User              | 384 kB     |      393216 |       559
+ RateLimit         | 232 kB     |      237568 |        55
+ Course            | 208 kB     |      212992 |         3
+ PlatformSetting   | 200 kB     |      204800 |         2
+ Payment           | 192 kB     |      196608 |         4
+ ExamTest          | 192 kB     |      196608 |         8
+(10 rows)
+
+    table_name     | total_size | exact_rows 
+-------------------+------------+------------
+ ExamAttempt       | 1992 kB    |       1122
+ ExamAttemptAnswer | 1632 kB    |       1022
+(2 rows)
+

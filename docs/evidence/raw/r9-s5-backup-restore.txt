@@ -1,0 +1,11 @@
+SHA: 0839f38
+DATE: 2026-10-31T22:47:01+05:30
+COMMAND: SOURCE_URL=<local 127.0.0.1:54329/trillionskill_test> scripts/ops/backup-restore-test.sh (run inside postgres:16 image: host pg_dump is 14, server is 16)
+---
+backup-restore-test: source_host=host.docker.internal:54329 throwaway_db=r9_restore_1793467022
+backup-restore-test: dump
+backup-restore-test: dump_bytes=345240
+backup-restore-test: restore
+backup-restore-test: tables_compared=75 restored_tables=75 total_source_rows=3907 mismatches=0
+backup-restore-test: PASS
+EXIT:0
