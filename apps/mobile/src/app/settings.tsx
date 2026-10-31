@@ -70,6 +70,10 @@ export default function SettingsScreen() {
 
       setDeletionStatus(res.data?.status || "PENDING");
       setDeleteModalVisible(false);
+      Alert.alert(
+        "Request submitted",
+        "Your account deletion request has been received. You can track its status in Settings > Security."
+      );
     } catch (err: any) {
       setDeleteError(err?.message || "An unexpected error occurred while submitting the deletion request.");
     } finally {
