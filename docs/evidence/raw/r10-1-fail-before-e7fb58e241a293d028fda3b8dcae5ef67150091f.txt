@@ -1,0 +1,68 @@
+SHA: e7fb58e241a293d028fda3b8dcae5ef67150091f
+DATE: 2026-10-31T23:48:04+05:30
+COMMAND: DATABASE_URL=<CI shape with ?connection_limit=10> npx tsx --test tests/unit/connection-limit-validator.test.ts
+---
+TAP version 13
+# Subtest: P1-4: Connection limit validator and pg_stat_activity verification
+    # Subtest: passes and parses limit when connection_limit is present in DATABASE_URL
+    ok 1 - passes and parses limit when connection_limit is present in DATABASE_URL
+      ---
+      duration_ms: 958.073708
+      type: 'test'
+      ...
+    # Subtest: warns when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT is unset
+    ok 2 - warns when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT is unset
+      ---
+      duration_ms: 3.383667
+      type: 'test'
+      ...
+    # Subtest: throws error when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT=true
+    ok 3 - throws error when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT=true
+      ---
+      duration_ms: 2.674334
+      type: 'test'
+      ...
+    # Subtest: measures actual backend connections via pg_stat_activity with connection_limit set
+    not ok 4 - measures actual backend connections via pg_stat_activity with connection_limit set
+      ---
+      duration_ms: 771.743333
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/connection-limit-validator.test.ts:2:2809'
+      failureType: 'testCodeFailure'
+      error: |-
+        
+        Invalid `prisma.$executeRaw()` invocation:
+        
+        
+        The provided database string is invalid. The provided arguments are not supported in database URL. Please refer to the documentation in https://www.prisma.io/docs/reference/database-reference/connection-urls for constructing a correct connection string. In some cases, certain characters must be escaped. Please check the string for any illegal characters.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async Promise.all (index 3)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/connection-limit-validator.test.ts:64:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..4
+not ok 1 - P1-4: Connection limit validator and pg_stat_activity verification
+  ---
+  duration_ms: 1839.94325
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/connection-limit-validator.test.ts:2:1254'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 3
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5014.35275
+EXIT:1

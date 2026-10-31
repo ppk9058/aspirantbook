@@ -54,9 +54,14 @@ describe("P1-4: Connection limit validator and pg_stat_activity verification", (
   });
 
   test("measures actual backend connections via pg_stat_activity with connection_limit set", async () => {
-    const limitedUrl = `${testDbUrl}?connection_limit=3&pool_timeout=10`;
+    // Build the URL structurally: CI's DATABASE_URL already carries
+    // ?connection_limit=10, so string-appending a second query string produced
+    // an invalid URL. URL/searchParams overwrite the existing values instead.
+    const limitedUrl = new URL(testDbUrl);
+    limitedUrl.searchParams.set("connection_limit", "3");
+    limitedUrl.searchParams.set("pool_timeout", "10");
     const prismaLimited = new PrismaClient({
-      datasources: { db: { url: limitedUrl } },
+      datasources: { db: { url: limitedUrl.toString() } },
     });
 
     try {

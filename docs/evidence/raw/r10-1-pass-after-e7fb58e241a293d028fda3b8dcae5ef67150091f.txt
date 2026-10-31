@@ -1,0 +1,64 @@
+SHA: e7fb58e241a293d028fda3b8dcae5ef67150091f
+DATE: 2026-10-31T23:48:53+05:30
+COMMAND: npx tsx --test tests/unit/connection-limit-validator.test.ts x5 CI-shape + x5 plain URL (clean env)
+---
+=== ci run 1 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:
+=== ci run 2 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:
+=== ci run 3 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:
+=== ci run 4 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:
+=== ci run 5 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:
+=== plain run 1 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:
+=== plain run 2 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:
+=== plain run 3 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:
+=== plain run 4 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:
+=== plain run 5 ===
+# tests 4
+# pass 4
+# fail 0
+# cancelled 0
+EXIT:
