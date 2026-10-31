@@ -1,0 +1,14 @@
+SHA: 216abf2
+DATE: 2026-10-31T22:50:22+05:30
+COMMAND: reference check for docs/runbooks/render-cloudflare.md
+---
+dockerfile_healthcheck: 1
+next_config_hsts: 1
+trust_proxy_read_in_rate_limit: 5
+cf_connecting_ip_read: 1
+persist_guard_refusal: 3
+migrate_script: executable
+backup_script: executable
+exam_flow_script: present
+maintenance_mode_consumer: 0 (0 = flag is config-only, documented as such)
+app_level_www_redirect: 0 (0 = Cloudflare redirect rule is the only one)
