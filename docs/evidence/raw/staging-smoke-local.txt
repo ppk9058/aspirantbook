@@ -1,0 +1,18 @@
+=== AspirantBook Staging Smoke Test ===
+Target: http://127.0.0.1:3045
+Started: 2026-10-31T21:29:39Z
+----------------------------------------
+Executing smoke checks...
+PASS: [Health Check] GET /api/health -> 200 (no secrets leaked, 291ms)
+PASS: [Admin Redirect] GET /admin -> 307 (71ms)
+PASS: [Admin API Guard] GET /api/admin -> 401 (66ms)
+PASS: [Auth Role Guard] GET /api/auth/role -> 404 (118ms)
+PASS: [Exam Bulk Guard] POST /api/exam/test/bulk -> 401 (196ms)
+PASS: [Login Page] GET /login -> 200 (176ms)
+PASS: [Register Page] GET /register -> 200 (188ms)
+PASS: [Robots] GET /robots.txt -> 200 (110ms)
+PASS: [Sitemap] GET /sitemap.xml -> 200 (133ms)
+PASS: [Security Headers] Strict-Transport-Security, X-Content-Type-Options, CSP verified
+----------------------------------------
+OVERALL RESULT: PASS (All checks passed)
+EXIT:0

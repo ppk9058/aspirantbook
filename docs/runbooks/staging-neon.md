@@ -55,14 +55,25 @@ That database is tiny; treat it as a shape check, not a capacity forecast.
 
 ## 5. Smoke checks (owner)
 
-1. `GET /api/health` → 200, `status: "ok"`, `database.status: "healthy"`.
-2. `GET /api/health` with header `x-health-details-token: <HEALTH_DETAILS_TOKEN>`
-   → 200 and `migrations.applied > 0`, `migrations.pending: 0`,
-   `storageBackend: "db"`.
-3. B-001 guards: `/admin` 307, `/api/admin` 401, `/api/auth/role` 404,
-   `POST /api/exam/test/bulk` 401.
-4. Exam flow: `R9_BASE_URL=https://staging.aspirantbook.com npx tsx scripts/r9-container-exam-flow.ts`
-   → `EXAM_FLOW_PASS`.
+Run the automated staging smoke test script:
+
+```bash
+# Automated smoke suite against staging (refuses non-https unless localhost)
+BASE_URL=https://staging.aspirantbook.com scripts/ops/staging-smoke.sh
+```
+
+Checks verified automatically:
+1. `GET /api/health` → 200, status ok, and payload verified free of secret/credential leaks.
+2. B-001 guards: `/admin` 307 redirect, `/api/admin` 401, `/api/auth/role` 404, `POST /api/exam/test/bulk` 401.
+3. Public pages: `/login` 200, `/register` 200, `/robots.txt` 200, `/sitemap.xml` 200.
+4. Security headers: `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, and `Content-Security-Policy`.
+5. Response latency budget verification.
+
+Additional manual checks:
+- Detailed health: `curl -H "x-health-details-token: <HEALTH_DETAILS_TOKEN>" https://staging.aspirantbook.com/api/health`
+  → 200, `migrations.applied > 0`, `migrations.pending: 0`, `storageBackend: "db"`.
+- Exam flow: `R9_BASE_URL=https://staging.aspirantbook.com npx tsx scripts/r9-container-exam-flow.ts`
+  → `EXAM_FLOW_PASS`.
 
 ## 6. Rules
 
