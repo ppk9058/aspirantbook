@@ -1,0 +1,166 @@
+TAP version 13
+# Subtest: R12-C: Security headers and CSP
+    # Subtest: C-R12-00: next.config.js headers() returns valid config
+    ok 1 - C-R12-00: next.config.js headers() returns valid config
+      ---
+      duration_ms: 2.527625
+      type: 'test'
+      ...
+    # Subtest: C-R12-01: HSTS header is present and strong
+    ok 2 - C-R12-01: HSTS header is present and strong
+      ---
+      duration_ms: 1.393167
+      type: 'test'
+      ...
+    # Subtest: C-R12-02: X-Content-Type-Options is nosniff
+    ok 3 - C-R12-02: X-Content-Type-Options is nosniff
+      ---
+      duration_ms: 1.169791
+      type: 'test'
+      ...
+    # Subtest: C-R12-03: Referrer-Policy is set
+    ok 4 - C-R12-03: Referrer-Policy is set
+      ---
+      duration_ms: 1.394833
+      type: 'test'
+      ...
+    # Subtest: C-R12-04: frame-ancestors is self (via CSP)
+    ok 5 - C-R12-04: frame-ancestors is self (via CSP)
+      ---
+      duration_ms: 0.559667
+      type: 'test'
+      ...
+    # Subtest: C-R12-05: Permissions-Policy is set
+    ok 6 - C-R12-05: Permissions-Policy is set
+      ---
+      duration_ms: 0.560916
+      type: 'test'
+      ...
+    # Subtest: C-R12-06: CSP has no wildcard * in script-src
+    ok 7 - C-R12-06: CSP has no wildcard * in script-src
+      ---
+      duration_ms: 0.704125
+      type: 'test'
+      ...
+    # Subtest: C-R12-07: CSP does not contain supabase.co
+    not ok 8 - C-R12-07: CSP does not contain supabase.co
+      ---
+      duration_ms: 2.639458
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:2:4689'
+      failureType: 'testCodeFailure'
+      error: 'CSP must not contain supabase.co'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:97:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: C-R12-08: CSP allows Cloudflare Turnstile (challenges.cloudflare.com)
+    not ok 9 - C-R12-08: CSP allows Cloudflare Turnstile (challenges.cloudflare.com)
+      ---
+      duration_ms: 0.848375
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:2:5113'
+      failureType: 'testCodeFailure'
+      error: 'CSP must allow challenges.cloudflare.com for Turnstile'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:106:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: C-R12-09: CSP allows Razorpay checkout
+    ok 10 - C-R12-09: CSP allows Razorpay checkout
+      ---
+      duration_ms: 0.86975
+      type: 'test'
+      ...
+    # Subtest: C-R12-10: CSP allows Google Fonts
+    ok 11 - C-R12-10: CSP allows Google Fonts
+      ---
+      duration_ms: 0.455
+      type: 'test'
+      ...
+    # Subtest: C-R12-11: CSP allows Google OAuth (accounts.google.com)
+    not ok 12 - C-R12-11: CSP allows Google OAuth (accounts.google.com)
+      ---
+      duration_ms: 0.547
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:2:7047'
+      failureType: 'testCodeFailure'
+      error: 'CSP must allow accounts.google.com for Google OAuth'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:143:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: C-R12-12: CSP dynamically includes configured S3/R2 host via env
+    not ok 13 - C-R12-12: CSP dynamically includes configured S3/R2 host via env
+      ---
+      duration_ms: 0.505583
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:2:7510'
+      failureType: 'testCodeFailure'
+      error: 'connect-src must include configured S3_ENDPOINT'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:155:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: C-R12-13: CSP dynamically includes Sentry ingest host via env when SENTRY_DSN is set
+    not ok 14 - C-R12-13: CSP dynamically includes Sentry ingest host via env when SENTRY_DSN is set
+      ---
+      duration_ms: 0.47925
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:2:8240'
+      failureType: 'testCodeFailure'
+      error: 'connect-src must include configured Sentry ingest host'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:177:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..14
+not ok 1 - R12-C: Security headers and CSP
+  ---
+  duration_ms: 15.874792
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/security-headers-csp.test.ts:2:1029'
+  failureType: 'subtestsFailed'
+  error: '5 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 14
+# suites 1
+# pass 9
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 265.93275
+EXIT:1

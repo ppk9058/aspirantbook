@@ -67,6 +67,57 @@ const nextConfig = {
         ],
     },
     async headers() {
+        const connectHosts = [
+            "'self'",
+            'https://api.razorpay.com',
+            'https://lumberjack.razorpay.com',
+            'https://*.amazonaws.com',
+            'https://challenges.cloudflare.com',
+            'https://accounts.google.com',
+            'wss:',
+        ];
+
+        const s3Endpoint = process.env.S3_ENDPOINT || process.env.AWS_ENDPOINT;
+        if (s3Endpoint) {
+            try {
+                const parsed = new URL(s3Endpoint);
+                if (!connectHosts.includes(parsed.origin)) {
+                    connectHosts.push(parsed.origin);
+                }
+            } catch {
+                // ignore invalid URL
+            }
+        }
+
+        const sentryDsn = process.env.SENTRY_DSN;
+        if (sentryDsn) {
+            try {
+                const parsed = new URL(sentryDsn);
+                const ingestHost = `https://${parsed.host}`;
+                if (!connectHosts.includes(ingestHost)) {
+                    connectHosts.push(ingestHost);
+                }
+            } catch {
+                // ignore invalid DSN
+            }
+        }
+
+        const csp = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://api.razorpay.com https://challenges.cloudflare.com https://www.youtube.com https://s.ytimg.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' data: https://fonts.gstatic.com",
+            "img-src 'self' data: blob: https://*.razorpay.com https: http:",
+            "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://challenges.cloudflare.com https://www.youtube.com https://www.youtube-nocookie.com blob: data:",
+            `connect-src ${connectHosts.join(' ')}`,
+            "media-src 'self' https: blob:",
+            "worker-src 'self' blob:",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self' https://api.razorpay.com https://accounts.google.com",
+            "frame-ancestors 'self'",
+        ].join('; ');
+
         return [
             {
                 source: '/:path*',
@@ -97,7 +148,7 @@ const nextConfig = {
                     },
                     {
                         key: 'Content-Security-Policy',
-                        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://api.razorpay.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https: http:; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com blob: data:; connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://*.amazonaws.com https://*.supabase.co wss:; media-src 'self' https: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://api.razorpay.com; frame-ancestors 'self';",
+                        value: csp,
                     },
                 ],
             },

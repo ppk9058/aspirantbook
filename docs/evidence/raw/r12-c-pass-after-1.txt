@@ -1,0 +1,102 @@
+TAP version 13
+# Subtest: R12-C: Security headers and CSP
+    # Subtest: C-R12-00: next.config.js headers() returns valid config
+    ok 1 - C-R12-00: next.config.js headers() returns valid config
+      ---
+      duration_ms: 5.333208
+      type: 'test'
+      ...
+    # Subtest: C-R12-01: HSTS header is present and strong
+    ok 2 - C-R12-01: HSTS header is present and strong
+      ---
+      duration_ms: 0.878416
+      type: 'test'
+      ...
+    # Subtest: C-R12-02: X-Content-Type-Options is nosniff
+    ok 3 - C-R12-02: X-Content-Type-Options is nosniff
+      ---
+      duration_ms: 0.56375
+      type: 'test'
+      ...
+    # Subtest: C-R12-03: Referrer-Policy is set
+    ok 4 - C-R12-03: Referrer-Policy is set
+      ---
+      duration_ms: 1.145125
+      type: 'test'
+      ...
+    # Subtest: C-R12-04: frame-ancestors is self (via CSP)
+    ok 5 - C-R12-04: frame-ancestors is self (via CSP)
+      ---
+      duration_ms: 0.581375
+      type: 'test'
+      ...
+    # Subtest: C-R12-05: Permissions-Policy is set
+    ok 6 - C-R12-05: Permissions-Policy is set
+      ---
+      duration_ms: 0.683875
+      type: 'test'
+      ...
+    # Subtest: C-R12-06: CSP has no wildcard * in script-src
+    ok 7 - C-R12-06: CSP has no wildcard * in script-src
+      ---
+      duration_ms: 0.849042
+      type: 'test'
+      ...
+    # Subtest: C-R12-07: CSP does not contain supabase.co
+    ok 8 - C-R12-07: CSP does not contain supabase.co
+      ---
+      duration_ms: 0.696833
+      type: 'test'
+      ...
+    # Subtest: C-R12-08: CSP allows Cloudflare Turnstile (challenges.cloudflare.com)
+    ok 9 - C-R12-08: CSP allows Cloudflare Turnstile (challenges.cloudflare.com)
+      ---
+      duration_ms: 0.876875
+      type: 'test'
+      ...
+    # Subtest: C-R12-09: CSP allows Razorpay checkout
+    ok 10 - C-R12-09: CSP allows Razorpay checkout
+      ---
+      duration_ms: 0.886875
+      type: 'test'
+      ...
+    # Subtest: C-R12-10: CSP allows Google Fonts
+    ok 11 - C-R12-10: CSP allows Google Fonts
+      ---
+      duration_ms: 0.52275
+      type: 'test'
+      ...
+    # Subtest: C-R12-11: CSP allows Google OAuth (accounts.google.com)
+    ok 12 - C-R12-11: CSP allows Google OAuth (accounts.google.com)
+      ---
+      duration_ms: 0.466958
+      type: 'test'
+      ...
+    # Subtest: C-R12-12: CSP dynamically includes configured S3/R2 host via env
+    ok 13 - C-R12-12: CSP dynamically includes configured S3/R2 host via env
+      ---
+      duration_ms: 0.50425
+      type: 'test'
+      ...
+    # Subtest: C-R12-13: CSP dynamically includes Sentry ingest host via env when SENTRY_DSN is set
+    ok 14 - C-R12-13: CSP dynamically includes Sentry ingest host via env when SENTRY_DSN is set
+      ---
+      duration_ms: 0.470917
+      type: 'test'
+      ...
+    1..14
+ok 1 - R12-C: Security headers and CSP
+  ---
+  duration_ms: 15.708208
+  type: 'suite'
+  ...
+1..1
+# tests 14
+# suites 1
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 305.79475
+EXIT:0
