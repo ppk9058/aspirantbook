@@ -282,3 +282,10 @@ wins over `.env.test` because dotenv never overrides an existing variable.
 | **R11-2** | Final clean-clone verification and tagging | DONE | HEAD | `docs/evidence/raw/r11-final-clean-clone.txt` | Fresh clone under `/tmp/r11-final-clone` verified at `6727f1e`: `npm ci` (exit 0), `tsc` (exit 0), `lint` (exit 0), `build` (exit 0, 162 routes generated), `unit suite` (473/473 pass, 115 suites, 0 fail, 0 cancelled), mobile `tsc` (0 errors). Tagged `r11-ready-2026-11-01`. |
 
 
+
+## R12 master run
+
+| Task ID | Description | Status | Commit SHA | Evidence Path | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **R12-0** | Read-only audit | DONE | `6a25e53` | `docs/evidence/r12-audit.md` | 16 console.log, 35 localhost, 1 supabase.co, no gitleaks CI, no render.yaml, no Sentry, no LICENSE, 0 files >1MB. All 14 steps need work. |
+| **R12-B** | DATABASE URL safety for Neon | DONE | `3968743` | `docs/evidence/raw/r12-b-*.txt` | 9 tests in `tests/unit/db-url-neon-safety.test.ts`. Production guards: localhost refusal, sslmode=require, pooler pgbouncer=true, DIRECT_URL required. Fail-before 5×EXIT:1, pass-after 5×EXIT:0. Error messages never print URLs. Non-production unaffected. |
