@@ -1,0 +1,10 @@
+SHA: bad86e0957b8e2c092049d17426028d327084ea1
+DATE: 2026-11-01T00:45:58+05:30
+COMMAND: ruby YAML parse + structural check of .github/dependabot.yml
+---
+updates=4
+npm / limit=3 ignores=8 groups=minor-and-patch
+npm /packages/shared limit=3 ignores=8 groups=minor-and-patch
+npm /apps/mobile limit=3 ignores=8 groups=minor-and-patch
+docker / limit=3 ignores=1 groups=
+EXIT:0
