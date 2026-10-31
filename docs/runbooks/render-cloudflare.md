@@ -209,3 +209,15 @@ registration to 5/hour/IP; run it sparingly in production or against staging.
 | Cloudflare SSL mode `Flexible` | redirect loop (origin already redirects to HTTPS) |
 | Editing MX/SPF/DKIM/`_dmarc` | inbound and outbound email breaks |
 | Persistent disk added and used as storage | multi-instance divergence; `db` backend still required |
+
+## 9. Email Outbox Consumer (Cron)
+
+The email outbox consumer is scheduled in `render.yaml` as a cron service running every 5 minutes (`*/5 * * * *`).
+It triggers the `CRON_SECRET`-protected internal endpoint:
+```bash
+curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/internal/email-outbox"
+```
+- **Authentication:** `CRON_SECRET` must match between the web service and the cron service (managed via environment variables, never committed).
+- **Delivery Order:** Brevo first (REST), fallback to Resend upon failure.
+- **Retry Policy:** Exponential backoff with jitter up to max configured attempts (`EMAIL_OUTBOX_MAX_ATTEMPTS`).
+- **GitHub Actions Alternative:** A dormant workflow stub exists at `.github/workflows/email-outbox-cron.yml.disabled` for use if external cron runners are required.

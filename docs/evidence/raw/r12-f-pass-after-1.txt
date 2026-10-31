@@ -1,0 +1,55 @@
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: R12-F: Email outbox consumer and cron trigger
+    # Subtest: F-R12-01: render.yaml contains a cron job for email outbox every 5 minutes
+    ok 1 - F-R12-01: render.yaml contains a cron job for email outbox every 5 minutes
+      ---
+      duration_ms: 39.0695
+      type: 'test'
+      ...
+    # Subtest: F-R12-02: GitHub Actions alternative exists and is left disabled
+    ok 2 - F-R12-02: GitHub Actions alternative exists and is left disabled
+      ---
+      duration_ms: 1.807167
+      type: 'test'
+      ...
+    # Subtest: F-R12-03: Route rejects missing CRON_SECRET with 401
+    ok 3 - F-R12-03: Route rejects missing CRON_SECRET with 401
+      ---
+      duration_ms: 5.04075
+      type: 'test'
+      ...
+    # Subtest: F-R12-04: Route rejects wrong CRON_SECRET with 401
+    ok 4 - F-R12-04: Route rejects wrong CRON_SECRET with 401
+      ---
+      duration_ms: 3.887917
+      type: 'test'
+      ...
+    # Subtest: F-R12-05: Route accepts valid CRON_SECRET and processes a pending outbox row
+    ok 5 - F-R12-05: Route accepts valid CRON_SECRET and processes a pending outbox row
+      ---
+      duration_ms: 44.373125
+      type: 'test'
+      ...
+    # Subtest: F-R12-06: docs/runbooks/ documents the email outbox cron worker
+    ok 6 - F-R12-06: docs/runbooks/ documents the email outbox cron worker
+      ---
+      duration_ms: 1.994667
+      type: 'test'
+      ...
+    1..6
+ok 1 - R12-F: Email outbox consumer and cron trigger
+  ---
+  duration_ms: 121.299917
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 481.525792
+EXIT:0

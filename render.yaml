@@ -169,3 +169,18 @@ services:
         sync: false
       - key: REQUIRE_EMAIL_VERIFICATION_FOR_PURCHASE
         sync: false
+
+  - type: cron
+    name: email-outbox-cron
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    region: singapore
+    schedule: "*/5 * * * *"
+    command: "curl -fsS -X POST -H \"Authorization: Bearer $CRON_SECRET\" \"$APP_URL/api/internal/email-outbox\""
+    envVars:
+      - key: APP_URL
+        sync: false
+      - key: CRON_SECRET
+        sync: false

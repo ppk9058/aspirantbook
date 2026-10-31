@@ -1,0 +1,86 @@
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: R12-F: Email outbox consumer and cron trigger
+    # Subtest: F-R12-01: render.yaml contains a cron job for email outbox every 5 minutes
+    not ok 1 - F-R12-01: render.yaml contains a cron job for email outbox every 5 minutes
+      ---
+      duration_ms: 30.925959
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-cron.test.ts:2:2740'
+      failureType: 'testCodeFailure'
+      error: 'render.yaml must have a cron job service'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-cron.test.ts:66:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: F-R12-02: GitHub Actions alternative exists and is left disabled
+    ok 2 - F-R12-02: GitHub Actions alternative exists and is left disabled
+      ---
+      duration_ms: 2.389334
+      type: 'test'
+      ...
+    # Subtest: F-R12-03: Route rejects missing CRON_SECRET with 401
+    ok 3 - F-R12-03: Route rejects missing CRON_SECRET with 401
+      ---
+      duration_ms: 5.439625
+      type: 'test'
+      ...
+    # Subtest: F-R12-04: Route rejects wrong CRON_SECRET with 401
+    ok 4 - F-R12-04: Route rejects wrong CRON_SECRET with 401
+      ---
+      duration_ms: 3.188125
+      type: 'test'
+      ...
+    # Subtest: F-R12-05: Route accepts valid CRON_SECRET and processes a pending outbox row
+    ok 5 - F-R12-05: Route accepts valid CRON_SECRET and processes a pending outbox row
+      ---
+      duration_ms: 40.909583
+      type: 'test'
+      ...
+    # Subtest: F-R12-06: docs/runbooks/ documents the email outbox cron worker
+    not ok 6 - F-R12-06: docs/runbooks/ documents the email outbox cron worker
+      ---
+      duration_ms: 2.067375
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-cron.test.ts:2:5707'
+      failureType: 'testCodeFailure'
+      error: 'runbook must document email outbox'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-cron.test.ts:129:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..6
+not ok 1 - R12-F: Email outbox consumer and cron trigger
+  ---
+  duration_ms: 106.429583
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-cron.test.ts:2:1561'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 4
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 427.797875
+EXIT:1
