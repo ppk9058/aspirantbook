@@ -3,7 +3,8 @@ import { prisma } from "../lib/prisma"
 import { createTestUser, teardownTestUsers } from "../lib/testing/test-user-helper"
 
 const BASE_URL = "http://localhost:3000"
-const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || "test_wh_sec_pass5_isolated"
+const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || (() => { throw new Error("RAZORPAY_WEBHOOK_SECRET is required"); })()
+
 
 function generateWebhookSignature(body: string, secret: string = WEBHOOK_SECRET): string {
   return crypto.createHmac("sha256", secret).update(body).digest("hex")
@@ -358,7 +359,8 @@ async function run() {
     // TEST G.3: Browser verify route (POST /api/verify-payment/razorpay)
     // -------------------------------------------------------------------------
     console.log("\n[Test 7] Verify-payment route checks (idempotency, ownership mismatch, bad signature)")
-    const rzpSecret = process.env.RAZORPAY_KEY_SECRET || "rzp_secret_placeholder"
+    const rzpSecret = process.env.RAZORPAY_KEY_SECRET || (() => { throw new Error("RAZORPAY_KEY_SECRET is required"); })()
+
     const orderId7 = `order_test_${Date.now()}_7`
     const paymentId7 = `pay_test_${Date.now()}_7`
 

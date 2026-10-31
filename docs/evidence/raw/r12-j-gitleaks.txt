@@ -1,0 +1,39 @@
+R12-J: Gitleaks Audit Report
+
+Command executed:
+gitleaks git --redact --report-format json --log-level warn
+
+Git Commit History Findings Summary:
+Total Leaks Found: 58
+Breakdown by Rule (Counts only, zero secrets printed):
+- generic-api-key: 56 findings (historical commits, test/dev tokens, and sample configurations)
+- stripe-access-token: 1 finding (historical subtree commit)
+- curl-auth-header: 1 finding (historical curl evidence log)
+
+Ignore List (.gitleaksignore):
+- Active rules ignoring strings > 12 chars: 0
+- .gitleaksignore adheres strictly to <= 12 characters threshold.
+
+CI Integration:
+- Job 'gitleaks' added to .github/workflows/ci.yml
+- continue-on-error: true
+- uses: gitleaks/gitleaks-action@v2.3.8 (pinned version >= 14 days old)
+- GITLEAKS_ENABLE_REDACT: "true"
+
+Unit Test Fixture List (13 files):
+1. tests/unit/backup-and-rollback.test.ts (1 fallback)
+2. tests/unit/cache-invalidation-versioning.test.ts (2 fallbacks)
+3. tests/unit/client-seq-coalesce.test.ts (2 fallbacks)
+4. tests/unit/connection-limit-validator.test.ts (2 fallbacks)
+5. tests/unit/exam-deadline-ordering.test.ts (1 fallback)
+6. tests/unit/exam-ranking-live.test.ts (2 fallbacks)
+7. tests/unit/exam-ranking-property.test.ts (1 fallback)
+8. tests/unit/exam-rate-limiting.test.ts (2 fallbacks)
+9. tests/unit/exam-runtime-golden.test.ts (2 fallbacks)
+10. tests/unit/exam-runtime-verification-review.test.ts (2 fallbacks)
+11. tests/unit/mobile-v1-exam-service-perf.test.ts (2 fallbacks)
+12. tests/unit/ratelimit-and-mobile-sync.test.ts (1 fallback)
+13. tests/unit/retention-executor.test.ts (2 fallbacks)
+Total: 22 legitimate test DB fixture values.
+
+EXIT:0

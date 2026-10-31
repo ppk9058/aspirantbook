@@ -1,0 +1,42 @@
+TAP version 13
+# Subtest: R12-J: Secret Hygiene Verification
+    # Subtest: J-R12-01: .gitleaksignore exists and ignores nothing longer than 12 chars
+    ok 1 - J-R12-01: .gitleaksignore exists and ignores nothing longer than 12 chars
+      ---
+      duration_ms: 0.727042
+      type: 'test'
+      ...
+    # Subtest: J-R12-02: CI workflow contains gitleaks job with continue-on-error and redaction
+    ok 2 - J-R12-02: CI workflow contains gitleaks job with continue-on-error and redaction
+      ---
+      duration_ms: 5.437417
+      type: 'test'
+      ...
+    # Subtest: J-R12-03: scripts/ and tests/e2e/ do not contain literal secret fallbacks for Webhooks/API keys
+    ok 3 - J-R12-03: scripts/ and tests/e2e/ do not contain literal secret fallbacks for Webhooks/API keys
+      ---
+      duration_ms: 0.4725
+      type: 'test'
+      ...
+    # Subtest: J-R12-04: Documented list of unit test suites that keep fixture values
+    ok 4 - J-R12-04: Documented list of unit test suites that keep fixture values
+      ---
+      duration_ms: 0.2095
+      type: 'test'
+      ...
+    1..4
+ok 1 - R12-J: Secret Hygiene Verification
+  ---
+  duration_ms: 7.775
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 244.402167
+EXIT:0

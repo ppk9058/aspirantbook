@@ -38,7 +38,7 @@ async function run() {
   console.log("===============================================================\n");
 
   // Read-only dev DB before counts for isolation proof
-  const devDirect = process.env.DEV_DIRECT_URL || "postgresql://postgres:9z6n9p06N768h3i1!@aws-1-ap-south-1.pooler.supabase.com:5432/postgres";
+  const devDirect = process.env.DEV_DIRECT_URL || "";
   const devPrisma = new PrismaClient({
     datasources: { db: { url: devDirect } }
   });

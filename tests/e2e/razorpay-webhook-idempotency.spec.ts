@@ -17,8 +17,9 @@ import { POST as legacyWebhookPOST } from "@/app/api/razorpay/webhook/route"
  * - replaying a signed event does not double-fulfil
  */
 
-const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || "regression_webhook_secret_not_a_real_credential"
-const API_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || "regression_api_key_secret_must_not_verify_webhooks"
+const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || (() => { throw new Error("RAZORPAY_WEBHOOK_SECRET is required"); })()
+const API_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || (() => { throw new Error("RAZORPAY_KEY_SECRET is required"); })()
+
 
 test.describe.configure({ mode: "serial" })
 

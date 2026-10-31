@@ -97,6 +97,23 @@ jobs:
       - name: Audit apps/mobile dependencies
         run: cd apps/mobile && npm audit --audit-level=critical
 
+  gitleaks:
+    name: Secret Leak Detection (gitleaks)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2.3.8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_REDACT: "true"
+
+
   migrations-check:
     name: Database Migrations Check
     runs-on: ubuntu-latest
