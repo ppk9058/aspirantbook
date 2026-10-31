@@ -1,0 +1,31 @@
+SHA: a8b3b4a
+DATE: 2026-10-31T03:32:44+05:30
+COMMAND: git rev-parse --abbrev-ref HEAD; git status --porcelain --untracked-files=no; git log --oneline r7d-green-2026-10-31..HEAD; git log -1 --format=%ct
+
+branch: feat/launch-blockers
+git status --porcelain --untracked-files=no: (empty)
+R7e commits since r7d-green-2026-10-31: 8 commits, all prefixed "R7e:"
+last commit: a8b3b4a 2026-10-31 03:31:26 +0530
+last commit age at check: 69 seconds (threshold 600 seconds) -> GATE FAILED
+
+OWNER OVERRIDE: user explicitly confirmed "I confirm R7e is finished - proceed now".
+Recorded as a documented preflight exception. Tree clean, no .git/index.lock,
+no build/test/dev processes running, R7e 5x evidence logs already committed.
+
+R7e task inventory (read-only):
+- launch-placeholders script: DONE (package.json:16 -> scripts/check-launch-placeholders.mjs)
+- "[OWNER TO CONFIRM" in app/ or lib/: DONE (count=0)
+- RegisterForm consent default false: DONE (components/auth/RegisterForm.tsx:45 useState(false))
+- test-series cache keyed by user+goals: DONE (lib/exam/series-cache.ts:21-30)
+- GoalProvider cachedUserGoalPromise invalidation: DONE (components/providers/GoalProvider.tsx:121-132 + tests/unit/cache-staleness.test.ts)
+- next at latest 15.x: DONE (15.5.28 installed)
+- .env.example complete + check script: DONE (tests/unit/env-example-completeness.test.ts)
+- production guard for PERSIST_BACKEND: MISSING (no guard in lib/; only test refs)
+- boot-guard called from instrumentation.ts: MISSING (no instrumentation.ts; only app/layout.tsx:2)
+- single dev-bypass policy: MISSING (3 copies: lib/api/v1/dev-bypass.ts, app/api/auth/mobile-login/route.ts, lib/services/config.service.ts)
+
+Environment:
+- docker server 28.5.2
+- container trillionskill-test-db postgres:16 127.0.0.1:54329->5432 (OPEN)
+- container ts-launch-db-r7d postgres:16-alpine 127.0.0.1:54340->5432
+- .env.test DATABASE_URL host=127.0.0.1 port=54340 db=trillionskill_launch
