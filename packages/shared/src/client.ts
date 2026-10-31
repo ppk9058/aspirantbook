@@ -153,6 +153,14 @@ export function createApiClient(options: ApiClientOptions) {
   }
 
   return {
+    // Generic request helpers for feature modules that target a specific endpoint.
+    get: (endpoint: string) => request<unknown>(endpoint),
+    post: (endpoint: string, data?: unknown) =>
+      request<unknown>(endpoint, {
+        method: "POST",
+        body: JSON.stringify(data ?? {}),
+      }),
+
     // Config
     getConfig: () => request<AppConfigDto>("/api/v1/config"),
 

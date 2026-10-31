@@ -1,0 +1,34 @@
+SHA: a8b3b4a
+DATE: 2026-10-31T03:36:02+05:30
+COMMAND: cd apps/mobile && npx tsc --noEmit
+---
+src/app/_layout.tsx(12,10): error TS2305: Module '"../lib/cbt-sync"' has no exported member 'cbtSyncQueue'.
+src/app/settings.tsx(41,31): error TS2345: Argument of type '{ getConfig: () => Promise<ApiResponse<AppConfigDto>>; login: (body: LoginRequest) => Promise<ApiResponse<LoginResponseDto>>; ... 54 more ...; unregisterDevice: (token: string) => Promise<...>; }' is not assignable to parameter of type '{ get: (endpoint: string) => Promise<any>; }'.
+  Property 'get' is missing in type '{ getConfig: () => Promise<ApiResponse<AppConfigDto>>; login: (body: LoginRequest) => Promise<ApiResponse<LoginResponseDto>>; ... 54 more ...; unregisterDevice: (token: string) => Promise<...>; }' but required in type '{ get: (endpoint: string) => Promise<any>; }'.
+src/app/settings.tsx(62,9): error TS2345: Argument of type '{ getConfig: () => Promise<ApiResponse<AppConfigDto>>; login: (body: LoginRequest) => Promise<ApiResponse<LoginResponseDto>>; ... 54 more ...; unregisterDevice: (token: string) => Promise<...>; }' is not assignable to parameter of type '{ post: (endpoint: string, data?: any) => Promise<any>; }'.
+  Property 'post' is missing in type '{ getConfig: () => Promise<ApiResponse<AppConfigDto>>; login: (body: LoginRequest) => Promise<ApiResponse<LoginResponseDto>>; ... 54 more ...; unregisterDevice: (token: string) => Promise<...>; }' but required in type '{ post: (endpoint: string, data?: any) => Promise<any>; }'.
+src/app/tests/[id]/runner.tsx(32,10): error TS2305: Module '"../../../lib/cbt-sync"' has no exported member 'cbtSyncQueue'.
+src/app/tests/[id]/runner.tsx(100,36): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/cbt/CbtRecoveryManager.tsx(4,10): error TS2305: Module '"../../lib/cbt-sync"' has no exported member 'cbtSyncQueue'.
+tests/cbt-persistence.test.ts(4,3): error TS2724: '"../src/lib/cbt-sync"' has no exported member named 'CbtSyncQueueManager'. Did you mean 'CbtSyncManager'?
+tests/cbt-persistence.test.ts(5,3): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'MemoryCbtDriver'.
+tests/cbt-persistence.test.ts(6,3): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'LocalAnswerRecord'.
+tests/cbt-persistence.test.ts(54,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/cbt-persistence.test.ts(55,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/cbt-sqlite-durability.test.ts(7,3): error TS2724: '"../src/lib/cbt-sync"' has no exported member named 'CbtSyncQueueManager'. Did you mean 'CbtSyncManager'?
+tests/cbt-sqlite-durability.test.ts(8,3): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'NodeSqliteDriver'.
+tests/cbt-sqlite-durability.test.ts(9,3): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'SqliteCbtStorage'.
+tests/cbt-sqlite-durability.test.ts(57,34): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/cbt-sqlite-durability.test.ts(58,34): error TS7006: Parameter 'a' implicitly has an 'any' type.
+tests/cbt-submit-guards.test.ts(3,10): error TS2724: '"../src/lib/cbt-sync"' has no exported member named 'CbtSyncQueueManager'. Did you mean 'CbtSyncManager'?
+tests/cbt-submit-guards.test.ts(3,31): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'MemoryCbtDriver'.
+tests/root-recovery.test.tsx(9,10): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'cbtSyncQueue'.
+tests/root-recovery.test.tsx(9,24): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'MemoryCbtDriver'.
+tests/runner.test.tsx(5,10): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'cbtSyncQueue'.
+tests/runner.test.tsx(5,24): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'MemoryCbtDriver'.
+tests/runner.test.tsx(133,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+tests/sqlite-adapter-contract.test.ts(7,3): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'ExpoSqliteDriver'.
+tests/sqlite-adapter-contract.test.ts(8,3): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'NodeSqliteDriver'.
+tests/sqlite-adapter-contract.test.ts(9,3): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'SqliteCbtStorage'.
+tests/sqlite-adapter-contract.test.ts(10,3): error TS2305: Module '"../src/lib/cbt-sync"' has no exported member 'LocalAnswerRecord'.
+EXIT:2
