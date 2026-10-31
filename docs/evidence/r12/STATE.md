@@ -15,7 +15,8 @@ HANDOFF: none
 | R12-G | T1 | CHEAP | DONE | e074809 | `docs/evidence/raw/r12-g-*.txt` | — | 5 tests, fail-before 5×EXIT:1, pass-after 5×EXIT:0, db-backup-to-s3.sh, rollback.md, e2e restore 75/75 tables 4186 rows PASS |
 | R12-E | T1 | CHEAP | DONE | 6a90c28 | `docs/evidence/raw/r12-e-*.txt` | — | 8 tests, fail-before 5×EXIT:1, pass-after 5×EXIT:0, no-op without DSN, PII scrubber, build 162 routes (103 kB) |
 
-| R12-H | T2 | CHEAP | TODO | — | — | Read SPEC R12-H; run `npm audit fix`, report before/after | No major bumps |
+| R12-H | T2 | CHEAP | IN_PROGRESS | 8eaadfd | — | Run npm audit, apply non-breaking fixes, pin next-auth | No major bumps |
+
 | R12-I | T2 | CHEAP | TODO | — | — | Read SPEC R12-I; replace console.log, close localhost fallbacks, add LICENSE | Grep-based guard tests |
 | R12-J | T2 | CHEAP | TODO | — | — | Read SPEC R12-J; confirm .gitleaksignore, add CI job, replace literal fallbacks | Counts by rule, never values |
 | R12-M | T3 | CHEAP | TODO | — | — | Read SPEC R12-M; write mobile test proposals, verify eas.json, data-safety draft | Do NOT edit mobile tests |
