@@ -1,0 +1,2131 @@
+SHA: 6c1bce7
+DATE: 2026-10-31T21:59:36+05:30
+COMMAND: cd apps/mobile && env -i ... CI=true npx tsx --test --test-force-exit --test-concurrency=1 tests/*.test.ts
+---
+TAP version 13
+# Subtest: Phase 7: Account, Settings, Search, and Pass Parity
+    # Subtest: all Phase 7 route files exist under src/app
+    ok 1 - all Phase 7 route files exist under src/app
+      ---
+      duration_ms: 5.199958
+      type: 'test'
+      ...
+    # Subtest: subscription and pass screens strictly implement Reader model with utm_source
+    ok 2 - subscription and pass screens strictly implement Reader model with utm_source
+      ---
+      duration_ms: 0.756959
+      type: 'test'
+      ...
+    # Subtest: global search connects to typed api.search and handles multi-type filters
+    ok 3 - global search connects to typed api.search and handles multi-type filters
+      ---
+      duration_ms: 0.340584
+      type: 'test'
+      ...
+    # Subtest: profile and settings include session revocation and account deletion safeguards
+    not ok 4 - profile and settings include session revocation and account deletion safeguards
+      ---
+      duration_ms: 3.027541
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/apps/mobile/tests/account-and-search.test.ts:2:2629'
+      failureType: 'testCodeFailure'
+      error: |-
+        Settings screen must support permanent account deletion
+        
+        false !== true
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/apps/mobile/tests/account-and-search.test.ts:90:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..4
+not ok 1 - Phase 7: Account, Settings, Search, and Pass Parity
+  ---
+  duration_ms: 11.527042
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/apps/mobile/tests/account-and-search.test.ts:2:957'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: F2: Account Deletion End-to-End Contract & Mobile Flow
+    # Subtest: validates DeleteAccountRequestSchema contract
+    ok 1 - validates DeleteAccountRequestSchema contract
+      ---
+      duration_ms: 8.439375
+      type: 'test'
+      ...
+    # Subtest: enforces typed confirmation string 'DELETE'
+    ok 2 - enforces typed confirmation string 'DELETE'
+      ---
+      duration_ms: 0.625333
+      type: 'test'
+      ...
+    # Subtest: wipes all local tokens and session data on successful account deletion
+    ok 3 - wipes all local tokens and session data on successful account deletion
+      ---
+      duration_ms: 209.22525
+      type: 'test'
+      ...
+    # Subtest: preserves local session tokens when server deletion fails
+    ok 4 - preserves local session tokens when server deletion fails
+      ---
+      duration_ms: 0.458542
+      type: 'test'
+      ...
+    1..4
+ok 2 - F2: Account Deletion End-to-End Contract & Mobile Flow
+  ---
+  duration_ms: 221.162375
+  type: 'suite'
+  ...
+# Subtest: F2: Mutation Proofs (4 Required Invariants)
+    # Subtest: MUTATION PROOF 1: Submitting deletion without exact 'DELETE' confirmation MUST be rejected
+    ok 1 - MUTATION PROOF 1: Submitting deletion without exact 'DELETE' confirmation MUST be rejected
+      ---
+      duration_ms: 1.617917
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 2: Successful deletion MUST wipe local tokens
+    ok 2 - MUTATION PROOF 2: Successful deletion MUST wipe local tokens
+      ---
+      duration_ms: 0.685708
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 3: Server error MUST NOT wipe local tokens prematurely
+    ok 3 - MUTATION PROOF 3: Server error MUST NOT wipe local tokens prematurely
+      ---
+      duration_ms: 6.851583
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 4: Deletion payload MUST include confirmation field
+    ok 4 - MUTATION PROOF 4: Deletion payload MUST include confirmation field
+      ---
+      duration_ms: 1.289875
+      type: 'test'
+      ...
+    1..4
+ok 3 - F2: Mutation Proofs (4 Required Invariants)
+  ---
+  duration_ms: 12.259125
+  type: 'suite'
+  ...
+# Subtest: T6: Alert.alert Cleanup & Allow-List Enforcement
+    # Subtest: enforces that all Alert.alert occurrences match the explicit allow-list and count is <= 12
+    ok 1 - enforces that all Alert.alert occurrences match the explicit allow-list and count is <= 12
+      ---
+      duration_ms: 12.989708
+      type: 'test'
+      ...
+    # Subtest: enforces that all Alert.alert occurrences have a literal array of >=2 buttons
+    ok 2 - enforces that all Alert.alert occurrences have a literal array of >=2 buttons
+      ---
+      duration_ms: 863.648083
+      type: 'test'
+      ...
+    1..2
+ok 4 - T6: Alert.alert Cleanup & Allow-List Enforcement
+  ---
+  duration_ms: 877.563333
+  type: 'suite'
+  ...
+# Subtest: Bug \#5: requests must follow the currently resolved API host
+    # Subtest: re-targets a URL built from the stale module-load base onto the active host
+    ok 1 - re-targets a URL built from the stale module-load base onto the active host
+      ---
+      duration_ms: 1.235792
+      type: 'test'
+      ...
+    # Subtest: normalizes trailing slashes and /api/v1 on both bases
+    ok 2 - normalizes trailing slashes and /api/v1 on both bases
+      ---
+      duration_ms: 0.104375
+      type: 'test'
+      ...
+    # Subtest: attaches the active base to a relative request when no base was known at load
+    ok 3 - attaches the active base to a relative request when no base was known at load
+      ---
+      duration_ms: 0.134542
+      type: 'test'
+      ...
+    # Subtest: leaves third-party absolute URLs untouched
+    ok 4 - leaves third-party absolute URLs untouched
+      ---
+      duration_ms: 0.073167
+      type: 'test'
+      ...
+    # Subtest: does not rewrite a different host that only shares the stale prefix
+    ok 5 - does not rewrite a different host that only shares the stale prefix
+      ---
+      duration_ms: 0.062875
+      type: 'test'
+      ...
+    1..5
+ok 5 - Bug \#5: requests must follow the currently resolved API host
+  ---
+  duration_ms: 2.56225
+  type: 'suite'
+  ...
+# Subtest: A1: API URL Resolution & Precedence
+    # Subtest: extracts host cleanly from various uri formats
+    ok 1 - extracts host cleanly from various uri formats
+      ---
+      duration_ms: 1.041041
+      type: 'test'
+      ...
+    # Subtest: Precedence 1: Shell environment variable overrides everything
+    ok 2 - Precedence 1: Shell environment variable overrides everything
+      ---
+      duration_ms: 0.239833
+      type: 'test'
+      ...
+    # Subtest: Precedence 2: Dotenv source override tracks source accurately
+    ok 3 - Precedence 2: Dotenv source override tracks source accurately
+      ---
+      duration_ms: 0.133792
+      type: 'test'
+      ...
+    # Subtest: Precedence 3: Dev-derived host from Metro hostUri when env is unset
+    ok 4 - Precedence 3: Dev-derived host from Metro hostUri when env is unset
+      ---
+      duration_ms: 0.171709
+      type: 'test'
+      ...
+    # Subtest: Precedence 3b: Dev-derived host from linkingUri fallback
+    ok 5 - Precedence 3b: Dev-derived host from linkingUri fallback
+      ---
+      duration_ms: 0.079959
+      type: 'test'
+      ...
+    # Subtest: Precedence 3c: Configurable backend port via EXPO_PUBLIC_API_PORT
+    ok 6 - Precedence 3c: Configurable backend port via EXPO_PUBLIC_API_PORT
+      ---
+      duration_ms: 0.070167
+      type: 'test'
+      ...
+    # Subtest: Precedence 4: Production (__DEV__=false) NEVER derives host, requires explicit env
+    ok 7 - Precedence 4: Production (__DEV__=false) NEVER derives host, requires explicit env
+      ---
+      duration_ms: 0.10875
+      type: 'test'
+      ...
+    # Subtest: Precedence 5: Dev mode with no Metro host returns unconfigured
+    ok 8 - Precedence 5: Dev mode with no Metro host returns unconfigured
+      ---
+      duration_ms: 0.133791
+      type: 'test'
+      ...
+    1..8
+ok 6 - A1: API URL Resolution & Precedence
+  ---
+  duration_ms: 3.098834
+  type: 'suite'
+  ...
+# Subtest: A2: Network Error Classification & Diagnosability
+    # Subtest: classifies connection refused with preflight instructions in dev
+    ok 1 - classifies connection refused with preflight instructions in dev
+      ---
+      duration_ms: 0.479
+      type: 'test'
+      ...
+    # Subtest: classifies timeout errors with firewall isolation guidance in dev
+    ok 2 - classifies timeout errors with firewall isolation guidance in dev
+      ---
+      duration_ms: 0.406125
+      type: 'test'
+      ...
+    # Subtest: classifies DNS / host unreachable errors in dev
+    ok 3 - classifies DNS / host unreachable errors in dev
+      ---
+      duration_ms: 0.235
+      type: 'test'
+      ...
+    # Subtest: classifies HTTP 4xx/5xx status errors
+    ok 4 - classifies HTTP 4xx/5xx status errors
+      ---
+      duration_ms: 0.238458
+      type: 'test'
+      ...
+    # Subtest: classifies invalid JSON parsing errors
+    ok 5 - classifies invalid JSON parsing errors
+      ---
+      duration_ms: 0.226459
+      type: 'test'
+      ...
+    # Subtest: classifies unconfigured API errors
+    ok 6 - classifies unconfigured API errors
+      ---
+      duration_ms: 0.064291
+      type: 'test'
+      ...
+    # Subtest: Production (__DEV__=false): strictly returns friendly text only and zero dev leakage
+    ok 7 - Production (__DEV__=false): strictly returns friendly text only and zero dev leakage
+      ---
+      duration_ms: 0.082875
+      type: 'test'
+      ...
+    1..7
+ok 7 - A2: Network Error Classification & Diagnosability
+  ---
+  duration_ms: 1.920292
+  type: 'suite'
+  ...
+# Subtest: A1/A2 Mutation Tests
+    # Subtest: MUTATION PROOF 1: Production must NEVER derive host from Metro
+    ok 1 - MUTATION PROOF 1: Production must NEVER derive host from Metro
+      ---
+      duration_ms: 0.129375
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 2: Production must NEVER leak devReason or host details
+    ok 2 - MUTATION PROOF 2: Production must NEVER leak devReason or host details
+      ---
+      duration_ms: 0.12875
+      type: 'test'
+      ...
+    1..2
+ok 8 - A1/A2 Mutation Tests
+  ---
+  duration_ms: 0.314459
+  type: 'suite'
+  ...
+# Subtest: A13 mobile login error text
+    # Subtest: wrong password and suspended account render the same text
+    ok 1 - wrong password and suspended account render the same text
+      ---
+      duration_ms: 0.675084
+      type: 'test'
+      ...
+    # Subtest: an unknown-account server message can never reach the screen verbatim
+    ok 2 - an unknown-account server message can never reach the screen verbatim
+      ---
+      duration_ms: 0.13175
+      type: 'test'
+      ...
+    # Subtest: lockout gets a distinct retry-later message
+    ok 3 - lockout gets a distinct retry-later message
+      ---
+      duration_ms: 0.185625
+      type: 'test'
+      ...
+    # Subtest: a missing error still has a visible message
+    ok 4 - a missing error still has a visible message
+      ---
+      duration_ms: 0.077166
+      type: 'test'
+      ...
+    1..4
+ok 9 - A13 mobile login error text
+  ---
+  duration_ms: 2.050042
+  type: 'suite'
+  ...
+# Subtest: Phase 8: Login and Register Parity
+    # Subtest: all Phase 8 auth screens exist on disk
+    ok 1 - all Phase 8 auth screens exist on disk
+      ---
+      duration_ms: 0.691041
+      type: 'test'
+      ...
+    # Subtest: Auth compliance: Google sign-in is completely eliminated from login screen
+    ok 2 - Auth compliance: Google sign-in is completely eliminated from login screen
+      ---
+      duration_ms: 0.225125
+      type: 'test'
+      ...
+    # Subtest: registration screen enforces 13+ consent check and links to legal policies
+    ok 3 - registration screen enforces 13+ consent check and links to legal policies
+      ---
+      duration_ms: 0.155375
+      type: 'test'
+      ...
+    # Subtest: forgot password screen uses typed client without hardcoded hostnames
+    ok 4 - forgot password screen uses typed client without hardcoded hostnames
+      ---
+      duration_ms: 0.194834
+      type: 'test'
+      ...
+    # Subtest: API client exports normalized API_BASE_URL and logs in development
+    ok 5 - API client exports normalized API_BASE_URL and logs in development
+      ---
+      duration_ms: 0.110875
+      type: 'test'
+      ...
+    1..5
+ok 10 - Phase 8: Login and Register Parity
+  ---
+  duration_ms: 2.631292
+  type: 'suite'
+  ...
+# Subtest: Bug \#3: logout must clear TanStack Query cache and persisted cache
+    # Subtest: clearPersistedQueryCache clears both in-memory queries and persisted storage
+    ok 1 - clearPersistedQueryCache clears both in-memory queries and persisted storage
+      ---
+      duration_ms: 2.203916
+      type: 'test'
+      ...
+    # Subtest: clears the in-memory cache even when persisted-storage removal fails
+    ok 2 - clears the in-memory cache even when persisted-storage removal fails
+      ---
+      duration_ms: 0.454958
+      type: 'test'
+      ...
+    # Subtest: without clearPersistedQueryCache, stale data survives into next session (proving the bug)
+    ok 3 - without clearPersistedQueryCache, stale data survives into next session (proving the bug)
+      ---
+      duration_ms: 1.000709
+      type: 'test'
+      ...
+    # Subtest: with clearPersistedQueryCache, new session starts clean
+    ok 4 - with clearPersistedQueryCache, new session starts clean
+      ---
+      duration_ms: 0.616959
+      type: 'test'
+      ...
+    1..4
+ok 11 - Bug \#3: logout must clear TanStack Query cache and persisted cache
+  ---
+  duration_ms: 5.285667
+  type: 'suite'
+  ...
+# Subtest: CBT Timer Engine
+    # Subtest: formats remaining seconds properly as MM:SS and HH:MM:SS
+    ok 1 - formats remaining seconds properly as MM:SS and HH:MM:SS
+      ---
+      duration_ms: 0.591667
+      type: 'test'
+      ...
+    # Subtest: calculates remaining seconds against targetEndTimestamp accurately
+    ok 2 - calculates remaining seconds against targetEndTimestamp accurately
+      ---
+      duration_ms: 0.125292
+      type: 'test'
+      ...
+    # Subtest: handles negative or zero time without crashing
+    ok 3 - handles negative or zero time without crashing
+      ---
+      duration_ms: 0.151083
+      type: 'test'
+      ...
+    1..3
+ok 12 - CBT Timer Engine
+  ---
+  duration_ms: 1.615583
+  type: 'suite'
+  ...
+# Subtest: CBT Offline Queue Sequencing
+    # Subtest: increments sequence numbers monotonically per queued answer
+    ok 1 - increments sequence numbers monotonically per queued answer
+      ---
+      duration_ms: 0.140166
+      type: 'test'
+      ...
+    # Subtest: flushes in strict sequence order ensuring latest answer wins
+    ok 2 - flushes in strict sequence order ensuring latest answer wins
+      ---
+      duration_ms: 0.104333
+      type: 'test'
+      ...
+    1..2
+ok 13 - CBT Offline Queue Sequencing
+  ---
+  duration_ms: 0.425541
+  type: 'suite'
+  ...
+# Subtest: Single-flight Refresh Token Mutex Logic
+    # Subtest: prevents multiple concurrent refresh calls from executing simultaneously
+    ok 1 - prevents multiple concurrent refresh calls from executing simultaneously
+      ---
+      duration_ms: 22.336875
+      type: 'test'
+      ...
+    1..1
+ok 14 - Single-flight Refresh Token Mutex Logic
+  ---
+  duration_ms: 22.861458
+  type: 'suite'
+  ...
+# (node:5595) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Phase 3: CBT Durable Persistence & Process Kill Resilience
+    # Subtest: answers survive simulated process kill (new queue instance over same driver)
+    ok 1 - answers survive simulated process kill (new queue instance over same driver)
+      ---
+      duration_ms: 2.17725
+      type: 'test'
+      ...
+    # Subtest: maintains strict monotonic clientSeq numbering after recovery
+    ok 2 - maintains strict monotonic clientSeq numbering after recovery
+      ---
+      duration_ms: 0.361583
+      type: 'test'
+      ...
+    # Subtest: retries after network failure with exponential backoff and only clears on server ack
+    ok 3 - retries after network failure with exponential backoff and only clears on server ack
+      ---
+      duration_ms: 0.525
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF: queue MUST NOT mark synced if server responds ok=false
+    ok 4 - MUTATION PROOF: queue MUST NOT mark synced if server responds ok=false
+      ---
+      duration_ms: 0.320958
+      type: 'test'
+      ...
+    1..4
+ok 15 - Phase 3: CBT Durable Persistence & Process Kill Resilience
+  ---
+  duration_ms: 4.223792
+  type: 'suite'
+  ...
+# Subtest: Phase 3: CBT Timer Resource Teardown & Intervals
+    # Subtest: stop() thoroughly clears intervals and subscriptions on unmount
+    ok 1 - stop() thoroughly clears intervals and subscriptions on unmount
+      ---
+      duration_ms: 4.802792
+      type: 'test'
+      ...
+    1..1
+ok 16 - Phase 3: CBT Timer Resource Teardown & Intervals
+  ---
+  duration_ms: 5.118083
+  type: 'suite'
+  ...
+# Subtest: Bug \#4: runner must never answer a question from another section
+    # Subtest: returns undefined for an out-of-range index instead of falling back to the unfiltered list
+    ok 1 - returns undefined for an out-of-range index instead of falling back to the unfiltered list
+      ---
+      duration_ms: 0.583291
+      type: 'test'
+      ...
+    # Subtest: returns the active section's question for a valid index
+    ok 2 - returns the active section's question for a valid index
+      ---
+      duration_ms: 0.093583
+      type: 'test'
+      ...
+    # Subtest: handles missing or invalid indexes defensively
+    ok 3 - handles missing or invalid indexes defensively
+      ---
+      duration_ms: 0.078166
+      type: 'test'
+      ...
+    1..3
+ok 17 - Bug \#4: runner must never answer a question from another section
+  ---
+  duration_ms: 1.502917
+  type: 'suite'
+  ...
+# (node:5599) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: T3: CBT Real SQLite Durability & Process Kill Resilience
+    # Subtest: answers survive simulated process kill (new queue instance over the same SQLite file)
+    ok 1 - answers survive simulated process kill (new queue instance over the same SQLite file)
+      ---
+      duration_ms: 8.40425
+      type: 'test'
+      ...
+    # Subtest: maintains strict monotonic clientSeq numbering across process restart
+    ok 2 - maintains strict monotonic clientSeq numbering across process restart
+      ---
+      duration_ms: 4.561959
+      type: 'test'
+      ...
+    # Subtest: retries with backoff after network failure and clears pending ONLY on server ACK
+    ok 3 - retries with backoff after network failure and clears pending ONLY on server ACK
+      ---
+      duration_ms: 2.3475
+      type: 'test'
+      ...
+    # Subtest: recovers unsent answers across multiple attempts on app start
+    ok 4 - recovers unsent answers across multiple attempts on app start
+      ---
+      duration_ms: 3.516667
+      type: 'test'
+      ...
+    # Subtest: proves recoverUnsentAnswers() is invoked on RootLayout launch
+    ok 5 - proves recoverUnsentAnswers() is invoked on RootLayout launch
+      ---
+      duration_ms: 0.243916
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 1: Deleting rows before ACK fails recovery if network drops
+    ok 6 - MUTATION PROOF 1: Deleting rows before ACK fails recovery if network drops
+      ---
+      duration_ms: 3.083334
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 2: Ignoring clientSeq breaks monotonic ordering
+    ok 7 - MUTATION PROOF 2: Ignoring clientSeq breaks monotonic ordering
+      ---
+      duration_ms: 2.709208
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 3: queue MUST NOT mark synced if server responds ok=false
+    ok 8 - MUTATION PROOF 3: queue MUST NOT mark synced if server responds ok=false
+      ---
+      duration_ms: 1.937375
+      type: 'test'
+      ...
+    1..8
+ok 18 - T3: CBT Real SQLite Durability & Process Kill Resilience
+  ---
+  duration_ms: 28.060917
+  type: 'suite'
+  ...
+# (node:5601) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Bug \#1: Double-submit guard via ref-like flag
+    # Subtest: concurrent handleAutoSubmit calls only submit once with ref guard
+    ok 1 - concurrent handleAutoSubmit calls only submit once with ref guard
+      ---
+      duration_ms: 21.681958
+      type: 'test'
+      ...
+    # Subtest: without the ref guard, both calls would execute (proving the bug existed)
+    ok 2 - without the ref guard, both calls would execute (proving the bug existed)
+      ---
+      duration_ms: 21.214458
+      type: 'test'
+      ...
+    1..2
+ok 19 - Bug \#1: Double-submit guard via ref-like flag
+  ---
+  duration_ms: 44.129584
+  type: 'suite'
+  ...
+# Subtest: Bug \#2: flush() without attemptId returns early, losing answers
+    # Subtest: flush() with no attemptId returns immediately without syncing
+    ok 1 - flush() with no attemptId returns immediately without syncing
+      ---
+      duration_ms: 0.84675
+      type: 'test'
+      ...
+    # Subtest: flush(attemptId) correctly syncs all pending answers
+    ok 2 - flush(attemptId) correctly syncs all pending answers
+      ---
+      duration_ms: 0.427416
+      type: 'test'
+      ...
+    1..2
+ok 20 - Bug \#2: flush() without attemptId returns early, losing answers
+  ---
+  duration_ms: 1.402542
+  type: 'suite'
+  ...
+# Subtest: Task B11: Mobile Release Config Guard
+    # Subtest: 1. Passes cleanly on standard production release configuration
+    ok 1 - 1. Passes cleanly on standard production release configuration
+      ---
+      duration_ms: 1.3105
+      type: 'test'
+      ...
+    # Subtest: 2. Fails when production API_URL uses insecure http://
+    ok 2 - 2. Fails when production API_URL uses insecure http://
+      ---
+      duration_ms: 0.386291
+      type: 'test'
+      ...
+    # Subtest: 3. Fails when production API_URL points to localhost
+    ok 3 - 3. Fails when production API_URL points to localhost
+      ---
+      duration_ms: 0.215208
+      type: 'test'
+      ...
+    # Subtest: 4. Fails when production API_URL points to emulator IP 10.0.2.2
+    ok 4 - 4. Fails when production API_URL points to emulator IP 10.0.2.2
+      ---
+      duration_ms: 0.194375
+      type: 'test'
+      ...
+    # Subtest: 5. App config release guard throws at runtime when production build has insecure URL
+    ok 5 - 5. App config release guard throws at runtime when production build has insecure URL
+      ---
+      duration_ms: 8.140708
+      type: 'test'
+      ...
+    1..5
+ok 21 - Task B11: Mobile Release Config Guard
+  ---
+  duration_ms: 11.206125
+  type: 'suite'
+  ...
+# Subtest: Phase 6: Courses, Video Player, My-Learning, and Tracks Parity
+    # Subtest: all Phase 6 route files exist under src/app
+    ok 1 - all Phase 6 route files exist under src/app
+      ---
+      duration_ms: 1.242417
+      type: 'test'
+      ...
+    # Subtest: home quick actions point to valid application routes
+    ok 2 - home quick actions point to valid application routes
+      ---
+      duration_ms: 0.224083
+      type: 'test'
+      ...
+    # Subtest: course detail and lesson player implement Reader model and web checkout fallback
+    ok 3 - course detail and lesson player implement Reader model and web checkout fallback
+      ---
+      duration_ms: 0.205
+      type: 'test'
+      ...
+    # Subtest: my-learning screen correctly tracks lesson completion progress
+    ok 4 - my-learning screen correctly tracks lesson completion progress
+      ---
+      duration_ms: 0.186959
+      type: 'test'
+      ...
+    # Subtest: career track detail renders sequential progression steps
+    ok 5 - career track detail renders sequential progression steps
+      ---
+      duration_ms: 0.105875
+      type: 'test'
+      ...
+    1..5
+ok 22 - Phase 6: Courses, Video Player, My-Learning, and Tracks Parity
+  ---
+  duration_ms: 2.762417
+  type: 'suite'
+  ...
+# Subtest: F4: Courses UX Polish & Progress Persistence
+    # Subtest: sanitizes markdown headings, bold markers, and highlights from teaser previews
+    ok 1 - sanitizes markdown headings, bold markers, and highlights from teaser previews
+      ---
+      duration_ms: 1.454334
+      type: 'test'
+      ...
+    # Subtest: persists lesson completion locally in course progress storage
+    ok 2 - persists lesson completion locally in course progress storage
+      ---
+      duration_ms: 63.468709
+      type: 'test'
+      ...
+    # Subtest: enforces locked lesson safety: locked lessons have null streamUrl
+    ok 3 - enforces locked lesson safety: locked lessons have null streamUrl
+      ---
+      duration_ms: 0.321916
+      type: 'test'
+      ...
+    1..3
+ok 23 - F4: Courses UX Polish & Progress Persistence
+  ---
+  duration_ms: 66.179125
+  type: 'suite'
+  ...
+# Subtest: F4: Mutation Proofs (4 Required Invariants)
+    # Subtest: MUTATION PROOF 1: Breaking markdown sanitization leaks raw Markdown tokens
+    ok 1 - MUTATION PROOF 1: Breaking markdown sanitization leaks raw Markdown tokens
+      ---
+      duration_ms: 0.386167
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 2: Failing to persist progress loses completed status
+    ok 2 - MUTATION PROOF 2: Failing to persist progress loses completed status
+      ---
+      duration_ms: 0.392792
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 3: Locked lesson must never leak streamUrl
+    ok 3 - MUTATION PROOF 3: Locked lesson must never leak streamUrl
+      ---
+      duration_ms: 0.501125
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 4: Empty chapters array MUST be handled without throwing
+    ok 4 - MUTATION PROOF 4: Empty chapters array MUST be handled without throwing
+      ---
+      duration_ms: 0.545167
+      type: 'test'
+      ...
+    1..4
+ok 24 - F4: Mutation Proofs (4 Required Invariants)
+  ---
+  duration_ms: 3.003417
+  type: 'suite'
+  ...
+# Subtest: Mobile Data Deletion Pure Module
+    # Subtest: 1. Constructs valid public data-deletion web URL
+    ok 1 - 1. Constructs valid public data-deletion web URL
+      ---
+      duration_ms: 1.0375
+      type: 'test'
+      ...
+    # Subtest: 2. Correctly formats and classifies all 4 deletion statuses
+    ok 2 - 2. Correctly formats and classifies all 4 deletion statuses
+      ---
+      duration_ms: 0.233292
+      type: 'test'
+      ...
+    # Subtest: 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+    ok 3 - 3. submitMobileDeletionRequest calls /api/v1/data-deletion with payload
+      ---
+      duration_ms: 1.272375
+      type: 'test'
+      ...
+    # Subtest: 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+    ok 4 - 4. fetchMobileDeletionStatus calls /api/v1/data-deletion GET
+      ---
+      duration_ms: 0.187583
+      type: 'test'
+      ...
+    # Subtest: 5. Already-pending request is surfaced as existing (isExisting=true)
+    ok 5 - 5. Already-pending request is surfaced as existing (isExisting=true)
+      ---
+      duration_ms: 0.113958
+      type: 'test'
+      ...
+    # Subtest: 6. API error is returned as a visible error string, not swallowed
+    ok 6 - 6. API error is returned as a visible error string, not swallowed
+      ---
+      duration_ms: 0.172291
+      type: 'test'
+      ...
+    # Subtest: 7. Unknown status falls back to a neutral label instead of crashing
+    ok 7 - 7. Unknown status falls back to a neutral label instead of crashing
+      ---
+      duration_ms: 0.070833
+      type: 'test'
+      ...
+    # Subtest: 8. Settings screen really calls the authenticated deletion API and displays request status
+    ok 8 - 8. Settings screen really calls the authenticated deletion API and displays request status
+      ---
+      duration_ms: 0.352208
+      type: 'test'
+      ...
+    1..8
+ok 25 - Mobile Data Deletion Pure Module
+  ---
+  duration_ms: 4.915791
+  type: 'suite'
+  ...
+# Subtest: A2 exam screen upgrade state
+    # Subtest: premium test + denial shows the upgrade CTA
+    ok 1 - premium test + denial shows the upgrade CTA
+      ---
+      duration_ms: 1.219292
+      type: 'test'
+      ...
+    # Subtest: free test + denial never shows the upgrade CTA
+    ok 2 - free test + denial never shows the upgrade CTA
+      ---
+      duration_ms: 0.108834
+      type: 'test'
+      ...
+    # Subtest: no error hides the CTA
+    ok 3 - no error hides the CTA
+      ---
+      duration_ms: 0.076708
+      type: 'test'
+      ...
+    1..3
+ok 26 - A2 exam screen upgrade state
+  ---
+  duration_ms: 2.184083
+  type: 'suite'
+  ...
+# Subtest: T9 Fake Data Scan & Real API Integration Audit
+    # Subtest: Screen files must exist and be discovered
+    ok 1 - Screen files must exist and be discovered
+      ---
+      duration_ms: 0.742958
+      type: 'test'
+      ...
+    # Subtest: Zero screens import from mock/fixture paths
+    ok 2 - Zero screens import from mock/fixture paths
+      ---
+      duration_ms: 6.574625
+      type: 'test'
+      ...
+    # Subtest: Zero screens declare mock/fake data arrays (mockQuestions, sampleCourses, fakeProgress)
+    ok 3 - Zero screens declare mock/fake data arrays (mockQuestions, sampleCourses, fakeProgress)
+      ---
+      duration_ms: 6.957708
+      type: 'test'
+      ...
+    # Subtest: Data screens wire into real API client or WebOnlyScreen
+    ok 4 - Data screens wire into real API client or WebOnlyScreen
+      ---
+      duration_ms: 0.98625
+      type: 'test'
+      ...
+    # Subtest: Subscription screen wires into real GET /api/v1/subscriptions via getPurchases
+    ok 5 - Subscription screen wires into real GET /api/v1/subscriptions via getPurchases
+      ---
+      duration_ms: 0.121459
+      type: 'test'
+      ...
+    # Subtest: app.config.ts has no hardcoded IP or localhost fallbacks
+    not ok 6 - app.config.ts has no hardcoded IP or localhost fallbacks
+      ---
+      duration_ms: 1.597083
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/apps/mobile/tests/fake-data-scan.test.ts:2:5052'
+      failureType: 'testCodeFailure'
+      error: 'app.config.ts must not contain localhost fallback'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/apps/mobile/tests/fake-data-scan.test.ts:121:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: apps/mobile/src has zero hardcoded IP literals and zero localhost fallbacks
+    ok 7 - apps/mobile/src has zero hardcoded IP literals and zero localhost fallbacks
+      ---
+      duration_ms: 11.06775
+      type: 'test'
+      ...
+    1..7
+not ok 27 - T9 Fake Data Scan & Real API Integration Audit
+  ---
+  duration_ms: 28.9965
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/apps/mobile/tests/fake-data-scan.test.ts:2:1817'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: A4: KI-9 Guest State Cleanup & KI-13 GoalBar Copy Standardization
+    # Subtest: KI-9: MobileAppHeader gates notificationDot strictly behind isAuthenticated
+    ok 1 - KI-9: MobileAppHeader gates notificationDot strictly behind isAuthenticated
+      ---
+      duration_ms: 0.672375
+      type: 'test'
+      ...
+    # Subtest: KI-9: Home screen gates streakBadge strictly behind isAuthenticated and real streak data > 0
+    ok 2 - KI-9: Home screen gates streakBadge strictly behind isAuthenticated and real streak data > 0
+      ---
+      duration_ms: 0.171958
+      type: 'test'
+      ...
+    # Subtest: KI-13: Home, Courses, and Tests standardize GoalBar copy to 'Goal: <exam>' and 'Change'
+    ok 3 - KI-13: Home, Courses, and Tests standardize GoalBar copy to 'Goal: <exam>' and 'Change'
+      ---
+      duration_ms: 0.336417
+      type: 'test'
+      ...
+    1..3
+ok 28 - A4: KI-9 Guest State Cleanup & KI-13 GoalBar Copy Standardization
+  ---
+  duration_ms: 2.033542
+  type: 'suite'
+  ...
+# Subtest: T6: Math Rendering Corpus Coverage (>=30 Expressions)
+    # Subtest: verifies corpus contains at least 30 distinct mathematical expressions
+    ok 1 - verifies corpus contains at least 30 distinct mathematical expressions
+      ---
+      duration_ms: 1.008291
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [inline-simple-var] (inline) safely without crash or blank
+    ok 2 - renders corpus entry [inline-simple-var] (inline) safely without crash or blank
+      ---
+      duration_ms: 1.8895
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [display-quadratic] (display) safely without crash or blank
+    ok 3 - renders corpus entry [display-quadratic] (display) safely without crash or blank
+      ---
+      duration_ms: 0.809125
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [quadratic-formula] (fraction_root) safely without crash or blank
+    ok 4 - renders corpus entry [quadratic-formula] (fraction_root) safely without crash or blank
+      ---
+      duration_ms: 0.928166
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [nested-fractions] (nested_braces) safely without crash or blank
+    ok 5 - renders corpus entry [nested-fractions] (nested_braces) safely without crash or blank
+      ---
+      duration_ms: 0.21175
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [fraction-multi-term] (fraction) safely without crash or blank
+    ok 6 - renders corpus entry [fraction-multi-term] (fraction) safely without crash or blank
+      ---
+      duration_ms: 0.249583
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [cube-root] (root) safely without crash or blank
+    ok 7 - renders corpus entry [cube-root] (root) safely without crash or blank
+      ---
+      duration_ms: 0.444666
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [square-root-poly] (root) safely without crash or blank
+    ok 8 - renders corpus entry [square-root-poly] (root) safely without crash or blank
+      ---
+      duration_ms: 0.255041
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [greek-lowercase] (greek) safely without crash or blank
+    ok 9 - renders corpus entry [greek-lowercase] (greek) safely without crash or blank
+      ---
+      duration_ms: 0.299875
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [greek-physics] (greek) safely without crash or blank
+    ok 10 - renders corpus entry [greek-physics] (greek) safely without crash or blank
+      ---
+      duration_ms: 1.02875
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [greek-uppercase] (greek) safely without crash or blank
+    ok 11 - renders corpus entry [greek-uppercase] (greek) safely without crash or blank
+      ---
+      duration_ms: 0.135458
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [greek-angular] (greek) safely without crash or blank
+    ok 12 - renders corpus entry [greek-angular] (greek) safely without crash or blank
+      ---
+      duration_ms: 0.108875
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [greek-stats] (greek) safely without crash or blank
+    ok 13 - renders corpus entry [greek-stats] (greek) safely without crash or blank
+      ---
+      duration_ms: 0.102333
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [math-symbols-arith] (symbols) safely without crash or blank
+    ok 14 - renders corpus entry [math-symbols-arith] (symbols) safely without crash or blank
+      ---
+      duration_ms: 0.11125
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [math-symbols-ineq] (symbols) safely without crash or blank
+    ok 15 - renders corpus entry [math-symbols-ineq] (symbols) safely without crash or blank
+      ---
+      duration_ms: 0.103167
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [math-symbols-approx] (symbols) safely without crash or blank
+    ok 16 - renders corpus entry [math-symbols-approx] (symbols) safely without crash or blank
+      ---
+      duration_ms: 0.102708
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [calculus-summation-limits] (calculus) safely without crash or blank
+    ok 17 - renders corpus entry [calculus-summation-limits] (calculus) safely without crash or blank
+      ---
+      duration_ms: 0.166833
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [calculus-definite-integral] (calculus) safely without crash or blank
+    ok 18 - renders corpus entry [calculus-definite-integral] (calculus) safely without crash or blank
+      ---
+      duration_ms: 0.11925
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [calculus-partial-deriv] (calculus) safely without crash or blank
+    ok 19 - renders corpus entry [calculus-partial-deriv] (calculus) safely without crash or blank
+      ---
+      duration_ms: 0.103708
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [set-theory-quantifiers] (set_theory) safely without crash or blank
+    ok 20 - renders corpus entry [set-theory-quantifiers] (set_theory) safely without crash or blank
+      ---
+      duration_ms: 0.244625
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [set-operations] (set_theory) safely without crash or blank
+    ok 21 - renders corpus entry [set-operations] (set_theory) safely without crash or blank
+      ---
+      duration_ms: 0.109167
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [text-command-units] (text_command) safely without crash or blank
+    ok 22 - renders corpus entry [text-command-units] (text_command) safely without crash or blank
+      ---
+      duration_ms: 0.103
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [text-mathrm-subscript] (text_command) safely without crash or blank
+    ok 23 - renders corpus entry [text-mathrm-subscript] (text_command) safely without crash or blank
+      ---
+      duration_ms: 0.112083
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [matrix-2x2] (matrix) safely without crash or blank
+    ok 24 - renders corpus entry [matrix-2x2] (matrix) safely without crash or blank
+      ---
+      duration_ms: 0.15675
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [matrix-determinant] (matrix) safely without crash or blank
+    ok 25 - renders corpus entry [matrix-determinant] (matrix) safely without crash or blank
+      ---
+      duration_ms: 0.145875
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [system-of-equations-cases] (cases) safely without crash or blank
+    ok 26 - renders corpus entry [system-of-equations-cases] (cases) safely without crash or blank
+      ---
+      duration_ms: 0.146625
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [chemistry-reaction] (chemistry) safely without crash or blank
+    ok 27 - renders corpus entry [chemistry-reaction] (chemistry) safely without crash or blank
+      ---
+      duration_ms: 0.110125
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [degrees-angles] (angles) safely without crash or blank
+    ok 28 - renders corpus entry [degrees-angles] (angles) safely without crash or blank
+      ---
+      duration_ms: 0.108208
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [logarithms-subscript] (algebra) safely without crash or blank
+    ok 29 - renders corpus entry [logarithms-subscript] (algebra) safely without crash or blank
+      ---
+      duration_ms: 0.102375
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [limit-infinity] (calculus) safely without crash or blank
+    ok 30 - renders corpus entry [limit-infinity] (calculus) safely without crash or blank
+      ---
+      duration_ms: 0.500916
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [malformed-unclosed-inline] (malformed) safely without crash or blank
+    ok 31 - renders corpus entry [malformed-unclosed-inline] (malformed) safely without crash or blank
+      ---
+      duration_ms: 0.05325
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [malformed-unclosed-display] (malformed) safely without crash or blank
+    ok 32 - renders corpus entry [malformed-unclosed-display] (malformed) safely without crash or blank
+      ---
+      duration_ms: 0.038292
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [nested-powers] (exponents) safely without crash or blank
+    ok 33 - renders corpus entry [nested-powers] (exponents) safely without crash or blank
+      ---
+      duration_ms: 0.102167
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [complex-trig-identity] (trig) safely without crash or blank
+    ok 34 - renders corpus entry [complex-trig-identity] (trig) safely without crash or blank
+      ---
+      duration_ms: 0.103083
+      type: 'test'
+      ...
+    # Subtest: renders corpus entry [vectors-bold-arrow] (physics) safely without crash or blank
+    ok 35 - renders corpus entry [vectors-bold-arrow] (physics) safely without crash or blank
+      ---
+      duration_ms: 0.093917
+      type: 'test'
+      ...
+    # Subtest: handles malformed and unclosed math gracefully with raw monospace fallback
+    ok 36 - handles malformed and unclosed math gracefully with raw monospace fallback
+      ---
+      duration_ms: 0.122
+      type: 'test'
+      ...
+    # Subtest: handles empty and whitespace-only math without crashing
+    ok 37 - handles empty and whitespace-only math without crashing
+      ---
+      duration_ms: 0.511833
+      type: 'test'
+      ...
+    1..37
+ok 29 - T6: Math Rendering Corpus Coverage (>=30 Expressions)
+  ---
+  duration_ms: 12.583042
+  type: 'suite'
+  ...
+# Subtest: MathRenderer: LaTeX to Unicode Math Parsing
+    # Subtest: translates Greek symbols correctly
+    ok 1 - translates Greek symbols correctly
+      ---
+      duration_ms: 1.818542
+      type: 'test'
+      ...
+    # Subtest: translates fractions into readable inline representation
+    ok 2 - translates fractions into readable inline representation
+      ---
+      duration_ms: 0.531875
+      type: 'test'
+      ...
+    # Subtest: translates square roots
+    ok 3 - translates square roots
+      ---
+      duration_ms: 0.128667
+      type: 'test'
+      ...
+    # Subtest: translates superscripts and subscripts
+    ok 4 - translates superscripts and subscripts
+      ---
+      duration_ms: 0.196167
+      type: 'test'
+      ...
+    # Subtest: translates math operators
+    ok 5 - translates math operators
+      ---
+      duration_ms: 0.167292
+      type: 'test'
+      ...
+    # Subtest: translates calculus, infinity, and advanced math symbols
+    ok 6 - translates calculus, infinity, and advanced math symbols
+      ---
+      duration_ms: 0.295583
+      type: 'test'
+      ...
+    # Subtest: translates set theory, logic, and blackboard notation
+    ok 7 - translates set theory, logic, and blackboard notation
+      ---
+      duration_ms: 0.324
+      type: 'test'
+      ...
+    # Subtest: correctly identifies complex environments requiring fallback
+    ok 8 - correctly identifies complex environments requiring fallback
+      ---
+      duration_ms: 0.178208
+      type: 'test'
+      ...
+    # Subtest: tokenizes mixed inline, display, and normal text segments properly
+    ok 9 - tokenizes mixed inline, display, and normal text segments properly
+      ---
+      duration_ms: 0.326291
+      type: 'test'
+      ...
+    1..9
+ok 30 - MathRenderer: LaTeX to Unicode Math Parsing
+  ---
+  duration_ms: 5.524625
+  type: 'suite'
+  ...
+# Subtest: Offline CBT Edge Cases
+    # Subtest: handles app killed mid-attempt and resumed accurately
+    ok 1 - handles app killed mid-attempt and resumed accurately
+      ---
+      duration_ms: 1.096625
+      type: 'test'
+      ...
+    # Subtest: prevents cheating when device clock is changed (server monotonic clock offset)
+    ok 2 - prevents cheating when device clock is changed (server monotonic clock offset)
+      ---
+      duration_ms: 0.139208
+      type: 'test'
+      ...
+    # Subtest: handles duplicate submit idempotently without re-grading
+    ok 3 - handles duplicate submit idempotently without re-grading
+      ---
+      duration_ms: 0.174958
+      type: 'test'
+      ...
+    # Subtest: flushes reconnect answer queue in strict sequence order
+    ok 4 - flushes reconnect answer queue in strict sequence order
+      ---
+      duration_ms: 0.243042
+      type: 'test'
+      ...
+    # Subtest: rejects answers after long offline period when server deadline has passed
+    ok 5 - rejects answers after long offline period when server deadline has passed
+      ---
+      duration_ms: 0.091625
+      type: 'test'
+      ...
+    # Subtest: calculates CBT question palette states accurately
+    ok 6 - calculates CBT question palette states accurately
+      ---
+      duration_ms: 0.62225
+      type: 'test'
+      ...
+    1..6
+ok 31 - Offline CBT Edge Cases
+  ---
+  duration_ms: 3.220542
+  type: 'suite'
+  ...
+# Subtest: Rosera Renderer Robustness & Error Boundary
+    # Subtest: renders safe fallback for unknown block types without crashing
+    ok 1 - renders safe fallback for unknown block types without crashing
+      ---
+      duration_ms: 0.264541
+      type: 'test'
+      ...
+    # Subtest: handles malformed blocks gracefully without throwing
+    ok 2 - handles malformed blocks gracefully without throwing
+      ---
+      duration_ms: 0.410791
+      type: 'test'
+      ...
+    1..2
+ok 32 - Rosera Renderer Robustness & Error Boundary
+  ---
+  duration_ms: 0.998125
+  type: 'suite'
+  ...
+# Subtest: Query Cache Persistence & Storage Adapter
+    # Subtest: persists and restores query cache using storage adapter
+    ok 1 - persists and restores query cache using storage adapter
+      ---
+      duration_ms: 4.227917
+      type: 'test'
+      ...
+    # Subtest: clears persisted cache completely on logout
+    ok 2 - clears persisted cache completely on logout
+      ---
+      duration_ms: 0.61675
+      type: 'test'
+      ...
+    # Subtest: verifies per-resource cache policies define staleTime and gcTime
+    ok 3 - verifies per-resource cache policies define staleTime and gcTime
+      ---
+      duration_ms: 0.114959
+      type: 'test'
+      ...
+    1..3
+ok 33 - Query Cache Persistence & Storage Adapter
+  ---
+  duration_ms: 5.10575
+  type: 'suite'
+  ...
+# Subtest: Native PDF Reader & Offline File Manager
+    # Subtest: File Cache Keying & Private Storage Path
+        # Subtest: generates deterministic, app-private storage paths with doc prefix
+        ok 1 - generates deterministic, app-private storage paths with doc prefix
+          ---
+          duration_ms: 59.8595
+          type: 'test'
+          ...
+        # Subtest: sanitizes unsafe characters in document IDs to prevent path traversal
+        ok 2 - sanitizes unsafe characters in document IDs to prevent path traversal
+          ---
+          duration_ms: 4.390417
+          type: 'test'
+          ...
+        1..2
+    ok 1 - File Cache Keying & Private Storage Path
+      ---
+      duration_ms: 64.915459
+      type: 'suite'
+      ...
+    # Subtest: Page Persistence (Last-Page Memory)
+        # Subtest: persists and restores last read page accurately
+        ok 1 - persists and restores last read page accurately
+          ---
+          duration_ms: 0.468833
+          type: 'test'
+          ...
+        # Subtest: clamps invalid or negative page numbers to page 1
+        ok 2 - clamps invalid or negative page numbers to page 1
+          ---
+          duration_ms: 0.331084
+          type: 'test'
+          ...
+        1..2
+    ok 2 - Page Persistence (Last-Page Memory)
+      ---
+      duration_ms: 1.080291
+      type: 'suite'
+      ...
+    # Subtest: Download Resume State
+        # Subtest: persists and retrieves resumable download tokens
+        ok 1 - persists and retrieves resumable download tokens
+          ---
+          duration_ms: 0.446458
+          type: 'test'
+          ...
+        1..1
+    ok 3 - Download Resume State
+      ---
+      duration_ms: 0.513
+      type: 'suite'
+      ...
+    # Subtest: Ownership-Loss Deletion & DRM Purging
+        # Subtest: deletes cached PDF and purges memory state when ownership is lost
+        ok 1 - deletes cached PDF and purges memory state when ownership is lost
+          ---
+          duration_ms: 21.074167
+          type: 'test'
+          ...
+        # Subtest: retains document when ownership is verified
+        ok 2 - retains document when ownership is verified
+          ---
+          duration_ms: 1.667166
+          type: 'test'
+          ...
+        1..2
+    ok 4 - Ownership-Loss Deletion & DRM Purging
+      ---
+      duration_ms: 23.071333
+      type: 'suite'
+      ...
+    # Subtest: 100+ Page Document Performance & Memory Boundary
+        # Subtest: handles 150-page document navigation without memory state leakage or unbounded growth
+        ok 1 - handles 150-page document navigation without memory state leakage or unbounded growth
+          ---
+          duration_ms: 0.39325
+          type: 'test'
+          ...
+        # Subtest: offline local file URI is deterministic and sandboxed
+        ok 2 - offline local file URI is deterministic and sandboxed
+          ---
+          duration_ms: 6.754708
+          type: 'test'
+          ...
+        1..2
+    ok 5 - 100+ Page Document Performance & Memory Boundary
+      ---
+      duration_ms: 7.370166
+      type: 'suite'
+      ...
+    1..5
+ok 34 - Native PDF Reader & Offline File Manager
+  ---
+  duration_ms: 97.631458
+  type: 'suite'
+  ...
+# Subtest: F1: Offline PDF Caching & Storage Management
+    # Subtest: enforces 50MB document storage guard
+    ok 1 - enforces 50MB document storage guard
+      ---
+      duration_ms: 0.965792
+      type: 'test'
+      ...
+    # Subtest: resolves active uri with graceful fallback to remote streaming
+    ok 2 - resolves active uri with graceful fallback to remote streaming
+      ---
+      duration_ms: 59.732875
+      type: 'test'
+      ...
+    # Subtest: persists and clears download resume state tokens
+    ok 3 - persists and clears download resume state tokens
+      ---
+      duration_ms: 0.506833
+      type: 'test'
+      ...
+    # Subtest: generates sanitized destination paths in app sandbox
+    ok 4 - generates sanitized destination paths in app sandbox
+      ---
+      duration_ms: 4.420542
+      type: 'test'
+      ...
+    1..4
+ok 35 - F1: Offline PDF Caching & Storage Management
+  ---
+  duration_ms: 66.55925
+  type: 'suite'
+  ...
+# Subtest: F1: Mutation Proofs (4 Required Invariants)
+    # Subtest: MUTATION PROOF 1: Storage size guard MUST reject oversized documents
+    ok 1 - MUTATION PROOF 1: Storage size guard MUST reject oversized documents
+      ---
+      duration_ms: 0.34325
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 2: Resume state MUST NOT return stale token after clear
+    ok 2 - MUTATION PROOF 2: Resume state MUST NOT return stale token after clear
+      ---
+      duration_ms: 0.8305
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 3: Fallback MUST provide remoteUri when local cache is absent
+    ok 3 - MUTATION PROOF 3: Fallback MUST provide remoteUri when local cache is absent
+      ---
+      duration_ms: 2.235792
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 4: Delete cached PDF MUST clear local page memory and resume tokens
+    ok 4 - MUTATION PROOF 4: Delete cached PDF MUST clear local page memory and resume tokens
+      ---
+      duration_ms: 4.318667
+      type: 'test'
+      ...
+    1..4
+ok 36 - F1: Mutation Proofs (4 Required Invariants)
+  ---
+  duration_ms: 8.142292
+  type: 'suite'
+  ...
+# Subtest: F3: Push Notifications Architecture & Deep Linking
+    # Subtest: complies with App Store & Play Store guidelines: cold launch never triggers push permission prompt
+    ok 1 - complies with App Store & Play Store guidelines: cold launch never triggers push permission prompt
+      ---
+      duration_ms: 1.216791
+      type: 'test'
+      ...
+    # Subtest: resolves deep link routes from diverse push notification payloads
+    ok 2 - resolves deep link routes from diverse push notification payloads
+      ---
+      duration_ms: 0.334541
+      type: 'test'
+      ...
+    # Subtest: dispatches deep link navigation through router
+    ok 3 - dispatches deep link navigation through router
+      ---
+      duration_ms: 0.913125
+      type: 'test'
+      ...
+    # Subtest: persists and restores notification preferences in local storage
+    ok 4 - persists and restores notification preferences in local storage
+      ---
+      duration_ms: 22.359417
+      type: 'test'
+      ...
+    1..4
+ok 37 - F3: Push Notifications Architecture & Deep Linking
+  ---
+  duration_ms: 26.075583
+  type: 'suite'
+  ...
+# Subtest: F3: Mutation Proofs (4 Required Invariants)
+    # Subtest: MUTATION PROOF 1: Breaking course deep link resolution fails routing
+    ok 1 - MUTATION PROOF 1: Breaking course deep link resolution fails routing
+      ---
+      duration_ms: 0.510916
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 2: Breaking test deep link resolution fails routing
+    ok 2 - MUTATION PROOF 2: Breaking test deep link resolution fails routing
+      ---
+      duration_ms: 0.13275
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 3: Reintroducing push registration in index.tsx MUST fail compliance guard
+    ok 3 - MUTATION PROOF 3: Reintroducing push registration in index.tsx MUST fail compliance guard
+      ---
+      duration_ms: 0.269166
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 4: Saving preferences MUST persist full granular dictionary
+    ok 4 - MUTATION PROOF 4: Saving preferences MUST persist full granular dictionary
+      ---
+      duration_ms: 0.453833
+      type: 'test'
+      ...
+    1..4
+ok 38 - F3: Mutation Proofs (4 Required Invariants)
+  ---
+  duration_ms: 1.659542
+  type: 'suite'
+  ...
+# Subtest: Phase 5: PYQ and Current Affairs Screens & PDF Reader Parity
+    # Subtest: P4(c) Route Manifest: PYQ and Current Affairs routes exist and export valid screens
+    ok 1 - P4(c) Route Manifest: PYQ and Current Affairs routes exist and export valid screens
+      ---
+      duration_ms: 0.813291
+      type: 'test'
+      ...
+    # Subtest: PDF Storage Path: sanitizes special characters to avoid path traversal
+    ok 2 - PDF Storage Path: sanitizes special characters to avoid path traversal
+      ---
+      duration_ms: 59.535125
+      type: 'test'
+      ...
+    1..2
+ok 39 - Phase 5: PYQ and Current Affairs Screens & PDF Reader Parity
+  ---
+  duration_ms: 61.14125
+  type: 'suite'
+  ...
+# Subtest: Bug \#10: courses query key must include the selected goal
+    # Subtest: produces a different key for each goal
+    ok 1 - produces a different key for each goal
+      ---
+      duration_ms: 2.020042
+      type: 'test'
+      ...
+    # Subtest: keeps the goal, difficulty and search in the key in a stable order
+    ok 2 - keeps the goal, difficulty and search in the key in a stable order
+      ---
+      duration_ms: 0.226334
+      type: 'test'
+      ...
+    # Subtest: still invalidates on difficulty and search changes
+    ok 3 - still invalidates on difficulty and search changes
+      ---
+      duration_ms: 0.096625
+      type: 'test'
+      ...
+    1..3
+ok 40 - Bug \#10: courses query key must include the selected goal
+  ---
+  duration_ms: 3.319833
+  type: 'suite'
+  ...
+# Subtest: Bug \#7: reader storage must handle a null documentDirectory
+    # Subtest: returns null paths instead of a bogus relative path
+    ok 1 - returns null paths instead of a bogus relative path
+      ---
+      duration_ms: 0.709459
+      type: 'test'
+      ...
+    # Subtest: builds the app-private secure_docs path when storage is available
+    ok 2 - builds the app-private secure_docs path when storage is available
+      ---
+      duration_ms: 0.159708
+      type: 'test'
+      ...
+    # Subtest: sanitizes route ids so they cannot escape secure_docs
+    ok 3 - sanitizes route ids so they cannot escape secure_docs
+      ---
+      duration_ms: 0.245
+      type: 'test'
+      ...
+    1..3
+ok 41 - Bug \#7: reader storage must handle a null documentDirectory
+  ---
+  duration_ms: 1.91175
+  type: 'suite'
+  ...
+# Subtest: Bug \#8: a failed download must never expose a local file URI
+    # Subtest: resolves a missing download URI to null
+    ok 1 - resolves a missing download URI to null
+      ---
+      duration_ms: 0.106792
+      type: 'test'
+      ...
+    # Subtest: keeps a real downloaded URI
+    ok 2 - keeps a real downloaded URI
+      ---
+      duration_ms: 0.158542
+      type: 'test'
+      ...
+    1..2
+ok 42 - Bug \#8: a failed download must never expose a local file URI
+  ---
+  duration_ms: 0.37425
+  type: 'suite'
+  ...
+# Subtest: F6: Reliability, Request Timeout, Automatic Retry & Offline Mode
+    # Subtest: aborts and returns TIMEOUT error when request exceeds timeoutMs
+    ok 1 - aborts and returns TIMEOUT error when request exceeds timeoutMs
+      ---
+      duration_ms: 59.851125
+      type: 'test'
+      ...
+    # Subtest: automatically retries failed GET requests once and succeeds on 2nd attempt
+    ok 2 - automatically retries failed GET requests once and succeeds on 2nd attempt
+      ---
+      duration_ms: 3.778333
+      type: 'test'
+      ...
+    # Subtest: NEVER automatically retries non-GET mutations (e.g. POST/DELETE)
+    ok 3 - NEVER automatically retries non-GET mutations (e.g. POST/DELETE)
+      ---
+      duration_ms: 0.441917
+      type: 'test'
+      ...
+    # Subtest: configures TanStack Query with offlineFirst networkMode and stale-while-revalidate defaults
+    ok 4 - configures TanStack Query with offlineFirst networkMode and stale-while-revalidate defaults
+      ---
+      duration_ms: 0.252083
+      type: 'test'
+      ...
+    1..4
+ok 43 - F6: Reliability, Request Timeout, Automatic Retry & Offline Mode
+  ---
+  duration_ms: 65.41075
+  type: 'suite'
+  ...
+# Subtest: F6: Mutation Proofs (4 Required Invariants)
+    # Subtest: MUTATION PROOF 1: Removing timeout causes hanging requests to fail timeout enforcement
+    ok 1 - MUTATION PROOF 1: Removing timeout causes hanging requests to fail timeout enforcement
+      ---
+      duration_ms: 31.2165
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 2: Disabling GET retry causes transient failures to fail immediately
+    ok 2 - MUTATION PROOF 2: Disabling GET retry causes transient failures to fail immediately
+      ---
+      duration_ms: 0.404375
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 3: Retrying POST requests violates idempotency safeguard
+    ok 3 - MUTATION PROOF 3: Retrying POST requests violates idempotency safeguard
+      ---
+      duration_ms: 0.304042
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 4: QueryClient missing offlineFirst networkMode must fail gate
+    ok 4 - MUTATION PROOF 4: QueryClient missing offlineFirst networkMode must fail gate
+      ---
+      duration_ms: 0.363042
+      type: 'test'
+      ...
+    1..4
+ok 44 - F6: Mutation Proofs (4 Required Invariants)
+  ---
+  duration_ms: 32.59825
+  type: 'suite'
+  ...
+# Subtest: T10 Route Manifest Integrity & Mutation Test
+    # Subtest: routeExistsOnDisk resolves all canonical static routes
+    ok 1 - routeExistsOnDisk resolves all canonical static routes
+      ---
+      duration_ms: 1.316583
+      type: 'test'
+      ...
+    # Subtest: routeExistsOnDisk resolves all dynamic routes
+    ok 2 - routeExistsOnDisk resolves all dynamic routes
+      ---
+      duration_ms: 1.089166
+      type: 'test'
+      ...
+    # Subtest: Every router navigation target across src/** maps to a real route on disk
+    ok 3 - Every router navigation target across src/** maps to a real route on disk
+      ---
+      duration_ms: 8.367208
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF: Deliberately broken route targets are caught and fail routeExistsOnDisk
+    ok 4 - MUTATION PROOF: Deliberately broken route targets are caught and fail routeExistsOnDisk
+      ---
+      duration_ms: 1.098667
+      type: 'test'
+      ...
+    1..4
+ok 45 - T10 Route Manifest Integrity & Mutation Test
+  ---
+  duration_ms: 12.803417
+  type: 'suite'
+  ...
+# Subtest: F5: Search & Filters Debounce & Error State Mechanics
+    # Subtest: debounces rapid consecutive calls to execute only the last value after delay
+    ok 1 - debounces rapid consecutive calls to execute only the last value after delay
+      ---
+      duration_ms: 82.200125
+      type: 'test'
+      ...
+    # Subtest: cancel() halts pending debounced invocation before timeout
+    ok 2 - cancel() halts pending debounced invocation before timeout
+      ---
+      duration_ms: 81.678583
+      type: 'test'
+      ...
+    # Subtest: formats filter error descriptions accurately for active filters
+    ok 3 - formats filter error descriptions accurately for active filters
+      ---
+      duration_ms: 0.311958
+      type: 'test'
+      ...
+    1..3
+ok 46 - F5: Search & Filters Debounce & Error State Mechanics
+  ---
+  duration_ms: 165.047583
+  type: 'suite'
+  ...
+# Subtest: F5: Mutation Proofs (4 Required Invariants)
+    # Subtest: MUTATION PROOF 1: Breaking debounce by invoking synchronously on every keystroke MUST be caught
+    ok 1 - MUTATION PROOF 1: Breaking debounce by invoking synchronously on every keystroke MUST be caught
+      ---
+      duration_ms: 0.734208
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 2: Tampering with debounce cancel must not prevent pending invocation
+    ok 2 - MUTATION PROOF 2: Tampering with debounce cancel must not prevent pending invocation
+      ---
+      duration_ms: 92.522833
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 3: Category filter error message MUST cite the category
+    ok 3 - MUTATION PROOF 3: Category filter error message MUST cite the category
+      ---
+      duration_ms: 0.681584
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF 4: Reset filters MUST restore default state ('All' and empty search)
+    ok 4 - MUTATION PROOF 4: Reset filters MUST restore default state ('All' and empty search)
+      ---
+      duration_ms: 1.269625
+      type: 'test'
+      ...
+    1..4
+ok 47 - F5: Mutation Proofs (4 Required Invariants)
+  ---
+  duration_ms: 96.380291
+  type: 'suite'
+  ...
+# Subtest: Phase 2: Web Shell Manifest Parity
+    # Subtest: manifest fixture matches exact web specification
+    ok 1 - manifest fixture matches exact web specification
+      ---
+      duration_ms: 0.657291
+      type: 'test'
+      ...
+    # Subtest: drawer has exactly 10 navigation items in exact web order with badges
+    ok 2 - drawer has exactly 10 navigation items in exact web order with badges
+      ---
+      duration_ms: 0.209
+      type: 'test'
+      ...
+    # Subtest: profile sheet defines 3 account links and authentication states
+    ok 3 - profile sheet defines 3 account links and authentication states
+      ---
+      duration_ms: 0.088167
+      type: 'test'
+      ...
+    # Subtest: bottom navigation defines 4 canonical tabs
+    ok 4 - bottom navigation defines 4 canonical tabs
+      ---
+      duration_ms: 0.522958
+      type: 'test'
+      ...
+    1..4
+ok 48 - Phase 2: Web Shell Manifest Parity
+  ---
+  duration_ms: 2.151875
+  type: 'suite'
+  ...
+# Subtest: Phase 2: Bottom Bar Route Hiding Invariants & Mutation Check
+    # Subtest: hides bottom bar on exam attempt and fullscreen routes
+    ok 1 - hides bottom bar on exam attempt and fullscreen routes
+      ---
+      duration_ms: 0.149542
+      type: 'test'
+      ...
+    # Subtest: displays bottom bar on standard exploratory routes
+    ok 2 - displays bottom bar on standard exploratory routes
+      ---
+      duration_ms: 0.078708
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF: breaking the attempt hide rule causes test to fail
+    ok 3 - MUTATION PROOF: breaking the attempt hide rule causes test to fail
+      ---
+      duration_ms: 0.1625
+      type: 'test'
+      ...
+    1..3
+ok 49 - Phase 2: Bottom Bar Route Hiding Invariants & Mutation Check
+  ---
+  duration_ms: 0.853042
+  type: 'suite'
+  ...
+# Subtest: Phase 2: Goal and Language Context Contracts
+    # Subtest: defaults goal to UPSC and persists updates
+    ok 1 - defaults goal to UPSC and persists updates
+      ---
+      duration_ms: 16.939541
+      type: 'test'
+      ...
+    # Subtest: persists content language choice (EN / HI)
+    ok 2 - persists content language choice (EN / HI)
+      ---
+      duration_ms: 0.51475
+      type: 'test'
+      ...
+    1..2
+ok 50 - Phase 2: Goal and Language Context Contracts
+  ---
+  duration_ms: 17.7145
+  type: 'suite'
+  ...
+# Subtest: Phase 2: P4(c) Route Manifest Integrity
+    # Subtest: every link target in drawer, tabs, profile sheet and quick access exists on disk
+    ok 1 - every link target in drawer, tabs, profile sheet and quick access exists on disk
+      ---
+      duration_ms: 1.259417
+      type: 'test'
+      ...
+    1..1
+ok 51 - Phase 2: P4(c) Route Manifest Integrity
+  ---
+  duration_ms: 1.340584
+  type: 'suite'
+  ...
+# (node:5646) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: T4: SQLite Adapter Contract & Durability Verification
+    # Subtest: verifies ExpoSqliteDriver interface against mock SQLite module
+    ok 1 - verifies ExpoSqliteDriver interface against mock SQLite module
+      ---
+      duration_ms: 3.197333
+      type: 'test'
+      ...
+    # Subtest: verifies SqliteCbtStorage contract: save, monotonic ordering, markSynced, and prune
+    ok 2 - verifies SqliteCbtStorage contract: save, monotonic ordering, markSynced, and prune
+      ---
+      duration_ms: 22.222125
+      type: 'test'
+      ...
+    1..2
+ok 52 - T4: SQLite Adapter Contract & Durability Verification
+  ---
+  duration_ms: 27.106
+  type: 'suite'
+  ...
+# Subtest: Test Series Flow & Screens Parity
+    # Subtest: P4(c) Route Manifest: All test series route files exist and contain default export
+    ok 1 - P4(c) Route Manifest: All test series route files exist and contain default export
+      ---
+      duration_ms: 2.442292
+      type: 'test'
+      ...
+    # Subtest: Timer formatting handles countdown transitions accurately
+    ok 2 - Timer formatting handles countdown transitions accurately
+      ---
+      duration_ms: 0.358667
+      type: 'test'
+      ...
+    # Subtest: Timer warning threshold categorizes correctly
+    ok 3 - Timer warning threshold categorizes correctly
+      ---
+      duration_ms: 0.228625
+      type: 'test'
+      ...
+    # Subtest: MathRenderer LaTeX parser handles typical exam math statements
+    ok 4 - MathRenderer LaTeX parser handles typical exam math statements
+      ---
+      duration_ms: 2.122792
+      type: 'test'
+      ...
+    # Subtest: Calculates score percentage and accuracy correctly without division by zero
+    ok 5 - Calculates score percentage and accuracy correctly without division by zero
+      ---
+      duration_ms: 0.36
+      type: 'test'
+      ...
+    1..5
+ok 53 - Test Series Flow & Screens Parity
+  ---
+  duration_ms: 7.481958
+  type: 'suite'
+  ...
+# Subtest: Phase 1: Design Tokens & Parity Citations
+    # Subtest: P5: every visual token strictly cites its web file source
+    ok 1 - P5: every visual token strictly cites its web file source
+      ---
+      duration_ms: 0.637291
+      type: 'test'
+      ...
+    # Subtest: mirrors web shell layout dimensions exactly
+    ok 2 - mirrors web shell layout dimensions exactly
+      ---
+      duration_ms: 0.193375
+      type: 'test'
+      ...
+    # Subtest: mirrors web brand color scale & dark mode parity
+    ok 3 - mirrors web brand color scale & dark mode parity
+      ---
+      duration_ms: 0.175542
+      type: 'test'
+      ...
+    # Subtest: verifies storage keys match web localStorage keys identically
+    ok 4 - verifies storage keys match web localStorage keys identically
+      ---
+      duration_ms: 0.07675
+      type: 'test'
+      ...
+    1..4
+ok 54 - Phase 1: Design Tokens & Parity Citations
+  ---
+  duration_ms: 1.962
+  type: 'suite'
+  ...
+# Subtest: Phase 1: Theme Persistence & Toggle Contract
+    # Subtest: persists theme preference to storage with ts_theme key
+    ok 1 - persists theme preference to storage with ts_theme key
+      ---
+      duration_ms: 78.424625
+      type: 'test'
+      ...
+    # Subtest: verifies Light Theme and Dark Theme color structures are complete and typed
+    ok 2 - verifies Light Theme and Dark Theme color structures are complete and typed
+      ---
+      duration_ms: 0.632167
+      type: 'test'
+      ...
+    1..2
+ok 55 - Phase 1: Theme Persistence & Toggle Contract
+  ---
+  duration_ms: 79.369834
+  type: 'suite'
+  ...
+# Subtest: T5: Video Player URL Resolution & Provider Classification
+    # Subtest: resolves direct mp4/hls video url as native player
+    ok 1 - resolves direct mp4/hls video url as native player
+      ---
+      duration_ms: 0.84475
+      type: 'test'
+      ...
+    # Subtest: resolves Mux playback ID to https://stream.mux.com/<id>.m3u8
+    ok 2 - resolves Mux playback ID to https://stream.mux.com/<id>.m3u8
+      ---
+      duration_ms: 0.119458
+      type: 'test'
+      ...
+    # Subtest: resolves mux: prefix in videoUrl to HLS stream
+    ok 3 - resolves mux: prefix in videoUrl to HLS stream
+      ---
+      duration_ms: 0.199042
+      type: 'test'
+      ...
+    # Subtest: classifies YouTube URLs as external embed with badge label
+    ok 4 - classifies YouTube URLs as external embed with badge label
+      ---
+      duration_ms: 0.109166
+      type: 'test'
+      ...
+    # Subtest: classifies Vimeo URLs as external embed with badge label
+    ok 5 - classifies Vimeo URLs as external embed with badge label
+      ---
+      duration_ms: 0.087583
+      type: 'test'
+      ...
+    # Subtest: handles missing or invalid video URLs safely
+    ok 6 - handles missing or invalid video URLs safely
+      ---
+      duration_ms: 0.074291
+      type: 'test'
+      ...
+    1..6
+ok 56 - T5: Video Player URL Resolution & Provider Classification
+  ---
+  duration_ms: 2.257458
+  type: 'suite'
+  ...
+# Subtest: T5: Locked Lesson Protection & Mutation Proof
+    # Subtest: never exposes streamUrl or externalUrl when lesson is locked
+    ok 1 - never exposes streamUrl or externalUrl when lesson is locked
+      ---
+      duration_ms: 0.302709
+      type: 'test'
+      ...
+    # Subtest: MUTATION PROOF: Leaking streamUrl when locked fails the security invariant
+    ok 2 - MUTATION PROOF: Leaking streamUrl when locked fails the security invariant
+      ---
+      duration_ms: 0.349208
+      type: 'test'
+      ...
+    1..2
+ok 57 - T5: Locked Lesson Protection & Mutation Proof
+  ---
+  duration_ms: 0.846666
+  type: 'suite'
+  ...
+# Subtest: T5: Playback Speeds Allowlist
+    # Subtest: allows only approved speeds: 0.5, 0.75, 1, 1.25, 1.5, 2
+    ok 1 - allows only approved speeds: 0.5, 0.75, 1, 1.25, 1.5, 2
+      ---
+      duration_ms: 0.657875
+      type: 'test'
+      ...
+    1..1
+ok 58 - T5: Playback Speeds Allowlist
+  ---
+  duration_ms: 0.954625
+  type: 'suite'
+  ...
+# Subtest: T5: Curriculum Order Navigation (Prev / Next)
+    # Subtest: flattens chapters into sequential ordered lesson array
+    ok 1 - flattens chapters into sequential ordered lesson array
+      ---
+      duration_ms: 0.245709
+      type: 'test'
+      ...
+    # Subtest: computes prev/next correctly for first, middle, and last lessons
+    ok 2 - computes prev/next correctly for first, middle, and last lessons
+      ---
+      duration_ms: 0.234167
+      type: 'test'
+      ...
+    # Subtest: handles unknown lesson ID gracefully
+    ok 3 - handles unknown lesson ID gracefully
+      ---
+      duration_ms: 0.065167
+      type: 'test'
+      ...
+    1..3
+ok 59 - T5: Curriculum Order Navigation (Prev / Next)
+  ---
+  duration_ms: 0.637041
+  type: 'suite'
+  ...
+# Subtest: T5: Centralized Web Origin & Link Builder
+    # Subtest: derives origin from EXPO_PUBLIC_WEB_URL when available
+    ok 1 - derives origin from EXPO_PUBLIC_WEB_URL when available
+      ---
+      duration_ms: 0.85725
+      type: 'test'
+      ...
+    # Subtest: derives origin by stripping /api/v1 from EXPO_PUBLIC_API_URL
+    ok 2 - derives origin by stripping /api/v1 from EXPO_PUBLIC_API_URL
+      ---
+      duration_ms: 0.195167
+      type: 'test'
+      ...
+    # Subtest: falls back to null if env vars are unset
+    ok 3 - falls back to null if env vars are unset
+      ---
+      duration_ms: 15.1585
+      type: 'test'
+      ...
+    # Subtest: returns null for buildWebUrl when origin is null
+    ok 4 - returns null for buildWebUrl when origin is null
+      ---
+      duration_ms: 3.480667
+      type: 'test'
+      ...
+    # Subtest: builds web url with utm_source=mobile_app and optional campaign when origin is configured
+    ok 5 - builds web url with utm_source=mobile_app and optional campaign when origin is configured
+      ---
+      duration_ms: 0.149375
+      type: 'test'
+      ...
+    # Subtest: openWebUrl returns error when web origin is unconfigured
+    ok 6 - openWebUrl returns error when web origin is unconfigured
+      ---
+      duration_ms: 2.6635
+      type: 'test'
+      ...
+    # Subtest: restores original environment variables
+    ok 7 - restores original environment variables
+      ---
+      duration_ms: 0.189458
+      type: 'test'
+      ...
+    1..7
+ok 60 - T5: Centralized Web Origin & Link Builder
+  ---
+  duration_ms: 23.648042
+  type: 'suite'
+  ...
+# Subtest: T5: Static Zero-Hardcoded-Domain Enforcement Scan
+    # Subtest: verifies zero occurrences of literal domain in apps/mobile/src and apps/mobile/tests
+    ok 1 - verifies zero occurrences of literal domain in apps/mobile/src and apps/mobile/tests
+      ---
+      duration_ms: 32.295333
+      type: 'test'
+      ...
+    1..1
+ok 61 - T5: Static Zero-Hardcoded-Domain Enforcement Scan
+  ---
+  duration_ms: 32.580375
+  type: 'suite'
+  ...
+1..61
+# tests 267
+# suites 66
+# pass 265
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14400.06575
+EXIT:1

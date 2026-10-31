@@ -1,0 +1,27 @@
+SHA: e415ae0
+DATE: 2026-10-31T23:25:59+05:30
+COMMAND: git status / git log / git ls-files checks
+---
+branch: feat/launch-blockers
+ahead_of_baseline: 16 commits
+behind_baseline: 0
+remote_tracking: none
+--- tracked secret-ish files ---
+.env.example
+apps/mobile/.env.example
+--- ignored env files present locally (not tracked) ---
+.env.test
+--- untracked files ---
+?? data/form-submissions.json
+?? docs/evidence/raw/r9-s1-mobile-unit-1of5.txt
+?? docs/evidence/raw/r9-s1-mobile-unit-2of5.txt
+?? docs/evidence/raw/r9-s1-mobile-unit-3of5.txt
+?? docs/evidence/raw/r9-s1-mobile-unit-4of5.txt
+?? docs/evidence/raw/r9-s1-mobile-unit-5of5.txt
+?? docs/evidence/raw/r9-s7-git-hygiene.txt
+--- modified tracked files ---
+ M docs/evidence/raw/r9-s1-web-tsc-pass.txt
+ M types/mobile-globals.d.ts
+--- files >5MB tracked ---
+docs/design_walkthrough.pdf 11.5MB
+--- tags ---

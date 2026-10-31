@@ -1,0 +1,41 @@
+SHA: e415ae0
+DATE: 2026-10-31T23:26:22+05:30
+COMMAND: git clone --no-hardlinks . /tmp/ci-sim && npm ci && <ci.yml steps>
+CLONE: /tmp/ci-sim (worktree content at e415ae0)
+---
+[npm ci] exit=0
+[job lint] npm run lint exit=0 (warnings only: next/image <img> and lockfile-root notices)
+[job check-launch-placeholders] exit=0 -> "SUCCESS: All launch placeholders in app/ and lib/ are resolved."
+[job tsc-ratchet] first run exit=1
+    [tsc-ratchet] Current checked-in baseline: 0 error(s)
+    [tsc-ratchet] Current tsc error count: 2
+    ❌ [RATCHET VIOLATION] TypeScript error count increased! Expected <= 0, got 2.
+    errors were:
+      apps/mobile/src/lib/storage.ts(11,38): error TS2307: Cannot find module 'expo-secure-store'
+      apps/mobile/src/lib/storage.ts(15,38): error TS2307: Cannot find module 'expo-secure-store'
+    cause: root npm ci does not install apps/mobile deps; test -> cbt-sync -> api -> storage reaches the native module
+    fix: types/mobile-globals.d.ts now declares the expo-secure-store surface used by storage.ts (root program only; mobile tsc still uses the real package)
+[job tsc-ratchet] after fix exit=0
+    [tsc-ratchet] Current tsc error count: 0
+    ✅ [PASS] TypeScript error count matches ratchet baseline (0 <= 0).
+[job security-audit] root exit=0 (28 vulnerabilities (1 low, 6 moderate, 21 high); 0 critical)
+[job security-audit] packages/shared exit=0 (1 high, 0 critical)
+[job security-audit] apps/mobile exit=0 (42 vulnerabilities (6 low, 30 moderate, 6 high); 0 critical)
+[job migrations-check] additive exit=0 -> "[PASS] All migrations are strictly additive. Scanned 32 migration folders with zero unallowlisted violations."
+[job migrations-check] prisma migrate deploy on a fresh database exit=0 -> 31 migrations applied
+[job migrations-check] prisma migrate status exit=0 -> "Database schema is up to date!"
+[job test] npx tsx --test --test-concurrency=1 tests/unit/*.test.ts exit=1
+    # tests 473
+    # pass 468
+    # fail 1
+    # cancelled 4
+    # skipped 0
+    failing tests:
+      1) connection-limit-validator.test.ts:56 -> builds `${DATABASE_URL}?connection_limit=3` while CI's DATABASE_URL already ends with ?connection_limit=10 -> invalid URL
+      2) course-metadata-db.test.ts before() -> "test DB needs at least one course (npm run seed:test)"; CI applies migrations but never seeds
+    PRE-EXISTING: ci.yml, both test files are byte-identical to r7d-green-2026-10-31 (git diff empty). The job is red on the baseline too; not caused by R9.
+[job build] NEXT_PHASE=phase-production-build NODE_ENV=production npm run build exit=0
+[job docker-build] docker build -t trillionskill:ci -f Dockerfile . exit=0 in 436s (warm layer cache; cold build 1476s recorded in r9-s4-image.txt)
+---
+triggers (ci.yml): push -> main, feat/*, perf/*; pull_request -> main; concurrency group per workflow+ref with cancel-in-progress
+actionlint: NOT INSTALLED on this machine, so workflow linting was not run (YAML parsed by GitHub on push; every referenced step was executed above)

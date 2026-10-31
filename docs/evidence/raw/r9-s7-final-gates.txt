@@ -1,0 +1,13 @@
+SHA: e415ae0
+DATE: 2026-10-31T23:33:18+05:30
+COMMAND: npx tsc --noEmit ; npm run lint ; ./scripts/r7d-clean-env-suite.sh ; cd apps/mobile && npx tsc --noEmit
+ENV: local throwaway DB 127.0.0.1:54329/trillionskill_test
+---
+web tsc errors: 0
+lint exit: 0 (warnings only: next/image <img>, lockfile-root notice)
+# tests 473
+# pass 473
+# fail 0
+# cancelled 0
+# skipped 0
+mobile tsc errors: 0

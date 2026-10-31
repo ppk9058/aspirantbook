@@ -1,0 +1,23 @@
+SHA: e415ae0
+DATE: 2026-10-31T23:26:12+05:30
+COMMAND: gitleaks detect --source . --log-opts="--all" (8.30.1)
+NOTE: values are never printed; only rule id, path, commit prefix and line.
+---
+INF 613 commits scanned.
+INF scanned ~41626842 bytes (41.63 MB) in 40.5s
+WRN leaks found: 44
+finding_count: 44
+--- by rule ---
+generic-api-key: 42
+stripe-access-token: 1
+curl-auth-header: 1
+--- classification ---
+live_stripe_or_aws_keys: 0
+stripe_test_secret_keys_in_history: 1 (TrillionSkill/docs/PAYMENT_TESTING.md line 12, commit 89c29690647f) - TEST mode, rotate
+stripe_publishable_keys: 2 (docs/PAYMENT_TESTING.md:13, docs/PHASE_8_COMPLETE.md:86) - public by design
+dev/loadtest hardcoded AUTH_SECRET+SECRET fixtures: 15 occurrences across scripts/, tools/loadtest/, docker-compose.loadtest.yml
+test fixtures (health-secret-leak / health-completeness / g6 evidence): 7
+introduced_by_R9: 1 (docs/evidence/raw/r9-s1-web-unit-1x.txt:3298) - local DevEmailOutbox verification link token, hex64, throwaway 127.0.0.1 test DB, expired
+--- current tree, tracked files only ---
+tracked_findings: 26 (same fixtures as above, no new class)
+untracked_or_ignored_findings: 78 (all under .next/ build cache and logs/ dev outbox; both gitignored)
