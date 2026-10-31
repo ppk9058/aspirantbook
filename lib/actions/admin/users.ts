@@ -7,6 +7,8 @@ import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/auth/tokens
 import bcrypt from "bcryptjs"
 import { MAX_CSV_USERS, csvCell } from "@/lib/admin/csv"
 import { getClientIp as getSafeClientIp } from "@/lib/rate-limit"
+import { getAuthAppUrl } from "@/lib/actions/auth-url-helper"
+
 
 async function getClientIp(): Promise<string> {
     try {
@@ -456,7 +458,7 @@ export async function adminTriggerPasswordReset(userId: string) {
         throw new Error("User not found")
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+    const appUrl = getAuthAppUrl()
     await sendPasswordResetEmail(user.email, appUrl)
 
     await writeAuditLog(session.user.id, "ADMIN_TRIGGER_PASSWORD_RESET", userId, { email: user.email })
@@ -481,7 +483,7 @@ export async function adminResendVerification(userId: string) {
         throw new Error("User not found")
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+    const appUrl = getAuthAppUrl()
     await sendVerificationEmail(user.email, appUrl)
 
     await writeAuditLog(session.user.id, "ADMIN_RESEND_VERIFICATION", userId, { email: user.email })

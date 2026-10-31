@@ -38,7 +38,7 @@ export async function sendPushNotificationBatch(
 
   // Feature Flag Guard: Safety First
   if (!isMobilePushEnabled()) {
-    console.log(
+    console.info(
       `[PushDispatcher] Push disabled (ENABLE_MOBILE_PUSH=false). Simulated/logged ${messages.length} message(s).`
     );
     return {
@@ -127,7 +127,7 @@ export async function pruneUnregisteredTokens(tokens: string[]): Promise<number>
     },
   });
 
-  console.log(`[PushDispatcher] Pruned ${res.count} unregistered device push token(s) from database.`);
+  console.info(`[PushDispatcher] Pruned ${res.count} unregistered device push token(s) from database.`);
   return res.count;
 }
 

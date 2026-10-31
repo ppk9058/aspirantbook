@@ -19,6 +19,8 @@ import {
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
 import { verifyTurnstileToken } from "@/lib/security/turnstile"
+import { getAuthAppUrl } from "@/lib/actions/auth-url-helper"
+
 
 const RegisterSchema = z.object({
     name: z.string().trim().min(2, "Name must be at least 2 characters"),
@@ -121,7 +123,7 @@ export async function register(prevState: any, formData: FormData) {
         })
 
         // 6. Send verification email (logged to dev outbox in dev/test)
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+        const appUrl = getAuthAppUrl()
         await sendVerificationEmail(normalizedEmail, appUrl).catch((err) => {
             console.error("[Register] Failed to send verification email:", err)
         })
@@ -235,7 +237,7 @@ export async function resendVerificationEmailAction(prevState: any, formData: Fo
             return { success: genericSuccess }
         }
 
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+        const appUrl = getAuthAppUrl()
         await sendVerificationEmail(email, appUrl)
 
         return { success: genericSuccess }
@@ -300,7 +302,7 @@ export async function requestPasswordResetAction(prevState: any, formData: FormD
 
         const rawCallback = (formData.get("callbackUrl") as string) || ""
         const safeCallback = rawCallback ? sanitizeReturnPath(rawCallback, "") : ""
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://127.0.0.1:3045"
+        const appUrl = getAuthAppUrl()
         await sendPasswordResetEmail(email, appUrl, safeCallback || undefined)
 
         return { success: genericSuccess }

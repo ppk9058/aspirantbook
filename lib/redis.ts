@@ -63,7 +63,7 @@ class RedisClient {
                 })
 
                 RedisClient.instance.on('connect', () => {
-                    console.log('[Redis] Connected successfully')
+                    console.info('[Redis] Connected successfully')
                 })
             } catch (initErr) {
                 console.warn('[Redis] Failed to initialize client:', initErr)

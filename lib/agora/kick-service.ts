@@ -18,7 +18,7 @@ export async function kickUserFromAgoraChannel({
   const customerSecret = process.env.AGORA_CUSTOMER_SECRET
 
   if (!appId || !customerId || !customerSecret) {
-    console.log(
+    console.info(
       `[AgoraKick] Notice: AGORA_CUSTOMER_ID / AGORA_CUSTOMER_SECRET not configured. ` +
       `Stage removal relies on 3-minute token expiration and server-side 403 token denial for channel="${channelName}", uid=${uid}.`
     )
@@ -47,7 +47,7 @@ export async function kickUserFromAgoraChannel({
     })
 
     const data = await res.json()
-    console.log(`[AgoraKick] Applied kicking rule for uid=${uid} in cname=${channelName}:`, data)
+    console.info(`[AgoraKick] Applied kicking rule for uid=${uid} in cname=${channelName}:`, data)
     return { success: res.ok, data }
   } catch (err: any) {
     console.error(`[AgoraKick] Error applying kicking rule:`, err)

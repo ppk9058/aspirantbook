@@ -1,0 +1,11 @@
+R12-I: Tracked Files Over 1 MB Inventory
+
+Audit command: git ls-files -> check file size > 1,048,576 bytes
+
+Tracked files over 1 MB:
+1. assets/brand/splash-image.png (1,094,558 bytes ~ 1.04 MB)
+2. docs/design_walkthrough.pdf (12,041,186 bytes ~ 11.48 MB)
+
+Total tracked files > 1 MB: 2
+Action: Preserved (NOT deleted per specification; audited and guarded).
+EXIT:0

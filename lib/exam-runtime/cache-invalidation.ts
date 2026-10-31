@@ -103,7 +103,7 @@ export async function onAiQuestionTranslationBatchApproved(
   testId: string,
   questionIds: string[]
 ): Promise<void> {
-  console.log(
+  console.info(
     `[AI_INTEGRATION_HOOK] Invalidating question cache for test ${testId} following AI batch translation approval of ${questionIds.length} questions.`
   );
   await invalidateExamQuestions(testId);

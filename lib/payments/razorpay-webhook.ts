@@ -75,7 +75,7 @@ export async function handleRazorpayWebhook(request: NextRequest): Promise<NextR
             persistedEvent = true
         } catch (err: any) {
             if (err?.code === "P2002" || err?.message?.includes("Unique constraint")) {
-                console.log(`[RazorpayWebhook] Duplicate webhook event ${eventId} ignored`)
+                console.info(`[RazorpayWebhook] Duplicate webhook event ${eventId} ignored`)
                 return NextResponse.json({ received: true, duplicate: true, eventId }, { status: 200 })
             }
             console.warn("[RazorpayWebhook] Could not persist RazorpayWebhookEvent, proceeding:", err)

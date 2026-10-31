@@ -1,0 +1,48 @@
+TAP version 13
+# Subtest: R12-I: Codebase Hygiene Guards
+    # Subtest: I-R12-01: LICENSE file exists with 'All rights reserved' and legal entity name
+    ok 1 - I-R12-01: LICENSE file exists with 'All rights reserved' and legal entity name
+      ---
+      duration_ms: 1.940208
+      type: 'test'
+      ...
+    # Subtest: I-R12-02: Server code in lib/ and app/api/ does not contain unauthorized console.log
+    ok 2 - I-R12-02: Server code in lib/ and app/api/ does not contain unauthorized console.log
+      ---
+      duration_ms: 37.385125
+      type: 'test'
+      ...
+    # Subtest: I-R12-03: No supabase.co in non-test application code or configuration
+    ok 3 - I-R12-03: No supabase.co in non-test application code or configuration
+      ---
+      duration_ms: 225.313334
+      type: 'test'
+      ...
+    # Subtest: I-R12-04: Auth appUrl resolution fails closed in production and falls back in dev/test
+    ok 4 - I-R12-04: Auth appUrl resolution fails closed in production and falls back in dev/test
+      ---
+      duration_ms: 0.656542
+      type: 'test'
+      ...
+    # Subtest: I-R12-05: Tracked files inventory over 1MB is audited and accounted for
+    ok 5 - I-R12-05: Tracked files inventory over 1MB is audited and accounted for
+      ---
+      duration_ms: 52.300959
+      type: 'test'
+      ...
+    1..5
+ok 1 - R12-I: Codebase Hygiene Guards
+  ---
+  duration_ms: 318.830167
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 538.013209
+EXIT:0

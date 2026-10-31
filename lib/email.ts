@@ -163,7 +163,7 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions): 
                         attempts: 0,
                     },
                 })
-                console.log(`[DbEmailOutbox] Stored to: ${to} | Subject: ${subject} | Link: ${link || "none"}`)
+                console.info(`[DbEmailOutbox] Stored to: ${to} | Subject: ${subject} | Link: ${link || "none"}`)
                 return { success: true, id: record.id, provider: "dev_outbox" }
             } catch (err) {
                 console.error("[DbEmailOutbox] Failed to write outbox record:", err)
@@ -188,7 +188,7 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions): 
             }
 
             fs.appendFileSync(OUTBOX_FILE, JSON.stringify(record) + "\n", "utf-8")
-            console.log(`[DevEmailOutbox] Sent to: ${to} | Subject: ${subject} | Link: ${link || "none"}`)
+            console.info(`[DevEmailOutbox] Sent to: ${to} | Subject: ${subject} | Link: ${link || "none"}`)
             return { success: true, id: record.id, provider: "dev_fs" }
         } catch (err) {
             console.error("[DevEmailOutbox] Failed to write outbox record:", err)
