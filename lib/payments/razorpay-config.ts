@@ -15,6 +15,17 @@ export function getRazorpayKeyId(): string | null {
   return process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || null
 }
 
+/**
+ * Derived paymentMode: "test" | "live" | "unconfigured" based on key ID prefix.
+ * Never prints or leaks the key.
+ */
+export function getPaymentMode(): "test" | "live" | "unconfigured" {
+  const keyId = (getRazorpayKeyId() || "").trim()
+  if (keyId.startsWith("rzp_test_")) return "test"
+  if (keyId.startsWith("rzp_live_")) return "live"
+  return "unconfigured"
+}
+
 /** Only explicit test mode may use mock orders; a missing secret never does. */
 export function isRazorpayTestMode(): boolean {
   return process.env.APP_ENV === "test" || process.env.NODE_ENV === "test"
@@ -22,7 +33,7 @@ export function isRazorpayTestMode(): boolean {
 
 let client: Razorpay | null = null
 
-/** Throws when RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET are not configured. */
+/** Throws when RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET are not configured or mismatched. */
 export function getRazorpayClient(): Razorpay {
   const keyId = getRazorpayKeyId()
   const keySecret = process.env.RAZORPAY_KEY_SECRET
@@ -31,6 +42,30 @@ export function getRazorpayClient(): Razorpay {
     throw new Error(
       "Razorpay is not configured: set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET (no placeholder fallback)"
     )
+  }
+
+  // Refuse mismatched test/live key pair
+  const serverKey = process.env.RAZORPAY_KEY_ID?.trim()
+  const publicKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.trim()
+  if (serverKey && publicKey) {
+    const serverIsTest = serverKey.startsWith("rzp_test_")
+    const serverIsLive = serverKey.startsWith("rzp_live_")
+    const publicIsTest = publicKey.startsWith("rzp_test_")
+    const publicIsLive = publicKey.startsWith("rzp_live_")
+    if ((serverIsTest && publicIsLive) || (serverIsLive && publicIsTest)) {
+      throw new Error(
+        "Razorpay credential mismatch: RAZORPAY_KEY_ID and NEXT_PUBLIC_RAZORPAY_KEY_ID must both be test or both be live"
+      )
+    }
+  }
+
+  const isKeyTest = keyId.startsWith("rzp_test_")
+  const isKeyLive = keyId.startsWith("rzp_live_")
+  if (isKeyTest && (keySecret.startsWith("rzp_live_") || keySecret.startsWith("live_"))) {
+    throw new Error("Razorpay credential mismatch: test key ID cannot be paired with a live secret")
+  }
+  if (isKeyLive && (keySecret.startsWith("rzp_test_") || keySecret.startsWith("test_"))) {
+    throw new Error("Razorpay credential mismatch: live key ID cannot be paired with a test secret")
   }
 
   if (!client) {

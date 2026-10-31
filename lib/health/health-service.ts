@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { isStripeConfigured } from "@/lib/payments/stripe";
+import { getPaymentMode } from "@/lib/payments/razorpay-config";
 import { getPersistBackend } from "@/lib/storage/persist-backend";
 import fs from "fs";
 import path from "path";
@@ -100,6 +101,7 @@ export async function getHealthPayload(reqHeaders?: Headers | null): Promise<Rec
       latencyMs: dbLatencyMs,
     },
     payments: paymentsConfigured ? "configured" : "not configured",
+    paymentMode: getPaymentMode(),
     totalLatencyMs: Date.now() - start,
   };
 

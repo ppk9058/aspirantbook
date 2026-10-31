@@ -1,0 +1,87 @@
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Razorpay credentials not configured
+# Subtest: R12-L: Payment mode safety and credentials validation
+    # Subtest: L-R12-01: getPaymentMode returns 'unconfigured' when keys are missing
+    ok 1 - L-R12-01: getPaymentMode returns 'unconfigured' when keys are missing
+      ---
+      duration_ms: 13.92025
+      type: 'test'
+      ...
+    # Subtest: L-R12-02: getPaymentMode returns 'test' when RAZORPAY_KEY_ID starts with rzp_test_
+    ok 2 - L-R12-02: getPaymentMode returns 'test' when RAZORPAY_KEY_ID starts with rzp_test_
+      ---
+      duration_ms: 0.249167
+      type: 'test'
+      ...
+    # Subtest: L-R12-03: getPaymentMode returns 'live' when RAZORPAY_KEY_ID starts with rzp_live_
+    ok 3 - L-R12-03: getPaymentMode returns 'live' when RAZORPAY_KEY_ID starts with rzp_live_
+      ---
+      duration_ms: 0.502792
+      type: 'test'
+      ...
+    # Subtest: L-R12-04: getPaymentMode returns 'unconfigured' for invalid key prefix
+    ok 4 - L-R12-04: getPaymentMode returns 'unconfigured' for invalid key prefix
+      ---
+      duration_ms: 0.560292
+      type: 'test'
+      ...
+# Razorpay webhook secret is not configured; failing closed
+    # Subtest: L-R12-05: getHealthPayload includes paymentMode without leaking key values
+    ok 5 - L-R12-05: getHealthPayload includes paymentMode without leaking key values
+      ---
+      duration_ms: 52.078166
+      type: 'test'
+      ...
+    # Subtest: L-R12-06: Razorpay webhook fails closed (500) without RAZORPAY_WEBHOOK_SECRET
+    ok 6 - L-R12-06: Razorpay webhook fails closed (500) without RAZORPAY_WEBHOOK_SECRET
+      ---
+      duration_ms: 3.604209
+      type: 'test'
+      ...
+    # Subtest: L-R12-07: getRazorpayClient refuses mismatched test server key and live public key
+    ok 7 - L-R12-07: getRazorpayClient refuses mismatched test server key and live public key
+      ---
+      duration_ms: 0.42875
+      type: 'test'
+      ...
+    # Subtest: L-R12-08: getRazorpayClient refuses mismatched live server key and test public key
+    ok 8 - L-R12-08: getRazorpayClient refuses mismatched live server key and test public key
+      ---
+      duration_ms: 0.16125
+      type: 'test'
+      ...
+    # Subtest: L-R12-09: getRazorpayClient refuses test key ID paired with live secret
+    ok 9 - L-R12-09: getRazorpayClient refuses test key ID paired with live secret
+      ---
+      duration_ms: 0.22
+      type: 'test'
+      ...
+    # Subtest: L-R12-10: getRazorpayClient succeeds with valid matching test credentials
+    ok 10 - L-R12-10: getRazorpayClient succeeds with valid matching test credentials
+      ---
+      duration_ms: 14.413333
+      type: 'test'
+      ...
+    # Subtest: L-R12-11: getRazorpayClient succeeds with valid matching live credentials
+    ok 11 - L-R12-11: getRazorpayClient succeeds with valid matching live credentials
+      ---
+      duration_ms: 0.438083
+      type: 'test'
+      ...
+    1..11
+ok 1 - R12-L: Payment mode safety and credentials validation
+  ---
+  duration_ms: 88.0705
+  type: 'suite'
+  ...
+1..1
+# tests 11
+# suites 1
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 652.975459
+EXIT:0

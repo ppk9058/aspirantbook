@@ -1,0 +1,180 @@
+TAP version 13
+# Razorpay credentials not configured
+# Subtest: R12-L: Payment mode safety and credentials validation
+    # Subtest: L-R12-01: getPaymentMode returns 'unconfigured' when keys are missing
+    not ok 1 - L-R12-01: getPaymentMode returns 'unconfigured' when keys are missing
+      ---
+      duration_ms: 14.654917
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:2:1602'
+      failureType: 'testCodeFailure'
+      error: '(0 , import_razorpay_config.getPaymentMode) is not a function'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TypeError'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:34:18)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: L-R12-02: getPaymentMode returns 'test' when RAZORPAY_KEY_ID starts with rzp_test_
+    not ok 2 - L-R12-02: getPaymentMode returns 'test' when RAZORPAY_KEY_ID starts with rzp_test_
+      ---
+      duration_ms: 0.241959
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:2:1859'
+      failureType: 'testCodeFailure'
+      error: '(0 , import_razorpay_config.getPaymentMode) is not a function'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TypeError'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:40:18)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: L-R12-03: getPaymentMode returns 'live' when RAZORPAY_KEY_ID starts with rzp_live_
+    not ok 3 - L-R12-03: getPaymentMode returns 'live' when RAZORPAY_KEY_ID starts with rzp_live_
+      ---
+      duration_ms: 0.470875
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:2:2138'
+      failureType: 'testCodeFailure'
+      error: '(0 , import_razorpay_config.getPaymentMode) is not a function'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TypeError'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:46:18)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: L-R12-04: getPaymentMode returns 'unconfigured' for invalid key prefix
+    not ok 4 - L-R12-04: getPaymentMode returns 'unconfigured' for invalid key prefix
+      ---
+      duration_ms: 0.4505
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:2:2417'
+      failureType: 'testCodeFailure'
+      error: '(0 , import_razorpay_config.getPaymentMode) is not a function'
+      code: 'ERR_TEST_FAILURE'
+      name: 'TypeError'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:52:18)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+# Razorpay webhook secret is not configured; failing closed
+    # Subtest: L-R12-05: getHealthPayload includes paymentMode without leaking key values
+    not ok 5 - L-R12-05: getHealthPayload includes paymentMode without leaking key values
+      ---
+      duration_ms: 66.337791
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:2:2689'
+      failureType: 'testCodeFailure'
+      error: 'health payload must include paymentMode'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:59:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: L-R12-06: Razorpay webhook fails closed (500) without RAZORPAY_WEBHOOK_SECRET
+    ok 6 - L-R12-06: Razorpay webhook fails closed (500) without RAZORPAY_WEBHOOK_SECRET
+      ---
+      duration_ms: 3.948542
+      type: 'test'
+      ...
+    # Subtest: L-R12-07: getRazorpayClient refuses mismatched test server key and live public key
+    not ok 7 - L-R12-07: getRazorpayClient refuses mismatched test server key and live public key
+      ---
+      duration_ms: 15.382041
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:2:3971'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected exception.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      operator: 'throws'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:94:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: L-R12-08: getRazorpayClient refuses mismatched live server key and test public key
+    not ok 8 - L-R12-08: getRazorpayClient refuses mismatched live server key and test public key
+      ---
+      duration_ms: 0.529083
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:2:4335'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected exception.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      operator: 'throws'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:104:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: L-R12-09: getRazorpayClient refuses test key ID paired with live secret
+    not ok 9 - L-R12-09: getRazorpayClient refuses test key ID paired with live secret
+      ---
+      duration_ms: 0.519959
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:2:4699'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected exception.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      operator: 'throws'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:114:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: L-R12-10: getRazorpayClient succeeds with valid matching test credentials
+    ok 10 - L-R12-10: getRazorpayClient succeeds with valid matching test credentials
+      ---
+      duration_ms: 0.519375
+      type: 'test'
+      ...
+    # Subtest: L-R12-11: getRazorpayClient succeeds with valid matching live credentials
+    ok 11 - L-R12-11: getRazorpayClient succeeds with valid matching live credentials
+      ---
+      duration_ms: 0.836542
+      type: 'test'
+      ...
+    1..11
+not ok 1 - R12-L: Payment mode safety and credentials validation
+  ---
+  duration_ms: 105.380041
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/payment-mode-safety.test.ts:2:1158'
+  failureType: 'subtestsFailed'
+  error: '8 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 11
+# suites 1
+# pass 3
+# fail 8
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 611.287458
+EXIT:1
