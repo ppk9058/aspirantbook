@@ -86,4 +86,12 @@ describe("Task E: .env.example Completeness Enforcer", () => {
 
     assert.ok(exampleVars.size > 0, ".env.example must contain variables");
   });
+
+  test("Sentry error monitoring variables are documented in .env.example as OPTIONAL", () => {
+    const exampleVars = getEnvExampleVars();
+    assert.ok(exampleVars.has("SENTRY_DSN"), "SENTRY_DSN must be documented in .env.example");
+    assert.ok(exampleVars.has("SENTRY_ENVIRONMENT"), "SENTRY_ENVIRONMENT must be documented in .env.example");
+    assert.ok(exampleVars.has("SENTRY_RELEASE"), "SENTRY_RELEASE must be documented in .env.example");
+  });
 });
+

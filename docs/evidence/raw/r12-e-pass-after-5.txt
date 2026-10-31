@@ -1,0 +1,80 @@
+TAP version 13
+# Subtest: R12-E: Sentry Configuration & PII Scrubber
+    # Subtest: DSN Guard & No-Op Behavior
+        # Subtest: does not initialize when SENTRY_DSN is absent or empty
+        ok 1 - does not initialize when SENTRY_DSN is absent or empty
+          ---
+          duration_ms: 1.615333
+          type: 'test'
+          ...
+        # Subtest: reads configuration correctly when SENTRY_DSN is provided
+        ok 2 - reads configuration correctly when SENTRY_DSN is provided
+          ---
+          duration_ms: 0.265709
+          type: 'test'
+          ...
+        1..2
+    ok 1 - DSN Guard & No-Op Behavior
+      ---
+      duration_ms: 2.506291
+      type: 'suite'
+      ...
+    # Subtest: PII Scrubber (scrubSentryEvent)
+        # Subtest: scrubs request bodies completely
+        ok 1 - scrubs request bodies completely
+          ---
+          duration_ms: 0.467584
+          type: 'test'
+          ...
+        # Subtest: scrubs cookies from request object and headers
+        ok 2 - scrubs cookies from request object and headers
+          ---
+          duration_ms: 0.262792
+          type: 'test'
+          ...
+        # Subtest: scrubs authorization and authentication headers
+        ok 3 - scrubs authorization and authentication headers
+          ---
+          duration_ms: 0.36425
+          type: 'test'
+          ...
+        # Subtest: scrubs query strings from URL and query_string field
+        ok 4 - scrubs query strings from URL and query_string field
+          ---
+          duration_ms: 0.132791
+          type: 'test'
+          ...
+        # Subtest: scrubs email addresses and PII from user object
+        ok 5 - scrubs email addresses and PII from user object
+          ---
+          duration_ms: 0.171792
+          type: 'test'
+          ...
+        # Subtest: scrubs emails and bearer tokens from error messages and breadcrumbs
+        ok 6 - scrubs emails and bearer tokens from error messages and breadcrumbs
+          ---
+          duration_ms: 0.539916
+          type: 'test'
+          ...
+        1..6
+    ok 2 - PII Scrubber (scrubSentryEvent)
+      ---
+      duration_ms: 2.325708
+      type: 'suite'
+      ...
+    1..2
+ok 1 - R12-E: Sentry Configuration & PII Scrubber
+  ---
+  duration_ms: 5.282
+  type: 'suite'
+  ...
+1..1
+# tests 8
+# suites 3
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1145.167042
+EXIT:0
