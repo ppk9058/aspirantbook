@@ -13,7 +13,7 @@ HANDOFF: none
 | R12-D | T1 | CHEAP | DONE | ff1beac | `docs/evidence/raw/r12-d-*.txt`, `docs/evidence/raw/staging-smoke-local.txt` | — | 5 tests, fail-before 5×EXIT:1, pass-after 5×EXIT:0, staging smoke script PASS against local server |
 | R12-F | T1 | CHEAP | DONE | ea5b528 | `docs/evidence/raw/r12-f-*.txt` | — | 6 tests, fail-before 5×EXIT:1, pass-after 5×EXIT:0, render.yaml 5m cron, disabled GHA stub, auth & pending row tested |
 | R12-G | T1 | CHEAP | DONE | e074809 | `docs/evidence/raw/r12-g-*.txt` | — | 5 tests, fail-before 5×EXIT:1, pass-after 5×EXIT:0, db-backup-to-s3.sh, rollback.md, e2e restore 75/75 tables 4186 rows PASS |
-| R12-E | T1 | CHEAP | TODO | — | — | Read SPEC R12-E; add `@sentry/nextjs` optional by env, scrub PII | Zero network calls without DSN |
+| R12-E | T1 | CHEAP | IN_PROGRESS | 8971ad5 | — | Add @sentry/nextjs optional by env, scrub PII | Zero network calls without DSN |
 | R12-H | T2 | CHEAP | TODO | — | — | Read SPEC R12-H; run `npm audit fix`, report before/after | No major bumps |
 | R12-I | T2 | CHEAP | TODO | — | — | Read SPEC R12-I; replace console.log, close localhost fallbacks, add LICENSE | Grep-based guard tests |
 | R12-J | T2 | CHEAP | TODO | — | — | Read SPEC R12-J; confirm .gitleaksignore, add CI job, replace literal fallbacks | Counts by rule, never values |
