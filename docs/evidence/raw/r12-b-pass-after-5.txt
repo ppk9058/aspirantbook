@@ -1,0 +1,72 @@
+TAP version 13
+# Subtest: R12-B: DATABASE_URL safety for Neon (production only)
+    # Subtest: B-R12-01: rejects localhost DATABASE_URL in production
+    ok 1 - B-R12-01: rejects localhost DATABASE_URL in production
+      ---
+      duration_ms: 5.338584
+      type: 'test'
+      ...
+    # Subtest: B-R12-02: rejects 127.0.0.1 DATABASE_URL in production
+    ok 2 - B-R12-02: rejects 127.0.0.1 DATABASE_URL in production
+      ---
+      duration_ms: 2.669666
+      type: 'test'
+      ...
+    # Subtest: B-R12-03: rejects DATABASE_URL without sslmode=require in production
+    ok 3 - B-R12-03: rejects DATABASE_URL without sslmode=require in production
+      ---
+      duration_ms: 1.695666
+      type: 'test'
+      ...
+    # Subtest: B-R12-04: rejects pooler host without pgbouncer=true in production
+    ok 4 - B-R12-04: rejects pooler host without pgbouncer=true in production
+      ---
+      duration_ms: 1.877916
+      type: 'test'
+      ...
+    # Subtest: B-R12-05: accepts pooler host WITH pgbouncer=true in production
+    ok 5 - B-R12-05: accepts pooler host WITH pgbouncer=true in production
+      ---
+      duration_ms: 1.439417
+      type: 'test'
+      ...
+    # Subtest: B-R12-06: rejects missing DIRECT_URL in production
+    ok 6 - B-R12-06: rejects missing DIRECT_URL in production
+      ---
+      duration_ms: 1.072
+      type: 'test'
+      ...
+    # Subtest: B-R12-07: accepts valid Neon URL with sslmode and DIRECT_URL in production
+    ok 7 - B-R12-07: accepts valid Neon URL with sslmode and DIRECT_URL in production
+      ---
+      duration_ms: 0.750583
+      type: 'test'
+      ...
+    # Subtest: B-R12-08: non-production is unaffected by Neon guards
+    ok 8 - B-R12-08: non-production is unaffected by Neon guards
+      ---
+      duration_ms: 1.137709
+      type: 'test'
+      ...
+    # Subtest: B-R12-09: error messages never contain the actual URL
+    ok 9 - B-R12-09: error messages never contain the actual URL
+      ---
+      duration_ms: 0.909542
+      type: 'test'
+      ...
+    1..9
+ok 1 - R12-B: DATABASE_URL safety for Neon (production only)
+  ---
+  duration_ms: 18.449041
+  type: 'suite'
+  ...
+1..1
+# tests 9
+# suites 1
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 238.750167
+EXIT:0

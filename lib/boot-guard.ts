@@ -46,7 +46,47 @@ export function validateBootSecurity() {
     }
   }
 
-  // 2. Guard: Refuse to start when NODE_ENV==="production" and ALLOW_DEV_MOBILE_LOGIN==="true"
+  // 2. Guard: Production DATABASE_URL safety for Neon (R12-B)
+  if (isProduction && dbUrl) {
+    let parsedDb: URL | null = null;
+    try {
+      parsedDb = new URL(dbUrl);
+    } catch {
+      // unparseable URL – fail closed
+    }
+
+    // 2a. Must not point at localhost/127.0.0.1 in production
+    if (!parsedDb || parsedDb.hostname === "localhost" || parsedDb.hostname === "127.0.0.1") {
+      throw new Error(
+        "[CRITICAL SECURITY REFUSAL AT BOOT] DATABASE_URL points at a local host or is unparseable in production. " +
+        "Production must use a remote database."
+      );
+    }
+
+    // 2b. Must contain sslmode=require
+    const sslMode = parsedDb.searchParams.get("sslmode");
+    if (sslMode !== "require") {
+      throw new Error(
+        "[CRITICAL SECURITY REFUSAL AT BOOT] DATABASE_URL is missing sslmode=require in production."
+      );
+    }
+
+    // 2c. Pooled Neon host (contains -pooler) requires pgbouncer=true
+    if (parsedDb.hostname.includes("-pooler") && parsedDb.searchParams.get("pgbouncer") !== "true") {
+      throw new Error(
+        "[CRITICAL SECURITY REFUSAL AT BOOT] DATABASE_URL uses a Neon pooler host but is missing pgbouncer=true."
+      );
+    }
+
+    // 2d. DIRECT_URL must be set for migrations
+    if (!process.env.DIRECT_URL) {
+      throw new Error(
+        "[CRITICAL SECURITY REFUSAL AT BOOT] DIRECT_URL is not set in production. It is required for migrations."
+      );
+    }
+  }
+
+  // 3. Guard: Refuse to start when NODE_ENV==="production" and ALLOW_DEV_MOBILE_LOGIN==="true"
   if (isProduction && allowDevBypass) {
     const errorMsg =
       "[CRITICAL SECURITY REFUSAL AT BOOT] ALLOW_DEV_MOBILE_LOGIN is enabled in NODE_ENV=production! " +

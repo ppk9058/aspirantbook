@@ -1,0 +1,133 @@
+TAP version 13
+# Subtest: R12-B: DATABASE_URL safety for Neon (production only)
+    # Subtest: B-R12-01: rejects localhost DATABASE_URL in production
+    not ok 1 - B-R12-01: rejects localhost DATABASE_URL in production
+      ---
+      duration_ms: 9.81425
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:2:2302'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      operator: 'rejects'
+      stack: |-
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:57:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: B-R12-02: rejects 127.0.0.1 DATABASE_URL in production
+    not ok 2 - B-R12-02: rejects 127.0.0.1 DATABASE_URL in production
+      ---
+      duration_ms: 2.526334
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:2:2566'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      operator: 'rejects'
+      stack: |-
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:65:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: B-R12-03: rejects DATABASE_URL without sslmode=require in production
+    not ok 3 - B-R12-03: rejects DATABASE_URL without sslmode=require in production
+      ---
+      duration_ms: 1.78275
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:2:2830'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      operator: 'rejects'
+      stack: |-
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:73:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: B-R12-04: rejects pooler host without pgbouncer=true in production
+    not ok 4 - B-R12-04: rejects pooler host without pgbouncer=true in production
+      ---
+      duration_ms: 2.289959
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:2:3088'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      operator: 'rejects'
+      stack: |-
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:83:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: B-R12-05: accepts pooler host WITH pgbouncer=true in production
+    ok 5 - B-R12-05: accepts pooler host WITH pgbouncer=true in production
+      ---
+      duration_ms: 1.867958
+      type: 'test'
+      ...
+    # Subtest: B-R12-06: rejects missing DIRECT_URL in production
+    not ok 6 - B-R12-06: rejects missing DIRECT_URL in production
+      ---
+      duration_ms: 1.683375
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:2:3700'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected rejection.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      operator: 'rejects'
+      stack: |-
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:98:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: B-R12-07: accepts valid Neon URL with sslmode and DIRECT_URL in production
+    ok 7 - B-R12-07: accepts valid Neon URL with sslmode and DIRECT_URL in production
+      ---
+      duration_ms: 2.402416
+      type: 'test'
+      ...
+    # Subtest: B-R12-08: non-production is unaffected by Neon guards
+    ok 8 - B-R12-08: non-production is unaffected by Neon guards
+      ---
+      duration_ms: 1.23025
+      type: 'test'
+      ...
+    # Subtest: B-R12-09: error messages never contain the actual URL
+    ok 9 - B-R12-09: error messages never contain the actual URL
+      ---
+      duration_ms: 1.682834
+      type: 'test'
+      ...
+    1..9
+not ok 1 - R12-B: DATABASE_URL safety for Neon (production only)
+  ---
+  duration_ms: 27.385
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/db-url-neon-safety.test.ts:2:968'
+  failureType: 'subtestsFailed'
+  error: '5 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 9
+# suites 1
+# pass 4
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 303.46975
+EXIT:1
