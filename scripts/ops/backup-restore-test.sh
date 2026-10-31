@@ -31,14 +31,37 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Resolve pg_dump and pg_restore binaries: check env, newer libpq, or fallback to system
+PG_DUMP="${PG_DUMP_BIN:-}"
+if [[ -z "$PG_DUMP" ]]; then
+  for candidate in /opt/homebrew/opt/libpq/bin/pg_dump /opt/homebrew/Cellar/libpq/*/bin/pg_dump /usr/local/opt/libpq/bin/pg_dump; do
+    if [[ -x "$candidate" ]]; then
+      PG_DUMP="$candidate"
+      break
+    fi
+  done
+  PG_DUMP="${PG_DUMP:-pg_dump}"
+fi
+
+PG_RESTORE="${PG_RESTORE_BIN:-}"
+if [[ -z "$PG_RESTORE" ]]; then
+  for candidate in /opt/homebrew/opt/libpq/bin/pg_restore /opt/homebrew/Cellar/libpq/*/bin/pg_restore /usr/local/opt/libpq/bin/pg_restore; do
+    if [[ -x "$candidate" ]]; then
+      PG_RESTORE="$candidate"
+      break
+    fi
+  done
+  PG_RESTORE="${PG_RESTORE:-pg_restore}"
+fi
+
 echo "backup-restore-test: source_host=${SOURCE_HOST} throwaway_db=${TARGET_DB}"
 
 psql "$ADMIN_URL" -q -v ON_ERROR_STOP=1 -c "CREATE DATABASE \"$TARGET_DB\""
 echo "backup-restore-test: dump"
-pg_dump "$SOURCE_URL" --format=custom --no-owner --no-acl --file="$DUMP_FILE"
+"$PG_DUMP" "$SOURCE_URL" --format=custom --no-owner --no-acl --file="$DUMP_FILE"
 echo "backup-restore-test: dump_bytes=$(wc -c < "$DUMP_FILE" | tr -d ' ')"
 echo "backup-restore-test: restore"
-pg_restore --no-owner --no-acl --exit-on-error --dbname="$TARGET_URL" "$DUMP_FILE"
+"$PG_RESTORE" --no-owner --no-acl --exit-on-error --dbname="$TARGET_URL" "$DUMP_FILE"
 
 TABLES=()
 while IFS= read -r line; do

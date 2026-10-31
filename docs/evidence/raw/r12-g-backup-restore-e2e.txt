@@ -1,0 +1,15 @@
+SHA: 9e1f1c0a05b6927f59997ee8bb619d659e621e0b
+DATE: 2026-10-31T21:38:34Z
+COMMAND: db-backup-to-s3.sh and backup-restore-test.sh against local test DB on 54329
+---
+db-backup-to-s3: starting dump from host=127.0.0.1:54329
+db-backup-to-s3: dump created successfully, size=357396 bytes
+db-backup-to-s3: stored backup at /tmp/local_backups/db_backup_20261031_213834.dump
+db-backup-to-s3: PASS
+backup-restore-test: source_host=127.0.0.1:54329 throwaway_db=r9_restore_1793482716
+backup-restore-test: dump
+backup-restore-test: dump_bytes=357396
+backup-restore-test: restore
+backup-restore-test: tables_compared=75 restored_tables=75 total_source_rows=4186 mismatches=0
+backup-restore-test: PASS
+EXIT:0
