@@ -1,0 +1,11 @@
+SHA: b61845a
+DATE: 2026-10-31T22:45:05+05:30
+COMMAND: docker build -t trillionskill:b61845a .
+---
+build_exit=0 build_seconds=1476
+image=trillionskill:b61845a size=625MB id=e6810ec2a9d9
+non_root: uid=1001(nextjs) gid=1001(nodejs) groups=1001(nodejs)
+config_user: nextjs
+history_lines: 24
+real_secret_occurrences_in_history: NEXTAUTH_SECRET=0 DB_PASSWORD=0
+buildkit_warning: SecretsUsedInArgOrEnv for ENV AUTH_SECRET (builder-stage dummy placeholder only, not present in runner layer values; scan above found 0 real secrets)

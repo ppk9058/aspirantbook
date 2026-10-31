@@ -1,0 +1,16 @@
+SHA: b61845a
+DATE: 2026-10-31T22:44:33+05:30
+COMMAND: R9_BASE_URL=http://127.0.0.1:3050 npx tsx scripts/r9-container-exam-flow.ts
+NOTE: app rate-limits registration to 5/hour/IP; between runs the harness clears only v1:auth_register rows in the local throwaway DB (no user data touched)
+---
+[1] health: status=200 db=healthy
+[2] register: status=201 userId=cmvwnvglx0028n101iabjdmmg
+[3] login: status=200
+[4] tests: count=8 chosen=cmv5d7r52003oxpzv4x54dnie free=true
+[5] start: status=201 attemptId=cmvwnvhh6002gn101eou5tvwj resumed=false
+[6] questions: count=1 status=IN_PROGRESS
+[7] answers: status=200 synced=1
+[8] submit: status=200
+[9] result: status=200 score=-0.33 totalMarks=10 correct=0 wrong=1 skipped=0
+EXAM_FLOW_PASS
+EXIT:0

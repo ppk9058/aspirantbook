@@ -1,0 +1,20 @@
+SHA: b61845a
+DATE: 2026-10-31T22:44:58+05:30
+COMMAND: docker run --read-only --tmpfs /tmp --tmpfs /app/.next/cache -p 127.0.0.1:3050:3000 trillionskill:b61845a
+ENV: NODE_ENV=production PERSIST_BACKEND=db; DB host=host.docker.internal:54329 (local throwaway)
+--- public /api/health ---
+code=200
+{"status":"ok","timestamp":"2026-10-31T17:14:58.518Z","commit":"unknown","uptime":139,"database":{"status":"healthy","latencyMs":10},"payments":"not configured","totalLatencyMs":23}
+--- detailed /api/health (x-health-details-token: <token>) ---
+code=200
+{"status":"ok","timestamp":"2026-10-31T17:14:58.576Z","commit":"unknown","uptime":139,"database":{"status":"healthy","latencyMs":9},"payments":"not configured","totalLatencyMs":16,"migrations":{"applied":31,"pending":0},"paymentsConfigured":false,"storageBackend":"db","emailProviders":{"brevo":false,"resend":false}}
+--- B-001 guards ---
+GET /admin -> 307
+GET /api/admin -> 401
+GET /api/auth/role -> 404
+POST /api/exam/test/bulk -> 401
+--- secret leak scan (counts only) ---
+NEXTAUTH_SECRET in health bodies = 0
+HEALTH_DETAILS_TOKEN in health bodies = 0
+DB_PASSWORD in health bodies = 0
+CONTAINER_SECRET in health bodies = 0
