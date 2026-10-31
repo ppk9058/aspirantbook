@@ -1,0 +1,78 @@
+TAP version 13
+# Subtest: R12-A: render.yaml validation
+    # Subtest: A-R12-01: render.yaml exists and is valid YAML
+    ok 1 - A-R12-01: render.yaml exists and is valid YAML
+      ---
+      duration_ms: 5.512375
+      type: 'test'
+      ...
+    # Subtest: A-R12-02: has exactly one web service
+    ok 2 - A-R12-02: has exactly one web service
+      ---
+      duration_ms: 1.332583
+      type: 'test'
+      ...
+    # Subtest: A-R12-03: uses Docker runtime
+    ok 3 - A-R12-03: uses Docker runtime
+      ---
+      duration_ms: 1.165584
+      type: 'test'
+      ...
+    # Subtest: A-R12-04: healthCheckPath is /api/health
+    ok 4 - A-R12-04: healthCheckPath is /api/health
+      ---
+      duration_ms: 1.551833
+      type: 'test'
+      ...
+    # Subtest: A-R12-05: autoDeploy is off
+    ok 5 - A-R12-05: autoDeploy is off
+      ---
+      duration_ms: 1.584792
+      type: 'test'
+      ...
+    # Subtest: A-R12-06: preDeployCommand runs migrate-deploy.sh
+    ok 6 - A-R12-06: preDeployCommand runs migrate-deploy.sh
+      ---
+      duration_ms: 1.4095
+      type: 'test'
+      ...
+    # Subtest: A-R12-07: NODE_ENV is production, PERSIST_BACKEND is db
+    ok 7 - A-R12-07: NODE_ENV is production, PERSIST_BACKEND is db
+      ---
+      duration_ms: 0.993875
+      type: 'test'
+      ...
+    # Subtest: A-R12-08: no secret-like values in render.yaml
+    ok 8 - A-R12-08: no secret-like values in render.yaml
+      ---
+      duration_ms: 0.868584
+      type: 'test'
+      ...
+    # Subtest: A-R12-09: every env key exists in .env.example
+    ok 9 - A-R12-09: every env key exists in .env.example
+      ---
+      duration_ms: 1.178708
+      type: 'test'
+      ...
+    # Subtest: A-R12-10: DATABASE_URL and DIRECT_URL are sync:false (secrets)
+    ok 10 - A-R12-10: DATABASE_URL and DIRECT_URL are sync:false (secrets)
+      ---
+      duration_ms: 1.163083
+      type: 'test'
+      ...
+    1..10
+ok 1 - R12-A: render.yaml validation
+  ---
+  duration_ms: 18.010666
+  type: 'suite'
+  ...
+1..1
+# tests 10
+# suites 1
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 285.707958
+EXIT:0

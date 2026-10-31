@@ -14,6 +14,18 @@ Measured reference points (this branch):
 - exam flow PASS 5/5 against the container
   (`docs/evidence/raw/r9-s4-exam-flow-{1..5}of5.txt`)
 
+## 0. Render Blueprint (`render.yaml`)
+
+The repo root contains `render.yaml` – a Render Blueprint that defines the
+Docker web service. It specifies the Dockerfile, health check path (`/api/health`),
+pre-deploy migration command (`scripts/ops/migrate-deploy.sh` using `DIRECT_URL`),
+`autoDeploy: false`, and all required env var NAMES (no values; secrets use
+`sync: false`). `TRUST_PROXY` is commented out – uncomment and set to `"true"`
+only after Cloudflare proxy is active.
+
+To create the service from the blueprint: Render dashboard → New → Blueprint →
+point at this repo. Review the env var list and fill in secret values.
+
 ## 1. Why Render free/starter needs `PERSIST_BACKEND=db`
 
 Render instances (including free tier) have an **ephemeral filesystem** and free

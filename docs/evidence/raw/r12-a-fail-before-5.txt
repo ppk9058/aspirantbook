@@ -1,0 +1,216 @@
+TAP version 13
+# Subtest: R12-A: render.yaml validation
+    # Subtest: A-R12-01: render.yaml exists and is valid YAML
+    not ok 1 - A-R12-01: render.yaml exists and is valid YAML
+      ---
+      duration_ms: 0.957083
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:1294'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, open '/Users/praveenkumar/ws-launch/render.yaml'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readFileSync (node:fs:440:20)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:15:24)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Test.start (node:internal/test_runner/test:944:17)
+        node:internal/test_runner/test:1440:71
+        node:internal/per_context/primordials:466:82
+        new Promise (<anonymous>)
+        new SafePromise (node:internal/per_context/primordials:435:3)
+        node:internal/per_context/primordials:466:9
+      ...
+    # Subtest: A-R12-02: has exactly one web service
+    not ok 2 - A-R12-02: has exactly one web service
+      ---
+      duration_ms: 0.116792
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:1615'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, open '/Users/praveenkumar/ws-launch/render.yaml'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readFileSync (node:fs:440:20)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:22:24)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: A-R12-03: uses Docker runtime
+    not ok 3 - A-R12-03: uses Docker runtime
+      ---
+      duration_ms: 0.161167
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:1923'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, open '/Users/praveenkumar/ws-launch/render.yaml'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readFileSync (node:fs:440:20)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:29:24)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: A-R12-04: healthCheckPath is /api/health
+    not ok 4 - A-R12-04: healthCheckPath is /api/health
+      ---
+      duration_ms: 0.074958
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:2219'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, open '/Users/praveenkumar/ws-launch/render.yaml'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readFileSync (node:fs:440:20)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:37:24)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: A-R12-05: autoDeploy is off
+    not ok 5 - A-R12-05: autoDeploy is off
+      ---
+      duration_ms: 0.063958
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:2476'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, open '/Users/praveenkumar/ws-launch/render.yaml'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readFileSync (node:fs:440:20)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:44:24)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: A-R12-06: preDeployCommand runs migrate-deploy.sh
+    not ok 6 - A-R12-06: preDeployCommand runs migrate-deploy.sh
+      ---
+      duration_ms: 0.063625
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:2707'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, open '/Users/praveenkumar/ws-launch/render.yaml'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readFileSync (node:fs:440:20)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:51:24)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: A-R12-07: NODE_ENV is production, PERSIST_BACKEND is db
+    not ok 7 - A-R12-07: NODE_ENV is production, PERSIST_BACKEND is db
+      ---
+      duration_ms: 0.155833
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:3061'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, open '/Users/praveenkumar/ws-launch/render.yaml'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readFileSync (node:fs:440:20)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:61:24)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: A-R12-08: no secret-like values in render.yaml
+    not ok 8 - A-R12-08: no secret-like values in render.yaml
+      ---
+      duration_ms: 0.16575
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:3509'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, open '/Users/praveenkumar/ws-launch/render.yaml'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readFileSync (node:fs:440:20)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:72:24)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: A-R12-09: every env key exists in .env.example
+    not ok 9 - A-R12-09: every env key exists in .env.example
+      ---
+      duration_ms: 0.239
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:4074'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, open '/Users/praveenkumar/ws-launch/render.yaml'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readFileSync (node:fs:440:20)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:92:24)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: A-R12-10: DATABASE_URL and DIRECT_URL are sync:false (secrets)
+    not ok 10 - A-R12-10: DATABASE_URL and DIRECT_URL are sync:false (secrets)
+      ---
+      duration_ms: 0.39825
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:4549'
+      failureType: 'testCodeFailure'
+      error: "ENOENT: no such file or directory, open '/Users/praveenkumar/ws-launch/render.yaml'"
+      code: 'ENOENT'
+      stack: |-
+        Object.readFileSync (node:fs:440:20)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:108:24)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..10
+not ok 1 - R12-A: render.yaml validation
+  ---
+  duration_ms: 3.741
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/render-yaml-validation.test.ts:2:1225'
+  failureType: 'subtestsFailed'
+  error: '10 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 10
+# suites 1
+# pass 0
+# fail 10
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 247.099708
+EXIT:1

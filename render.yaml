@@ -1,0 +1,171 @@
+# render.yaml – Render Blueprint for TrillionSkill
+# Docker web service using the existing Dockerfile.
+# All env vars are NAMES only – no secret values.
+# See .env.example for descriptions and defaults.
+
+services:
+  - type: web
+    name: trillionskill
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    region: singapore
+    healthCheckPath: /api/health
+    autoDeploy: false
+    preDeployCommand: "bash scripts/ops/migrate-deploy.sh"
+    envVars:
+      # --- Core ---
+      - key: NODE_ENV
+        value: production
+      - key: PERSIST_BACKEND
+        value: db
+      - key: PORT
+        value: "3000"
+      # TRUST_PROXY: set to "true" only after Cloudflare proxy is on
+      # - key: TRUST_PROXY
+      #   value: "true"
+
+      # --- Database (secrets, not in file) ---
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+
+      # --- Auth ---
+      - key: AUTH_SECRET
+        sync: false
+      - key: NEXTAUTH_SECRET
+        sync: false
+      - key: AUTH_URL
+        sync: false
+      - key: NEXTAUTH_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_IDS
+        sync: false
+
+      # --- App URLs ---
+      - key: APP_URL
+        sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: CANONICAL_DOMAIN
+        sync: false
+      - key: NEXT_PUBLIC_CANONICAL_DOMAIN
+        sync: false
+      - key: WEBSITE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SITE_NAME
+        sync: false
+      - key: NEXT_PUBLIC_APP_NAME
+        sync: false
+
+      # --- Payments (Razorpay) ---
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_RAZORPAY_KEY_ID
+        sync: false
+
+      # --- Payments (Stripe) ---
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID
+        sync: false
+      - key: NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID
+        sync: false
+      - key: STRIPE_MONTHLY_PRICE_ID
+        sync: false
+      - key: STRIPE_YEARLY_PRICE_ID
+        sync: false
+
+      # --- S3 / R2 ---
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ENDPOINT
+        sync: false
+      - key: AWS_CLOUDFRONT_DOMAIN
+        sync: false
+      - key: AWS_S3_BUCKET_NAME
+        sync: false
+
+      # --- Email ---
+      - key: EMAIL_FROM
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+
+      # --- Turnstile ---
+      - key: TURNSTILE_ENABLED
+        sync: false
+      - key: NEXT_PUBLIC_TURNSTILE_SITE_KEY
+        sync: false
+      - key: TURNSTILE_SECRET_KEY
+        sync: false
+
+      # --- Health / Ops ---
+      - key: HEALTH_DETAILS_TOKEN
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: GIT_COMMIT
+        sync: false
+      - key: NEXT_PUBLIC_GIT_COMMIT
+        sync: false
+
+      # --- Mobile ---
+      - key: NEXT_PUBLIC_ENABLE_MOBILE_NATIVE_SHELL
+        value: "true"
+      - key: ENABLE_MOBILE_PUSH
+        sync: false
+      - key: EXPO_ACCESS_TOKEN
+        sync: false
+      - key: LATEST_APP_VERSION
+        sync: false
+      - key: MIN_SUPPORTED_APP_VERSION
+        sync: false
+
+      # --- Brand / Legal ---
+      - key: BRAND_NAME
+        sync: false
+      - key: LEGAL_ENTITY_NAME
+        sync: false
+      - key: SUPPORT_EMAIL
+        sync: false
+      - key: NEXT_PUBLIC_SUPPORT_EMAIL
+        sync: false
+      - key: NEXT_PUBLIC_SUPPORT_PHONE
+        sync: false
+      - key: GRIEVANCE_EMAIL
+        sync: false
+      - key: GRIEVANCE_OFFICER
+        sync: false
+      - key: REGISTERED_ADDRESS
+        sync: false
+
+      # --- Feature flags ---
+      - key: MAINTENANCE_MODE
+        value: "false"
+      - key: NEXT_PUBLIC_APP_ALLOW_PURCHASE
+        sync: false
+      - key: REQUIRE_EMAIL_VERIFICATION_FOR_PURCHASE
+        sync: false
