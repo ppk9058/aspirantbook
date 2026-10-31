@@ -9,7 +9,7 @@ assertTestDb();
 
 const prisma = new PrismaClient({ datasources: { db: { url: dbUrl } } });
 const BASE_URL = process.env.TEST_BASE_URL || "http://127.0.0.1:3045";
-const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "default_test_secret_32_characters_long_min";
+const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
 
 async function createSessionCookie(userId: string, role: string, email: string) {
   const token = await encode({

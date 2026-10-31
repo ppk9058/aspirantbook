@@ -4,7 +4,7 @@ import { encode } from "next-auth/jwt";
 const PRE10_PORT = 3055;
 const PRE10_DIR = "/Users/praveenkumar/TrillionSkill-prepass10";
 const DOCKER_DB_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
-const SECRET = "default_test_secret_32_characters_long_min";
+const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
 
 async function makeCookie(host: string) {
   const token = await encode({

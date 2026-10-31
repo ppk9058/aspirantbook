@@ -18,8 +18,8 @@ const prisma = new PrismaClient({
   datasources: { db: { url: DOCKER_DB_URL } }
 });
 
-const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "default_test_secret_32_characters_long_min";
-const WEBHOOK_SECRET = "whsec_test_secret_12345";
+const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
+const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || (() => { throw new Error("RAZORPAY_WEBHOOK_SECRET is required"); })();
 process.env.RAZORPAY_WEBHOOK_SECRET = WEBHOOK_SECRET;
 
 async function createSessionCookie(userId: string, role: string, email: string) {
@@ -69,8 +69,8 @@ async function run() {
       AUTH_SECRET: SECRET,
       NEXTAUTH_SECRET: SECRET,
       RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
-      RAZORPAY_KEY_ID: "rzp_test_mockkey12345",
-      RAZORPAY_KEY_SECRET: "mock_secret_key_12345"
+      RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || (() => { throw new Error("RAZORPAY_KEY_ID is required"); })(),
+      RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || (() => { throw new Error("RAZORPAY_KEY_SECRET is required"); })()
     },
     stdio: "inherit"
   });

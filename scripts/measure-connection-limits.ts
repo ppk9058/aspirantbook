@@ -12,7 +12,7 @@ guardTestDatabase(testDbUrl);
 
 const prisma = new PrismaClient({ datasources: { db: { url: testDbUrl } } });
 const BASE_URL = "http://127.0.0.1:3055";
-const AUTH_SECRET = "dGhpcy1pcy1hLXRlc3Qtc2VjcmV0LWZvci1wZXJmCg==";
+const AUTH_SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
 
 async function mintCookie(userId: string, email: string): Promise<string> {
   const token = await encode({

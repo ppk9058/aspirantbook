@@ -1,7 +1,7 @@
 import { encode } from "next-auth/jwt";
 import { execSync } from "child_process";
 
-const REAL_SECRET = "aspirantbook-nextauth-secret-key-8f3a9c2e5d7b1f4e9a6c3b8d2e5f7a9b";
+const REAL_SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
 
 async function main() {
   const commit = execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();

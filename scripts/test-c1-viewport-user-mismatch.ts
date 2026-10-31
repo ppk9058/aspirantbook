@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 const BASE_URL = "http://127.0.0.1:3045";
-const REAL_SECRET = "aspirantbook-nextauth-secret-key-8f3a9c2e5d7b1f4e9a6c3b8d2e5f7a9b";
+const REAL_SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
 
 async function main() {
   console.log("================================================================================");

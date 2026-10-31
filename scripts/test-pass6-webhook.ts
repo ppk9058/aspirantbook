@@ -2,7 +2,7 @@ import crypto from "crypto"
 import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
-const WEBHOOK_SECRET = "test_wh_sec_pass5_isolated"
+const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || (() => { throw new Error("RAZORPAY_WEBHOOK_SECRET is required"); })()
 const BASE_URL = "http://localhost:3000"
 
 function signPayload(body: string): string {

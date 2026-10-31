@@ -18,4 +18,4 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
 # The webhook secret will be displayed in the output
 # Add it to .env.local as:
-# STRIPE_WEBHOOK_SECRET="whsec_..."
+# STRIPE_WEBHOOK_SECRET="<STRIPE_WEBHOOK_SECRET>"

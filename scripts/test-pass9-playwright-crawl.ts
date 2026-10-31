@@ -6,7 +6,7 @@ import { PrismaClient } from "@prisma/client";
 const TEST_PORT = 3045;
 const BASE_URL = `http://127.0.0.1:${TEST_PORT}`;
 const DOCKER_DB_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test";
-const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "default_test_secret_32_characters_long_min";
+const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
 
 const prisma = new PrismaClient({ datasources: { db: { url: DOCKER_DB_URL } } });
 

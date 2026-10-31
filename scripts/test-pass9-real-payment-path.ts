@@ -22,8 +22,8 @@ const DOCKER_DB_URL = "postgresql://postgres:testpassword123@127.0.0.1:54329/tri
 // A throwaway signing key generated at run time. This script provisions its own
 // spawned server with it, so it must never be a committed credential (B-023).
 const TEST_RAZORPAY_SECRET = crypto.randomBytes(24).toString("hex");
-const WEBHOOK_SECRET = "whsec_test_secret_12345";
-const SECRET = "test-secret-test-secret-test-secret-32-chars!!";
+const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || (() => { throw new Error("RAZORPAY_WEBHOOK_SECRET is required"); })();
+const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
 
 process.env.TEST_DATABASE_URL = DOCKER_DB_URL;
 process.env.DATABASE_URL = DOCKER_DB_URL;
@@ -90,7 +90,7 @@ async function run() {
       NEXTAUTH_SECRET: SECRET,
       RAZORPAY_KEY_SECRET: TEST_RAZORPAY_SECRET,
       RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
-      RAZORPAY_KEY_ID: "rzp_test_mockkey12345"
+      RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || (() => { throw new Error("RAZORPAY_KEY_ID is required"); })()
     },
     stdio: "pipe"
   });

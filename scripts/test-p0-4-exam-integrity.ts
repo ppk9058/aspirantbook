@@ -188,7 +188,7 @@ async function main() {
 
   console.log("Seeded exam data successfully.");
 
-  const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "default_test_secret_32_characters_long_min";
+  const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
   async function createCookie(userId: string, role: string, email: string) {
     const { encode } = await import("next-auth/jwt");
     const token = await encode({

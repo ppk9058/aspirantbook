@@ -2,8 +2,9 @@
 export PORT=3045
 export NEXT_DIST_DIR=.next-test
 export DATABASE_URL="postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test"
-export AUTH_SECRET="aspirantbook-nextauth-secret-key-8f3a9c2e5d7b1f4e9a6c3b8d2e5f7a9b"
-export NEXTAUTH_SECRET="aspirantbook-nextauth-secret-key-8f3a9c2e5d7b1f4e9a6c3b8d2e5f7a9b"
+: "${AUTH_SECRET:?AUTH_SECRET is required}"
+export AUTH_SECRET
+export NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-$AUTH_SECRET}"
 export AUTH_TRUST_HOST=true
 export NEXTAUTH_URL="http://127.0.0.1:3045"
 export AUTH_URL="http://127.0.0.1:3045"

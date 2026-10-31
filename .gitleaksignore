@@ -1,0 +1,3 @@
+# Gitleaks ignore list
+# Policy: only fingerprints of findings reachable from HEAD whose secret is 12 chars or less and located in tests/, scripts/, tools/loadtest/, docs/.
+# Audit at HEAD found 0 findings with secret length <= 12 characters.

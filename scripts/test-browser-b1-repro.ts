@@ -2,7 +2,7 @@ import { chromium } from "playwright";
 import { encode } from "next-auth/jwt";
 
 const PRE10_PORT = 3055;
-const SECRET = "default_test_secret_32_characters_long_min";
+const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
 
 async function run() {
   const token = await encode({

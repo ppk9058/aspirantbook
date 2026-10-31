@@ -8,7 +8,7 @@ import { createRazorpayOrder } from "../lib/actions/payment/razorpay"
 
 const prisma = new PrismaClient()
 const BASE_URL = "http://localhost:3000"
-const TEST_WEBHOOK_SECRET = "test_wh_sec_pass5_isolated"
+const TEST_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || (() => { throw new Error("RAZORPAY_WEBHOOK_SECRET is required"); })();
 
 function signWebhook(body: string, secret: string) {
     return crypto.createHmac("sha256", secret).update(body).digest("hex")

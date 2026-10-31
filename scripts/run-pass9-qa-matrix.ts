@@ -22,8 +22,8 @@ const prisma = new PrismaClient({
   datasources: { db: { url: DOCKER_DB_URL } }
 });
 
-const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "default_test_secret_32_characters_long_min";
-const WEBHOOK_SECRET = "whsec_test_secret_12345";
+const SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
+const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || (() => { throw new Error("RAZORPAY_WEBHOOK_SECRET is required"); })();
 // Throwaway signing key for the spawned test server; never a committed credential (B-023).
 const RAZORPAY_TEST_KEY_SECRET =
   process.env.RAZORPAY_KEY_SECRET || crypto.randomBytes(24).toString("hex");
@@ -254,9 +254,9 @@ async function run() {
       NEXTAUTH_SECRET: SECRET,
       ALLOW_DEV_MOBILE_LOGIN: "false",
       RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
-      RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_test_RkX507LjMqteDr",
+      RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || (() => { throw new Error("RAZORPAY_KEY_ID is required"); })(),
       RAZORPAY_KEY_SECRET: RAZORPAY_TEST_KEY_SECRET,
-      NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_RkX507LjMqteDr"
+      NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || (() => { throw new Error("NEXT_PUBLIC_RAZORPAY_KEY_ID is required"); })()
     },
     stdio: "pipe"
   });

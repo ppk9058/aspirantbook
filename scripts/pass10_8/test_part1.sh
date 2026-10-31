@@ -18,7 +18,7 @@ npx ts-node --compiler-options '{"module":"commonjs"}' << 'EOF'
 const { chromium } = require("playwright");
 const { encode } = require("next-auth/jwt");
 
-const REAL_SECRET = "aspirantbook-nextauth-secret-key-8f3a9c2e5d7b1f4e9a6c3b8d2e5f7a9b";
+const REAL_SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || (() => { throw new Error("AUTH_SECRET or NEXTAUTH_SECRET is required"); })();
 
 async function run() {
   const token = await encode({
