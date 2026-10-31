@@ -3,6 +3,8 @@
  * Validates critical environment configurations at runtime initialization.
  */
 
+import { getPersistBackend } from "@/lib/storage/persist-backend";
+
 export function validateBootSecurity() {
   const isProduction = process.env.NODE_ENV === "production";
   const allowDevBypass = process.env.ALLOW_DEV_MOBILE_LOGIN === "true";
@@ -13,6 +15,15 @@ export function validateBootSecurity() {
     process.env.TWILIO_AUTH_TOKEN ||
     process.env.MSG91_AUTH_KEY
   );
+
+  // 0. Guard: production must never persist to local disk (ephemeral / read-only hosts)
+  if (isProduction && getPersistBackend() === "fs") {
+    const errorMsg =
+      "[CRITICAL SECURITY REFUSAL AT BOOT] PERSIST_BACKEND resolves to the local-disk backend in NODE_ENV=production! " +
+      "Production deployments are ephemeral and multi-instance: set PERSIST_BACKEND=db.";
+    console.error(errorMsg);
+    throw new Error(errorMsg);
+  }
 
   // 1. Guard: APP_ENV=test must only ever be paired with local test database (127.0.0.1 or localhost, ending in _test)
   if (isAppEnvTest) {

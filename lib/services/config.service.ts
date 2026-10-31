@@ -1,6 +1,7 @@
 import { AppConfigDto, DEFAULT_CONFIG } from "@aspirantbook/shared";
 import { NextRequest } from "next/server";
 import { getCanonicalBaseUrl } from "@/lib/config/brand";
+import { isDevBypassAllowed } from "@/lib/api/v1/dev-bypass";
 
 export function getAppConfig(req?: NextRequest | Request): AppConfigDto {
   const isMaintenance = process.env.MAINTENANCE_MODE === "true";
@@ -9,8 +10,7 @@ export function getAppConfig(req?: NextRequest | Request): AppConfigDto {
     process.env.GOOGLE_CLIENT_IDS || process.env.GOOGLE_CLIENT_ID
   );
   const otpAuthEnabled = Boolean(
-    process.env.SMS_API_KEY ||
-      (process.env.APP_ENV === "test" && process.env.ALLOW_DEV_MOBILE_LOGIN === "true")
+    process.env.SMS_API_KEY || isDevBypassAllowed()
   );
 
   let websiteUrl = process.env.WEBSITE_URL;

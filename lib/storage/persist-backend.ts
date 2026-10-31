@@ -2,11 +2,14 @@ export type PersistBackend = "fs" | "db";
 
 /**
  * Returns the active persistence backend.
- * Default is "fs" (legacy behaviour); "db" routes all persistence to Postgres/S3 without local disk writes.
+ * Production always defaults to "db": local disk is ephemeral on serverless and
+ * multi-instance hosts. Development/test keep the legacy "fs" default.
  */
 export function getPersistBackend(): PersistBackend {
-  const backend = (process.env.PERSIST_BACKEND || "fs").toLowerCase().trim();
-  return backend === "db" ? "db" : "fs";
+  const configured = process.env.PERSIST_BACKEND?.toLowerCase().trim();
+  const fallback: PersistBackend = process.env.NODE_ENV === "production" ? "db" : "fs";
+  if (!configured) return fallback;
+  return configured === "db" ? "db" : "fs";
 }
 
 export function isDbPersist(): boolean {

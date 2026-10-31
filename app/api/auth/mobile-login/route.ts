@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
+import { isDevBypassAllowed } from "@/lib/api/v1/dev-bypass"
 
 const COURSE_ALIASES: Record<string, string> = {
     "half-yearly-678": "half-yearly-6",
@@ -38,19 +39,7 @@ export async function POST(req: NextRequest) {
 
         const { phoneNumber, courseId, otp } = await req.json()
 
-        const isProduction = process.env.NODE_ENV === "production"
-        let isLocalTestDb = false
-        try {
-            const dbUrl = process.env.DATABASE_URL || ""
-            const parsed = new URL(dbUrl)
-            isLocalTestDb = (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") && parsed.pathname.endsWith("_test")
-        } catch {
-            isLocalTestDb = false
-        }
-
-        const isDevBypassEnabled =
-            (!isProduction && process.env.ALLOW_DEV_MOBILE_LOGIN === "true") ||
-            (process.env.APP_ENV === "test" && isLocalTestDb)
+        const isDevBypassEnabled = isDevBypassAllowed()
 
         // In production (unless APP_ENV=test against local test DB) or when the dev flag is off, test OTP is disabled
         if (!isDevBypassEnabled) {
