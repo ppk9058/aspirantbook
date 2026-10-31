@@ -82,7 +82,7 @@
     "katex": "^0.18.9",
     "lucide-react": "^0.468.0",
     "next": "15.5.28",
-    "next-auth": "^5.0.0-beta.32",
+    "next-auth": "5.0.0-beta.32",
     "pdfjs-dist": "^4.9.155",
     "razorpay": "^2.9.6",
     "react": "^19.0.0",
@@ -107,7 +107,8 @@
     "protobufjs": "7.6.6",
     "monaco-editor": {
       "dompurify": "3.4.17"
-    }
+    },
+    "brace-expansion": "^1.1.21"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

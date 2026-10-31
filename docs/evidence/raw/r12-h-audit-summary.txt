@@ -1,0 +1,45 @@
+R12-H: Dependency Cleanup Audit Summary
+
+=== BEFORE (root - npm audit) ===
+info: 0, low: 1, moderate: 10, high: 21, critical: 0, TOTAL: 32
+
+=== BEFORE (packages/shared - npm audit) ===
+info: 0, low: 0, moderate: 0, high: 1, critical: 0, TOTAL: 1
+
+=== BEFORE (apps/mobile - npm audit) ===
+info: 0, low: 6, moderate: 30, high: 6, critical: 0, TOTAL: 42
+
+=== AFTER (root - npm audit fix run twice) ===
+info: 0, low: 1, moderate: 21, high: 8, critical: 0, TOTAL: 30
+
+=== AFTER (packages/shared - npm audit fix) ===
+info: 0, low: 0, moderate: 0, high: 1, critical: 0, TOTAL: 1 (no non-breaking fixes available for zod v3->v4 major bump)
+
+=== AFTER (apps/mobile - npm audit fix) ===
+info: 0, low: 6, moderate: 30, high: 5, critical: 0, TOTAL: 41
+
+=== FIXES APPLIED (non-breaking, without --force) ===
+root:
+  - changed 31 packages + added 1 (first run)
+  - changed 20 packages + added 7 + removed 6 (second run)
+  - brace-expansion override added to package.json overrides (^1.1.21)
+  - next-auth pinned to exact 5.0.0-beta.32 (was ^5.0.0-beta.32)
+
+mobile (apps/mobile):
+  - added 10, removed 6, changed 16 packages (non-breaking)
+
+=== CANNOT FIX WITHOUT MAJOR BUMPS (listed for owner) ===
+root:
+  - glob/minimatch -> @sentry/nextjs (requires sentry v10 = major downgrade)
+  - postcss -> next (requires next@16 = breaking change)
+  - uuid -> dockerode (requires dockerode@5 = major bump)
+  - zod (<4.6.6) -> requires zod v4 (major API change; currently on v3.x)
+  - minimatch -> eslint (requires eslint@4 = breaking downgrade)
+
+packages/shared:
+  - zod (<4.6.6) -> requires zod v4 major bump
+
+apps/mobile:
+  - expo, react-native, jest, query-string, deepmerge -> all require major bumps of expo/RN ecosystem
+
+EXIT:0
