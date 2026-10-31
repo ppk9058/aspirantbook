@@ -20,7 +20,7 @@ function setNodeEnv(value: string) {
   setEnvValue("NODE_ENV", value);
 }
 
-const KEYS = ["NODE_ENV", "PERSIST_BACKEND", "APP_ENV", "ALLOW_DEV_MOBILE_LOGIN"] as const;
+const KEYS = ["NODE_ENV", "PERSIST_BACKEND", "APP_ENV", "ALLOW_DEV_MOBILE_LOGIN", "DATABASE_URL", "DIRECT_URL"] as const;
 const saved: Record<string, string | undefined> = {};
 
 for (const key of KEYS) {
@@ -64,6 +64,8 @@ describe("R9-S2-F: PERSIST_BACKEND production policy", () => {
   test("production boots when PERSIST_BACKEND=db", () => {
     setNodeEnv("production");
     process.env.PERSIST_BACKEND = "db";
+    process.env.DATABASE_URL = "postgresql://user:pass@ep-cool-forest-123456.us-east-2.aws.neon.tech/mydb?sslmode=require";
+    process.env.DIRECT_URL = "postgresql://user:pass@ep-cool-forest-123456.us-east-2.aws.neon.tech/mydb?sslmode=require";
     delete process.env.APP_ENV;
     delete process.env.ALLOW_DEV_MOBILE_LOGIN;
 

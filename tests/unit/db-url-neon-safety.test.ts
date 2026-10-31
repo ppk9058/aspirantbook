@@ -39,7 +39,7 @@ describe("R12-B: DATABASE_URL safety for Neon (production only)", () => {
   }
 
   function setProdEnv(overrides: Record<string, string | undefined> = {}) {
-    process.env.NODE_ENV = "production";
+    (process.env as any).NODE_ENV = "production";
     process.env.PERSIST_BACKEND = "db";
     // Default: valid remote Neon DB URL with sslmode
     process.env.DATABASE_URL = "postgresql://user:pass@ep-cool-forest-123456.us-east-2.aws.neon.tech/mydb?sslmode=require";
@@ -107,7 +107,7 @@ describe("R12-B: DATABASE_URL safety for Neon (production only)", () => {
   });
 
   it("B-R12-08: non-production is unaffected by Neon guards", async () => {
-    process.env.NODE_ENV = "development";
+    (process.env as any).NODE_ENV = "development";
     process.env.DATABASE_URL = "postgresql://user:pass@localhost:5432/mydb";
     delete process.env.DIRECT_URL;
     delete process.env.PERSIST_BACKEND;
