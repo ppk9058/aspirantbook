@@ -4,7 +4,7 @@ HANDOFF: none
 
 | step | tier | class | status | commit | evidence log | next action | notes |
 |------|------|-------|--------|--------|--------------|-------------|-------|
-| R12-0 | — | CHEAP | TODO | — | — | Run read-only audit per SPEC R12-0 section; output to `docs/evidence/r12-audit.md` | Counts: console.log, localhost fallbacks, supabase.co refs, gitleaks, render.yaml, Sentry, LICENSE, 1MB files |
+| R12-0 | — | CHEAP | DONE | 99df8f5 | `docs/evidence/r12-audit.md` | — | 16 console.log, 35 localhost, 1 supabase.co, no gitleaks CI, no render.yaml, no Sentry, no LICENSE, 0 files >1MB |
 | R12-B | T1 | OPUS | TODO | — | — | Read SPEC R12-B; implement DB URL boot guard in `lib/boot-guard.ts`; tests in `tests/unit/` | Fail closed in production, never print URLs |
 | R12-A | T1 | OPUS | TODO | — | — | Read SPEC R12-A; add `render.yaml` + validation test + update runbook | Docker web service, healthCheckPath, env NAMES only |
 | R12-C | T1 | OPUS | TODO | — | — | Read SPEC R12-C; harden CSP in `next.config.js`, remove supabase.co, add header test | No wildcard script-src, exact allow-list |
