@@ -41,3 +41,7 @@ Prior run: R11 (473/473 unit tests, tag `r11-ready-2026-11-01`)
 ## Conclusion
 
 No step is fully done. All 14 steps need work. Proceeding with Pass 1 order: B, A, C, L, K.
+
+## 2026-11-01 R12-V1 correction
+
+The original `Tracked files over 1 MB | 0` row above was incorrect. A fresh `git ls-files -z | xargs -0 ls -l` inventory found two larger tracked files: `docs/design_walkthrough.pdf` (12,041,186 bytes) and `assets/brand/splash-image.png` (1,094,558 bytes). The later R12-I inventory already recorded both correctly and remains unchanged. Raw evidence: `docs/evidence/raw/r12-v1-large-files.txt` (EXIT:0). No tracked `.gitattributes` file was found; `git lfs` is not installed in this environment (`r12-v1-git-lfs.txt`, EXIT:1), so LFS object enumeration could not be performed.

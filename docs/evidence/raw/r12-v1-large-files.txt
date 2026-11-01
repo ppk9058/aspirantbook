@@ -1,0 +1,11 @@
+-rw-r--r--@ 1 praveenkumar  staff  12041186 Oct 29 06:15 docs/design_walkthrough.pdf
+-rw-r--r--@ 1 praveenkumar  staff   1094558 Oct 29 06:15 assets/brand/splash-image.png
+-rw-r--r--@ 1 praveenkumar  staff    681940 Oct 29 06:15 docs/screenshots/page-027.png
+-rw-r--r--@ 1 praveenkumar  staff    634213 Oct 29 06:15 docs/screenshots/page-033.png
+-rw-r--r--@ 1 praveenkumar  staff    597464 Oct 29 06:15 docs/screenshots/page-034.png
+-rw-r--r--@ 1 praveenkumar  staff    543307 Oct 29 06:15 docs/screenshots/page-030.png
+-rw-r--r--@ 1 praveenkumar  staff    530245 Oct 29 06:15 docs/screenshots/page-002.png
+-rw-r--r--@ 1 praveenkumar  staff    526879 Nov  1 03:39 package-lock.json
+-rw-r--r--@ 1 praveenkumar  staff    517356 Oct 29 06:15 docs/screenshots/page-028.png
+-rw-r--r--@ 1 praveenkumar  staff    517121 Oct 29 06:15 docs/screenshots/page-000.png
+EXIT:0

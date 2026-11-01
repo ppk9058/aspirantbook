@@ -1,0 +1,7 @@
+
+> aspirantbook@0.1.0 test:db:up
+> docker compose -f docker-compose.test.yml up -d
+
+time="2026-11-01T06:08:08+05:30" level=warning msg="/Users/praveenkumar/ws-launch/docker-compose.test.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container trillionskill-test-db  Running
+EXIT:0
