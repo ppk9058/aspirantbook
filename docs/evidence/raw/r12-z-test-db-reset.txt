@@ -1,0 +1,23 @@
+
+> aspirantbook@0.1.0 test:db:reset
+> docker compose -f docker-compose.test.yml down -v && docker compose -f docker-compose.test.yml up -d
+
+time="2026-11-01T06:27:12+05:30" level=warning msg="/Users/praveenkumar/ws-launch/docker-compose.test.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container trillionskill-test-db  Stopping
+ Container trillionskill-test-db  Stopped
+ Container trillionskill-test-db  Removing
+ Container trillionskill-test-db  Removed
+ Volume ws-launch_trillionskill_test_data  Removing
+ Network ws-launch_default  Removing
+ Volume ws-launch_trillionskill_test_data  Removed
+ Network ws-launch_default  Removed
+time="2026-11-01T06:27:13+05:30" level=warning msg="/Users/praveenkumar/ws-launch/docker-compose.test.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Network ws-launch_default  Creating
+ Network ws-launch_default  Created
+ Volume ws-launch_trillionskill_test_data  Creating
+ Volume ws-launch_trillionskill_test_data  Created
+ Container trillionskill-test-db  Creating
+ Container trillionskill-test-db  Created
+ Container trillionskill-test-db  Starting
+ Container trillionskill-test-db  Started
+EXIT:0

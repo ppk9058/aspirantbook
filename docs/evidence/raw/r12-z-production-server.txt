@@ -1,0 +1,33 @@
+   ▲ Next.js 15.5.28
+   - Local:        http://127.0.0.1:3050
+   - Network:      http://127.0.0.1:3050
+
+ ✓ Starting...
+ ⚠ `devIndicators.appIsrStatus` is deprecated and no longer configurable. Please remove it from next.config.js.
+ ⚠ `devIndicators.buildActivity` is deprecated and no longer configurable. Please remove it from next.config.js.
+Failed to prepare server [Error: An error occurred while loading the instrumentation hook] {
+  [cause]: Error: [CRITICAL SECURITY REFUSAL AT BOOT] DATABASE_URL points at a local host or is unparseable in production. Production must use a remote database.
+      at d (.next/server/instrumentation.js:1:2151)
+      at 85453 (.next/server/instrumentation.js:1:3054)
+      at c (.next/server/webpack-runtime.js:1:143)
+      at <unknown> (.next/server/instrumentation.js:1:3202)
+      at Object.<anonymous> (.next/server/instrumentation.js:1:3233)
+}
+ ✓ Ready in 782ms
+[Error: An error occurred while loading the instrumentation hook] {
+  [cause]: Error: [CRITICAL SECURITY REFUSAL AT BOOT] DATABASE_URL points at a local host or is unparseable in production. Production must use a remote database.
+      at d (.next/server/instrumentation.js:1:2151)
+      at 85453 (.next/server/instrumentation.js:1:3054)
+      at c (.next/server/webpack-runtime.js:1:143)
+      at <unknown> (.next/server/instrumentation.js:1:3202)
+      at Object.<anonymous> (.next/server/instrumentation.js:1:3233)
+}
+ ⨯ unhandledRejection:  [Error: An error occurred while loading the instrumentation hook] {
+  [cause]: Error: [CRITICAL SECURITY REFUSAL AT BOOT] DATABASE_URL points at a local host or is unparseable in production. Production must use a remote database.
+      at d (.next/server/instrumentation.js:1:2151)
+      at 85453 (.next/server/instrumentation.js:1:3054)
+      at c (.next/server/webpack-runtime.js:1:143)
+      at <unknown> (.next/server/instrumentation.js:1:3202)
+      at Object.<anonymous> (.next/server/instrumentation.js:1:3233)
+}
+EXIT:143

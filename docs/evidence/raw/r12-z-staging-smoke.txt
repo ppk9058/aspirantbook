@@ -1,0 +1,20 @@
+=== AspirantBook Staging Smoke Test ===
+Target: http://127.0.0.1:3050
+Started: 2026-11-01T00:50:00Z
+----------------------------------------
+Executing smoke checks...
+FAIL: [Health Check] GET /api/health expected 200, got 500 (217ms)
+FAIL: [Admin Redirect] GET /admin expected 307, got 500 (161ms)
+FAIL: [Admin API Guard] GET /api/admin expected 401, got 500 (159ms)
+FAIL: [Auth Role Guard] GET /api/auth/role expected 404, got 500 (285ms)
+FAIL: [Exam Bulk Guard] POST /api/exam/test/bulk expected 401, got 500 (167ms)
+FAIL: [Login Page] GET /login expected 200, got 500 (155ms)
+FAIL: [Register Page] GET /register expected 200, got 500 (120ms)
+FAIL: [Robots] GET /robots.txt expected 200, got 500 (104ms)
+FAIL: [Sitemap] GET /sitemap.xml expected 200, got 500 (115ms)
+FAIL: [Security Headers] Missing or invalid X-Content-Type-Options: nosniff
+FAIL: [Security Headers] Missing Content-Security-Policy header
+FAIL: [Security Headers] Missing Strict-Transport-Security header
+----------------------------------------
+OVERALL RESULT: FAIL (10 checks failed)
+EXIT:1
