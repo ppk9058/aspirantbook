@@ -29,3 +29,11 @@ HANDOFF: none
 | R12-V | — | CHEAP | DONE | 78daac8 | `docs/evidence/raw/r12-v*.txt`, `docs/evidence/raw/r12-z-unit-suite-final-*.txt` | — | V1 corrected 0 to 2 files >1MB; V2 J fail-before 5×EXIT:1; V3 actual 558 = 473 + 84 + 1 omitted E env test |
 
 | R12-Z | — | CHEAP | BLOCKED | df21eb2 | `docs/evidence/raw/r12-z-*.txt` | Owner: run smoke against staging or provide production-safe remote test DB | Fresh clone/tsc/lint/build 162/mobile/CP2 5×558 EXIT:0; local production smoke EXIT:1 after boot guard; tag `r12-partial-2026-11-01` |
+
+## R13 dependency remediation
+
+| step | status | commit | evidence log | next action | notes |
+|------|--------|--------|--------------|-------------|-------|
+| R13-E | IN_PROGRESS | e298401 | `docs/evidence/raw/r13-sentry-*.txt` | Pin `@sentry/nextjs@11.8.0` and verify | 11.8.0 published 2026-10-15; newest 11.x at least 14 days old at run start |
+| R13-H | PENDING | — | `docs/evidence/raw/r13-npm-*.txt` | Scope brace-expansion override to 1.x | Baseline npm ls EXIT:1; audit 29 total, 0 critical |
+| R13-FINAL | PENDING | — | `docs/evidence/raw/r13-final-unit-*.txt` | Run full clean-env unit suite 5× after both fixes | No push or tag change |
