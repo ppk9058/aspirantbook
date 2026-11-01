@@ -1,0 +1,105 @@
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "trillionskill_test", schema "public" at "127.0.0.1:54329"
+
+31 migrations found in prisma/migrations
+
+Applying migration `0_baseline`
+Applying migration `20261006002100_drop_redundant_couponredemption_unique`
+Applying migration `20261006002101_coupon_checks`
+Applying migration `20261006002102_add_rate_limit`
+Applying migration `20261006085000_add_razorpay_columns_to_payment`
+Applying migration `20261009144500_add_series_logo_highlights`
+Applying migration `20261009153000_drop_series_logo_default`
+Applying migration `20261012011000_add_demoslot_created_by_id`
+Applying migration `20261012023000_add_pyq_subject`
+Applying migration `20261012141500_add_current_affairs_pdf`
+Applying migration `20261013235533_add_perf_indexes`
+Applying migration `20261014020000_add_auth_security_tables`
+Applying migration `20261016070000_add_authwall_gate_controls`
+Applying migration `20261018120000_add_exam_series_test_archive`
+Applying migration `20261018130000_add_package_slug_history`
+Applying migration `20261018140000_add_series_package_banner_syllabus_fields`
+Applying migration `20261021010000_add_device_push_token`
+Applying migration `20261021020000_add_device_session`
+Applying migration `20261025220000_add_content_engine_tables`
+Applying migration `20261026211635_phase3_persistence`
+Applying migration `20261026212301_phase3_reauth_token_use`
+Applying migration `20261027000000_audit2_a4_webhook_idempotency`
+Applying migration `20261027010000_audit2_a8_course_ownership`
+Applying migration `20261027020000_audit2_a13_device_rotation`
+Applying migration `20261028173402_audit2_b5_audit_events`
+Applying migration `20261028174115_audit2_b6_revenue_metrics_nullable`
+Applying migration `20261028185540_audit2_c2_doubts_forms`
+Applying migration `20261028190641_audit2_c3_indexes`
+Applying migration `20261029000000_add_exam_attempt_ranking_index`
+Applying migration `20261029120000_launch_blockers_tables`
+Applying migration `20261029130000_add_email_outbox_next_retry`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 0_baseline/
+    └─ migration.sql
+  └─ 20261006002100_drop_redundant_couponredemption_unique/
+    └─ migration.sql
+  └─ 20261006002101_coupon_checks/
+    └─ migration.sql
+  └─ 20261006002102_add_rate_limit/
+    └─ migration.sql
+  └─ 20261006085000_add_razorpay_columns_to_payment/
+    └─ migration.sql
+  └─ 20261009144500_add_series_logo_highlights/
+    └─ migration.sql
+  └─ 20261009153000_drop_series_logo_default/
+    └─ migration.sql
+  └─ 20261012011000_add_demoslot_created_by_id/
+    └─ migration.sql
+  └─ 20261012023000_add_pyq_subject/
+    └─ migration.sql
+  └─ 20261012141500_add_current_affairs_pdf/
+    └─ migration.sql
+  └─ 20261013235533_add_perf_indexes/
+    └─ migration.sql
+  └─ 20261014020000_add_auth_security_tables/
+    └─ migration.sql
+  └─ 20261016070000_add_authwall_gate_controls/
+    └─ migration.sql
+  └─ 20261018120000_add_exam_series_test_archive/
+    └─ migration.sql
+  └─ 20261018130000_add_package_slug_history/
+    └─ migration.sql
+  └─ 20261018140000_add_series_package_banner_syllabus_fields/
+    └─ migration.sql
+  └─ 20261021010000_add_device_push_token/
+    └─ migration.sql
+  └─ 20261021020000_add_device_session/
+    └─ migration.sql
+  └─ 20261025220000_add_content_engine_tables/
+    └─ migration.sql
+  └─ 20261026211635_phase3_persistence/
+    └─ migration.sql
+  └─ 20261026212301_phase3_reauth_token_use/
+    └─ migration.sql
+  └─ 20261027000000_audit2_a4_webhook_idempotency/
+    └─ migration.sql
+  └─ 20261027010000_audit2_a8_course_ownership/
+    └─ migration.sql
+  └─ 20261027020000_audit2_a13_device_rotation/
+    └─ migration.sql
+  └─ 20261028173402_audit2_b5_audit_events/
+    └─ migration.sql
+  └─ 20261028174115_audit2_b6_revenue_metrics_nullable/
+    └─ migration.sql
+  └─ 20261028185540_audit2_c2_doubts_forms/
+    └─ migration.sql
+  └─ 20261028190641_audit2_c3_indexes/
+    └─ migration.sql
+  └─ 20261029000000_add_exam_attempt_ranking_index/
+    └─ migration.sql
+  └─ 20261029120000_launch_blockers_tables/
+    └─ migration.sql
+  └─ 20261029130000_add_email_outbox_next_retry/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
+EXIT:0

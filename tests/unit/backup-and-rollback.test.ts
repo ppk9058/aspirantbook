@@ -7,7 +7,41 @@ import { execSync } from "node:child_process";
 const ROOT = path.resolve(__dirname, "../..");
 const BACKUP_SCRIPT = path.join(ROOT, "scripts/ops/db-backup-to-s3.sh");
 const ROLLBACK_RUNBOOK = path.join(ROOT, "docs/runbooks/rollback.md");
-const TEST_DB = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test?schema=public";
+const FALLBACK_TEST_DB = "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test?schema=public";
+
+function resolveTestDatabaseUrl(): string {
+  const candidates = [process.env.DATABASE_URL, process.env.DIRECT_URL, FALLBACK_TEST_DB];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+
+    let parsed: URL;
+    try {
+      parsed = new URL(candidate);
+    } catch {
+      throw new Error("Database target must be a valid PostgreSQL URL");
+    }
+
+    const databaseName = decodeURIComponent(parsed.pathname.replace(/^\//, ""));
+    if (parsed.hostname !== "127.0.0.1" && parsed.hostname !== "localhost") {
+      throw new Error("Database target must use 127.0.0.1 or localhost");
+    }
+    if (!databaseName.endsWith("_test")) {
+      throw new Error("Database target must use a database ending in _test");
+    }
+
+    return candidate;
+  }
+
+  throw new Error("No test database target available");
+}
+
+const TEST_DB = resolveTestDatabaseUrl();
+const TEST_DB_TARGET = new URL(TEST_DB);
+// Prisma accepts driver-only query parameters that libpq/pg_dump rejects.
+TEST_DB_TARGET.search = "";
+TEST_DB_TARGET.hash = "";
+const BACKUP_DB_URL = TEST_DB_TARGET.toString();
 
 describe("R12-G: Database backup, restore verification and rollback runbook", () => {
   it("G-R12-01: scripts/ops/db-backup-to-s3.sh exists and is executable", () => {
@@ -53,7 +87,7 @@ describe("R12-G: Database backup, restore verification and rollback runbook", ()
       const output = execSync(`bash "${BACKUP_SCRIPT}"`, {
         env: {
           ...process.env,
-          DIRECT_URL: TEST_DB,
+          DIRECT_URL: BACKUP_DB_URL,
           BACKUP_LOCAL_TARGET: tmpTarget,
         },
         encoding: "utf-8",
@@ -61,6 +95,10 @@ describe("R12-G: Database backup, restore verification and rollback runbook", ()
 
       assert.ok(output.includes("PASS"), "backup output must contain PASS");
       assert.ok(!output.includes("testpassword123"), "output must not leak db password");
+      assert.ok(!output.includes("postgresql://"), "output must not leak a connection string");
+      if (TEST_DB_TARGET.password) {
+        assert.ok(!output.includes(TEST_DB_TARGET.password), "output must not leak the database password");
+      }
 
       const files = fs.readdirSync(tmpTarget);
       assert.ok(files.length >= 1, "at least one backup file must be written to target");
