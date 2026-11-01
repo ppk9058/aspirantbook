@@ -1,0 +1,7 @@
+Checking mobile release configuration...
+
+✅ [Mobile Release Guard Passed] All release checks satisfied:
+  - Production API_URL strictly uses HTTPS (no local/emulator IP)
+  - iOS & Android bundle id matches com.aspirantbook.app
+  - Runtime app.config.ts release guard enabled
+EXIT:0
