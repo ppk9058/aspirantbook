@@ -309,7 +309,7 @@ wins over `.env.test` because dotenv never overrides an existing variable.
 | Task ID | Description | Status | Commit SHA | Evidence Path | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **R13-E/H** | Age-compliant Sentry pin and brace-expansion override repair | DONE | `23a5550` | `docs/evidence/raw/r13-*.txt` | Pinned `@sentry/nextjs@11.8.0` (2026-10-15), newest 11.x at least 14 days old. Scoped override to `brace-expansion@1: 1.1.21`; minimatch 10 retains v5.0.12. npm ls EXIT:1→0; audit unchanged at 29 total, 0 critical. Sentry tests 5×EXIT:0; tsc/lint/build EXIT:0; build 162/162. |
-| **R13-FINAL** | Full clean-env unit suite 5× | IN_PROGRESS | `23a5550` | `docs/evidence/raw/r13-final-unit-*.txt` | Final verification after both dependency fixes; no push or tag change. |
+| **R13-FINAL** | Full clean-env unit suite 5× | DONE | `f99d7c3` | `docs/evidence/raw/r13-final-unit-verified-*.txt`, `docs/evidence/raw/r13-final-unit-summary.txt` | Five fresh consecutive runs after Docker recovery: 558/558 PASS, 0 fail, 0 cancelled, each EXIT:0. Earlier credential/CI-environment and Docker failure logs retained. No push or tag change. |
 
 
 

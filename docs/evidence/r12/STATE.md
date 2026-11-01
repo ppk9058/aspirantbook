@@ -36,4 +36,4 @@ HANDOFF: none
 |------|--------|--------|--------------|-------------|-------|
 | R13-E | DONE | 23a5550 | `docs/evidence/raw/r13-sentry-*.txt`, `docs/evidence/raw/r13-tsc.txt`, `docs/evidence/raw/r13-lint.txt`, `docs/evidence/raw/r13-build.txt` | — | `@sentry/nextjs@11.8.0` exact; Sentry tests 5×EXIT:0; tsc/lint/build EXIT:0; 162/162 routes |
 | R13-H | DONE | 23a5550 | `docs/evidence/raw/r13-npm-*.txt`, `docs/evidence/raw/r13-brace-expansion-npm-view.txt` | — | Scoped override `brace-expansion@1: 1.1.21`; npm ls EXIT:1→0; v5 remains 5.0.12; audit 29 total and 0 critical before/after |
-| R13-FINAL | IN_PROGRESS | 23a5550 | `docs/evidence/raw/r13-final-unit-*.txt` | Run full clean-env unit suite 5× after both fixes | No push or tag change |
+| R13-FINAL | DONE | f99d7c3 | `docs/evidence/raw/r13-final-unit-verified-*.txt`, `docs/evidence/raw/r13-final-unit-summary.txt` | — | Five fresh consecutive runs: 558/558 PASS, 0 fail, 0 cancelled, each EXIT:0; earlier environment/Docker failures retained; no push or tag change |
