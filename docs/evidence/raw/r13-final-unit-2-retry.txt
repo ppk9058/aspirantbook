@@ -1,0 +1,233 @@
+TAP version 13
+# Subtest: A7 privileged server-action guard
+    # Subtest: anonymous is rejected
+    ok 1 - anonymous is rejected
+      ---
+      duration_ms: 1.368416
+      type: 'test'
+      ...
+    # Subtest: STUDENT is rejected
+    ok 2 - STUDENT is rejected
+      ---
+      duration_ms: 0.223375
+      type: 'test'
+      ...
+    # Subtest: TEACHER is rejected for admin-only actions
+    ok 3 - TEACHER is rejected for admin-only actions
+      ---
+      duration_ms: 0.166
+      type: 'test'
+      ...
+    # Subtest: ADMIN passes
+    ok 4 - ADMIN passes
+      ---
+      duration_ms: 0.242166
+      type: 'test'
+      ...
+    1..4
+ok 1 - A7 privileged server-action guard
+  ---
+  duration_ms: 3.62375
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: A7 tracks mutations fail closed without an admin session
+    # Subtest: createTrack is rejected outside an authenticated admin request
+    ok 1 - createTrack is rejected outside an authenticated admin request
+      ---
+      duration_ms: 1005.132542
+      type: 'test'
+      ...
+    1..1
+ok 2 - A7 tracks mutations fail closed without an admin session
+  ---
+  duration_ms: 1005.530042
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B6 admin analytics are measured, not invented
+    # Subtest: derives each course metric from its own definition
+    not ok 1 - derives each course metric from its own definition
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:5957'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: does not write a fabricated login count
+    not ok 2 - does not write a fabricated login count
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:6640'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: splits new and renewal revenue and leaves unmeasurable metrics null
+    not ok 3 - splits new and renewal revenue and leaves unmeasurable metrics null
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:7100'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: keeps the stored values null, not zero, when read back
+    not ok 4 - keeps the stored values null, not zero, when read back
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:7837'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: runs batched work once per item, in order, with bounded concurrency
+    not ok 5 - runs batched work once per item, in order, with bounded concurrency
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:8197'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: pages through ids instead of loading them all at once
+    not ok 6 - pages through ids instead of loading them all at once
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:8911'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: propagates a worker failure instead of returning partial results
+    not ok 7 - propagates a worker failure instead of returning partial results
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:10147'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..7
+not ok 3 - B6 admin analytics are measured, not invented
+  ---
+  duration_ms: 10067.371083
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:1241'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:43:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: A12 course draft allowlist
+    # Subtest: strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+    ok 1 - strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+      ---
+      duration_ms: 1.611708
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status and an out-of-range preview
+    ok 2 - rejects an invalid status and an out-of-range preview
+      ---
+      duration_ms: 0.922458
+      type: 'test'
+      ...
+    # Subtest: accepts every field the course editor actually sends
+    ok 3 - accepts every field the course editor actually sends
+      ---
+      duration_ms: 0.879958
+      type: 'test'
+      ...
+    # Subtest: inline updates use the same allowlist
+    ok 4 - inline updates use the same allowlist
+      ---
+      duration_ms: 0.131541
+      type: 'test'
+      ...
+    # Subtest: parseOrThrow reports the offending field
+    ok 5 - parseOrThrow reports the offending field
+      ---
+      duration_ms: 0.567459
+      type: 'test'
+      ...
+    1..5
+ok 4 - A12 course draft allowlist
+  ---
+  duration_ms: 5.310583
+  type: 'suite'
+  ...
+# Subtest: A12 content-engine question PATCH allowlist
+    # Subtest: strips ids, hashes and relations
+    ok 1 - strips ids, hashes and relations
+      ---
+      duration_ms: 0.360333
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status
+    ok 2 - rejects an invalid status
+      ---
+      duration_ms: 0.348084
+      type: 'test'
+      ...
+    1..2
+ok 5 - A12 content-engine question PATCH allowlist
+  ---
+  duration_ms: 1.190708
+  type: 'suite'
+  ...
+# Subtest: A10 CSV formula injection
+    # Subtest: prefixes cells that a spreadsheet would execute
+    ok 1 - prefixes cells that a spreadsheet would execute
+      ---
+      duration_ms: 1.557875
+      type: 'test'
+      ...
+    # Subtest: leaves normal cells unchanged and escapes quotes
+    ok 2 - leaves normal cells unchanged and escapes quotes
+      ---
+      duration_ms: 0.131875
+      type: 'test'
+      ...
+    1..2
+ok 6 - A10 CSV formula injection
+  ---
+  duration_ms: 2.457958
+  type: 'suite'
+  ...
+# Subtest: A10 admin password policy
+    # Subtest: rejects the old 6-character minimum
+    ok 1 - rejects the old 6-character minimum
+      ---
+      duration_ms: 0.130083
+      type: 'test'
+      ...
+    # Subtest: accepts a strong password
+    ok 2 - accepts a strong password
+      ---
+      duration_ms: 0.074709
+      type: 'test'
+      ...
+    1..2
+ok 7 - A10 admin password policy
+  ---
+  duration_ms: 0.311125
+  type: 'suite'
+  ...
+EXIT:1

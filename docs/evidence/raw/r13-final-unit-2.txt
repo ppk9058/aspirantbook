@@ -1,0 +1,3795 @@
+TAP version 13
+# Subtest: A7 privileged server-action guard
+    # Subtest: anonymous is rejected
+    ok 1 - anonymous is rejected
+      ---
+      duration_ms: 0.714583
+      type: 'test'
+      ...
+    # Subtest: STUDENT is rejected
+    ok 2 - STUDENT is rejected
+      ---
+      duration_ms: 0.114334
+      type: 'test'
+      ...
+    # Subtest: TEACHER is rejected for admin-only actions
+    ok 3 - TEACHER is rejected for admin-only actions
+      ---
+      duration_ms: 0.08575
+      type: 'test'
+      ...
+    # Subtest: ADMIN passes
+    ok 4 - ADMIN passes
+      ---
+      duration_ms: 0.129708
+      type: 'test'
+      ...
+    1..4
+ok 1 - A7 privileged server-action guard
+  ---
+  duration_ms: 2.102583
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: A7 tracks mutations fail closed without an admin session
+    # Subtest: createTrack is rejected outside an authenticated admin request
+    ok 1 - createTrack is rejected outside an authenticated admin request
+      ---
+      duration_ms: 530.676041
+      type: 'test'
+      ...
+    1..1
+ok 2 - A7 tracks mutations fail closed without an admin session
+  ---
+  duration_ms: 530.901709
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B6 admin analytics are measured, not invented
+    # Subtest: derives each course metric from its own definition
+    not ok 1 - derives each course metric from its own definition
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:5957'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: does not write a fabricated login count
+    not ok 2 - does not write a fabricated login count
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:6640'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: splits new and renewal revenue and leaves unmeasurable metrics null
+    not ok 3 - splits new and renewal revenue and leaves unmeasurable metrics null
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:7100'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: keeps the stored values null, not zero, when read back
+    not ok 4 - keeps the stored values null, not zero, when read back
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:7837'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: runs batched work once per item, in order, with bounded concurrency
+    not ok 5 - runs batched work once per item, in order, with bounded concurrency
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:8197'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: pages through ids instead of loading them all at once
+    not ok 6 - pages through ids instead of loading them all at once
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:8911'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: propagates a worker failure instead of returning partial results
+    not ok 7 - propagates a worker failure instead of returning partial results
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:10147'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..7
+not ok 3 - B6 admin analytics are measured, not invented
+  ---
+  duration_ms: 6208.951042
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:2:1241'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/admin-analytics.test.ts:43:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: A12 course draft allowlist
+    # Subtest: strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+    ok 1 - strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+      ---
+      duration_ms: 1.555417
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status and an out-of-range preview
+    ok 2 - rejects an invalid status and an out-of-range preview
+      ---
+      duration_ms: 0.863667
+      type: 'test'
+      ...
+    # Subtest: accepts every field the course editor actually sends
+    ok 3 - accepts every field the course editor actually sends
+      ---
+      duration_ms: 0.88575
+      type: 'test'
+      ...
+    # Subtest: inline updates use the same allowlist
+    ok 4 - inline updates use the same allowlist
+      ---
+      duration_ms: 0.128292
+      type: 'test'
+      ...
+    # Subtest: parseOrThrow reports the offending field
+    ok 5 - parseOrThrow reports the offending field
+      ---
+      duration_ms: 0.399833
+      type: 'test'
+      ...
+    1..5
+ok 4 - A12 course draft allowlist
+  ---
+  duration_ms: 4.635708
+  type: 'suite'
+  ...
+# Subtest: A12 content-engine question PATCH allowlist
+    # Subtest: strips ids, hashes and relations
+    ok 1 - strips ids, hashes and relations
+      ---
+      duration_ms: 0.155458
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status
+    ok 2 - rejects an invalid status
+      ---
+      duration_ms: 0.346583
+      type: 'test'
+      ...
+    1..2
+ok 5 - A12 content-engine question PATCH allowlist
+  ---
+  duration_ms: 0.859917
+  type: 'suite'
+  ...
+# Subtest: A10 CSV formula injection
+    # Subtest: prefixes cells that a spreadsheet would execute
+    ok 1 - prefixes cells that a spreadsheet would execute
+      ---
+      duration_ms: 0.612625
+      type: 'test'
+      ...
+    # Subtest: leaves normal cells unchanged and escapes quotes
+    ok 2 - leaves normal cells unchanged and escapes quotes
+      ---
+      duration_ms: 0.102542
+      type: 'test'
+      ...
+    1..2
+ok 6 - A10 CSV formula injection
+  ---
+  duration_ms: 1.4345
+  type: 'suite'
+  ...
+# Subtest: A10 admin password policy
+    # Subtest: rejects the old 6-character minimum
+    ok 1 - rejects the old 6-character minimum
+      ---
+      duration_ms: 0.123875
+      type: 'test'
+      ...
+    # Subtest: accepts a strong password
+    ok 2 - accepts a strong password
+      ---
+      duration_ms: 0.068792
+      type: 'test'
+      ...
+    1..2
+ok 7 - A10 admin password policy
+  ---
+  duration_ms: 0.293
+  type: 'suite'
+  ...
+# pg_dump: error: connection to server at "127.0.0.1", port 54329 failed: server closed the connection unexpectedly
+# \\tThis probably means the server terminated abnormally
+# \\tbefore or while processing the request.
+# Subtest: R12-G: Database backup, restore verification and rollback runbook
+    # Subtest: G-R12-01: scripts/ops/db-backup-to-s3.sh exists and is executable
+    ok 1 - G-R12-01: scripts/ops/db-backup-to-s3.sh exists and is executable
+      ---
+      duration_ms: 0.6255
+      type: 'test'
+      ...
+    # Subtest: G-R12-02: docs/runbooks/rollback.md exists and covers all required sections
+    ok 2 - G-R12-02: docs/runbooks/rollback.md exists and covers all required sections
+      ---
+      duration_ms: 0.197708
+      type: 'test'
+      ...
+    # Subtest: G-R12-03: db-backup-to-s3.sh refuses execution when DIRECT_URL is missing
+    ok 3 - G-R12-03: db-backup-to-s3.sh refuses execution when DIRECT_URL is missing
+      ---
+      duration_ms: 10.00875
+      type: 'test'
+      ...
+    # Subtest: G-R12-04: db-backup-to-s3.sh never echoes credentials or full connection strings
+    ok 4 - G-R12-04: db-backup-to-s3.sh never echoes credentials or full connection strings
+      ---
+      duration_ms: 0.161
+      type: 'test'
+      ...
+    # Subtest: G-R12-05: db-backup-to-s3.sh successfully backs up local DB to local target directory
+    not ok 5 - G-R12-05: db-backup-to-s3.sh successfully backs up local DB to local target directory
+      ---
+      duration_ms: 3435.293
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/backup-and-rollback.test.ts:2:3312'
+      failureType: 'testCodeFailure'
+      error: |-
+        Command failed: bash "/Users/praveenkumar/ws-launch/scripts/ops/db-backup-to-s3.sh"
+        pg_dump: error: connection to server at "127.0.0.1", port 54329 failed: server closed the connection unexpectedly
+        	This probably means the server terminated abnormally
+        	before or while processing the request.
+        
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        genericNodeError (node:internal/errors:983:15)
+        wrappedFn (node:internal/errors:537:14)
+        checkExecSyncError (node:child_process:916:11)
+        execSync (node:child_process:988:15)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/backup-and-rollback.test.ts:53:22)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+      ...
+    1..5
+not ok 8 - R12-G: Database backup, restore verification and rollback runbook
+  ---
+  duration_ms: 3447.296083
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/backup-and-rollback.test.ts:2:1390'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B1 batches storage is atomic and read errors are fatal
+    # Subtest: keeps every batch when 10 creates run in parallel
+    not ok 1 - keeps every batch when 10 creates run in parallel
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:2:2302'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: a read error aborts the mutation and never wipes stored batches
+    not ok 2 - a read error aborts the mutation and never wipes stored batches
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:2:3192'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: concurrent updates to different batches do not overwrite each other
+    not ok 3 - concurrent updates to different batches do not overwrite each other
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:2:4148'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 9 - B1 batches storage is atomic and read errors are fatal
+  ---
+  duration_ms: 6191.75275
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:2:1611'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:37:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: A5 book storage key policy
+    # Subtest: rejects traversal, absolute paths and remote URLs
+    ok 1 - rejects traversal, absolute paths and remote URLs
+      ---
+      duration_ms: 1.026
+      type: 'test'
+      ...
+    # Subtest: accepts storage keys and legacy public paths
+    ok 2 - accepts storage keys and legacy public paths
+      ---
+      duration_ms: 0.256
+      type: 'test'
+      ...
+    # Subtest: resolves a real key inside the configured root
+    ok 3 - resolves a real key inside the configured root
+      ---
+      duration_ms: 3.485334
+      type: 'test'
+      ...
+    # Subtest: rejects a symlink that escapes the root
+    ok 4 - rejects a symlink that escapes the root
+      ---
+      duration_ms: 1.450166
+      type: 'test'
+      ...
+    # Subtest: a missing file is a 404, never a fabricated PDF
+    ok 5 - a missing file is a 404, never a fabricated PDF
+      ---
+      duration_ms: 1.207375
+      type: 'test'
+      ...
+    # Subtest: traversal input to readBookFile is rejected before touching disk
+    ok 6 - traversal input to readBookFile is rejected before touching disk
+      ---
+      duration_ms: 0.272667
+      type: 'test'
+      ...
+    1..6
+ok 10 - A5 book storage key policy
+  ---
+  duration_ms: 38.256208
+  type: 'suite'
+  ...
+# Subtest: A5/A12 book update allowlist
+    # Subtest: strips unknown fields such as createdBy
+    ok 1 - strips unknown fields such as createdBy
+      ---
+      duration_ms: 1.645042
+      type: 'test'
+      ...
+    # Subtest: rejects a traversal fullPdfUrl
+    ok 2 - rejects a traversal fullPdfUrl
+      ---
+      duration_ms: 0.717916
+      type: 'test'
+      ...
+    # Subtest: rejects an absolute fullPdfUrl
+    ok 3 - rejects an absolute fullPdfUrl
+      ---
+      duration_ms: 0.873333
+      type: 'test'
+      ...
+    1..3
+ok 11 - A5/A12 book update allowlist
+  ---
+  duration_ms: 3.7075
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B-005: books/orders/coupons persist in Postgres
+    # Subtest: a coupon with usageLimit 3 accepts exactly 3 of 10 parallel redemptions
+    not ok 1 - a coupon with usageLimit 3 accepts exactly 3 of 10 parallel redemptions
+      ---
+      duration_ms: 3092.879
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:2:2867'
+      failureType: 'testCodeFailure'
+      error: |-
+        
+        Invalid `prisma.bookCoupon.upsert()` invocation in
+        /Users/praveenkumar/ws-launch/lib/books/bookService.ts:731:39
+        
+          728 export async function createCoupon(coupon: Coupon): Promise<Coupon> {
+          729   const code = coupon.code.toUpperCase().trim()
+          730   const normalized: Coupon = { ...coupon, code }
+        → 731   const row = await prisma.bookCoupon.upsert(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async createCoupon (/Users/praveenkumar/ws-launch/lib/books/bookService.ts:731:15)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:78:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [backfill] failed: PrismaClientInitializationError: 
+# Invalid `prisma.book.findUnique()` invocation in
+# /Users/praveenkumar/ws-launch/scripts/backfill-phase3.ts:105:38
+#   102 }
+#   103 // `slug` is unique too: if a row with this slug exists under another id,
+#   104 // update that row instead of creating a duplicate.
+# → 105 const bySlug = await prisma.book.findUnique(
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async backfillBooks (/Users/praveenkumar/ws-launch/scripts/backfill-phase3.ts:105:20)
+#     at async main (/Users/praveenkumar/ws-launch/scripts/backfill-phase3.ts:211:48) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+    # Subtest: fulfilling the same payment twice has exactly one order effect
+    not ok 2 - fulfilling the same payment twice has exactly one order effect
+      ---
+      duration_ms: 3109.921333
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:2:3747'
+      failureType: 'testCodeFailure'
+      error: |-
+        
+        Invalid `prisma.book.create()` invocation in
+        /Users/praveenkumar/ws-launch/lib/books/bookService.ts:451:35
+        
+          448 
+          449 const newBook = normalizeBook(rawBook)
+          450 try {
+        → 451   const row = await prisma.book.create(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async createBook (/Users/praveenkumar/ws-launch/lib/books/bookService.ts:451:17)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:102:18)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: running the backfill twice creates no duplicates
+    not ok 3 - running the backfill twice creates no duplicates
+      ---
+      duration_ms: 4005.9575
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:2:5606'
+      failureType: 'testCodeFailure'
+      error: |-
+        Command failed: npx tsx scripts/backfill-phase3.ts --only=books,coupons
+        [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+        [backfill] failed: PrismaClientInitializationError: 
+        Invalid `prisma.book.findUnique()` invocation in
+        /Users/praveenkumar/ws-launch/scripts/backfill-phase3.ts:105:38
+        
+          102 }
+          103 // `slug` is unique too: if a row with this slug exists under another id,
+          104 // update that row instead of creating a duplicate.
+        → 105 const bySlug = await prisma.book.findUnique(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+            at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+            at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+            at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+            at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+            at async backfillBooks (/Users/praveenkumar/ws-launch/scripts/backfill-phase3.ts:105:20)
+            at async main (/Users/praveenkumar/ws-launch/scripts/backfill-phase3.ts:211:48) {
+          clientVersion: '6.19.0',
+          errorCode: undefined,
+          retryable: undefined
+        }
+        
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async backfillBooks (/Users/praveenkumar/ws-launch/scripts/backfill-phase3.ts:105:20)
+        async main (/Users/praveenkumar/ws-launch/scripts/backfill-phase3.ts:211:48) {
+        genericNodeError (node:internal/errors:983:15)
+        wrappedFn (node:internal/errors:537:14)
+        checkExecSyncError (node:child_process:916:11)
+        execFileSync (node:child_process:952:15)
+        runBackfill (/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:49:10)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:147:5)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: does not write any data/*.json file
+    not ok 4 - does not write any data/*.json file
+      ---
+      duration_ms: 3099.190292
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:2:6061'
+      failureType: 'testCodeFailure'
+      error: |-
+        
+        Invalid `prisma.book.create()` invocation in
+        /Users/praveenkumar/ws-launch/lib/books/bookService.ts:451:35
+        
+          448 
+          449 const newBook = normalizeBook(rawBook)
+          450 try {
+        → 451   const row = await prisma.book.create(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async createBook (/Users/praveenkumar/ws-launch/lib/books/bookService.ts:451:17)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:160:18)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..4
+not ok 12 - B-005: books/orders/coupons persist in Postgres
+  ---
+  duration_ms: 16391.519833
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/books-db-persistence.test.ts:2:2305'
+  failureType: 'subtestsFailed'
+  error: '4 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B3 bookstore revenue counts settled orders only
+    # Subtest: counts only completed orders and exposes a paid count
+    not ok 1 - counts only completed orders and exposes a paid count
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/bookstore-stats.test.ts:2:2550'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: returns no fabricated books, orders or coupons in production
+    not ok 2 - returns no fabricated books, orders or coupons in production
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/bookstore-stats.test.ts:2:3774'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..2
+not ok 13 - B3 bookstore revenue counts settled orders only
+  ---
+  duration_ms: 6204.994417
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/bookstore-stats.test.ts:2:1907'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/bookstore-stats.test.ts:67:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: R9-S2-G: single dev-bypass policy and server-start boot guard
+    # Subtest: boot guard runs from instrumentation.ts register()
+    ok 1 - boot guard runs from instrumentation.ts register()
+      ---
+      duration_ms: 1.368542
+      type: 'test'
+      ...
+    # Subtest: mobile-login route delegates to isDevBypassAllowed instead of its own copy
+    ok 2 - mobile-login route delegates to isDevBypassAllowed instead of its own copy
+      ---
+      duration_ms: 0.5945
+      type: 'test'
+      ...
+    # Subtest: config.service delegates the OTP bypass decision to isDevBypassAllowed
+    ok 3 - config.service delegates the OTP bypass decision to isDevBypassAllowed
+      ---
+      duration_ms: 0.187542
+      type: 'test'
+      ...
+    # Subtest: the shared policy is closed in production even when the dev flag is set
+    ok 4 - the shared policy is closed in production even when the dev flag is set
+      ---
+      duration_ms: 0.460833
+      type: 'test'
+      ...
+    # Subtest: the shared policy opens for an explicit local test database
+    ok 5 - the shared policy opens for an explicit local test database
+      ---
+      duration_ms: 0.432875
+      type: 'test'
+      ...
+    1..5
+ok 14 - R9-S2-G: single dev-bypass policy and server-start boot guard
+  ---
+  duration_ms: 3.972583
+  type: 'suite'
+  ...
+# Subtest: Task B9: Centralized Brand & Domain Configuration
+    # Subtest: 1. Brand module exports all required brand and legal fields
+    ok 1 - 1. Brand module exports all required brand and legal fields
+      ---
+      duration_ms: 1.683333
+      type: 'test'
+      ...
+    # Subtest: 2. Environment variable overrides work as expected
+    ok 2 - 2. Environment variable overrides work as expected
+      ---
+      duration_ms: 0.246959
+      type: 'test'
+      ...
+    # Subtest: 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+    ok 3 - 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+      ---
+      duration_ms: 0.463084
+      type: 'test'
+      ...
+    # Subtest: 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+    ok 4 - 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+      ---
+      duration_ms: 0.40325
+      type: 'test'
+      ...
+    # Subtest: 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+    ok 5 - 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+      ---
+      duration_ms: 0.216208
+      type: 'test'
+      ...
+    # Subtest: 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+    ok 6 - 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+      ---
+      duration_ms: 0.128667
+      type: 'test'
+      ...
+    1..6
+ok 15 - Task B9: Centralized Brand & Domain Configuration
+  ---
+  duration_ms: 3.88675
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P1-1: Cache Invalidation & Inter-Process Versioning Suite
+    # Subtest: 1. Edit question followed by immediate invalidateExamQuestions shows new data on same instance
+    not ok 1 - 1. Edit question followed by immediate invalidateExamQuestions shows new data on same instance
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/cache-invalidation-versioning.test.ts:2:3115'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 2. Cross-process edit is detected via version check without explicit local invalidate
+    not ok 2 - 2. Cross-process edit is detected via version check without explicit local invalidate
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/cache-invalidation-versioning.test.ts:2:3843'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. onAiQuestionTranslationBatchApproved hook invalidates and triggers fresh translation read
+    not ok 3 - 3. onAiQuestionTranslationBatchApproved hook invalidates and triggers fresh translation read
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/cache-invalidation-versioning.test.ts:2:4577'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 16 - P1-1: Cache Invalidation & Inter-Process Versioning Suite
+  ---
+  duration_ms: 6273.668833
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/cache-invalidation-versioning.test.ts:2:1477'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.examSeries.upsert()` invocation in
+    /Users/praveenkumar/ws-launch/tests/unit/cache-invalidation-versioning.test.ts:32:44
+    
+      29 before(async () => {
+      30   process.env.EXAM_RUNTIME_CACHE_QUESTIONS = "1";
+      31 
+    → 32   const series = await prisma.examSeries.upsert(
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/cache-invalidation-versioning.test.ts:32:20)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B10 cache invalidation
+    # Subtest: invalidates the content-engine tag and every public route
+    ok 1 - invalidates the content-engine tag and every public route
+      ---
+      duration_ms: 12.106916
+      type: 'test'
+      ...
+    # Subtest: invalidates on every content-engine question mutation path
+    ok 2 - invalidates on every content-engine question mutation path
+      ---
+      duration_ms: 3.6445
+      type: 'test'
+      ...
+    # Subtest: invalidates the courses tag from every course content server action
+    ok 3 - invalidates the courses tag from every course content server action
+      ---
+      duration_ms: 1.915917
+      type: 'test'
+      ...
+    # Subtest: invalidates the tag on the coupon deactivation branch and the studio routes
+    ok 4 - invalidates the tag on the coupon deactivation branch and the studio routes
+      ---
+      duration_ms: 1.503042
+      type: 'test'
+      ...
+    # Subtest: keeps every cached read on a registered cache tag
+    ok 5 - keeps every cached read on a registered cache tag
+      ---
+      duration_ms: 128.039792
+      type: 'test'
+      ...
+    1..5
+ok 17 - B10 cache invalidation
+  ---
+  duration_ms: 148.214625
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: Task C: Cache Staleness Regressions
+    # Subtest: 1. Test Series Module Cache Keying
+        # Subtest: Key differentiates between user A and user B with identical goals
+        ok 1 - Key differentiates between user A and user B with identical goals
+          ---
+          duration_ms: 11.234334
+          type: 'test'
+          ...
+        # Subtest: Key differentiates between different goal sets for the same user
+        ok 2 - Key differentiates between different goal sets for the same user
+          ---
+          duration_ms: 0.262125
+          type: 'test'
+          ...
+        # Subtest: Key normalizes goal order so order permutations match
+        ok 3 - Key normalizes goal order so order permutations match
+          ---
+          duration_ms: 0.147583
+          type: 'test'
+          ...
+        # Subtest: Guest users have isolated keys from authenticated users
+        ok 4 - Guest users have isolated keys from authenticated users
+          ---
+          duration_ms: 0.286584
+          type: 'test'
+          ...
+        # Subtest: Switching user or goal never returns another user's or goal's series from cache
+        ok 5 - Switching user or goal never returns another user's or goal's series from cache
+          ---
+          duration_ms: 0.658375
+          type: 'test'
+          ...
+        1..5
+    ok 1 - 1. Test Series Module Cache Keying
+      ---
+      duration_ms: 13.31925
+      type: 'suite'
+      ...
+    # Subtest: 2. GoalProvider cachedUserGoalPromise Invalidation
+        # Subtest: cachedUserGoalPromise can be set and explicitly invalidated
+        ok 1 - cachedUserGoalPromise can be set and explicitly invalidated
+          ---
+          duration_ms: 0.233708
+          type: 'test'
+          ...
+        # Subtest: Simulating goalChange invalidation resets cachedUserGoalPromise
+        ok 2 - Simulating goalChange invalidation resets cachedUserGoalPromise
+          ---
+          duration_ms: 0.098417
+          type: 'test'
+          ...
+        # Subtest: Simulating storage event invalidation resets cachedUserGoalPromise
+        ok 3 - Simulating storage event invalidation resets cachedUserGoalPromise
+          ---
+          duration_ms: 0.269292
+          type: 'test'
+          ...
+        # Subtest: Simulating session user change invalidation resets cachedUserGoalPromise
+        ok 4 - Simulating session user change invalidation resets cachedUserGoalPromise
+          ---
+          duration_ms: 0.164083
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. GoalProvider cachedUserGoalPromise Invalidation
+      ---
+      duration_ms: 1.075417
+      type: 'suite'
+      ...
+    1..2
+ok 18 - Task C: Cache Staleness Regressions
+  ---
+  duration_ms: 14.719208
+  type: 'suite'
+  ...
+# Subtest: Cache tags are declared and invalidated (B-015, B-019)
+    # Subtest: finds the unstable_cache reads it is meant to guard
+    ok 1 - finds the unstable_cache reads it is meant to guard
+      ---
+      duration_ms: 0.578
+      type: 'test'
+      ...
+    # Subtest: uses only registered cache tags
+    ok 2 - uses only registered cache tags
+      ---
+      duration_ms: 0.516917
+      type: 'test'
+      ...
+    # Subtest: invalidates every cached tag from at least one mutation path
+    ok 3 - invalidates every cached tag from at least one mutation path
+      ---
+      duration_ms: 47.134833
+      type: 'test'
+      ...
+    # Subtest: keeps batches on the shared tagged cache instead of a module-level TTL cache
+    ok 4 - keeps batches on the shared tagged cache instead of a module-level TTL cache
+      ---
+      duration_ms: 0.462541
+      type: 'test'
+      ...
+    1..4
+ok 19 - Cache tags are declared and invalidated (B-015, B-019)
+  ---
+  duration_ms: 49.498083
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task B4: Client IP / TRUST_PROXY Hardening
+    # Subtest: normalizeIp
+        # Subtest: accepts valid IPv4 addresses
+        ok 1 - accepts valid IPv4 addresses
+          ---
+          duration_ms: 12.581
+          type: 'test'
+          ...
+        # Subtest: accepts valid IPv6 addresses in canonical form
+        ok 2 - accepts valid IPv6 addresses in canonical form
+          ---
+          duration_ms: 4.777541
+          type: 'test'
+          ...
+        # Subtest: normalizes bracketed and port-annotated IPs
+        ok 3 - normalizes bracketed and port-annotated IPs
+          ---
+          duration_ms: 0.411167
+          type: 'test'
+          ...
+        # Subtest: extracts IPv4 from IPv4-mapped IPv6
+        ok 4 - extracts IPv4 from IPv4-mapped IPv6
+          ---
+          duration_ms: 0.357667
+          type: 'test'
+          ...
+        # Subtest: rejects malicious or invalid strings
+        ok 5 - rejects malicious or invalid strings
+          ---
+          duration_ms: 0.158583
+          type: 'test'
+          ...
+        1..5
+    ok 1 - normalizeIp
+      ---
+      duration_ms: 19.184333
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=false (Default - Fail Closed)
+        # Subtest: ignores spoofed X-Forwarded-For headers
+        ok 1 - ignores spoofed X-Forwarded-For headers
+          ---
+          duration_ms: 13.669041
+          type: 'test'
+          ...
+        # Subtest: ignores CF-Connecting-IP header
+        ok 2 - ignores CF-Connecting-IP header
+          ---
+          duration_ms: 0.201084
+          type: 'test'
+          ...
+        # Subtest: ignores X-Real-IP header
+        ok 3 - ignores X-Real-IP header
+          ---
+          duration_ms: 0.298917
+          type: 'test'
+          ...
+        # Subtest: returns 127.0.0.1 when no request is passed
+        ok 4 - returns 127.0.0.1 when no request is passed
+          ---
+          duration_ms: 0.231542
+          type: 'test'
+          ...
+        1..4
+    ok 2 - TRUST_PROXY=false (Default - Fail Closed)
+      ---
+      duration_ms: 14.695292
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+        # Subtest: prioritizes valid CF-Connecting-IP over other headers
+        ok 1 - prioritizes valid CF-Connecting-IP over other headers
+          ---
+          duration_ms: 0.370958
+          type: 'test'
+          ...
+        # Subtest: rejects malicious CF-Connecting-IP and falls back safely
+        ok 2 - rejects malicious CF-Connecting-IP and falls back safely
+          ---
+          duration_ms: 0.180542
+          type: 'test'
+          ...
+        # Subtest: extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+        ok 3 - extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+          ---
+          duration_ms: 0.245542
+          type: 'test'
+          ...
+        # Subtest: extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+        ok 4 - extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+          ---
+          duration_ms: 0.161125
+          type: 'test'
+          ...
+        # Subtest: falls back to X-Real-IP if X-Forwarded-For is missing
+        ok 5 - falls back to X-Real-IP if X-Forwarded-For is missing
+          ---
+          duration_ms: 0.212709
+          type: 'test'
+          ...
+        # Subtest: handles standard Request object and Next.js { headers } container
+        ok 6 - handles standard Request object and Next.js { headers } container
+          ---
+          duration_ms: 1.105791
+          type: 'test'
+          ...
+        1..6
+    ok 3 - TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+      ---
+      duration_ms: 2.398666
+      type: 'suite'
+      ...
+    1..3
+ok 20 - Task B4: Client IP / TRUST_PROXY Hardening
+  ---
+  duration_ms: 36.663167
+  type: 'suite'
+  ...
+# Subtest: P1-2: clientSeq NOT NULL COALESCE & Edge Case Verification
+    # Subtest: 1. Absent and null clientSeq coalesce to 0 without 23502 not-null constraint violation
+    not ok 1 - 1. Absent and null clientSeq coalesce to 0 without 23502 not-null constraint violation
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/client-seq-coalesce.test.ts:2:2938'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 2. Increasing clientSeq values update the record cleanly
+    not ok 2 - 2. Increasing clientSeq values update the record cleanly
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/client-seq-coalesce.test.ts:27:328'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. Out-of-order batches: older packet (seq 2) arriving after seq 5 is rejected
+    not ok 3 - 3. Out-of-order batches: older packet (seq 2) arriving after seq 5 is rejected
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/client-seq-coalesce.test.ts:52:249'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 21 - P1-2: clientSeq NOT NULL COALESCE & Edge Case Verification
+  ---
+  duration_ms: 6240.036208
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/client-seq-coalesce.test.ts:2:1320'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.user.upsert()` invocation in
+    /Users/praveenkumar/ws-launch/tests/unit/client-seq-coalesce.test.ts:24:36
+    
+      21 let attemptId: string;
+      22 
+      23 before(async () => {
+    → 24   const user = await prisma.user.upsert(
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/client-seq-coalesce.test.ts:24:18)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: P1-4: Connection limit validator and pg_stat_activity verification
+    # Subtest: passes and parses limit when connection_limit is present in DATABASE_URL
+    ok 1 - passes and parses limit when connection_limit is present in DATABASE_URL
+      ---
+      duration_ms: 23.808958
+      type: 'test'
+      ...
+    # Subtest: warns when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT is unset
+    ok 2 - warns when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT is unset
+      ---
+      duration_ms: 0.244958
+      type: 'test'
+      ...
+    # Subtest: throws error when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT=true
+    ok 3 - throws error when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT=true
+      ---
+      duration_ms: 0.37425
+      type: 'test'
+      ...
+    # Subtest: measures actual backend connections via pg_stat_activity with connection_limit set
+    not ok 4 - measures actual backend connections via pg_stat_activity with connection_limit set
+      ---
+      duration_ms: 3134.520584
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/connection-limit-validator.test.ts:2:2809'
+      failureType: 'testCodeFailure'
+      error: |-
+        
+        Invalid `prisma.$executeRaw()` invocation:
+        
+        
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async Promise.all (index 3)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/connection-limit-validator.test.ts:69:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..4
+not ok 22 - P1-4: Connection limit validator and pg_stat_activity verification
+  ---
+  duration_ms: 3160.883125
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/connection-limit-validator.test.ts:2:1254'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B5 content audit events live in the database
+    # Subtest: writes an event to the database and nothing to disk
+    not ok 1 - writes an event to the database and nothing to disk
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-audit-db.test.ts:2:2138'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: paginates reads newest first
+    not ok 2 - paginates reads newest first
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-audit-db.test.ts:2:3080'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: backfills the legacy jsonl idempotently
+    not ok 3 - backfills the legacy jsonl idempotently
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-audit-db.test.ts:2:4110'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 23 - B5 content audit events live in the database
+  ---
+  duration_ms: 6218.900958
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/content-audit-db.test.ts:2:1350'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/content-audit-db.test.ts:39:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B11 content-engine export is bounded
+    # Subtest: parses the export range and refuses an oversized page
+    not ok 1 - parses the export range and refuses an oversized page
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-export.test.ts:2:2434'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: reports part metadata for the response headers
+    not ok 2 - reports part metadata for the response headers
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-export.test.ts:2:3290'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: refuses a default request that would need several archives
+    not ok 3 - refuses a default request that would need several archives
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-export.test.ts:2:3897'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: reads the corpus in pages without repeats or omissions
+    not ok 4 - reads the corpus in pages without repeats or omissions
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-export.test.ts:2:4608'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: stops at the end of the corpus
+    not ok 5 - stops at the end of the corpus
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-export.test.ts:2:5735'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..5
+not ok 24 - B11 content-engine export is bounded
+  ---
+  duration_ms: 6189.643209
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-export.test.ts:2:1114'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/content-engine-export.test.ts:37:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B9 content-engine search is ANDed with filters
+    # Subtest: keeps the equality filters when a search is present
+    not ok 1 - keeps the equality filters when a search is present
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-search.test.ts:2:3330'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: does not let the search widen the uncategorised filter
+    not ok 2 - does not let the search widen the uncategorised filter
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-search.test.ts:2:3725'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: requires every search token, not the exact phrase
+    not ok 3 - requires every search token, not the exact phrase
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-search.test.ts:2:4087'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: treats LIKE wildcards as literal text
+    not ok 4 - treats LIKE wildcards as literal text
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-search.test.ts:2:4393'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: ANDs search with exam, year and publication state
+    not ok 5 - ANDs search with exam, year and publication state
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-search.test.ts:2:4750'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: still paginates the filtered set
+    not ok 6 - still paginates the filtered set
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-search.test.ts:2:5188'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..6
+not ok 25 - B9 content-engine search is ANDed with filters
+  ---
+  duration_ms: 6205.531375
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/content-engine-search.test.ts:2:1177'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/content-engine-search.test.ts:25:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B8 content ordering and slug races
+    # Subtest: the unlocked read-then-insert pattern really does duplicate positions
+    not ok 1 - the unlocked read-then-insert pattern really does duplicate positions
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-order-race.test.ts:2:1774'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: allocates unique chapter positions under concurrency
+    not ok 2 - allocates unique chapter positions under concurrency
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-order-race.test.ts:2:2522'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: allocates unique lesson positions under concurrency
+    not ok 3 - allocates unique lesson positions under concurrency
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-order-race.test.ts:2:3230'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: keeps every remaining content create on the locked allocator
+    not ok 4 - keeps every remaining content create on the locked allocator
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-order-race.test.ts:2:3818'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: maps a slug unique-violation to a conflict on every course create path
+    not ok 5 - maps a slug unique-violation to a conflict on every course create path
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/content-order-race.test.ts:2:4612'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..5
+not ok 26 - B8 content ordering and slug races
+  ---
+  duration_ms: 6230.194416
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/content-order-race.test.ts:2:1198'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/content-order-race.test.ts:34:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: R9-S3: /api/v1 CORS policy
+    # Subtest: no /api/v1 route, middleware or next.config emits Access-Control-Allow-Origin
+    ok 1 - no /api/v1 route, middleware or next.config emits Access-Control-Allow-Origin
+      ---
+      duration_ms: 12.580459
+      type: 'test'
+      ...
+    # Subtest: a live /api/v1 response never returns a wildcard CORS header
+    ok 2 - a live /api/v1 response never returns a wildcard CORS header
+      ---
+      duration_ms: 5.053958
+      type: 'test'
+      ...
+    # Subtest: Expo app targets native platforms only (no web origin)
+    ok 3 - Expo app targets native platforms only (no web origin)
+      ---
+      duration_ms: 0.39275
+      type: 'test'
+      ...
+    1..3
+ok 27 - R9-S3: /api/v1 CORS policy
+  ---
+  duration_ms: 18.827333
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B13 getCourseLesson is a narrow, read-only query
+    # Subtest: does not create progress when a lesson is opened
+    not ok 1 - does not create progress when a lesson is opened
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:2:4859'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: does not bump lastAccessed on an existing progress row
+    not ok 2 - does not bump lastAccessed on an existing progress row
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:2:5262'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: does not create progress for a locked lesson
+    not ok 3 - does not create progress for a locked lesson
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:2:6058'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: allows a trial lesson in a premium course without writing progress
+    not ok 4 - allows a trial lesson in a premium course without writing progress
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:2:6547'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: returns null media and duration instead of a sample video and 10 mins
+    not ok 5 - returns null media and duration instead of a sample video and 10 mins
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:2:6980'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: keeps course-wide prev/next navigation across chapters
+    not ok 6 - keeps course-wide prev/next navigation across chapters
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:2:7595'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: rejects a lesson that belongs to a different course
+    not ok 7 - rejects a lesson that belongs to a different course
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:2:8355'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: reports an unknown or unpublished course as not found
+    not ok 8 - reports an unknown or unpublished course as not found
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:2:8597'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..8
+not ok 28 - B13 getCourseLesson is a narrow, read-only query
+  ---
+  duration_ms: 6185.921583
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:2:1273'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/course-lesson-read.test.ts:44:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B2 course metadata is DB-only and never reports a failed write
+    # Subtest: a database write failure rejects instead of returning success
+    not ok 1 - a database write failure rejects instead of returning success
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:2:2036'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: a database read failure rejects instead of falling back to defaults
+    not ok 2 - a database read failure rejects instead of falling back to defaults
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:2:2430'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: a saved value is read back immediately (no stale module cache)
+    not ok 3 - a saved value is read back immediately (no stale module cache)
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:2:2819'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: legacy data/course-metadata.json is no longer used as a source
+    not ok 4 - legacy data/course-metadata.json is no longer used as a source
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:2:3382'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..4
+not ok 29 - B2 course metadata is DB-only and never reports a failed write
+  ---
+  duration_ms: 6198.479792
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:2:1245'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/course-metadata-db.test.ts:27:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: A8 course ownership
+    # Subtest: admin can manage every course
+    ok 1 - admin can manage every course
+      ---
+      duration_ms: 0.801459
+      type: 'test'
+      ...
+    # Subtest: a teacher can only manage their own course
+    ok 2 - a teacher can only manage their own course
+      ---
+      duration_ms: 0.104875
+      type: 'test'
+      ...
+    # Subtest: legacy courses without a creator are admin-only for real teachers
+    ok 3 - legacy courses without a creator are admin-only for real teachers
+      ---
+      duration_ms: 0.161834
+      type: 'test'
+      ...
+    # Subtest: students and anonymous callers are always denied
+    ok 4 - students and anonymous callers are always denied
+      ---
+      duration_ms: 0.085125
+      type: 'test'
+      ...
+    # Subtest: missing course or missing user id fails closed
+    ok 5 - missing course or missing user id fails closed
+      ---
+      duration_ms: 0.094542
+      type: 'test'
+      ...
+    # Subtest: assertCanManageCourse distinguishes 401 from 403
+    ok 6 - assertCanManageCourse distinguishes 401 from 403
+      ---
+      duration_ms: 0.477917
+      type: 'test'
+      ...
+    # Subtest: courses with enrollments are archived, never deleted
+    ok 7 - courses with enrollments are archived, never deleted
+      ---
+      duration_ms: 0.085041
+      type: 'test'
+      ...
+    # Subtest: demo identities are never persisted as a creator
+    ok 8 - demo identities are never persisted as a creator
+      ---
+      duration_ms: 0.177
+      type: 'test'
+      ...
+    1..8
+ok 30 - A8 course ownership
+  ---
+  duration_ms: 2.9355
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: B12 dashboard summary uses real rows
+    # Subtest: reports zeros for a guest and never links to an unpublished test
+    not ok 1 - reports zeros for a guest and never links to an unpublished test
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/dashboard-summary.test.ts:2:4857'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: uses the learner's own streak, today's study time and latest lesson
+    not ok 2 - uses the learner's own streak, today's study time and latest lesson
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/dashboard-summary.test.ts:2:5831'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: returns no continue-learning for a learner with no progress
+    not ok 3 - returns no continue-learning for a learner with no progress
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/dashboard-summary.test.ts:2:6777'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: caps the daily goal at 100 percent
+    not ok 4 - caps the daily goal at 100 percent
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/dashboard-summary.test.ts:2:7189'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..4
+not ok 31 - B12 dashboard summary uses real rows
+  ---
+  duration_ms: 6171.362584
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/dashboard-summary.test.ts:2:1215'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/dashboard-summary.test.ts:37:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: B12 dashboard UI does not invent card values
+    # Subtest: the dashboard page has no fabricated guest stats or course card values
+    ok 1 - the dashboard page has no fabricated guest stats or course card values
+      ---
+      duration_ms: 4.417083
+      type: 'test'
+      ...
+    # Subtest: the tests tab shows fetched tests with loading, error and empty states
+    ok 2 - the tests tab shows fetched tests with loading, error and empty states
+      ---
+      duration_ms: 1.111667
+      type: 'test'
+      ...
+    # Subtest: course cards do not fall back to an invented rating, duration or learner count
+    ok 3 - course cards do not fall back to an invented rating, duration or learner count
+      ---
+      duration_ms: 0.657916
+      type: 'test'
+      ...
+    1..3
+ok 32 - B12 dashboard UI does not invent card values
+  ---
+  duration_ms: 6.594708
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task G2: Data Deletion Queue & Admin Transitions
+    # Subtest: 1. Security: Role Checks (Non-Admin 403)
+        # Subtest: Non-admin (student) gets 403 on admin list route
+        not ok 1 - Non-admin (student) gets 403 on admin list route
+          ---
+          duration_ms: 0
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:2583'
+          failureType: 'cancelledByParent'
+          error: 'test did not finish before its parent and was cancelled'
+          code: 'ERR_TEST_FAILURE'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin single get route
+        not ok 2 - Non-admin (student) gets 403 on admin single get route
+          ---
+          duration_ms: 0
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:2972'
+          failureType: 'cancelledByParent'
+          error: 'test did not finish before its parent and was cancelled'
+          code: 'ERR_TEST_FAILURE'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin transition patch route
+        not ok 3 - Non-admin (student) gets 403 on admin transition patch route
+          ---
+          duration_ms: 0
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:3412'
+          failureType: 'cancelledByParent'
+          error: 'test did not finish before its parent and was cancelled'
+          code: 'ERR_TEST_FAILURE'
+          ...
+        1..3
+    not ok 1 - 1. Security: Role Checks (Non-Admin 403)
+      ---
+      duration_ms: 0
+      type: 'suite'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:2506'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 2. Admin Queue Listing & Transitions
+        # Subtest: Admin can list deletion requests
+        not ok 1 - Admin can list deletion requests
+          ---
+          duration_ms: 0
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:4182'
+          failureType: 'cancelledByParent'
+          error: 'test did not finish before its parent and was cancelled'
+          code: 'ERR_TEST_FAILURE'
+          ...
+        # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+        not ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+          ---
+          duration_ms: 0
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:4704'
+          failureType: 'cancelledByParent'
+          error: 'test did not finish before its parent and was cancelled'
+          code: 'ERR_TEST_FAILURE'
+          ...
+        # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+        not ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+          ---
+          duration_ms: 0
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:5863'
+          failureType: 'cancelledByParent'
+          error: 'test did not finish before its parent and was cancelled'
+          code: 'ERR_TEST_FAILURE'
+          ...
+        # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+        not ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+          ---
+          duration_ms: 0
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:6615'
+          failureType: 'cancelledByParent'
+          error: 'test did not finish before its parent and was cancelled'
+          code: 'ERR_TEST_FAILURE'
+          ...
+        1..4
+    not ok 2 - 2. Admin Queue Listing & Transitions
+      ---
+      duration_ms: 0
+      type: 'suite'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:3966'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. Authenticated User Deletion Request & Idempotency
+        # Subtest: Authenticated student request creates initial record
+        not ok 1 - Authenticated student request creates initial record
+          ---
+          duration_ms: 0
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:7449'
+          failureType: 'cancelledByParent'
+          error: 'test did not finish before its parent and was cancelled'
+          code: 'ERR_TEST_FAILURE'
+          ...
+        1..1
+    not ok 3 - 3. Authenticated User Deletion Request & Idempotency
+      ---
+      duration_ms: 0
+      type: 'suite'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:7360'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 33 - Task G2: Data Deletion Queue & Admin Transitions
+  ---
+  duration_ms: 3149.262084
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:2:1306'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.user.create()` invocation in
+    /Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:22:36
+    
+      19 
+      20 before(async () => {
+      21   testUserEmail = `g2_student_${Date.now()}@example.com`;
+    → 22   const user = await prisma.user.create(
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/data-deletion-queue.test.ts:22:18)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task G2 remediation: deletion idempotency, audit trail, queue authorization
+    # Subtest: a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+    not ok 1 - a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:2:3648'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: b) idempotency does not leak across users (one user's pending request is not reused for another)
+    not ok 2 - b) idempotency does not leak across users (one user's pending request is not reused for another)
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:2:4963'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+    not ok 3 - c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:2:6326'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+    not ok 4 - d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:2:7421'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+    not ok 5 - e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:2:9635'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: f) the authenticated status route returns 401 unauthenticated
+    not ok 6 - f) the authenticated status route returns 401 unauthenticated
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:2:11772'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..6
+not ok 34 - Task G2 remediation: deletion idempotency, audit trail, queue authorization
+  ---
+  duration_ms: 3221.826041
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:2:2107'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.user.create()` invocation in
+    /Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:53:36
+    
+      50 
+      51 async function createUser(prefix: string, role: "FREE" | "ADMIN" = "FREE") {
+      52   const email = `g2r_${prefix}_${Date.now()}_${Math.floor(Math.random() * 10000)}@example.com`;
+    → 53   const user = await prisma.user.create(
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async createUser (/Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:53:18)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/data-deletion-remediation.test.ts:75:19)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: R12-B: DATABASE_URL safety for Neon (production only)
+    # Subtest: B-R12-01: rejects localhost DATABASE_URL in production
+    ok 1 - B-R12-01: rejects localhost DATABASE_URL in production
+      ---
+      duration_ms: 4.966375
+      type: 'test'
+      ...
+    # Subtest: B-R12-02: rejects 127.0.0.1 DATABASE_URL in production
+    ok 2 - B-R12-02: rejects 127.0.0.1 DATABASE_URL in production
+      ---
+      duration_ms: 1.437083
+      type: 'test'
+      ...
+    # Subtest: B-R12-03: rejects DATABASE_URL without sslmode=require in production
+    ok 3 - B-R12-03: rejects DATABASE_URL without sslmode=require in production
+      ---
+      duration_ms: 1.030166
+      type: 'test'
+      ...
+    # Subtest: B-R12-04: rejects pooler host without pgbouncer=true in production
+    ok 4 - B-R12-04: rejects pooler host without pgbouncer=true in production
+      ---
+      duration_ms: 1.295333
+      type: 'test'
+      ...
+    # Subtest: B-R12-05: accepts pooler host WITH pgbouncer=true in production
+    ok 5 - B-R12-05: accepts pooler host WITH pgbouncer=true in production
+      ---
+      duration_ms: 1.026166
+      type: 'test'
+      ...
+    # Subtest: B-R12-06: rejects missing DIRECT_URL in production
+    ok 6 - B-R12-06: rejects missing DIRECT_URL in production
+      ---
+      duration_ms: 0.910583
+      type: 'test'
+      ...
+    # Subtest: B-R12-07: accepts valid Neon URL with sslmode and DIRECT_URL in production
+    ok 7 - B-R12-07: accepts valid Neon URL with sslmode and DIRECT_URL in production
+      ---
+      duration_ms: 1.300583
+      type: 'test'
+      ...
+    # Subtest: B-R12-08: non-production is unaffected by Neon guards
+    ok 8 - B-R12-08: non-production is unaffected by Neon guards
+      ---
+      duration_ms: 0.6065
+      type: 'test'
+      ...
+    # Subtest: B-R12-09: error messages never contain the actual URL
+    ok 9 - B-R12-09: error messages never contain the actual URL
+      ---
+      duration_ms: 0.767208
+      type: 'test'
+      ...
+    1..9
+ok 35 - R12-B: DATABASE_URL safety for Neon (production only)
+  ---
+  duration_ms: 14.584125
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Demo chat rate limit is shared, not process-local (B-018)
+    # Subtest: does not keep an in-memory rate limit map in the demo chat route
+    not ok 1 - does not keep an in-memory rate limit map in the demo chat route
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/demo-chat-rate-limit.test.ts:2:1501'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: counts requests in Postgres and rejects the second message inside the window
+    not ok 2 - counts requests in Postgres and rejects the second message inside the window
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/demo-chat-rate-limit.test.ts:2:2044'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: keeps limits per user
+    not ok 3 - keeps limits per user
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/demo-chat-rate-limit.test.ts:2:2802'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 36 - Demo chat rate limit is shared, not process-local (B-018)
+  ---
+  duration_ms: 6173.761833
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/demo-chat-rate-limit.test.ts:2:1080'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/demo-chat-rate-limit.test.ts:23:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: B-001 demo role guard
+    # Subtest: production never resolves a demo role, even with every flag set
+    ok 1 - production never resolves a demo role, even with every flag set
+      ---
+      duration_ms: 7.648959
+      type: 'test'
+      ...
+    # Subtest: development without explicit demo mode does not resolve a demo role
+    ok 2 - development without explicit demo mode does not resolve a demo role
+      ---
+      duration_ms: 2.334209
+      type: 'test'
+      ...
+    # Subtest: demo mode works when explicitly enabled or in the test environment
+    ok 3 - demo mode works when explicitly enabled or in the test environment
+      ---
+      duration_ms: 0.587625
+      type: 'test'
+      ...
+    # Subtest: unknown cookie values are rejected
+    ok 4 - unknown cookie values are rejected
+      ---
+      duration_ms: 0.509708
+      type: 'test'
+      ...
+    # Subtest: getDemoRole accepts a NextRequest and a next/headers cookie store
+    ok 5 - getDemoRole accepts a NextRequest and a next/headers cookie store
+      ---
+      duration_ms: 3.012625
+      type: 'test'
+      ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+    # Subtest: middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+    ok 6 - middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+      ---
+      duration_ms: 182.87525
+      type: 'test'
+      ...
+    # Subtest: lib/auth/rbac.ts rejects ts_demo_role cookie in production
+    ok 7 - lib/auth/rbac.ts rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 69.427666
+      type: 'test'
+      ...
+    # Subtest: app/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 8 - app/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 319.873542
+      type: 'test'
+      ...
+    # Subtest: middleware still honours the demo flow in the test environment
+    ok 9 - middleware still honours the demo flow in the test environment
+      ---
+      duration_ms: 2.887125
+      type: 'test'
+      ...
+    # Subtest: app/api/auth/role GET and POST return 404 in production
+    ok 10 - app/api/auth/role GET and POST return 404 in production
+      ---
+      duration_ms: 7.772583
+      type: 'test'
+      ...
+    # Subtest: app/(dashboard)/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 11 - app/(dashboard)/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 7.029917
+      type: 'test'
+      ...
+    # Subtest: exam API route rejects ts_demo_role=ADMIN in production with 401
+    ok 12 - exam API route rejects ts_demo_role=ADMIN in production with 401
+      ---
+      duration_ms: 12.133542
+      type: 'test'
+      ...
+    1..12
+ok 37 - B-001 demo role guard
+  ---
+  duration_ms: 617.978416
+  type: 'suite'
+  ...
+# Subtest: A1 demo-role policy
+    # Subtest: production build always ignores ts_demo_role, even in the test env
+    ok 1 - production build always ignores ts_demo_role, even in the test env
+      ---
+      duration_ms: 0.882208
+      type: 'test'
+      ...
+    # Subtest: test environment enables the demo role
+    ok 2 - test environment enables the demo role
+      ---
+      duration_ms: 0.192916
+      type: 'test'
+      ...
+    # Subtest: explicit demo flag enables the demo role outside test
+    ok 3 - explicit demo flag enables the demo role outside test
+      ---
+      duration_ms: 0.399875
+      type: 'test'
+      ...
+    # Subtest: fails closed when nothing explicitly enables demo mode
+    ok 4 - fails closed when nothing explicitly enables demo mode
+      ---
+      duration_ms: 0.37825
+      type: 'test'
+      ...
+    # Subtest: rejects an unknown role value
+    ok 5 - rejects an unknown role value
+      ---
+      duration_ms: 0.2235
+      type: 'test'
+      ...
+    1..5
+ok 38 - A1 demo-role policy
+  ---
+  duration_ms: 2.801917
+  type: 'suite'
+  ...
+# Subtest: A1 /api/auth/role is inert in production
+    # Subtest: POST returns 404 in production and never sets a cookie
+    ok 1 - POST returns 404 in production and never sets a cookie
+      ---
+      duration_ms: 69.725292
+      type: 'test'
+      ...
+    # Subtest: GET returns 404 in production
+    ok 2 - GET returns 404 in production
+      ---
+      duration_ms: 1.580792
+      type: 'test'
+      ...
+    1..2
+ok 39 - A1 /api/auth/role is inert in production
+  ---
+  duration_ms: 71.760334
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: C2 doubts and form submissions live in the database
+    # Subtest: stores a new doubt as a Doubt row, not in data/doubts.json
+    not ok 1 - stores a new doubt as a Doubt row, not in data/doubts.json
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/doubts-forms-db.test.ts:2:2028'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: answers a doubt and only that row changes
+    not ok 2 - answers a doubt and only that row changes
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/doubts-forms-db.test.ts:2:3454'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: counts concurrent upvotes without losing one
+    not ok 3 - counts concurrent upvotes without losing one
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/doubts-forms-db.test.ts:2:4224'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: returns null for an unknown doubt instead of inventing one
+    not ok 4 - returns null for an unknown doubt instead of inventing one
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/doubts-forms-db.test.ts:2:4852'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: filters doubts by student, status and subject
+    not ok 5 - filters doubts by student, status and subject
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/doubts-forms-db.test.ts:2:5498'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: stores a form submission as a FormSubmission row with JSON answers
+    not ok 6 - stores a form submission as a FormSubmission row with JSON answers
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/doubts-forms-db.test.ts:2:6081'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: no longer writes either store to disk
+    not ok 7 - no longer writes either store to disk
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/doubts-forms-db.test.ts:2:7206'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..7
+not ok 40 - C2 doubts and form submissions live in the database
+  ---
+  duration_ms: 6203.247083
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/doubts-forms-db.test.ts:2:1300'
+  failureType: 'hookFailed'
+  error: |-
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/doubts-forms-db.test.ts:41:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: R12-F: Email outbox consumer and cron trigger
+    # Subtest: F-R12-01: render.yaml contains a cron job for email outbox every 5 minutes
+    ok 1 - F-R12-01: render.yaml contains a cron job for email outbox every 5 minutes
+      ---
+      duration_ms: 3132.276041
+      type: 'test'
+      ...
+    # Subtest: F-R12-02: GitHub Actions alternative exists and is left disabled
+    ok 2 - F-R12-02: GitHub Actions alternative exists and is left disabled
+      ---
+      duration_ms: 3111.71375
+      type: 'test'
+      ...
+    # Subtest: F-R12-03: Route rejects missing CRON_SECRET with 401
+    ok 3 - F-R12-03: Route rejects missing CRON_SECRET with 401
+      ---
+      duration_ms: 3074.11075
+      type: 'test'
+      ...
+    # Subtest: F-R12-04: Route rejects wrong CRON_SECRET with 401
+    ok 4 - F-R12-04: Route rejects wrong CRON_SECRET with 401
+      ---
+      duration_ms: 3069.901583
+      type: 'test'
+      ...
+    # Subtest: F-R12-05: Route accepts valid CRON_SECRET and processes a pending outbox row
+    not ok 5 - F-R12-05: Route accepts valid CRON_SECRET and processes a pending outbox row
+      ---
+      duration_ms: 6138.382625
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-cron.test.ts:2:4788'
+      failureType: 'testCodeFailure'
+      error: |-
+        
+        Invalid `prisma.emailOutbox.create()` invocation in
+        /Users/praveenkumar/ws-launch/tests/unit/email-outbox-cron.test.ts:100:42
+        
+           97 });
+           98 
+           99 it("F-R12-05: Route accepts valid CRON_SECRET and processes a pending outbox row", async () => {
+        → 100   const row = await prisma.emailOutbox.create(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-cron.test.ts:100:17)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: F-R12-06: docs/runbooks/ documents the email outbox cron worker
+    ok 6 - F-R12-06: docs/runbooks/ documents the email outbox cron worker
+      ---
+      duration_ms: 3071.991625
+      type: 'test'
+      ...
+    1..6
+not ok 41 - R12-F: Email outbox consumer and cron trigger
+  ---
+  duration_ms: 24694.232541
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-cron.test.ts:2:1561'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: Task G5 remediation: retry, idempotency, cron auth, workflow triggers
+    # Subtest: 1. A failed delivery is retried: attempts increments, nextRetryAt is set with jittered backoff
+    not ok 1 - 1. A failed delivery is retried: attempts increments, nextRetryAt is set with jittered backoff
+      ---
+      duration_ms: 3113.280791
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:2:3970'
+      failureType: 'hookFailed'
+      error: |-
+        
+        Invalid `prisma.emailOutbox.deleteMany()` invocation in
+        /Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:92:30
+        
+          89 process.env.RESEND_API_URL = `http://127.0.0.1:${mockPort}/resend`;
+          90 process.env.CRON_SECRET = CRON_SECRET_TEST;
+          91 process.env.EMAIL_OUTBOX_MAX_ATTEMPTS = "3";
+        → 92 await prisma.emailOutbox.deleteMany(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:92:5)
+        async TestHook.run (node:internal/test_runner/test:1054:7)
+        async Suite.runHook (node:internal/test_runner/test:965:9)
+        async Test.run (node:internal/test_runner/test:1022:9)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+      ...
+    # Subtest: 2. Idempotency key is deterministic per attempt and a second worker pass does not re-send the row
+    not ok 2 - 2. Idempotency key is deterministic per attempt and a second worker pass does not re-send the row
+      ---
+      duration_ms: 3094.0495
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:2:5293'
+      failureType: 'hookFailed'
+      error: |-
+        
+        Invalid `prisma.emailOutbox.deleteMany()` invocation in
+        /Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:92:30
+        
+          89 process.env.RESEND_API_URL = `http://127.0.0.1:${mockPort}/resend`;
+          90 process.env.CRON_SECRET = CRON_SECRET_TEST;
+          91 process.env.EMAIL_OUTBOX_MAX_ATTEMPTS = "3";
+        → 92 await prisma.emailOutbox.deleteMany(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:92:5)
+        async TestHook.run (node:internal/test_runner/test:1054:7)
+        async Suite.runHook (node:internal/test_runner/test:965:9)
+        async Test.run (node:internal/test_runner/test:1022:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 3. Provider order is Brevo first, then Resend when Brevo fails
+    not ok 3 - 3. Provider order is Brevo first, then Resend when Brevo fails
+      ---
+      duration_ms: 3073.072583
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:2:6564'
+      failureType: 'hookFailed'
+      error: |-
+        
+        Invalid `prisma.emailOutbox.deleteMany()` invocation in
+        /Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:92:30
+        
+          89 process.env.RESEND_API_URL = `http://127.0.0.1:${mockPort}/resend`;
+          90 process.env.CRON_SECRET = CRON_SECRET_TEST;
+          91 process.env.EMAIL_OUTBOX_MAX_ATTEMPTS = "3";
+        → 92 await prisma.emailOutbox.deleteMany(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:92:5)
+        async TestHook.run (node:internal/test_runner/test:1054:7)
+        async Suite.runHook (node:internal/test_runner/test:965:9)
+        async Test.run (node:internal/test_runner/test:1022:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 4. CRON_SECRET: a wrong secret of the SAME length returns 401 without throwing
+    not ok 4 - 4. CRON_SECRET: a wrong secret of the SAME length returns 401 without throwing
+      ---
+      duration_ms: 3070.939125
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:2:7012'
+      failureType: 'hookFailed'
+      error: |-
+        
+        Invalid `prisma.emailOutbox.deleteMany()` invocation in
+        /Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:92:30
+        
+          89 process.env.RESEND_API_URL = `http://127.0.0.1:${mockPort}/resend`;
+          90 process.env.CRON_SECRET = CRON_SECRET_TEST;
+          91 process.env.EMAIL_OUTBOX_MAX_ATTEMPTS = "3";
+        → 92 await prisma.emailOutbox.deleteMany(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:92:5)
+        async TestHook.run (node:internal/test_runner/test:1054:7)
+        async Suite.runHook (node:internal/test_runner/test:965:9)
+        async Test.run (node:internal/test_runner/test:1022:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: 5. The disabled cron stub has no active triggers (not loaded by GitHub Actions)
+    not ok 5 - 5. The disabled cron stub has no active triggers (not loaded by GitHub Actions)
+      ---
+      duration_ms: 3069.787
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:2:7785'
+      failureType: 'hookFailed'
+      error: |-
+        
+        Invalid `prisma.emailOutbox.deleteMany()` invocation in
+        /Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:92:30
+        
+          89 process.env.RESEND_API_URL = `http://127.0.0.1:${mockPort}/resend`;
+          90 process.env.CRON_SECRET = CRON_SECRET_TEST;
+          91 process.env.EMAIL_OUTBOX_MAX_ATTEMPTS = "3";
+        → 92 await prisma.emailOutbox.deleteMany(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:92:5)
+        async TestHook.run (node:internal/test_runner/test:1054:7)
+        async Suite.runHook (node:internal/test_runner/test:965:9)
+        async Test.run (node:internal/test_runner/test:1022:9)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..5
+not ok 42 - Task G5 remediation: retry, idempotency, cron auth, workflow triggers
+  ---
+  duration_ms: 18525.839375
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:2:1518'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.emailOutbox.deleteMany()` invocation in
+    /Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:76:30
+    
+      73 
+      74 after(async () => {
+      75   await new Promise<void>((resolve) => mockServer.close(() => resolve()));
+    → 76   await prisma.emailOutbox.deleteMany(
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-remediation.test.ts:76:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1443:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: Task G5: Email Outbox Worker Verification
+    # Subtest: 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+        # Subtest: Rejects request with missing CRON_SECRET (401)
+        ok 1 - Rejects request with missing CRON_SECRET (401)
+          ---
+          duration_ms: 4.241375
+          type: 'test'
+          ...
+        # Subtest: Rejects request with invalid CRON_SECRET (401)
+        ok 2 - Rejects request with invalid CRON_SECRET (401)
+          ---
+          duration_ms: 0.801708
+          type: 'test'
+          ...
+# POST /api/internal/email-outbox error: PrismaClientInitializationError: Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at r (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:440:17)
+#     at async Qr.transaction (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/core/engines/library/LibraryEngine.ts:190:5)
+#     at async Proxy._transactionWithCallback (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:715:20)
+#     at async processEmailOutbox (/Users/praveenkumar/ws-launch/lib/email/outbox-worker.ts:161:30)
+#     at async POST (/Users/praveenkumar/ws-launch/app/api/internal/email-outbox/route.ts:35:19)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:116:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: 'P1001',
+#   retryable: undefined
+# }
+        # Subtest: Accepts request with valid CRON_SECRET (200)
+        not ok 3 - Accepts request with valid CRON_SECRET (200)
+          ---
+          duration_ms: 3133.198625
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:2:4090'
+          failureType: 'testCodeFailure'
+          error: |-
+            Expected values to be strictly equal:
+            
+            500 !== 200
+            
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: 200
+          actual: 500
+          operator: 'strictEqual'
+          stack: |-
+            TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:117:14)
+            async Test.run (node:internal/test_runner/test:1054:7)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        1..3
+    not ok 1 - 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+      ---
+      duration_ms: 3139.556625
+      type: 'suite'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:2:3373'
+      failureType: 'subtestsFailed'
+      error: '1 subtest failed'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        async Promise.all (index 0)
+      ...
+    # Subtest: 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+        # Subtest: Successfully sends pending row via primary provider (Brevo) and marks SENT
+        not ok 1 - Successfully sends pending row via primary provider (Brevo) and marks SENT
+          ---
+          duration_ms: 3106.9615
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:2:4581'
+          failureType: 'testCodeFailure'
+          error: |-
+            
+            Invalid `prisma.emailOutbox.create()` invocation in
+            /Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:126:44
+            
+              123 describe("2. Processor: Retry, Backoff, Fallback & Dead-Letter", () => {
+              124   test("Successfully sends pending row via primary provider (Brevo) and marks SENT", async () => {
+              125     const testEmail = `g5_test_${Date.now()}@example.com`;
+            → 126     const row = await prisma.emailOutbox.create(
+            Can't reach database server at `127.0.0.1:54329`
+            
+            Please make sure your database server is running at `127.0.0.1:54329`.
+          code: 'ERR_TEST_FAILURE'
+          stack: |-
+            ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+            ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+            ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+            async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+            async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:126:19)
+            async Test.run (node:internal/test_runner/test:1054:7)
+            async Promise.all (index 0)
+            async Suite.run (node:internal/test_runner/test:1442:7)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        # Subtest: Falls back to Resend when Brevo fails
+        not ok 2 - Falls back to Resend when Brevo fails
+          ---
+          duration_ms: 3059.37975
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:2:5432'
+          failureType: 'testCodeFailure'
+          error: |-
+            
+            Invalid `prisma.emailOutbox.create()` invocation in
+            /Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:152:44
+            
+              149 mockResendSuccess = true; // Fallback succeeds
+              150 
+              151 const testEmail = `g5_test_fallback_${Date.now()}@example.com`;
+            → 152 const row = await prisma.emailOutbox.create(
+            Can't reach database server at `127.0.0.1:54329`
+            
+            Please make sure your database server is running at `127.0.0.1:54329`.
+          code: 'ERR_TEST_FAILURE'
+          stack: |-
+            ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+            ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+            ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+            async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+            async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:152:19)
+            async Test.run (node:internal/test_runner/test:1054:7)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        # Subtest: Backoff schedule: exponential backoff with jitter on total provider failure
+        ok 3 - Backoff schedule: exponential backoff with jitter on total provider failure
+          ---
+          duration_ms: 0.610625
+          type: 'test'
+          ...
+        # Subtest: Transitions to DEAD_LETTER after max attempts exceeded
+        not ok 4 - Transitions to DEAD_LETTER after max attempts exceeded
+          ---
+          duration_ms: 3072.527042
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:2:6865'
+          failureType: 'testCodeFailure'
+          error: |-
+            
+            Invalid `prisma.emailOutbox.create()` invocation in
+            /Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:189:44
+            
+              186 
+              187 const testEmail = `g5_test_deadletter_${Date.now()}@example.com`;
+              188 // Create row already at attempt 2 (maxAttempts is 3)
+            → 189 const row = await prisma.emailOutbox.create(
+            Can't reach database server at `127.0.0.1:54329`
+            
+            Please make sure your database server is running at `127.0.0.1:54329`.
+          code: 'ERR_TEST_FAILURE'
+          stack: |-
+            ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+            ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+            ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+            async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+            async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:189:19)
+            async Test.run (node:internal/test_runner/test:1054:7)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        1..4
+    not ok 2 - 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+      ---
+      duration_ms: 9241.192541
+      type: 'suite'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:2:4492'
+      failureType: 'subtestsFailed'
+      error: '3 subtests failed'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+        # Subtest: Two concurrent workers never send the same row twice
+        not ok 1 - Two concurrent workers never send the same row twice
+          ---
+          duration_ms: 3069.226125
+          type: 'test'
+          location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:2:7742'
+          failureType: 'testCodeFailure'
+          error: |-
+            
+            Invalid `prisma.emailOutbox.create()` invocation in
+            /Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:214:46
+            
+              211 // Seed 5 pending email rows
+              212 const rows = [];
+              213 for (let i = 0; i < 5; i++) {
+            → 214   const row = await prisma.emailOutbox.create(
+            Can't reach database server at `127.0.0.1:54329`
+            
+            Please make sure your database server is running at `127.0.0.1:54329`.
+          code: 'ERR_TEST_FAILURE'
+          stack: |-
+            ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+            ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+            ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+            async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+            async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:214:21)
+            async Test.run (node:internal/test_runner/test:1054:7)
+            async Promise.all (index 0)
+            async Suite.run (node:internal/test_runner/test:1442:7)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        1..1
+    not ok 3 - 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+      ---
+      duration_ms: 3070.619375
+      type: 'suite'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:2:7646'
+      failureType: 'subtestsFailed'
+      error: '1 subtest failed'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 43 - Task G5: Email Outbox Worker Verification
+  ---
+  duration_ms: 18540.889083
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:2:1255'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.emailOutbox.deleteMany()` invocation in
+    /Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:73:30
+    
+      70 
+      71 after(async () => {
+      72   await new Promise<void>((resolve) => mockServer.close(() => resolve()));
+    → 73   await prisma.emailOutbox.deleteMany(
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-outbox-worker.test.ts:73:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1443:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+    # Subtest: 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+    ok 1 - 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+      ---
+      duration_ms: 55.838083
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 500: {"error":"Brevo Internal Service Error"}. Attempting fallback (Resend)...
+    # Subtest: 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+    ok 2 - 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+      ---
+      duration_ms: 8.092875
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 502: {"error":"Brevo Bad Gateway"}. Attempting fallback (Resend)...
+# [Email] Fallback provider (Resend) failed: Resend HTTP 429: {"error":"Resend Rate Limit Exceeded"}.
+# [Email] All email delivery providers failed. Queuing message to queued_1793518472067@example.com into EmailOutbox for background retry.
+# [Email] Failed to queue failed email to EmailOutbox: PrismaClientInitializationError: 
+# Invalid `prisma.emailOutbox.create()` invocation in
+# /Users/praveenkumar/ws-launch/lib/email.ts:231:55
+#   228 const nextRetryAt = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes retry window
+#   229 
+#   230 try {
+# → 231     const queuedRecord = await prisma.emailOutbox.create(
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async sendEmail (/Users/praveenkumar/ws-launch/lib/email.ts:231:30)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-provider-abstraction.test.ts:127:17)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+    # Subtest: 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+    not ok 3 - 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+      ---
+      duration_ms: 3107.189208
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-provider-abstraction.test.ts:2:4387'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        
+        false !== true
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-provider-abstraction.test.ts:134:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+# [DbEmailOutbox] Failed to write outbox record: PrismaClientInitializationError: 
+# Invalid `prisma.emailOutbox.create()` invocation in
+# /Users/praveenkumar/ws-launch/lib/email.ts:153:57
+#   150 if (isDevOrTest && !hasAnyProvider) {
+#   151     if (isDbPersist()) {
+#   152         try {
+# → 153             const record = await prisma.emailOutbox.create(
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async sendEmail (/Users/praveenkumar/ws-launch/lib/email.ts:153:32)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-provider-abstraction.test.ts:159:17)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+    # Subtest: 4. In dev/test when neither key is configured, writes to outbox without failing
+    not ok 4 - 4. In dev/test when neither key is configured, writes to outbox without failing
+      ---
+      duration_ms: 3116.301875
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/email-provider-abstraction.test.ts:2:5683'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        
+        false !== true
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-provider-abstraction.test.ts:165:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..4
+not ok 44 - Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+  ---
+  duration_ms: 6312.150708
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/email-provider-abstraction.test.ts:2:1126'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Email] All email delivery providers failed. Queuing message to c2-production@example.test into EmailOutbox for background retry.
+# [Email] Failed to queue failed email to EmailOutbox: PrismaClientInitializationError: 
+# Invalid `prisma.emailOutbox.create()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async sendEmail (/Users/praveenkumar/ws-launch/lib/email.ts:231:30)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/email-transport.test.ts:41:20)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [DevEmailOutbox] Sent to: c2-test@example.test | Subject: Recorded in the test outbox | Link: http://127.0.0.1:3045/reset-password?token=c2-token
+# Subtest: C2 email transport fails closed in production
+    # Subtest: reports failure in production when no provider key is configured
+    ok 1 - reports failure in production when no provider key is configured
+      ---
+      duration_ms: 3117.887
+      type: 'test'
+      ...
+    # Subtest: still records to the outbox in the test environment
+    ok 2 - still records to the outbox in the test environment
+      ---
+      duration_ms: 3.905833
+      type: 'test'
+      ...
+    1..2
+ok 45 - C2 email transport fails closed in production
+  ---
+  duration_ms: 3122.733625
+  type: 'suite'
+  ...
+# Subtest: Task E: .env.example Completeness Enforcer
+    # Subtest: Every process.env variable used in app code must be documented in .env.example
+    ok 1 - Every process.env variable used in app code must be documented in .env.example
+      ---
+      duration_ms: 239.198417
+      type: 'test'
+      ...
+    # Subtest: Sentry error monitoring variables are documented in .env.example as OPTIONAL
+    ok 2 - Sentry error monitoring variables are documented in .env.example as OPTIONAL
+      ---
+      duration_ms: 0.315042
+      type: 'test'
+      ...
+    1..2
+ok 46 - Task E: .env.example Completeness Enforcer
+  ---
+  duration_ms: 240.291166
+  type: 'suite'
+  ...
+# Razorpay credentials not configured
+# RAZORPAY_KEY_SECRET is not configured; cannot verify payment signature
+# Subtest: S3 configuration guards (B-013)
+    # Subtest: getS3Url throws an explicit error instead of building an 'undefined' URL
+    ok 1 - getS3Url throws an explicit error instead of building an 'undefined' URL
+      ---
+      duration_ms: 1.064041
+      type: 'test'
+      ...
+    # Subtest: generatePresignedUrl rejects with the explicit configuration error
+    ok 2 - generatePresignedUrl rejects with the explicit configuration error
+      ---
+      duration_ms: 0.392958
+      type: 'test'
+      ...
+    # Subtest: deleteFromS3 rejects with the explicit configuration error
+    ok 3 - deleteFromS3 rejects with the explicit configuration error
+      ---
+      duration_ms: 0.375459
+      type: 'test'
+      ...
+    # Subtest: still builds a normal S3 URL when the bucket is configured
+    ok 4 - still builds a normal S3 URL when the bucket is configured
+      ---
+      duration_ms: 0.383583
+      type: 'test'
+      ...
+    1..4
+ok 47 - S3 configuration guards (B-013)
+  ---
+  duration_ms: 3.048542
+  type: 'suite'
+  ...
+# Subtest: Razorpay signature guards (B-012)
+    # Subtest: verifyRazorpaySignature returns false (never throws) when the secret is missing
+    ok 1 - verifyRazorpaySignature returns false (never throws) when the secret is missing
+      ---
+      duration_ms: 0.329042
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpaySignature accepts a correctly signed payload
+    ok 2 - verifyRazorpaySignature accepts a correctly signed payload
+      ---
+      duration_ms: 0.509125
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpayWebhookSignature never falls back to RAZORPAY_KEY_SECRET
+    ok 3 - verifyRazorpayWebhookSignature never falls back to RAZORPAY_KEY_SECRET
+      ---
+      duration_ms: 0.182416
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpayWebhookSignature accepts a correctly signed webhook
+    ok 4 - verifyRazorpayWebhookSignature accepts a correctly signed webhook
+      ---
+      duration_ms: 0.314167
+      type: 'test'
+      ...
+    1..4
+ok 48 - Razorpay signature guards (B-012)
+  ---
+  duration_ms: 1.629625
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# [CONTENT_AUDIT_FS] UPDATE EXAM_TEST t-1 by anonymous
+# [CONTENT_AUDIT_FS] BULK_QUICK_FIRST_N_FREE EXAM_TEST t-1,t-2 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE EXAM_TEST t-1 by anonymous
+# [CONTENT_AUDIT_FS] BULK_REVERT_STATES EXAM_TEST t-1,t-2 by anonymous
+# [CONTENT_AUDIT_FS] ARCHIVE EXAM_TEST test-preserve-1 by anonymous
+# [CONTENT_AUDIT_FS] RESTORE_VERSION EXAM_TEST test-preserve-1 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE EXAM_TEST test-detach-1 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE EXAM_SERIES entity-456 by anonymous
+# Subtest: Automated Checklist Scenarios Integration Suite
+    # Subtest: Scenario 1: Change package slug and resolve via history returns package
+    ok 1 - Scenario 1: Change package slug and resolve via history returns package
+      ---
+      duration_ms: 13.529583
+      type: 'test'
+      ...
+    # Subtest: Scenario 2: Make first N free applies access, and Undo restores state
+    ok 2 - Scenario 2: Make first N free applies access, and Undo restores state
+      ---
+      duration_ms: 2.48575
+      type: 'test'
+      ...
+    # Subtest: Scenario 3: N=-1 and N greater than total tests are rejected
+    ok 3 - Scenario 3: N=-1 and N greater than total tests are rejected
+      ---
+      duration_ms: 0.323833
+      type: 'test'
+      ...
+    # Subtest: Scenario 4: Soft delete (archive) when attempts exist, hard delete when empty
+    ok 4 - Scenario 4: Soft delete (archive) when attempts exist, hard delete when empty
+      ---
+      duration_ms: 0.310625
+      type: 'test'
+      ...
+    # Subtest: Scenario 5: Teacher mutating another author's package gets 403
+    ok 5 - Scenario 5: Teacher mutating another author's package gets 403
+      ---
+      duration_ms: 0.750709
+      type: 'test'
+      ...
+    # Subtest: Scenario 6: IDOR cross-package tampering is blocked
+    ok 6 - Scenario 6: IDOR cross-package tampering is blocked
+      ---
+      duration_ms: 0.303292
+      type: 'test'
+      ...
+    # Subtest: Scenario 7: ts_demo_role cookie authorizes no mutation in production
+    ok 7 - Scenario 7: ts_demo_role cookie authorizes no mutation in production
+      ---
+      duration_ms: 0.217917
+      type: 'test'
+      ...
+    # Subtest: Scenario 8: Archive test then restore it preserves attempts
+    ok 8 - Scenario 8: Archive test then restore it preserves attempts
+      ---
+      duration_ms: 0.811958
+      type: 'test'
+      ...
+    # Subtest: Scenario 9: Detach test moves to Unassigned series excluded from catalogue
+    ok 9 - Scenario 9: Detach test moves to Unassigned series excluded from catalogue
+      ---
+      duration_ms: 1.00175
+      type: 'test'
+      ...
+    # Subtest: Scenario 10: Concurrent save rejected with 409 conflict when updatedAt differs
+    ok 10 - Scenario 10: Concurrent save rejected with 409 conflict when updatedAt differs
+      ---
+      duration_ms: 0.37475
+      type: 'test'
+      ...
+    # Subtest: Scenario 11: writeDualAuditLog writes dual audit logs
+    ok 11 - Scenario 11: writeDualAuditLog writes dual audit logs
+      ---
+      duration_ms: 0.351334
+      type: 'test'
+      ...
+    # Subtest: Scenario 12: Undo rejects with 409 if tests were modified by another session
+    ok 12 - Scenario 12: Undo rejects with 409 if tests were modified by another session
+      ---
+      duration_ms: 0.21075
+      type: 'test'
+      ...
+    # Subtest: Scenario 13: Toast duration constant is set to 20 seconds
+    ok 13 - Scenario 13: Toast duration constant is set to 20 seconds
+      ---
+      duration_ms: 0.130333
+      type: 'test'
+      ...
+    1..13
+ok 49 - Automated Checklist Scenarios Integration Suite
+  ---
+  duration_ms: 21.886458
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P0-1: Exam Deadline Before Write Verification
+    # Subtest: 1. Boundary check: 60 min test with 30s grace allows writes at +20s but rejects at +31s
+    not ok 1 - 1. Boundary check: 60 min test with 30s grace allows writes at +20s but rejects at +31s
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-deadline-ordering.test.ts:2:3157'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 2. syncAttemptAnswers past deadline writes zero rows to ExamAttemptAnswer
+    not ok 2 - 2. syncAttemptAnswers past deadline writes zero rows to ExamAttemptAnswer
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-deadline-ordering.test.ts:2:4141'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. submitTestAttempt past deadline writes zero final answer rows but completes grading
+    not ok 3 - 3. submitTestAttempt past deadline writes zero final answer rows but completes grading
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-deadline-ordering.test.ts:2:4914'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 4. Attempt already submitted rejects concurrent sync writes
+    not ok 4 - 4. Attempt already submitted rejects concurrent sync writes
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-deadline-ordering.test.ts:2:5779'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..4
+not ok 50 - P0-1: Exam Deadline Before Write Verification
+  ---
+  duration_ms: 6249.3695
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-deadline-ordering.test.ts:2:1439'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.user.upsert()` invocation in
+    /Users/praveenkumar/ws-launch/tests/unit/exam-deadline-ordering.test.ts:24:36
+    
+      21 
+      22 before(async () => {
+      23   // Setup student user
+    → 24   const user = await prisma.user.upsert(
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-deadline-ordering.test.ts:24:18)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: verifyMutationAuth Unit Tests
+    # Subtest: rejects mutation when session is missing and no demo cookie provided
+    ok 1 - rejects mutation when session is missing and no demo cookie provided
+      ---
+      duration_ms: 21.565542
+      type: 'test'
+      ...
+    # Subtest: rejects mutation for non-creator student role
+    ok 2 - rejects mutation for non-creator student role
+      ---
+      duration_ms: 0.18375
+      type: 'test'
+      ...
+    # Subtest: blocks ts_demo_role cookie fallback in production environment
+    ok 3 - blocks ts_demo_role cookie fallback in production environment
+      ---
+      duration_ms: 0.140708
+      type: 'test'
+      ...
+    # Subtest: enforces teacher ownership: rejects teacher trying to mutate another author's content
+    ok 4 - enforces teacher ownership: rejects teacher trying to mutate another author's content
+      ---
+      duration_ms: 0.173083
+      type: 'test'
+      ...
+    # Subtest: authorizes teacher mutating their own content
+    ok 5 - authorizes teacher mutating their own content
+      ---
+      duration_ms: 0.081167
+      type: 'test'
+      ...
+    # Subtest: admin bypasses teacher ownership check
+    ok 6 - admin bypasses teacher ownership check
+      ---
+      duration_ms: 0.067875
+      type: 'test'
+      ...
+    1..6
+ok 51 - verifyMutationAuth Unit Tests
+  ---
+  duration_ms: 23.21425
+  type: 'suite'
+  ...
+# Subtest: IDOR Protection Unit Tests (verifyTestBelongsToPackage)
+    # Subtest: allows test when seriesId matches packageId
+    ok 1 - allows test when seriesId matches packageId
+      ---
+      duration_ms: 0.230084
+      type: 'test'
+      ...
+    # Subtest: blocks test when seriesId does not match packageId (cross-package tampering IDOR)
+    ok 2 - blocks test when seriesId does not match packageId (cross-package tampering IDOR)
+      ---
+      duration_ms: 0.352084
+      type: 'test'
+      ...
+    # Subtest: blocks test when testSeriesId is missing
+    ok 3 - blocks test when testSeriesId is missing
+      ---
+      duration_ms: 0.151625
+      type: 'test'
+      ...
+    1..3
+ok 52 - IDOR Protection Unit Tests (verifyTestBelongsToPackage)
+  ---
+  duration_ms: 1.092791
+  type: 'suite'
+  ...
+# Subtest: Soft vs Hard Delete Decision Unit Tests (decideDeleteAction)
+    # Subtest: decides hard_delete when item has 0 attempts, 0 enrollments, and 0 payments
+    ok 1 - decides hard_delete when item has 0 attempts, 0 enrollments, and 0 payments
+      ---
+      duration_ms: 0.16525
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has student attempts
+    ok 2 - decides archive (soft delete) when item has student attempts
+      ---
+      duration_ms: 0.059292
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has active enrollments
+    ok 3 - decides archive (soft delete) when item has active enrollments
+      ---
+      duration_ms: 0.050459
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has verified payments
+    ok 4 - decides archive (soft delete) when item has verified payments
+      ---
+      duration_ms: 0.046541
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has multiple dependencies
+    ok 5 - decides archive (soft delete) when item has multiple dependencies
+      ---
+      duration_ms: 0.04525
+      type: 'test'
+      ...
+    1..5
+ok 53 - Soft vs Hard Delete Decision Unit Tests (decideDeleteAction)
+  ---
+  duration_ms: 0.464542
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: Exam Metrics & Single Source of Truth Tests
+    # Subtest: calculatePackageMetricsSummary correctly computes status and attempt counts
+    ok 1 - calculatePackageMetricsSummary correctly computes status and attempt counts
+      ---
+      duration_ms: 11.308666
+      type: 'test'
+      ...
+    # Subtest: calculatePackageMetricsSummary handles empty array safely
+    ok 2 - calculatePackageMetricsSummary handles empty array safely
+      ---
+      duration_ms: 0.170958
+      type: 'test'
+      ...
+    # Subtest: computePackageMetrics calculates average score percentage correctly without zero division
+    ok 3 - computePackageMetrics calculates average score percentage correctly without zero division
+      ---
+      duration_ms: 0.288459
+      type: 'test'
+      ...
+    # Subtest: computePackageMetrics safely handles series with 0 attempts and 0 tests
+    ok 4 - computePackageMetrics safely handles series with 0 attempts and 0 tests
+      ---
+      duration_ms: 0.178041
+      type: 'test'
+      ...
+    # Subtest: isAnalyticsUser correctly filters out staff and test emails
+    ok 5 - isAnalyticsUser correctly filters out staff and test emails
+      ---
+      duration_ms: 0.109459
+      type: 'test'
+      ...
+    # Subtest: getAnalyticsUserWhere returns role excluding staff and test domains
+    ok 6 - getAnalyticsUserWhere returns role excluding staff and test domains
+      ---
+      duration_ms: 1.045459
+      type: 'test'
+      ...
+    1..6
+ok 54 - Exam Metrics & Single Source of Truth Tests
+  ---
+  duration_ms: 13.9685
+  type: 'suite'
+  ...
+# Subtest: Exam Labels & Enums Formatting Tests
+    # Subtest: formatTestType maps test types correctly
+    ok 1 - formatTestType maps test types correctly
+      ---
+      duration_ms: 0.305792
+      type: 'test'
+      ...
+    # Subtest: formatDifficulty maps difficulties correctly
+    ok 2 - formatDifficulty maps difficulties correctly
+      ---
+      duration_ms: 0.351125
+      type: 'test'
+      ...
+    # Subtest: formatLanguage maps language codes correctly
+    ok 3 - formatLanguage maps language codes correctly
+      ---
+      duration_ms: 0.169541
+      type: 'test'
+      ...
+    1..3
+ok 55 - Exam Labels & Enums Formatting Tests
+  ---
+  duration_ms: 1.199375
+  type: 'suite'
+  ...
+# Subtest: System Series Slugs Tests
+    # Subtest: SYSTEM_SERIES_SLUGS contains unassigned tests system series
+    ok 1 - SYSTEM_SERIES_SLUGS contains unassigned tests system series
+      ---
+      duration_ms: 0.126209
+      type: 'test'
+      ...
+    1..1
+ok 56 - System Series Slugs Tests
+  ---
+  duration_ms: 0.182708
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P0-2: Correct Ranking Design Suite
+    # Subtest: 1. Ties and 1, 2, 2, 4 tie rule parity with legacy calculation
+    not ok 1 - 1. Ties and 1, 2, 2, 4 tie rule parity with legacy calculation
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-live.test.ts:2:3066'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 2. Submitter rank non-null right after submit with cache warm and cold
+    not ok 2 - 2. Submitter rank non-null right after submit with cache warm and cold
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-live.test.ts:2:4961'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 3. Percentile bounds: exactly 100 for sole candidate, between 0 and 100 for N candidates
+    not ok 3 - 3. Percentile bounds: exactly 100 for sole candidate, between 0 and 100 for N candidates
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-live.test.ts:2:5924'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: 4. 2 concurrent submits both receive non-null rankings and correct total counts
+    not ok 4 - 4. 2 concurrent submits both receive non-null rankings and correct total counts
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-live.test.ts:2:6874'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..4
+not ok 57 - P0-2: Correct Ranking Design Suite
+  ---
+  duration_ms: 6277.316
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-live.test.ts:2:1461'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.examSeries.upsert()` invocation in
+    /Users/praveenkumar/ws-launch/tests/unit/exam-ranking-live.test.ts:32:44
+    
+      29 
+      30 before(async () => {
+      31   // 1. Create series and test
+    → 32   const series = await prisma.examSeries.upsert(
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-live.test.ts:32:20)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task A8: Ranking Correctness & Concurrency Suite
+    # Subtest: A8(a) Property Test: 1000+ random datasets match independent reference 100%
+    not ok 1 - A8(a) Property Test: 1000+ random datasets match independent reference 100%
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-property.test.ts:10:100'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: A8(b) Consistency: Live rank equals position in fully sorted list & top-N never contradicts it
+    not ok 2 - A8(b) Consistency: Live rank equals position in fully sorted list & top-N never contradicts it
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-property.test.ts:18:1880'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    # Subtest: A8(d) Concurrency: 50 simultaneous submits; every submitter gets non-null unique-consistent rank
+    not ok 3 - A8(d) Concurrency: 50 simultaneous submits; every submitter gets non-null unique-consistent rank
+      ---
+      duration_ms: 0
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-property.test.ts:18:2690'
+      failureType: 'cancelledByParent'
+      error: 'test did not finish before its parent and was cancelled'
+      code: 'ERR_TEST_FAILURE'
+      ...
+    1..3
+not ok 58 - Task A8: Ranking Correctness & Concurrency Suite
+  ---
+  duration_ms: 3123.602791
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-property.test.ts:2:2571'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.$executeRaw()` invocation:
+    
+    
+    Can't reach database server at `127.0.0.1:54329`
+    
+    Please make sure your database server is running at `127.0.0.1:54329`.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-ranking-property.test.ts:83:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Suite.runHook (node:internal/test_runner/test:965:9)
+    async Suite.run (node:internal/test_runner/test:1436:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# (node:49564) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: P1-5: Exam Route Rate Limiting Hardening
+    # Subtest: Flag OFF: rate limiter allows requests indefinitely without 429
+    ok 1 - Flag OFF: rate limiter allows requests indefinitely without 429
+      ---
+      duration_ms: 14.226416
+      type: 'test'
+      ...
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/Users/praveenkumar/ws-launch/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:71:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/Users/praveenkumar/ws-launch/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:71:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/Users/praveenkumar/ws-launch/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:71:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/Users/praveenkumar/ws-launch/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:71:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/Users/praveenkumar/ws-launch/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:71:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:24)
+#     at async checkExamWebRateLimit (/Users/praveenkumar/ws-launch/lib/exam-runtime/exam-rate-limit.ts:45:15)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:76:26)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+    # Subtest: Flag ON: bursts exceeding limit are rejected with 429 and Retry-After header (Web)
+    not ok 2 - Flag ON: bursts exceeding limit are rejected with 429 and Retry-After header (Web)
+      ---
+      duration_ms: 21564.956
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:2:2598'
+      failureType: 'testCodeFailure'
+      error: |-
+        
+        Invalid `prisma.rateLimit.deleteMany()` invocation in
+        /Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:36:30
+        
+          33 
+          34 async function clearRateLimitRows(...keys: string[]) {
+          35   for (const key of keys) {
+        → 36     await prisma.rateLimit.deleteMany(
+        Can't reach database server at `127.0.0.1:54329`
+        
+        Please make sure your database server is running at `127.0.0.1:54329`.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async clearRateLimitRows (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:36:7)
+        async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:89:7)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/Users/praveenkumar/ws-launch/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:105:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/Users/praveenkumar/ws-launch/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:105:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/Users/praveenkumar/ws-launch/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:105:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+# [RateLimit] Database error while checking rate limit (failing OPEN): PrismaClientInitializationError: 
+# Invalid `prisma.$queryRawUnsafe()` invocation:
+# Can't reach database server at `127.0.0.1:54329`
+# Please make sure your database server is running at `127.0.0.1:54329`.
+#     at ei.handleRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+#     at ei.handleAndLogRequestError (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+#     at ei.request (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+#     at async a (/Users/praveenkumar/ws-launch/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+#     at async checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:24)
+#     at async checkExamV1RateLimit (/Users/praveenkumar/ws-launch/lib/exam-runtime/exam-rate-limit.ts:81:15)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/exam-rate-limiting.test.ts:105:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+#   clientVersion: '6.19.0',
+#   errorCode: undefined,
+#   retryable: undefined
+# }
+
+EXIT:1
