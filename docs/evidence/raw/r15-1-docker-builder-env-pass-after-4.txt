@@ -1,0 +1,30 @@
+TAP version 13
+# Subtest: R15-1: Dockerfile builder stage database environment variables guard
+    # Subtest: Dockerfile builder stage DATABASE_URL and DIRECT_URL pass boot security guard in production
+    ok 1 - Dockerfile builder stage DATABASE_URL and DIRECT_URL pass boot security guard in production
+      ---
+      duration_ms: 1.705625
+      type: 'test'
+      ...
+    # Subtest: runner stage does not bake in builder-stage database credentials
+    ok 2 - runner stage does not bake in builder-stage database credentials
+      ---
+      duration_ms: 0.487417
+      type: 'test'
+      ...
+    1..2
+ok 1 - R15-1: Dockerfile builder stage database environment variables guard
+  ---
+  duration_ms: 2.959375
+  type: 'suite'
+  ...
+1..1
+# tests 2
+# suites 1
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 215.821125
+EXIT:0

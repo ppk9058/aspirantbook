@@ -1,0 +1,539 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.00kB 0.0s done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 ...
+
+#3 [auth] docker/dockerfile:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 1.6s
+
+#4 docker-image://docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+#4 resolve docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e 0.0s done
+#4 CACHED
+
+#5 [internal] load metadata for docker.io/library/node:22-bookworm-slim
+#5 ...
+
+#6 [auth] library/node:pull token for registry-1.docker.io
+#6 DONE 0.0s
+
+#5 [internal] load metadata for docker.io/library/node:22-bookworm-slim
+#5 DONE 1.3s
+
+#7 [internal] load .dockerignore
+#7 transferring context: 500B done
+#7 DONE 0.0s
+
+#8 [base 1/3] FROM docker.io/library/node:22-bookworm-slim@sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da
+#8 resolve docker.io/library/node:22-bookworm-slim@sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da 0.0s done
+#8 DONE 0.0s
+
+#9 [internal] load build context
+#9 transferring context: 216.74kB 0.3s done
+#9 DONE 0.3s
+
+#10 [base 3/3] WORKDIR /app
+#10 CACHED
+
+#11 [deps 2/3] COPY prisma ./prisma/
+#11 CACHED
+
+#12 [base 2/3] RUN apt-get update && apt-get install -y --no-install-recommends     openssl     ca-certificates     curl   && rm -rf /var/lib/apt/lists/*
+#12 CACHED
+
+#13 [builder 1/4] WORKDIR /app
+#13 CACHED
+
+#14 [deps 1/3] COPY package.json package-lock.json* ./
+#14 CACHED
+
+#15 [deps 3/3] RUN npm ci --ignore-scripts && npx prisma generate
+#15 CACHED
+
+#16 [builder 2/4] COPY --from=deps /app/node_modules ./node_modules
+#16 CACHED
+
+#17 [builder 3/4] COPY . .
+#17 DONE 0.8s
+
+#18 [builder 4/4] RUN npx prisma generate && npm run build
+#18 1.723 Prisma schema loaded from prisma/schema.prisma
+#18 2.834 
+#18 2.834 ✔ Generated Prisma Client (v6.19.0) to ./node_modules/@prisma/client in 641ms
+#18 2.834 
+#18 2.834 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+#18 2.834 
+#18 2.834 Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+#18 2.834 
+#18 2.855 npm notice
+#18 2.855 npm notice New major version of npm available! 10.9.9 -> 12.2.1
+#18 2.855 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+#18 2.855 npm notice To update run: npm install -g npm@12.2.1
+#18 2.855 npm notice
+#18 2.989 
+#18 2.989 > aspirantbook@0.1.0 build
+#18 2.989 > next build
+#18 2.989 
+#18 3.545  ⚠ `devIndicators.appIsrStatus` is deprecated and no longer configurable. Please remove it from next.config.js.
+#18 3.545  ⚠ `devIndicators.buildActivity` is deprecated and no longer configurable. Please remove it from next.config.js.
+#18 3.648    ▲ Next.js 15.5.28
+#18 3.648    - Experiments (use with caution):
+#18 3.648      · staleTimes
+#18 3.649      · optimizePackageImports
+#18 3.649 
+#18 3.780    Creating an optimized production build ...
+#18 61.57  ⚠ Compiled with warnings in 4.5s
+#18 61.57 
+#18 61.57 ./node_modules/jose/dist/webapi/lib/deflate.js
+#18 61.57 A Node.js API is used (CompressionStream at line: 31) which is not supported in the Edge Runtime.
+#18 61.57 Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+#18 61.57 
+#18 61.57 Import trace for requested module:
+#18 61.57 ./node_modules/jose/dist/webapi/lib/deflate.js
+#18 61.57 ./node_modules/jose/dist/webapi/lib/jwe_decrypt.js
+#18 61.57 ./node_modules/jose/dist/webapi/jwt/decrypt.js
+#18 61.57 ./node_modules/jose/dist/webapi/index.js
+#18 61.57 ./node_modules/@auth/core/jwt.js
+#18 61.57 ./node_modules/@auth/core/lib/init.js
+#18 61.57 ./node_modules/@auth/core/lib/index.js
+#18 61.57 ./node_modules/@auth/core/index.js
+#18 61.57 ./node_modules/next-auth/index.js
+#18 61.57 
+#18 61.57 ./node_modules/jose/dist/webapi/lib/deflate.js
+#18 61.57 A Node.js API is used (DecompressionStream at line: 34) which is not supported in the Edge Runtime.
+#18 61.57 Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+#18 61.57 
+#18 61.57 Import trace for requested module:
+#18 61.57 ./node_modules/jose/dist/webapi/lib/deflate.js
+#18 61.57 ./node_modules/jose/dist/webapi/lib/jwe_decrypt.js
+#18 61.57 ./node_modules/jose/dist/webapi/jwt/decrypt.js
+#18 61.57 ./node_modules/jose/dist/webapi/index.js
+#18 61.57 ./node_modules/@auth/core/jwt.js
+#18 61.57 ./node_modules/@auth/core/lib/init.js
+#18 61.57 ./node_modules/@auth/core/lib/index.js
+#18 61.57 ./node_modules/@auth/core/index.js
+#18 61.57 ./node_modules/next-auth/index.js
+#18 61.57 
+#18 79.96  ✓ Compiled successfully in 72s
+#18 79.97    Skipping validation of types
+#18 79.97    Skipping linting
+#18 80.27    Collecting page data ...
+#18 96.34    Generating static pages (0/162) ...
+#18 98.23  ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+#18 99.11    Generating static pages (40/162) 
+#18 99.11  ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+#18 99.11    Generating static pages (80/162) 
+#18 99.35  ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+#18 99.35  ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+#18 99.35  ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+#18 99.65    Generating static pages (121/162) 
+#18 100.3  ✓ Generating static pages (162/162)
+#18 103.8    Finalizing page optimization ...
+#18 103.8    Collecting build traces ...
+#18 134.4 
+#18 134.4 Route (app)                                                Size  First Load JS  Revalidate  Expire
+#18 134.4 ┌ ○ /                                                   11.7 kB         171 kB          1m      1y
+#18 134.4 ├ ○ /_not-found                                           730 B         104 kB
+#18 134.4 ├ ƒ /admin                                                730 B         104 kB
+#18 134.4 ├ ƒ /admin/analytics                                      730 B         104 kB
+#18 134.4 ├ ƒ /admin/assessments                                  2.12 kB         109 kB
+#18 134.4 ├ ƒ /admin/assessments/[id]/attempts                      203 B         112 kB
+#18 134.4 ├ ƒ /admin/assessments/[id]/edit                          137 B         116 kB
+#18 134.4 ├ ƒ /admin/assessments/create                             137 B         116 kB
+#18 134.4 ├ ƒ /admin/audit                                        3.13 kB         110 kB
+#18 134.4 ├ ƒ /admin/batches                                        179 B         119 kB
+#18 134.4 ├ ƒ /admin/batches/[id]/edit                              137 B         116 kB
+#18 134.4 ├ ƒ /admin/batches/new                                    137 B         116 kB
+#18 134.4 ├ ƒ /admin/book-studio                                    139 B         127 kB
+#18 134.4 ├ ƒ /admin/books                                        12.5 kB         132 kB
+#18 134.4 ├ ƒ /admin/content-engine                               7.17 kB         137 kB
+#18 134.4 ├ ƒ /admin/content-engine/add                           5.92 kB         136 kB
+#18 134.4 ├ ƒ /admin/content-engine/aliases                       6.45 kB         130 kB
+#18 134.4 ├ ƒ /admin/content-engine/assign                         5.4 kB         135 kB
+#18 134.4 ├ ƒ /admin/content-engine/categories                    2.65 kB         116 kB
+#18 134.4 ├ ƒ /admin/content-engine/export                        6.96 kB         130 kB
+#18 134.4 ├ ƒ /admin/content-engine/gates                         7.39 kB         131 kB
+#18 134.4 ├ ƒ /admin/content-engine/hindi                         12.1 kB         135 kB
+#18 134.4 ├ ƒ /admin/content-engine/practice                      7.03 kB         130 kB
+#18 134.4 ├ ƒ /admin/courses                                        236 B         107 kB
+#18 134.4 ├ ƒ /admin/courses/[id]/edit                              148 B         148 kB
+#18 134.4 ├ ƒ /admin/courses/new                                    730 B         104 kB
+#18 134.4 ├ ƒ /admin/current-affairs                                158 B         160 kB
+#18 134.4 ├ ƒ /admin/dashboard                                      236 B         107 kB
+#18 134.4 ├ ƒ /admin/data-deletion                                8.61 kB         132 kB
+#18 134.4 ├ ƒ /admin/exercises                                    1.78 kB         108 kB
+#18 134.4 ├ ƒ /admin/exercises/[id]/edit                            137 B         116 kB
+#18 134.4 ├ ƒ /admin/exercises/create                               137 B         116 kB
+#18 134.4 ├ ƒ /admin/homepage-cards                               8.46 kB         127 kB
+#18 134.4 ├ ƒ /admin/pyqs                                           158 B         160 kB
+#18 134.4 ├ ƒ /admin/pyqs/categories                                137 B         115 kB
+#18 134.4 ├ ƒ /admin/pyqs/leads                                     236 B         107 kB
+#18 134.4 ├ ƒ /admin/pyqs/upload                                    137 B         116 kB
+#18 134.4 ├ ƒ /admin/seo                                            730 B         104 kB
+#18 134.4 ├ ƒ /admin/settings                                     10.3 kB         121 kB
+#18 134.4 ├ ƒ /admin/test-series                                    224 B         216 kB
+#18 134.4 ├ ƒ /admin/test-series/[testId]/edit                      184 B         133 kB
+#18 134.4 ├ ƒ /admin/test-series/[testId]/review                     2 kB         116 kB
+#18 134.4 ├ ƒ /admin/test-series/create                             206 B         196 kB
+#18 134.4 ├ ƒ /admin/test-series/package/[id]                       180 B         231 kB
+#18 134.4 ├ ƒ /admin/test-series/packages                           149 B         131 kB
+#18 134.4 ├ ƒ /admin/tracks                                       1.77 kB         145 kB
+#18 134.4 ├ ƒ /admin/tracks/[id]                                  37.3 kB         219 kB
+#18 134.4 ├ ƒ /admin/tracks/create                                  196 B         179 kB
+#18 134.4 ├ ƒ /admin/tutorials                                      146 B         137 kB
+#18 134.4 ├ ƒ /admin/tutorials/[id]/edit                            197 B         249 kB
+#18 134.4 ├ ƒ /admin/tutorials/new                                  206 B         174 kB
+#18 134.4 ├ ƒ /admin/users                                        4.48 kB         118 kB
+#18 134.4 ├ ƒ /admin/users/[id]                                   10.8 kB         131 kB
+#18 134.4 ├ ƒ /api/admin/audit                                      730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/batches                                    730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/batches/[id]                               730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/books                                      730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/books/[id]                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/books/coupons                              730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/books/orders                               730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/books/stats                                730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/content-engine/aliases                     730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/content-engine/assign                      730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/content-engine/batch                       730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/content-engine/export                      730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/content-engine/hindi/import                730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/content-engine/hindi/review                730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/content-engine/publish                     730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/content-engine/questions                   730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/content-engine/recategorise                730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/content-engine/settings                    730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/coupons                                    730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/coupons/[id]                               730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/courses                                    730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/courses/[id]                               730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/courses/[id]/chapters                      730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/courses/[id]/demo-report                   730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/courses/[id]/demo-slots                    730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/courses/[id]/lessons                       730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/courses/upload                             730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/current-affairs                            730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/current-affairs/[id]                       730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/current-affairs/upload                     730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/data-deletion                              730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/data-deletion/[id]                         730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/homepage-cards                             730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/pyqs/categories                            730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/pyqs/categories/[id]                       730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/pyqs/leads                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/pyqs/papers                                730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/pyqs/papers/[id]                           730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/pyqs/sub-exams                             730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/pyqs/sub-exams/[id]                        730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/pyqs/upload                                730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/revalidate                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/run-analytics                              730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/tutorials/import                           730 B         104 kB
+#18 134.4 ├ ƒ /api/admin/users/export                               730 B         104 kB
+#18 134.4 ├ ƒ /api/assessments/[id]/start                           730 B         104 kB
+#18 134.4 ├ ƒ /api/assessments/attempts/[attemptId]/submit          730 B         104 kB
+#18 134.4 ├ ƒ /api/auth/[...nextauth]                               730 B         104 kB
+#18 134.4 ├ ƒ /api/auth/check-user                                  730 B         104 kB
+#18 134.4 ├ ƒ /api/auth/debug                                       730 B         104 kB
+#18 134.4 ├ ƒ /api/auth/logout                                      730 B         104 kB
+#18 134.4 ├ ƒ /api/auth/mobile-login                                730 B         104 kB
+#18 134.4 ├ ƒ /api/auth/role                                        730 B         104 kB
+#18 134.4 ├ ƒ /api/books                                            730 B         104 kB
+#18 134.4 ├ ƒ /api/books/[id]                                       730 B         104 kB
+#18 134.4 ├ ƒ /api/books/[id]/download                              730 B         104 kB
+#18 134.4 ├ ƒ /api/books/[id]/status                                730 B         104 kB
+#18 134.4 ├ ƒ /api/books/checkout/create-order                      730 B         104 kB
+#18 134.4 ├ ƒ /api/books/checkout/verify                            730 B         104 kB
+#18 134.4 ├ ƒ /api/books/orders                                     730 B         104 kB
+#18 134.4 ├ ƒ /api/books/upload                                     730 B         104 kB
+#18 134.4 ├ ƒ /api/books/wishlist                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/checkout                                         730 B         104 kB
+#18 134.4 ├ ƒ /api/checkout/coupon/preview                          730 B         104 kB
+#18 134.4 ├ ƒ /api/checkout/course-info                             730 B         104 kB
+#18 134.4 ├ ƒ /api/checkout/razorpay                                730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/[slug]/demo-slots                        730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/book                                730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/chat                                730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/complete                            730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/hand-raise                          730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/leave                               730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/screen                              730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/stage                               730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/stage/token                         730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/status                              730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/token                               730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/demo/track-watch                         730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/enroll                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/free-enroll                              730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/progress                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/teacher-photo-upload                     730 B         104 kB
+#18 134.4 ├ ƒ /api/courses/video-courses                            730 B         104 kB
+#18 134.4 ├ ƒ /api/current-affairs/file/[id]                        730 B         104 kB
+#18 134.4 ├ ƒ /api/current-affairs/pdfs                             730 B         104 kB
+#18 134.4 ├ ƒ /api/doubts                                           730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/[testId]/leaderboard                        730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/[testId]/questions                          730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/ai-parse                                    730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/attempt/[attemptId]                         730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/attempt/[attemptId]/result                  730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/attempt/[attemptId]/submit                  730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/attempt/[attemptId]/sync                    730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/attempt/start                               730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/attempt/user-status                         730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/series/create                               730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/series/enroll                               730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/series/list                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/series/packages                             730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/series/packages/[id]                        730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/series/packages/[id]/duplicate              730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/series/packages/[id]/restore                730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/series/recommendations                      730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/teacher/[testId]/questions                  730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/test/[id]                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/test/[id]/archive                           730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/test/[id]/detach                            730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/test/[id]/duplicate                         730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/test/[id]/edit-data                         730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/test/bulk                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/test/create                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/test/export                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/test/list                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/exam/test/reorder                                730 B         104 kB
+#18 134.4 ├ ƒ /api/execute                                          730 B         104 kB
+#18 134.4 ├ ƒ /api/forms                                            730 B         104 kB
+#18 134.4 ├ ƒ /api/goals                                            730 B         104 kB
+#18 134.4 ├ ƒ /api/health                                           730 B         104 kB
+#18 134.4 ├ ƒ /api/internal/email-outbox                            730 B         104 kB
+#18 134.4 ├ ƒ /api/leaderboard                                      730 B         104 kB
+#18 134.4 ├ ƒ /api/pyqs/[paperId]                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/pyqs/file/[paperId]                              730 B         104 kB
+#18 134.4 ├ ƒ /api/razorpay/webhook                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/teacher/classes                                  730 B         104 kB
+#18 134.4 ├ ƒ /api/teacher/classes/[id]                             730 B         104 kB
+#18 134.4 ├ ƒ /api/teacher/courses                                  730 B         104 kB
+#18 134.4 ├ ƒ /api/test/health                                      730 B         104 kB
+#18 134.4 ├ ƒ /api/upload                                           730 B         104 kB
+#18 134.4 ├ ƒ /api/upload/presigned-url                             730 B         104 kB
+#18 134.4 ├ ƒ /api/user/goal                                        730 B         104 kB
+#18 134.4 ├ ƒ /api/user/push-token                                  730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/attempts/[id]                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/attempts/[id]/answers                         730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/attempts/[id]/result                          730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/attempts/[id]/solutions                       730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/attempts/[id]/submit                          730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/change-password                          730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/forgot-password                          730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/google                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/login                                    730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/logout                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/logout-all                               730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/otp/request                              730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/otp/verify                               730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/reauth                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/refresh                                  730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/register                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/reset-password                           730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/sessions                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/auth/sessions/[id]                            730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/career-tracks                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/career-tracks/[id]                            730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/config                                        730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/courses                                       730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/courses/[id]                                  730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/courses/[id]/enroll                           730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/courses/[id]/lessons/[lessonId]               730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/courses/[id]/lessons/[lessonId]/progress      730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/current-affairs                               730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/current-affairs/[slug]                        730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/data-deletion                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/devices                                       730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/exam-series                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/exam-series/[id]                              730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/goals                                         730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/home                                          730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/library                                       730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/library/[id]/file                             730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/me                                            730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/my-learning                                   730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/my-tests                                      730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/notifications                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/notifications/read                            730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/openapi.json                                  730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/pyq/exams                                     730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/pyq/papers                                    730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/pyq/papers/[id]                               730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/search                                        730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/subscriptions                                 730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/tests                                         730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/tests/[id]                                    730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/tests/[id]/attempts                           730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/tests/[id]/leaderboard                        730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/tutorials                                     730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/tutorials/[slug]                              730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/tutorials/[slug]/lessons/[id]                 730 B         104 kB
+#18 134.4 ├ ƒ /api/v1/tutorials/[slug]/lessons/[id]/progress        730 B         104 kB
+#18 134.4 ├ ƒ /api/verify-payment/razorpay                          730 B         104 kB
+#18 134.4 ├ ƒ /api/webhooks/razorpay                                730 B         104 kB
+#18 134.4 ├ ƒ /api/webhooks/stripe                                  730 B         104 kB
+#18 134.4 ├ ○ /assessments                                          730 B         104 kB
+#18 134.4 ├ ƒ /assessments/[id]                                   3.03 kB         117 kB
+#18 134.4 ├ ƒ /assessments/[id]/results                           5.21 kB         156 kB
+#18 134.4 ├ ƒ /assessments/[id]/take                              6.51 kB         125 kB
+#18 134.4 ├ ● /batches/[slug]                                     12.3 kB         131 kB
+#18 134.4 ├ ○ /books                                              4.44 kB         153 kB
+#18 134.4 ├ ƒ /books/[slug]                                       9.68 kB         158 kB
+#18 134.4 ├ ○ /books/cart                                         3.92 kB         148 kB
+#18 134.4 ├ ○ /books/orders                                       2.82 kB         151 kB
+#18 134.4 ├ ○ /books/wishlist                                     3.04 kB         151 kB
+#18 134.4 ├ ○ /checkout                                           15.5 kB         148 kB
+#18 134.4 ├ ○ /code-along                                           730 B         104 kB
+#18 134.4 ├ ○ /contact                                            2.25 kB         114 kB
+#18 134.4 ├ ƒ /courses                                            17.3 kB         180 kB
+#18 134.4 ├ ƒ /courses/[slug]                                     35.1 kB         243 kB
+#18 134.4 ├ ƒ /courses/[slug]/demo                                15.5 kB         125 kB
+#18 134.4 ├ ƒ /courses/[slug]/learn/[lessonId]                    11.5 kB         126 kB
+#18 134.4 ├ ƒ /current-affairs-quizzes                            11.3 kB         154 kB
+#18 134.4 ├ ƒ /current-affairs-quizzes/[slug]                     3.49 kB         113 kB
+#18 134.4 ├ ƒ /current-affairs-quizzes/[slug]/instructions        5.35 kB         115 kB
+#18 134.4 ├ ƒ /dashboard                                          16.7 kB         211 kB
+#18 134.4 ├ ○ /data-deletion                                       2.4 kB         114 kB
+#18 134.4 ├ ○ /doubts                                              5.8 kB         122 kB
+#18 134.4 ├ ƒ /forgot-password                                       4 kB         118 kB
+#18 134.4 ├ ○ /forms                                                236 B         107 kB
+#18 134.4 ├ ƒ /forms/[slug]                                       6.96 kB         119 kB
+#18 134.4 ├ ○ /hi/question-answer                                   236 B         107 kB          1h      1y
+#18 134.4 ├ ○ /hi/question-answer/[exam]                            236 B         107 kB
+#18 134.4 ├ ○ /hi/question-answer/[exam]/[subject]                  236 B         107 kB
+#18 134.4 ├ ○ /hi/question-answer/[exam]/[subject]/[slug]           141 B         128 kB
+#18 134.4 ├ ○ /hi/question-answer/[exam]/[subject]/topic/[topic]    236 B         107 kB
+#18 134.4 ├ ƒ /hi/question-answer/sitemap.xml                       730 B         104 kB
+#18 134.4 ├ ○ /leaderboard                                          730 B         104 kB
+#18 134.4 ├ ○ /learn                                                730 B         104 kB
+#18 134.4 ├ ƒ /learn/[courseSlug]                                   730 B         104 kB
+#18 134.4 ├ ƒ /learn/[courseSlug]/[lessonId]                      17.8 kB         176 kB
+#18 134.4 ├ ○ /login                                              4.33 kB         131 kB
+#18 134.4 ├ ƒ /my-learning                                        8.45 kB         123 kB
+#18 134.4 ├ ƒ /my-tests                                             141 B         121 kB
+#18 134.4 ├ ○ /practice                                           14.9 kB         118 kB
+#18 134.4 ├ ƒ /practice/runner                                    3.27 kB         111 kB
+#18 134.4 ├ ƒ /pricing                                            5.17 kB         136 kB
+#18 134.4 ├ ○ /privacy                                              203 B         112 kB
+#18 134.4 ├ ƒ /profile                                              236 B         107 kB
+#18 134.4 ├ ƒ /profile/[userId]                                     203 B         112 kB
+#18 134.4 ├ ○ /projects                                             730 B         104 kB
+#18 134.4 ├ ƒ /purchases                                          6.29 kB         118 kB
+#18 134.4 ├ ƒ /pyqs                                                 172 B         110 kB
+#18 134.4 ├ ƒ /pyqs/[examId]                                        184 B         110 kB
+#18 134.4 ├ ○ /pyqs/pdf-view                                      5.53 kB         115 kB
+#18 134.4 ├ ƒ /q/[shortId]                                          730 B         104 kB
+#18 134.4 ├ ○ /question-answer                                      236 B         107 kB          1h      1y
+#18 134.4 ├ ○ /question-answer/[exam]                               236 B         107 kB
+#18 134.4 ├ ○ /question-answer/[exam]/[subject]                     236 B         107 kB
+#18 134.4 ├ ○ /question-answer/[exam]/[subject]/[slug]              141 B         128 kB
+#18 134.4 ├ ○ /question-answer/[exam]/[subject]/topic/[topic]       236 B         107 kB
+#18 134.4 ├ ƒ /question-answer/sitemap.xml                          730 B         104 kB
+#18 134.4 ├ ○ /refund                                               203 B         112 kB
+#18 134.4 ├ ƒ /register                                           6.07 kB         123 kB
+#18 134.4 ├ ƒ /reset-password                                     4.69 kB         118 kB
+#18 134.4 ├ ○ /robots.txt                                           730 B         104 kB
+#18 134.4 ├ ƒ /search                                               203 B         112 kB
+#18 134.4 ├ ƒ /settings                                           6.69 kB         133 kB
+#18 134.4 ├ ƒ /settings/subscription                                236 B         107 kB
+#18 134.4 ├ ○ /sitemap.xml                                          730 B         104 kB          1h      1y
+#18 134.4 ├ ƒ /subscription                                         236 B         107 kB
+#18 134.4 ├ ƒ /teacher                                              236 B         107 kB
+#18 134.4 ├ ƒ /teacher/batches                                      179 B         119 kB
+#18 134.4 ├ ƒ /teacher/batches/[id]/edit                            137 B         116 kB
+#18 134.4 ├ ○ /teacher/batches/new                                  137 B         116 kB
+#18 134.4 ├ ƒ /teacher/book-studio                                  139 B         127 kB
+#18 134.4 ├ ○ /teacher/classes                                    5.37 kB         112 kB
+#18 134.4 ├ ƒ /teacher/classes/[id]/edit                           4.5 kB         111 kB
+#18 134.4 ├ ○ /teacher/classes/new                                4.67 kB         111 kB
+#18 134.4 ├ ƒ /teacher/courses                                      236 B         107 kB
+#18 134.4 ├ ƒ /teacher/courses/[id]/edit                            148 B         148 kB
+#18 134.4 ├ ƒ /teacher/courses/new                                  730 B         104 kB
+#18 134.4 ├ ƒ /teacher/current-affairs                              157 B         160 kB
+#18 134.4 ├ ƒ /teacher/pyqs                                         158 B         160 kB
+#18 134.4 ├ ƒ /teacher/pyqs/categories                              136 B         115 kB
+#18 134.4 ├ ƒ /teacher/pyqs/leads                                   236 B         107 kB
+#18 134.4 ├ ƒ /teacher/pyqs/upload                                  137 B         116 kB
+#18 134.4 ├ ○ /teacher/questions                                     5 kB         117 kB
+#18 134.4 ├ ○ /teacher/test-series                                  223 B         216 kB
+#18 134.4 ├ ƒ /teacher/test-series/[testId]/edit                    184 B         133 kB
+#18 134.4 ├ ƒ /teacher/test-series/[testId]/review                   2 kB         116 kB
+#18 134.4 ├ ƒ /teacher/test-series/[testId]/submissions           4.64 kB         113 kB
+#18 134.4 ├ ○ /teacher/test-series/create                           205 B         196 kB
+#18 134.4 ├ ƒ /teacher/test-series/package/[id]                     180 B         231 kB
+#18 134.4 ├ ○ /teacher/test-series/packages                         149 B         131 kB
+#18 134.4 ├ ○ /teacher/tests/new                                  3.86 kB         110 kB
+#18 134.4 ├ ƒ /teacher/tutorials                                    146 B         137 kB
+#18 134.4 ├ ƒ /teacher/tutorials/[id]/edit                          196 B         249 kB
+#18 134.4 ├ ƒ /teacher/tutorials/new                                206 B         174 kB
+#18 134.4 ├ ○ /terms                                                203 B         112 kB
+#18 134.4 ├ ○ /test-series                                        12.2 kB         185 kB
+#18 134.4 ├ ƒ /test-series/[id]                                   14.8 kB         170 kB
+#18 134.4 ├ ƒ /test-series/[id]/attempt                           18.1 kB         124 kB
+#18 134.4 ├ ƒ /test-series/[id]/declaration                       5.26 kB         115 kB
+#18 134.4 ├ ƒ /test-series/[id]/instructions                      4.75 kB         114 kB
+#18 134.4 ├ ƒ /test-series/[id]/leaderboard                       3.72 kB         117 kB
+#18 134.4 ├ ƒ /test-series/[id]/print                             4.24 kB         107 kB
+#18 134.4 ├ ƒ /test-series/[id]/result                              12 kB         122 kB
+#18 134.4 ├ ƒ /test-series/[id]/solutions                         11.1 kB         121 kB
+#18 134.4 ├ ƒ /test-series/my-tests                                 141 B         121 kB
+#18 134.4 ├ ƒ /tracks                                               169 B         107 kB
+#18 134.4 ├ ƒ /tracks/[slug]                                      3.75 kB         118 kB
+#18 134.4 ├ ƒ /tracks/career                                      4.48 kB         118 kB
+#18 134.4 ├ ƒ /tracks/career/[slug]                                3.1 kB         117 kB
+#18 134.4 ├ ○ /tracks/skills                                        730 B         104 kB
+#18 134.4 ├ ƒ /tutorials                                          9.73 kB         153 kB
+#18 134.4 ├ ƒ /tutorials/[slug]                                   2.36 kB         145 kB
+#18 134.4 └ ƒ /verify-email                                       3.84 kB         118 kB
+#18 134.4 + First Load JS shared by all                            103 kB
+#18 134.4   ├ chunks/31255-a457412f88a8b68a.js                    46.1 kB
+#18 134.4   ├ chunks/4bd1b696-bad92808725a934a.js                 54.2 kB
+#18 134.4   └ other shared chunks (total)                         2.77 kB
+#18 134.4 
+#18 134.4 
+#18 134.4 ƒ Middleware                                             135 kB
+#18 134.4 
+#18 134.4 ○  (Static)   prerendered as static content
+#18 134.4 ●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+#18 134.4 ƒ  (Dynamic)  server-rendered on demand
+#18 134.4 
+#18 DONE 134.6s
+
+#19 [runner 2/5] RUN groupadd --system --gid 1001 nodejs &&     useradd --system --uid 1001 -g nodejs nextjs
+#19 CACHED
+
+#20 [runner 3/5] COPY --from=builder /app/public ./public
+#20 CACHED
+
+#21 [runner 4/5] COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+#21 DONE 0.9s
+
+#22 [runner 5/5] COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+#22 DONE 0.2s
+
+#23 exporting to image
+#23 exporting layers
+#23 exporting layers 6.7s done
+#23 exporting manifest sha256:5c851f115254b8c82c2c3f0e892a203a3fb9f6db054fb188732e932dbf178f0a done
+#23 exporting config sha256:6fd904a3973e7a5834347359a5944f28b07ff7677f1f32aa8b3959d2bc594b92 done
+#23 exporting attestation manifest sha256:0d30cae14f9e6cf23b22f34c3c12a13df84659e25289f63500a77a5c221ef84b done
+#23 exporting manifest list sha256:57210cb91798660679580a03030df8666422952bcec785a608eed0b612e31d10 done
+#23 naming to docker.io/library/trillionskill:ci done
+#23 unpacking to docker.io/library/trillionskill:ci
+#23 unpacking to docker.io/library/trillionskill:ci 1.4s done
+#23 DONE 8.2s
+
+ [33m1 warning found (use docker --debug to expand):
+[0m - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ENV "AUTH_SECRET") (line 30)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/olzcn2kvkhb74cybrqb4ayfbx
+EXIT:0

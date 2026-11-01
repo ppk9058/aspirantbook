@@ -1,0 +1,62 @@
+TAP version 13
+# Subtest: R15-1: Dockerfile builder stage database environment variables guard
+    # Subtest: Dockerfile builder stage DATABASE_URL and DIRECT_URL pass boot security guard in production
+    not ok 1 - Dockerfile builder stage DATABASE_URL and DIRECT_URL pass boot security guard in production
+      ---
+      duration_ms: 2.623833
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/unit/docker-builder-db-guard.test.ts:2:2560'
+      failureType: 'testCodeFailure'
+      error: |-
+        Got unwanted exception: Dockerfile builder-stage database placeholders must pass validateBootSecurity in production mode
+        Actual message: "[CRITICAL SECURITY REFUSAL AT BOOT] DATABASE_URL points at a local host or is unparseable in production. Production must use a remote database."
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      actual:
+      error: '[CRITICAL SECURITY REFUSAL AT BOOT] DATABASE_URL points at a local host or is unparseable in production. Production must use a remote database.'
+      stack: |-
+        validateBootSecurity (/Users/praveenkumar/ws-launch/lib/boot-guard.ts:60:13)
+        <anonymous> (/Users/praveenkumar/ws-launch/tests/unit/docker-builder-db-guard.test.ts:59:13)
+        getActual (node:assert:609:5)
+        Function.doesNotThrow (node:assert:777:32)
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/docker-builder-db-guard.test.ts:58:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      operator: 'doesNotThrow'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/docker-builder-db-guard.test.ts:58:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: runner stage does not bake in builder-stage database credentials
+    ok 2 - runner stage does not bake in builder-stage database credentials
+      ---
+      duration_ms: 0.612
+      type: 'test'
+      ...
+    1..2
+not ok 1 - R15-1: Dockerfile builder stage database environment variables guard
+  ---
+  duration_ms: 4.347458
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/unit/docker-builder-db-guard.test.ts:2:1120'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 2
+# suites 1
+# pass 1
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 221.276417
+EXIT:1

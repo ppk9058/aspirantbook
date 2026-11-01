@@ -28,8 +28,8 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 # Dummy build-time variables (never baked into final runner image)
 ENV AUTH_SECRET="build_dummy_auth_secret_placeholder"
-ENV DATABASE_URL="postgresql://placeholder:placeholder@127.0.0.1:54329/placeholder_build_test"
-ENV DIRECT_URL="postgresql://placeholder:placeholder@127.0.0.1:54329/placeholder_build_test"
+ENV DATABASE_URL="postgresql://placeholder:placeholder@db.build-placeholder.invalid:5432/placeholder_build_test?sslmode=require"
+ENV DIRECT_URL="postgresql://placeholder:placeholder@db.build-placeholder.invalid:5432/placeholder_build_test?sslmode=require"
 RUN npx prisma generate && npm run build
 
 # 3. Production runner

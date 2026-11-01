@@ -1,0 +1,48 @@
+TAP version 13
+# Subtest: R9-S2-G: single dev-bypass policy and server-start boot guard
+    # Subtest: boot guard runs from instrumentation.ts register()
+    ok 1 - boot guard runs from instrumentation.ts register()
+      ---
+      duration_ms: 2.298958
+      type: 'test'
+      ...
+    # Subtest: mobile-login route delegates to isDevBypassAllowed instead of its own copy
+    ok 2 - mobile-login route delegates to isDevBypassAllowed instead of its own copy
+      ---
+      duration_ms: 0.896083
+      type: 'test'
+      ...
+    # Subtest: config.service delegates the OTP bypass decision to isDevBypassAllowed
+    ok 3 - config.service delegates the OTP bypass decision to isDevBypassAllowed
+      ---
+      duration_ms: 0.343334
+      type: 'test'
+      ...
+    # Subtest: the shared policy is closed in production even when the dev flag is set
+    ok 4 - the shared policy is closed in production even when the dev flag is set
+      ---
+      duration_ms: 0.744417
+      type: 'test'
+      ...
+    # Subtest: the shared policy opens for an explicit local test database
+    ok 5 - the shared policy opens for an explicit local test database
+      ---
+      duration_ms: 0.61325
+      type: 'test'
+      ...
+    1..5
+ok 1 - R9-S2-G: single dev-bypass policy and server-start boot guard
+  ---
+  duration_ms: 6.354208
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 456.566709
+EXIT:0
