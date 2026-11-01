@@ -304,6 +304,13 @@ wins over `.env.test` because dotenv never overrides an existing variable.
 | **R12-V** | Retro-verification | DONE | `78daac8` | `docs/evidence/raw/r12-v*.txt` | V1 corrected original large-file count from 0 to 2; I inventory was already correct. V2 archived pre-J tree and ran new J test 5× clean-env: each EXIT:1 with same 2 expected assertion failures. V3 actual CP2 count 558/128 suites = 473 baseline + handoff 84 + 1 omitted R12-E env-example test. |
 | **R12-Z** | Final fresh-clone verification | BLOCKED | `df21eb2` | `docs/evidence/raw/r12-z-*.txt` | Clone/npm ci/web tsc/lint/build/mobile npm ci/mobile tsc all EXIT:0; build 162/162. Final clean-env CP2 5× 558/558 pass, EXIT:0. Removed-assertion output empty, EXIT:0. Local production smoke BLOCKED: two server attempts hit production local-DB boot refusal, smoke EXIT:1. Created local `r12-partial-2026-11-01`. |
 
+## R13 dependency remediation
+
+| Task ID | Description | Status | Commit SHA | Evidence Path | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **R13-E/H** | Age-compliant Sentry pin and brace-expansion override repair | DONE | `23a5550` | `docs/evidence/raw/r13-*.txt` | Pinned `@sentry/nextjs@11.8.0` (2026-10-15), newest 11.x at least 14 days old. Scoped override to `brace-expansion@1: 1.1.21`; minimatch 10 retains v5.0.12. npm ls EXIT:1→0; audit unchanged at 29 total, 0 critical. Sentry tests 5×EXIT:0; tsc/lint/build EXIT:0; build 162/162. |
+| **R13-FINAL** | Full clean-env unit suite 5× | IN_PROGRESS | `23a5550` | `docs/evidence/raw/r13-final-unit-*.txt` | Final verification after both dependency fixes; no push or tag change. |
+
 
 
 

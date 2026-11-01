@@ -34,6 +34,6 @@ HANDOFF: none
 
 | step | status | commit | evidence log | next action | notes |
 |------|--------|--------|--------------|-------------|-------|
-| R13-E | IN_PROGRESS | e298401 | `docs/evidence/raw/r13-sentry-*.txt` | Pin `@sentry/nextjs@11.8.0` and verify | 11.8.0 published 2026-10-15; newest 11.x at least 14 days old at run start |
-| R13-H | PENDING | — | `docs/evidence/raw/r13-npm-*.txt` | Scope brace-expansion override to 1.x | Baseline npm ls EXIT:1; audit 29 total, 0 critical |
-| R13-FINAL | PENDING | — | `docs/evidence/raw/r13-final-unit-*.txt` | Run full clean-env unit suite 5× after both fixes | No push or tag change |
+| R13-E | DONE | 23a5550 | `docs/evidence/raw/r13-sentry-*.txt`, `docs/evidence/raw/r13-tsc.txt`, `docs/evidence/raw/r13-lint.txt`, `docs/evidence/raw/r13-build.txt` | — | `@sentry/nextjs@11.8.0` exact; Sentry tests 5×EXIT:0; tsc/lint/build EXIT:0; 162/162 routes |
+| R13-H | DONE | 23a5550 | `docs/evidence/raw/r13-npm-*.txt`, `docs/evidence/raw/r13-brace-expansion-npm-view.txt` | — | Scoped override `brace-expansion@1: 1.1.21`; npm ls EXIT:1→0; v5 remains 5.0.12; audit 29 total and 0 critical before/after |
+| R13-FINAL | IN_PROGRESS | 23a5550 | `docs/evidence/raw/r13-final-unit-*.txt` | Run full clean-env unit suite 5× after both fixes | No push or tag change |
