@@ -1,0 +1,27 @@
+=== CONTROL TEST: Create temporary file outside docs/evidence/raw ===
+Created tests/control-fake-key.txt
+
+=== RUN GITLEAKS ON CONTROL FILE (expecting leak detected, EXIT:1) ===
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+Finding:     fake_aws_key = "[1;3;mREDACTED[0m
+Secret:      [1;3;mREDACTED[0m
+RuleID:      aws-access-token
+Entropy:     3.684184
+File:        tests/control-fake-key.txt
+Line:        1
+Fingerprint: tests/control-fake-key.txt:aws-access-token:1
+
+[90m7:19PM[0m [32mINF[0m [1mscanned ~38 bytes (38 bytes) in 4.21ms[0m
+[90m7:19PM[0m [33mWRN[0m [1mleaks found: 1[0m
+gitleaks return code: 1
+
+=== CLEANUP: Delete temporary file ===
+Successfully deleted tests/control-fake-key.txt
+File exists after cleanup: False
+EXIT:0

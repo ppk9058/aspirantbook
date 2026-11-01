@@ -1,0 +1,24 @@
+TAP version 13
+# Subtest: R15-2: Gitleaks Configuration Verification
+    # Subtest: G-R15-01: .gitleaks.toml exists, extends default, and has exactly one path allowlist for docs/evidence/raw
+    ok 1 - G-R15-01: .gitleaks.toml exists, extends default, and has exactly one path allowlist for docs/evidence/raw
+      ---
+      duration_ms: 1.176125
+      type: 'test'
+      ...
+    1..1
+ok 1 - R15-2: Gitleaks Configuration Verification
+  ---
+  duration_ms: 1.7765
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 231.9655
+EXIT:0

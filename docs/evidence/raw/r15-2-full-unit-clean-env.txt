@@ -1,0 +1,4702 @@
+TAP version 13
+# Subtest: A7 privileged server-action guard
+    # Subtest: anonymous is rejected
+    ok 1 - anonymous is rejected
+      ---
+      duration_ms: 0.903083
+      type: 'test'
+      ...
+    # Subtest: STUDENT is rejected
+    ok 2 - STUDENT is rejected
+      ---
+      duration_ms: 0.119083
+      type: 'test'
+      ...
+    # Subtest: TEACHER is rejected for admin-only actions
+    ok 3 - TEACHER is rejected for admin-only actions
+      ---
+      duration_ms: 0.086292
+      type: 'test'
+      ...
+    # Subtest: ADMIN passes
+    ok 4 - ADMIN passes
+      ---
+      duration_ms: 0.138375
+      type: 'test'
+      ...
+    1..4
+ok 1 - A7 privileged server-action guard
+  ---
+  duration_ms: 2.096875
+  type: 'suite'
+  ...
+# Subtest: A7 tracks mutations fail closed without an admin session
+    # Subtest: createTrack is rejected outside an authenticated admin request
+    ok 1 - createTrack is rejected outside an authenticated admin request
+      ---
+      duration_ms: 587.127875
+      type: 'test'
+      ...
+    1..1
+ok 2 - A7 tracks mutations fail closed without an admin session
+  ---
+  duration_ms: 587.367209
+  type: 'suite'
+  ...
+# Subtest: B6 admin analytics are measured, not invented
+    # Subtest: derives each course metric from its own definition
+    ok 1 - derives each course metric from its own definition
+      ---
+      duration_ms: 52.159417
+      type: 'test'
+      ...
+    # Subtest: does not write a fabricated login count
+    ok 2 - does not write a fabricated login count
+      ---
+      duration_ms: 10.987167
+      type: 'test'
+      ...
+    # Subtest: splits new and renewal revenue and leaves unmeasurable metrics null
+    ok 3 - splits new and renewal revenue and leaves unmeasurable metrics null
+      ---
+      duration_ms: 14.625916
+      type: 'test'
+      ...
+    # Subtest: keeps the stored values null, not zero, when read back
+    ok 4 - keeps the stored values null, not zero, when read back
+      ---
+      duration_ms: 4.787417
+      type: 'test'
+      ...
+    # Subtest: runs batched work once per item, in order, with bounded concurrency
+    ok 5 - runs batched work once per item, in order, with bounded concurrency
+      ---
+      duration_ms: 9.093125
+      type: 'test'
+      ...
+    # Subtest: pages through ids instead of loading them all at once
+    ok 6 - pages through ids instead of loading them all at once
+      ---
+      duration_ms: 9.561375
+      type: 'test'
+      ...
+    # Subtest: propagates a worker failure instead of returning partial results
+    ok 7 - propagates a worker failure instead of returning partial results
+      ---
+      duration_ms: 0.796958
+      type: 'test'
+      ...
+    1..7
+ok 3 - B6 admin analytics are measured, not invented
+  ---
+  duration_ms: 345.623583
+  type: 'suite'
+  ...
+# Subtest: A12 course draft allowlist
+    # Subtest: strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+    ok 1 - strips unknown keys (id, enrollmentCount, chapters, createdById, relations)
+      ---
+      duration_ms: 1.601625
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status and an out-of-range preview
+    ok 2 - rejects an invalid status and an out-of-range preview
+      ---
+      duration_ms: 0.874042
+      type: 'test'
+      ...
+    # Subtest: accepts every field the course editor actually sends
+    ok 3 - accepts every field the course editor actually sends
+      ---
+      duration_ms: 0.850291
+      type: 'test'
+      ...
+    # Subtest: inline updates use the same allowlist
+    ok 4 - inline updates use the same allowlist
+      ---
+      duration_ms: 0.132833
+      type: 'test'
+      ...
+    # Subtest: parseOrThrow reports the offending field
+    ok 5 - parseOrThrow reports the offending field
+      ---
+      duration_ms: 0.418875
+      type: 'test'
+      ...
+    1..5
+ok 4 - A12 course draft allowlist
+  ---
+  duration_ms: 4.695375
+  type: 'suite'
+  ...
+# Subtest: A12 content-engine question PATCH allowlist
+    # Subtest: strips ids, hashes and relations
+    ok 1 - strips ids, hashes and relations
+      ---
+      duration_ms: 0.17025
+      type: 'test'
+      ...
+    # Subtest: rejects an invalid status
+    ok 2 - rejects an invalid status
+      ---
+      duration_ms: 0.311291
+      type: 'test'
+      ...
+    1..2
+ok 5 - A12 content-engine question PATCH allowlist
+  ---
+  duration_ms: 0.831916
+  type: 'suite'
+  ...
+# Subtest: A10 CSV formula injection
+    # Subtest: prefixes cells that a spreadsheet would execute
+    ok 1 - prefixes cells that a spreadsheet would execute
+      ---
+      duration_ms: 0.6075
+      type: 'test'
+      ...
+    # Subtest: leaves normal cells unchanged and escapes quotes
+    ok 2 - leaves normal cells unchanged and escapes quotes
+      ---
+      duration_ms: 0.101583
+      type: 'test'
+      ...
+    1..2
+ok 6 - A10 CSV formula injection
+  ---
+  duration_ms: 1.493917
+  type: 'suite'
+  ...
+# Subtest: A10 admin password policy
+    # Subtest: rejects the old 6-character minimum
+    ok 1 - rejects the old 6-character minimum
+      ---
+      duration_ms: 0.135458
+      type: 'test'
+      ...
+    # Subtest: accepts a strong password
+    ok 2 - accepts a strong password
+      ---
+      duration_ms: 0.079958
+      type: 'test'
+      ...
+    1..2
+ok 7 - A10 admin password policy
+  ---
+  duration_ms: 0.319041
+  type: 'suite'
+  ...
+# Subtest: R12-G: Database backup, restore verification and rollback runbook
+    # Subtest: G-R12-01: scripts/ops/db-backup-to-s3.sh exists and is executable
+    ok 1 - G-R12-01: scripts/ops/db-backup-to-s3.sh exists and is executable
+      ---
+      duration_ms: 0.762875
+      type: 'test'
+      ...
+    # Subtest: G-R12-02: docs/runbooks/rollback.md exists and covers all required sections
+    ok 2 - G-R12-02: docs/runbooks/rollback.md exists and covers all required sections
+      ---
+      duration_ms: 0.6385
+      type: 'test'
+      ...
+    # Subtest: G-R12-03: db-backup-to-s3.sh refuses execution when DIRECT_URL is missing
+    ok 3 - G-R12-03: db-backup-to-s3.sh refuses execution when DIRECT_URL is missing
+      ---
+      duration_ms: 14.450375
+      type: 'test'
+      ...
+    # Subtest: G-R12-04: db-backup-to-s3.sh never echoes credentials or full connection strings
+    ok 4 - G-R12-04: db-backup-to-s3.sh never echoes credentials or full connection strings
+      ---
+      duration_ms: 0.245125
+      type: 'test'
+      ...
+    # Subtest: G-R12-05: db-backup-to-s3.sh successfully backs up local DB to local target directory
+    ok 5 - G-R12-05: db-backup-to-s3.sh successfully backs up local DB to local target directory
+      ---
+      duration_ms: 1120.323667
+      type: 'test'
+      ...
+    1..5
+ok 8 - R12-G: Database backup, restore verification and rollback runbook
+  ---
+  duration_ms: 1137.501583
+  type: 'suite'
+  ...
+# [batches-service] Next data cache unavailable outside a request scope; reading uncached: Invariant: incrementalCache missing in unstable_cache async function readBatchesFileUncached(){const stored=await(0,import_platform_settings.getPlatformSetting)(import_platform_settings.PLATFORM_SETTING_KEYS.batches);return Array.isArray(stored)?stored:[]}
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 6)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 0)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 1)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 5)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 7)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 8)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 9)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 2)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 4)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:61:21)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:79:34)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+# Subtest: B1 batches storage is atomic and read errors are fatal
+    # Subtest: keeps every batch when 10 creates run in parallel
+    ok 1 - keeps every batch when 10 creates run in parallel
+      ---
+      duration_ms: 376.148334
+      type: 'test'
+      ...
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:85:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:104:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: a read error aborts the mutation and never wipes stored batches
+    ok 2 - a read error aborts the mutation and never wipes stored batches
+      ---
+      duration_ms: 19.493166
+      type: 'test'
+      ...
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:110:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:111:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 0)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:113:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async Promise.all (index 1)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:113:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:124:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/batches-concurrency.test.ts:125:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: concurrent updates to different batches do not overwrite each other
+    ok 3 - concurrent updates to different batches do not overwrite each other
+      ---
+      duration_ms: 45.144792
+      type: 'test'
+      ...
+    1..3
+ok 9 - B1 batches storage is atomic and read errors are fatal
+  ---
+  duration_ms: 496.50475
+  type: 'suite'
+  ...
+# Subtest: A5 book storage key policy
+    # Subtest: rejects traversal, absolute paths and remote URLs
+    ok 1 - rejects traversal, absolute paths and remote URLs
+      ---
+      duration_ms: 0.853875
+      type: 'test'
+      ...
+    # Subtest: accepts storage keys and legacy public paths
+    ok 2 - accepts storage keys and legacy public paths
+      ---
+      duration_ms: 0.256625
+      type: 'test'
+      ...
+    # Subtest: resolves a real key inside the configured root
+    ok 3 - resolves a real key inside the configured root
+      ---
+      duration_ms: 2.889125
+      type: 'test'
+      ...
+    # Subtest: rejects a symlink that escapes the root
+    ok 4 - rejects a symlink that escapes the root
+      ---
+      duration_ms: 0.835125
+      type: 'test'
+      ...
+    # Subtest: a missing file is a 404, never a fabricated PDF
+    ok 5 - a missing file is a 404, never a fabricated PDF
+      ---
+      duration_ms: 0.466625
+      type: 'test'
+      ...
+    # Subtest: traversal input to readBookFile is rejected before touching disk
+    ok 6 - traversal input to readBookFile is rejected before touching disk
+      ---
+      duration_ms: 0.15175
+      type: 'test'
+      ...
+    1..6
+ok 10 - A5 book storage key policy
+  ---
+  duration_ms: 34.324125
+  type: 'suite'
+  ...
+# Subtest: A5/A12 book update allowlist
+    # Subtest: strips unknown fields such as createdBy
+    ok 1 - strips unknown fields such as createdBy
+      ---
+      duration_ms: 1.569
+      type: 'test'
+      ...
+    # Subtest: rejects a traversal fullPdfUrl
+    ok 2 - rejects a traversal fullPdfUrl
+      ---
+      duration_ms: 0.644083
+      type: 'test'
+      ...
+    # Subtest: rejects an absolute fullPdfUrl
+    ok 3 - rejects an absolute fullPdfUrl
+      ---
+      duration_ms: 0.7095
+      type: 'test'
+      ...
+    1..3
+ok 11 - A5/A12 book update allowlist
+  ---
+  duration_ms: 3.325958
+  type: 'suite'
+  ...
+# Subtest: B-005: books/orders/coupons persist in Postgres
+    # Subtest: a coupon with usageLimit 3 accepts exactly 3 of 10 parallel redemptions
+    ok 1 - a coupon with usageLimit 3 accepts exactly 3 of 10 parallel redemptions
+      ---
+      duration_ms: 99.72225
+      type: 'test'
+      ...
+    # Subtest: fulfilling the same payment twice has exactly one order effect
+    ok 2 - fulfilling the same payment twice has exactly one order effect
+      ---
+      duration_ms: 55.926917
+      type: 'test'
+      ...
+    # Subtest: running the backfill twice creates no duplicates
+    ok 3 - running the backfill twice creates no duplicates
+      ---
+      duration_ms: 3188.178625
+      type: 'test'
+      ...
+    # Subtest: does not write any data/*.json file
+    ok 4 - does not write any data/*.json file
+      ---
+      duration_ms: 16.727667
+      type: 'test'
+      ...
+    1..4
+ok 12 - B-005: books/orders/coupons persist in Postgres
+  ---
+  duration_ms: 3382.600458
+  type: 'suite'
+  ...
+# Subtest: B3 bookstore revenue counts settled orders only
+    # Subtest: counts only completed orders and exposes a paid count
+    ok 1 - counts only completed orders and exposes a paid count
+      ---
+      duration_ms: 24.803375
+      type: 'test'
+      ...
+    # Subtest: returns no fabricated books, orders or coupons in production
+    ok 2 - returns no fabricated books, orders or coupons in production
+      ---
+      duration_ms: 10.460583
+      type: 'test'
+      ...
+    1..2
+ok 13 - B3 bookstore revenue counts settled orders only
+  ---
+  duration_ms: 126.876584
+  type: 'suite'
+  ...
+# Subtest: R9-S2-G: single dev-bypass policy and server-start boot guard
+    # Subtest: boot guard runs from instrumentation.ts register()
+    ok 1 - boot guard runs from instrumentation.ts register()
+      ---
+      duration_ms: 1.812875
+      type: 'test'
+      ...
+    # Subtest: mobile-login route delegates to isDevBypassAllowed instead of its own copy
+    ok 2 - mobile-login route delegates to isDevBypassAllowed instead of its own copy
+      ---
+      duration_ms: 0.800875
+      type: 'test'
+      ...
+    # Subtest: config.service delegates the OTP bypass decision to isDevBypassAllowed
+    ok 3 - config.service delegates the OTP bypass decision to isDevBypassAllowed
+      ---
+      duration_ms: 0.228542
+      type: 'test'
+      ...
+    # Subtest: the shared policy is closed in production even when the dev flag is set
+    ok 4 - the shared policy is closed in production even when the dev flag is set
+      ---
+      duration_ms: 0.486375
+      type: 'test'
+      ...
+    # Subtest: the shared policy opens for an explicit local test database
+    ok 5 - the shared policy opens for an explicit local test database
+      ---
+      duration_ms: 0.45775
+      type: 'test'
+      ...
+    1..5
+ok 14 - R9-S2-G: single dev-bypass policy and server-start boot guard
+  ---
+  duration_ms: 4.786041
+  type: 'suite'
+  ...
+# Subtest: Task B9: Centralized Brand & Domain Configuration
+    # Subtest: 1. Brand module exports all required brand and legal fields
+    ok 1 - 1. Brand module exports all required brand and legal fields
+      ---
+      duration_ms: 1.954625
+      type: 'test'
+      ...
+    # Subtest: 2. Environment variable overrides work as expected
+    ok 2 - 2. Environment variable overrides work as expected
+      ---
+      duration_ms: 0.318667
+      type: 'test'
+      ...
+    # Subtest: 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+    ok 3 - 3. getCanonicalBaseUrl prioritizes NEXT_PUBLIC_APP_URL with trailing slash normalized
+      ---
+      duration_ms: 0.529833
+      type: 'test'
+      ...
+    # Subtest: 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+    ok 4 - 4. getCanonicalBaseUrl supports Vercel preview deployment URLs
+      ---
+      duration_ms: 0.429416
+      type: 'test'
+      ...
+    # Subtest: 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+    ok 5 - 5. getCanonicalBaseUrl in production defaults to https://<canonicalDomain>
+      ---
+      duration_ms: 0.223625
+      type: 'test'
+      ...
+    # Subtest: 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+    ok 6 - 6. getCanonicalBaseUrl in development defaults to http://localhost:<port>
+      ---
+      duration_ms: 0.135542
+      type: 'test'
+      ...
+    1..6
+ok 15 - Task B9: Centralized Brand & Domain Configuration
+  ---
+  duration_ms: 4.414583
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P1-1: Cache Invalidation & Inter-Process Versioning Suite
+    # Subtest: 1. Edit question followed by immediate invalidateExamQuestions shows new data on same instance
+    ok 1 - 1. Edit question followed by immediate invalidateExamQuestions shows new data on same instance
+      ---
+      duration_ms: 33.093166
+      type: 'test'
+      ...
+    # Subtest: 2. Cross-process edit is detected via version check without explicit local invalidate
+    ok 2 - 2. Cross-process edit is detected via version check without explicit local invalidate
+      ---
+      duration_ms: 6.334708
+      type: 'test'
+      ...
+# [AI_INTEGRATION_HOOK] Invalidating question cache for test test_p11_cache following AI batch translation approval of 1 questions.
+    # Subtest: 3. onAiQuestionTranslationBatchApproved hook invalidates and triggers fresh translation read
+    ok 3 - 3. onAiQuestionTranslationBatchApproved hook invalidates and triggers fresh translation read
+      ---
+      duration_ms: 5.433917
+      type: 'test'
+      ...
+    1..3
+ok 16 - P1-1: Cache Invalidation & Inter-Process Versioning Suite
+  ---
+  duration_ms: 136.5085
+  type: 'suite'
+  ...
+# Subtest: B10 cache invalidation
+    # Subtest: invalidates the content-engine tag and every public route
+    ok 1 - invalidates the content-engine tag and every public route
+      ---
+      duration_ms: 12.450417
+      type: 'test'
+      ...
+    # Subtest: invalidates on every content-engine question mutation path
+    ok 2 - invalidates on every content-engine question mutation path
+      ---
+      duration_ms: 4.47625
+      type: 'test'
+      ...
+    # Subtest: invalidates the courses tag from every course content server action
+    ok 3 - invalidates the courses tag from every course content server action
+      ---
+      duration_ms: 2.048916
+      type: 'test'
+      ...
+    # Subtest: invalidates the tag on the coupon deactivation branch and the studio routes
+    ok 4 - invalidates the tag on the coupon deactivation branch and the studio routes
+      ---
+      duration_ms: 1.719083
+      type: 'test'
+      ...
+    # Subtest: keeps every cached read on a registered cache tag
+    ok 5 - keeps every cached read on a registered cache tag
+      ---
+      duration_ms: 135.530625
+      type: 'test'
+      ...
+    1..5
+ok 17 - B10 cache invalidation
+  ---
+  duration_ms: 157.536667
+  type: 'suite'
+  ...
+# Subtest: Task C: Cache Staleness Regressions
+    # Subtest: 1. Test Series Module Cache Keying
+        # Subtest: Key differentiates between user A and user B with identical goals
+        ok 1 - Key differentiates between user A and user B with identical goals
+          ---
+          duration_ms: 12.154583
+          type: 'test'
+          ...
+        # Subtest: Key differentiates between different goal sets for the same user
+        ok 2 - Key differentiates between different goal sets for the same user
+          ---
+          duration_ms: 0.177959
+          type: 'test'
+          ...
+        # Subtest: Key normalizes goal order so order permutations match
+        ok 3 - Key normalizes goal order so order permutations match
+          ---
+          duration_ms: 0.251125
+          type: 'test'
+          ...
+        # Subtest: Guest users have isolated keys from authenticated users
+        ok 4 - Guest users have isolated keys from authenticated users
+          ---
+          duration_ms: 0.306
+          type: 'test'
+          ...
+        # Subtest: Switching user or goal never returns another user's or goal's series from cache
+        ok 5 - Switching user or goal never returns another user's or goal's series from cache
+          ---
+          duration_ms: 0.641625
+          type: 'test'
+          ...
+        1..5
+    ok 1 - 1. Test Series Module Cache Keying
+      ---
+      duration_ms: 14.341125
+      type: 'suite'
+      ...
+    # Subtest: 2. GoalProvider cachedUserGoalPromise Invalidation
+        # Subtest: cachedUserGoalPromise can be set and explicitly invalidated
+        ok 1 - cachedUserGoalPromise can be set and explicitly invalidated
+          ---
+          duration_ms: 0.256667
+          type: 'test'
+          ...
+        # Subtest: Simulating goalChange invalidation resets cachedUserGoalPromise
+        ok 2 - Simulating goalChange invalidation resets cachedUserGoalPromise
+          ---
+          duration_ms: 0.104042
+          type: 'test'
+          ...
+        # Subtest: Simulating storage event invalidation resets cachedUserGoalPromise
+        ok 3 - Simulating storage event invalidation resets cachedUserGoalPromise
+          ---
+          duration_ms: 0.2695
+          type: 'test'
+          ...
+        # Subtest: Simulating session user change invalidation resets cachedUserGoalPromise
+        ok 4 - Simulating session user change invalidation resets cachedUserGoalPromise
+          ---
+          duration_ms: 0.17175
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. GoalProvider cachedUserGoalPromise Invalidation
+      ---
+      duration_ms: 1.115542
+      type: 'suite'
+      ...
+    1..2
+ok 18 - Task C: Cache Staleness Regressions
+  ---
+  duration_ms: 15.792041
+  type: 'suite'
+  ...
+# Subtest: Cache tags are declared and invalidated (B-015, B-019)
+    # Subtest: finds the unstable_cache reads it is meant to guard
+    ok 1 - finds the unstable_cache reads it is meant to guard
+      ---
+      duration_ms: 0.568
+      type: 'test'
+      ...
+    # Subtest: uses only registered cache tags
+    ok 2 - uses only registered cache tags
+      ---
+      duration_ms: 0.522209
+      type: 'test'
+      ...
+    # Subtest: invalidates every cached tag from at least one mutation path
+    ok 3 - invalidates every cached tag from at least one mutation path
+      ---
+      duration_ms: 48.06775
+      type: 'test'
+      ...
+    # Subtest: keeps batches on the shared tagged cache instead of a module-level TTL cache
+    ok 4 - keeps batches on the shared tagged cache instead of a module-level TTL cache
+      ---
+      duration_ms: 0.473417
+      type: 'test'
+      ...
+    1..4
+ok 19 - Cache tags are declared and invalidated (B-015, B-019)
+  ---
+  duration_ms: 50.465708
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task B4: Client IP / TRUST_PROXY Hardening
+    # Subtest: normalizeIp
+        # Subtest: accepts valid IPv4 addresses
+        ok 1 - accepts valid IPv4 addresses
+          ---
+          duration_ms: 15.342958
+          type: 'test'
+          ...
+        # Subtest: accepts valid IPv6 addresses in canonical form
+        ok 2 - accepts valid IPv6 addresses in canonical form
+          ---
+          duration_ms: 5.337791
+          type: 'test'
+          ...
+        # Subtest: normalizes bracketed and port-annotated IPs
+        ok 3 - normalizes bracketed and port-annotated IPs
+          ---
+          duration_ms: 0.476292
+          type: 'test'
+          ...
+        # Subtest: extracts IPv4 from IPv4-mapped IPv6
+        ok 4 - extracts IPv4 from IPv4-mapped IPv6
+          ---
+          duration_ms: 0.431083
+          type: 'test'
+          ...
+        # Subtest: rejects malicious or invalid strings
+        ok 5 - rejects malicious or invalid strings
+          ---
+          duration_ms: 0.208375
+          type: 'test'
+          ...
+        1..5
+    ok 1 - normalizeIp
+      ---
+      duration_ms: 22.815
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=false (Default - Fail Closed)
+        # Subtest: ignores spoofed X-Forwarded-For headers
+        ok 1 - ignores spoofed X-Forwarded-For headers
+          ---
+          duration_ms: 18.447375
+          type: 'test'
+          ...
+        # Subtest: ignores CF-Connecting-IP header
+        ok 2 - ignores CF-Connecting-IP header
+          ---
+          duration_ms: 0.335167
+          type: 'test'
+          ...
+        # Subtest: ignores X-Real-IP header
+        ok 3 - ignores X-Real-IP header
+          ---
+          duration_ms: 0.409833
+          type: 'test'
+          ...
+        # Subtest: returns 127.0.0.1 when no request is passed
+        ok 4 - returns 127.0.0.1 when no request is passed
+          ---
+          duration_ms: 0.241875
+          type: 'test'
+          ...
+        1..4
+    ok 2 - TRUST_PROXY=false (Default - Fail Closed)
+      ---
+      duration_ms: 19.80825
+      type: 'suite'
+      ...
+    # Subtest: TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+        # Subtest: prioritizes valid CF-Connecting-IP over other headers
+        ok 1 - prioritizes valid CF-Connecting-IP over other headers
+          ---
+          duration_ms: 0.407375
+          type: 'test'
+          ...
+        # Subtest: rejects malicious CF-Connecting-IP and falls back safely
+        ok 2 - rejects malicious CF-Connecting-IP and falls back safely
+          ---
+          duration_ms: 0.201333
+          type: 'test'
+          ...
+        # Subtest: extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+        ok 3 - extracts right-most trusted hop of X-Forwarded-For with TRUST_PROXY_HOPS=1
+          ---
+          duration_ms: 0.267792
+          type: 'test'
+          ...
+        # Subtest: extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+        ok 4 - extracts Nth hop from right when TRUST_PROXY_HOPS > 1
+          ---
+          duration_ms: 0.18
+          type: 'test'
+          ...
+        # Subtest: falls back to X-Real-IP if X-Forwarded-For is missing
+        ok 5 - falls back to X-Real-IP if X-Forwarded-For is missing
+          ---
+          duration_ms: 0.258542
+          type: 'test'
+          ...
+        # Subtest: handles standard Request object and Next.js { headers } container
+        ok 6 - handles standard Request object and Next.js { headers } container
+          ---
+          duration_ms: 1.241417
+          type: 'test'
+          ...
+        1..6
+    ok 3 - TRUST_PROXY=true (Production behind Cloudflare/Reverse Proxy)
+      ---
+      duration_ms: 2.697833
+      type: 'suite'
+      ...
+    1..3
+ok 20 - Task B4: Client IP / TRUST_PROXY Hardening
+  ---
+  duration_ms: 45.777333
+  type: 'suite'
+  ...
+# Subtest: P1-2: clientSeq NOT NULL COALESCE & Edge Case Verification
+    # Subtest: 1. Absent and null clientSeq coalesce to 0 without 23502 not-null constraint violation
+    ok 1 - 1. Absent and null clientSeq coalesce to 0 without 23502 not-null constraint violation
+      ---
+      duration_ms: 11.496959
+      type: 'test'
+      ...
+    # Subtest: 2. Increasing clientSeq values update the record cleanly
+    ok 2 - 2. Increasing clientSeq values update the record cleanly
+      ---
+      duration_ms: 6.613583
+      type: 'test'
+      ...
+    # Subtest: 3. Out-of-order batches: older packet (seq 2) arriving after seq 5 is rejected
+    ok 3 - 3. Out-of-order batches: older packet (seq 2) arriving after seq 5 is rejected
+      ---
+      duration_ms: 11.219958
+      type: 'test'
+      ...
+    1..3
+ok 21 - P1-2: clientSeq NOT NULL COALESCE & Edge Case Verification
+  ---
+  duration_ms: 128.76025
+  type: 'suite'
+  ...
+# Subtest: P1-4: Connection limit validator and pg_stat_activity verification
+    # Subtest: passes and parses limit when connection_limit is present in DATABASE_URL
+    ok 1 - passes and parses limit when connection_limit is present in DATABASE_URL
+      ---
+      duration_ms: 25.119667
+      type: 'test'
+      ...
+    # Subtest: warns when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT is unset
+    ok 2 - warns when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT is unset
+      ---
+      duration_ms: 0.3975
+      type: 'test'
+      ...
+    # Subtest: throws error when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT=true
+    ok 3 - throws error when connection_limit is missing and EXAM_REQUIRE_POOL_LIMIT=true
+      ---
+      duration_ms: 0.671584
+      type: 'test'
+      ...
+    # Subtest: measures actual backend connections via pg_stat_activity with connection_limit set
+    ok 4 - measures actual backend connections via pg_stat_activity with connection_limit set
+      ---
+      duration_ms: 153.5125
+      type: 'test'
+      ...
+    1..4
+ok 22 - P1-4: Connection limit validator and pg_stat_activity verification
+  ---
+  duration_ms: 182.314083
+  type: 'suite'
+  ...
+# [CONTENT_AUDIT] CREATE LESSON b5-test-1793541039831 by anonymous
+# Subtest: B5 content audit events live in the database
+    # Subtest: writes an event to the database and nothing to disk
+    ok 1 - writes an event to the database and nothing to disk
+      ---
+      duration_ms: 13.055167
+      type: 'test'
+      ...
+# [CONTENT_AUDIT] UPDATE COURSE b5-test-1793541039831 by anonymous
+# [CONTENT_AUDIT] UPDATE COURSE b5-test-1793541039831 by anonymous
+# [CONTENT_AUDIT] UPDATE COURSE b5-test-1793541039831 by anonymous
+# [CONTENT_AUDIT] UPDATE COURSE b5-test-1793541039831 by anonymous
+# [CONTENT_AUDIT] UPDATE COURSE b5-test-1793541039831 by anonymous
+    # Subtest: paginates reads newest first
+    ok 2 - paginates reads newest first
+      ---
+      duration_ms: 20.454791
+      type: 'test'
+      ...
+    # Subtest: backfills the legacy jsonl idempotently
+    ok 3 - backfills the legacy jsonl idempotently
+      ---
+      duration_ms: 11.530416
+      type: 'test'
+      ...
+    1..3
+ok 23 - B5 content audit events live in the database
+  ---
+  duration_ms: 102.495334
+  type: 'suite'
+  ...
+# Subtest: B11 content-engine export is bounded
+    # Subtest: parses the export range and refuses an oversized page
+    ok 1 - parses the export range and refuses an oversized page
+      ---
+      duration_ms: 1.691916
+      type: 'test'
+      ...
+    # Subtest: reports part metadata for the response headers
+    ok 2 - reports part metadata for the response headers
+      ---
+      duration_ms: 0.1605
+      type: 'test'
+      ...
+    # Subtest: refuses a default request that would need several archives
+    ok 3 - refuses a default request that would need several archives
+      ---
+      duration_ms: 0.215416
+      type: 'test'
+      ...
+    # Subtest: reads the corpus in pages without repeats or omissions
+    ok 4 - reads the corpus in pages without repeats or omissions
+      ---
+      duration_ms: 30.979542
+      type: 'test'
+      ...
+    # Subtest: stops at the end of the corpus
+    ok 5 - stops at the end of the corpus
+      ---
+      duration_ms: 5.013708
+      type: 'test'
+      ...
+    1..5
+ok 24 - B11 content-engine export is bounded
+  ---
+  duration_ms: 102.540458
+  type: 'suite'
+  ...
+# Subtest: B9 content-engine search is ANDed with filters
+    # Subtest: keeps the equality filters when a search is present
+    ok 1 - keeps the equality filters when a search is present
+      ---
+      duration_ms: 29.065375
+      type: 'test'
+      ...
+    # Subtest: does not let the search widen the uncategorised filter
+    ok 2 - does not let the search widen the uncategorised filter
+      ---
+      duration_ms: 6.586334
+      type: 'test'
+      ...
+    # Subtest: requires every search token, not the exact phrase
+    ok 3 - requires every search token, not the exact phrase
+      ---
+      duration_ms: 4.635292
+      type: 'test'
+      ...
+    # Subtest: treats LIKE wildcards as literal text
+    ok 4 - treats LIKE wildcards as literal text
+      ---
+      duration_ms: 10.496333
+      type: 'test'
+      ...
+    # Subtest: ANDs search with exam, year and publication state
+    ok 5 - ANDs search with exam, year and publication state
+      ---
+      duration_ms: 9.082292
+      type: 'test'
+      ...
+    # Subtest: still paginates the filtered set
+    ok 6 - still paginates the filtered set
+      ---
+      duration_ms: 9.19875
+      type: 'test'
+      ...
+    1..6
+ok 25 - B9 content-engine search is ANDed with filters
+  ---
+  duration_ms: 123.27075
+  type: 'suite'
+  ...
+# Subtest: B8 content ordering and slug races
+    # Subtest: the unlocked read-then-insert pattern really does duplicate positions
+    ok 1 - the unlocked read-then-insert pattern really does duplicate positions
+      ---
+      duration_ms: 99.508708
+      type: 'test'
+      ...
+    # Subtest: allocates unique chapter positions under concurrency
+    ok 2 - allocates unique chapter positions under concurrency
+      ---
+      duration_ms: 87.285292
+      type: 'test'
+      ...
+    # Subtest: allocates unique lesson positions under concurrency
+    ok 3 - allocates unique lesson positions under concurrency
+      ---
+      duration_ms: 139.559167
+      type: 'test'
+      ...
+    # Subtest: keeps every remaining content create on the locked allocator
+    ok 4 - keeps every remaining content create on the locked allocator
+      ---
+      duration_ms: 3.521625
+      type: 'test'
+      ...
+    # Subtest: maps a slug unique-violation to a conflict on every course create path
+    ok 5 - maps a slug unique-violation to a conflict on every course create path
+      ---
+      duration_ms: 3.113625
+      type: 'test'
+      ...
+    1..5
+ok 26 - B8 content ordering and slug races
+  ---
+  duration_ms: 414.824667
+  type: 'suite'
+  ...
+# Subtest: R9-S3: /api/v1 CORS policy
+    # Subtest: no /api/v1 route, middleware or next.config emits Access-Control-Allow-Origin
+    ok 1 - no /api/v1 route, middleware or next.config emits Access-Control-Allow-Origin
+      ---
+      duration_ms: 10.299333
+      type: 'test'
+      ...
+    # Subtest: a live /api/v1 response never returns a wildcard CORS header
+    ok 2 - a live /api/v1 response never returns a wildcard CORS header
+      ---
+      duration_ms: 5.914208
+      type: 'test'
+      ...
+    # Subtest: Expo app targets native platforms only (no web origin)
+    ok 3 - Expo app targets native platforms only (no web origin)
+      ---
+      duration_ms: 0.529542
+      type: 'test'
+      ...
+    1..3
+ok 27 - R9-S3: /api/v1 CORS policy
+  ---
+  duration_ms: 17.668834
+  type: 'suite'
+  ...
+# Subtest: B13 getCourseLesson is a narrow, read-only query
+    # Subtest: does not create progress when a lesson is opened
+    ok 1 - does not create progress when a lesson is opened
+      ---
+      duration_ms: 21.522875
+      type: 'test'
+      ...
+    # Subtest: does not bump lastAccessed on an existing progress row
+    ok 2 - does not bump lastAccessed on an existing progress row
+      ---
+      duration_ms: 16.664125
+      type: 'test'
+      ...
+    # Subtest: does not create progress for a locked lesson
+    ok 3 - does not create progress for a locked lesson
+      ---
+      duration_ms: 6.925458
+      type: 'test'
+      ...
+    # Subtest: allows a trial lesson in a premium course without writing progress
+    ok 4 - allows a trial lesson in a premium course without writing progress
+      ---
+      duration_ms: 10.055458
+      type: 'test'
+      ...
+    # Subtest: returns null media and duration instead of a sample video and 10 mins
+    ok 5 - returns null media and duration instead of a sample video and 10 mins
+      ---
+      duration_ms: 16.184417
+      type: 'test'
+      ...
+    # Subtest: keeps course-wide prev/next navigation across chapters
+    ok 6 - keeps course-wide prev/next navigation across chapters
+      ---
+      duration_ms: 21.272875
+      type: 'test'
+      ...
+    # Subtest: rejects a lesson that belongs to a different course
+    ok 7 - rejects a lesson that belongs to a different course
+      ---
+      duration_ms: 3.833666
+      type: 'test'
+      ...
+    # Subtest: reports an unknown or unpublished course as not found
+    ok 8 - reports an unknown or unpublished course as not found
+      ---
+      duration_ms: 1.669125
+      type: 'test'
+      ...
+    1..8
+ok 28 - B13 getCourseLesson is a narrow, read-only query
+  ---
+  duration_ms: 255.730709
+  type: 'suite'
+  ...
+# Subtest: B2 course metadata is DB-only and never reports a failed write
+    # Subtest: a database write failure rejects instead of returning success
+    ok 1 - a database write failure rejects instead of returning success
+      ---
+      duration_ms: 6.822375
+      type: 'test'
+      ...
+    # Subtest: a database read failure rejects instead of falling back to defaults
+    ok 2 - a database read failure rejects instead of falling back to defaults
+      ---
+      duration_ms: 0.25
+      type: 'test'
+      ...
+    # Subtest: a saved value is read back immediately (no stale module cache)
+    ok 3 - a saved value is read back immediately (no stale module cache)
+      ---
+      duration_ms: 18.340458
+      type: 'test'
+      ...
+    # Subtest: legacy data/course-metadata.json is no longer used as a source
+    ok 4 - legacy data/course-metadata.json is no longer used as a source
+      ---
+      duration_ms: 1.490291
+      type: 'test'
+      ...
+    1..4
+ok 29 - B2 course metadata is DB-only and never reports a failed write
+  ---
+  duration_ms: 75.927333
+  type: 'suite'
+  ...
+# Subtest: A8 course ownership
+    # Subtest: admin can manage every course
+    ok 1 - admin can manage every course
+      ---
+      duration_ms: 0.896042
+      type: 'test'
+      ...
+    # Subtest: a teacher can only manage their own course
+    ok 2 - a teacher can only manage their own course
+      ---
+      duration_ms: 0.110583
+      type: 'test'
+      ...
+    # Subtest: legacy courses without a creator are admin-only for real teachers
+    ok 3 - legacy courses without a creator are admin-only for real teachers
+      ---
+      duration_ms: 0.170084
+      type: 'test'
+      ...
+    # Subtest: students and anonymous callers are always denied
+    ok 4 - students and anonymous callers are always denied
+      ---
+      duration_ms: 0.087958
+      type: 'test'
+      ...
+    # Subtest: missing course or missing user id fails closed
+    ok 5 - missing course or missing user id fails closed
+      ---
+      duration_ms: 0.079625
+      type: 'test'
+      ...
+    # Subtest: assertCanManageCourse distinguishes 401 from 403
+    ok 6 - assertCanManageCourse distinguishes 401 from 403
+      ---
+      duration_ms: 0.449959
+      type: 'test'
+      ...
+    # Subtest: courses with enrollments are archived, never deleted
+    ok 7 - courses with enrollments are archived, never deleted
+      ---
+      duration_ms: 0.148792
+      type: 'test'
+      ...
+    # Subtest: demo identities are never persisted as a creator
+    ok 8 - demo identities are never persisted as a creator
+      ---
+      duration_ms: 0.181958
+      type: 'test'
+      ...
+    1..8
+ok 30 - A8 course ownership
+  ---
+  duration_ms: 3.139416
+  type: 'suite'
+  ...
+# Subtest: B12 dashboard summary uses real rows
+    # Subtest: reports zeros for a guest and never links to an unpublished test
+    ok 1 - reports zeros for a guest and never links to an unpublished test
+      ---
+      duration_ms: 11.231709
+      type: 'test'
+      ...
+    # Subtest: uses the learner's own streak, today's study time and latest lesson
+    ok 2 - uses the learner's own streak, today's study time and latest lesson
+      ---
+      duration_ms: 38.613667
+      type: 'test'
+      ...
+    # Subtest: returns no continue-learning for a learner with no progress
+    ok 3 - returns no continue-learning for a learner with no progress
+      ---
+      duration_ms: 12.229875
+      type: 'test'
+      ...
+    # Subtest: caps the daily goal at 100 percent
+    ok 4 - caps the daily goal at 100 percent
+      ---
+      duration_ms: 17.013875
+      type: 'test'
+      ...
+    1..4
+ok 31 - B12 dashboard summary uses real rows
+  ---
+  duration_ms: 211.8035
+  type: 'suite'
+  ...
+# Subtest: B12 dashboard UI does not invent card values
+    # Subtest: the dashboard page has no fabricated guest stats or course card values
+    ok 1 - the dashboard page has no fabricated guest stats or course card values
+      ---
+      duration_ms: 2.244667
+      type: 'test'
+      ...
+    # Subtest: the tests tab shows fetched tests with loading, error and empty states
+    ok 2 - the tests tab shows fetched tests with loading, error and empty states
+      ---
+      duration_ms: 1.77575
+      type: 'test'
+      ...
+    # Subtest: course cards do not fall back to an invented rating, duration or learner count
+    ok 3 - course cards do not fall back to an invented rating, duration or learner count
+      ---
+      duration_ms: 1.812666
+      type: 'test'
+      ...
+    1..3
+ok 32 - B12 dashboard UI does not invent card values
+  ---
+  duration_ms: 6.646166
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task G2: Data Deletion Queue & Admin Transitions
+    # Subtest: 1. Security: Role Checks (Non-Admin 403)
+        # Subtest: Non-admin (student) gets 403 on admin list route
+        ok 1 - Non-admin (student) gets 403 on admin list route
+          ---
+          duration_ms: 5.130625
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin single get route
+        ok 2 - Non-admin (student) gets 403 on admin single get route
+          ---
+          duration_ms: 0.735708
+          type: 'test'
+          ...
+        # Subtest: Non-admin (student) gets 403 on admin transition patch route
+        ok 3 - Non-admin (student) gets 403 on admin transition patch route
+          ---
+          duration_ms: 0.758041
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: Role Checks (Non-Admin 403)
+      ---
+      duration_ms: 7.108291
+      type: 'suite'
+      ...
+    # Subtest: 2. Admin Queue Listing & Transitions
+        # Subtest: Admin can list deletion requests
+        ok 1 - Admin can list deletion requests
+          ---
+          duration_ms: 25.382375
+          type: 'test'
+          ...
+        # Subtest: Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+        ok 2 - Admin can transition PENDING -> IN_REVIEW with notes and audit log entry
+          ---
+          duration_ms: 15.470292
+          type: 'test'
+          ...
+        # Subtest: Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+        ok 3 - Admin can transition IN_REVIEW -> COMPLETED, setting processedAt timestamp
+          ---
+          duration_ms: 7.452625
+          type: 'test'
+          ...
+        # Subtest: Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+        ok 4 - Transition validation rejects COMPLETED -> PENDING (terminal state violation)
+          ---
+          duration_ms: 4.625125
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Admin Queue Listing & Transitions
+      ---
+      duration_ms: 53.584916
+      type: 'suite'
+      ...
+    # Subtest: 3. Authenticated User Deletion Request & Idempotency
+        # Subtest: Authenticated student request creates initial record
+        ok 1 - Authenticated student request creates initial record
+          ---
+          duration_ms: 97.805
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Authenticated User Deletion Request & Idempotency
+      ---
+      duration_ms: 98.127958
+      type: 'suite'
+      ...
+    1..3
+ok 33 - Task G2: Data Deletion Queue & Admin Transitions
+  ---
+  duration_ms: 232.447375
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task G2 remediation: deletion idempotency, audit trail, queue authorization
+    # Subtest: a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+    ok 1 - a) posting the same deletion request twice returns the SAME id and leaves exactly one active row
+      ---
+      duration_ms: 22.701583
+      type: 'test'
+      ...
+    # Subtest: b) idempotency does not leak across users (one user's pending request is not reused for another)
+    ok 2 - b) idempotency does not leak across users (one user's pending request is not reused for another)
+      ---
+      duration_ms: 17.4955
+      type: 'test'
+      ...
+    # Subtest: c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+    ok 3 - c) a COMPLETED request allows a new request (ASSUMPTION: only PENDING/IN_REVIEW are active)
+      ---
+      duration_ms: 11.339
+      type: 'test'
+      ...
+    # Subtest: d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+    ok 4 - d) every admin transition writes exactly one AuditLog row; an invalid transition writes none
+      ---
+      duration_ms: 24.232625
+      type: 'test'
+      ...
+    # Subtest: e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+    ok 5 - e) every queue route returns 401 unauthenticated and 403 for non-admin (routes enumerated from disk)
+      ---
+      duration_ms: 6.143292
+      type: 'test'
+      ...
+    # Subtest: f) the authenticated status route returns 401 unauthenticated
+    ok 6 - f) the authenticated status route returns 401 unauthenticated
+      ---
+      duration_ms: 0.449208
+      type: 'test'
+      ...
+    1..6
+ok 34 - Task G2 remediation: deletion idempotency, audit trail, queue authorization
+  ---
+  duration_ms: 205.48925
+  type: 'suite'
+  ...
+# Subtest: R12-B: DATABASE_URL safety for Neon (production only)
+    # Subtest: B-R12-01: rejects localhost DATABASE_URL in production
+    ok 1 - B-R12-01: rejects localhost DATABASE_URL in production
+      ---
+      duration_ms: 4.5715
+      type: 'test'
+      ...
+    # Subtest: B-R12-02: rejects 127.0.0.1 DATABASE_URL in production
+    ok 2 - B-R12-02: rejects 127.0.0.1 DATABASE_URL in production
+      ---
+      duration_ms: 1.523958
+      type: 'test'
+      ...
+    # Subtest: B-R12-03: rejects DATABASE_URL without sslmode=require in production
+    ok 3 - B-R12-03: rejects DATABASE_URL without sslmode=require in production
+      ---
+      duration_ms: 1.077166
+      type: 'test'
+      ...
+    # Subtest: B-R12-04: rejects pooler host without pgbouncer=true in production
+    ok 4 - B-R12-04: rejects pooler host without pgbouncer=true in production
+      ---
+      duration_ms: 1.315833
+      type: 'test'
+      ...
+    # Subtest: B-R12-05: accepts pooler host WITH pgbouncer=true in production
+    ok 5 - B-R12-05: accepts pooler host WITH pgbouncer=true in production
+      ---
+      duration_ms: 1.0475
+      type: 'test'
+      ...
+    # Subtest: B-R12-06: rejects missing DIRECT_URL in production
+    ok 6 - B-R12-06: rejects missing DIRECT_URL in production
+      ---
+      duration_ms: 2.274417
+      type: 'test'
+      ...
+    # Subtest: B-R12-07: accepts valid Neon URL with sslmode and DIRECT_URL in production
+    ok 7 - B-R12-07: accepts valid Neon URL with sslmode and DIRECT_URL in production
+      ---
+      duration_ms: 0.966916
+      type: 'test'
+      ...
+    # Subtest: B-R12-08: non-production is unaffected by Neon guards
+    ok 8 - B-R12-08: non-production is unaffected by Neon guards
+      ---
+      duration_ms: 0.797542
+      type: 'test'
+      ...
+    # Subtest: B-R12-09: error messages never contain the actual URL
+    ok 9 - B-R12-09: error messages never contain the actual URL
+      ---
+      duration_ms: 0.884625
+      type: 'test'
+      ...
+    1..9
+ok 35 - R12-B: DATABASE_URL safety for Neon (production only)
+  ---
+  duration_ms: 15.6825
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Demo chat rate limit is shared, not process-local (B-018)
+    # Subtest: does not keep an in-memory rate limit map in the demo chat route
+    ok 1 - does not keep an in-memory rate limit map in the demo chat route
+      ---
+      duration_ms: 0.919875
+      type: 'test'
+      ...
+    # Subtest: counts requests in Postgres and rejects the second message inside the window
+    ok 2 - counts requests in Postgres and rejects the second message inside the window
+      ---
+      duration_ms: 15.070208
+      type: 'test'
+      ...
+    # Subtest: keeps limits per user
+    ok 3 - keeps limits per user
+      ---
+      duration_ms: 3.544042
+      type: 'test'
+      ...
+    1..3
+ok 36 - Demo chat rate limit is shared, not process-local (B-018)
+  ---
+  duration_ms: 54.768917
+  type: 'suite'
+  ...
+# Subtest: B-001 demo role guard
+    # Subtest: production never resolves a demo role, even with every flag set
+    ok 1 - production never resolves a demo role, even with every flag set
+      ---
+      duration_ms: 7.889125
+      type: 'test'
+      ...
+    # Subtest: development without explicit demo mode does not resolve a demo role
+    ok 2 - development without explicit demo mode does not resolve a demo role
+      ---
+      duration_ms: 2.639042
+      type: 'test'
+      ...
+    # Subtest: demo mode works when explicitly enabled or in the test environment
+    ok 3 - demo mode works when explicitly enabled or in the test environment
+      ---
+      duration_ms: 0.750333
+      type: 'test'
+      ...
+    # Subtest: unknown cookie values are rejected
+    ok 4 - unknown cookie values are rejected
+      ---
+      duration_ms: 1.185542
+      type: 'test'
+      ...
+    # Subtest: getDemoRole accepts a NextRequest and a next/headers cookie store
+    ok 5 - getDemoRole accepts a NextRequest and a next/headers cookie store
+      ---
+      duration_ms: 3.299208
+      type: 'test'
+      ...
+    # Subtest: middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+    ok 6 - middleware rejects a demo ADMIN cookie in production for /admin and /api/admin
+      ---
+      duration_ms: 139.325833
+      type: 'test'
+      ...
+    # Subtest: lib/auth/rbac.ts rejects ts_demo_role cookie in production
+    ok 7 - lib/auth/rbac.ts rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 65.120334
+      type: 'test'
+      ...
+    # Subtest: app/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 8 - app/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 307.020833
+      type: 'test'
+      ...
+    # Subtest: middleware still honours the demo flow in the test environment
+    ok 9 - middleware still honours the demo flow in the test environment
+      ---
+      duration_ms: 6.705209
+      type: 'test'
+      ...
+    # Subtest: app/api/auth/role GET and POST return 404 in production
+    ok 10 - app/api/auth/role GET and POST return 404 in production
+      ---
+      duration_ms: 13.707375
+      type: 'test'
+      ...
+    # Subtest: app/(dashboard)/admin/layout.tsx rejects ts_demo_role cookie in production
+    ok 11 - app/(dashboard)/admin/layout.tsx rejects ts_demo_role cookie in production
+      ---
+      duration_ms: 5.5025
+      type: 'test'
+      ...
+    # Subtest: exam API route rejects ts_demo_role=ADMIN in production with 401
+    ok 12 - exam API route rejects ts_demo_role=ADMIN in production with 401
+      ---
+      duration_ms: 12.062458
+      type: 'test'
+      ...
+    1..12
+ok 37 - B-001 demo role guard
+  ---
+  duration_ms: 567.216041
+  type: 'suite'
+  ...
+# Subtest: A1 demo-role policy
+    # Subtest: production build always ignores ts_demo_role, even in the test env
+    ok 1 - production build always ignores ts_demo_role, even in the test env
+      ---
+      duration_ms: 0.874709
+      type: 'test'
+      ...
+    # Subtest: test environment enables the demo role
+    ok 2 - test environment enables the demo role
+      ---
+      duration_ms: 0.250458
+      type: 'test'
+      ...
+    # Subtest: explicit demo flag enables the demo role outside test
+    ok 3 - explicit demo flag enables the demo role outside test
+      ---
+      duration_ms: 0.609042
+      type: 'test'
+      ...
+    # Subtest: fails closed when nothing explicitly enables demo mode
+    ok 4 - fails closed when nothing explicitly enables demo mode
+      ---
+      duration_ms: 0.441917
+      type: 'test'
+      ...
+    # Subtest: rejects an unknown role value
+    ok 5 - rejects an unknown role value
+      ---
+      duration_ms: 0.237834
+      type: 'test'
+      ...
+    1..5
+ok 38 - A1 demo-role policy
+  ---
+  duration_ms: 3.224583
+  type: 'suite'
+  ...
+# Subtest: A1 /api/auth/role is inert in production
+    # Subtest: POST returns 404 in production and never sets a cookie
+    ok 1 - POST returns 404 in production and never sets a cookie
+      ---
+      duration_ms: 81.04725
+      type: 'test'
+      ...
+    # Subtest: GET returns 404 in production
+    ok 2 - GET returns 404 in production
+      ---
+      duration_ms: 2.738083
+      type: 'test'
+      ...
+    1..2
+ok 39 - A1 /api/auth/role is inert in production
+  ---
+  duration_ms: 84.25175
+  type: 'suite'
+  ...
+# Subtest: R15-1: Dockerfile builder stage database environment variables guard
+    # Subtest: Dockerfile builder stage DATABASE_URL and DIRECT_URL pass boot security guard in production
+    ok 1 - Dockerfile builder stage DATABASE_URL and DIRECT_URL pass boot security guard in production
+      ---
+      duration_ms: 2.518292
+      type: 'test'
+      ...
+    # Subtest: runner stage does not bake in builder-stage database credentials
+    ok 2 - runner stage does not bake in builder-stage database credentials
+      ---
+      duration_ms: 0.569875
+      type: 'test'
+      ...
+    1..2
+ok 40 - R15-1: Dockerfile builder stage database environment variables guard
+  ---
+  duration_ms: 3.909167
+  type: 'suite'
+  ...
+# Subtest: C2 doubts and form submissions live in the database
+    # Subtest: stores a new doubt as a Doubt row, not in data/doubts.json
+    ok 1 - stores a new doubt as a Doubt row, not in data/doubts.json
+      ---
+      duration_ms: 45.010625
+      type: 'test'
+      ...
+    # Subtest: answers a doubt and only that row changes
+    ok 2 - answers a doubt and only that row changes
+      ---
+      duration_ms: 62.578833
+      type: 'test'
+      ...
+    # Subtest: counts concurrent upvotes without losing one
+    ok 3 - counts concurrent upvotes without losing one
+      ---
+      duration_ms: 163.792542
+      type: 'test'
+      ...
+    # Subtest: returns null for an unknown doubt instead of inventing one
+    ok 4 - returns null for an unknown doubt instead of inventing one
+      ---
+      duration_ms: 27.489416
+      type: 'test'
+      ...
+    # Subtest: filters doubts by student, status and subject
+    ok 5 - filters doubts by student, status and subject
+      ---
+      duration_ms: 19.568
+      type: 'test'
+      ...
+    # Subtest: stores a form submission as a FormSubmission row with JSON answers
+    ok 6 - stores a form submission as a FormSubmission row with JSON answers
+      ---
+      duration_ms: 33.714666
+      type: 'test'
+      ...
+    # Subtest: no longer writes either store to disk
+    ok 7 - no longer writes either store to disk
+      ---
+      duration_ms: 10.24275
+      type: 'test'
+      ...
+    1..7
+ok 41 - C2 doubts and form submissions live in the database
+  ---
+  duration_ms: 507.683958
+  type: 'suite'
+  ...
+# Subtest: R12-F: Email outbox consumer and cron trigger
+    # Subtest: F-R12-01: render.yaml contains a cron job for email outbox every 5 minutes
+    ok 1 - F-R12-01: render.yaml contains a cron job for email outbox every 5 minutes
+      ---
+      duration_ms: 45.9605
+      type: 'test'
+      ...
+    # Subtest: F-R12-02: GitHub Actions alternative exists and is left disabled
+    ok 2 - F-R12-02: GitHub Actions alternative exists and is left disabled
+      ---
+      duration_ms: 3.265916
+      type: 'test'
+      ...
+    # Subtest: F-R12-03: Route rejects missing CRON_SECRET with 401
+    ok 3 - F-R12-03: Route rejects missing CRON_SECRET with 401
+      ---
+      duration_ms: 8.758959
+      type: 'test'
+      ...
+    # Subtest: F-R12-04: Route rejects wrong CRON_SECRET with 401
+    ok 4 - F-R12-04: Route rejects wrong CRON_SECRET with 401
+      ---
+      duration_ms: 3.728083
+      type: 'test'
+      ...
+    # Subtest: F-R12-05: Route accepts valid CRON_SECRET and processes a pending outbox row
+    ok 5 - F-R12-05: Route accepts valid CRON_SECRET and processes a pending outbox row
+      ---
+      duration_ms: 150.891834
+      type: 'test'
+      ...
+    # Subtest: F-R12-06: docs/runbooks/ documents the email outbox cron worker
+    ok 6 - F-R12-06: docs/runbooks/ documents the email outbox cron worker
+      ---
+      duration_ms: 4.762667
+      type: 'test'
+      ...
+    1..6
+ok 42 - R12-F: Email outbox consumer and cron trigger
+  ---
+  duration_ms: 255.247458
+  type: 'suite'
+  ...
+# Subtest: Task G5 remediation: retry, idempotency, cron auth, workflow triggers
+    # Subtest: 1. A failed delivery is retried: attempts increments, nextRetryAt is set with jittered backoff
+    ok 1 - 1. A failed delivery is retried: attempts increments, nextRetryAt is set with jittered backoff
+      ---
+      duration_ms: 184.168416
+      type: 'test'
+      ...
+    # Subtest: 2. Idempotency key is deterministic per attempt and a second worker pass does not re-send the row
+    ok 2 - 2. Idempotency key is deterministic per attempt and a second worker pass does not re-send the row
+      ---
+      duration_ms: 74.812209
+      type: 'test'
+      ...
+    # Subtest: 3. Provider order is Brevo first, then Resend when Brevo fails
+    ok 3 - 3. Provider order is Brevo first, then Resend when Brevo fails
+      ---
+      duration_ms: 49.56125
+      type: 'test'
+      ...
+    # Subtest: 4. CRON_SECRET: a wrong secret of the SAME length returns 401 without throwing
+    ok 4 - 4. CRON_SECRET: a wrong secret of the SAME length returns 401 without throwing
+      ---
+      duration_ms: 18.003625
+      type: 'test'
+      ...
+    # Subtest: 5. The disabled cron stub has no active triggers (not loaded by GitHub Actions)
+    ok 5 - 5. The disabled cron stub has no active triggers (not loaded by GitHub Actions)
+      ---
+      duration_ms: 8.037917
+      type: 'test'
+      ...
+    1..5
+ok 43 - Task G5 remediation: retry, idempotency, cron auth, workflow triggers
+  ---
+  duration_ms: 401.010292
+  type: 'suite'
+  ...
+# Subtest: Task G5: Email Outbox Worker Verification
+    # Subtest: 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+        # Subtest: Rejects request with missing CRON_SECRET (401)
+        ok 1 - Rejects request with missing CRON_SECRET (401)
+          ---
+          duration_ms: 4.878625
+          type: 'test'
+          ...
+        # Subtest: Rejects request with invalid CRON_SECRET (401)
+        ok 2 - Rejects request with invalid CRON_SECRET (401)
+          ---
+          duration_ms: 0.865584
+          type: 'test'
+          ...
+        # Subtest: Accepts request with valid CRON_SECRET (200)
+        ok 3 - Accepts request with valid CRON_SECRET (200)
+          ---
+          duration_ms: 35.70375
+          type: 'test'
+          ...
+        1..3
+    ok 1 - 1. Security: CRON_SECRET Protection (Constant-Time Compare)
+      ---
+      duration_ms: 42.317792
+      type: 'suite'
+      ...
+    # Subtest: 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+        # Subtest: Successfully sends pending row via primary provider (Brevo) and marks SENT
+        ok 1 - Successfully sends pending row via primary provider (Brevo) and marks SENT
+          ---
+          duration_ms: 42.822
+          type: 'test'
+          ...
+        # Subtest: Falls back to Resend when Brevo fails
+        ok 2 - Falls back to Resend when Brevo fails
+          ---
+          duration_ms: 31.356167
+          type: 'test'
+          ...
+        # Subtest: Backoff schedule: exponential backoff with jitter on total provider failure
+        ok 3 - Backoff schedule: exponential backoff with jitter on total provider failure
+          ---
+          duration_ms: 0.443333
+          type: 'test'
+          ...
+        # Subtest: Transitions to DEAD_LETTER after max attempts exceeded
+        ok 4 - Transitions to DEAD_LETTER after max attempts exceeded
+          ---
+          duration_ms: 19.609583
+          type: 'test'
+          ...
+        1..4
+    ok 2 - 2. Processor: Retry, Backoff, Fallback & Dead-Letter
+      ---
+      duration_ms: 95.156
+      type: 'suite'
+      ...
+    # Subtest: 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+        # Subtest: Two concurrent workers never send the same row twice
+        ok 1 - Two concurrent workers never send the same row twice
+          ---
+          duration_ms: 60.071542
+          type: 'test'
+          ...
+        1..1
+    ok 3 - 3. Concurrency Safety: FOR UPDATE SKIP LOCKED & Idempotency
+      ---
+      duration_ms: 60.305583
+      type: 'suite'
+      ...
+    1..3
+ok 44 - Task G5: Email Outbox Worker Verification
+  ---
+  duration_ms: 223.337
+  type: 'suite'
+  ...
+# Subtest: Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+    # Subtest: 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+    ok 1 - 1. Primary provider (Brevo) sends successfully; fallback is NOT called
+      ---
+      duration_ms: 50.139208
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 500: {"error":"Brevo Internal Service Error"}. Attempting fallback (Resend)...
+    # Subtest: 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+    ok 2 - 2. On Primary (Brevo) 500 error, automatically falls back to Resend
+      ---
+      duration_ms: 12.579416
+      type: 'test'
+      ...
+# [Email] Primary provider (Brevo) failed: Brevo HTTP 502: {"error":"Brevo Bad Gateway"}. Attempting fallback (Resend)...
+# [Email] Fallback provider (Resend) failed: Resend HTTP 429: {"error":"Resend Rate Limit Exceeded"}.
+# [Email] All email delivery providers failed. Queuing message to [REDACTED_EMAIL]@example.com into EmailOutbox for background retry.
+    # Subtest: 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+    ok 3 - 3. When both primary and fallback fail, queues to EmailOutbox with status PENDING, attempts 1, nextRetryAt +5 min
+      ---
+      duration_ms: 81.682375
+      type: 'test'
+      ...
+# [DbEmailOutbox] Stored to: [REDACTED_EMAIL]@example.com | Subject: Dev Mode Email Test | Link: none
+    # Subtest: 4. In dev/test when neither key is configured, writes to outbox without failing
+    ok 4 - 4. In dev/test when neither key is configured, writes to outbox without failing
+      ---
+      duration_ms: 13.521792
+      type: 'test'
+      ...
+    1..4
+ok 45 - Task B7: Email Provider Abstraction (Brevo + Resend Fallback)
+  ---
+  duration_ms: 184.95475
+  type: 'suite'
+  ...
+# [Email] All email delivery providers failed. Queuing message to c2-production@example.test into EmailOutbox for background retry.
+# [DevEmailOutbox] Sent to: c2-test@example.test | Subject: Recorded in the test outbox | Link: http://127.0.0.1:3045/reset-password?token=[REDACTED_TOKEN]
+# Subtest: C2 email transport fails closed in production
+    # Subtest: reports failure in production when no provider key is configured
+    ok 1 - reports failure in production when no provider key is configured
+      ---
+      duration_ms: 64.544541
+      type: 'test'
+      ...
+    # Subtest: still records to the outbox in the test environment
+    ok 2 - still records to the outbox in the test environment
+      ---
+      duration_ms: 4.032417
+      type: 'test'
+      ...
+    1..2
+ok 46 - C2 email transport fails closed in production
+  ---
+  duration_ms: 70.010625
+  type: 'suite'
+  ...
+# Subtest: Task E: .env.example Completeness Enforcer
+    # Subtest: Every process.env variable used in app code must be documented in .env.example
+    ok 1 - Every process.env variable used in app code must be documented in .env.example
+      ---
+      duration_ms: 250.753459
+      type: 'test'
+      ...
+    # Subtest: Sentry error monitoring variables are documented in .env.example as OPTIONAL
+    ok 2 - Sentry error monitoring variables are documented in .env.example as OPTIONAL
+      ---
+      duration_ms: 0.301083
+      type: 'test'
+      ...
+    1..2
+ok 47 - Task E: .env.example Completeness Enforcer
+  ---
+  duration_ms: 251.876125
+  type: 'suite'
+  ...
+# Razorpay credentials not configured
+# RAZORPAY_KEY_SECRET is not configured; cannot verify payment signature
+# Subtest: S3 configuration guards (B-013)
+    # Subtest: getS3Url throws an explicit error instead of building an 'undefined' URL
+    ok 1 - getS3Url throws an explicit error instead of building an 'undefined' URL
+      ---
+      duration_ms: 1.593458
+      type: 'test'
+      ...
+    # Subtest: generatePresignedUrl rejects with the explicit configuration error
+    ok 2 - generatePresignedUrl rejects with the explicit configuration error
+      ---
+      duration_ms: 0.45525
+      type: 'test'
+      ...
+    # Subtest: deleteFromS3 rejects with the explicit configuration error
+    ok 3 - deleteFromS3 rejects with the explicit configuration error
+      ---
+      duration_ms: 0.407041
+      type: 'test'
+      ...
+    # Subtest: still builds a normal S3 URL when the bucket is configured
+    ok 4 - still builds a normal S3 URL when the bucket is configured
+      ---
+      duration_ms: 0.404125
+      type: 'test'
+      ...
+    1..4
+ok 48 - S3 configuration guards (B-013)
+  ---
+  duration_ms: 3.755792
+  type: 'suite'
+  ...
+# Subtest: Razorpay signature guards (B-012)
+    # Subtest: verifyRazorpaySignature returns false (never throws) when the secret is missing
+    ok 1 - verifyRazorpaySignature returns false (never throws) when the secret is missing
+      ---
+      duration_ms: 0.35875
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpaySignature accepts a correctly signed payload
+    ok 2 - verifyRazorpaySignature accepts a correctly signed payload
+      ---
+      duration_ms: 0.606333
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpayWebhookSignature never falls back to RAZORPAY_KEY_SECRET
+    ok 3 - verifyRazorpayWebhookSignature never falls back to RAZORPAY_KEY_SECRET
+      ---
+      duration_ms: 0.179
+      type: 'test'
+      ...
+    # Subtest: verifyRazorpayWebhookSignature accepts a correctly signed webhook
+    ok 4 - verifyRazorpayWebhookSignature accepts a correctly signed webhook
+      ---
+      duration_ms: 0.307541
+      type: 'test'
+      ...
+    1..4
+ok 49 - Razorpay signature guards (B-012)
+  ---
+  duration_ms: 1.760708
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# [CONTENT_AUDIT_FS] UPDATE EXAM_TEST t-1 by anonymous
+# [CONTENT_AUDIT_FS] BULK_QUICK_FIRST_N_FREE EXAM_TEST t-1,t-2 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE EXAM_TEST t-1 by anonymous
+# [CONTENT_AUDIT_FS] BULK_REVERT_STATES EXAM_TEST t-1,t-2 by anonymous
+# [CONTENT_AUDIT_FS] ARCHIVE EXAM_TEST test-preserve-1 by anonymous
+# [CONTENT_AUDIT_FS] RESTORE_VERSION EXAM_TEST test-preserve-1 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE EXAM_TEST test-detach-1 by anonymous
+# [CONTENT_AUDIT_FS] UPDATE EXAM_SERIES entity-456 by anonymous
+# Subtest: Automated Checklist Scenarios Integration Suite
+    # Subtest: Scenario 1: Change package slug and resolve via history returns package
+    ok 1 - Scenario 1: Change package slug and resolve via history returns package
+      ---
+      duration_ms: 13.8945
+      type: 'test'
+      ...
+    # Subtest: Scenario 2: Make first N free applies access, and Undo restores state
+    ok 2 - Scenario 2: Make first N free applies access, and Undo restores state
+      ---
+      duration_ms: 5.975458
+      type: 'test'
+      ...
+    # Subtest: Scenario 3: N=-1 and N greater than total tests are rejected
+    ok 3 - Scenario 3: N=-1 and N greater than total tests are rejected
+      ---
+      duration_ms: 0.353625
+      type: 'test'
+      ...
+    # Subtest: Scenario 4: Soft delete (archive) when attempts exist, hard delete when empty
+    ok 4 - Scenario 4: Soft delete (archive) when attempts exist, hard delete when empty
+      ---
+      duration_ms: 0.292375
+      type: 'test'
+      ...
+    # Subtest: Scenario 5: Teacher mutating another author's package gets 403
+    ok 5 - Scenario 5: Teacher mutating another author's package gets 403
+      ---
+      duration_ms: 0.765125
+      type: 'test'
+      ...
+    # Subtest: Scenario 6: IDOR cross-package tampering is blocked
+    ok 6 - Scenario 6: IDOR cross-package tampering is blocked
+      ---
+      duration_ms: 0.307458
+      type: 'test'
+      ...
+    # Subtest: Scenario 7: ts_demo_role cookie authorizes no mutation in production
+    ok 7 - Scenario 7: ts_demo_role cookie authorizes no mutation in production
+      ---
+      duration_ms: 0.224166
+      type: 'test'
+      ...
+    # Subtest: Scenario 8: Archive test then restore it preserves attempts
+    ok 8 - Scenario 8: Archive test then restore it preserves attempts
+      ---
+      duration_ms: 1.180542
+      type: 'test'
+      ...
+    # Subtest: Scenario 9: Detach test moves to Unassigned series excluded from catalogue
+    ok 9 - Scenario 9: Detach test moves to Unassigned series excluded from catalogue
+      ---
+      duration_ms: 0.7275
+      type: 'test'
+      ...
+    # Subtest: Scenario 10: Concurrent save rejected with 409 conflict when updatedAt differs
+    ok 10 - Scenario 10: Concurrent save rejected with 409 conflict when updatedAt differs
+      ---
+      duration_ms: 0.3905
+      type: 'test'
+      ...
+    # Subtest: Scenario 11: writeDualAuditLog writes dual audit logs
+    ok 11 - Scenario 11: writeDualAuditLog writes dual audit logs
+      ---
+      duration_ms: 0.538458
+      type: 'test'
+      ...
+    # Subtest: Scenario 12: Undo rejects with 409 if tests were modified by another session
+    ok 12 - Scenario 12: Undo rejects with 409 if tests were modified by another session
+      ---
+      duration_ms: 0.253
+      type: 'test'
+      ...
+    # Subtest: Scenario 13: Toast duration constant is set to 20 seconds
+    ok 13 - Scenario 13: Toast duration constant is set to 20 seconds
+      ---
+      duration_ms: 0.124417
+      type: 'test'
+      ...
+    1..13
+ok 50 - Automated Checklist Scenarios Integration Suite
+  ---
+  duration_ms: 26.195167
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P0-1: Exam Deadline Before Write Verification
+    # Subtest: 1. Boundary check: 60 min test with 30s grace allows writes at +20s but rejects at +31s
+    ok 1 - 1. Boundary check: 60 min test with 30s grace allows writes at +20s but rejects at +31s
+      ---
+      duration_ms: 0.821042
+      type: 'test'
+      ...
+    # Subtest: 2. syncAttemptAnswers past deadline writes zero rows to ExamAttemptAnswer
+    ok 2 - 2. syncAttemptAnswers past deadline writes zero rows to ExamAttemptAnswer
+      ---
+      duration_ms: 34.924292
+      type: 'test'
+      ...
+    # Subtest: 3. submitTestAttempt past deadline writes zero final answer rows but completes grading
+    ok 3 - 3. submitTestAttempt past deadline writes zero final answer rows but completes grading
+      ---
+      duration_ms: 48.144625
+      type: 'test'
+      ...
+    # Subtest: 4. Attempt already submitted rejects concurrent sync writes
+    ok 4 - 4. Attempt already submitted rejects concurrent sync writes
+      ---
+      duration_ms: 5.970375
+      type: 'test'
+      ...
+    1..4
+ok 51 - P0-1: Exam Deadline Before Write Verification
+  ---
+  duration_ms: 184.569083
+  type: 'suite'
+  ...
+# Subtest: verifyMutationAuth Unit Tests
+    # Subtest: rejects mutation when session is missing and no demo cookie provided
+    ok 1 - rejects mutation when session is missing and no demo cookie provided
+      ---
+      duration_ms: 12.138209
+      type: 'test'
+      ...
+    # Subtest: rejects mutation for non-creator student role
+    ok 2 - rejects mutation for non-creator student role
+      ---
+      duration_ms: 0.189542
+      type: 'test'
+      ...
+    # Subtest: blocks ts_demo_role cookie fallback in production environment
+    ok 3 - blocks ts_demo_role cookie fallback in production environment
+      ---
+      duration_ms: 0.149666
+      type: 'test'
+      ...
+    # Subtest: enforces teacher ownership: rejects teacher trying to mutate another author's content
+    ok 4 - enforces teacher ownership: rejects teacher trying to mutate another author's content
+      ---
+      duration_ms: 0.17825
+      type: 'test'
+      ...
+    # Subtest: authorizes teacher mutating their own content
+    ok 5 - authorizes teacher mutating their own content
+      ---
+      duration_ms: 0.083042
+      type: 'test'
+      ...
+    # Subtest: admin bypasses teacher ownership check
+    ok 6 - admin bypasses teacher ownership check
+      ---
+      duration_ms: 0.066667
+      type: 'test'
+      ...
+    1..6
+ok 52 - verifyMutationAuth Unit Tests
+  ---
+  duration_ms: 13.677084
+  type: 'suite'
+  ...
+# Subtest: IDOR Protection Unit Tests (verifyTestBelongsToPackage)
+    # Subtest: allows test when seriesId matches packageId
+    ok 1 - allows test when seriesId matches packageId
+      ---
+      duration_ms: 0.225709
+      type: 'test'
+      ...
+    # Subtest: blocks test when seriesId does not match packageId (cross-package tampering IDOR)
+    ok 2 - blocks test when seriesId does not match packageId (cross-package tampering IDOR)
+      ---
+      duration_ms: 0.376167
+      type: 'test'
+      ...
+    # Subtest: blocks test when testSeriesId is missing
+    ok 3 - blocks test when testSeriesId is missing
+      ---
+      duration_ms: 0.152542
+      type: 'test'
+      ...
+    1..3
+ok 53 - IDOR Protection Unit Tests (verifyTestBelongsToPackage)
+  ---
+  duration_ms: 1.108917
+  type: 'suite'
+  ...
+# Subtest: Soft vs Hard Delete Decision Unit Tests (decideDeleteAction)
+    # Subtest: decides hard_delete when item has 0 attempts, 0 enrollments, and 0 payments
+    ok 1 - decides hard_delete when item has 0 attempts, 0 enrollments, and 0 payments
+      ---
+      duration_ms: 0.176375
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has student attempts
+    ok 2 - decides archive (soft delete) when item has student attempts
+      ---
+      duration_ms: 0.064125
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has active enrollments
+    ok 3 - decides archive (soft delete) when item has active enrollments
+      ---
+      duration_ms: 0.055916
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has verified payments
+    ok 4 - decides archive (soft delete) when item has verified payments
+      ---
+      duration_ms: 0.048416
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has multiple dependencies
+    ok 5 - decides archive (soft delete) when item has multiple dependencies
+      ---
+      duration_ms: 0.046375
+      type: 'test'
+      ...
+    1..5
+ok 54 - Soft vs Hard Delete Decision Unit Tests (decideDeleteAction)
+  ---
+  duration_ms: 0.492209
+  type: 'suite'
+  ...
+# Subtest: Exam Metrics & Single Source of Truth Tests
+    # Subtest: calculatePackageMetricsSummary correctly computes status and attempt counts
+    ok 1 - calculatePackageMetricsSummary correctly computes status and attempt counts
+      ---
+      duration_ms: 12.082291
+      type: 'test'
+      ...
+    # Subtest: calculatePackageMetricsSummary handles empty array safely
+    ok 2 - calculatePackageMetricsSummary handles empty array safely
+      ---
+      duration_ms: 0.173625
+      type: 'test'
+      ...
+    # Subtest: computePackageMetrics calculates average score percentage correctly without zero division
+    ok 3 - computePackageMetrics calculates average score percentage correctly without zero division
+      ---
+      duration_ms: 0.286417
+      type: 'test'
+      ...
+    # Subtest: computePackageMetrics safely handles series with 0 attempts and 0 tests
+    ok 4 - computePackageMetrics safely handles series with 0 attempts and 0 tests
+      ---
+      duration_ms: 0.1825
+      type: 'test'
+      ...
+    # Subtest: isAnalyticsUser correctly filters out staff and test emails
+    ok 5 - isAnalyticsUser correctly filters out staff and test emails
+      ---
+      duration_ms: 0.109208
+      type: 'test'
+      ...
+    # Subtest: getAnalyticsUserWhere returns role excluding staff and test domains
+    ok 6 - getAnalyticsUserWhere returns role excluding staff and test domains
+      ---
+      duration_ms: 0.592333
+      type: 'test'
+      ...
+    1..6
+ok 55 - Exam Metrics & Single Source of Truth Tests
+  ---
+  duration_ms: 14.309042
+  type: 'suite'
+  ...
+# Subtest: Exam Labels & Enums Formatting Tests
+    # Subtest: formatTestType maps test types correctly
+    ok 1 - formatTestType maps test types correctly
+      ---
+      duration_ms: 0.332167
+      type: 'test'
+      ...
+    # Subtest: formatDifficulty maps difficulties correctly
+    ok 2 - formatDifficulty maps difficulties correctly
+      ---
+      duration_ms: 0.348375
+      type: 'test'
+      ...
+    # Subtest: formatLanguage maps language codes correctly
+    ok 3 - formatLanguage maps language codes correctly
+      ---
+      duration_ms: 0.182875
+      type: 'test'
+      ...
+    1..3
+ok 56 - Exam Labels & Enums Formatting Tests
+  ---
+  duration_ms: 1.261208
+  type: 'suite'
+  ...
+# Subtest: System Series Slugs Tests
+    # Subtest: SYSTEM_SERIES_SLUGS contains unassigned tests system series
+    ok 1 - SYSTEM_SERIES_SLUGS contains unassigned tests system series
+      ---
+      duration_ms: 0.137709
+      type: 'test'
+      ...
+    1..1
+ok 57 - System Series Slugs Tests
+  ---
+  duration_ms: 0.196459
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: P0-2: Correct Ranking Design Suite
+    # Subtest: 1. Ties and 1, 2, 2, 4 tie rule parity with legacy calculation
+    ok 1 - 1. Ties and 1, 2, 2, 4 tie rule parity with legacy calculation
+      ---
+      duration_ms: 54.031459
+      type: 'test'
+      ...
+    # Subtest: 2. Submitter rank non-null right after submit with cache warm and cold
+    ok 2 - 2. Submitter rank non-null right after submit with cache warm and cold
+      ---
+      duration_ms: 11.559041
+      type: 'test'
+      ...
+    # Subtest: 3. Percentile bounds: exactly 100 for sole candidate, between 0 and 100 for N candidates
+    ok 3 - 3. Percentile bounds: exactly 100 for sole candidate, between 0 and 100 for N candidates
+      ---
+      duration_ms: 13.353792
+      type: 'test'
+      ...
+    # Subtest: 4. 2 concurrent submits both receive non-null rankings and correct total counts
+    ok 4 - 4. 2 concurrent submits both receive non-null rankings and correct total counts
+      ---
+      duration_ms: 36.39625
+      type: 'test'
+      ...
+    1..4
+ok 58 - P0-2: Correct Ranking Design Suite
+  ---
+  duration_ms: 201.718958
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Generating 1000 synthetic randomized attempt datasets...
+# Bulk inserting 1000 attempts...
+# Verifying 100 random samples between SQL live-rank and independent in-memory reference...
+# Property test passed: 100% of sampled attempts matched independent reference ranking!
+# Subtest: Task A8: Ranking Correctness & Concurrency Suite
+    # Subtest: A8(a) Property Test: 1000+ random datasets match independent reference 100%
+    ok 1 - A8(a) Property Test: 1000+ random datasets match independent reference 100%
+      ---
+      duration_ms: 1445.298959
+      type: 'test'
+      ...
+# Consistency test passed: Live rank strictly equals top-N list positions!
+    # Subtest: A8(b) Consistency: Live rank equals position in fully sorted list & top-N never contradicts it
+    ok 2 - A8(b) Consistency: Live rank equals position in fully sorted list & top-N never contradicts it
+      ---
+      duration_ms: 131.220042
+      type: 'test'
+      ...
+# Concurrency test passed: 50 simultaneous submits received unique-consistent ranks (1..50)!
+    # Subtest: A8(d) Concurrency: 50 simultaneous submits; every submitter gets non-null unique-consistent rank
+    ok 3 - A8(d) Concurrency: 50 simultaneous submits; every submitter gets non-null unique-consistent rank
+      ---
+      duration_ms: 192.041542
+      type: 'test'
+      ...
+    1..3
+ok 59 - Task A8: Ranking Correctness & Concurrency Suite
+  ---
+  duration_ms: 1815.170125
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# (node:99818) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: P1-5: Exam Route Rate Limiting Hardening
+    # Subtest: Flag OFF: rate limiter allows requests indefinitely without 429
+    ok 1 - Flag OFF: rate limiter allows requests indefinitely without 429
+      ---
+      duration_ms: 15.853542
+      type: 'test'
+      ...
+    # Subtest: Flag ON: bursts exceeding limit are rejected with 429 and Retry-After header (Web)
+    ok 2 - Flag ON: bursts exceeding limit are rejected with 429 and Retry-After header (Web)
+      ---
+      duration_ms: 38.37875
+      type: 'test'
+      ...
+    # Subtest: Flag ON: bursts exceeding limit are rejected with 429 and Retry-After header (Mobile v1)
+    ok 3 - Flag ON: bursts exceeding limit are rejected with 429 and Retry-After header (Mobile v1)
+      ---
+      duration_ms: 16.1885
+      type: 'test'
+      ...
+    1..3
+ok 60 - P1-5: Exam Route Rate Limiting Hardening
+  ---
+  duration_ms: 71.411458
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Starting 50-attempt golden replay comparison...
+# Subtest: Exam Runtime Performance Optimizations & Parity Suite
+    # Subtest: TEST 1: Zero leakage in question set delivery and cache
+    ok 1 - TEST 1: Zero leakage in question set delivery and cache
+      ---
+      duration_ms: 25.302292
+      type: 'test'
+      ...
+    # Subtest: TEST 2: Cloudflare CF-Connecting-IP extraction when TRUST_PROXY=true
+    ok 2 - TEST 2: Cloudflare CF-Connecting-IP extraction when TRUST_PROXY=true
+      ---
+      duration_ms: 14.853375
+      type: 'test'
+      ...
+# All 50 attempts produced 100% byte-identical scoring, percentile and rank across both legacy and fast paths!
+    # Subtest: TEST 3: Golden Parity Replay of 50 Attempts (Legacy vs Fast Optimization)
+    ok 3 - TEST 3: Golden Parity Replay of 50 Attempts (Legacy vs Fast Optimization)
+      ---
+      duration_ms: 2448.589875
+      type: 'test'
+      ...
+    # Subtest: TEST 4: Batch Sync Equivalence & Monotonic Sequence Guard
+    ok 4 - TEST 4: Batch Sync Equivalence & Monotonic Sequence Guard
+      ---
+      duration_ms: 202.914875
+      type: 'test'
+      ...
+    # Subtest: TEST 5: Intentional Parity Diff - Deadline Check Before Write Ordering
+    ok 5 - TEST 5: Intentional Parity Diff - Deadline Check Before Write Ordering
+      ---
+      duration_ms: 9.865292
+      type: 'test'
+      ...
+    # Subtest: TEST 6: Intentional Parity Diff - Concurrency Submission Status Lock (Idempotent 5x Concurrent Submits)
+    ok 6 - TEST 6: Intentional Parity Diff - Concurrency Submission Status Lock (Idempotent 5x Concurrent Submits)
+      ---
+      duration_ms: 77.888875
+      type: 'test'
+      ...
+    # Subtest: TEST 7: Intentional Parity Diff - clientSeq Null Coalescing
+    ok 7 - TEST 7: Intentional Parity Diff - clientSeq Null Coalescing
+      ---
+      duration_ms: 8.626917
+      type: 'test'
+      ...
+    # Subtest: TEST 8: Intentional Parity Diff - Live Submitter Rank and Authoritative Percentile
+    ok 8 - TEST 8: Intentional Parity Diff - Live Submitter Rank and Authoritative Percentile
+      ---
+      duration_ms: 11.412125
+      type: 'test'
+      ...
+    1..8
+ok 61 - Exam Runtime Performance Optimizations & Parity Suite
+  ---
+  duration_ms: 2917.704583
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# [E.1] Stale read observed when question is edited: true
+# Subtest: Task E: Correctness & Edge Case Verification Suite
+    # Subtest: E.1: Question cache invalidation & stale read measurement
+    ok 1 - E.1: Question cache invalidation & stale read measurement
+      ---
+      duration_ms: 36.240416
+      type: 'test'
+      ...
+# [E.2] User 2 Graded Result allIndiaRank: 1, percentile: 100
+    # Subtest: E.2: Rank and percentile right after student submit with Leaderboard Cache ON
+    ok 2 - E.2: Rank and percentile right after student submit with Leaderboard Cache ON
+      ---
+      duration_ms: 78.842666
+      type: 'test'
+      ...
+# [E.2b] Candidate A rank: 1, Candidate B rank: 1
+    # Subtest: E.2b: Leaderboard tie-breaking logic audit
+    ok 3 - E.2b: Leaderboard tie-breaking logic audit
+      ---
+      duration_ms: 11.475417
+      type: 'test'
+      ...
+    # Subtest: E.3: Deadline grace period enforcement check
+    ok 4 - E.3: Deadline grace period enforcement check
+      ---
+      duration_ms: 1.665083
+      type: 'test'
+      ...
+    # Subtest: E.4: clientSeq edge cases with raw SQL upsert
+    ok 5 - E.4: clientSeq edge cases with raw SQL upsert
+      ---
+      duration_ms: 13.639708
+      type: 'test'
+      ...
+    # Subtest: E.5: FAST_GRADING edge cases (0 answers, 1 answer, unanswered, deleted, null correctOption)
+    ok 6 - E.5: FAST_GRADING edge cases (0 answers, 1 answer, unanswered, deleted, null correctOption)
+      ---
+      duration_ms: 45.53125
+      type: 'test'
+      ...
+    # Subtest: E.6: Zero-leakage verified on question payload
+    ok 7 - E.6: Zero-leakage verified on question payload
+      ---
+      duration_ms: 0.374791
+      type: 'test'
+      ...
+    1..7
+ok 62 - Task E: Correctness & Edge Case Verification Suite
+  ---
+  duration_ms: 420.190042
+  type: 'suite'
+  ...
+# Subtest: R15-2: Gitleaks Configuration Verification
+    # Subtest: G-R15-01: .gitleaks.toml exists, extends default, and has exactly one path allowlist for docs/evidence/raw
+    ok 1 - G-R15-01: .gitleaks.toml exists, extends default, and has exactly one path allowlist for docs/evidence/raw
+      ---
+      duration_ms: 1.536959
+      type: 'test'
+      ...
+    1..1
+ok 63 - R15-2: Gitleaks Configuration Verification
+  ---
+  duration_ms: 2.17675
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task B1: Google OAuth & Mobile Token Security Verification
+    # Subtest: 1. verifyGoogleIdToken succeeds for legitimate token with email_verified=true
+    ok 1 - 1. verifyGoogleIdToken succeeds for legitimate token with email_verified=true
+      ---
+      duration_ms: 21.249333
+      type: 'test'
+      ...
+    # Subtest: 2. Security: verifyGoogleIdToken rejects unverified email (prevents account takeover)
+    ok 2 - 2. Security: verifyGoogleIdToken rejects unverified email (prevents account takeover)
+      ---
+      duration_ms: 1.678875
+      type: 'test'
+      ...
+    # Subtest: 3. Security: verifyGoogleIdToken rejects untrusted audience
+    ok 3 - 3. Security: verifyGoogleIdToken rejects untrusted audience
+      ---
+      duration_ms: 0.996708
+      type: 'test'
+      ...
+    # Subtest: 4. Security: verifyGoogleIdToken rejects untrusted issuer
+    ok 4 - 4. Security: verifyGoogleIdToken rejects untrusted issuer
+      ---
+      duration_ms: 0.746583
+      type: 'test'
+      ...
+    # Subtest: 5. Security: verifyGoogleIdToken rejects expired token
+    ok 5 - 5. Security: verifyGoogleIdToken rejects expired token
+      ---
+      duration_ms: 1.346
+      type: 'test'
+      ...
+    # Subtest: 6. Mobile endpoint POST /api/v1/auth/google verifies token and creates session
+    ok 6 - 6. Mobile endpoint POST /api/v1/auth/google verifies token and creates session
+      ---
+      duration_ms: 87.702083
+      type: 'test'
+      ...
+    # Subtest: 7. Mobile endpoint rejects account takeover when email is unverified
+    ok 7 - 7. Mobile endpoint rejects account takeover when email is unverified
+      ---
+      duration_ms: 10.626666
+      type: 'test'
+      ...
+# [OAuth Security] Google signin rejected: email_verified is false or missing for [REDACTED_EMAIL]@example.com
+    # Subtest: 8. Web signIn callback rejects unverified Google email (account takeover defense)
+    ok 8 - 8. Web signIn callback rejects unverified Google email (account takeover defense)
+      ---
+      duration_ms: 5.682292
+      type: 'test'
+      ...
+    # Subtest: 9. Web signIn callback links verified Google account to existing user
+    ok 9 - 9. Web signIn callback links verified Google account to existing user
+      ---
+      duration_ms: 12.329541
+      type: 'test'
+      ...
+    # Subtest: 10. Web signIn callback rejects deactivated existing user
+    ok 10 - 10. Web signIn callback rejects deactivated existing user
+      ---
+      duration_ms: 4.547458
+      type: 'test'
+      ...
+    1..10
+ok 64 - Task B1: Google OAuth & Mobile Token Security Verification
+  ---
+  duration_ms: 148.453833
+  type: 'suite'
+  ...
+# Subtest: Phase 0 Safety Harness: Test DB & Environment Guards
+    # Subtest: guardTestDatabase accepts valid local docker test DB URLs
+    ok 1 - guardTestDatabase accepts valid local docker test DB URLs
+      ---
+      duration_ms: 0.766708
+      type: 'test'
+      ...
+    # Subtest: guardTestDatabase rejects supabase.co URLs explicitly
+    ok 2 - guardTestDatabase rejects supabase.co URLs explicitly
+      ---
+      duration_ms: 0.331084
+      type: 'test'
+      ...
+    # Subtest: guardTestDatabase rejects unauthorized hosts and ports
+    ok 3 - guardTestDatabase rejects unauthorized hosts and ports
+      ---
+      duration_ms: 0.13975
+      type: 'test'
+      ...
+    # Subtest: assertNoEnvLocal detects .env.local in directory
+    ok 4 - assertNoEnvLocal detects .env.local in directory
+      ---
+      duration_ms: 0.738292
+      type: 'test'
+      ...
+    # Subtest: assertNoSupabaseEnv detects supabase.co in any env var
+    ok 5 - assertNoSupabaseEnv detects supabase.co in any env var
+      ---
+      duration_ms: 0.352833
+      type: 'test'
+      ...
+    1..5
+ok 65 - Phase 0 Safety Harness: Test DB & Environment Guards
+  ---
+  duration_ms: 3.205459
+  type: 'suite'
+  ...
+# Subtest: Task G4: /api/health Completeness & Hardening
+    # Subtest: 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
+    ok 1 - 1. Returns 200 OK with complete detailed telemetry when token is valid or unset
+      ---
+      duration_ms: 71.188292
+      type: 'test'
+      ...
+    # Subtest: 2. Correct 'pending migrations' detection when unapplied migration exists on disk
+    ok 2 - 2. Correct 'pending migrations' detection when unapplied migration exists on disk
+      ---
+      duration_ms: 28.378084
+      type: 'test'
+      ...
+    # Subtest: 3. Migration status is cached for 60 seconds
+    ok 3 - 3. Migration status is cached for 60 seconds
+      ---
+      duration_ms: 53.6705
+      type: 'test'
+      ...
+    # Subtest: 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
+    ok 4 - 4. Details hidden behind HEALTH_DETAILS_TOKEN when configured
+      ---
+      duration_ms: 52.745167
+      type: 'test'
+      ...
+    # Subtest: 5. Zero credential or secret string leakage across all response bodies
+    ok 5 - 5. Zero credential or secret string leakage across all response bodies
+      ---
+      duration_ms: 28.537417
+      type: 'test'
+      ...
+    # Subtest: 6. Health endpoint works in read-only filesystem environment (zero file writes)
+    ok 6 - 6. Health endpoint works in read-only filesystem environment (zero file writes)
+      ---
+      duration_ms: 26.301
+      type: 'test'
+      ...
+    1..6
+ok 66 - Task G4: /api/health Completeness & Hardening
+  ---
+  duration_ms: 262.02875
+  type: 'suite'
+  ...
+# Subtest: Task B12: Health Endpoint Verification
+    # Subtest: 1. Returns 200 with status ok, uptime, timestamp, commit SHA, and db latency in ms
+    ok 1 - 1. Returns 200 with status ok, uptime, timestamp, commit SHA, and db latency in ms
+      ---
+      duration_ms: 70.072333
+      type: 'test'
+      ...
+    # Subtest: 2. Does not leak connection strings, passwords, or secrets in response body
+    ok 2 - 2. Does not leak connection strings, passwords, or secrets in response body
+      ---
+      duration_ms: 24.546083
+      type: 'test'
+      ...
+    1..2
+ok 67 - Task B12: Health Endpoint Verification
+  ---
+  duration_ms: 95.504125
+  type: 'suite'
+  ...
+# Subtest: Task G4 remediation: non-vacuous health secret-leak guard
+    # Subtest: 1. Guard is non-vacuous: at least 10 secret-like env values are actually checked
+    ok 1 - 1. Guard is non-vacuous: at least 10 secret-like env values are actually checked
+      ---
+      duration_ms: 12.600291
+      type: 'test'
+      ...
+    # Subtest: 2. Neither the public nor the detailed response leaks any secret value
+    ok 2 - 2. Neither the public nor the detailed response leaks any secret value
+      ---
+      duration_ms: 129.677583
+      type: 'test'
+      ...
+    # Subtest: 3. The detailed response exposes only documented non-secret telemetry fields
+    ok 3 - 3. The detailed response exposes only documented non-secret telemetry fields
+      ---
+      duration_ms: 57.132041
+      type: 'test'
+      ...
+    # Subtest: 4. The public response hides details when HEALTH_DETAILS_TOKEN is set
+    ok 4 - 4. The public response hides details when HEALTH_DETAILS_TOKEN is set
+      ---
+      duration_ms: 38.529917
+      type: 'test'
+      ...
+    1..4
+ok 68 - Task G4 remediation: non-vacuous health secret-leak guard
+  ---
+  duration_ms: 238.95225
+  type: 'suite'
+  ...
+# Subtest: B-017: hook dependency arrays are exhaustive
+    # Subtest: reports no react-hooks/exhaustive-deps warnings in the fixed components
+    ok 1 - reports no react-hooks/exhaustive-deps warnings in the fixed components
+      ---
+      duration_ms: 3604.0085
+      type: 'test'
+      ...
+    1..1
+ok 69 - B-017: hook dependency arrays are exhaustive
+  ---
+  duration_ms: 3605.903834
+  type: 'suite'
+  ...
+# Subtest: R12-I: Codebase Hygiene Guards
+    # Subtest: I-R12-01: LICENSE file exists with 'All rights reserved' and legal entity name
+    ok 1 - I-R12-01: LICENSE file exists with 'All rights reserved' and legal entity name
+      ---
+      duration_ms: 1.76025
+      type: 'test'
+      ...
+    # Subtest: I-R12-02: Server code in lib/ and app/api/ does not contain unauthorized console.log
+    ok 2 - I-R12-02: Server code in lib/ and app/api/ does not contain unauthorized console.log
+      ---
+      duration_ms: 85.128541
+      type: 'test'
+      ...
+    # Subtest: I-R12-03: No supabase.co in non-test application code or configuration
+    ok 3 - I-R12-03: No supabase.co in non-test application code or configuration
+      ---
+      duration_ms: 240.21
+      type: 'test'
+      ...
+    # Subtest: I-R12-04: Auth appUrl resolution fails closed in production and falls back in dev/test
+    ok 4 - I-R12-04: Auth appUrl resolution fails closed in production and falls back in dev/test
+      ---
+      duration_ms: 0.636208
+      type: 'test'
+      ...
+    # Subtest: I-R12-05: Tracked files inventory over 1MB is audited and accounted for
+    ok 5 - I-R12-05: Tracked files inventory over 1MB is audited and accounted for
+      ---
+      duration_ms: 83.466375
+      type: 'test'
+      ...
+    1..5
+ok 70 - R12-I: Codebase Hygiene Guards
+  ---
+  duration_ms: 412.299875
+  type: 'suite'
+  ...
+# Subtest: C3 index coverage for the fixed queries
+    # Subtest: has every new index in the database
+    ok 1 - has every new index in the database
+      ---
+      duration_ms: 15.973625
+      type: 'test'
+      ...
+    # Subtest: each index covers the exact filter/sort columns its query uses
+    ok 2 - each index covers the exact filter/sort columns its query uses
+      ---
+      duration_ms: 26.323834
+      type: 'test'
+      ...
+    # Subtest: the C3 migration is additive only
+    ok 3 - the C3 migration is additive only
+      ---
+      duration_ms: 2.737
+      type: 'test'
+      ...
+    1..3
+ok 71 - C3 index coverage for the fixed queries
+  ---
+  duration_ms: 84.738416
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task B6: Legal Pages, Contact Form & Data Deletion
+    # Subtest: Public Data Deletion Form
+        # Subtest: 1. Rejects missing or invalid email address
+        ok 1 - 1. Rejects missing or invalid email address
+          ---
+          duration_ms: 62.631917
+          type: 'test'
+          ...
+        # Subtest: 2. Rejects request without typing DELETE confirmation
+        ok 2 - 2. Rejects request without typing DELETE confirmation
+          ---
+          duration_ms: 4.696875
+          type: 'test'
+          ...
+# [DevEmailOutbox] Sent to: [REDACTED_EMAIL]@example.com | Subject: Account Data Deletion Request Received - AspirantBook | Link: none
+        # Subtest: 3. Successfully records data deletion request in DB and links userId if user exists
+        ok 3 - 3. Successfully records data deletion request in DB and links userId if user exists
+          ---
+          duration_ms: 14.354167
+          type: 'test'
+          ...
+        1..3
+    ok 1 - Public Data Deletion Form
+      ---
+      duration_ms: 82.517459
+      type: 'suite'
+      ...
+    # Subtest: Contact Form Submission
+        # Subtest: 4. Rejects incomplete contact form fields
+        ok 1 - 4. Rejects incomplete contact form fields
+          ---
+          duration_ms: 3.696417
+          type: 'test'
+          ...
+        # Subtest: 5. Successfully records contact message in form submission storage
+        ok 2 - 5. Successfully records contact message in form submission storage
+          ---
+          duration_ms: 6.90325
+          type: 'test'
+          ...
+        1..2
+    ok 2 - Contact Form Submission
+      ---
+      duration_ms: 10.9345
+      type: 'suite'
+      ...
+    1..2
+ok 72 - Task B6: Legal Pages, Contact Form & Data Deletion
+  ---
+  duration_ms: 326.125209
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# [P1-6 Query Counts] Legacy queries for 3 questions: 5 queries (1 findMany + 1 createMany + 3 updates in $tx) vs Flag-ON: 1 raw SQL UNNEST query.
+# Subtest: P1-6: Mobile v1 exam.service.ts perf port & query counts
+    # Subtest: Query counts: flag OFF (legacy) executes multiple queries vs flag ON (batch) executing 1 query
+    ok 1 - Query counts: flag OFF (legacy) executes multiple queries vs flag ON (batch) executing 1 query
+      ---
+      duration_ms: 61.75825
+      type: 'test'
+      ...
+    # Subtest: Submit test attempt grades properly and computes live rank and percentile
+    ok 2 - Submit test attempt grades properly and computes live rank and percentile
+      ---
+      duration_ms: 47.858208
+      type: 'test'
+      ...
+    # Subtest: Deadline rejection: expired attempt sync throws BAD_REQUEST before writing any rows
+    ok 3 - Deadline rejection: expired attempt sync throws BAD_REQUEST before writing any rows
+      ---
+      duration_ms: 6.660208
+      type: 'test'
+      ...
+    1..3
+ok 73 - P1-6: Mobile v1 exam.service.ts perf port & query counts
+  ---
+  duration_ms: 204.475333
+  type: 'suite'
+  ...
+# [DbEmailOutbox] Stored to: [REDACTED_EMAIL]@example.com | Subject: Test DB Outbox Subject | Link: none
+# Subtest: Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+    # Subtest: 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+    ok 1 - 1. Email Outbox writes to Postgres when PERSIST_BACKEND=db with zero fs operations
+      ---
+      duration_ms: 34.319333
+      type: 'test'
+      ...
+    # Subtest: 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+    ok 2 - 2. Student Doubt writes to Postgres Doubt table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 15.461625
+      type: 'test'
+      ...
+    # Subtest: 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+    ok 3 - 3. Form submission writes to Postgres FormSubmission table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 8.883542
+      type: 'test'
+      ...
+# [CONTENT_AUDIT] UPDATE COURSE entity_1793541072566 by anonymous
+    # Subtest: 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+    ok 4 - 4. Audit event writes to Postgres AuditEvent table when PERSIST_BACKEND=db
+      ---
+      duration_ms: 6.42375
+      type: 'test'
+      ...
+# [DevEmailOutbox] Sent to: [REDACTED_EMAIL]@example.com | Subject: Legacy FS Outbox Subject | Link: none
+    # Subtest: 5. S3/MinIO compatible client uploads file and generates signed URL
+    ok 5 - 5. S3/MinIO compatible client uploads file and generates signed URL
+      ---
+      duration_ms: 32.601959
+      type: 'test'
+      ...
+    # Subtest: 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+    ok 6 - 6. Legacy parity: PERSIST_BACKEND=fs persists to legacy file formats
+      ---
+      duration_ms: 2.515208
+      type: 'test'
+      ...
+    1..6
+ok 74 - Task B3: No Local-Disk Writes Suite (PERSIST_BACKEND db & S3/MinIO)
+  ---
+  duration_ms: 119.254667
+  type: 'suite'
+  ...
+# Subtest: B7 money is dual-written in minor units
+    # Subtest: converts major units to exact minor units
+    ok 1 - converts major units to exact minor units
+      ---
+      duration_ms: 1.286792
+      type: 'test'
+      ...
+    # Subtest: dual-writes amountMinor on every production payment write
+    ok 2 - dual-writes amountMinor on every production payment write
+      ---
+      duration_ms: 100.79675
+      type: 'test'
+      ...
+    # Subtest: stores amount and amountMinor consistently on a real row
+    ok 3 - stores amount and amountMinor consistently on a real row
+      ---
+      duration_ms: 14.4285
+      type: 'test'
+      ...
+    # Subtest: indexes Subscription.providerId for the webhook lookups
+    ok 4 - indexes Subscription.providerId for the webhook lookups
+      ---
+      duration_ms: 1.302208
+      type: 'test'
+      ...
+    1..4
+ok 75 - B7 money is dual-written in minor units
+  ---
+  duration_ms: 176.717833
+  type: 'suite'
+  ...
+# Razorpay credentials not configured
+# Subtest: R12-L: Payment mode safety and credentials validation
+    # Subtest: L-R12-01: getPaymentMode returns 'unconfigured' when keys are missing
+    ok 1 - L-R12-01: getPaymentMode returns 'unconfigured' when keys are missing
+      ---
+      duration_ms: 12.632417
+      type: 'test'
+      ...
+    # Subtest: L-R12-02: getPaymentMode returns 'test' when RAZORPAY_KEY_ID starts with rzp_test_
+    ok 2 - L-R12-02: getPaymentMode returns 'test' when RAZORPAY_KEY_ID starts with rzp_test_
+      ---
+      duration_ms: 0.264792
+      type: 'test'
+      ...
+    # Subtest: L-R12-03: getPaymentMode returns 'live' when RAZORPAY_KEY_ID starts with rzp_live_
+    ok 3 - L-R12-03: getPaymentMode returns 'live' when RAZORPAY_KEY_ID starts with rzp_live_
+      ---
+      duration_ms: 0.492791
+      type: 'test'
+      ...
+    # Subtest: L-R12-04: getPaymentMode returns 'unconfigured' for invalid key prefix
+    ok 4 - L-R12-04: getPaymentMode returns 'unconfigured' for invalid key prefix
+      ---
+      duration_ms: 0.4055
+      type: 'test'
+      ...
+# Razorpay webhook secret is not configured; failing closed
+    # Subtest: L-R12-05: getHealthPayload includes paymentMode without leaking key values
+    ok 5 - L-R12-05: getHealthPayload includes paymentMode without leaking key values
+      ---
+      duration_ms: 79.377541
+      type: 'test'
+      ...
+    # Subtest: L-R12-06: Razorpay webhook fails closed (500) without RAZORPAY_WEBHOOK_SECRET
+    ok 6 - L-R12-06: Razorpay webhook fails closed (500) without RAZORPAY_WEBHOOK_SECRET
+      ---
+      duration_ms: 3.7645
+      type: 'test'
+      ...
+    # Subtest: L-R12-07: getRazorpayClient refuses mismatched test server key and live public key
+    ok 7 - L-R12-07: getRazorpayClient refuses mismatched test server key and live public key
+      ---
+      duration_ms: 0.489958
+      type: 'test'
+      ...
+    # Subtest: L-R12-08: getRazorpayClient refuses mismatched live server key and test public key
+    ok 8 - L-R12-08: getRazorpayClient refuses mismatched live server key and test public key
+      ---
+      duration_ms: 0.1995
+      type: 'test'
+      ...
+    # Subtest: L-R12-09: getRazorpayClient refuses test key ID paired with live secret
+    ok 9 - L-R12-09: getRazorpayClient refuses test key ID paired with live secret
+      ---
+      duration_ms: 0.259083
+      type: 'test'
+      ...
+    # Subtest: L-R12-10: getRazorpayClient succeeds with valid matching test credentials
+    ok 10 - L-R12-10: getRazorpayClient succeeds with valid matching test credentials
+      ---
+      duration_ms: 19.920083
+      type: 'test'
+      ...
+    # Subtest: L-R12-11: getRazorpayClient succeeds with valid matching live credentials
+    ok 11 - L-R12-11: getRazorpayClient succeeds with valid matching live credentials
+      ---
+      duration_ms: 0.521416
+      type: 'test'
+      ...
+    1..11
+ok 76 - R12-L: Payment mode safety and credentials validation
+  ---
+  duration_ms: 119.665541
+  type: 'suite'
+  ...
+# [CRITICAL SECURITY REFUSAL AT BOOT] PERSIST_BACKEND resolves to the local-disk backend in NODE_ENV=production! Production deployments are ephemeral and multi-instance: set PERSIST_BACKEND=db.
+# Subtest: R9-S2-F: PERSIST_BACKEND production policy
+    # Subtest: production defaults to the db backend when PERSIST_BACKEND is unset
+    ok 1 - production defaults to the db backend when PERSIST_BACKEND is unset
+      ---
+      duration_ms: 0.89025
+      type: 'test'
+      ...
+    # Subtest: production refuses to boot when PERSIST_BACKEND=fs
+    ok 2 - production refuses to boot when PERSIST_BACKEND=fs
+      ---
+      duration_ms: 0.874459
+      type: 'test'
+      ...
+    # Subtest: production boots when PERSIST_BACKEND=db
+    ok 3 - production boots when PERSIST_BACKEND=db
+      ---
+      duration_ms: 0.353083
+      type: 'test'
+      ...
+    # Subtest: non-production keeps the legacy fs default when PERSIST_BACKEND is unset
+    ok 4 - non-production keeps the legacy fs default when PERSIST_BACKEND is unset
+      ---
+      duration_ms: 0.21925
+      type: 'test'
+      ...
+    # Subtest: an explicit db value wins in non-production
+    ok 5 - an explicit db value wins in non-production
+      ---
+      duration_ms: 0.4455
+      type: 'test'
+      ...
+    1..5
+ok 77 - R9-S2-F: PERSIST_BACKEND production policy
+  ---
+  duration_ms: 3.665041
+  type: 'suite'
+  ...
+# [batches-service] Next data cache unavailable outside a request scope; reading uncached: Invariant: incrementalCache missing in unstable_cache async function readBatchesFileUncached(){const stored=await(0,import_platform_settings.getPlatformSetting)(import_platform_settings.PLATFORM_SETTING_KEYS.batches);return Array.isArray(stored)?stored:[]}
+# Subtest: S5: settings, batches and wishlist persist in the database
+    # Subtest: platform settings round trip through PlatformSetting
+    ok 1 - platform settings round trip through PlatformSetting
+      ---
+      duration_ms: 5.937709
+      type: 'test'
+      ...
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/phase3-settings-batches-wishlist.test.ts:88:19)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: batches are written to the database and read back
+    ok 2 - batches are written to the database and read back
+      ---
+      duration_ms: 23.818333
+      type: 'test'
+      ...
+    # Subtest: two parallel wishlist adds from different users keep both rows
+    ok 3 - two parallel wishlist adds from different users keep both rows
+      ---
+      duration_ms: 38.143375
+      type: 'test'
+      ...
+    # Subtest: never writes the legacy data/*.json files
+    ok 4 - never writes the legacy data/*.json files
+      ---
+      duration_ms: 1.307125
+      type: 'test'
+      ...
+# [cache] revalidateTag("batches") skipped outside a request scope: Error: Invariant: static generation store missing in revalidateTag batches
+#     at revalidate (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:89:11)
+#     at revalidateTag (/Users/praveenkumar/ws-launch/node_modules/next/src/server/web/spec-extension/revalidate.ts:21:10)
+#     at safeRevalidateTags (/Users/praveenkumar/ws-launch/lib/cache-tags.ts:45:7)
+#     at mutateBatches (/Users/praveenkumar/ws-launch/lib/batches-service.ts:158:3)
+#     at async SuiteContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/phase3-settings-batches-wishlist.test.ts:62:39)
+#     at async TestHook.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.runHook (node:internal/test_runner/test:965:9)
+#     at async Suite.run (node:internal/test_runner/test:1443:7)
+#     at async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+    1..4
+ok 78 - S5: settings, batches and wishlist persist in the database
+  ---
+  duration_ms: 156.997667
+  type: 'suite'
+  ...
+# Subtest: PRISMA_LOG_QUERIES Production Guard (O10)
+    # Subtest: strictly disables query logging in production even if PRISMA_LOG_QUERIES=1
+    ok 1 - strictly disables query logging in production even if PRISMA_LOG_QUERIES=1
+      ---
+      duration_ms: 16.803083
+      type: 'test'
+      ...
+    # Subtest: strictly disables query logging in production when PRISMA_LOG_QUERIES is unset or 0
+    ok 2 - strictly disables query logging in production when PRISMA_LOG_QUERIES is unset or 0
+      ---
+      duration_ms: 0.249375
+      type: 'test'
+      ...
+    # Subtest: allows query logging in development or test when PRISMA_LOG_QUERIES=1
+    ok 3 - allows query logging in development or test when PRISMA_LOG_QUERIES=1
+      ---
+      duration_ms: 0.202958
+      type: 'test'
+      ...
+    # Subtest: defaults to no query logging in development or test when PRISMA_LOG_QUERIES is unset or 0
+    ok 4 - defaults to no query logging in development or test when PRISMA_LOG_QUERIES is unset or 0
+      ---
+      duration_ms: 0.233333
+      type: 'test'
+      ...
+    1..4
+ok 79 - PRISMA_LOG_QUERIES Production Guard (O10)
+  ---
+  duration_ms: 18.632041
+  type: 'suite'
+  ...
+# Subtest: Expo Push Notification Service
+    # Subtest: validates Expo push tokens correctly
+    ok 1 - validates Expo push tokens correctly
+      ---
+      duration_ms: 12.023416
+      type: 'test'
+      ...
+    # Subtest: splits large message arrays into chunks of 100
+    ok 2 - splits large message arrays into chunks of 100
+      ---
+      duration_ms: 0.282041
+      type: 'test'
+      ...
+    # Subtest: sends push chunk and purges DeviceNotRegistered tokens
+    ok 3 - sends push chunk and purges DeviceNotRegistered tokens
+      ---
+      duration_ms: 1.463958
+      type: 'test'
+      ...
+    # Subtest: sends push to user with valid registered tokens
+    ok 4 - sends push to user with valid registered tokens
+      ---
+      duration_ms: 0.682
+      type: 'test'
+      ...
+    # Subtest: sends batched pushes across multiple users, deduplicating tokens
+    ok 5 - sends batched pushes across multiple users, deduplicating tokens
+      ---
+      duration_ms: 0.441041
+      type: 'test'
+      ...
+    1..5
+ok 80 - Expo Push Notification Service
+  ---
+  duration_ms: 15.790042
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: A16 client IP derivation
+    # Subtest: ignores forwarded headers when no proxy is trusted
+    ok 1 - ignores forwarded headers when no proxy is trusted
+      ---
+      duration_ms: 13.918875
+      type: 'test'
+      ...
+    # Subtest: takes the right-most trusted hop, not the client-supplied left entry
+    ok 2 - takes the right-most trusted hop, not the client-supplied left entry
+      ---
+      duration_ms: 0.593709
+      type: 'test'
+      ...
+    # Subtest: honours TRUST_PROXY_HOPS for multi-proxy deployments
+    ok 3 - honours TRUST_PROXY_HOPS for multi-proxy deployments
+      ---
+      duration_ms: 0.382375
+      type: 'test'
+      ...
+    # Subtest: rejects non-IP garbage instead of keying buckets on it
+    ok 4 - rejects non-IP garbage instead of keying buckets on it
+      ---
+      duration_ms: 4.749542
+      type: 'test'
+      ...
+    # Subtest: normalises ports, brackets and IPv4-mapped IPv6
+    ok 5 - normalises ports, brackets and IPv4-mapped IPv6
+      ---
+      duration_ms: 1.864917
+      type: 'test'
+      ...
+# [RateLimit] Database error while checking a fail-closed limit (rejecting): Error: connection terminated
+#     at Proxy.import_prisma.prisma.$queryRawUnsafe (/Users/praveenkumar/ws-launch/tests/unit/rate-limit-ip.test.ts:112:13)
+#     at checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:37)
+#     at TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/rate-limit-ip.test.ts:114:23)
+#     at Test.runInAsyncScope (node:async_hooks:214:14)
+#     at Test.run (node:internal/test_runner/test:1047:25)
+#     at Test.start (node:internal/test_runner/test:944:17)
+#     at node:internal/test_runner/test:1440:71
+#     at node:internal/per_context/primordials:466:82
+#     at new Promise (<anonymous>)
+#     at new SafePromise (node:internal/per_context/primordials:435:3)
+# [RateLimit] Database error while checking rate limit (failing OPEN): Error: connection terminated
+#     at Proxy.import_prisma.prisma.$queryRawUnsafe (/Users/praveenkumar/ws-launch/tests/unit/rate-limit-ip.test.ts:122:13)
+#     at checkRateLimit (/Users/praveenkumar/ws-launch/lib/rate-limit.ts:179:37)
+#     at TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/rate-limit-ip.test.ts:124:23)
+#     at Test.runInAsyncScope (node:async_hooks:214:14)
+#     at Test.run (node:internal/test_runner/test:1047:25)
+#     at Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+#     at Test.postRun (node:internal/test_runner/test:1173:19)
+#     at Test.run (node:internal/test_runner/test:1101:12)
+#     at async Promise.all (index 0)
+#     at async Suite.run (node:internal/test_runner/test:1442:7)
+    # Subtest: distinct client IPs produce distinct limiter buckets
+    ok 6 - distinct client IPs produce distinct limiter buckets
+      ---
+      duration_ms: 36.675084
+      type: 'test'
+      ...
+    1..6
+ok 81 - A16 client IP derivation
+  ---
+  duration_ms: 70.758792
+  type: 'suite'
+  ...
+# Subtest: A16 fail-closed limiter
+    # Subtest: rejects when the database fails and failClosed is set
+    ok 1 - rejects when the database fails and failClosed is set
+      ---
+      duration_ms: 2.188708
+      type: 'test'
+      ...
+    # Subtest: still fails open for customer-facing flows by default
+    ok 2 - still fails open for customer-facing flows by default
+      ---
+      duration_ms: 0.758208
+      type: 'test'
+      ...
+    1..2
+ok 82 - A16 fail-closed limiter
+  ---
+  duration_ms: 3.316791
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# (node:99877) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Task A13: Rate Limit Hardening & Mobile CBT Sync Suite
+    # Subtest: Server Rate Limiting Hardening
+        # Subtest: 1. Server rate limiter fails OPEN on database error (never throws 500)
+        ok 1 - 1. Server rate limiter fails OPEN on database error (never throws 500)
+          ---
+          duration_ms: 22.155333
+          type: 'test'
+          ...
+        # Subtest: 2. Rate limit key combines (userId OR IP) + route action
+        ok 2 - 2. Rate limit key combines (userId OR IP) + route action
+          ---
+          duration_ms: 1.29175
+          type: 'test'
+          ...
+        # Subtest: 3. On limit exceeded: returns 429 status, Retry-After header, and body { error, retryAfter }
+        ok 3 - 3. On limit exceeded: returns 429 status, Retry-After header, and body { error, retryAfter }
+          ---
+          duration_ms: 10.649625
+          type: 'test'
+          ...
+        1..3
+    ok 1 - Server Rate Limiting Hardening
+      ---
+      duration_ms: 34.910542
+      type: 'suite'
+      ...
+# [CbtSyncManager] Received 429 rate limit. Pausing sync for 1s until 2026-11-01T13:51:22.979Z
+    # Subtest: Mobile CBT Sync Client Engine
+        # Subtest: 4. Client-side debounce: 10 burst taps in 5 seconds coalesce into <=2 sync calls
+        ok 1 - 4. Client-side debounce: 10 burst taps in 5 seconds coalesce into <=2 sync calls
+          ---
+          duration_ms: 6027.862625
+          type: 'test'
+          ...
+        # Subtest: 5. Answers are immediately persisted to local storage upon tap
+        ok 2 - 5. Answers are immediately persisted to local storage upon tap
+          ---
+          duration_ms: 0.428375
+          type: 'test'
+          ...
+        # Subtest: 6. On 429 response: parses Retry-After, pauses sync, and queues answers without loss
+        ok 3 - 6. On 429 response: parses Retry-After, pauses sync, and queues answers without loss
+          ---
+          duration_ms: 1202.41375
+          type: 'test'
+          ...
+        1..3
+    ok 2 - Mobile CBT Sync Client Engine
+      ---
+      duration_ms: 7231.190834
+      type: 'suite'
+      ...
+    1..2
+ok 83 - Task A13: Rate Limit Hardening & Mobile CBT Sync Suite
+  ---
+  duration_ms: 7319.291792
+  type: 'suite'
+  ...
+# Subtest: V3: Razorpay credentials fail closed
+    # Subtest: has no placeholder key id
+    ok 1 - has no placeholder key id
+      ---
+      duration_ms: 0.840041
+      type: 'test'
+      ...
+    # Subtest: throws instead of using a placeholder secret
+    ok 2 - throws instead of using a placeholder secret
+      ---
+      duration_ms: 0.40325
+      type: 'test'
+      ...
+    # Subtest: throws when only one credential is present
+    ok 3 - throws when only one credential is present
+      ---
+      duration_ms: 0.145834
+      type: 'test'
+      ...
+    # Subtest: builds one client when both credentials are present
+    ok 4 - builds one client when both credentials are present
+      ---
+      duration_ms: 17.297917
+      type: 'test'
+      ...
+    # Subtest: only treats an explicit test environment as test mode
+    ok 5 - only treats an explicit test environment as test mode
+      ---
+      duration_ms: 0.563625
+      type: 'test'
+      ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Razorpay order creation failed: Error: Razorpay is not configured: set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET (no placeholder fallback)
+#     at getRazorpayClient (/Users/praveenkumar/ws-launch/lib/payments/razorpay-config.ts:42:11)
+#     at createRazorpayOrder (/Users/praveenkumar/ws-launch/lib/actions/payment/razorpay.ts:252:27)
+#     at async waitForActual (node:assert:644:5)
+#     at async Function.rejects (node:assert:767:25)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/razorpay-config-fail-closed.test.ts:125:5)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+    # Subtest: createRazorpayOrder rejects a missing secret outside test mode (no mock order)
+    ok 6 - createRazorpayOrder rejects a missing secret outside test mode (no mock order)
+      ---
+      duration_ms: 423.855
+      type: 'test'
+      ...
+    1..6
+ok 84 - V3: Razorpay credentials fail closed
+  ---
+  duration_ms: 444.19575
+  type: 'suite'
+  ...
+# Razorpay credentials not configured
+# Razorpay webhook secret is not configured; failing closed
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=600s
+# [RazorpayWebhook] Rejected event outside 5-minute replay window: age=-300s
+# Subtest: Task B5: Razorpay Webhook Verification & Idempotency
+    # Subtest: 1. Missing signature header fails closed with 400
+    ok 1 - 1. Missing signature header fails closed with 400
+      ---
+      duration_ms: 4.437333
+      type: 'test'
+      ...
+    # Subtest: 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+    ok 2 - 2. Missing RAZORPAY_WEBHOOK_SECRET fails closed with 500
+      ---
+      duration_ms: 1.238541
+      type: 'test'
+      ...
+    # Subtest: 3. Wrong signature fails closed with 400
+    ok 3 - 3. Wrong signature fails closed with 400
+      ---
+      duration_ms: 1.579916
+      type: 'test'
+      ...
+    # Subtest: 4. Tampered body (signature for body A, sent body B) fails closed with 400
+    ok 4 - 4. Tampered body (signature for body A, sent body B) fails closed with 400
+      ---
+      duration_ms: 1.267833
+      type: 'test'
+      ...
+    # Subtest: 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+    ok 5 - 5. Replay attack: event timestamp older than 5 minutes rejected with 400
+      ---
+      duration_ms: 1.340959
+      type: 'test'
+      ...
+    # Subtest: 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+    ok 6 - 6. Event timestamp far in the future (>60s clock skew) rejected with 400
+      ---
+      duration_ms: 0.774125
+      type: 'test'
+      ...
+    # Subtest: 7. Valid webhook with recent timestamp persists event and processes successfully
+    ok 7 - 7. Valid webhook with recent timestamp persists event and processes successfully
+      ---
+      duration_ms: 13.274208
+      type: 'test'
+      ...
+# [RazorpayWebhook] Duplicate webhook event test_evt_idempotent_1793541088111_ovo4rk ignored
+    # Subtest: 8. Idempotency: duplicate event ID returns 200 without reprocessing
+    ok 8 - 8. Idempotency: duplicate event ID returns 200 without reprocessing
+      ---
+      duration_ms: 31.307708
+      type: 'test'
+      ...
+    1..8
+ok 85 - Task B5: Razorpay Webhook Verification & Idempotency
+  ---
+  duration_ms: 97.402584
+  type: 'suite'
+  ...
+# Subtest: re-auth token single use (database backed)
+    # Subtest: consumes a token once and rejects the second use
+    ok 1 - consumes a token once and rejects the second use
+      ---
+      duration_ms: 79.831083
+      type: 'test'
+      ...
+    # Subtest: allows exactly one of many parallel consumptions
+    ok 2 - allows exactly one of many parallel consumptions
+      ---
+      duration_ms: 64.9265
+      type: 'test'
+      ...
+    1..2
+ok 86 - re-auth token single use (database backed)
+  ---
+  duration_ms: 168.819875
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task B: Consent Checkbox & Enforcement (Web + API)
+    # Subtest: Web Server Action: register()
+        # Subtest: 1. Fails when consent is missing from FormData
+        ok 1 - 1. Fails when consent is missing from FormData
+          ---
+          duration_ms: 55.581375
+          type: 'test'
+          ...
+        # Subtest: 2. Fails when consent is explicitly false
+        ok 2 - 2. Fails when consent is explicitly false
+          ---
+          duration_ms: 6.138
+          type: 'test'
+          ...
+# [DevEmailOutbox] Sent to: [REDACTED_EMAIL]@example.com | Subject: Verify your email address - TrillionSkill | Link: http://127.0.0.1:3045/verify-email?token=[REDACTED_TOKEN]
+        # Subtest: 3. Succeeds when consent is accepted ('on' or 'true')
+        ok 3 - 3. Succeeds when consent is accepted ('on' or 'true')
+          ---
+          duration_ms: 508.306833
+          type: 'test'
+          ...
+        1..3
+    ok 1 - Web Server Action: register()
+      ---
+      duration_ms: 570.935167
+      type: 'suite'
+      ...
+    # Subtest: API Endpoint: POST /api/v1/auth/register
+        # Subtest: 4. Rejects registration payload with 400 when consent is missing
+        ok 1 - 4. Rejects registration payload with 400 when consent is missing
+          ---
+          duration_ms: 9.074959
+          type: 'test'
+          ...
+        # Subtest: 5. Rejects registration payload with 400 when consent is false
+        ok 2 - 5. Rejects registration payload with 400 when consent is false
+          ---
+          duration_ms: 4.467584
+          type: 'test'
+          ...
+        # Subtest: 6. Accepts registration payload with 201 when consent is true
+        ok 3 - 6. Accepts registration payload with 201 when consent is true
+          ---
+          duration_ms: 480.330708
+          type: 'test'
+          ...
+        1..3
+    ok 2 - API Endpoint: POST /api/v1/auth/register
+      ---
+      duration_ms: 494.462375
+      type: 'suite'
+      ...
+    1..2
+ok 87 - Task B: Consent Checkbox & Enforcement (Web + API)
+  ---
+  duration_ms: 1096.734417
+  type: 'suite'
+  ...
+# Subtest: R12-A: render.yaml validation
+    # Subtest: A-R12-01: render.yaml exists and is valid YAML
+    ok 1 - A-R12-01: render.yaml exists and is valid YAML
+      ---
+      duration_ms: 5.9925
+      type: 'test'
+      ...
+    # Subtest: A-R12-02: has exactly one web service
+    ok 2 - A-R12-02: has exactly one web service
+      ---
+      duration_ms: 1.471167
+      type: 'test'
+      ...
+    # Subtest: A-R12-03: uses Docker runtime
+    ok 3 - A-R12-03: uses Docker runtime
+      ---
+      duration_ms: 1.280625
+      type: 'test'
+      ...
+    # Subtest: A-R12-04: healthCheckPath is /api/health
+    ok 4 - A-R12-04: healthCheckPath is /api/health
+      ---
+      duration_ms: 1.212209
+      type: 'test'
+      ...
+    # Subtest: A-R12-05: autoDeploy is off
+    ok 5 - A-R12-05: autoDeploy is off
+      ---
+      duration_ms: 1.190666
+      type: 'test'
+      ...
+    # Subtest: A-R12-06: preDeployCommand runs migrate-deploy.sh
+    ok 6 - A-R12-06: preDeployCommand runs migrate-deploy.sh
+      ---
+      duration_ms: 1.012084
+      type: 'test'
+      ...
+    # Subtest: A-R12-07: NODE_ENV is production, PERSIST_BACKEND is db
+    ok 7 - A-R12-07: NODE_ENV is production, PERSIST_BACKEND is db
+      ---
+      duration_ms: 0.846792
+      type: 'test'
+      ...
+    # Subtest: A-R12-08: no secret-like values in render.yaml
+    ok 8 - A-R12-08: no secret-like values in render.yaml
+      ---
+      duration_ms: 0.77575
+      type: 'test'
+      ...
+    # Subtest: A-R12-09: every env key exists in .env.example
+    ok 9 - A-R12-09: every env key exists in .env.example
+      ---
+      duration_ms: 1.424667
+      type: 'test'
+      ...
+    # Subtest: A-R12-10: DATABASE_URL and DIRECT_URL are sync:false (secrets)
+    ok 10 - A-R12-10: DATABASE_URL and DIRECT_URL are sync:false (secrets)
+      ---
+      duration_ms: 1.319125
+      type: 'test'
+      ...
+    1..10
+ok 88 - R12-A: render.yaml validation
+  ---
+  duration_ms: 18.075125
+  type: 'suite'
+  ...
+# Subtest: R12-K: Data deletion and retention executor on real Postgres
+    # Subtest: K-R12-01: Retention configuration exports named constants
+    ok 1 - K-R12-01: Retention configuration exports named constants
+      ---
+      duration_ms: 11.691833
+      type: 'test'
+      ...
+    # Subtest: K-R12-02: Dry-run mode by default changes nothing in the database
+    ok 2 - K-R12-02: Dry-run mode by default changes nothing in the database
+      ---
+      duration_ms: 32.798042
+      type: 'test'
+      ...
+    # Subtest: K-R12-03: Respects 30-day recovery window: requests under 30 days old are not eligible
+    ok 3 - K-R12-03: Respects 30-day recovery window: requests under 30 days old are not eligible
+      ---
+      duration_ms: 9.948125
+      type: 'test'
+      ...
+    # Subtest: K-R12-04 & K-R12-05 & K-R12-06: Irreversible PII wipe anonymizes target user, leaves payments and other users untouched
+    ok 4 - K-R12-04 & K-R12-05 & K-R12-06: Irreversible PII wipe anonymizes target user, leaves payments and other users untouched
+      ---
+      duration_ms: 42.773708
+      type: 'test'
+      ...
+    # Subtest: K-R12-07: Writes exactly one AuditLog row per action
+    ok 5 - K-R12-07: Writes exactly one AuditLog row per action
+      ---
+      duration_ms: 15.617417
+      type: 'test'
+      ...
+    # Subtest: K-R12-08: Idempotent: second execution on the same user is a no-op
+    ok 6 - K-R12-08: Idempotent: second execution on the same user is a no-op
+      ---
+      duration_ms: 18.10775
+      type: 'test'
+      ...
+    # Subtest: K-R12-09: Purge doubt attachments: dry-run makes no changes, confirm purges doubts older than 90 days
+    ok 7 - K-R12-09: Purge doubt attachments: dry-run makes no changes, confirm purges doubts older than 90 days
+      ---
+      duration_ms: 15.205584
+      type: 'test'
+      ...
+    1..7
+ok 89 - R12-K: Data deletion and retention executor on real Postgres
+  ---
+  duration_ms: 176.232125
+  type: 'suite'
+  ...
+# Subtest: R12-J: Secret Hygiene Verification
+    # Subtest: J-R12-01: .gitleaksignore exists and ignores nothing longer than 12 chars
+    ok 1 - J-R12-01: .gitleaksignore exists and ignores nothing longer than 12 chars
+      ---
+      duration_ms: 1.151708
+      type: 'test'
+      ...
+    # Subtest: J-R12-02: CI workflow contains gitleaks job with continue-on-error and redaction
+    ok 2 - J-R12-02: CI workflow contains gitleaks job with continue-on-error and redaction
+      ---
+      duration_ms: 5.31725
+      type: 'test'
+      ...
+    # Subtest: J-R12-03: scripts/ and tests/e2e/ do not contain literal secret fallbacks for Webhooks/API keys
+    ok 3 - J-R12-03: scripts/ and tests/e2e/ do not contain literal secret fallbacks for Webhooks/API keys
+      ---
+      duration_ms: 1.367958
+      type: 'test'
+      ...
+    # Subtest: J-R12-04: Documented list of unit test suites that keep fixture values
+    ok 4 - J-R12-04: Documented list of unit test suites that keep fixture values
+      ---
+      duration_ms: 0.202833
+      type: 'test'
+      ...
+    1..4
+ok 90 - R12-J: Secret Hygiene Verification
+  ---
+  duration_ms: 8.881959
+  type: 'suite'
+  ...
+# Subtest: R12-C: Security headers and CSP
+    # Subtest: C-R12-00: next.config.js headers() returns valid config
+    ok 1 - C-R12-00: next.config.js headers() returns valid config
+      ---
+      duration_ms: 2.867792
+      type: 'test'
+      ...
+    # Subtest: C-R12-01: HSTS header is present and strong
+    ok 2 - C-R12-01: HSTS header is present and strong
+      ---
+      duration_ms: 0.789708
+      type: 'test'
+      ...
+    # Subtest: C-R12-02: X-Content-Type-Options is nosniff
+    ok 3 - C-R12-02: X-Content-Type-Options is nosniff
+      ---
+      duration_ms: 0.789875
+      type: 'test'
+      ...
+    # Subtest: C-R12-03: Referrer-Policy is set
+    ok 4 - C-R12-03: Referrer-Policy is set
+      ---
+      duration_ms: 0.971291
+      type: 'test'
+      ...
+    # Subtest: C-R12-04: frame-ancestors is self (via CSP)
+    ok 5 - C-R12-04: frame-ancestors is self (via CSP)
+      ---
+      duration_ms: 0.550208
+      type: 'test'
+      ...
+    # Subtest: C-R12-05: Permissions-Policy is set
+    ok 6 - C-R12-05: Permissions-Policy is set
+      ---
+      duration_ms: 0.590875
+      type: 'test'
+      ...
+    # Subtest: C-R12-06: CSP has no wildcard * in script-src
+    ok 7 - C-R12-06: CSP has no wildcard * in script-src
+      ---
+      duration_ms: 0.750084
+      type: 'test'
+      ...
+    # Subtest: C-R12-07: CSP does not contain supabase.co
+    ok 8 - C-R12-07: CSP does not contain supabase.co
+      ---
+      duration_ms: 0.582875
+      type: 'test'
+      ...
+    # Subtest: C-R12-08: CSP allows Cloudflare Turnstile (challenges.cloudflare.com)
+    ok 9 - C-R12-08: CSP allows Cloudflare Turnstile (challenges.cloudflare.com)
+      ---
+      duration_ms: 0.881416
+      type: 'test'
+      ...
+    # Subtest: C-R12-09: CSP allows Razorpay checkout
+    ok 10 - C-R12-09: CSP allows Razorpay checkout
+      ---
+      duration_ms: 0.801709
+      type: 'test'
+      ...
+    # Subtest: C-R12-10: CSP allows Google Fonts
+    ok 11 - C-R12-10: CSP allows Google Fonts
+      ---
+      duration_ms: 0.591334
+      type: 'test'
+      ...
+    # Subtest: C-R12-11: CSP allows Google OAuth (accounts.google.com)
+    ok 12 - C-R12-11: CSP allows Google OAuth (accounts.google.com)
+      ---
+      duration_ms: 0.553666
+      type: 'test'
+      ...
+    # Subtest: C-R12-12: CSP dynamically includes configured S3/R2 host via env
+    ok 13 - C-R12-12: CSP dynamically includes configured S3/R2 host via env
+      ---
+      duration_ms: 1.169458
+      type: 'test'
+      ...
+    # Subtest: C-R12-13: CSP dynamically includes Sentry ingest host via env when SENTRY_DSN is set
+    ok 14 - C-R12-13: CSP dynamically includes Sentry ingest host via env when SENTRY_DSN is set
+      ---
+      duration_ms: 0.512334
+      type: 'test'
+      ...
+    1..14
+ok 91 - R12-C: Security headers and CSP
+  ---
+  duration_ms: 13.548542
+  type: 'suite'
+  ...
+# Subtest: R12-E: Sentry Configuration & PII Scrubber
+    # Subtest: DSN Guard & No-Op Behavior
+        # Subtest: does not initialize when SENTRY_DSN is absent or empty
+        ok 1 - does not initialize when SENTRY_DSN is absent or empty
+          ---
+          duration_ms: 1.451291
+          type: 'test'
+          ...
+        # Subtest: reads configuration correctly when SENTRY_DSN is provided
+        ok 2 - reads configuration correctly when SENTRY_DSN is provided
+          ---
+          duration_ms: 0.221958
+          type: 'test'
+          ...
+        1..2
+    ok 1 - DSN Guard & No-Op Behavior
+      ---
+      duration_ms: 2.262291
+      type: 'suite'
+      ...
+    # Subtest: PII Scrubber (scrubSentryEvent)
+        # Subtest: scrubs request bodies completely
+        ok 1 - scrubs request bodies completely
+          ---
+          duration_ms: 0.46
+          type: 'test'
+          ...
+        # Subtest: scrubs cookies from request object and headers
+        ok 2 - scrubs cookies from request object and headers
+          ---
+          duration_ms: 0.260084
+          type: 'test'
+          ...
+        # Subtest: scrubs authorization and authentication headers
+        ok 3 - scrubs authorization and authentication headers
+          ---
+          duration_ms: 0.356917
+          type: 'test'
+          ...
+        # Subtest: scrubs query strings from URL and query_string field
+        ok 4 - scrubs query strings from URL and query_string field
+          ---
+          duration_ms: 0.1315
+          type: 'test'
+          ...
+        # Subtest: scrubs email addresses and PII from user object
+        ok 5 - scrubs email addresses and PII from user object
+          ---
+          duration_ms: 0.172375
+          type: 'test'
+          ...
+        # Subtest: scrubs emails and bearer tokens from error messages and breadcrumbs
+        ok 6 - scrubs emails and bearer tokens from error messages and breadcrumbs
+          ---
+          duration_ms: 0.530167
+          type: 'test'
+          ...
+        1..6
+    ok 2 - PII Scrubber (scrubSentryEvent)
+      ---
+      duration_ms: 2.285708
+      type: 'suite'
+      ...
+    1..2
+ok 92 - R12-E: Sentry Configuration & PII Scrubber
+  ---
+  duration_ms: 5.010625
+  type: 'suite'
+  ...
+# Subtest: R12-D: Staging smoke script validation
+    # Subtest: D-R12-01: scripts/ops/staging-smoke.sh exists and is executable
+    ok 1 - D-R12-01: scripts/ops/staging-smoke.sh exists and is executable
+      ---
+      duration_ms: 0.667833
+      type: 'test'
+      ...
+    # Subtest: D-R12-02: refuses execution when BASE_URL is empty
+    ok 2 - D-R12-02: refuses execution when BASE_URL is empty
+      ---
+      duration_ms: 17.444458
+      type: 'test'
+      ...
+    # Subtest: D-R12-03: refuses non-https remote URLs
+    ok 3 - D-R12-03: refuses non-https remote URLs
+      ---
+      duration_ms: 11.120084
+      type: 'test'
+      ...
+    # Subtest: D-R12-04: script source checks all required endpoints and invariants
+    ok 4 - D-R12-04: script source checks all required endpoints and invariants
+      ---
+      duration_ms: 0.281875
+      type: 'test'
+      ...
+    # Subtest: D-R12-05: docs/runbooks/staging-neon.md documents staging-smoke.sh usage
+    ok 5 - D-R12-05: docs/runbooks/staging-neon.md documents staging-smoke.sh usage
+      ---
+      duration_ms: 0.350667
+      type: 'test'
+      ...
+    1..5
+ok 93 - R12-D: Staging smoke script validation
+  ---
+  duration_ms: 30.791708
+  type: 'suite'
+  ...
+# Subtest: Task A4: Stripe Lazy Initialization & Health Checks
+    # Subtest: 1. Module import succeeds with no key during NEXT_PHASE=phase-production-build
+    ok 1 - 1. Module import succeeds with no key during NEXT_PHASE=phase-production-build
+      ---
+      duration_ms: 134.374458
+      type: 'test'
+      ...
+    # Subtest: 2. Runtime without key fails closed on first payment call with clear error
+    ok 2 - 2. Runtime without key fails closed on first payment call with clear error
+      ---
+      duration_ms: 2.293875
+      type: 'test'
+      ...
+    # Subtest: 3. /api/health returns 'payments: not configured' without leaking secrets
+    ok 3 - 3. /api/health returns 'payments: not configured' without leaking secrets
+      ---
+      duration_ms: 190.788042
+      type: 'test'
+      ...
+    # Subtest: 4. /api/health returns 'payments: configured' when key is present
+    ok 4 - 4. /api/health returns 'payments: configured' when key is present
+      ---
+      duration_ms: 24.249
+      type: 'test'
+      ...
+    # Subtest: 5. No placeholder string remains anywhere in code files
+    ok 5 - 5. No placeholder string remains anywhere in code files
+      ---
+      duration_ms: 160.704333
+      type: 'test'
+      ...
+    1..5
+ok 94 - Task A4: Stripe Lazy Initialization & Health Checks
+  ---
+  duration_ms: 513.873875
+  type: 'suite'
+  ...
+# Subtest: teacher dashboard reports failed reads
+    # Subtest: is request-rendered, not prerendered at build time
+    ok 1 - is request-rendered, not prerendered at build time
+      ---
+      duration_ms: 0.58025
+      type: 'test'
+      ...
+    # Subtest: does not swallow read failures with an empty catch
+    ok 2 - does not swallow read failures with an empty catch
+      ---
+      duration_ms: 0.22625
+      type: 'test'
+      ...
+    # Subtest: logs and records every failed section
+    ok 3 - logs and records every failed section
+      ---
+      duration_ms: 0.160834
+      type: 'test'
+      ...
+    # Subtest: renders a visible alert for the failed sections
+    ok 4 - renders a visible alert for the failed sections
+      ---
+      duration_ms: 0.0765
+      type: 'test'
+      ...
+    1..4
+ok 95 - teacher dashboard reports failed reads
+  ---
+  duration_ms: 1.805083
+  type: 'suite'
+  ...
+# Subtest: S0: test-database guard
+    # Subtest: accepts only the Docker test database
+    ok 1 - accepts only the Docker test database
+      ---
+      duration_ms: 1.0555
+      type: 'test'
+      ...
+    # Subtest: rejects a remote host
+    ok 2 - rejects a remote host
+      ---
+      duration_ms: 0.426084
+      type: 'test'
+      ...
+    # Subtest: rejects the right host on the wrong port
+    ok 3 - rejects the right host on the wrong port
+      ---
+      duration_ms: 0.1235
+      type: 'test'
+      ...
+    # Subtest: rejects a non-test database name
+    ok 4 - rejects a non-test database name
+      ---
+      duration_ms: 0.113375
+      type: 'test'
+      ...
+    # Subtest: rejects APP_ENV other than test
+    ok 5 - rejects APP_ENV other than test
+      ---
+      duration_ms: 0.115958
+      type: 'test'
+      ...
+    # Subtest: rejects a mismatched DIRECT_URL
+    ok 6 - rejects a mismatched DIRECT_URL
+      ---
+      duration_ms: 0.196667
+      type: 'test'
+      ...
+    # Subtest: never leaks the password into the description
+    ok 7 - never leaks the password into the description
+      ---
+      duration_ms: 0.124
+      type: 'test'
+      ...
+    # Subtest: aborts the Prisma entry point before connecting
+    ok 8 - aborts the Prisma entry point before connecting
+      ---
+      duration_ms: 1219.165042
+      type: 'test'
+      ...
+    # Subtest: aborts the api-v1/contract test entry point before connecting
+    ok 9 - aborts the api-v1/contract test entry point before connecting
+      ---
+      duration_ms: 1050.768125
+      type: 'test'
+      ...
+    # Subtest: aborts the Playwright entry point before starting the webServer
+    ok 10 - aborts the Playwright entry point before starting the webServer
+      ---
+      duration_ms: 1140.546916
+      type: 'test'
+      ...
+    1..10
+ok 96 - S0: test-database guard
+  ---
+  duration_ms: 3413.846542
+  type: 'suite'
+  ...
+# Subtest: Task B10: TypeScript Ratchet Verification
+    # Subtest: 1. Ratchet passes when error count matches baseline
+    ok 1 - 1. Ratchet passes when error count matches baseline
+      ---
+      duration_ms: 10432.572042
+      type: 'test'
+      ...
+    # Subtest: 2. Ratchet suggests lower count when current < baseline
+    ok 2 - 2. Ratchet suggests lower count when current < baseline
+      ---
+      duration_ms: 8597.91725
+      type: 'test'
+      ...
+    # Subtest: 3. Ratchet fails closed when error count exceeds baseline
+    ok 3 - 3. Ratchet fails closed when error count exceeds baseline
+      ---
+      duration_ms: 8659.317334
+      type: 'test'
+      ...
+    1..3
+ok 97 - Task B10: TypeScript Ratchet Verification
+  ---
+  duration_ms: 27691.080083
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task G1: Turnstile on Login Verification
+    # Subtest: Flag OFF (Default - Unchanged Login)
+        # Subtest: 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
+        ok 1 - 1. Login succeeds without turnstile token when TURNSTILE_ENABLED is off
+          ---
+          duration_ms: 141.569042
+          type: 'test'
+          ...
+        1..1
+    ok 1 - Flag OFF (Default - Unchanged Login)
+      ---
+      duration_ms: 142.175209
+      type: 'suite'
+      ...
+    # Subtest: Flag ON (TURNSTILE_ENABLED=true)
+        # Subtest: 2. Fails with TurnstileError when token is missing
+        ok 1 - 2. Fails with TurnstileError when token is missing
+          ---
+          duration_ms: 2.835542
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 3. Fails with TurnstileError when token is invalid
+        ok 2 - 3. Fails with TurnstileError when token is invalid
+          ---
+          duration_ms: 20.503166
+          type: 'test'
+          ...
+        # Subtest: 4. Succeeds when token is valid (mock)
+        ok 3 - 4. Succeeds when token is valid (mock)
+          ---
+          duration_ms: 137.994542
+          type: 'test'
+          ...
+        # Subtest: 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
+        ok 4 - 5. Direct-call bypass fails: calling credentials authorize directly without token fails closed
+          ---
+          duration_ms: 1.847042
+          type: 'test'
+          ...
+# [31m[auth][error][0m CredentialsSignin: Security check required. Please complete the CAPTCHA verification.. Read more at https://errors.authjs.dev\#credentialssignin
+#     at authorizeCredentials (/Users/praveenkumar/ws-launch/auth.ts:161:19)
+        # Subtest: 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
+        ok 5 - 5b. HTTP-level NextAuth credentials callback with valid password and NO turnstile token yields no session
+          ---
+          duration_ms: 15.296583
+          type: 'test'
+          ...
+        # Subtest: 5c. Register server action rejects a missing Turnstile token
+        ok 6 - 5c. Register server action rejects a missing Turnstile token
+          ---
+          duration_ms: 4.640333
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 5d. Register server action rejects an invalid Turnstile token
+        ok 7 - 5d. Register server action rejects an invalid Turnstile token
+          ---
+          duration_ms: 4.432334
+          type: 'test'
+          ...
+        # Subtest: 5e. Password-reset request action rejects a missing Turnstile token
+        ok 8 - 5e. Password-reset request action rejects a missing Turnstile token
+          ---
+          duration_ms: 10.186458
+          type: 'test'
+          ...
+        # Subtest: 5f. Contact form rejects a missing Turnstile token
+        ok 9 - 5f. Contact form rejects a missing Turnstile token
+          ---
+          duration_ms: 5.683459
+          type: 'test'
+          ...
+        1..9
+    ok 2 - Flag ON (TURNSTILE_ENABLED=true)
+      ---
+      duration_ms: 204.298125
+      type: 'suite'
+      ...
+    # Subtest: Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
+        # Subtest: 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
+        ok 1 - 6. Mobile login succeeds without turnstile token even when TURNSTILE_ENABLED=true
+          ---
+          duration_ms: 174.850583
+          type: 'test'
+          ...
+        # Subtest: 7. Mobile login is rate-limited per user+IP
+        ok 2 - 7. Mobile login is rate-limited per user+IP
+          ---
+          duration_ms: 833.265792
+          type: 'test'
+          ...
+        # Subtest: 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
+        ok 3 - 8. Rate-limit key includes user+IP: the same user on a different IP is counted separately
+          ---
+          duration_ms: 965.993833
+          type: 'test'
+          ...
+        # Subtest: 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
+        ok 4 - 9. Rate-limit key includes user+IP: a different user on the same IP is counted separately
+          ---
+          duration_ms: 992.588125
+          type: 'test'
+          ...
+        1..4
+    ok 3 - Mobile v1 Login (Exempt from Turnstile, Rate-Limited per user+IP)
+      ---
+      duration_ms: 2967.049917
+      type: 'suite'
+      ...
+    1..3
+ok 98 - Task G1: Turnstile on Login Verification
+  ---
+  duration_ms: 3530.3725
+  type: 'suite'
+  ...
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Task B8: Turnstile Server-Side Verification
+    # Subtest: Flag OFF (Default - Dev/Test Uninterrupted)
+        # Subtest: 1. Returns success immediately when TURNSTILE_ENABLED is not true
+        ok 1 - 1. Returns success immediately when TURNSTILE_ENABLED is not true
+          ---
+          duration_ms: 0.850375
+          type: 'test'
+          ...
+# [Turnstile] Security failure: TURNSTILE_ENABLED=true but TURNSTILE_SECRET_KEY is not configured! Failing closed.
+        # Subtest: 2. Contact form passes without Turnstile token when flag is OFF
+        ok 2 - 2. Contact form passes without Turnstile token when flag is OFF
+          ---
+          duration_ms: 70.734833
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Flag OFF (Default - Dev/Test Uninterrupted)
+      ---
+      duration_ms: 72.134084
+      type: 'suite'
+      ...
+    # Subtest: Flag ON (TURNSTILE_ENABLED=true)
+        # Subtest: 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+        ok 1 - 3. Fails closed with 500 when TURNSTILE_SECRET_KEY is missing
+          ---
+          duration_ms: 0.922834
+          type: 'test'
+          ...
+        # Subtest: 4. Fails with 400 when token is missing or empty
+        ok 2 - 4. Fails with 400 when token is missing or empty
+          ---
+          duration_ms: 0.289625
+          type: 'test'
+          ...
+        # Subtest: 5. Validates token with Cloudflare and returns success when valid
+        ok 3 - 5. Validates token with Cloudflare and returns success when valid
+          ---
+          duration_ms: 18.98175
+          type: 'test'
+          ...
+# [Turnstile] Token verification failed with codes: [ 'invalid-input-response' ]
+        # Subtest: 6. Rejects with 400 when Cloudflare reports invalid-input-response
+        ok 4 - 6. Rejects with 400 when Cloudflare reports invalid-input-response
+          ---
+          duration_ms: 4.400708
+          type: 'test'
+          ...
+# [Turnstile] Cloudflare siteverify request timed out
+        # Subtest: 7. Rejects with 504 when Cloudflare endpoint times out
+        ok 5 - 7. Rejects with 504 when Cloudflare endpoint times out
+          ---
+          duration_ms: 155.405125
+          type: 'test'
+          ...
+        # Subtest: 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+        ok 6 - 8. Protected form rejects submission when TURNSTILE_ENABLED=true and token is missing
+          ---
+          duration_ms: 5.317375
+          type: 'test'
+          ...
+        1..6
+    ok 2 - Flag ON (TURNSTILE_ENABLED=true)
+      ---
+      duration_ms: 185.936917
+      type: 'suite'
+      ...
+    1..2
+ok 99 - Task B8: Turnstile Server-Side Verification
+  ---
+  duration_ms: 3274.421625
+  type: 'suite'
+  ...
+# Subtest: Step 1 Unit Tests: Exact Goal Matching & No Substring Leaks
+    # Subtest: UPSC, BPSC, SSC must NOT match skills
+    ok 1 - UPSC, BPSC, SSC must NOT match skills
+      ---
+      duration_ms: 0.65475
+      type: 'test'
+      ...
+    # Subtest: C matches skills ONLY as an exact token
+    ok 2 - C matches skills ONLY as an exact token
+      ---
+      duration_ms: 0.214916
+      type: 'test'
+      ...
+    # Subtest: Target goal exact matching works as expected
+    ok 3 - Target goal exact matching works as expected
+      ---
+      duration_ms: 0.125875
+      type: 'test'
+      ...
+    # Subtest: Explicit alias mapping resolves properly
+    ok 4 - Explicit alias mapping resolves properly
+      ---
+      duration_ms: 0.548375
+      type: 'test'
+      ...
+    # Subtest: validateOrMapCanonicalGoals validates properly
+    ok 5 - validateOrMapCanonicalGoals validates properly
+      ---
+      duration_ms: 0.207458
+      type: 'test'
+      ...
+    1..5
+ok 100 - Step 1 Unit Tests: Exact Goal Matching & No Substring Leaks
+  ---
+  duration_ms: 2.597167
+  type: 'suite'
+  ...
+# Subtest: A6 upload name policy
+    # Subtest: rejects traversal and path segments
+    ok 1 - rejects traversal and path segments
+      ---
+      duration_ms: 1.040625
+      type: 'test'
+      ...
+    # Subtest: rejects svg, html, php and double extensions
+    ok 2 - rejects svg, html, php and double extensions
+      ---
+      duration_ms: 0.423167
+      type: 'test'
+      ...
+    # Subtest: rejects hidden files and missing extensions
+    ok 3 - rejects hidden files and missing extensions
+      ---
+      duration_ms: 0.281125
+      type: 'test'
+      ...
+    # Subtest: accepts ordinary image and document names
+    ok 4 - accepts ordinary image and document names
+      ---
+      duration_ms: 0.164625
+      type: 'test'
+      ...
+    # Subtest: the dangerous list covers executable and markup types
+    ok 5 - the dangerous list covers executable and markup types
+      ---
+      duration_ms: 0.129958
+      type: 'test'
+      ...
+    1..5
+ok 101 - A6 upload name policy
+  ---
+  duration_ms: 2.84875
+  type: 'suite'
+  ...
+# Subtest: A6 upload content validation
+    # Subtest: uses a server-generated name, never the caller name
+    ok 1 - uses a server-generated name, never the caller name
+      ---
+      duration_ms: 0.867042
+      type: 'test'
+      ...
+    # Subtest: rejects html content disguised as an image
+    ok 2 - rejects html content disguised as an image
+      ---
+      duration_ms: 0.225542
+      type: 'test'
+      ...
+    # Subtest: rejects svg content even with an image mime
+    ok 3 - rejects svg content even with an image mime
+      ---
+      duration_ms: 0.390375
+      type: 'test'
+      ...
+    # Subtest: oversized uploads are a 413
+    ok 4 - oversized uploads are a 413
+      ---
+      duration_ms: 0.195917
+      type: 'test'
+      ...
+    # Subtest: a valid PDF is accepted
+    ok 5 - a valid PDF is accepted
+      ---
+      duration_ms: 0.345666
+      type: 'test'
+      ...
+    1..5
+ok 102 - A6 upload content validation
+  ---
+  duration_ms: 2.48025
+  type: 'suite'
+  ...
+# Subtest: A6 storage fallback
+    # Subtest: test environment stores under public/uploads with a generated name
+    ok 1 - test environment stores under public/uploads with a generated name
+      ---
+      duration_ms: 8.507167
+      type: 'test'
+      ...
+    # Subtest: private visibility stays outside /public
+    ok 2 - private visibility stays outside /public
+      ---
+      duration_ms: 1.326875
+      type: 'test'
+      ...
+    # Subtest: a rejected upload never reaches storage
+    ok 3 - a rejected upload never reaches storage
+      ---
+      duration_ms: 0.317083
+      type: 'test'
+      ...
+    1..3
+ok 103 - A6 storage fallback
+  ---
+  duration_ms: 10.302667
+  type: 'suite'
+  ...
+# [user-goal] database read failed: Error: database is down
+#     at Object.getGoal (/Users/praveenkumar/ws-launch/tests/unit/user-goal-store.test.ts:71:15)
+#     at GET (/Users/praveenkumar/ws-launch/lib/goals/user-goal-store.ts:97:31)
+#     at async TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/unit/user-goal-store.test.ts:74:17)
+#     at async Test.run (node:internal/test_runner/test:1054:7)
+#     at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+# Subtest: B-007: goal storage is the database only
+    # Subtest: reads a stored goal through the DB client
+    ok 1 - reads a stored goal through the DB client
+      ---
+      duration_ms: 13.602541
+      type: 'test'
+      ...
+    # Subtest: returns null when the user has no goal (no memory fallback)
+    ok 2 - returns null when the user has no goal (no memory fallback)
+      ---
+      duration_ms: 0.287833
+      type: 'test'
+      ...
+    # Subtest: propagates DB read failures instead of using a cached value
+    ok 3 - propagates DB read failures instead of using a cached value
+      ---
+      duration_ms: 0.395083
+      type: 'test'
+      ...
+    # Subtest: propagates DB write failures instead of claiming success
+    ok 4 - propagates DB write failures instead of claiming success
+      ---
+      duration_ms: 0.206209
+      type: 'test'
+      ...
+    # Subtest: serialises and de-duplicates goals on write
+    ok 5 - serialises and de-duplicates goals on write
+      ---
+      duration_ms: 0.145208
+      type: 'test'
+      ...
+    # Subtest: GET returns 503 when the DB read throws
+    ok 6 - GET returns 503 when the DB read throws
+      ---
+      duration_ms: 5.032458
+      type: 'test'
+      ...
+    # Subtest: GET returns the stored goal for a signed-in user
+    ok 7 - GET returns the stored goal for a signed-in user
+      ---
+      duration_ms: 0.529834
+      type: 'test'
+      ...
+    # Subtest: GET returns an empty goal for a guest
+    ok 8 - GET returns an empty goal for a guest
+      ---
+      duration_ms: 0.581792
+      type: 'test'
+      ...
+    1..8
+ok 104 - B-007: goal storage is the database only
+  ---
+  duration_ms: 21.888958
+  type: 'suite'
+  ...
+# Subtest: B-007: goal round trip through the real test database
+    # Subtest: writes a goal and reads it back through the DB path
+    ok 1 - writes a goal and reads it back through the DB path
+      ---
+      duration_ms: 35.388083
+      type: 'test'
+      ...
+    1..1
+ok 105 - B-007: goal round trip through the real test database
+  ---
+  duration_ms: 54.592125
+  type: 'suite'
+  ...
+# Subtest: A11 stored XSS sanitizer
+    # Subtest: neutralises: <script>alert(1)</script>
+    ok 1 - neutralises: <script>alert(1)</script>
+      ---
+      duration_ms: 3.372541
+      type: 'test'
+      ...
+    # Subtest: neutralises: <SCRIPT type="text/javascript">alert(1)</SCRIPT>
+    ok 2 - neutralises: <SCRIPT type="text/javascript">alert(1)</SCRIPT>
+      ---
+      duration_ms: 1.776792
+      type: 'test'
+      ...
+    # Subtest: neutralises: <script src="https://evil.test/x.js"></script>
+    ok 3 - neutralises: <script src="https://evil.test/x.js"></script>
+      ---
+      duration_ms: 0.1295
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror=alert(1)>
+    ok 4 - neutralises: <img src=x onerror=alert(1)>
+      ---
+      duration_ms: 0.097292
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror="alert(1)">
+    ok 5 - neutralises: <img src=x onerror="alert(1)">
+      ---
+      duration_ms: 0.071417
+      type: 'test'
+      ...
+    # Subtest: neutralises: <img src=x onerror='alert(1)'>
+    ok 6 - neutralises: <img src=x onerror='alert(1)'>
+      ---
+      duration_ms: 0.194083
+      type: 'test'
+      ...
+    # Subtest: neutralises: <svg/onload=alert(1)>
+    ok 7 - neutralises: <svg/onload=alert(1)>
+      ---
+      duration_ms: 0.071125
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href="javascript:alert(1)">click</a>
+    ok 8 - neutralises: <a href="javascript:alert(1)">click</a>
+      ---
+      duration_ms: 0.144792
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href='javascript:alert(1)'>click</a>
+    ok 9 - neutralises: <a href='javascript:alert(1)'>click</a>
+      ---
+      duration_ms: 0.213625
+      type: 'test'
+      ...
+    # Subtest: neutralises: <iframe src="https://evil.test"></iframe>
+    ok 10 - neutralises: <iframe src="https://evil.test"></iframe>
+      ---
+      duration_ms: 0.373083
+      type: 'test'
+      ...
+    # Subtest: neutralises: <object data="x"></object>
+    ok 11 - neutralises: <object data="x"></object>
+      ---
+      duration_ms: 0.0795
+      type: 'test'
+      ...
+    # Subtest: neutralises: <embed src="x">
+    ok 12 - neutralises: <embed src="x">
+      ---
+      duration_ms: 0.060167
+      type: 'test'
+      ...
+    # Subtest: neutralises: <form action="/x"><input></form>
+    ok 13 - neutralises: <form action="/x"><input></form>
+      ---
+      duration_ms: 0.056292
+      type: 'test'
+      ...
+    # Subtest: neutralises: <style>body{background:url(javascript:alert(1))}
+    ok 14 - neutralises: <style>body{background:url(javascript:alert(1))}
+      ---
+      duration_ms: 0.051667
+      type: 'test'
+      ...
+    # Subtest: neutralises: <div style="width:expression(alert(1))">x</div>
+    ok 15 - neutralises: <div style="width:expression(alert(1))">x</div>
+      ---
+      duration_ms: 0.063417
+      type: 'test'
+      ...
+    # Subtest: neutralises: </script><script>alert(1)</script>
+    ok 16 - neutralises: </script><script>alert(1)</script>
+      ---
+      duration_ms: 0.052875
+      type: 'test'
+      ...
+    # Subtest: neutralises: <a href="java\\tscript:alert(1)">tab trick</a>
+    ok 17 - neutralises: <a href="java\\tscript:alert(1)">tab trick</a>
+      ---
+      duration_ms: 0.111917
+      type: 'test'
+      ...
+    # Subtest: keeps harmless formatting
+    ok 18 - keeps harmless formatting
+      ---
+      duration_ms: 0.097458
+      type: 'test'
+      ...
+    1..18
+ok 106 - A11 stored XSS sanitizer
+  ---
+  duration_ms: 8.232417
+  type: 'suite'
+  ...
+1..106
+# tests 561
+# suites 130
+# pass 561
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 109126.027292
+EXIT:0

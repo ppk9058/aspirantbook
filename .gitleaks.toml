@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Allowlist raw evidence logs to avoid false positives on simulated test fixtures"
+paths = [
+    '''^docs/evidence/raw/.*\.txt$''',
+]
