@@ -24,6 +24,8 @@ HANDOFF: none
 | R12-J | T2 | CHEAP | DONE | 2b7ea6d | `docs/evidence/raw/r12-j-*.txt` | — | 4 tests, pass-after 5×EXIT:0, .gitleaksignore <=12 chars, gitleaks CI job, literal fallbacks removed, findings by rule reported |
 
 
-| R12-M | T3 | CHEAP | IN_PROGRESS | ba21436 | — | Mobile prep: test proposals (4 failing tests), eas.json check, data-safety draft, mobile tsc & tests | Do NOT edit mobile tests |
+| R12-M | T3 | CHEAP | DONE | 49e9d70 | `docs/evidence/raw/r12-m-*.txt` | — | 38 files: 34 PASS, 3 assertion-FAIL, 1 HANGING; 4th file fake-data-scan; release EXIT:0; mobile tsc EXIT:0; no mobile test edits |
+
+| R12-V | — | CHEAP | IN_PROGRESS | 49e9d70 | — | Retro-verify large files, J fail-before, test-count arithmetic | — |
 
 | R12-Z | — | CHEAP | TODO | — | — | Read SPEC R12-Z; fresh clone final verification, tag `r12-ready-2026-11-01` | Only if all steps DONE |
