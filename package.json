@@ -57,7 +57,7 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toast": "^1.2.4",
-    "@sentry/nextjs": "11.10.0",
+    "@sentry/nextjs": "11.8.0",
     "@stripe/stripe-js": "^8.5.3",
     "@tanstack/react-query": "^5.62.11",
     "@trpc/client": "^11.0.0-rc.690",
@@ -108,7 +108,7 @@
     "monaco-editor": {
       "dompurify": "3.4.17"
     },
-    "brace-expansion": "^1.1.21"
+    "brace-expansion@1": "1.1.21"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

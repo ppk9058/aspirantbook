@@ -1,0 +1,21 @@
+aspirantbook@0.1.0 /Users/praveenkumar/ws-launch
++-- @sentry/nextjs@11.10.0
+| `-- @sentry/bundler-plugins@11.10.0
+|   `-- glob@13.0.6
+|     `-- minimatch@10.2.6
+|       `-- brace-expansion@5.0.12 invalid: "^1.1.21" from node_modules/glob/node_modules/minimatch overridden
++-- eslint-config-next@15.5.28
+| `-- @typescript-eslint/parser@8.72.1
+|   `-- @typescript-eslint/typescript-estree@8.72.1
+|     `-- minimatch@10.2.6
+|       `-- brace-expansion@5.0.12 invalid: "^1.1.21" from node_modules/@typescript-eslint/typescript-estree/node_modules/minimatch overridden
+`-- eslint@9.39.5
+  `-- minimatch@3.1.5
+    `-- brace-expansion@1.1.12 invalid: "^1.1.21" from node_modules/minimatch overridden
+
+npm error code ELSPROBLEMS
+npm error invalid: brace-expansion@1.1.12 /Users/praveenkumar/ws-launch/node_modules/brace-expansion
+npm error invalid: brace-expansion@5.0.12 /Users/praveenkumar/ws-launch/node_modules/glob/node_modules/brace-expansion
+npm error invalid: brace-expansion@5.0.12 /Users/praveenkumar/ws-launch/node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion
+npm error A complete log of this run can be found in: /Users/praveenkumar/.npm/_logs/2026-11-01T07_07_01_822Z-debug-0.log
+EXIT:1
