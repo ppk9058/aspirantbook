@@ -30,6 +30,27 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV AUTH_SECRET="build_dummy_auth_secret_placeholder"
 ENV DATABASE_URL="postgresql://placeholder:placeholder@db.build-placeholder.invalid:5432/placeholder_build_test?sslmode=require"
 ENV DIRECT_URL="postgresql://placeholder:placeholder@db.build-placeholder.invalid:5432/placeholder_build_test?sslmode=require"
+# Build-time ARGs for NEXT_PUBLIC_* variables (inlined by Next.js at build time).
+# No defaults, no ENV lines: unpassed ARGs stay unset, preserving existing behaviour.
+ARG NEXT_PUBLIC_AGORA_APP_ID
+ARG NEXT_PUBLIC_APP_ALLOW_PURCHASE
+ARG NEXT_PUBLIC_APP_NAME
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_CANONICAL_DOMAIN
+ARG NEXT_PUBLIC_ENABLE_MOBILE_NATIVE_SHELL
+ARG NEXT_PUBLIC_GIT_COMMIT
+ARG NEXT_PUBLIC_RAZORPAY_KEY_ID
+ARG NEXT_PUBLIC_SITE_NAME
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID
+ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+ARG NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID
+ARG NEXT_PUBLIC_SUPPORT_EMAIL
+ARG NEXT_PUBLIC_SUPPORT_PHONE
+ARG NEXT_PUBLIC_TELEGRAM_URL
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY
+ARG NEXT_PUBLIC_TWITTER_URL
+ARG NEXT_PUBLIC_YOUTUBE_URL
 RUN npx prisma generate && npm run build
 
 # 3. Production runner
