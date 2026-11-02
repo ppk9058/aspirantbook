@@ -162,6 +162,14 @@ services:
       - key: REGISTERED_ADDRESS
         sync: false
 
+      # --- Error monitoring (Sentry) ---
+      - key: SENTRY_DSN
+        sync: false
+      - key: SENTRY_ENVIRONMENT
+        sync: false
+      - key: SENTRY_RELEASE
+        sync: false
+
       # --- Feature flags ---
       - key: MAINTENANCE_MODE
         value: "false"
