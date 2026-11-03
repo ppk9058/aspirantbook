@@ -1,0 +1,441 @@
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: OTP core: phone normalisation
+    # Subtest: accepts 10-digit Indian mobiles starting 6-9 and normalises to +91
+    ok 1 - accepts 10-digit Indian mobiles starting 6-9 and normalises to +91
+      ---
+      duration_ms: 61.703958
+      type: 'test'
+      ...
+    # Subtest: accepts +91, 91 and leading-zero prefixes
+    ok 2 - accepts +91, 91 and leading-zero prefixes
+      ---
+      duration_ms: 1.514375
+      type: 'test'
+      ...
+    # Subtest: rejects non-Indian, short, long and invalid-prefix numbers
+    ok 3 - rejects non-Indian, short, long and invalid-prefix numbers
+      ---
+      duration_ms: 0.48325
+      type: 'test'
+      ...
+    # Subtest: masks phone numbers for logs
+    ok 4 - masks phone numbers for logs
+      ---
+      duration_ms: 0.210917
+      type: 'test'
+      ...
+    1..4
+ok 1 - OTP core: phone normalisation
+  ---
+  duration_ms: 65.321125
+  type: 'suite'
+  ...
+# Subtest: OTP core: service flow (provider mocked at the adapter boundary)
+    # Subtest: correct code succeeds and is single-use
+    ok 1 - correct code succeeds and is single-use
+      ---
+      duration_ms: 273.208042
+      type: 'test'
+      ...
+    # Subtest: wrong code fails and does not consume the verification id
+    ok 2 - wrong code fails and does not consume the verification id
+      ---
+      duration_ms: 57.104125
+      type: 'test'
+      ...
+    # Subtest: verification id is bound to the phone that requested it
+    ok 3 - verification id is bound to the phone that requested it
+      ---
+      duration_ms: 21.480917
+      type: 'test'
+      ...
+    # Subtest: expired verification is reported as expired
+    ok 4 - expired verification is reported as expired
+      ---
+      duration_ms: 23.373875
+      type: 'test'
+      ...
+    # Subtest: resend cooldown blocks an immediate second send
+    ok 5 - resend cooldown blocks an immediate second send
+      ---
+      duration_ms: 17.533709
+      type: 'test'
+      ...
+    # Subtest: per-phone send limit (3 / 10 min) triggers
+    ok 6 - per-phone send limit (3 / 10 min) triggers
+      ---
+      duration_ms: 24.585958
+      type: 'test'
+      ...
+    # Subtest: per-IP send limit triggers across different phones
+    ok 7 - per-IP send limit triggers across different phones
+      ---
+      duration_ms: 18.765167
+      type: 'test'
+      ...
+    # Subtest: max verify attempts per verification id triggers
+    ok 8 - max verify attempts per verification id triggers
+      ---
+      duration_ms: 26.306958
+      type: 'test'
+      ...
+    # Subtest: invalid and non-Indian numbers are rejected before the provider is called
+    ok 9 - invalid and non-Indian numbers are rejected before the provider is called
+      ---
+      duration_ms: 0.372
+      type: 'test'
+      ...
+    # Subtest: provider errors are mapped, and logs never contain the full phone or OTP
+    ok 10 - provider errors are mapped, and logs never contain the full phone or OTP
+      ---
+      duration_ms: 4.490208
+      type: 'test'
+      ...
+    1..10
+ok 2 - OTP core: service flow (provider mocked at the adapter boundary)
+  ---
+  duration_ms: 470.264584
+  type: 'suite'
+  ...
+# Subtest: OTP core: server-signed proof
+    # Subtest: proof is valid once, bound to the phone, and single-use
+    ok 1 - proof is valid once, bound to the phone, and single-use
+      ---
+      duration_ms: 9.65375
+      type: 'test'
+      ...
+    # Subtest: expired proof is rejected
+    ok 2 - expired proof is rejected
+      ---
+      duration_ms: 0.402291
+      type: 'test'
+      ...
+    # Subtest: tampered proof is rejected
+    ok 3 - tampered proof is rejected
+      ---
+      duration_ms: 0.2025
+      type: 'test'
+      ...
+    1..3
+ok 3 - OTP core: server-signed proof
+  ---
+  duration_ms: 10.485584
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Web mobile-login route (real OTP, mocked provider)
+    # Subtest: a bare phoneNumber cannot sign in: it only triggers an OTP send
+    ok 1 - a bare phoneNumber cannot sign in: it only triggers an OTP send
+      ---
+      duration_ms: 100.309667
+      type: 'test'
+      ...
+# [Auth] Mobile OTP sign-in rejected: Proof has already been used
+    # Subtest: wrong code fails; correct code returns a proof that signs in once
+    ok 2 - wrong code fails; correct code returns a proof that signs in once
+      ---
+      duration_ms: 238.4215
+      type: 'test'
+      ...
+    # Subtest: invalid phone numbers are rejected with 400
+    ok 3 - invalid phone numbers are rejected with 400
+      ---
+      duration_ms: 16.081875
+      type: 'test'
+      ...
+    # Subtest: resend cooldown returns 429
+    ok 4 - resend cooldown returns 429
+      ---
+      duration_ms: 25.6545
+      type: 'test'
+      ...
+    # Subtest: send responses do not reveal whether an account exists
+    ok 5 - send responses do not reveal whether an account exists
+      ---
+      duration_ms: 36.523959
+      type: 'test'
+      ...
+    1..5
+ok 4 - Web mobile-login route (real OTP, mocked provider)
+  ---
+  duration_ms: 418.569959
+  type: 'suite'
+  ...
+# Subtest: Mobile v1 OTP routes (real OTP, mocked provider)
+    # Subtest: request returns a verification id; verify returns today's token/user shape
+    ok 1 - request returns a verification id; verify returns today's token/user shape
+      ---
+      duration_ms: 71.045916
+      type: 'test'
+      ...
+    # Subtest: verify without a verificationId is rejected (bare phone cannot sign in)
+    ok 2 - verify without a verificationId is rejected (bare phone cannot sign in)
+      ---
+      duration_ms: 8.119458
+      type: 'test'
+      ...
+    # Subtest: wrong code returns 401; replaying a used verification id returns 401
+    ok 3 - wrong code returns 401; replaying a used verification id returns 401
+      ---
+      duration_ms: 65.666042
+      type: 'test'
+      ...
+    # Subtest: invalid phone is rejected before the provider is called
+    ok 4 - invalid phone is rejected before the provider is called
+      ---
+      duration_ms: 4.0655
+      type: 'test'
+      ...
+    # Subtest: mobile request responses do not reveal account existence
+    ok 5 - mobile request responses do not reveal account existence
+      ---
+      duration_ms: 34.637375
+      type: 'test'
+      ...
+    1..5
+ok 5 - Mobile v1 OTP routes (real OTP, mocked provider)
+  ---
+  duration_ms: 184.731709
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [CRITICAL SECURITY REFUSAL AT BOOT] APP_ENV=test is set with invalid or non-local DATABASE_URL! Test mode is strictly restricted to local PostgreSQL (127.0.0.1/localhost) ending with _test. (got: postgresql://u:***@db.example.com:5432/prod?sslmode=require)
+# [CRITICAL SECURITY REFUSAL AT BOOT] APP_ENV=test is set with invalid or non-local DATABASE_URL! Test mode is strictly restricted to local PostgreSQL (127.0.0.1/localhost) ending with _test. (got: postgresql://u:***@db.example.com:5432/prod?sslmode=require)
+# [Auth] Mobile OTP sign-in rejected: Missing or malformed proof
+# [Auth] Mobile OTP sign-in rejected: Invalid proof signature
+# Subtest: OTP security: production cannot enable any bypass
+    # Subtest: isOtpDevBypassAllowed is false in production even with the dev flag and APP_ENV=test
+    ok 1 - isOtpDevBypassAllowed is false in production even with the dev flag and APP_ENV=test
+      ---
+      duration_ms: 25.868584
+      type: 'test'
+      ...
+    # Subtest: the provider test override refuses to work in production
+    ok 2 - the provider test override refuses to work in production
+      ---
+      duration_ms: 1.453292
+      type: 'test'
+      ...
+    # Subtest: boot guard refuses production with a half-configured Message Central credential
+    not ok 3 - boot guard refuses production with a half-configured Message Central credential
+      ---
+      duration_ms: 11.832084
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:3481'
+      failureType: 'testCodeFailure'
+      error: |-
+        The input did not match the regular expression /MESSAGE_CENTRAL_CUSTOMER_ID and MESSAGE_CENTRAL_AUTH_KEY/. Input:
+        
+        'Error: [CRITICAL SECURITY REFUSAL AT BOOT] APP_ENV=test is set with invalid or non-local DATABASE_URL! Test mode is strictly restricted to local PostgreSQL (127.0.0.1/localhost) ending with _test. (got: postgresql://u:***@db.example.com:5432/prod?sslmode=require)'
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+      error: '[CRITICAL SECURITY REFUSAL AT BOOT] APP_ENV=test is set with invalid or non-local DATABASE_URL! Test mode is strictly restricted to local PostgreSQL (127.0.0.1/localhost) ending with _test. (got: postgresql://u:***@db.example.com:5432/prod?sslmode=require)'
+      stack: |-
+        validateBootSecurity (/Users/praveenkumar/TS-otp/lib/boot-guard.ts:46:13)
+        <anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:88:25)
+        getActual (node:assert:609:5)
+        Function.throws (node:assert:757:24)
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:88:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+      operator: 'throws'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:88:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: boot guard does not break when OTP is simply unset
+    not ok 4 - boot guard does not break when OTP is simply unset
+      ---
+      duration_ms: 3.46025
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:3961'
+      failureType: 'testCodeFailure'
+      error: |-
+        Got unwanted exception.
+        Actual message: "[CRITICAL SECURITY REFUSAL AT BOOT] APP_ENV=test is set with invalid or non-local DATABASE_URL! Test mode is strictly restricted to local PostgreSQL (127.0.0.1/localhost) ending with _test. (got: postgresql://u:***@db.example.com:5432/prod?sslmode=require)"
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      actual:
+      error: '[CRITICAL SECURITY REFUSAL AT BOOT] APP_ENV=test is set with invalid or non-local DATABASE_URL! Test mode is strictly restricted to local PostgreSQL (127.0.0.1/localhost) ending with _test. (got: postgresql://u:***@db.example.com:5432/prod?sslmode=require)'
+      stack: |-
+        validateBootSecurity (/Users/praveenkumar/TS-otp/lib/boot-guard.ts:46:13)
+        <anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:100:31)
+        getActual (node:assert:609:5)
+        Function.doesNotThrow (node:assert:777:32)
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:100:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+      operator: 'doesNotThrow'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:100:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..4
+not ok 6 - OTP security: production cannot enable any bypass
+  ---
+  duration_ms: 44.1215
+  type: 'suite'
+  location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:2417'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: OTP security: config flag follows provider credentials
+    # Subtest: otpAuthEnabled is true when both provider credentials are present
+    ok 1 - otpAuthEnabled is true when both provider credentials are present
+      ---
+      duration_ms: 3.958375
+      type: 'test'
+      ...
+    # Subtest: otpAuthEnabled is false in production without credentials
+    ok 2 - otpAuthEnabled is false in production without credentials
+      ---
+      duration_ms: 0.303292
+      type: 'test'
+      ...
+    1..2
+ok 7 - OTP security: config flag follows provider credentials
+  ---
+  duration_ms: 6.974
+  type: 'suite'
+  ...
+# Subtest: OTP security: web authorize boundary
+    # Subtest: bare phoneNumber and forged proof are both rejected
+    ok 1 - bare phoneNumber and forged proof are both rejected
+      ---
+      duration_ms: 5.4505
+      type: 'test'
+      ...
+    # Subtest: a proof for a different phone cannot sign in another number
+    not ok 2 - a proof for a different phone cannot sign in another number
+      ---
+      duration_ms: 61.339625
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:5910'
+      failureType: 'testCodeFailure'
+      error: |-
+        
+        Invalid `prisma.user.create()` invocation:
+        
+        
+        Authentication failed against database server, the provided database credentials for `user` are not valid.
+        
+        Please make sure to provide valid database credentials for the database server at the configured address.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:141:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..2
+not ok 8 - OTP security: web authorize boundary
+  ---
+  duration_ms: 103.792375
+  type: 'suite'
+  location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:5352'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: OTP security: email + password regression
+    # Subtest: email and password login still works unchanged
+    not ok 1 - email and password login still works unchanged
+      ---
+      duration_ms: 376.028167
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:6587'
+      failureType: 'testCodeFailure'
+      error: |-
+        
+        Invalid `prisma.user.create()` invocation:
+        
+        
+        Authentication failed against database server, the provided database credentials for `user` are not valid.
+        
+        Please make sure to provide valid database credentials for the database server at the configured address.
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        ei.handleRequestError (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+        ei.handleAndLogRequestError (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+        ei.request (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+        async a (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+        async TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:164:18)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..1
+not ok 9 - OTP security: email + password regression
+  ---
+  duration_ms: 377.297834
+  type: 'suite'
+  location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:6509'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+not ok 10 - /Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts
+  ---
+  duration_ms: 31.728917
+  location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:2168'
+  failureType: 'hookFailed'
+  error: |-
+    
+    Invalid `prisma.user.deleteMany()` invocation in
+    /Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:55:23
+    
+      52 restoreEnv();
+      53 __resetOtpProviderForTests();
+      54 if (createdEmails.length) {
+    → 55   await prisma.user.deleteMany(
+    Authentication failed against database server, the provided database credentials for `user` are not valid.
+    
+    Please make sure to provide valid database credentials for the database server at the configured address.
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    ei.handleRequestError (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    ei.handleAndLogRequestError (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    ei.request (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    async a (/Users/praveenkumar/TS-otp/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    async TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:55:5)
+    async TestHook.run (node:internal/test_runner/test:1054:7)
+    async Test.runHook (node:internal/test_runner/test:965:9)
+    async after (node:internal/test_runner/test:1005:9)
+    async Test.run (node:internal/test_runner/test:1070:7)
+  ...
+1..10
+# tests 37
+# suites 9
+# pass 32
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7491.397583
