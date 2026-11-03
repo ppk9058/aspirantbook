@@ -30,6 +30,7 @@ interface MobileAuthContextType {
     otp: string[]
     countdown: number
     isVerifying: boolean
+    isSending: boolean
     errorMessage: string
     successMessage: string
     activeCourse: MobileAuthCourseInfo | null
@@ -67,6 +68,8 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
     const otpRef = useRef<string[]>(["", "", "", "", "", ""])
     const [countdown, setCountdown] = useState(30)
     const [isVerifying, setIsVerifying] = useState(false)
+    const [isSending, setIsSending] = useState(false)
+    const [verificationId, setVerificationId] = useState<string | null>(null)
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
     const [activeCourse, setActiveCourse] = useState<MobileAuthCourseInfo | null>(null)
@@ -91,6 +94,8 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
         setErrorMessage("")
         setSuccessMessage("")
         setIsVerifying(false)
+        setIsSending(false)
+        setVerificationId(null)
         setCountdown(30)
         setIsOpen(true)
     }, [])
@@ -118,24 +123,65 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
         return () => clearInterval(timer)
     }, [isOpen, step, countdown])
 
-    const handleGetOtp = useCallback(() => {
+    const requestOtp = useCallback(async (): Promise<boolean> => {
+        const res = await fetch("/api/auth/mobile-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phoneNumber }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok || !data.success || !data.verificationId) {
+            const retry = typeof data.retryAfter === "number" ? data.retryAfter : undefined
+            setErrorMessage(
+                res.status === 429 && retry
+                    ? `${data.error || "Please wait before requesting another code."} (${retry}s)`
+                    : data.error || "We could not send the verification code. Please try again."
+            )
+            return false
+        }
+        setVerificationId(data.verificationId)
+        setCountdown(typeof data.resendAfter === "number" ? data.resendAfter : 30)
+        return true
+    }, [phoneNumber])
+
+    const handleGetOtp = useCallback(async () => {
+        if (isSending) return
         if (phoneNumber.length !== 10) {
             setErrorMessage("Please enter a valid 10-digit mobile number.")
             return
         }
         setErrorMessage("")
-        setStep("otp")
-        setCountdown(30)
-        otpRef.current = ["", "", "", "", "", ""]
-        setOtp(["", "", "", "", "", ""])
-    }, [phoneNumber])
+        setIsSending(true)
+        try {
+            const sent = await requestOtp()
+            if (!sent) return
+            setStep("otp")
+            otpRef.current = ["", "", "", "", "", ""]
+            setOtp(["", "", "", "", "", ""])
+        } catch (err) {
+            console.error("OTP request error:", err)
+            setErrorMessage("Network error. Please check your connection and try again.")
+        } finally {
+            setIsSending(false)
+        }
+    }, [isSending, phoneNumber, requestOtp])
 
-    const handleResendOtp = useCallback(() => {
-        setCountdown(30)
-        otpRef.current = ["", "", "", "", "", ""]
-        setOtp(["", "", "", "", "", ""])
+    const handleResendOtp = useCallback(async () => {
+        if (isSending) return
         setErrorMessage("")
-    }, [])
+        setIsSending(true)
+        try {
+            const sent = await requestOtp()
+            if (!sent) return
+            otpRef.current = ["", "", "", "", "", ""]
+            setOtp(["", "", "", "", "", ""])
+        } catch (err) {
+            console.error("OTP resend error:", err)
+            setErrorMessage("Network error. Please check your connection and try again.")
+        } finally {
+            setIsSending(false)
+        }
+    }, [isSending, requestOtp])
 
     const isCourseFree = (course?: MobileAuthCourseInfo | null): boolean => {
         if (!course) return false
@@ -145,7 +191,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
         return p.includes("free") || p === "0" || p === "₹0"
     }
 
-    // Auto-verify without clicking: Accepts ANY 6-digit number as valid OTP
+    // Auto-verify as soon as all six digits are entered
     const verifyOtp = useCallback(async (code: string) => {
         if (isVerifying) return
         setIsVerifying(true)
@@ -155,7 +201,15 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
         const effectiveAction = actionType === "enroll" || (actionType === "login" && isFree) ? "enroll" : actionType
 
         try {
-            // Step 1: Call mobile-login API (auto-enrolls if free course)
+            if (!verificationId) {
+                setErrorMessage("Please request a verification code first.")
+                setIsVerifying(false)
+                return
+            }
+
+            // Step 1: Verify the code with the server (auto-enrolls if free course).
+            // The server returns a short-lived, single-use proof after a successful
+            // provider verification. No proof => no sign-in.
             const courseParam = effectiveAction === "enroll" && activeCourse
                 ? (activeCourse.slug || activeCourse.id)
                 : null
@@ -165,20 +219,25 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     phoneNumber,
+                    code,
+                    verificationId,
                     courseId: courseParam,
                 }),
             })
 
             const data = await res.json()
-            if (!res.ok || !data.success) {
+            if (!res.ok || !data.success || !data.proof) {
                 setErrorMessage(data.error || "Login failed. Please try again.")
+                otpRef.current = ["", "", "", "", "", ""]
+                setOtp(["", "", "", "", "", ""])
                 setIsVerifying(false)
                 return
             }
 
-            // Step 2: Sign in NextAuth session
+            // Step 2: Sign in NextAuth session with the server-signed proof
             const signInRes = await signIn("mobile", {
                 phoneNumber,
+                proof: data.proof,
                 redirect: false,
             })
 
@@ -261,7 +320,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
             setErrorMessage("Something went wrong. Please try again.")
             setIsVerifying(false)
         }
-    }, [actionType, activeCourse, callbackUrl, isVerifying, onSuccessCallback, phoneNumber, router])
+    }, [actionType, activeCourse, callbackUrl, isVerifying, onSuccessCallback, phoneNumber, router, verificationId])
 
     const handleOtpChange = (
         val: string,
@@ -335,6 +394,7 @@ export function MobileAuthProvider({ children }: { children: React.ReactNode }) 
                 otp,
                 countdown,
                 isVerifying,
+                isSending,
                 errorMessage,
                 successMessage,
                 activeCourse,
@@ -369,6 +429,7 @@ export function useMobileAuth() {
             otp: ["", "", "", "", "", ""],
             countdown: 30,
             isVerifying: false,
+            isSending: false,
             errorMessage: "",
             successMessage: "",
             activeCourse: null,
