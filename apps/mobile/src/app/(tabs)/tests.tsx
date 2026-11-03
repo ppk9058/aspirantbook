@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   RefreshControl,
   StyleSheet,
   TextInput,
+  InteractionManager,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
@@ -63,9 +64,27 @@ export default function TestsTabScreen() {
     },
   });
 
+  // F4: the PYQ and current-affairs lists are not visible on first paint (the
+  // series pill is the default), so their queries start after the mount
+  // interactions settle. Selecting a pill starts its query immediately, exactly
+  // like before, and a not-yet-started pill reports the pre-existing loading
+  // state instead of the empty state.
+  const [deferredReady, setDeferredReady] = useState(false);
+  const [pyqRequested, setPyqRequested] = useState(false);
+  const [caRequested, setCaRequested] = useState(false);
+
+  useEffect(() => {
+    const task = InteractionManager.runAfterInteractions(() => setDeferredReady(true));
+    return () => task.cancel();
+  }, []);
+
+  const pyqEnabled = deferredReady || pyqRequested;
+  const caEnabled = deferredReady || caRequested;
+
   // Query PYQ
   const pyqQuery = useQuery({
     queryKey: ["tests-pyq"],
+    enabled: pyqEnabled,
     queryFn: async () => {
       const res = await api.getPyqExams();
       if (!res.ok) throw new Error(res.error?.message || "Failed to load PYQs");
@@ -76,6 +95,7 @@ export default function TestsTabScreen() {
   // Query Current Affairs
   const caQuery = useQuery({
     queryKey: ["tests-ca"],
+    enabled: caEnabled,
     queryFn: async () => {
       const res = await api.getCurrentAffairs();
       if (!res.ok) throw new Error(res.error?.message || "Failed to load Current Affairs");
@@ -87,9 +107,9 @@ export default function TestsTabScreen() {
     activePill === "series"
       ? seriesQuery.isLoading
       : activePill === "pyq"
-      ? pyqQuery.isLoading
+      ? !pyqEnabled || pyqQuery.isLoading
       : activePill === "ca"
-      ? caQuery.isLoading
+      ? !caEnabled || caQuery.isLoading
       : false;
 
   const isError =
@@ -325,12 +345,18 @@ export default function TestsTabScreen() {
               <Chip
                 label="PYQs"
                 selected={activePill === "pyq"}
-                onPress={() => setActivePill("pyq")}
+                onPress={() => {
+                  setPyqRequested(true);
+                  setActivePill("pyq");
+                }}
               />
               <Chip
                 label="Quizzes"
                 selected={activePill === "ca"}
-                onPress={() => setActivePill("ca")}
+                onPress={() => {
+                  setCaRequested(true);
+                  setActivePill("ca");
+                }}
               />
             </View>
 
