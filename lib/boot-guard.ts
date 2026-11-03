@@ -13,7 +13,8 @@ export function validateBootSecurity() {
   const otpProviderConfigured = Boolean(
     process.env.FAST2SMS_API_KEY ||
     process.env.TWILIO_AUTH_TOKEN ||
-    process.env.MSG91_AUTH_KEY
+    process.env.MSG91_AUTH_KEY ||
+    (process.env.MESSAGE_CENTRAL_CUSTOMER_ID && process.env.MESSAGE_CENTRAL_AUTH_KEY)
   );
 
   // 0. Guard: production must never persist to local disk (ephemeral / read-only hosts)
@@ -94,6 +95,23 @@ export function validateBootSecurity() {
     console.error(errorMsg);
     throw new Error(errorMsg);
   }
+
+  // 4. Guard: Message Central credentials must be complete when used. Both unset
+  // is a valid state (OTP simply stays disabled), so boot never breaks for
+  // deployments that do not enable OTP.
+  const mcCustomerId = process.env.MESSAGE_CENTRAL_CUSTOMER_ID?.trim();
+  const mcAuthKey = process.env.MESSAGE_CENTRAL_AUTH_KEY?.trim();
+  if (Boolean(mcCustomerId) !== Boolean(mcAuthKey)) {
+    const errorMsg =
+      "[SECURITY REFUSAL AT BOOT] MESSAGE_CENTRAL_CUSTOMER_ID and MESSAGE_CENTRAL_AUTH_KEY " +
+      "must be set together (or both left empty to keep OTP disabled).";
+    if (isProduction) {
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+    console.warn(errorMsg);
+  }
+  void otpProviderConfigured;
 }
 
 // Execute immediately when module is imported
