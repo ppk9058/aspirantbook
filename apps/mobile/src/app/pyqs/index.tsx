@@ -3,6 +3,7 @@ import {
   View,
   Text,
   ScrollView,
+  FlatList,
   RefreshControl,
   StyleSheet,
   TouchableOpacity,
@@ -31,6 +32,11 @@ import { ErrorState } from "../../../src/components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
 import { PyqExamDto, PyqPaperDto } from "@aspirantbook/shared";
+
+const EMPTY_PAPERS: PyqPaperDto[] = [];
+
+// Replaces the old `list` container `gap: 12` so item spacing is unchanged.
+const ItemGap = () => <View style={styles.separator} />;
 
 export default function PyqsScreen() {
   const router = useRouter();
@@ -81,9 +87,55 @@ export default function PyqsScreen() {
     );
   }, [rawPapers, searchQuery]);
 
+  const showList = !isLoading && !isError && filteredPapers.length > 0;
+
+  const renderItem = ({ item: paper }: { item: PyqPaperDto }) => (
+    <Card style={styles.paperCard}>
+      <View style={styles.cardHeader}>
+        <Badge label={paper.examName} variant="primary" size="sm" />
+        <View style={styles.yearBadge}>
+          <Calendar size={12} color={colors.textMuted} />
+          <Text style={[styles.yearText, { color: colors.textMuted }]}>
+            Year {paper.year} {paper.shift ? `(${paper.shift})` : ""}
+          </Text>
+        </View>
+      </View>
+
+      <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+        {paper.title}
+      </Text>
+
+      {paper.totalQuestions && (
+        <Text style={[styles.cardMeta, { color: colors.textSecondary }]}>
+          {paper.totalQuestions} Questions • Official Paper
+        </Text>
+      )}
+
+      <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+        <Button
+          title="Read PDF"
+          variant="secondary"
+          size="sm"
+          onPress={() =>
+            router.push({
+              pathname: "/pyqs/pdf-view",
+              params: { paperId: paper.id, title: paper.title },
+            })
+          }
+        />
+        <Button
+          title="Attempt as CBT"
+          variant="primary"
+          size="sm"
+          onPress={() => router.push(`/tests/${paper.id}` as any)}
+        />
+      </View>
+    </Card>
+  );
+
   return (
     <AppShell testID="pyqs-screen">
-      <ScrollView
+      <FlatList
         style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -94,129 +146,90 @@ export default function PyqsScreen() {
             tintColor={colors.primary}
           />
         }
-      >
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>
-            Previous Year Papers (PYQs)
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Authentic official question papers with verified solutions & CBT mock simulations
-          </Text>
-        </View>
+        data={showList ? filteredPapers : EMPTY_PAPERS}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        ItemSeparatorComponent={ItemGap}
+        ListHeaderComponent={
+          <>
+            <View style={styles.header}>
+              <Text style={[styles.title, { color: colors.textPrimary }]}>
+                Previous Year Papers (PYQs)
+              </Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                Authentic official question papers with verified solutions & CBT mock simulations
+              </Text>
+            </View>
 
-        {/* Search Bar */}
-        <View
-          style={[
-            styles.searchBar,
-            {
-              backgroundColor: colors.surfaceSecondary,
-              borderColor: colors.border,
-              borderRadius: tokens.radius.lg,
-            },
-          ]}
-        >
-          <Search size={18} color={colors.textMuted} style={styles.searchIcon} />
-          <TextInput
-            style={[styles.searchInput, { color: colors.textPrimary }]}
-            placeholder="Search papers by exam or year..."
-            placeholderTextColor={colors.textMuted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            clearButtonMode="while-editing"
-          />
-        </View>
+            {/* Search Bar */}
+            <View
+              style={[
+                styles.searchBar,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.lg,
+                },
+              ]}
+            >
+              <Search size={18} color={colors.textMuted} style={styles.searchIcon} />
+              <TextInput
+                style={[styles.searchInput, { color: colors.textPrimary }]}
+                placeholder="Search papers by exam or year..."
+                placeholderTextColor={colors.textMuted}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                clearButtonMode="while-editing"
+              />
+            </View>
 
-        {/* Exam Category Pills */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.examPillsContainer}
-        >
-          <Chip
-            label="All Exams"
-            selected={selectedExamId === "ALL"}
-            onPress={() => setSelectedExamId("ALL")}
-          />
-          {exams.map((e: PyqExamDto) => (
-            <Chip
-              key={e.id}
-              label={`${e.name} (${e.totalPapers})`}
-              selected={selectedExamId === e.id}
-              onPress={() => setSelectedExamId(e.id)}
-            />
-          ))}
-        </ScrollView>
+            {/* Exam Category Pills */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.examPillsContainer}
+            >
+              <Chip
+                label="All Exams"
+                selected={selectedExamId === "ALL"}
+                onPress={() => setSelectedExamId("ALL")}
+              />
+              {exams.map((e: PyqExamDto) => (
+                <Chip
+                  key={e.id}
+                  label={`${e.name} (${e.totalPapers})`}
+                  selected={selectedExamId === e.id}
+                  onPress={() => setSelectedExamId(e.id)}
+                />
+              ))}
+            </ScrollView>
 
-        {/* Content Body */}
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <Skeleton height={110} borderRadius={12} />
-            <Skeleton height={110} borderRadius={12} />
-            <Skeleton height={110} borderRadius={12} />
-          </View>
-        ) : isError ? (
-          <ErrorState
-            message={papersQuery.error?.message || "Failed to load PYQ papers"}
-            onRetry={handleRefresh}
-          />
-        ) : filteredPapers.length === 0 ? (
-          <EmptyState
-            title="No Papers Found"
-            description="There are currently no official papers matching your criteria."
-            actionTitle="Reset Search"
-            onAction={() => {
-              setSelectedExamId("ALL");
-              setSearchQuery("");
-            }}
-          />
-        ) : (
-          <View style={styles.list}>
-            {filteredPapers.map((paper: PyqPaperDto) => (
-              <Card key={paper.id} style={styles.paperCard}>
-                <View style={styles.cardHeader}>
-                  <Badge label={paper.examName} variant="primary" size="sm" />
-                  <View style={styles.yearBadge}>
-                    <Calendar size={12} color={colors.textMuted} />
-                    <Text style={[styles.yearText, { color: colors.textMuted }]}>
-                      Year {paper.year} {paper.shift ? `(${paper.shift})` : ""}
-                    </Text>
-                  </View>
-                </View>
-
-                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                  {paper.title}
-                </Text>
-
-                {paper.totalQuestions && (
-                  <Text style={[styles.cardMeta, { color: colors.textSecondary }]}>
-                    {paper.totalQuestions} Questions • Official Paper
-                  </Text>
-                )}
-
-                <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
-                  <Button
-                    title="Read PDF"
-                    variant="secondary"
-                    size="sm"
-                    onPress={() =>
-                      router.push({
-                        pathname: "/pyqs/pdf-view",
-                        params: { paperId: paper.id, title: paper.title },
-                      })
-                    }
-                  />
-                  <Button
-                    title="Attempt as CBT"
-                    variant="primary"
-                    size="sm"
-                    onPress={() => router.push(`/tests/${paper.id}` as any)}
-                  />
-                </View>
-              </Card>
-            ))}
-          </View>
-        )}
-      </ScrollView>
+            {/* Content Body */}
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <Skeleton height={110} borderRadius={12} />
+                <Skeleton height={110} borderRadius={12} />
+                <Skeleton height={110} borderRadius={12} />
+              </View>
+            ) : isError ? (
+              <ErrorState
+                message={papersQuery.error?.message || "Failed to load PYQ papers"}
+                onRetry={handleRefresh}
+              />
+            ) : filteredPapers.length === 0 ? (
+              <EmptyState
+                title="No Papers Found"
+                description="There are currently no official papers matching your criteria."
+                actionTitle="Reset Search"
+                onAction={() => {
+                  setSelectedExamId("ALL");
+                  setSearchQuery("");
+                }}
+              />
+            ) : null}
+          </>
+        }
+      />
     </AppShell>
   );
 }
@@ -268,6 +281,9 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: 12,
+  },
+  separator: {
+    height: 12,
   },
   paperCard: {
     padding: 16,
