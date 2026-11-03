@@ -111,6 +111,12 @@ Source: https://www.messagecentral.com/product/verify-now/api (Verify Now API do
   read the DB URL programmatically without echoing credentials.
 
 ## 14. Disk stop condition
-- Free space on `/System/Volumes/Data` fell to ~1.1–1.3 GB (under the 10 GB floor) after the build and
-  Playwright runs. No additional build/`next start` verification was attempted beyond the recorded
-  evidence; all remaining work was text-only (tests, docs, commits).
+- Free space on `/System/Volumes/Data` fell to ~1.1–1.3 GB (under the 10 GB floor) during the first
+  pass, so that pass stopped after the recorded build and Playwright evidence.
+- Space was freed afterwards and every gate was re-run against the committed tree. Results and raw
+  logs: `docs/otp/evidence/*-verified.txt` (51/51 OTP+regression tests, Playwright 1 passed,
+  mobile 23 passed, tsc 0 errors, lint unchanged, build exit 0 with 166/166 static pages).
+- `tsc` can report stale `TS6053` errors for `.next-test/types/**` when a dev-server run leaves a
+  `tsconfig.tsbuildinfo` behind. Deleting that git-ignored cache file fixes it; it is not a code error.
+- `next build` appends `.next-build/types` to `tsconfig.json` by itself; that edit was reverted after
+  the build, and the build output directory was deleted.

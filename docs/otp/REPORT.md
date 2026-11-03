@@ -174,9 +174,9 @@ Tests:       23 passed, 23 total
 
 | Gate | Baseline | Final | Evidence |
 |---|---|---|---|
-| `npx tsc --noEmit` | 0 errors (`evidence/tsc-before.txt`) | 0 errors, exit 0 (`evidence/tsc-final.txt`) | no new errors |
-| `npm run lint` | exit 0, 2 warnings (`evidence/lint-before.txt`) | exit 0, same 2 warnings (`evidence/lint-final.txt`) | no new findings |
-| `next build` | — | exit 0 (`evidence/build-after.txt`) | production-shaped env only |
+| `npx tsc --noEmit` | 0 errors (`evidence/tsc-before.txt`) | 0 errors, exit 0 (`evidence/tsc-verified.txt`) | no new errors |
+| `npm run lint` | exit 0, 2 warnings (`evidence/lint-before.txt`) | exit 0, same 2 warnings (`evidence/lint-verified.txt`) | no new findings |
+| `next build` | — | exit 0, 166/166 static pages (`evidence/build-verified.txt`) | production-shaped env only |
 
 The two lint warnings are pre-existing `<img>` warnings in
 `components/books/EBookReaderModal.tsx:231` and `components/editor/RoseraRenderer.tsx:1824`.
@@ -216,6 +216,30 @@ Note: mutation 01 originally would have passed for the wrong reason (the test ph
 user, so `null` came from the missing account, not from the proof check). A regression test
 with an existing account plus a genuine-proof sanity assertion was added before the mutation
 run, and it is included in the 51-test final run.
+
+### 5.6 Re-verification on the committed tree (after disk space was freed)
+
+The first pass hit the low-disk stop condition. Space was later freed, so every gate was run
+again against the exact committed tree (`b530bd8`, clean working tree) and the result is
+recorded in `*-verified.txt` files:
+
+| Gate | Command | Result | Evidence |
+|---|---|---|---|
+| OTP + legacy security + boot guard | `npx tsx --test --test-concurrency=1 tests/otp/*.test.ts tests/api-v1-sec1.test.ts tests/unit/boot-guard-wiring.test.ts` | exit 0, **51 pass / 0 fail** | `evidence/otp-and-regression-verified.txt` |
+| Web page check | `npx playwright test --config tests/otp/playwright.otp.config.ts` | exit 0, **1 passed (32.9 s)** | `evidence/playwright-otp-verified.txt` |
+| Mobile app | `npm run test:ui -- tests/auth.test.tsx tests/auth-otp.mounted.test.tsx` | exit 0, **23 pass** | `evidence/mobile-jest-auth-verified.txt` |
+| Types | `npx tsc --noEmit` | exit 0, 0 output lines | `evidence/tsc-verified.txt` |
+| Lint | `npm run lint` | exit 0, same 2 pre-existing warnings | `evidence/lint-verified.txt` |
+| Production build | `NEXT_DIST_DIR=.next-build PERSIST_BACKEND=db npx next build` | exit 0, 166/166 static pages | `evidence/build-verified.txt` |
+
+Two environment quirks seen here, neither a code failure:
+
+- `tsconfig.json` includes `.next-test/types/**/*.ts`. After a dev-server run leaves a stale
+  `tsconfig.tsbuildinfo`, `tsc` can report `TS6053 … file not found` for those generated files.
+  Removing the git-ignored `tsconfig.tsbuildinfo` and re-running gives exit 0.
+- `next build` appends its own `.next-build/types` entry to `tsconfig.json`. That automatic
+  edit was reverted after the build (the config is unchanged in the commit), and the build
+  output directory was deleted.
 
 ## 6. NOT TESTED (no credentials and no real phone in this environment)
 
@@ -285,6 +309,8 @@ during test runs and restored afterwards. No values were printed or committed.
 
 ## 10. Environment stop condition
 
-Free disk on `/System/Volumes/Data` was **1.1–1.3 GB** during this phase (below the 10 GB
-floor), so no further build/`next start` verification was attempted beyond the recorded runs.
-The build and Playwright evidence above were captured before the floor was reached.
+Free disk on `/System/Volumes/Data` was **1.1–1.3 GB** during the first pass (below the 10 GB
+floor), so that pass stopped after the recorded build and Playwright runs. Space was freed
+afterwards; the full gate set was then re-run on the committed tree and is recorded in
+section 5.6 (`*-verified.txt` evidence files). Nothing in the code changed between the two
+passes — only tests, docs and evidence were added.
