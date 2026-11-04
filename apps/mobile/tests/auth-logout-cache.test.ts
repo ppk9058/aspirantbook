@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from "node:test";
+import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { QueryClient } from "@tanstack/react-query";
 import {
@@ -22,6 +22,10 @@ describe("Bug #3: logout must clear TanStack Query cache and persisted cache", (
         queries: { gcTime: 1000 * 60 * 60 },
       },
     });
+  });
+
+  afterEach(() => {
+    queryClient?.clear();
   });
 
   it("clearPersistedQueryCache clears both in-memory queries and persisted storage", async () => {
@@ -93,6 +97,7 @@ describe("Bug #3: logout must clear TanStack Query cache and persisted cache", (
     const staleData = newClient.getQueryData(["courses-list", "ALL", ""]) as any[];
     assert.ok(staleData, "Stale data from User A leaks to User B session");
     assert.equal(staleData[0].title, "User A Course", "User B sees User A's course data");
+    newClient.clear();
   });
 
   it("with clearPersistedQueryCache, new session starts clean", async () => {
@@ -111,5 +116,6 @@ describe("Bug #3: logout must clear TanStack Query cache and persisted cache", (
     // 4. User B gets a clean slate
     const data = newClient.getQueryData(["courses-list", "ALL", ""]);
     assert.equal(data, undefined, "No stale data leaks to new user session");
+    newClient.clear();
   });
 });
