@@ -1,4 +1,5 @@
 import React from "react"
+import { safeJsonLdStringify } from "@/lib/seo/core"
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
@@ -213,7 +214,7 @@ export default async function TutorialSlugPage({
             {jsonLd && (
                 <script
                     type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jsonLd) }}
                 />
             )}
             <AspirantbookTutorialView

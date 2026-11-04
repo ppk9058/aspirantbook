@@ -6,7 +6,7 @@ import HomeHeaderUserCTA from "@/components/home/HomeHeaderUserCTA"
 import HomeLogoLink from "@/components/home/HomeLogoLink"
 import Footer from "@/components/layout/Footer"
 import { LANDING_NAV_ITEMS } from "@/lib/navigation/landing-nav"
-import { getBaseUrl } from "@/lib/seo/core"
+import { getBaseUrl, safeJsonLdStringify } from "@/lib/seo/core"
 
 export const revalidate = 60
 
@@ -101,7 +101,7 @@ export default async function LandingHomePage() {
             {homeJsonLd && (
                 <script
                     type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
+                    dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(homeJsonLd) }}
                 />
             )}
 

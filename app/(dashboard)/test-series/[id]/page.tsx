@@ -1,4 +1,5 @@
 import { notFound, permanentRedirect } from "next/navigation"
+import { safeJsonLdStringify } from "@/lib/seo/core"
 import { Metadata } from "next"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
@@ -212,7 +213,7 @@ export default async function TestSeriesDetailPage({ params, searchParams }: Tes
             {jsonLd && (
                 <script
                     type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jsonLd) }}
                 />
             )}
             <TestSeriesDetailClient initialSeries={initialSeries} />

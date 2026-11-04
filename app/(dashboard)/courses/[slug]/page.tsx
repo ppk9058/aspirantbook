@@ -1,4 +1,5 @@
 import React, { Suspense } from "react"
+import { safeJsonLdStringify } from "@/lib/seo/core"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { notFound, permanentRedirect } from "next/navigation"
@@ -398,7 +399,7 @@ export default async function CourseDetailPage({
         <>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(courseJsonLd) }}
+                dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(courseJsonLd) }}
             />
             {draftBanner}
             <CourseDetailView

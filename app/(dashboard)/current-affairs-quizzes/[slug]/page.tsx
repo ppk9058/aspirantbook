@@ -20,7 +20,7 @@ import { resolveAccess } from "@/lib/authwall/resolveAccess"
 import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify"
 import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
-import { getBaseUrl } from "@/lib/seo/core"
+import { getBaseUrl, safeJsonLdStringify } from "@/lib/seo/core"
 
 export const dynamic = "force-dynamic"
 
@@ -109,7 +109,7 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
       {/* JSON-LD Script */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jsonLd) }}
       />
 
       {/* Breadcrumb Navigation */}

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { safeJsonLdStringify } from "@/lib/seo/core"
 import { ensureDefaultPyqData, getAllPapers } from "@/lib/pyqs-service"
 import { PyqStudentListingClient } from "@/components/pyqs/PyqStudentListingClient"
 import Link from "next/link"
@@ -95,7 +96,7 @@ export default async function ExamCategoryDetailPage({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(Array.isArray(seo.jsonLd) ? seo.jsonLd[0] : seo.jsonLd),
+            __html: safeJsonLdStringify(Array.isArray(seo.jsonLd) ? seo.jsonLd[0] : seo.jsonLd),
           }}
         />
       )}

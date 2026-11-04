@@ -2,6 +2,7 @@ import React from "react"
 import { Metadata } from "next"
 import { getBookBySlug, getBookById } from "@/lib/books/bookService"
 import BookDetailsClient from "@/components/books/BookDetailsClient"
+import { safeJsonLdStringify } from "@/lib/seo/core"
 
 interface BookPageProps {
   params: Promise<{ slug: string }>
@@ -79,7 +80,7 @@ export default async function BookDetailsPage({ params }: BookPageProps) {
       {jsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jsonLd) }}
         />
       )}
       <BookDetailsClient initialBook={book} slug={slug} />
