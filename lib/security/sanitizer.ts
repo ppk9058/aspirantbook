@@ -22,12 +22,29 @@ export function sanitizeHtml(raw: string): string {
     }
 
     // Strip event handler attributes (quoted, single-quoted and unquoted).
-    cleaned = cleaned.replace(/\son[a-z0-9_-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    // The leading character class must include `/` so `<svg/onload=…>` is caught.
+    cleaned = cleaned.replace(/(^|[\s"'`/])on[a-z0-9_-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "$1")
 
     // Neutralise script pseudo-protocols anywhere (defeats entity/space tricks).
     cleaned = cleaned.replace(/javascript\s*:/gi, "")
     cleaned = cleaned.replace(/vbscript\s*:/gi, "")
     cleaned = cleaned.replace(/data\s*:\s*text\/html/gi, "data:text/plain")
+
+    // Numeric/named HTML entities can hide a scheme from the regex above
+    // (e.g. `java&#115;cript:`). Decode a copy for detection; if it reveals an
+    // executable scheme, drop every URI-bearing attribute.
+    const decodedForCheck = cleaned
+        .replace(/&#x([0-9a-f]+);?/gi, (_m, hex) => String.fromCharCode(parseInt(hex, 16)))
+        .replace(/&#([0-9]+);?/g, (_m, dec) => String.fromCharCode(parseInt(dec, 10)))
+        .replace(/&colon;/gi, ":")
+        .replace(/&tab;/gi, "\t")
+        .replace(/&newline;/gi, "\n")
+    if (/(?:javascript|vbscript)\s*:|data\s*:\s*text\/html/i.test(decodedForCheck)) {
+        cleaned = cleaned.replace(
+            /\s(href|src|action|formaction|xlink:href|srcset|poster|data)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi,
+            ""
+        )
+    }
 
     // Collapse the resulting empty URI attributes.
     cleaned = cleaned.replace(/\s(href|src|action|formaction|xlink:href)\s*=\s*(?:"\s*"|'\s*'|)\s*/gi, " ")

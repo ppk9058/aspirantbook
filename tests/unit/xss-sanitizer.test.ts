@@ -11,8 +11,14 @@ describe("A11 stored XSS sanitizer", () => {
     `<img src=x onerror="alert(1)">`,
     `<img src=x onerror='alert(1)'>`,
     `<svg/onload=alert(1)>`,
+    `<svg onload=alert(1)></svg>`,
+    `<body/onload=alert(1)>`,
+    `<svg><animate onbegin=alert(1)></animate></svg>`,
     `<a href="javascript:alert(1)">click</a>`,
     `<a href='javascript:alert(1)'>click</a>`,
+    `<a href="java&#115;cript:alert(1)">entity trick</a>`,
+    `<a href="java&#x73;cript:alert(1)">hex entity trick</a>`,
+    `<a href="javascript&#58;alert(1)">colon entity trick</a>`,
     `<iframe src="https://evil.test"></iframe>`,
     `<object data="x"></object>`,
     `<embed src="x">`,
@@ -32,9 +38,10 @@ describe("A11 stored XSS sanitizer", () => {
       assert.ok(!/<embed/i.test(clean), `embed survived: ${clean}`)
       assert.ok(!/<form/i.test(clean), `form survived: ${clean}`)
       assert.ok(!/<style/i.test(clean), `style survived: ${clean}`)
-      assert.ok(!/\son[a-z0-9_-]+\s*=/i.test(clean), `event handler survived: ${clean}`)
+      assert.ok(!/(?:^|[\s"'`/])on[a-z0-9_-]+\s*=/i.test(clean), `event handler survived: ${clean}`)
       assert.ok(!/javascript\s*:/i.test(clean), `javascript: URI survived: ${clean}`)
       assert.ok(!/vbscript\s*:/i.test(clean), `vbscript: URI survived: ${clean}`)
+      assert.ok(!/data\s*:\s*text\/html/i.test(clean), `data:text/html URI survived: ${clean}`)
       assert.ok(!/expression\s*\(/i.test(clean), `css expression survived: ${clean}`)
     })
   }
