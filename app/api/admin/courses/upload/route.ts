@@ -23,11 +23,29 @@ export async function POST(request: NextRequest) {
     const isImage = nameLower.endsWith(".png") || nameLower.endsWith(".jpg") || nameLower.endsWith(".jpeg") || nameLower.endsWith(".webp")
     const isVideo = nameLower.endsWith(".mp4") || nameLower.endsWith(".webm") || nameLower.endsWith(".mov") || nameLower.endsWith(".mkv")
 
+    const isImageFolder = subFolder === "thumbnails" || subFolder === "images" || subFolder === "teachers"
+
+    if (isImageFolder) {
+      if (!isImage) {
+        return NextResponse.json(
+          { error: "Only image files (.png, .jpg, .jpeg, .webp) are allowed for image uploads." },
+          { status: 400 }
+        )
+      }
+      const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5 MB
+      if (file.size > MAX_IMAGE_SIZE) {
+        return NextResponse.json(
+          { error: "Image file exceeds 5 MB size limit." },
+          { status: 400 }
+        )
+      }
+    }
+
     if (!isDoc && !isImage && !isVideo) {
       return NextResponse.json({ error: "Unsupported file format. Please upload PDF, Word/Doc, Image, or Video files." }, { status: 400 })
     }
 
-    // 250MB limit
+    // 250MB general limit
     const MAX_SIZE = 250 * 1024 * 1024
     if (file.size > MAX_SIZE) {
       return NextResponse.json({ error: "File exceeds 250 MB size limit." }, { status: 400 })
