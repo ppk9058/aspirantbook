@@ -31,8 +31,42 @@ export const CACHE_POLICIES = {
   },
 };
 
-export async function persistQueryClient(queryClient: QueryClient): Promise<void> {
-  const adapter = getStorageAdapter();
+// Debounced persistence: the cache observer fires on every query update, and
+// each write dehydrates the whole cache and writes it synchronously to SQLite.
+// Coalescing writes into one quiet window keeps the persisted payload and key
+// identical while removing the write storm during startup/list loads.
+export const PERSIST_DEBOUNCE_MS = 2000;
+
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+
+export function schedulePersistQueryClient(
+  queryClient: QueryClient,
+  delayMs: number = PERSIST_DEBOUNCE_MS
+): void {
+  if (persistTimer) clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    void persistQueryClient(queryClient);
+  }, delayMs);
+}
+
+export function cancelScheduledPersist(): void {
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+    persistTimer = null;
+  }
+}
+
+/**
+ * Write immediately (AppState background/inactive, unmount) so the data
+ * restored on next launch is exactly what the last non-persisted window held.
+ */
+export function flushPersistedQueryClient(queryClient: QueryClient): Promise<void> {
+  cancelScheduledPersist();
+  return persistQueryClient(queryClient);
+}
+
+export async function persistQueryClient(queryClient: QueryClient): Promise<void> {  const adapter = getStorageAdapter();
   try {
     const dehydrated = dehydrate(queryClient, {
       shouldDehydrateQuery: (query) => {
@@ -66,6 +100,9 @@ export async function restoreQueryClient(queryClient: QueryClient): Promise<bool
 }
 
 export async function clearPersistedQueryCache(queryClient?: QueryClient): Promise<void> {
+  // A debounced write from before the logout must never resurrect the previous
+  // account's cache after it has been removed.
+  cancelScheduledPersist();
   const adapter = getStorageAdapter();
   try {
     await adapter.removeItem(CACHE_STORAGE_KEY);

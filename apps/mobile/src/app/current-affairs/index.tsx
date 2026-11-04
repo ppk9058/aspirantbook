@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   RefreshControl,
   StyleSheet,
   TouchableOpacity,
@@ -33,6 +33,11 @@ import { openWebUrl } from "../../lib/web-links";
 import { CurrentAffairsItemDto } from "@aspirantbook/shared";
 
 type ModeTab = "quizzes" | "monthlyPdfs";
+
+const EMPTY_ITEMS: CurrentAffairsItemDto[] = [];
+
+// Replaces the old `list` container `gap: 12` so item spacing is unchanged.
+const ItemGap = () => <View style={styles.separator} />;
 
 export default function CurrentAffairsScreen() {
   const router = useRouter();
@@ -65,9 +70,78 @@ export default function CurrentAffairsScreen() {
     }
   };
 
+  const showList = !isLoading && !isError && items.length > 0;
+
+  const renderItem = ({ item }: { item: CurrentAffairsItemDto }) =>
+    activeTab === "quizzes" ? (
+      <Card style={styles.itemCard}>
+        <View style={styles.cardHeader}>
+          <Badge label="DAILY SPEED QUIZ" variant="primary" size="sm" />
+          <View style={styles.timeTag}>
+            <Clock size={12} color={colors.textMuted} />
+            <Text style={[styles.timeText, { color: colors.textMuted }]}>
+              15 mins • 15 MCQs
+            </Text>
+          </View>
+        </View>
+
+        <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+          {item.title}
+        </Text>
+
+        <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+          <Text style={[styles.footerMeta, { color: colors.textMuted }]}>
+            {new Date(item.publishedAt).toLocaleDateString()}
+          </Text>
+          <Button
+            title="Attempt Quiz"
+            variant="primary"
+            size="sm"
+            onPress={() => router.push(`/tests/${item.id}` as any)}
+          />
+        </View>
+      </Card>
+    ) : (
+      <Card style={styles.itemCard}>
+        <View style={styles.cardHeader}>
+          <Badge label={`MONTHLY ${item.year}`} variant="neutral" size="sm" />
+          <View style={styles.timeTag}>
+            <Calendar size={12} color={colors.textMuted} />
+            <Text style={[styles.timeText, { color: colors.textMuted }]}>
+              Month {item.month}
+            </Text>
+          </View>
+        </View>
+
+        <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+          {item.title}
+        </Text>
+
+        <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+          <Button
+            title="Read Online"
+            variant="secondary"
+            size="sm"
+            onPress={() => handleOpenPdf(item)}
+          />
+          <Button
+            title="View Document"
+            variant="primary"
+            size="sm"
+            onPress={() =>
+              router.push({
+                pathname: "/pyqs/pdf-view",
+                params: { paperId: item.id, title: item.title },
+              })
+            }
+          />
+        </View>
+      </Card>
+    );
+
   return (
     <AppShell testID="current-affairs-screen">
-      <ScrollView
+      <FlatList
         style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -78,128 +152,62 @@ export default function CurrentAffairsScreen() {
             tintColor={colors.primary}
           />
         }
-      >
-        {openError && (
-          <View style={{ backgroundColor: colors.surface, padding: 12, borderRadius: 8, marginBottom: 12 }}>
-            <Text style={{ color: colors.danger, fontSize: 13 }}>{openError}</Text>
-          </View>
-        )}
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>
-            Current Affairs & Quizzes
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Daily news analysis, practice MCQs and monthly PDF compilation digests
-          </Text>
-        </View>
+        data={showList ? items : EMPTY_ITEMS}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        ItemSeparatorComponent={ItemGap}
+        extraData={activeTab}
+        ListHeaderComponent={
+          <>
+            {openError && (
+              <View style={{ backgroundColor: colors.surface, padding: 12, borderRadius: 8, marginBottom: 12 }}>
+                <Text style={{ color: colors.danger, fontSize: 13 }}>{openError}</Text>
+              </View>
+            )}
+            <View style={styles.header}>
+              <Text style={[styles.title, { color: colors.textPrimary }]}>
+                Current Affairs & Quizzes
+              </Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                Daily news analysis, practice MCQs and monthly PDF compilation digests
+              </Text>
+            </View>
 
-        {/* Mode Switcher Tabs */}
-        <View style={styles.tabRow}>
-          <Chip
-            label="Daily Speed Quizzes"
-            selected={activeTab === "quizzes"}
-            onPress={() => setActiveTab("quizzes")}
-          />
-          <Chip
-            label="Monthly PDF Magazines"
-            selected={activeTab === "monthlyPdfs"}
-            onPress={() => setActiveTab("monthlyPdfs")}
-          />
-        </View>
+            {/* Mode Switcher Tabs */}
+            <View style={styles.tabRow}>
+              <Chip
+                label="Daily Speed Quizzes"
+                selected={activeTab === "quizzes"}
+                onPress={() => setActiveTab("quizzes")}
+              />
+              <Chip
+                label="Monthly PDF Magazines"
+                selected={activeTab === "monthlyPdfs"}
+                onPress={() => setActiveTab("monthlyPdfs")}
+              />
+            </View>
 
-        {/* Loading state */}
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <Skeleton height={110} borderRadius={12} />
-            <Skeleton height={110} borderRadius={12} />
-            <Skeleton height={110} borderRadius={12} />
-          </View>
-        ) : isError ? (
-          <ErrorState
-            message={caQuery.error?.message || "Failed to load Current Affairs"}
-            onRetry={handleRefresh}
-          />
-        ) : items.length === 0 ? (
-          <EmptyState
-            title="No Current Affairs Listed"
-            description="Daily and monthly digests will appear here once published."
-          />
-        ) : activeTab === "quizzes" ? (
-          /* Daily Quizzes Tab */
-          <View style={styles.list}>
-            {items.map((item: CurrentAffairsItemDto) => (
-              <Card key={item.id} style={styles.itemCard}>
-                <View style={styles.cardHeader}>
-                  <Badge label="DAILY SPEED QUIZ" variant="primary" size="sm" />
-                  <View style={styles.timeTag}>
-                    <Clock size={12} color={colors.textMuted} />
-                    <Text style={[styles.timeText, { color: colors.textMuted }]}>
-                      15 mins • 15 MCQs
-                    </Text>
-                  </View>
-                </View>
-
-                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                  {item.title}
-                </Text>
-
-                <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
-                  <Text style={[styles.footerMeta, { color: colors.textMuted }]}>
-                    {new Date(item.publishedAt).toLocaleDateString()}
-                  </Text>
-                  <Button
-                    title="Attempt Quiz"
-                    variant="primary"
-                    size="sm"
-                    onPress={() => router.push(`/tests/${item.id}` as any)}
-                  />
-                </View>
-              </Card>
-            ))}
-          </View>
-        ) : (
-          /* Monthly PDF Magazines Tab */
-          <View style={styles.list}>
-            {items.map((item: CurrentAffairsItemDto) => (
-              <Card key={item.id} style={styles.itemCard}>
-                <View style={styles.cardHeader}>
-                  <Badge label={`MONTHLY ${item.year}`} variant="neutral" size="sm" />
-                  <View style={styles.timeTag}>
-                    <Calendar size={12} color={colors.textMuted} />
-                    <Text style={[styles.timeText, { color: colors.textMuted }]}>
-                      Month {item.month}
-                    </Text>
-                  </View>
-                </View>
-
-                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                  {item.title}
-                </Text>
-
-                <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
-                  <Button
-                    title="Read Online"
-                    variant="secondary"
-                    size="sm"
-                    onPress={() => handleOpenPdf(item)}
-                  />
-                  <Button
-                    title="View Document"
-                    variant="primary"
-                    size="sm"
-                    onPress={() =>
-                      router.push({
-                        pathname: "/pyqs/pdf-view",
-                        params: { paperId: item.id, title: item.title },
-                      })
-                    }
-                  />
-                </View>
-              </Card>
-            ))}
-          </View>
-        )}
-      </ScrollView>
+            {/* Loading state */}
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <Skeleton height={110} borderRadius={12} />
+                <Skeleton height={110} borderRadius={12} />
+                <Skeleton height={110} borderRadius={12} />
+              </View>
+            ) : isError ? (
+              <ErrorState
+                message={caQuery.error?.message || "Failed to load Current Affairs"}
+                onRetry={handleRefresh}
+              />
+            ) : items.length === 0 ? (
+              <EmptyState
+                title="No Current Affairs Listed"
+                description="Daily and monthly digests will appear here once published."
+              />
+            ) : null}
+          </>
+        }
+      />
     </AppShell>
   );
 }
@@ -235,6 +243,9 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: 12,
+  },
+  separator: {
+    height: 12,
   },
   itemCard: {
     padding: 16,

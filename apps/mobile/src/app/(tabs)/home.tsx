@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   RefreshControl,
   StyleSheet,
   TouchableOpacity,
@@ -30,6 +30,11 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { useGoal } from "../../context/GoalContext";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import { DashboardSummaryDto } from "@aspirantbook/shared";
+
+type DashboardTestSummary = DashboardSummaryDto["upcomingOrRecentTests"][number];
+
+const EMPTY_TESTS: DashboardTestSummary[] = [];
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -45,54 +50,110 @@ export default function HomeScreen() {
     },
   });
 
-  const quickActions = [
-    {
-      title: "Test Series",
-      subtitle: "Exam Simulation",
-      icon: Award,
-      route: "/(tabs)/tests",
-      color: colors.primary,
-    },
-    {
-      title: "Courses",
-      subtitle: "Video Classes",
-      icon: PlayCircle,
-      route: "/(tabs)/courses",
-      color: "#10b981",
-    },
-    {
-      title: "PYQ Papers",
-      subtitle: "Previous Years",
-      icon: FileText,
-      route: "/pyqs",
-      color: "#8b5cf6",
-    },
-    {
-      title: "Current Affairs",
-      subtitle: "Daily & Monthly",
-      icon: Calendar,
-      route: "/current-affairs",
-      color: "#f59e0b",
-    },
-    {
-      title: "Career Tracks",
-      subtitle: "Guided Paths",
-      icon: Compass,
-      route: "/career-tracks",
-      color: "#06b6d4",
-    },
-    {
-      title: "Pass / Pro",
-      subtitle: "Unlimited Access",
-      icon: Crown,
-      route: "/subscription",
-      color: "#ec4899",
-    },
-  ];
+  const quickActions = useMemo(
+    () => [
+      {
+        title: "Test Series",
+        subtitle: "Exam Simulation",
+        icon: Award,
+        route: "/(tabs)/tests",
+        color: colors.primary,
+      },
+      {
+        title: "Courses",
+        subtitle: "Video Classes",
+        icon: PlayCircle,
+        route: "/(tabs)/courses",
+        color: "#10b981",
+      },
+      {
+        title: "PYQ Papers",
+        subtitle: "Previous Years",
+        icon: FileText,
+        route: "/pyqs",
+        color: "#8b5cf6",
+      },
+      {
+        title: "Current Affairs",
+        subtitle: "Daily & Monthly",
+        icon: Calendar,
+        route: "/current-affairs",
+        color: "#f59e0b",
+      },
+      {
+        title: "Career Tracks",
+        subtitle: "Guided Paths",
+        icon: Compass,
+        route: "/career-tracks",
+        color: "#06b6d4",
+      },
+      {
+        title: "Pass / Pro",
+        subtitle: "Unlimited Access",
+        icon: Crown,
+        route: "/subscription",
+        color: "#ec4899",
+      },
+    ],
+    [colors.primary]
+  );
+
+  const recentTests = data?.upcomingOrRecentTests;
+  const listData = !isLoading && recentTests && recentTests.length > 0 ? recentTests : EMPTY_TESTS;
+
+  const renderItem = ({ item: t }: { item: DashboardTestSummary }) => (
+    <Card
+      onPress={() => router.push(`/tests/${t.id}` as any)}
+      style={styles.testCard}
+    >
+      <View style={styles.testCardTop}>
+        <Badge label={t.seriesTitle} variant="neutral" size="sm" />
+        <View style={styles.durationRow}>
+          <Clock size={13} color={colors.textMuted} />
+          <Text style={[styles.durationText, { color: colors.textMuted }]}>
+            {t.durationMinutes} mins
+          </Text>
+        </View>
+      </View>
+      <Text style={[styles.testTitle, { color: colors.textPrimary }]}>
+        {t.title}
+      </Text>
+      <View style={[styles.testFooter, { borderTopColor: colors.border }]}>
+        {t.score !== null && t.score !== undefined ? (
+          <Text style={[styles.scoreText, { color: colors.success }]}>
+            Latest Score: {t.score}
+          </Text>
+        ) : (
+          <Text style={[styles.readyText, { color: colors.textMuted }]}>
+            Ready to simulate
+          </Text>
+        )}
+        <View style={styles.takeTestLink}>
+          <Text style={[styles.takeTestText, { color: colors.primary }]}>
+            Start Test
+          </Text>
+          <ChevronRight size={14} color={colors.primary} />
+        </View>
+      </View>
+    </Card>
+  );
+
+  const renderEmpty = () =>
+    isLoading ? null : (
+      <Card style={styles.emptyCard}>
+        <Award size={32} color={colors.textMuted} />
+        <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
+          No recent attempts
+        </Text>
+        <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+          Explore test series to attempt simulated CBT exams.
+        </Text>
+      </Card>
+    );
 
   return (
     <AppShell testID="home-screen">
-      <ScrollView
+      <FlatList
         style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -103,222 +164,179 @@ export default function HomeScreen() {
             tintColor={colors.primary}
           />
         }
-      >
-        {/* Goal Selector Pill */}
-        <TouchableOpacity
-          onPress={openGoalModal}
-          activeOpacity={0.85}
-          style={[
-            styles.goalBanner,
-            {
-              backgroundColor: colors.surfaceSecondary,
-              borderColor: colors.border,
-              borderRadius: tokens.radius.xl,
-            },
-          ]}
-        >
-          <View style={styles.goalBannerLeft}>
-            <Sparkles size={16} color={colors.primary} />
-            <Text style={[styles.goalBannerText, { color: colors.textPrimary }]}>
-              Goal: <Text style={{ fontWeight: "800", color: colors.primary }}>{selectedGoal.name}</Text>
-            </Text>
-          </View>
-          <Text style={[styles.switchGoalText, { color: colors.primary }]}>Change</Text>
-        </TouchableOpacity>
-
-        {/* Greeting Banner */}
-        <View style={styles.topHeader}>
-          <View>
-            <Text style={[styles.greeting, { color: colors.textPrimary }]}>Daily Prep Hub</Text>
-            <Text style={[styles.subGreeting, { color: colors.textSecondary }]}>
-              Master syllabus for {selectedGoal.name}
-            </Text>
-          </View>
-          {isAuthenticated && Boolean(data?.streakDays) && (data?.streakDays || 0) > 0 ? (
-            <View
-              testID="home-streak-badge"
+        data={listData}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        ListEmptyComponent={renderEmpty()}
+        ListHeaderComponent={
+          <>
+            {/* Goal Selector Pill */}
+            <TouchableOpacity
+              onPress={openGoalModal}
+              activeOpacity={0.85}
               style={[
-                styles.streakBadge,
+                styles.goalBanner,
                 {
-                  backgroundColor: "rgba(234, 88, 12, 0.1)",
-                  borderColor: "rgba(234, 88, 12, 0.3)",
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.xl,
                 },
               ]}
             >
-              <Flame size={16} color="#EA580C" />
-              <Text style={styles.streakText}>
-                {data?.streakDays} Day Streak
-              </Text>
-            </View>
-          ) : null}
-        </View>
+              <View style={styles.goalBannerLeft}>
+                <Sparkles size={16} color={colors.primary} />
+                <Text style={[styles.goalBannerText, { color: colors.textPrimary }]}>
+                  Goal: <Text style={{ fontWeight: "800", color: colors.primary }}>{selectedGoal.name}</Text>
+                </Text>
+              </View>
+              <Text style={[styles.switchGoalText, { color: colors.primary }]}>Change</Text>
+            </TouchableOpacity>
 
-        {/* Quick Access 3x2 Grid */}
-        <View style={styles.gridContainer}>
-          {quickActions.map((action, idx) => {
-            const Icon = action.icon;
-            return (
-              <TouchableOpacity
-                key={idx}
-                activeOpacity={0.7}
-                onPress={() => router.push(action.route as any)}
-                style={[
-                  styles.gridTile,
-                  {
-                    backgroundColor: colors.surfaceSecondary,
-                    borderColor: colors.border,
-                    borderRadius: tokens.radius.lg,
-                  },
-                ]}
-              >
+            {/* Greeting Banner */}
+            <View style={styles.topHeader}>
+              <View>
+                <Text style={[styles.greeting, { color: colors.textPrimary }]}>Daily Prep Hub</Text>
+                <Text style={[styles.subGreeting, { color: colors.textSecondary }]}>
+                  Master syllabus for {selectedGoal.name}
+                </Text>
+              </View>
+              {isAuthenticated && Boolean(data?.streakDays) && (data?.streakDays || 0) > 0 ? (
                 <View
+                  testID="home-streak-badge"
                   style={[
-                    styles.tileIconCircle,
-                    { backgroundColor: `${action.color}15` },
+                    styles.streakBadge,
+                    {
+                      backgroundColor: "rgba(234, 88, 12, 0.1)",
+                      borderColor: "rgba(234, 88, 12, 0.3)",
+                    },
                   ]}
                 >
-                  <Icon size={20} color={action.color} />
-                </View>
-                <Text style={[styles.tileTitle, { color: colors.textPrimary }]}>
-                  {action.title}
-                </Text>
-                <Text style={[styles.tileSub, { color: colors.textMuted }]}>
-                  {action.subtitle}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <Skeleton height={120} borderRadius={16} />
-            <Skeleton height={120} borderRadius={16} />
-          </View>
-        ) : (
-          <>
-            {/* Continue Learning Card */}
-            {data?.continueLearning && (
-              <Card
-                onPress={() =>
-                  router.push(
-                    `/tutorials/${data.continueLearning!.tutorialSlug}/${data.continueLearning!.lessonId}` as any
-                  )
-                }
-                style={[
-                  styles.continueCard,
-                  {
-                    backgroundColor: colors.surfaceSecondary,
-                    borderColor: colors.primary,
-                  },
-                ]}
-              >
-                <View style={styles.cardHeaderRow}>
-                  <Badge label="CONTINUE LEARNING" variant="primary" size="sm" />
-                  <PlayCircle size={20} color={colors.primary} />
-                </View>
-                <Text style={[styles.continueTutorialTitle, { color: colors.textSecondary }]}>
-                  {data.continueLearning.tutorialTitle}
-                </Text>
-                <Text style={[styles.continueLessonTitle, { color: colors.textPrimary }]}>
-                  {data.continueLearning.lessonTitle}
-                </Text>
-                <View style={styles.resumeRow}>
-                  <Text style={[styles.resumeText, { color: colors.primary }]}>
-                    Resume Lesson
+                  <Flame size={16} color="#EA580C" />
+                  <Text style={styles.streakText}>
+                    {data?.streakDays} Day Streak
                   </Text>
-                  <ChevronRight size={16} color={colors.primary} />
                 </View>
-              </Card>
-            )}
-
-            {/* Daily Quiz Banner */}
-            {data?.todayQuiz && (
-              <Card
-                onPress={() => router.push("/current-affairs" as any)}
-                style={[
-                  styles.dailyQuizCard,
-                  {
-                    backgroundColor: colors.surfaceSecondary,
-                    borderColor: colors.warning,
-                  },
-                ]}
-              >
-                <View style={styles.quizHeader}>
-                  <Sparkles size={16} color={colors.warning} />
-                  <Badge label="TODAY'S SPEED QUIZ" variant="warning" size="sm" />
-                </View>
-                <Text style={[styles.quizTitle, { color: colors.textPrimary }]}>
-                  {data.todayQuiz.title}
-                </Text>
-                <Text style={[styles.quizMeta, { color: colors.textSecondary }]}>
-                  {data.todayQuiz.questionCount} Questions • Current Affairs & GK
-                </Text>
-              </Card>
-            )}
-
-            {/* Mock Examinations Section */}
-            <View style={styles.sectionHeadingRow}>
-              <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>
-                Mock Examinations
-              </Text>
-              <TouchableOpacity onPress={() => router.push("/(tabs)/tests" as any)}>
-                <Text style={[styles.seeAllText, { color: colors.primary }]}>See all →</Text>
-              </TouchableOpacity>
+              ) : null}
             </View>
 
-            {data?.upcomingOrRecentTests && data.upcomingOrRecentTests.length > 0 ? (
-              data.upcomingOrRecentTests.map((t) => (
-                <Card
-                  key={t.id}
-                  onPress={() => router.push(`/tests/${t.id}` as any)}
-                  style={styles.testCard}
-                >
-                  <View style={styles.testCardTop}>
-                    <Badge label={t.seriesTitle} variant="neutral" size="sm" />
-                    <View style={styles.durationRow}>
-                      <Clock size={13} color={colors.textMuted} />
-                      <Text style={[styles.durationText, { color: colors.textMuted }]}>
-                        {t.durationMinutes} mins
-                      </Text>
+            {/* Quick Access 3x2 Grid */}
+            <View style={styles.gridContainer}>
+              {quickActions.map((action, idx) => {
+                const Icon = action.icon;
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    activeOpacity={0.7}
+                    onPress={() => router.push(action.route as any)}
+                    style={[
+                      styles.gridTile,
+                      {
+                        backgroundColor: colors.surfaceSecondary,
+                        borderColor: colors.border,
+                        borderRadius: tokens.radius.lg,
+                      },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.tileIconCircle,
+                        { backgroundColor: `${action.color}15` },
+                      ]}
+                    >
+                      <Icon size={20} color={action.color} />
                     </View>
-                  </View>
-                  <Text style={[styles.testTitle, { color: colors.textPrimary }]}>
-                    {t.title}
-                  </Text>
-                  <View style={[styles.testFooter, { borderTopColor: colors.border }]}>
-                    {t.score !== null && t.score !== undefined ? (
-                      <Text style={[styles.scoreText, { color: colors.success }]}>
-                        Latest Score: {t.score}
-                      </Text>
-                    ) : (
-                      <Text style={[styles.readyText, { color: colors.textMuted }]}>
-                        Ready to simulate
-                      </Text>
-                    )}
-                    <View style={styles.takeTestLink}>
-                      <Text style={[styles.takeTestText, { color: colors.primary }]}>
-                        Start Test
-                      </Text>
-                      <ChevronRight size={14} color={colors.primary} />
-                    </View>
-                  </View>
-                </Card>
-              ))
+                    <Text style={[styles.tileTitle, { color: colors.textPrimary }]}>
+                      {action.title}
+                    </Text>
+                    <Text style={[styles.tileSub, { color: colors.textMuted }]}>
+                      {action.subtitle}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <Skeleton height={120} borderRadius={16} />
+                <Skeleton height={120} borderRadius={16} />
+              </View>
             ) : (
-              <Card style={styles.emptyCard}>
-                <Award size={32} color={colors.textMuted} />
-                <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
-                  No recent attempts
-                </Text>
-                <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
-                  Explore test series to attempt simulated CBT exams.
-                </Text>
-              </Card>
+              <>
+                {/* Continue Learning Card */}
+                {data?.continueLearning && (
+                  <Card
+                    onPress={() =>
+                      router.push(
+                        `/tutorials/${data.continueLearning!.tutorialSlug}/${data.continueLearning!.lessonId}` as any
+                      )
+                    }
+                    style={[
+                      styles.continueCard,
+                      {
+                        backgroundColor: colors.surfaceSecondary,
+                        borderColor: colors.primary,
+                      },
+                    ]}
+                  >
+                    <View style={styles.cardHeaderRow}>
+                      <Badge label="CONTINUE LEARNING" variant="primary" size="sm" />
+                      <PlayCircle size={20} color={colors.primary} />
+                    </View>
+                    <Text style={[styles.continueTutorialTitle, { color: colors.textSecondary }]}>
+                      {data.continueLearning.tutorialTitle}
+                    </Text>
+                    <Text style={[styles.continueLessonTitle, { color: colors.textPrimary }]}>
+                      {data.continueLearning.lessonTitle}
+                    </Text>
+                    <View style={styles.resumeRow}>
+                      <Text style={[styles.resumeText, { color: colors.primary }]}>
+                        Resume Lesson
+                      </Text>
+                      <ChevronRight size={16} color={colors.primary} />
+                    </View>
+                  </Card>
+                )}
+
+                {/* Daily Quiz Banner */}
+                {data?.todayQuiz && (
+                  <Card
+                    onPress={() => router.push("/current-affairs" as any)}
+                    style={[
+                      styles.dailyQuizCard,
+                      {
+                        backgroundColor: colors.surfaceSecondary,
+                        borderColor: colors.warning,
+                      },
+                    ]}
+                  >
+                    <View style={styles.quizHeader}>
+                      <Sparkles size={16} color={colors.warning} />
+                      <Badge label="TODAY'S SPEED QUIZ" variant="warning" size="sm" />
+                    </View>
+                    <Text style={[styles.quizTitle, { color: colors.textPrimary }]}>
+                      {data.todayQuiz.title}
+                    </Text>
+                    <Text style={[styles.quizMeta, { color: colors.textSecondary }]}>
+                      {data.todayQuiz.questionCount} Questions • Current Affairs & GK
+                    </Text>
+                  </Card>
+                )}
+
+                {/* Mock Examinations Section */}
+                <View style={styles.sectionHeadingRow}>
+                  <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>
+                    Mock Examinations
+                  </Text>
+                  <TouchableOpacity onPress={() => router.push("/(tabs)/tests" as any)}>
+                    <Text style={[styles.seeAllText, { color: colors.primary }]}>See all →</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
             )}
           </>
-        )}
-      </ScrollView>
+        }
+      />
     </AppShell>
   );
 }

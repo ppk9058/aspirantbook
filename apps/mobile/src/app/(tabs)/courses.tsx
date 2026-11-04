@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   ScrollView,
+  FlatList,
   RefreshControl,
   TouchableOpacity,
   StyleSheet,
@@ -40,6 +41,11 @@ import { useDebounce } from "../../lib/use-debounce";
 export { cleanDescriptionPreview };
 
 type DifficultyFilter = "ALL" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+
+const EMPTY_COURSES: CourseSummaryDto[] = [];
+
+// Replaces the old `cardsList` container `gap: 12` so item spacing is unchanged.
+const ItemGap = () => <View style={styles.separator} />;
 
 export default function CoursesTabScreen() {
   const router = useRouter();
@@ -81,9 +87,73 @@ export default function CoursesTabScreen() {
     tracksQuery.refetch();
   };
 
+  const showList = !isLoading && !isError && courses.length > 0;
+
+  const renderItem = ({ item: course }: { item: CourseSummaryDto }) => (
+    <Card
+      onPress={() => router.push(`/courses/${course.id}` as any)}
+      style={styles.courseCard}
+    >
+      <View style={styles.cardHeaderRow}>
+        <View style={styles.badgeRow}>
+          <Badge
+            label={course.difficulty || "BEGINNER"}
+            variant={
+              course.difficulty === "ADVANCED"
+                ? "danger"
+                : course.difficulty === "INTERMEDIATE"
+                ? "warning"
+                : "primary"
+            }
+            size="sm"
+          />
+          {course.isEnrolled && (
+            <Badge label="ENROLLED" variant="success" size="sm" />
+          )}
+        </View>
+        <Text style={[styles.priceTag, { color: course.isFree ? colors.success : colors.primary }]}>
+          {course.isFree ? "Free" : `₹${course.price}`}
+        </Text>
+      </View>
+
+      <Text style={[styles.courseTitle, { color: colors.textPrimary }]} numberOfLines={2}>
+        {course.title}
+      </Text>
+
+      {Boolean(course.description) && (
+        <Text style={[styles.courseDesc, { color: colors.textSecondary }]} numberOfLines={2}>
+          {cleanDescriptionPreview(course.description)}
+        </Text>
+      )}
+
+      <View style={[styles.metaRow, { borderTopColor: colors.border }]}>
+        <View style={styles.metaItem}>
+          <PlayCircle size={14} color={colors.textMuted} />
+          <Text style={[styles.metaText, { color: colors.textMuted }]}>
+            {course.lessonsCount} lessons
+          </Text>
+        </View>
+
+        <View style={styles.metaItem}>
+          <Clock size={14} color={colors.textMuted} />
+          <Text style={[styles.metaText, { color: colors.textMuted }]}>
+            {course.duration ? `${course.duration}m` : "Self-paced"}
+          </Text>
+        </View>
+
+        <View style={styles.metaItem}>
+          <Layers size={14} color={colors.textMuted} />
+          <Text style={[styles.metaText, { color: colors.textMuted }]}>
+            {course.chaptersCount} chapters
+          </Text>
+        </View>
+      </View>
+    </Card>
+  );
+
   return (
     <AppShell testID="courses-tab-screen">
-      <ScrollView
+      <FlatList
         style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -94,241 +164,180 @@ export default function CoursesTabScreen() {
             tintColor={colors.primary}
           />
         }
-      >
-        {/* Goal Banner */}
-        <TouchableOpacity
-          onPress={openGoalModal}
-          activeOpacity={0.85}
-          style={[
-            styles.goalBanner,
-            {
-              backgroundColor: colors.surfaceSecondary,
-              borderColor: colors.border,
-              borderRadius: tokens.radius.xl,
-            },
-          ]}
-        >
-          <View style={styles.goalBannerLeft}>
-            <Sparkles size={16} color={colors.primary} />
-            <Text style={[styles.goalBannerText, { color: colors.textPrimary }]}>
-              Goal: <Text style={{ fontWeight: "800", color: colors.primary }}>{selectedGoal.name}</Text>
-            </Text>
-          </View>
-          <Text style={[styles.switchGoalText, { color: colors.primary }]}>Change</Text>
-        </TouchableOpacity>
-
-        {/* Section Heading */}
-        <View style={styles.titleRow}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>
-            Video Courses & Syllabus
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            In-depth structured video lessons, chapter practice & curriculum
-          </Text>
-        </View>
-
-        {/* Search Bar */}
-        <View
-          style={[
-            styles.searchBar,
-            {
-              backgroundColor: colors.surfaceSecondary,
-              borderColor: colors.border,
-              borderRadius: tokens.radius.lg,
-            },
-          ]}
-        >
-          <Search size={18} color={colors.textMuted} style={styles.searchIcon} />
-          <TextInput
-            placeholder="Search courses by topic, syllabus..."
-            placeholderTextColor={colors.textMuted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            style={[styles.searchInput, { color: colors.textPrimary }]}
-            returnKeyType="search"
-            autoCapitalize="none"
-          />
-        </View>
-
-        {/* Difficulty Filter Chips */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterScroll}
-          style={styles.filterContainer}
-        >
-          <Chip
-            label="All Levels"
-            selected={selectedDifficulty === "ALL"}
-            onPress={() => setSelectedDifficulty("ALL")}
-          />
-          <Chip
-            label="Beginner"
-            selected={selectedDifficulty === "BEGINNER"}
-            onPress={() => setSelectedDifficulty("BEGINNER")}
-          />
-          <Chip
-            label="Intermediate"
-            selected={selectedDifficulty === "INTERMEDIATE"}
-            onPress={() => setSelectedDifficulty("INTERMEDIATE")}
-          />
-          <Chip
-            label="Advanced"
-            selected={selectedDifficulty === "ADVANCED"}
-            onPress={() => setSelectedDifficulty("ADVANCED")}
-          />
-        </ScrollView>
-
-        {/* Career Tracks Highlight Banner */}
-        {tracks.length > 0 && (
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={() => router.push("/career-tracks" as any)}
-            style={[
-              styles.tracksBanner,
-              {
-                backgroundColor: colors.surfaceSecondary,
-                borderColor: colors.primary,
-                borderRadius: tokens.radius.xl,
-              },
-            ]}
-          >
-            <View style={styles.tracksBannerLeft}>
-              <Compass size={22} color={colors.primary} />
-              <View style={{ marginLeft: 10 }}>
-                <Text style={[styles.tracksBannerTitle, { color: colors.textPrimary }]}>
-                  Career & Skill Tracks
-                </Text>
-                <Text style={[styles.tracksBannerSub, { color: colors.textSecondary }]}>
-                  {tracks.length} structured end-to-end paths
+        data={showList ? courses : EMPTY_COURSES}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        ItemSeparatorComponent={ItemGap}
+        ListHeaderComponent={
+          <>
+            {/* Goal Banner */}
+            <TouchableOpacity
+              onPress={openGoalModal}
+              activeOpacity={0.85}
+              style={[
+                styles.goalBanner,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.xl,
+                },
+              ]}
+            >
+              <View style={styles.goalBannerLeft}>
+                <Sparkles size={16} color={colors.primary} />
+                <Text style={[styles.goalBannerText, { color: colors.textPrimary }]}>
+                  Goal: <Text style={{ fontWeight: "800", color: colors.primary }}>{selectedGoal.name}</Text>
                 </Text>
               </View>
+              <Text style={[styles.switchGoalText, { color: colors.primary }]}>Change</Text>
+            </TouchableOpacity>
+
+            {/* Section Heading */}
+            <View style={styles.titleRow}>
+              <Text style={[styles.title, { color: colors.textPrimary }]}>
+                Video Courses & Syllabus
+              </Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                In-depth structured video lessons, chapter practice & curriculum
+              </Text>
             </View>
-            <ChevronRight size={18} color={colors.primary} />
-          </TouchableOpacity>
-        )}
 
-        {/* Loading State */}
-        {isLoading && (
-          <View style={styles.loadingContainer}>
-            <Skeleton height={120} borderRadius={12} />
-            <Skeleton height={120} borderRadius={12} />
-            <Skeleton height={120} borderRadius={12} />
-          </View>
-        )}
+            {/* Search Bar */}
+            <View
+              style={[
+                styles.searchBar,
+                {
+                  backgroundColor: colors.surfaceSecondary,
+                  borderColor: colors.border,
+                  borderRadius: tokens.radius.lg,
+                },
+              ]}
+            >
+              <Search size={18} color={colors.textMuted} style={styles.searchIcon} />
+              <TextInput
+                placeholder="Search courses by topic, syllabus..."
+                placeholderTextColor={colors.textMuted}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                style={[styles.searchInput, { color: colors.textPrimary }]}
+                returnKeyType="search"
+                autoCapitalize="none"
+              />
+            </View>
 
-        {/* Error State */}
-        {isError && (
-          <View style={{ marginVertical: 8 }}>
-            <ErrorState
-              message={
-                selectedDifficulty !== "ALL" || debouncedSearch
-                  ? `Failed to load courses for current filter (${selectedDifficulty !== "ALL" ? selectedDifficulty : ""}${debouncedSearch ? ` "${debouncedSearch}"` : ""}).`
-                  : errorMessage || "Failed to load courses. Please check connection."
-              }
-              onRetry={handleRefresh}
-            />
-            {(selectedDifficulty !== "ALL" || debouncedSearch.length > 0) && (
+            {/* Difficulty Filter Chips */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filterScroll}
+              style={styles.filterContainer}
+            >
+              <Chip
+                label="All Levels"
+                selected={selectedDifficulty === "ALL"}
+                onPress={() => setSelectedDifficulty("ALL")}
+              />
+              <Chip
+                label="Beginner"
+                selected={selectedDifficulty === "BEGINNER"}
+                onPress={() => setSelectedDifficulty("BEGINNER")}
+              />
+              <Chip
+                label="Intermediate"
+                selected={selectedDifficulty === "INTERMEDIATE"}
+                onPress={() => setSelectedDifficulty("INTERMEDIATE")}
+              />
+              <Chip
+                label="Advanced"
+                selected={selectedDifficulty === "ADVANCED"}
+                onPress={() => setSelectedDifficulty("ADVANCED")}
+              />
+            </ScrollView>
+
+            {/* Career Tracks Highlight Banner */}
+            {tracks.length > 0 && (
               <TouchableOpacity
-                onPress={() => {
+                activeOpacity={0.85}
+                onPress={() => router.push("/career-tracks" as any)}
+                style={[
+                  styles.tracksBanner,
+                  {
+                    backgroundColor: colors.surfaceSecondary,
+                    borderColor: colors.primary,
+                    borderRadius: tokens.radius.xl,
+                  },
+                ]}
+              >
+                <View style={styles.tracksBannerLeft}>
+                  <Compass size={22} color={colors.primary} />
+                  <View style={{ marginLeft: 10 }}>
+                    <Text style={[styles.tracksBannerTitle, { color: colors.textPrimary }]}>
+                      Career & Skill Tracks
+                    </Text>
+                    <Text style={[styles.tracksBannerSub, { color: colors.textSecondary }]}>
+                      {tracks.length} structured end-to-end paths
+                    </Text>
+                  </View>
+                </View>
+                <ChevronRight size={18} color={colors.primary} />
+              </TouchableOpacity>
+            )}
+
+            {/* Loading State */}
+            {isLoading && (
+              <View style={styles.loadingContainer}>
+                <Skeleton height={120} borderRadius={12} />
+                <Skeleton height={120} borderRadius={12} />
+                <Skeleton height={120} borderRadius={12} />
+              </View>
+            )}
+
+            {/* Error State */}
+            {isError && (
+              <View style={{ marginVertical: 8 }}>
+                <ErrorState
+                  message={
+                    selectedDifficulty !== "ALL" || debouncedSearch
+                      ? `Failed to load courses for current filter (${selectedDifficulty !== "ALL" ? selectedDifficulty : ""}${debouncedSearch ? ` "${debouncedSearch}"` : ""}).`
+                      : errorMessage || "Failed to load courses. Please check connection."
+                  }
+                  onRetry={handleRefresh}
+                />
+                {(selectedDifficulty !== "ALL" || debouncedSearch.length > 0) && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSearchQuery("");
+                      setSelectedDifficulty("ALL");
+                    }}
+                    style={{ marginTop: 8, alignSelf: "center", paddingVertical: 6, paddingHorizontal: 12 }}
+                  >
+                    <Text style={{ color: colors.primary, fontWeight: "600", fontSize: 14 }}>Reset Filters</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+
+            {/* Empty State */}
+            {!isLoading && !isError && courses.length === 0 && (
+              <EmptyState
+                title="No Courses Found"
+                description={
+                  debouncedSearch
+                    ? `No courses matching "${debouncedSearch}"${selectedDifficulty !== "ALL" ? ` under ${selectedDifficulty}` : ""}.`
+                    : selectedDifficulty !== "ALL"
+                    ? `No courses published under ${selectedDifficulty} level.`
+                    : "No courses published yet."
+                }
+                actionTitle="Clear Filters"
+                onAction={() => {
                   setSearchQuery("");
                   setSelectedDifficulty("ALL");
                 }}
-                style={{ marginTop: 8, alignSelf: "center", paddingVertical: 6, paddingHorizontal: 12 }}
-              >
-                <Text style={{ color: colors.primary, fontWeight: "600", fontSize: 14 }}>Reset Filters</Text>
-              </TouchableOpacity>
+              />
             )}
-          </View>
-        )}
-
-        {/* Empty State */}
-        {!isLoading && !isError && courses.length === 0 && (
-          <EmptyState
-            title="No Courses Found"
-            description={
-              debouncedSearch
-                ? `No courses matching "${debouncedSearch}"${selectedDifficulty !== "ALL" ? ` under ${selectedDifficulty}` : ""}.`
-                : selectedDifficulty !== "ALL"
-                ? `No courses published under ${selectedDifficulty} level.`
-                : "No courses published yet."
-            }
-            actionTitle="Clear Filters"
-            onAction={() => {
-              setSearchQuery("");
-              setSelectedDifficulty("ALL");
-            }}
-          />
-        )}
-
-        {/* Course Cards List */}
-        {!isLoading && !isError && courses.length > 0 && (
-          <View style={styles.cardsList}>
-            {courses.map((course) => (
-              <Card
-                key={course.id}
-                onPress={() => router.push(`/courses/${course.id}` as any)}
-                style={styles.courseCard}
-              >
-                <View style={styles.cardHeaderRow}>
-                  <View style={styles.badgeRow}>
-                    <Badge
-                      label={course.difficulty || "BEGINNER"}
-                      variant={
-                        course.difficulty === "ADVANCED"
-                          ? "danger"
-                          : course.difficulty === "INTERMEDIATE"
-                          ? "warning"
-                          : "primary"
-                      }
-                      size="sm"
-                    />
-                    {course.isEnrolled && (
-                      <Badge label="ENROLLED" variant="success" size="sm" />
-                    )}
-                  </View>
-                  <Text style={[styles.priceTag, { color: course.isFree ? colors.success : colors.primary }]}>
-                    {course.isFree ? "Free" : `₹${course.price}`}
-                  </Text>
-                </View>
-
-                <Text style={[styles.courseTitle, { color: colors.textPrimary }]} numberOfLines={2}>
-                  {course.title}
-                </Text>
-
-                {Boolean(course.description) && (
-                  <Text style={[styles.courseDesc, { color: colors.textSecondary }]} numberOfLines={2}>
-                    {cleanDescriptionPreview(course.description)}
-                  </Text>
-                )}
-
-                <View style={[styles.metaRow, { borderTopColor: colors.border }]}>
-                  <View style={styles.metaItem}>
-                    <PlayCircle size={14} color={colors.textMuted} />
-                    <Text style={[styles.metaText, { color: colors.textMuted }]}>
-                      {course.lessonsCount} lessons
-                    </Text>
-                  </View>
-
-                  <View style={styles.metaItem}>
-                    <Clock size={14} color={colors.textMuted} />
-                    <Text style={[styles.metaText, { color: colors.textMuted }]}>
-                      {course.duration ? `${course.duration}m` : "Self-paced"}
-                    </Text>
-                  </View>
-
-                  <View style={styles.metaItem}>
-                    <Layers size={14} color={colors.textMuted} />
-                    <Text style={[styles.metaText, { color: colors.textMuted }]}>
-                      {course.chaptersCount} chapters
-                    </Text>
-                  </View>
-                </View>
-              </Card>
-            ))}
-          </View>
-        )}
-      </ScrollView>
+          </>
+        }
+      />
     </AppShell>
   );
 }
@@ -423,6 +432,9 @@ const styles = StyleSheet.create({
   },
   cardsList: {
     gap: 12,
+  },
+  separator: {
+    height: 12,
   },
   courseCard: {
     padding: 14,
