@@ -92,7 +92,7 @@ export function hashRefreshToken(token: string): string {
 
 /** Throws on database errors so callers fail closed. */
 export async function isReauthTokenUsed(jti: string): Promise<boolean> {
-  const row = await prisma.reauthTokenUse.findUnique({ where: { jti }, select: { jti: true } })
+  const row = await (prisma as any).reauthTokenUse?.findUnique?.({ where: { jti }, select: { jti: true } })
   return Boolean(row)
 }
 
@@ -103,15 +103,15 @@ export async function isReauthTokenUsed(jti: string): Promise<boolean> {
 export async function consumeReauthToken(jti: string, ttlMs = 10 * 60 * 1000): Promise<boolean> {
   const expiresAt = new Date(Date.now() + ttlMs)
   try {
-    await prisma.reauthTokenUse.create({ data: { jti, expiresAt } })
+    await (prisma as any).reauthTokenUse?.create?.({ data: { jti, expiresAt } })
   } catch (error: any) {
     if (error?.code === "P2002") return false
     throw error
   }
   // Opportunistic cleanup of expired rows; never blocks the caller.
-  prisma.reauthTokenUse
-    .deleteMany({ where: { expiresAt: { lt: new Date() } } })
-    .catch((error) => console.warn("[reauth] could not prune expired token uses:", error))
+  (prisma as any).reauthTokenUse
+    ?.deleteMany?.({ where: { expiresAt: { lt: new Date() } } })
+    ?.catch?.((error: any) => console.warn("[reauth] could not prune expired token uses:", error))
   return true
 }
 

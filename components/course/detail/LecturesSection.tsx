@@ -90,7 +90,11 @@ export function LecturesSection({
       </div>
 
       {/* Unit Tabs (Card style, horizontally scrollable) */}
-      <div className="mt-6 flex items-stretch overflow-x-auto no-scrollbar border-b border-gray-400">
+      <div
+        role="tablist"
+        aria-label="Course units"
+        className="mt-6 flex items-stretch overflow-x-auto no-scrollbar border-b border-gray-400"
+      >
         {units.map((unit) => {
           const isSelected = unit.id === (activeUnit?.id ?? "")
           const unitChaptersList = chapters.filter((c) => c.unitId === unit.id)
@@ -182,6 +186,7 @@ export function LecturesSection({
                       type="button"
                       onClick={() => toggleTheme(theme.id)}
                       aria-expanded={!isCollapsed}
+                      aria-label={isCollapsed ? `Expand ${theme.title}` : `Collapse ${theme.title}`}
                       className="p-1 text-gray-500 hover:text-black transition-colors"
                     >
                       <ChevronDown

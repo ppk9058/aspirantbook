@@ -10,7 +10,7 @@ import {
   MyLearningItemDto,
   CareerTrackDto,
   CareerTrackDetailDto,
-} from "@aspirantbook/shared";
+} from "@/packages/shared/src/dto/content.dto";
 import { parseCourseMetadata, readSectionFlags } from "@/lib/courses/metadata-schema";
 import { deriveRatingDistribution } from "@/lib/courses/ratings";
 import { loadCourseSyllabus } from "@/lib/courses/syllabus";
@@ -271,6 +271,17 @@ export async function getCourseDetail(
       })),
     },
     sections,
+    theme: (course.theme as any) || (meta as any).theme || null,
+    goalLabel: (meta as any).goalLabel || meta.targetText || course.technology || null,
+    goalLabelHi: (meta as any).goalLabelHi || null,
+    enrollCtaLabel: (meta as any).enrollCtaLabel || null,
+    enrollCtaLabelHi: (meta as any).enrollCtaLabelHi || null,
+    enrollHelperText: (meta as any).enrollHelperText || null,
+    enrollHelperTextHi: (meta as any).enrollHelperTextHi || null,
+    badges: (meta as any).badges || null,
+    whatYouGet: (meta as any).whatYouGet || [],
+    howItWorks: (meta as any).howItWorks || [],
+    tabsConfig: (meta as any).tabsConfig || null,
   };
 }
 

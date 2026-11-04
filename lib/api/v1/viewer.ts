@@ -39,7 +39,7 @@ export async function getViewer(req: NextRequest): Promise<Viewer> {
       const payload = await verifyAccessToken(token);
       if (payload?.sub) {
         // Query database on every request so a revoked session is rejected immediately.
-        const user = await prisma.user.findUnique({
+        const user: any = await (prisma.user as any).findUnique({
           where: { id: payload.sub },
           select: {
             id: true,

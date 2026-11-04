@@ -48,7 +48,7 @@ export function BottomCtaBar({
             <p className="flex flex-wrap items-baseline gap-1.5">
               <span className="text-lg font-black text-gray-900">₹{finalPrice.toLocaleString("en-IN")}</span>
               {showStrike && (
-                <span className="text-xs text-gray-500 line-through">
+                <span className="text-xs text-gray-600 line-through">
                   ₹{(originalPrice as number).toLocaleString("en-IN")}
                 </span>
               )}

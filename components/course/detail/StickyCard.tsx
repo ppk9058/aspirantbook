@@ -128,7 +128,7 @@ export function StickyCard({
               </span>
               {typeof course.originalPrice === "number" && course.originalPrice > finalPrice && (
                 <>
-                  <span className="text-base text-gray-500 line-through">
+                  <span className="text-base text-gray-600 line-through">
                     ₹{course.originalPrice.toLocaleString("en-IN")}
                   </span>
                   <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800">

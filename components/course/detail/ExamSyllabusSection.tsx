@@ -114,7 +114,11 @@ export function ExamSyllabusSection({
           {/* Paper Tabs + Language control */}
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-400">
             {/* Paper Tabs */}
-            <div className="flex items-stretch overflow-x-auto no-scrollbar">
+            <div
+              role="tablist"
+              aria-label="Syllabus papers"
+              className="flex items-stretch overflow-x-auto no-scrollbar"
+            >
               {papers.map((paper) => {
                 const isSelected = paper.id === activePaper.id
                 const title = localized(paper, "title", lang) || paper.title
@@ -324,6 +328,7 @@ export function ExamSyllabusSection({
                           type="button"
                           onClick={() => toggleSection(section.id)}
                           aria-expanded={isExpanded}
+                          aria-label={isExpanded ? `Collapse section ${section.title}` : `Expand section ${section.title}`}
                           className="p-1 text-gray-500 hover:text-black transition-colors"
                         >
                           <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
