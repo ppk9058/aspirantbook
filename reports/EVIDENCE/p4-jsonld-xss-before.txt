@@ -1,0 +1,3 @@
+### BEFORE fix: /tutorials/fv-pub-a with course.description = probe </script><script>window.__fvxss=1</script>
+"description":"probe </script><script>window.__fvxss=1</script>"
+RAW_BREAKOUT_COUNT=1

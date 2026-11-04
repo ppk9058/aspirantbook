@@ -1,0 +1,27 @@
+### CSRF / origin guard (session-cookie requests)
+admin PUT Origin=http://127.0.0.1:3048  -> 200 {"id":"cmw2eejgl0001xpy1njfc639v","title":"FV Draft A","slug":"fv-draf
+admin PUT Origin=http://evil.example    -> 403 {"error":"Cross-origin request rejected"}
+admin PUT Origin=null                   -> 403 {"error":"Cross-origin request rejected"}
+admin PUT Referer=evil              -> 403 {"error":"Cross-origin request rejected"}
+admin PUT Referer=same              -> 200
+student POST progress Origin=evil   -> 403
+
+### Security headers on /
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://api.razorpay.com https://challenges.cloudflare.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https: http:; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://challenges.cloudflare.com https://www.youtube.com https://www.youtube-nocookie.com blob: data:; connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://*.amazonaws.com https://challenges.cloudflare.com https://accounts.google.com wss:; media-src 'self' https: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://api.razorpay.com https://accounts.google.com; frame-ancestors 'self'
+Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+
+### Upload presigned-url validation
+anon png       -> 401 {"error":"Unauthorized"}
+free png       -> 500 {"error":"File storage is not configured"}
+free svg       -> 400 {"error":"Invalid file type. Allowed types: image/jpeg, image/png, image/webp, i
+free html      -> 400 {"error":"Unsupported file type. Only images and videos are allowed."}
+free oversize  -> 400 {"error":"File too large. Maximum size: 5MB"}
+
+### /api/test/*
+/api/test/health     -> 404
+/api/test/seed       -> 404
+/api/test/login      -> 404

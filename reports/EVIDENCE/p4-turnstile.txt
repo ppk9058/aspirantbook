@@ -1,0 +1,5 @@
+[Turnstile] Security failure: TURNSTILE_ENABLED=true but TURNSTILE_SECRET_KEY is not configured! Failing closed.
+flag-off enabled=false result={"success":true}
+enabled-no-secret result={"success":false,"status":500,"error":"Bot protection service is misconfigured on the server"}
+enabled-empty-token result={"success":false,"status":400,"error":"Security check required. Please complete the CAPTCHA verification.","errorCodes":["missing-input-response"]}
+ALL ASSERTIONS PASSED

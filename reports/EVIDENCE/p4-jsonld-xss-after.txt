@@ -1,0 +1,6 @@
+### AFTER fix: same payload (window.__fvxss2) is escaped as <
+cript&gt;&lt;script&gt;window.__fvxss2=1&lt;/script&gt;"/><link rel="manifest" href="/ma
+cript&gt;&lt;script&gt;window.__fvxss2=1&lt;/script&gt;"/><meta property="og:url" conten
+3c/script>\u003cscript>window.__fvxss2=1\u003c/script>","provider":{"@type":"Organizatio
+cript&gt;&lt;script&gt;window.__fvxss2=1&lt;/script&gt;</p><p style="color:#1f2a6b" clas
+RAW_BREAKOUT_COUNT=0

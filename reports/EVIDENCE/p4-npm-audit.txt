@@ -1,0 +1,19 @@
+### npm audit (root)
+vulnerabilities: {"info":0,"low":1,"moderate":21,"high":7,"critical":0,"total":29}
+- @prisma/config 6.13.0-dev.1 - 7.10.0 || 8.1.0-dev.1 - 8.1.0-dev.4 | deepmerge-ts; effect
+- deepmerge-ts <8.0.0 | DeepmergeTS has stack exhaustion when merging recursive object graphs
+- effect <3.20.0 | Effect `AsyncLocalStorage` context lost/contaminated inside Effect fibers under concurrent load with RPC
+- picomatch <=2.3.1 | Picomatch: Method Injection in POSIX Character Classes causes incorrect Glob Matching; Picomatch has a ReDoS vulnerability via extglob quantifiers
+- postcss <=8.5.22 | PostCSS has XSS via Unescaped </style> in its CSS Stringify Output; PostCSS: Arbitrary file read and information disclosure via attacker-controlled so
+- prisma 6.13.0-dev.1 - 7.10.0 || 8.0.0-rc.3 - 8.1.0-dev.4 | @prisma/config
+- zod <4.6.6 | Zod can exhaust memory while validating oversized constrained collections
+
+installed: zod 3.25.76, next 15.5.28, postcss 8.5.32
+
+### npm audit (apps/mobile)
+vulnerabilities: {"info":0,"low":6,"moderate":30,"high":5,"critical":0,"total":41}
+- @expo/cli >=0.19.0-canary-20240625-2333e70 | @expo/config; @expo/config-plugins; @expo/inline-modules; @expo/metro-config; @expo/prebuild-config; glob; zod
+- decode-uri-component <=0.5.0 | decode-uri-component: Denial of service via exponential decoding of malformed percent-encoded input; decode-uri-componen
+- expo-router 1.2.2 - 3.1.2 || >=5.2.0-canary-20250611-f0afe80 | @testing-library/react-native; query-string
+- query-string 5.0.0 - 9.4.1 | decode-uri-component
+- zod <4.6.6 | Zod can exhaust memory while validating oversized constrained collections

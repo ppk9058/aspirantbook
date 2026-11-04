@@ -1,0 +1,35 @@
+### dangerouslySetInnerHTML sinks (25 total) and their sanitisation
+
+JSON-LD (script type=application/ld+json) -> safeJsonLdStringify (escapes <):
+  app/(dashboard)/books/[slug]/page.tsx
+  app/(dashboard)/courses/[slug]/page.tsx
+  app/(dashboard)/current-affairs-quizzes/[slug]/page.tsx
+  app/(dashboard)/pyqs/[examId]/page.tsx
+  app/(dashboard)/test-series/[id]/page.tsx
+  app/(dashboard)/tutorials/[slug]/page.tsx
+  app/page.tsx
+  components/content-engine-public/PublicQuestionView.tsx
+
+Server-side regex sanitizer (lib/security/sanitizer.ts, hardened this phase):
+  components/practice/InstructionsPanel.tsx
+  lib/actions/admin/exercises.ts
+  lib/rosera/inline.ts
+
+Client DOMPurify (lib/rosera/inline.ts, SSR falls back to hardened regex):
+  app/(dashboard)/courses/[slug]/CourseDetailView.tsx
+  components/editor/RoseraRenderer.tsx
+  components/editor/CodecademyContentRenderer.tsx
+  components/editor/AspirantbookTutorialView.tsx
+
+Escaped-by-construction inlineFmt (escapes < > & before adding strong/mark/code):
+  app/(dashboard)/courses/[slug]/CourseDetailView.tsx
+  components/editor/RoseraRenderer.tsx
+  components/editor/CodecademyContentRenderer.tsx
+  components/editor/AspirantbookTutorialView.tsx
+
+Static-only sinks:
+  app/layout.tsx -> static themeInitScript constant
+  app/(exam)/test-series/[id]/result/page.tsx -> static <style> block
+  components/editor/AspirantbookTutorialView.tsx -> static <style> block
+
+KaTeX (components/exam/MathRenderer.tsx) -> katex.renderToString output, input math is escaped by KaTeX
