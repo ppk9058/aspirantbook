@@ -1,0 +1,8 @@
+### verify correct
+HTTP 200
+{"success":true,"proof":"eyJ2IjoxLCJwIjoib3RwLW1vYmlsZS1sb2dpbiIsInBob25lIjoiKzkxOTg3NjUwMDAwMyIsImV4cCI6MTc5MzgxMjcxNjk3MCwianRpIjoiZmQyMWMwZjgtZTYxNC00NDdkLWFiMzQtMWRlZTlmMjE2MTUyIn0.iCX0a3gDrw7ZCdjTf7K--ET1hPrJ4rjQi61lXSui9AQ","email":"mobile_9876500003@aspirantbook.local","userId":"cmw2dpe5i0000xpc8o7eu3fy8","name":"student","goalPersisted":true}
+### proof length/prefix
+hasProof true len 203
+### verify replay same vid
+HTTP 401
+{"error":"This verification code has already been used. Please request a new one."}

@@ -1,0 +1,8 @@
+[Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+TEST_OVERRIDE_BLOCKED_IN_PROD: true
+DEV_BYPASS_ALLOWED_IN_PROD: false
+DEV_ADAPTER_SEND_THREW_IN_PROD: true
+DEMO_ROLE_ENABLED_IN_PROD: false
+RESOLVE_DEMO_ADMIN_IN_PROD: undefined
+DEV_BYPASS_FN_IN_PROD_APPENV_TEST: false
+OTP_SEND_WITH_PROVIDER_UNCONFIGURED_PROD: {"ok":false,"code":"not_configured","message":"SMS OTP service is currently disabled. Please use email & password sign-in."}

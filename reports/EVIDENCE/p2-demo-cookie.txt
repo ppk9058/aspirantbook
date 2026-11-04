@@ -1,0 +1,12 @@
+### anon GET /api/admin/books
+HTTP 401
+{"error":"Unauthorized"}
+### cookie ts_demo_role=ADMIN, no session
+HTTP 401
+{"error":"Unauthorized"}
+### GET /api/auth/role (demo mode off)
+HTTP 404
+{"error":"Not found"}
+### POST /api/auth/role
+HTTP 404
+{"error":"Not found"}

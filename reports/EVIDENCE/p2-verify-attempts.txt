@@ -1,0 +1,18 @@
+### wrong attempt 1
+HTTP 401
+{"error":"Incorrect verification code. Please try again."}
+### wrong attempt 2
+HTTP 401
+{"error":"Incorrect verification code. Please try again."}
+### wrong attempt 3
+HTTP 401
+{"error":"Incorrect verification code. Please try again."}
+### wrong attempt 4
+HTTP 401
+{"error":"Incorrect verification code. Please try again."}
+### wrong attempt 5
+HTTP 401
+{"error":"Incorrect verification code. Please try again."}
+### wrong attempt 6
+HTTP 429
+{"error":"Too many incorrect attempts. Please request a new code.","retryAfter":210}

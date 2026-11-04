@@ -1,0 +1,6 @@
+### session immediately after bump
+HTTP 200
+null
+### wait 12s for sync interval
+HTTP 200
+null

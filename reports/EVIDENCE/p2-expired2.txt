@@ -1,0 +1,3 @@
+### verify expired binding 9876500051
+HTTP 200
+{"success":true,"proof":"eyJ2IjoxLCJwIjoib3RwLW1vYmlsZS1sb2dpbiIsInBob25lIjoiKzkxOTg3NjUwMDA1MSIsImV4cCI6MTc5MzgxMjc4ODIxMSwianRpIjoiMmM4MjgwMzItODM5Yy00ZTRiLWIwYWYtM2JmMmFhM2JiMDMxIn0.Q2FMJ8E6mCc681nl_MtgVK3nMk_AQTxLbN2_WOw4wwg","email":"mobile_9876500051@aspirantbook.local","userId":"cmw2dqx4h0009xpc8gucbouzy","name":"student","goalPersisted":true}

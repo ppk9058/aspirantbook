@@ -1,0 +1,9 @@
+### wrong password attempt 1 => HTTP 302
+### wrong password attempt 2 => HTTP 302
+### wrong password attempt 3 => HTTP 302
+### wrong password attempt 4 => HTTP 302
+### wrong password attempt 5 => HTTP 302
+### wrong password attempt 6 => HTTP 302
+### correct password while locked
+HTTP/1.1 302 Found
+location: http://127.0.0.1:3048/login?error=CredentialsSignin&code=account_locked

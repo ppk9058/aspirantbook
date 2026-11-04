@@ -1,0 +1,3 @@
+### verify after binding expiry (simulated)
+HTTP 200
+{"success":true,"proof":"eyJ2IjoxLCJwIjoib3RwLW1vYmlsZS1sb2dpbiIsInBob25lIjoiKzkxOTg3NjUwMDA1MCIsImV4cCI6MTc5MzgxMjc3MzU3MiwianRpIjoiMDc5MTA1NTctYzFkNi00ZDg5LTlmOWEtYWQ4MmMyZTNlNWZjIn0.x0AiC47YIWQu8TRx-cBHsLo8UnNKLdvNu3MzPAvoQiI","email":"mobile_9876500050@aspirantbook.local","userId":"cmw2dqlts0008xpc807fplsdp","name":"student","goalPersisted":true}

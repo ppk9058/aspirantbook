@@ -1,0 +1,9 @@
+### random 6-digit code 999999
+HTTP 401
+{"error":"Incorrect verification code. Please try again."}
+### 4-digit code
+HTTP 401
+{"error":"Please enter the 6-digit verification code."}
+### 123456 via v1 verify with bogus verificationId
+HTTP 401
+{"ok":false,"error":{"code":"UNAUTHORIZED","message":"Invalid or expired verification code. Please request a new one."}}

@@ -1,0 +1,7 @@
+### signIn valid proof
+HTTP/1.1 302 Found
+location: http://127.0.0.1:3048
+set-cookie: authjs.session-token=<masked>; Path=/; Expires=Fri, 04 Dec 2026 17:16:47 GMT; HttpOnly; SameSite=Lax
+
+### cookie jar
+authjs.session-token

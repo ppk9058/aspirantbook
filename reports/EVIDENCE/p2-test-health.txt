@@ -1,0 +1,7 @@
+### GET /api/test/health (APP_ENV=development)
+HTTP 404
+Not Found
+
+### GET /api/health
+HTTP 200
+{"status":"ok","timestamp":"2026-11-04T17:18:40.368Z","commit":"f87f477fe95f38cea747b0785a332b636e64fcfb","uptime":170,"database":{"status":"healthy","latencyMs":118},"payments":"not configured","paymentMode":"unconfigured","totalLatencyMs":316,"migrations":{"applied":31,"pending":0},"paymentsConfigured":false,"storageBackend":"fs","emailProviders":{"brevo":false,"resend":false}}

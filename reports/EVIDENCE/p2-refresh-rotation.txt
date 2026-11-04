@@ -1,0 +1,12 @@
+### v1 login
+{"ok":true,"data":{"tokens":{"accessToken":"eyJhbGciOi...","refreshToken":"<masked>","expiresIn":900,"tokenType":"Bearer"},"user":{"id":"cmw2dsm7j0004xpvtfshu6klh","name":"FV Admin","email":"fv.admin@example.test","role":"ADMIN","image":null,"phoneNumber":null,"goal":null,"emailVerified":"2026-11-04T17:19:07.374Z","isActive":true}}}
+REFRESH_TOKEN_LEN=64
+### refresh (rotation)
+{"ok":true,"data":{"tokens":{"accessToken":"eyJhbGciOi...","refreshToken":"<masked>","expiresIn":900,"tokenType":"Bearer"},"user":{"id":"cmw2dsm7j0004xpvtfshu6klh","name":"FV Admin","email":"fv.admin@example.test","role":"ADMIN","image":null,"phoneNumber":null,"goal":null,"emailVerified":"2026-11-04T17:19:07.374Z","isActive":true}}}
+
+### reuse old refresh token
+HTTP 401
+{"ok":false,"error":{"code":"UNAUTHORIZED","message":"Token reuse detected. All sessions revoked for your security. Please log in again."}}
+### try the rotated token after reuse detection (should be revoked)
+HTTP 401
+{"ok":false,"error":{"code":"UNAUTHORIZED","message":"Token reuse detected. All sessions revoked for your security. Please log in again."}}

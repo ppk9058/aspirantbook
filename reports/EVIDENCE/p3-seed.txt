@@ -1,0 +1,5 @@
+FREE	fv.free@example.test	cmw2dsm6i0000xpvtthwwt7sj
+PREMIUM	fv.premium@example.test	cmw2dsm7e0001xpvtxuogcudk
+TEACHER	fv.teacher.a@example.test	cmw2dsm7g0002xpvtq9k3zurz
+TEACHER	fv.teacher.b@example.test	cmw2dsm7i0003xpvtrp1c4s76
+ADMIN	fv.admin@example.test	cmw2dsm7j0004xpvtfshu6klh

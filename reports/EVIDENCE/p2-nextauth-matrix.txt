@@ -1,0 +1,24 @@
+### a) phone only, no proof
+  HTTP/1.1 302 Found
+  location: http://127.0.0.1:3048/login?error=CredentialsSignin&code=credentials
+  SESSION_COOKIE=NO
+### b) forged random proof
+  HTTP/1.1 302 Found
+  location: http://127.0.0.1:3048/login?error=CredentialsSignin&code=credentials
+  SESSION_COOKIE=NO
+### c) tampered payload, signature kept
+  HTTP/1.1 302 Found
+  location: http://127.0.0.1:3048/login?error=CredentialsSignin&code=credentials
+  SESSION_COOKIE=NO
+### d) valid proof for A used with phone B
+  HTTP/1.1 302 Found
+  location: http://127.0.0.1:3048/login?error=CredentialsSignin&code=credentials
+  SESSION_COOKIE=NO
+### f) replay valid proof for A (first use was case c? no: this is first use)
+  HTTP/1.1 302 Found
+  location: http://127.0.0.1:3048
+  SESSION_COOKIE=YES
+### g) valid proof for A second use (replay)
+  HTTP/1.1 302 Found
+  location: http://127.0.0.1:3048/login?error=CredentialsSignin&code=credentials
+  SESSION_COOKIE=NO

@@ -103,13 +103,12 @@ There is no `lib/auth/demo-guard.ts`. Real files/flags:
 - `lib/auth/demo-role-server.ts` uses it.
 - `ENABLE_DEMO_DATA` only in `lib/books/bookService.ts:294-301`, which returns false in production.
 - `ALLOW_DEV_MOBILE_LOGIN`: `lib/boot-guard.ts:10,90-98` (refuses boot in production), `lib/api/v1/dev-bypass.ts:10-33`, `app/api/auth/mobile-login/route.ts:71` (additionally requires `NODE_ENV !== "production"`).
-- **CRITICAL BUG in HEAD:** the raw `ts_demo_role` cookie is still trusted unconditionally by:
-  - `lib/auth/rbac.ts:20-25` (HEAD) — `cookieStore.get("ts_demo_role")` cast to role
-  - `middleware.ts:13` (HEAD) — `req.cookies.get("ts_demo_role")`
-  - `app/api/auth/role/route.ts:8` and `:19-25` (HEAD) — sets it with no environment check
-  The guard module exists but is **not wired** at these three call sites.
-- `fix/demo-role-prod-guard` (`6799f6b`, 1 commit) is exactly that wiring + test: 22 files, `lib/auth/demo-role.ts` (46 lines), `rbac.ts`, `middleware.ts`, `api/auth/role/route.ts`, `tests/unit/demo-role-guard.test.ts`. Diff vs HEAD contradicts HEAD's history (add/add on demo-role.ts) but the call-site guards are **absent in HEAD**.
-**Verdict: the fix is NOT present in HEAD. It is a live privilege-escalation vector to be proven in Phase 2/3 and fixed.**
+- **The guard IS wired in HEAD** (re-verified against the working tree, not the merge-base):
+  - `lib/auth/rbac.ts:25` — `demoRoleCookie = getDemoRole(cookieStore)`
+  - `middleware.ts:19` — `const demoRole = getDemoRole(req)`
+  - `app/api/auth/role/route.ts:7-16,19-21` — GET and POST both return 404 when `!isDemoRoleEnabled()`; cookie write only after that check.
+- `fix/demo-role-prod-guard` (`6799f6b`, 1 commit) appears to be a *parallel, older* version of the same guard: `git diff HEAD...branch` shows add/add on `lib/auth/demo-role.ts` and a weaker role route (403, no 404-on-GET). HEAD's version is **stricter** than the branch.
+**Verdict (CORRECTED): the production guard is already present in HEAD. The branch is redundant; no merge is required for this guard.** Previously I read `git diff A...B` (merge-base→branch) and mis-attributed the `-` lines to HEAD; this entry is the corrected result. Runtime proof will still be collected in Phase 2 (cookie alone must not authenticate when demo mode is off).
 
 ### d8. Legacy SMS paths / Message Central names
 - `FAST2SMS_API_KEY`, `MSG91_AUTH_KEY`, `TWILIO_AUTH_TOKEN` appear only in `lib/boot-guard.ts:13-17` (existence check for a boot warning variable) — **no adapter, no send, no verify**. `SMS_API_KEY` has **0** hits in `lib/`/`app/`.
@@ -138,7 +137,7 @@ There is no `lib/auth/demo-guard.ts`. Real files/flags:
 
 ## Findings raised in Phase 0 (to prove in later phases)
 
-1. **P0-F1 (critical, security):** raw `ts_demo_role` cookie trusted in `rbac.ts`, `middleware.ts`, `api/auth/role/route.ts` → role spoofing. Fix branch exists but is not merged.
+1. **P0-F1 (closed):** raw `ts_demo_role` cookie is **not** trusted in HEAD; `getDemoRole` gates it in `rbac.ts`, `middleware.ts`, `api/auth/role/route.ts`. Runtime proof pending (Phase 2).
 2. **P0-F2 (functional):** `isCourseVisibleToUser` owner check uses non-existent columns → teacher cannot preview own draft.
 3. **P0-F3 (test-infra):** `.env.test` points at `127.0.0.1:54340/trillionskill_launch` (closed port; DB name does not end in `_test`, so it would fail the boot guard). Local 54329 has `launch_verify` and `launch_verify_test`; all runs below override `DATABASE_URL` to 54329 explicitly.
 4. **P0-F4 (docs):** wrong Message Central env names in `docs/verify-launch/REPORT.md:150`.

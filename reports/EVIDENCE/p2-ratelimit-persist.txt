@@ -1,0 +1,2 @@
+DB rows for key: [{"key":"otp:send:phone:d6f8ab67456c2f6e2436e1a748b7d40989f9bc9484a2e2c62bb8e32e6af78cc6","count":4,"windowStart":"2026-11-04T22:40:00.000Z"}]
+FRESH PROCESS checkRateLimit: {"allowed":false,"count":5,"limit":3,"windowSeconds":600,"remainingSeconds":46}

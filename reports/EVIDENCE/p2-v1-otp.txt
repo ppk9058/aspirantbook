@@ -1,0 +1,8 @@
+### v1 otp request
+{"ok":true,"data":{"message":"Dev OTP bypass active. Use verification code 123456.","phoneNumber":"9876500030","verificationId":"dev_e3cdec6c-0ea0-4fe1-af96-4156d8a0a681","expiresIn":300,"resendAfter":30,"devBypass":true}}
+VID=dev_e3cdec6c-0ea0-4fe1-af96-4156d8a0a681
+### v1 otp verify correct
+{"ok":true,"data":{"tokens":{"accessToken":"eyJhbGciOiJI...","refreshToken":"4b911c171245a779659940747983dc39f81b8843cdbfd84875b51842a166cf0e","expiresIn":900,"tokenType":"Bearer"},"user":{"id":"cmw2dq6tn0004xpc8ekh8hp8e","name":"Student","email":"mobile_9876500030@aspirantbook.local","role":"FREE","image":null,"phoneNumber":"9876500030","goal":null,"emailVerified":null,"isActive":true}}}
+### v1 verify replay
+HTTP 401
+{"ok":false,"error":{"code":"UNAUTHORIZED","message":"This verification code has already been used. Please request a new one."}}

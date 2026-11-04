@@ -1,0 +1,12 @@
+### send attempt 1
+HTTP 200
+{"success":true,"step":"otp","verificationId":"dev_06fe6bd3-746a-43ff-9099-3c54106cd172","expiresIn":300,"resendAfter":30,"devBypass":true}
+### send attempt 2
+HTTP 200
+{"success":true,"step":"otp","verificationId":"dev_a65b8377-8b0f-48fc-bae2-55ec80b794e0","expiresIn":300,"resendAfter":30,"devBypass":true}
+### send attempt 3
+HTTP 200
+{"success":true,"step":"otp","verificationId":"dev_d77a4f36-2f72-49fa-a231-1aa7b57f877a","expiresIn":300,"resendAfter":30,"devBypass":true}
+### send attempt 4
+HTTP 429
+{"error":"Too many verification codes requested for this number. Please try again later.","retryAfter":63}
