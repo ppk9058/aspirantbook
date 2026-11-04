@@ -147,7 +147,7 @@
 - [ ] **1. DLT & SMS Registration (India)**:
   - Register Company Header / Sender ID with Indian Telecom DLT portal (e.g. Jio / Airtel / Vil).
   - Register transactional OTP template: `Your AspirantBook verification code is {#var#}. Valid for 10 minutes. Do not share this OTP with anyone.`
-  - Set `MESSAGECENTRAL_CUSTOMER_ID`, `MESSAGECENTRAL_AUTH_TOKEN`, and `MESSAGECENTRAL_SENDER_ID` in staging `.env`.
+  - Set `MESSAGE_CENTRAL_CUSTOMER_ID` and `MESSAGE_CENTRAL_AUTH_KEY` in the staging `.env` (the sender is configured in the Message Central dashboard, not through an environment variable).
 - [ ] **2. Live Staging Smoke Verification**:
   - Deploy to staging environment.
   - Send 1 real SMS to your phone; verify receipt within 10 seconds.
