@@ -1,0 +1,906 @@
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: API v1 Account Deletion & Anonymization (App Store 5.1.1(v) Real-Flow)
+    # Subtest: rejects DELETE /api/v1/me when unauthenticated (401)
+    ok 1 - rejects DELETE /api/v1/me when unauthenticated (401)
+      ---
+      duration_ms: 6.039333
+      type: 'test'
+      ...
+    # Subtest: rejects deletion when password is wrong (401)
+    ok 2 - rejects deletion when password is wrong (401)
+      ---
+      duration_ms: 469.371375
+      type: 'test'
+      ...
+    # Subtest: rejects deletion on password-protected user when password is omitted (401)
+    ok 3 - rejects deletion on password-protected user when password is omitted (401)
+      ---
+      duration_ms: 4.491
+      type: 'test'
+      ...
+    # Subtest: rejects static magic string 'DELETE_ACCOUNT' for passwordless OTP user (401)
+    ok 4 - rejects static magic string 'DELETE_ACCOUNT' for passwordless OTP user (401)
+      ---
+      duration_ms: 3.771708
+      type: 'test'
+      ...
+    # Subtest: rejects purpose-bound token with WRONG purpose (401)
+    ok 5 - rejects purpose-bound token with WRONG purpose (401)
+      ---
+      duration_ms: 5.030833
+      type: 'test'
+      ...
+    # Subtest: rejects purpose-bound token that is EXPIRED (401)
+    ok 6 - rejects purpose-bound token that is EXPIRED (401)
+      ---
+      duration_ms: 6.378625
+      type: 'test'
+      ...
+    # Subtest: successfully deletes and anonymizes standard user with valid password and verifies audit log
+    ok 7 - successfully deletes and anonymizes standard user with valid password and verifies audit log
+      ---
+      duration_ms: 949.320125
+      type: 'test'
+      ...
+    # Subtest: successfully deletes passwordless OTP user with valid purpose-bound re-auth token
+    ok 8 - successfully deletes passwordless OTP user with valid purpose-bound re-auth token
+      ---
+      duration_ms: 16.755417
+      type: 'test'
+      ...
+    # Subtest: prevents deleting the last remaining active administrator account
+    ok 9 - prevents deleting the last remaining active administrator account
+      ---
+      duration_ms: 6.522208
+      type: 'test'
+      ...
+    1..9
+ok 1 - API v1 Account Deletion & Anonymization (App Store 5.1.1(v) Real-Flow)
+  ---
+  duration_ms: 2504.206542
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: A13 v1 auth hardening
+    # Subtest: unknown email, wrong password and an inactive account all fail identically
+    ok 1 - unknown email, wrong password and an inactive account all fail identically
+      ---
+      duration_ms: 927.752
+      type: 'test'
+      ...
+    # Subtest: registration hashes with the same bcrypt cost as the web path (12)
+    ok 2 - registration hashes with the same bcrypt cost as the web path (12)
+      ---
+      duration_ms: 1.867708
+      type: 'test'
+      ...
+    # Subtest: locks an account after 5 failures and refuses the correct password until it expires
+    ok 3 - locks an account after 5 failures and refuses the correct password until it expires
+      ---
+      duration_ms: 3390.350375
+      type: 'test'
+      ...
+# [SECURITY ALERT] Refresh token reuse detected for family f3508332-aa56-4601-8717-3439ab14081b! Revoking family.
+# [SECURITY ALERT] Refresh token reuse detected for family f3508332-aa56-4601-8717-3439ab14081b! Revoking family.
+    # Subtest: rotates the refresh token in place and still detects replay
+    ok 4 - rotates the refresh token in place and still detects replay
+      ---
+      duration_ms: 478.193042
+      type: 'test'
+      ...
+    # Subtest: prunes revoked and long-expired sessions but keeps the live one
+    ok 5 - prunes revoked and long-expired sessions but keeps the live one
+      ---
+      duration_ms: 468.884166
+      type: 'test'
+      ...
+    # Subtest: a guest can never unregister a push token
+    ok 6 - a guest can never unregister a push token
+      ---
+      duration_ms: 4.544666
+      type: 'test'
+      ...
+    1..6
+ok 2 - A13 v1 auth hardening
+  ---
+  duration_ms: 6251.9705
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security
+    # Subtest: Guest receives ONLY 20% preview slice on gated tutorial lesson (no secret blocks)
+    ok 1 - Guest receives ONLY 20% preview slice on gated tutorial lesson (no secret blocks)
+      ---
+      duration_ms: 5.596917
+      type: 'test'
+      ...
+    # Subtest: Fully locked lesson returns 0 content blocks to guest (title only)
+    ok 2 - Fully locked lesson returns 0 content blocks to guest (title only)
+      ---
+      duration_ms: 2.5225
+      type: 'test'
+      ...
+    # Subtest: Fail-closed: Missing chunks content never crashes and returns 0 leaked blocks
+    ok 3 - Fail-closed: Missing chunks content never crashes and returns 0 leaked blocks
+      ---
+      duration_ms: 2.149
+      type: 'test'
+      ...
+    # Subtest: Enrolled student receives 100% full content with isLockedForGuest=false
+    ok 4 - Enrolled student receives 100% full content with isLockedForGuest=false
+      ---
+      duration_ms: 4.162333
+      type: 'test'
+      ...
+    # Subtest: CRITICAL: Active attempt questions NEVER leak correctOption or explanation
+    ok 5 - CRITICAL: Active attempt questions NEVER leak correctOption or explanation
+      ---
+      duration_ms: 9.336875
+      type: 'test'
+      ...
+    # Subtest: CRITICAL: Solutions endpoint rejects with 403 before test submission
+    ok 6 - CRITICAL: Solutions endpoint rejects with 403 before test submission
+      ---
+      duration_ms: 4.582625
+      type: 'test'
+      ...
+    # Subtest: IDOR Guard: User 2 cannot access or view User 1's test attempt
+    ok 7 - IDOR Guard: User 2 cannot access or view User 1's test attempt
+      ---
+      duration_ms: 3.702791
+      type: 'test'
+      ...
+    # Subtest: IDOR Guard: User 2 cannot sync answers or mutate User 1's test attempt
+    ok 8 - IDOR Guard: User 2 cannot sync answers or mutate User 1's test attempt
+      ---
+      duration_ms: 3.306125
+      type: 'test'
+      ...
+    # Subtest: HTTP 206 Partial Content: Library file endpoint supports byte-range slicing
+    ok 9 - HTTP 206 Partial Content: Library file endpoint supports byte-range slicing
+      ---
+      duration_ms: 10.32725
+      type: 'test'
+      ...
+    # Subtest: HTTP 416 Range Not Satisfiable: Library file endpoint rejects out-of-bounds ranges
+    ok 10 - HTTP 416 Range Not Satisfiable: Library file endpoint rejects out-of-bounds ranges
+      ---
+      duration_ms: 3.695459
+      type: 'test'
+      ...
+    # Subtest: Deactivated user is rejected with the uniform invalid-credentials message
+    ok 11 - Deactivated user is rejected with the uniform invalid-credentials message
+      ---
+      duration_ms: 458.576792
+      type: 'test'
+      ...
+    # Subtest: Bearer token of deactivated user is rejected in getViewer (fails closed as guest)
+    ok 12 - Bearer token of deactivated user is rejected in getViewer (fails closed as guest)
+      ---
+      duration_ms: 2.973083
+      type: 'test'
+      ...
+    # Subtest: Bearer vs NextAuth Cookie parity: Both resolve identical authenticated viewer context
+    ok 13 - Bearer vs NextAuth Cookie parity: Both resolve identical authenticated viewer context
+      ---
+      duration_ms: 2.29325
+      type: 'test'
+      ...
+    1..13
+ok 3 - API v1 Authwall Slicing, Fail-Closed Content, & IDOR Security
+  ---
+  duration_ms: 1995.084917
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: API Budgets, Caching & Pagination Limits
+    # Subtest: ETag & 304 Not Modified Caching
+        # Subtest: GET /api/v1/config returns ETag and responds 304 on matching If-None-Match
+        ok 1 - GET /api/v1/config returns ETag and responds 304 on matching If-None-Match
+          ---
+          duration_ms: 6.740834
+          type: 'test'
+          ...
+        # Subtest: GET /api/v1/goals returns ETag and responds 304 on matching If-None-Match
+        ok 2 - GET /api/v1/goals returns ETag and responds 304 on matching If-None-Match
+          ---
+          duration_ms: 1.083333
+          type: 'test'
+          ...
+        1..2
+    ok 1 - ETag & 304 Not Modified Caching
+      ---
+      duration_ms: 8.292
+      type: 'suite'
+      ...
+    # Subtest: List Endpoints Pagination & Payload Ceilings
+        # Subtest: GET /api/v1/tests enforces default 20, max 50 limit, and stays under 50KB
+        ok 1 - GET /api/v1/tests enforces default 20, max 50 limit, and stays under 50KB
+          ---
+          duration_ms: 13.337042
+          type: 'test'
+          ...
+        # Subtest: GET /api/v1/tutorials respects 50 items ceiling and stays under 50KB
+        ok 2 - GET /api/v1/tutorials respects 50 items ceiling and stays under 50KB
+          ---
+          duration_ms: 5.162416
+          type: 'test'
+          ...
+        # Subtest: GET /api/v1/library respects 50 items ceiling and stays under 50KB
+        ok 3 - GET /api/v1/library respects 50 items ceiling and stays under 50KB
+          ---
+          duration_ms: 10.325583
+          type: 'test'
+          ...
+        1..3
+    ok 2 - List Endpoints Pagination & Payload Ceilings
+      ---
+      duration_ms: 29.2215
+      type: 'suite'
+      ...
+    1..2
+ok 4 - API Budgets, Caching & Pagination Limits
+  ---
+  duration_ms: 58.172083
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: API v1: Password Change & Subscription Purchases Parity
+    # Subtest: rejects POST /api/v1/auth/change-password when unauthenticated (401)
+    ok 1 - rejects POST /api/v1/auth/change-password when unauthenticated (401)
+      ---
+      duration_ms: 194.730334
+      type: 'test'
+      ...
+    # Subtest: rejects password change when current password is wrong (401)
+    ok 2 - rejects password change when current password is wrong (401)
+      ---
+      duration_ms: 125.185458
+      type: 'test'
+      ...
+    # Subtest: rejects password change when new password is too short (400 validation error)
+    ok 3 - rejects password change when new password is too short (400 validation error)
+      ---
+      duration_ms: 5.986375
+      type: 'test'
+      ...
+    # Subtest: successfully updates password, increments sessionVersion, and resets lockouts
+    ok 4 - successfully updates password, increments sessionVersion, and resets lockouts
+      ---
+      duration_ms: 1061.741583
+      type: 'test'
+      ...
+    # Subtest: rejects GET /api/v1/subscriptions when unauthenticated (401)
+    ok 5 - rejects GET /api/v1/subscriptions when unauthenticated (401)
+      ---
+      duration_ms: 10.222292
+      type: 'test'
+      ...
+    # Subtest: returns active pass status and purchase history for logged-in user
+    ok 6 - returns active pass status and purchase history for logged-in user
+      ---
+      duration_ms: 11.241
+      type: 'test'
+      ...
+    # Subtest: syncs goal to DB when user updates goal via PATCH /api/v1/me
+    ok 7 - syncs goal to DB when user updates goal via PATCH /api/v1/me
+      ---
+      duration_ms: 9.693417
+      type: 'test'
+      ...
+    1..7
+ok 5 - API v1: Password Change & Subscription Purchases Parity
+  ---
+  duration_ms: 1588.056416
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: API v1: Courses, Lessons, My-Learning, and Tracks Parity
+    # Subtest: GET /api/v1/courses returns published courses with stats
+    ok 1 - GET /api/v1/courses returns published courses with stats
+      ---
+      duration_ms: 9.223417
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/courses/[id] returns curriculum chapters and trial status
+    ok 2 - GET /api/v1/courses/[id] returns curriculum chapters and trial status
+      ---
+      duration_ms: 5.00975
+      type: 'test'
+      ...
+    # Subtest: POST /api/v1/courses/[id]/enroll enrolls logged in student in free course
+    ok 3 - POST /api/v1/courses/[id]/enroll enrolls logged in student in free course
+      ---
+      duration_ms: 8.661708
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/courses/[id]/lessons/[lessonId] returns lesson content when enrolled
+    ok 4 - GET /api/v1/courses/[id]/lessons/[lessonId] returns lesson content when enrolled
+      ---
+      duration_ms: 11.451625
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/courses/[id]/lessons/[lessonId] returns 403 when guest tries to access locked lesson
+    ok 5 - GET /api/v1/courses/[id]/lessons/[lessonId] returns 403 when guest tries to access locked lesson
+      ---
+      duration_ms: 5.114833
+      type: 'test'
+      ...
+    # Subtest: POST /api/v1/courses/[id]/lessons/[lessonId]/progress marks lesson complete
+    ok 6 - POST /api/v1/courses/[id]/lessons/[lessonId]/progress marks lesson complete
+      ---
+      duration_ms: 5.990583
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/my-learning returns enrolled course with calculated progress
+    ok 7 - GET /api/v1/my-learning returns enrolled course with calculated progress
+      ---
+      duration_ms: 8.325667
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/career-tracks returns published career tracks
+    ok 8 - GET /api/v1/career-tracks returns published career tracks
+      ---
+      duration_ms: 2.947417
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/career-tracks/[id] returns career track detail with courses
+    ok 9 - GET /api/v1/career-tracks/[id] returns career track detail with courses
+      ---
+      duration_ms: 3.86825
+      type: 'test'
+      ...
+    1..9
+ok 6 - API v1: Courses, Lessons, My-Learning, and Tracks Parity
+  ---
+  duration_ms: 591.134166
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: API v1: premium test entitlement parity
+    # Subtest: shared policy denies a free learner on a PRO test
+    ok 1 - shared policy denies a free learner on a PRO test
+      ---
+      duration_ms: 8.476083
+      type: 'test'
+      ...
+    # Subtest: POST /api/v1/tests/:id/attempts returns 403 and creates no attempt
+    ok 2 - POST /api/v1/tests/:id/attempts returns 403 and creates no attempt
+      ---
+      duration_ms: 17.172417
+      type: 'test'
+      ...
+    # Subtest: the mobile shared client surfaces the denial as a readable error
+    ok 3 - the mobile shared client surfaces the denial as a readable error
+      ---
+      duration_ms: 7.856791
+      type: 'test'
+      ...
+    1..3
+ok 7 - API v1: premium test entitlement parity
+  ---
+  duration_ms: 1145.841791
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: API v1: Exam Series, My-Tests, and Leaderboard Parity
+    # Subtest: GET /api/v1/exam-series returns published packages and respects category filter
+    ok 1 - GET /api/v1/exam-series returns published packages and respects category filter
+      ---
+      duration_ms: 9.111666
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/exam-series/[id] returns package detail and tests with user status
+    ok 2 - GET /api/v1/exam-series/[id] returns package detail and tests with user status
+      ---
+      duration_ms: 11.219042
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/exam-series/[id] returns 404 for nonexistent series
+    ok 3 - GET /api/v1/exam-series/[id] returns 404 for nonexistent series
+      ---
+      duration_ms: 1.89275
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/my-tests returns 401 for guests
+    ok 4 - GET /api/v1/my-tests returns 401 for guests
+      ---
+      duration_ms: 0.592708
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/my-tests returns enrolled series and recent attempts for logged-in user
+    ok 5 - GET /api/v1/my-tests returns enrolled series and recent attempts for logged-in user
+      ---
+      duration_ms: 13.111375
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/tests/[id]/leaderboard returns 401 for guests
+    ok 6 - GET /api/v1/tests/[id]/leaderboard returns 401 for guests
+      ---
+      duration_ms: 0.661625
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/tests/[id]/leaderboard returns 403 when student has NOT submitted the test
+    ok 7 - GET /api/v1/tests/[id]/leaderboard returns 403 when student has NOT submitted the test
+      ---
+      duration_ms: 475.399875
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/tests/[id]/leaderboard returns ranking data when student submitted attempt
+    ok 8 - GET /api/v1/tests/[id]/leaderboard returns ranking data when student submitted attempt
+      ---
+      duration_ms: 6.327917
+      type: 'test'
+      ...
+    1..8
+ok 8 - API v1: Exam Series, My-Tests, and Leaderboard Parity
+  ---
+  duration_ms: 1036.37025
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: API v1: Lesson Lock and Video Stream Security
+    # Subtest: Course detail marks locked lesson as isLocked=true and trial lesson as isLocked=false for unenrolled user
+    ok 1 - Course detail marks locked lesson as isLocked=true and trial lesson as isLocked=false for unenrolled user
+      ---
+      duration_ms: 15.90325
+      type: 'test'
+      ...
+    # Subtest: Unenrolled user can access trial preview lesson without restriction
+    ok 2 - Unenrolled user can access trial preview lesson without restriction
+      ---
+      duration_ms: 13.301208
+      type: 'test'
+      ...
+    # Subtest: Unenrolled user receives 403 FORBIDDEN when attempting to access locked lesson streamUrl
+    ok 3 - Unenrolled user receives 403 FORBIDDEN when attempting to access locked lesson streamUrl
+      ---
+      duration_ms: 9.374542
+      type: 'test'
+      ...
+    # Subtest: Enrolled user receives 200 and valid streamUrl for previously locked lesson
+    ok 4 - Enrolled user receives 200 and valid streamUrl for previously locked lesson
+      ---
+      duration_ms: 7.226334
+      type: 'test'
+      ...
+    1..4
+ok 9 - API v1: Lesson Lock and Video Stream Security
+  ---
+  duration_ms: 1034.359625
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# [PushDispatcher] Push disabled (ENABLE_MOBILE_PUSH=false). Simulated/logged 1 message(s).
+# Subtest: R6 - Mobile Push Service & Feature Flag Suite
+    # Subtest: Device Registration: Multiple calls with same token update record without duplication
+    ok 1 - Device Registration: Multiple calls with same token update record without duplication
+      ---
+      duration_ms: 23.497208
+      type: 'test'
+      ...
+    # Subtest: Feature Flag: With ENABLE_MOBILE_PUSH=false, dispatch does NOT fetch external push network
+    ok 2 - Feature Flag: With ENABLE_MOBILE_PUSH=false, dispatch does NOT fetch external push network
+      ---
+      duration_ms: 0.481084
+      type: 'test'
+      ...
+    # Subtest: Dispatch: When ENABLE_MOBILE_PUSH=true, sends batch to configured endpoint
+    ok 3 - Dispatch: When ENABLE_MOBILE_PUSH=true, sends batch to configured endpoint
+      ---
+      duration_ms: 0.4545
+      type: 'test'
+      ...
+# [PushDispatcher] Pruned 1 unregistered device push token(s) from database.
+    # Subtest: Receipt Processing: DeviceNotRegistered error automatically prunes DB token
+    ok 4 - Receipt Processing: DeviceNotRegistered error automatically prunes DB token
+      ---
+      duration_ms: 2.74775
+      type: 'test'
+      ...
+    # Subtest: Revocation: DELETE /api/v1/devices unregisters token; logout prunes token if provided
+    ok 5 - Revocation: DELETE /api/v1/devices unregisters token; logout prunes token if provided
+      ---
+      duration_ms: 7.59875
+      type: 'test'
+      ...
+    1..5
+ok 10 - R6 - Mobile Push Service & Feature Flag Suite
+  ---
+  duration_ms: 547.919125
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: API v1: PYQ and Current Affairs Parity
+    # Subtest: GET /api/v1/pyq/exams returns published exam categories
+    ok 1 - GET /api/v1/pyq/exams returns published exam categories
+      ---
+      duration_ms: 8.677875
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/pyq/papers lists published papers filtered by examId
+    ok 2 - GET /api/v1/pyq/papers lists published papers filtered by examId
+      ---
+      duration_ms: 4.133958
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/pyq/papers/[id] returns paper details and fileUrl for free paper
+    ok 3 - GET /api/v1/pyq/papers/[id] returns paper details and fileUrl for free paper
+      ---
+      duration_ms: 2.419125
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/pyq/papers/[id] returns 404 for nonexistent paper
+    ok 4 - GET /api/v1/pyq/papers/[id] returns 404 for nonexistent paper
+      ---
+      duration_ms: 1.756875
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/current-affairs returns list of published digests
+    ok 5 - GET /api/v1/current-affairs returns list of published digests
+      ---
+      duration_ms: 3.4675
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/current-affairs/[slug] returns detail of digest
+    ok 6 - GET /api/v1/current-affairs/[slug] returns detail of digest
+      ---
+      duration_ms: 3.26425
+      type: 'test'
+      ...
+    1..6
+ok 11 - API v1: PYQ and Current Affairs Parity
+  ---
+  duration_ms: 59.677458
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [SECURITY ALERT] Concurrent refresh reuse detected for family dd809d20-6b7d-42be-ad17-82d4f5c88402! Revoking family.
+# [SECURITY ALERT] Concurrent refresh reuse detected for family dd809d20-6b7d-42be-ad17-82d4f5c88402! Revoking family.
+# [SECURITY ALERT] Concurrent refresh reuse detected for family dd809d20-6b7d-42be-ad17-82d4f5c88402! Revoking family.
+# [SECURITY ALERT] Concurrent refresh reuse detected for family dd809d20-6b7d-42be-ad17-82d4f5c88402! Revoking family.
+# [SECURITY ALERT] Concurrent refresh reuse detected for family dd809d20-6b7d-42be-ad17-82d4f5c88402! Revoking family.
+# [SECURITY ALERT] Concurrent refresh reuse detected for family dd809d20-6b7d-42be-ad17-82d4f5c88402! Revoking family.
+# [SECURITY ALERT] Concurrent refresh reuse detected for family dd809d20-6b7d-42be-ad17-82d4f5c88402! Revoking family.
+# [SECURITY ALERT] Concurrent refresh reuse detected for family dd809d20-6b7d-42be-ad17-82d4f5c88402! Revoking family.
+# [SECURITY ALERT] Concurrent refresh reuse detected for family dd809d20-6b7d-42be-ad17-82d4f5c88402! Revoking family.
+# Subtest: A3 refresh-token double spend
+    # Subtest: 10 parallel refreshes of one token: exactly 1 succeeds
+    ok 1 - 10 parallel refreshes of one token: exactly 1 succeeds
+      ---
+      duration_ms: 27.278792
+      type: 'test'
+      ...
+    1..1
+ok 12 - A3 refresh-token double spend
+  ---
+  duration_ms: 534.886125
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: API v1: Global Search Route (/api/v1/search)
+    # Subtest: returns empty results for empty or short queries
+    ok 1 - returns empty results for empty or short queries
+      ---
+      duration_ms: 17.48775
+      type: 'test'
+      ...
+    # Subtest: finds matching records when matching search keyword
+    ok 2 - finds matching records when matching search keyword
+      ---
+      duration_ms: 14.9515
+      type: 'test'
+      ...
+    1..2
+ok 13 - API v1: Global Search Route (/api/v1/search)
+  ---
+  duration_ms: 33.302042
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# [CRITICAL SECURITY REFUSAL AT BOOT] ALLOW_DEV_MOBILE_LOGIN is enabled in NODE_ENV=production! Dev OTP bypass is strictly forbidden in production.
+# Subtest: SEC1: OTP / Reauth / Session Security Hardening
+    # Subtest: SEC1.1: isDevBypassAllowed strictly rejects production and allows test/dev only under strict flags
+    ok 1 - SEC1.1: isDevBypassAllowed strictly rejects production and allows test/dev only under strict flags
+      ---
+      duration_ms: 1.14975
+      type: 'test'
+      ...
+    # Subtest: SEC1.2: validateBootSecurity strictly refuses to boot when NODE_ENV=production and ALLOW_DEV_MOBILE_LOGIN=true
+    ok 2 - SEC1.2: validateBootSecurity strictly refuses to boot when NODE_ENV=production and ALLOW_DEV_MOBILE_LOGIN=true
+      ---
+      duration_ms: 0.885916
+      type: 'test'
+      ...
+    # Subtest: SEC1.3: otp/request and otp/verify return 501 when no SMS provider is configured (even if legacy SMS_API_KEY is present)
+    ok 3 - SEC1.3: otp/request and otp/verify return 501 when no SMS provider is configured (even if legacy SMS_API_KEY is present)
+      ---
+      duration_ms: 17.195167
+      type: 'test'
+      ...
+    # Subtest: SEC1.4a: reauth enforces rate limit of 5 requests per 15 min per user+IP
+    ok 4 - SEC1.4a: reauth enforces rate limit of 5 requests per 15 min per user+IP
+      ---
+      duration_ms: 2381.37825
+      type: 'test'
+      ...
+    # Subtest: SEC1.4b: passwordless user reauth returns 501 REAUTH_UNAVAILABLE when devBypass is off
+    ok 5 - SEC1.4b: passwordless user reauth returns 501 REAUTH_UNAVAILABLE when devBypass is off
+      ---
+      duration_ms: 11.898
+      type: 'test'
+      ...
+    # Subtest: SEC1.5: rejects account deletion on stolen access token without proof (REAUTH_REQUIRED)
+    ok 6 - SEC1.5: rejects account deletion on stolen access token without proof (REAUTH_REQUIRED)
+      ---
+      duration_ms: 4.493666
+      type: 'test'
+      ...
+    # Subtest: SEC1.5b: rejects expired, reused, other-user, and other-purpose reauth tokens
+    ok 7 - SEC1.5b: rejects expired, reused, other-user, and other-purpose reauth tokens
+      ---
+      duration_ms: 43.219417
+      type: 'test'
+      ...
+    # Subtest: SEC1.6: allows the same phone number to register again after account deletion/anonymization
+    ok 8 - SEC1.6: allows the same phone number to register again after account deletion/anonymization
+      ---
+      duration_ms: 28.19475
+      type: 'test'
+      ...
+# [SECURITY ALERT] Refresh token reuse detected for family 01dd0c6f-6ae0-496a-ba57-e7638c9221d7! Revoking family.
+# [SECURITY ALERT] Refresh token reuse detected for family 01dd0c6f-6ae0-496a-ba57-e7638c9221d7! Revoking family.
+    # Subtest: SEC1.7: refresh token reuse after rotation immediately revokes the entire token family
+    ok 9 - SEC1.7: refresh token reuse after rotation immediately revokes the entire token family
+      ---
+      duration_ms: 485.665292
+      type: 'test'
+      ...
+    1..9
+ok 14 - SEC1: OTP / Reauth / Session Security Hardening
+  ---
+  duration_ms: 3491.425291
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: R4 - Security Parity Gaps & Concurrency Suite
+    # Subtest: GET /api/v1/tests: Only published, non-archived tests appear; drafts and archived are filtered out
+    ok 1 - GET /api/v1/tests: Only published, non-archived tests appear; drafts and archived are filtered out
+      ---
+      duration_ms: 14.975708
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/tests/[id]: Returns 404 for draft test when accessed by student
+    ok 2 - GET /api/v1/tests/[id]: Returns 404 for draft test when accessed by student
+      ---
+      duration_ms: 3.91325
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/pyq/papers/[id]: Guest receives locked status and null fileUrl for gated paper
+    ok 3 - GET /api/v1/pyq/papers/[id]: Guest receives locked status and null fileUrl for gated paper
+      ---
+      duration_ms: 6.617084
+      type: 'test'
+      ...
+    # Subtest: GET /api/v1/tutorials/[slug]: Draft/archived lessons are excluded from chapter list
+    ok 4 - GET /api/v1/tutorials/[slug]: Draft/archived lessons are excluded from chapter list
+      ---
+      duration_ms: 3.906458
+      type: 'test'
+      ...
+    # Subtest: Concurrency: 8 parallel submits on the same attempt; all return identical scores without corruption
+    ok 5 - Concurrency: 8 parallel submits on the same attempt; all return identical scores without corruption
+      ---
+      duration_ms: 77.144125
+      type: 'test'
+      ...
+    # Subtest: Concurrency: 5 parallel answer-saves with incrementing sequence; deterministic final state in DB
+    ok 6 - Concurrency: 5 parallel answer-saves with incrementing sequence; deterministic final state in DB
+      ---
+      duration_ms: 19.664625
+      type: 'test'
+      ...
+    # Subtest: Caching Headers: User-authenticated endpoints use private, no-store; public endpoints use cached headers
+    ok 7 - Caching Headers: User-authenticated endpoints use private, no-store; public endpoints use cached headers
+      ---
+      duration_ms: 14.554167
+      type: 'test'
+      ...
+    1..7
+ok 15 - R4 - Security Parity Gaps & Concurrency Suite
+  ---
+  duration_ms: 1143.971084
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: API v1 Security Parity & Exam Integrity (Real-Flow HTTP)
+    # Subtest: Rule 1: Active attempt questions NEVER leak correctOption or explanations
+    ok 1 - Rule 1: Active attempt questions NEVER leak correctOption or explanations
+      ---
+      duration_ms: 27.365166
+      type: 'test'
+      ...
+    # Subtest: Rule 1 (Live Test): Submitted attempt of active live test forbids solutions until liveEndAt
+    ok 2 - Rule 1 (Live Test): Submitted attempt of active live test forbids solutions until liveEndAt
+      ---
+      duration_ms: 94.478459
+      type: 'test'
+      ...
+    # Subtest: Rule 2: User 2 is strictly forbidden from accessing or mutating User 1's attempt
+    ok 3 - Rule 2: User 2 is strictly forbidden from accessing or mutating User 1's attempt
+      ---
+      duration_ms: 15.597125
+      type: 'test'
+      ...
+    # Subtest: Rule 3: Response bodies conform strictly to whitelisted DTO key sets
+    ok 4 - Rule 3: Response bodies conform strictly to whitelisted DTO key sets
+      ---
+      duration_ms: 25.147542
+      type: 'test'
+      ...
+    # Subtest: Rule 4: Answers sent after the server deadline are rejected with 400 and cannot alter score
+    ok 5 - Rule 4: Answers sent after the server deadline are rejected with 400 and cannot alter score
+      ---
+      duration_ms: 7.241875
+      type: 'test'
+      ...
+    # Subtest: Rule 5: Submit is idempotent: repeated submissions return identical results without regrading
+    ok 6 - Rule 5: Submit is idempotent: repeated submissions return identical results without regrading
+      ---
+      duration_ms: 23.982791
+      type: 'test'
+      ...
+    # Subtest: Rule 6: Monotonic clientSeq guard prevents out-of-order packets from overwriting newer answers
+    ok 7 - Rule 6: Monotonic clientSeq guard prevents out-of-order packets from overwriting newer answers
+      ---
+      duration_ms: 12.026917
+      type: 'test'
+      ...
+    # Subtest: Rule 7: Guest receives only 20% preview and Rosera quiz blocks NEVER leak answers or 'why'
+    ok 8 - Rule 7: Guest receives only 20% preview and Rosera quiz blocks NEVER leak answers or 'why'
+      ---
+      duration_ms: 6.012709
+      type: 'test'
+      ...
+    # Subtest: Rule 8: Unowned paid library file rejects access; owned file supports HTTP 206 Partial Content
+    ok 9 - Rule 8: Unowned paid library file rejects access; owned file supports HTTP 206 Partial Content
+      ---
+      duration_ms: 12.792375
+      type: 'test'
+      ...
+    # Subtest: Rule 9: Deactivated users and revoked sessions are rejected
+    ok 10 - Rule 9: Deactivated users and revoked sessions are rejected
+      ---
+      duration_ms: 11.211708
+      type: 'test'
+      ...
+    1..10
+ok 16 - API v1 Security Parity & Exam Integrity (Real-Flow HTTP)
+  ---
+  duration_ms: 1719.921875
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# Subtest: A4 Stripe webhook idempotency
+    # Subtest: failed then succeeded upgrades exactly once and keeps both audit rows
+    ok 1 - failed then succeeded upgrades exactly once and keeps both audit rows
+      ---
+      duration_ms: 27.240208
+      type: 'test'
+      ...
+    # Subtest: the unique index makes a duplicate providerId impossible
+    ok 2 - the unique index makes a duplicate providerId impossible
+      ---
+      duration_ms: 23.904625
+      type: 'test'
+      ...
+    1..2
+ok 17 - A4 Stripe webhook idempotency
+  ---
+  duration_ms: 866.352917
+  type: 'suite'
+  ...
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: API v1: Token Authentication & Security
+    # Subtest: authenticates valid login and issues 15-min access token + refresh token
+    ok 1 - authenticates valid login and issues 15-min access token + refresh token
+      ---
+      duration_ms: 474.22825
+      type: 'test'
+      ...
+    # Subtest: rejects login with wrong password
+    ok 2 - rejects login with wrong password
+      ---
+      duration_ms: 493.762584
+      type: 'test'
+      ...
+    # Subtest: resolves viewer context via Bearer token in getViewer
+    ok 3 - resolves viewer context via Bearer token in getViewer
+      ---
+      duration_ms: 7.145583
+      type: 'test'
+      ...
+# [SECURITY ALERT] Refresh token reuse detected for family 0061d4b6-6ab8-4218-b402-f0aa5bf72938! Revoking family.
+# [SECURITY ALERT] Refresh token reuse detected for family 0061d4b6-6ab8-4218-b402-f0aa5bf72938! Revoking family.
+    # Subtest: rotates refresh token and replaces old token with new token
+    ok 4 - rotates refresh token and replaces old token with new token
+      ---
+      duration_ms: 13.6
+      type: 'test'
+      ...
+    # Subtest: logout-all revokes all sessions and bumps sessionVersion
+    ok 5 - logout-all revokes all sessions and bumps sessionVersion
+      ---
+      duration_ms: 496.735209
+      type: 'test'
+      ...
+    1..5
+ok 18 - API v1: Token Authentication & Security
+  ---
+  duration_ms: 1988.846209
+  type: 'suite'
+  ...
+# Subtest: API v1: CBT Exam Engine, Answer Slicing & IDOR Checks
+    # Subtest: starts or resumes exam attempt with accurate server timer
+    ok 1 - starts or resumes exam attempt with accurate server timer
+      ---
+      duration_ms: 7.778041
+      type: 'test'
+      ...
+    # Subtest: CRITICAL: questions returned in attempt detail NEVER leak correctOption or explanations
+    ok 2 - CRITICAL: questions returned in attempt detail NEVER leak correctOption or explanations
+      ---
+      duration_ms: 3.78975
+      type: 'test'
+      ...
+    # Subtest: rejects IDOR: user2 cannot view or sync answers for user1 attempt
+    ok 3 - rejects IDOR: user2 cannot view or sync answers for user1 attempt
+      ---
+      duration_ms: 2.893458
+      type: 'test'
+      ...
+    # Subtest: syncs answers idempotently and accepts out-of-order sequence batches
+    ok 4 - syncs answers idempotently and accepts out-of-order sequence batches
+      ---
+      duration_ms: 12.2425
+      type: 'test'
+      ...
+    # Subtest: CRITICAL: Solutions endpoint rejects with 403 before submission
+    ok 5 - CRITICAL: Solutions endpoint rejects with 403 before submission
+      ---
+      duration_ms: 2.534833
+      type: 'test'
+      ...
+    # Subtest: submits attempt idempotently and provides solutions only after submit
+    ok 6 - submits attempt idempotently and provides solutions only after submit
+      ---
+      duration_ms: 25.876125
+      type: 'test'
+      ...
+    1..6
+ok 19 - API v1: CBT Exam Engine, Answer Slicing & IDOR Checks
+  ---
+  duration_ms: 1044.48075
+  type: 'suite'
+  ...
+1..19
+# tests 117
+# suites 21
+# pass 117
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 38273.799541

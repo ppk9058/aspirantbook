@@ -1,0 +1,103 @@
+=== git fsck --lost-found --no-reflogs ===
+dangling blob 0100a5fc00da9457b24c4976e275c5a79775574d
+dangling tree b700196e6db11dc86e71cb732fad2b27cebc2186
+dangling commit ad84329c3c580925e226556b93904d0d0281cc82
+dangling blob e6854430a79bdd9d644f66c94f6fddf68ad6d106
+dangling tree 9d0679a9bd27e06f96ccbbe21ef1cdfc596d9f00
+dangling commit 7c0f073cbb67c502e9c7194e33b2336e0b15f277
+dangling tree 8f0f6fd55e4236403c665f2c4b9aa5ef376aaf26
+dangling tree 019163aa887f93e1d3351146af7bb2c4134be60d
+dangling blob f991e5f1958333ee57f6f5e384b2518bcda9c9e3
+dangling tree 019353d299ebffe89ababdc3a5c542a2f55eb34c
+dangling tree b3146589931289d09081989e120acfb43a91e6ad
+dangling blob cf15c208a5d62b97f0d4b4baa7442949fd692586
+dangling blob 3997191ea8a130da42162bd3f5a79aa694d487f6
+dangling commit 3c17c1085036b485a194e3dd1b3d48c33039cc2c
+dangling tree 1418a13198da33e2501f7dbfddfb2dc21ef66d4c
+dangling commit 341a3587cad7da35b8c486e0f723c30c28e12eeb
+dangling blob a01b75ae819cf540cc8ab297c0878786c27f6d1b
+dangling tree 331e7f817e3b8ad7ba2f003754fcfaaf22702b4e
+dangling commit 539f0dc3fd5e52b2aeb72cf78418bb8d9c873200
+dangling commit 9d213bdd38115e3751628371e91cd3b491142696
+dangling commit f325d60198c00c20f3aa9172d19912b3bfeea245
+dangling tree d9a767d221d0fe9fb73c1cf4af51ae1c0716163f
+dangling commit b22c2cae9195cd0732534c85ecc98180005413b5
+dangling commit dfac75a015bb0c8ee163456913012d8d1bcb5bda
+dangling tree 402f1c0a655fed9f75d0aada5d86eaf1abc04dea
+dangling tree 2cb2693555c61db59e8a01cd87f4d72b7ea4da00
+dangling tree 95b2b958e8b4e0d4c94aba1f9d4a8089bf95b219
+dangling tree df39043dcb050e14317019abf757d91875cdc494
+dangling tree f83d4511cd032b370ff0051e543a3736aa06e07f
+dangling tag a1c1806d9c059ad126b0453b6c708bc48b1965a9
+dangling tree 84c2215f44ebc01d989295174fa40cb8dc987fa7
+dangling tree c4c474abe0a806534cba95b08c353902be339933
+dangling tree ee4ec18c4b63b239a8d4f8a703d787ca4dbb1a12
+dangling tree 94cff4eb8d8708c128f479a584093046c95fbeba
+dangling commit 73d388dbfb44912b9efff0f8f298bdcf2525adb3
+dangling tree 8dd3916e093cb1e9924d880f50ef99a39efe706b
+dangling commit c354ad23e746fb707cf4e2ed636db81fa42707aa
+dangling commit e7d49449d4346eea467eeaa18587af4f9008f2b0
+dangling tree 53d517bba8b5754ce3cb04565cdc1331171297fb
+dangling blob a75611292cce44f8e54d180bb823ea051b67ef61
+dangling tree 4a573dd476b05a7c05f58d6cfb2437147bd418cf
+dangling tree ab59c317e6a0c04dd463e5d6ab3dddbc96b2a6db
+dangling tree 235d263340fb88a16cbfdf157bddbe674bf9577c
+dangling tree e8e3f7930dfaf52ccc1d5030df9975d2f15d075d
+dangling blob c06b2dd669feab8bcdab6433f505238974450d99
+dangling commit 8decd43b9a497235402f2c1207de2be12f3f933c
+dangling commit 216d514dc0bb0375eaf43ad1349c216d0a5be4af
+dangling commit b26e0ad6df6ea1eeb8fad227d3304267946d9d45
+dangling tree 18efd20f6f7841e33c6a493db42310409561aa29
+dangling tree daf4a166e9f643da62fb8b52d3c0d7a285789aa6
+
+=== git reflog --all | head -50 ===
+4728880 refs/remotes/origin/feat/launch-blockers@{0}: update by push
+6799f6b refs/remotes/origin/fix/demo-role-prod-guard@{0}: update by push
+4728880 refs/heads/verify-launch-fixes@{0}: branch: Created from HEAD
+4728880 HEAD@{0}: checkout: moving from feat/launch-blockers to verify-launch-fixes
+4728880 refs/heads/feat/launch-blockers@{0}: commit: fix(mobile-tests): clear QueryClient cache timers in afterEach so test runner exits
+4728880 HEAD@{1}: commit: fix(mobile-tests): clear QueryClient cache timers in afterEach so test runner exits
+4702115 refs/heads/feat/launch-blockers@{1}: commit: fix(mobile): resolve fetchMock tuple type assertion in auth-otp.mounted.test.tsx (R9-S1)
+4702115 HEAD@{2}: commit: fix(mobile): resolve fetchMock tuple type assertion in auth-otp.mounted.test.tsx (R9-S1)
+2be65a0 refs/heads/feat/launch-blockers@{2}: merge perf-mobile-fix: Merge made by the 'ort' strategy.
+2be65a0 HEAD@{3}: merge perf-mobile-fix: Merge made by the 'ort' strategy.
+e17e652 refs/heads/feat/launch-blockers@{3}: merge otp-message-central: Merge made by the 'ort' strategy.
+e17e652 HEAD@{4}: merge otp-message-central: Merge made by the 'ort' strategy.
+edd408f refs/remotes/app/perf-mobile-fix@{0}: update by push
+712d48e refs/remotes/app/otp-message-central@{0}: update by push
+0d712f8 refs/remotes/app/expo-mobile-parity-fix8@{0}: update by push
+edd408f refs/heads/perf-mobile-fix@{0}: commit: F4: defer the hidden tests-tab queries until interactions settle
+ff5dd86 refs/heads/perf-mobile-fix@{1}: commit: F3: reuse the provider's in-flight /me request on cold start
+9b278f3 refs/heads/perf-mobile-fix@{2}: commit: F2: debounce query-cache persistence (2s) with AppState flush
+712d48e refs/heads/otp-message-central@{0}: commit: docs(otp): re-run every gate on the committed tree
+b530bd8 refs/heads/otp-message-central@{1}: commit: test(otp): OTP suites, mutation evidence, Playwright check and docs
+2e89987 refs/heads/otp-message-central@{2}: commit: feat(mobile-api): carry verificationId through the v1 OTP flow
+f1d0b65 refs/heads/otp-message-central@{3}: commit: feat(web-auth): real two-step mobile OTP login with proof-gated sign-in
+1b1022e refs/heads/otp-message-central@{4}: commit: feat(otp): add Message Central Verify Now provider, OTP service and proof core
+3a86a65 refs/heads/perf-mobile-fix@{3}: commit: F1: virtualize mobile list screens (FlatList) with identical item/header content
+d1ef40e refs/heads/otp-message-central@{5}: branch: Created from feat/launch-blockers
+d1ef40e refs/heads/perf-mobile-fix@{4}: branch: Created from feat/launch-blockers
+d1ef40e refs/heads/feat/launch-blockers@{4}: commit: R16-state: R16-3 IN_PROGRESS
+d1ef40e HEAD@{5}: commit: R16-state: R16-3 IN_PROGRESS
+592bfed refs/heads/feat/launch-blockers@{5}: commit: R16-state: R16-2 DONE
+592bfed HEAD@{6}: commit: R16-state: R16-2 DONE
+256eddf refs/heads/feat/launch-blockers@{6}: commit: R16-2: Add Sentry env names (SENTRY_DSN, SENTRY_ENVIRONMENT, SENTRY_RELEASE) to render.yaml
+256eddf HEAD@{7}: commit: R16-2: Add Sentry env names (SENTRY_DSN, SENTRY_ENVIRONMENT, SENTRY_RELEASE) to render.yaml
+557b212 refs/heads/feat/launch-blockers@{7}: commit: R16-state: R16-2 IN_PROGRESS
+557b212 HEAD@{8}: commit: R16-state: R16-2 IN_PROGRESS
+797dc97 refs/heads/feat/launch-blockers@{8}: commit: R16-state: R16-1 DONE
+797dc97 HEAD@{9}: commit: R16-state: R16-1 DONE
+73085bd refs/heads/feat/launch-blockers@{9}: commit: R16-1: Add NEXT_PUBLIC_* ARG declarations to Dockerfile builder stage
+73085bd HEAD@{10}: commit: R16-1: Add NEXT_PUBLIC_* ARG declarations to Dockerfile builder stage
+d68ba48 refs/heads/feat/launch-blockers@{10}: commit: R16-state: R16-1 IN_PROGRESS
+d68ba48 HEAD@{11}: commit: R16-state: R16-1 IN_PROGRESS
+cf0367f refs/remotes/app/main@{0}: update by push
+cf0367f refs/heads/feat/launch-blockers@{11}: commit: R15-2: Record gitleaks config readiness evidence
+cf0367f HEAD@{12}: commit: R15-2: Record gitleaks config readiness evidence
+37b41b8 refs/heads/feat/launch-blockers@{12}: commit: R15-2: Configure gitleaks false positive allowlist and add validation test
+37b41b8 HEAD@{13}: commit: R15-2: Configure gitleaks false positive allowlist and add validation test
+b81ac90 refs/heads/feat/launch-blockers@{13}: commit: R15-2: Start gitleaks config and false positive allowlist fix
+b81ac90 HEAD@{14}: commit: R15-2: Start gitleaks config and false positive allowlist fix
+638ba75 refs/remotes/app/main@{1}: update by push
+638ba75 refs/heads/feat/launch-blockers@{14}: commit: R15-1: Record Dockerfile builder placeholder readiness evidence
+638ba75 HEAD@{15}: commit: R15-1: Record Dockerfile builder placeholder readiness evidence

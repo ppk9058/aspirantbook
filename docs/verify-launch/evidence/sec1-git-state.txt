@@ -1,0 +1,79 @@
+=== git branch -a -vv ===
+  TrillionSkill-ver2                                                         1b48ec9 [origin/TrillionSkill-ver2: ahead 15] feat(exam): test-series packages enhancements and audit helpers
+  authwall                                                                   8718315 fix(studio): fix SelectedGateToolbar right-end element overlap with flex-wrap and proper ordering
+  authwall-backup                                                            8718315 fix(studio): fix SelectedGateToolbar right-end element overlap with flex-wrap and proper ordering
+  backup-expo-merged-21oct                                                   653a966 wip(mobile): uncommitted changes found before merge (21 Oct), review
+  backup-expo-mobile-21oct                                                   9cb0247 test(api): add authwall slicing, fail-closed, Range, and IDOR tests (Step 2)
+  backup-mobile-app-21oct                                                    ce3729d docs(mobile): add comprehensive MOBILE_REPORT for Android Capacitor reader app
+  backup-ver2-21oct                                                          a884a83 perf: early-exit ensureDefaultPyqData with single batch check
+  codex/brd-prd-frd                                                          bc1ff4d Pass 8.5: Baseline Prisma migrations at 0_baseline, archive historical migrations, strict test DB safety guard, fix screen route export, and complete D1/D2 audits
+  codex/frs-srs-docs                                                         1b8a4d7 test(pass8.1): add raw evidence suites for flags, enrollments, http leaks, and coupon concurrency
+  codex/phase0-business-docs                                                 7d76818 Pass 8.4: Add verification gate suites for read-only course/exam audit, anomaly lookup, and cleanup boundaries
+  content-engine-integration                                                 1f18ab9 docs(content-engine): author comprehensive verification report and final audit evidence
+  content-engine-verify                                                      155a356 feat(content-engine): close proof gaps, harden redirects to 308/404, add cache revalidation and verification report 2
+  e2e/canary-journey-test                                                    d5e5b05 fix(exam): handle concurrent double submit idempotently without 500
+  expo-mobile                                                                5b19988 r3b-A1b: finish audit, 39 v1 routes list, dist-tags, rows 3 & 5 outputs, tsc diff reconciliation
+  expo-mobile-parity                                                         a7688fa parity: phase 8 auth parity, 13+ consent, forgot password, and elimination of google login
+  expo-mobile-parity-fix                                                     af9eec0 fix: enforce route manifest integrity and add mutation check for navigation targets
+  expo-mobile-parity-fix2                                                    3b7f062 fix3: (T11) final morning report v3 and audit evidence
+  expo-mobile-parity-fix3                                                    f2f6bca fix4: (U12) add second pass screen audit script
+  expo-mobile-parity-fix4                                                    873c5fc fix5: strengthen empty and unauth state tests for my-learning, career-tracks, and my-tests
+  expo-mobile-parity-fix5                                                    9ffbbab fix6: gate API URL origin derivation behind __DEV__ and add neutral weblink note
+  expo-mobile-parity-fix6                                                    6152857 test(mobile): strengthen all 177 cells in screen-matrix-states with positive assertions
+  expo-mobile-parity-fix7                                                    9ed1d3e test(mobile): add test for app.config.ts zero IP/localhost fallback
+  expo-mobile-parity-fix8                                                    0d712f8 docs: add Run 3B state tracker and strategy review notes
+  expo-sdk57-mobile                                                          5e91801 mobile: move to Expo SDK 57, lazy-load notifications for Expo Go, temp disable pdf plugins
+  feat/ai-layer                                                              1e2cdae docs(ai): add AI layer architecture, quotas, rollout and verification report
++ feat/attempt-compaction                                                    5aba322 (/Users/praveenkumar/ws-compact) test(compaction): make verify-compaction and api-parity unit tests self-contained
+  feat/course-studio-generalize                                              700cf22 feat(course-studio): P4 authoring tabs, units, exam syllabus, callback leads
+  feat/launch-blockers                                                       4728880 fix(mobile-tests): clear QueryClient cache timers in afterEach so test runner exits
+  fix/audit2-hardening                                                       f8d0fe3 test(mobile): scan this checkout for Alert.alert instead of another worktree
+  fix/bug-audit-2026-10-27                                                   cc6decf test(B-017): lesson screen renders real content after the hook-deps refactor
+  fix/demo-role-prod-guard                                                   6799f6b fix(B-001): guard ts_demo_role cookie behind explicit demo mode, never trust it in production
+  fix/phase3-persistence                                                     8a09869 fix(V3): Razorpay credentials fail closed; V2 guest checkout e2e
+  fix/test-authoring-studio                                                  32945ca [origin/fix/test-authoring-studio] PYQ Studio: Create PYQ Test button, row actions, create page type/paperId preselect
+  fix/tutorial-chapter-content                                               a9f3638 fix(tutorials): allow public lesson text content for tutorials to guests and learners
+  main                                                                       89c2969 [origin/main] feat(TrillionSkill): complete platform release — video courses, exams, test series, books, doubts, payments & mobile OTP auth
+  merge-trial-mobile                                                         ab99e4d docs(seo): add responsive audit script, report and baseline evidence
+  mobile-app                                                                 ce3729d docs(mobile): add comprehensive MOBILE_REPORT for Android Capacitor reader app
+  otp-message-central                                                        712d48e docs(otp): re-run every gate on the committed tree
+  overnight-razorpay-dropdown-color                                          36100ae feat(authwall): step 4 speed budget, step 5 playwright e2e tests, and step 6 authorization verification
+  perf-mobile-fix                                                            edd408f F4: defer the hidden tests-tab queries until interactions settle
++ perf/exam-runtime                                                          c603168 (/Users/praveenkumar/TrillionSkill) test(loadtest): add verification benchmarks and review tests for exam runtime
+  perf/exam-runtime-v2                                                       16f1d9a chore(progress): record A15 commit hash fce244b
+  proof-hardening                                                            1139d78 feat(phase-5): deploy checklist, proof table, and final hardening report
+  release-hardening                                                          ab99e4d docs(seo): add responsive audit script, report and baseline evidence
+  seo-core                                                                   23e6ed8 feat(seo): implement unified SEO core, module adapters, admin audit dashboard, and verification proofs
+  trillionskill-standalone                                                   1d9d4bf [origin/trillionskill-standalone] feat(coupons): implement pass 8 coupons, lock leakage fixes, promo badges, and audit reconciliation
+* verify-launch-fixes                                                        4728880 fix(mobile-tests): clear QueryClient cache timers in afterEach so test runner exits
+  remotes/app/HEAD                                                           -> app/main
+  remotes/app/backup/e2e/canary-journey-test                                 d5e5b05 fix(exam): handle concurrent double submit idempotently without 500
+  remotes/app/backup/feat/ai-layer                                           1e2cdae docs(ai): add AI layer architecture, quotas, rollout and verification report
+  remotes/app/backup/feat/attempt-compaction                                 5aba322 test(compaction): make verify-compaction and api-parity unit tests self-contained
+  remotes/app/backup/feat/course-studio-generalize                           700cf22 feat(course-studio): P4 authoring tabs, units, exam syllabus, callback leads
+  remotes/app/backup/mobile-app                                              ce3729d docs(mobile): add comprehensive MOBILE_REPORT for Android Capacitor reader app
+  remotes/app/dependabot/npm_and_yarn/apps/mobile/babel/core-8.0.9           f9dd568 chore(deps-dev): bump @babel/core from 7.29.7 to 8.0.9 in /apps/mobile
+  remotes/app/dependabot/npm_and_yarn/apps/mobile/minor-and-patch-15f0e45521 5071a5e chore(deps): bump the minor-and-patch group
+  remotes/app/dependabot/npm_and_yarn/radix-ui/react-switch-1.4.1            b578893 chore(deps): bump @radix-ui/react-switch from 1.2.6 to 1.4.1
+  remotes/app/dependabot/npm_and_yarn/radix-ui/react-tabs-1.2.1              7bf757c chore(deps): bump @radix-ui/react-tabs from 1.1.13 to 1.2.1
+  remotes/app/expo-mobile-parity-fix8                                        0d712f8 docs: add Run 3B state tracker and strategy review notes
+  remotes/app/main                                                           cf0367f R15-2: Record gitleaks config readiness evidence
+  remotes/app/otp-message-central                                            712d48e docs(otp): re-run every gate on the committed tree
+  remotes/app/perf-mobile-fix                                                edd408f F4: defer the hidden tests-tab queries until interactions settle
+  remotes/origin/HEAD                                                        -> origin/main
+  remotes/origin/TrillionSkill-ver2                                          8488a6f feat(result): render all questions inline with solutions, print stylesheet, 360px touch targets, and e2e test suite
+  remotes/origin/fix/test-authoring-studio                                   32945ca PYQ Studio: Create PYQ Test button, row actions, create page type/paperId preselect
+  remotes/origin/main                                                        89c2969 feat(TrillionSkill): complete platform release — video courses, exams, test series, books, doubts, payments & mobile OTP auth
+  remotes/origin/trillionskill-standalone                                    1d9d4bf feat(coupons): implement pass 8 coupons, lock leakage fixes, promo badges, and audit reconciliation
+
+=== git remote -v ===
+app	https://github.com/ppk9058/aspirantbook.git (fetch)
+app	https://github.com/ppk9058/aspirantbook.git (push)
+origin	https://github.com/ppk9058/TrillionSkill (fetch)
+origin	https://github.com/ppk9058/TrillionSkill (push)
+
+=== git worktree list ===
+/Users/praveenkumar/TrillionSkill       c603168 [perf/exam-runtime]
+/Users/praveenkumar/TrillionSkill-run9  fde8b68 (detached HEAD)
+/Users/praveenkumar/ws-compact          5aba322 [feat/attempt-compaction]
+/Users/praveenkumar/ws-launch           4728880 [verify-launch-fixes]

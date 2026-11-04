@@ -1,0 +1,87 @@
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: Web mobile-login route (real OTP, mocked provider)
+    # Subtest: a bare phoneNumber cannot sign in: it only triggers an OTP send
+    ok 1 - a bare phoneNumber cannot sign in: it only triggers an OTP send
+      ---
+      duration_ms: 106.079167
+      type: 'test'
+      ...
+# [Auth] Mobile OTP sign-in rejected: Proof has already been used
+    # Subtest: wrong code fails; correct code returns a proof that signs in once
+    ok 2 - wrong code fails; correct code returns a proof that signs in once
+      ---
+      duration_ms: 166.234542
+      type: 'test'
+      ...
+    # Subtest: invalid phone numbers are rejected with 400
+    ok 3 - invalid phone numbers are rejected with 400
+      ---
+      duration_ms: 8.577625
+      type: 'test'
+      ...
+    # Subtest: resend cooldown returns 429
+    ok 4 - resend cooldown returns 429
+      ---
+      duration_ms: 20.794584
+      type: 'test'
+      ...
+    # Subtest: send responses do not reveal whether an account exists
+    ok 5 - send responses do not reveal whether an account exists
+      ---
+      duration_ms: 30.38125
+      type: 'test'
+      ...
+    1..5
+ok 1 - Web mobile-login route (real OTP, mocked provider)
+  ---
+  duration_ms: 334.836542
+  type: 'suite'
+  ...
+# Subtest: Mobile v1 OTP routes (real OTP, mocked provider)
+    # Subtest: request returns a verification id; verify returns today's token/user shape
+    ok 1 - request returns a verification id; verify returns today's token/user shape
+      ---
+      duration_ms: 218.315458
+      type: 'test'
+      ...
+    # Subtest: verify without a verificationId is rejected (bare phone cannot sign in)
+    ok 2 - verify without a verificationId is rejected (bare phone cannot sign in)
+      ---
+      duration_ms: 4.113792
+      type: 'test'
+      ...
+    # Subtest: wrong code returns 401; replaying a used verification id returns 401
+    ok 3 - wrong code returns 401; replaying a used verification id returns 401
+      ---
+      duration_ms: 23.488209
+      type: 'test'
+      ...
+    # Subtest: invalid phone is rejected before the provider is called
+    ok 4 - invalid phone is rejected before the provider is called
+      ---
+      duration_ms: 3.024375
+      type: 'test'
+      ...
+    # Subtest: mobile request responses do not reveal account existence
+    ok 5 - mobile request responses do not reveal account existence
+      ---
+      duration_ms: 10.435083
+      type: 'test'
+      ...
+    1..5
+ok 2 - Mobile v1 OTP routes (real OTP, mocked provider)
+  ---
+  duration_ms: 260.160542
+  type: 'suite'
+  ...
+1..2
+# tests 10
+# suites 2
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1502.210083

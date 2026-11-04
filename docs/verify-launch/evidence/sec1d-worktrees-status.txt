@@ -1,0 +1,9 @@
+=== Worktrees ===
+/Users/praveenkumar/TrillionSkill       c603168 [perf/exam-runtime]
+/Users/praveenkumar/TrillionSkill-run9  fde8b68 (detached HEAD)
+/Users/praveenkumar/ws-compact          5aba322 [feat/attempt-compaction]
+/Users/praveenkumar/ws-launch           4728880 [verify-launch-fixes]
+
+=== git status --short in ~/ws-launch ===
+?? data/form-submissions.json
+?? docs/verify-launch/

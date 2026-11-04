@@ -1,0 +1,157 @@
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: OTP core: phone normalisation
+    # Subtest: accepts 10-digit Indian mobiles starting 6-9 and normalises to +91
+    ok 1 - accepts 10-digit Indian mobiles starting 6-9 and normalises to +91
+      ---
+      duration_ms: 27.588792
+      type: 'test'
+      ...
+    # Subtest: accepts +91, 91 and leading-zero prefixes
+    ok 2 - accepts +91, 91 and leading-zero prefixes
+      ---
+      duration_ms: 0.230958
+      type: 'test'
+      ...
+    # Subtest: rejects non-Indian, short, long and invalid-prefix numbers
+    ok 3 - rejects non-Indian, short, long and invalid-prefix numbers
+      ---
+      duration_ms: 0.199625
+      type: 'test'
+      ...
+    # Subtest: masks phone numbers for logs
+    ok 4 - masks phone numbers for logs
+      ---
+      duration_ms: 0.1
+      type: 'test'
+      ...
+    1..4
+ok 1 - OTP core: phone normalisation
+  ---
+  duration_ms: 28.839709
+  type: 'suite'
+  ...
+# Subtest: OTP core: service flow (provider mocked at the adapter boundary)
+    # Subtest: correct code succeeds and is single-use
+    not ok 1 - correct code succeeds and is single-use
+      ---
+      duration_ms: 36.046833
+      type: 'test'
+      location: '/Users/praveenkumar/ws-launch/tests/otp/otp-core.test.ts:2:2775'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        
+        true !== false
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: false
+      actual: true
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/ws-launch/tests/otp/otp-core.test.ts:74:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: wrong code fails and does not consume the verification id
+    ok 2 - wrong code fails and does not consume the verification id
+      ---
+      duration_ms: 4.686291
+      type: 'test'
+      ...
+    # Subtest: verification id is bound to the phone that requested it
+    ok 3 - verification id is bound to the phone that requested it
+      ---
+      duration_ms: 1.961583
+      type: 'test'
+      ...
+    # Subtest: expired verification is reported as expired
+    ok 4 - expired verification is reported as expired
+      ---
+      duration_ms: 2.282458
+      type: 'test'
+      ...
+    # Subtest: resend cooldown blocks an immediate second send
+    ok 5 - resend cooldown blocks an immediate second send
+      ---
+      duration_ms: 1.988916
+      type: 'test'
+      ...
+    # Subtest: per-phone send limit (3 / 10 min) triggers
+    ok 6 - per-phone send limit (3 / 10 min) triggers
+      ---
+      duration_ms: 3.580375
+      type: 'test'
+      ...
+    # Subtest: per-IP send limit triggers across different phones
+    ok 7 - per-IP send limit triggers across different phones
+      ---
+      duration_ms: 2.954709
+      type: 'test'
+      ...
+    # Subtest: max verify attempts per verification id triggers
+    ok 8 - max verify attempts per verification id triggers
+      ---
+      duration_ms: 3.099542
+      type: 'test'
+      ...
+    # Subtest: invalid and non-Indian numbers are rejected before the provider is called
+    ok 9 - invalid and non-Indian numbers are rejected before the provider is called
+      ---
+      duration_ms: 0.209083
+      type: 'test'
+      ...
+    # Subtest: provider errors are mapped, and logs never contain the full phone or OTP
+    ok 10 - provider errors are mapped, and logs never contain the full phone or OTP
+      ---
+      duration_ms: 1.026542
+      type: 'test'
+      ...
+    1..10
+not ok 2 - OTP core: service flow (provider mocked at the adapter boundary)
+  ---
+  duration_ms: 58.395375
+  type: 'suite'
+  location: '/Users/praveenkumar/ws-launch/tests/otp/otp-core.test.ts:2:2674'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: OTP core: server-signed proof
+    # Subtest: proof is valid once, bound to the phone, and single-use
+    ok 1 - proof is valid once, bound to the phone, and single-use
+      ---
+      duration_ms: 26.186625
+      type: 'test'
+      ...
+    # Subtest: expired proof is rejected
+    ok 2 - expired proof is rejected
+      ---
+      duration_ms: 0.253125
+      type: 'test'
+      ...
+    # Subtest: tampered proof is rejected
+    ok 3 - tampered proof is rejected
+      ---
+      duration_ms: 0.108375
+      type: 'test'
+      ...
+    1..3
+ok 3 - OTP core: server-signed proof
+  ---
+  duration_ms: 26.682166
+  type: 'suite'
+  ...
+1..3
+# tests 17
+# suites 3
+# pass 16
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 573.217291
