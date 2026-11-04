@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { requireManagedCourse } from "@/lib/auth/course-access-server"
 import { formatUtcToIst, isSlotExpired } from "@/lib/demo/slot-utils"
 
 interface Params {
@@ -9,15 +10,19 @@ interface Params {
 
 export async function GET(req: NextRequest, { params }: Params) {
   try {
-    const session = await auth()
-    if (!session?.user?.id) {
+    const user = await getCurrentUserContext()
+    if (!user.isAuthenticated) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    if (session.user.role !== "ADMIN" && session.user.role !== "TEACHER") {
+    if (user.role !== "ADMIN" && user.role !== "TEACHER") {
       return NextResponse.json({ error: "Forbidden: Admin or Teacher required" }, { status: 403 })
     }
 
     const { id } = await params
+
+    // A8: teachers may only view demo slots of courses they own.
+    const access = await requireManagedCourse(user, id)
+    if (access.response) return access.response
 
     const slots = await prisma.demoSlot.findMany({
       where: { courseId: id },
@@ -142,14 +147,19 @@ export async function GET(req: NextRequest, { params }: Params) {
 
 export async function POST(req: NextRequest, { params }: Params) {
   try {
-    const session = await auth()
-    const isTeacher = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
+    const user = await getCurrentUserContext()
+    const isTeacher = user.isAuthenticated && (user.role === "TEACHER" || user.role === "ADMIN")
 
     if (!isTeacher) {
       return NextResponse.json({ error: "Unauthorized. Admin or Teacher only." }, { status: 403 })
     }
 
     const { id } = await params
+
+    // A8: teachers may only add demo slots to courses they own.
+    const access = await requireManagedCourse(user, id)
+    if (access.response) return access.response
+
     const body = await req.json()
     const { startTimeUtc, durationMinutes = 60, topic, facultyName, maxAudience = 100 } = body
 
@@ -170,7 +180,7 @@ export async function POST(req: NextRequest, { params }: Params) {
         startTime: parsedStart,
         durationMinutes: Number(durationMinutes) || 60,
         topic: topic || "Live Demo Class & Syllabus Breakdown",
-        facultyName: facultyName || session?.user?.name || "Senior Faculty",
+        facultyName: facultyName || user.name || "Senior Faculty",
         maxAudience: Number(maxAudience) || 100,
         agoraChannelName: channelName,
         status: "SCHEDULED",
@@ -187,10 +197,10 @@ export async function POST(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req: NextRequest, { params }: Params) {
   try {
-    const session = await auth()
-    const isTeacher = session?.user?.role === "TEACHER" || session?.user?.role === "ADMIN"
+    const user = await getCurrentUserContext()
+    const isTeacher = user.isAuthenticated && (user.role === "TEACHER" || user.role === "ADMIN")
 
     if (!isTeacher) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 403 })
@@ -202,6 +212,17 @@ export async function DELETE(req: NextRequest) {
     if (!slotId) {
       return NextResponse.json({ error: "slotId is required." }, { status: 400 })
     }
+
+    // A8: resolve the slot's course and enforce ownership before deleting.
+    const slot = await prisma.demoSlot.findUnique({
+      where: { id: slotId },
+      select: { courseId: true },
+    })
+    if (!slot) {
+      return NextResponse.json({ error: "Slot not found" }, { status: 404 })
+    }
+    const access = await requireManagedCourse(user, slot.courseId)
+    if (access.response) return access.response
 
     await prisma.demoSlot.delete({
       where: { id: slotId },
