@@ -538,7 +538,7 @@ describe("G7: OTP Auth Specification Tests [otp:flag-*]", () => {
         String(input).includes("/auth/otp/verify")
       );
       expect(verifyCall).toBeTruthy();
-      const init = verifyCall?.[1] as RequestInit | undefined;
+      const init = (verifyCall as unknown as [unknown, RequestInit | undefined])?.[1];
       expect(String(init?.body)).toContain('"verificationId":"vid-bound-456"');
     });
   });
