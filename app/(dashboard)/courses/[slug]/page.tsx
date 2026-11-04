@@ -13,6 +13,10 @@ import { toSafeCourseDto } from "@/lib/courses/course-dto"
 import { isCourseVisibleToUser, isCourseDetailReady } from "@/lib/courses/visibility"
 import { ALL_GOAL_COURSES } from "@/lib/goal-courses-data"
 import { AlertCircle } from "lucide-react"
+import { CourseDetailV2 } from "@/components/course/detail/CourseDetailV2"
+import { parseCourseMetadata, readSectionFlags } from "@/lib/courses/metadata-schema"
+import { loadCourseSyllabus } from "@/lib/courses/syllabus"
+import { deriveRatingDistribution } from "@/lib/courses/ratings"
 
 export const dynamic = "force-dynamic"
 
@@ -21,6 +25,7 @@ const getCachedCourseBySlug = unstable_cache(
         return prisma.course.findFirst({
             where: { OR: [{ slug }, { id: slug }] },
             include: {
+                units: { orderBy: { order: "asc" } },
                 chapters: {
                     orderBy: { order: "asc" },
                     include: {
@@ -29,12 +34,14 @@ const getCachedCourseBySlug = unstable_cache(
                             select: {
                                 id: true,
                                 title: true,
+                                titleHi: true,
                                 type: true,
                                 duration: true,
                                 order: true,
                                 content: true,
                                 videoUrl: true,
                                 isTrial: true,
+                                scheduledAt: true,
                                 attachmentType: true,
                                 attachmentName: true,
                                 attachmentUrl: true,
@@ -111,6 +118,7 @@ export default async function CourseDetailPage({
         prisma.course.findFirst({
             where: { OR: [{ slug }, { id: slug }] },
             include: {
+                units: { orderBy: { order: "asc" } },
                 chapters: {
                     orderBy: { order: "asc" },
                     include: {
@@ -119,12 +127,14 @@ export default async function CourseDetailPage({
                             select: {
                                 id: true,
                                 title: true,
+                                titleHi: true,
                                 type: true,
                                 duration: true,
                                 order: true,
                                 content: true,
                                 videoUrl: true,
                                 isTrial: true,
+                                scheduledAt: true,
                                 attachmentType: true,
                                 attachmentName: true,
                                 attachmentUrl: true,
@@ -327,6 +337,57 @@ export default async function CourseDetailPage({
                 console.error("Failed to parse course metadataJson:", e)
             }
         }
+
+        const isV2 = course.schemaVersion === 2 || parsedMetadata?.schemaVersion === 2
+
+        if (isV2) {
+            const metaResult = parseCourseMetadata(course.metadataJson)
+            const meta = metaResult.ok ? metaResult.data : (parsedMetadata || {})
+            const flags = readSectionFlags(meta)
+            const syllabusData = await loadCourseSyllabus(course.id)
+
+            const reviews = await prisma.review.findMany({
+                where: { courseId: course.id },
+                select: { rating: true },
+            })
+            const ratingSummary = deriveRatingDistribution(reviews)
+
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
+            const shareUrl = `${baseUrl}/courses/${course.slug}`
+
+            return (
+                <>
+                    {draftBanner}
+                    <CourseDetailV2
+                        course={{
+                            ...safeCourse,
+                            units: (course as any).units || [],
+                        } as any}
+                        metadata={meta}
+                        sections={flags}
+                        syllabus={syllabusData as any}
+                        ratingSummary={ratingSummary}
+                        teachers={meta.teachers && meta.teachers.length > 0 ? (meta.teachers as any) : (batch?.teachers ? batch.teachers : [])}
+                        faqs={meta.faqs && meta.faqs.length > 0 ? (meta.faqs as any) : (batch?.faqs || [])}
+                        stats={meta.heroMetrics}
+                        badges={(meta as any).badges}
+                        lateJoinNote={(meta as any).lateJoinNote}
+                        goalLabel={(meta as any).goalLabel || course.technology}
+                        goalLabelHi={(meta as any).goalLabelHi}
+                        pillTags={meta.pillTags || []}
+                        pillTagsHi={meta.pillTagsHi || []}
+                        whatYouGet={meta.whatYouGet || []}
+                        howItWorks={meta.howItWorks || []}
+                        isEnrolled={isEnrolled}
+                        hasAccess={hasAccess}
+                        allowPurchases={true}
+                        shareUrl={shareUrl}
+                        nowIso={new Date().toISOString()}
+                    />
+                </>
+            )
+        }
+
         const effectiveBatch = {
             ...(batch || {}),
             ...(parsedMetadata || {}),
