@@ -1,0 +1,35 @@
+anon      /courses/fv-draft-a -> 404
+free      /courses/fv-draft-a -> 404
+premium   /courses/fv-draft-a -> 404
+teacherA  /courses/fv-draft-a -> 200
+teacherB  /courses/fv-draft-a -> 404
+admin     /courses/fv-draft-a -> 200
+
+anon      /learn/fv-draft-a -> 307
+free      /learn/fv-draft-a -> 404
+premium   /learn/fv-draft-a -> 404
+teacherA  /learn/fv-draft-a -> 307
+teacherB  /learn/fv-draft-a -> 404
+admin     /learn/fv-draft-a -> 307
+
+anon      /tutorials/fv-draft-a -> 404
+free      /tutorials/fv-draft-a -> 404
+premium   /tutorials/fv-draft-a -> 404
+teacherA  /tutorials/fv-draft-a -> 200
+teacherB  /tutorials/fv-draft-a -> 404
+admin     /tutorials/fv-draft-a -> 200
+
+anon      /courses/fv-pub-a -> 200
+free      /courses/fv-pub-a -> 200
+premium   /courses/fv-pub-a -> 200
+teacherA  /courses/fv-pub-a -> 200
+teacherB  /courses/fv-pub-a -> 200
+admin     /courses/fv-pub-a -> 200
+
+anon      /learn/fv-pub-a -> 307
+free      /learn/fv-pub-a -> 307
+premium   /learn/fv-pub-a -> 307
+teacherA  /learn/fv-pub-a -> 307
+teacherB  /learn/fv-pub-a -> 307
+admin     /learn/fv-pub-a -> 307
+

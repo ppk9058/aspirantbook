@@ -1,0 +1,12 @@
+--- anon / student ---
+PUT   anon -> 401  body={"error":"Unauthorized"}
+PUT   free-student -> 403  body={"error":"Forbidden: Admin access required"}
+PUT   premium-student -> 403  body={"error":"Forbidden: Admin access required"}
+--- cross-tenant teacher ---
+PUT   teacherB(cross) -> 403  body={"error":"Access Denied: you can only manage courses you created"}
+DELETE teacherB(cross) -> 403  body={"error":"Access Denied: you can only manage courses you created"}
+--- owner + admin ---
+PUT   teacherA(owner) -> 200  body={"id":"cmw2eejgl0001xpy1njfc639v","title":"teacherA-renamed","slug":"fv-draft-a","description":"FV Draft A (phase3 fixture)","thumbnailUrl":null,"difficulty":"B
+PUT   admin -> 200  body={"id":"cmw2eejgl0001xpy1njfc639v","title":"admin-renamed","slug":"fv-draft-a","description":"FV Draft A (phase3 fixture)","thumbnailUrl":null,"difficulty":"BEGI
+--- restore owner title ---
+PUT   teacherA(restore) -> 200  body={"id":"cmw2eejgl0001xpy1njfc639v","title":"FV Draft A","slug":"fv-draft-a","description":"FV Draft A (phase3 fixture)","thumbnailUrl":null,"difficulty":"BEGINNE

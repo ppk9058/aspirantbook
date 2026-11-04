@@ -1,0 +1,24 @@
+{
+  "teacherA": "cmw2dsm7g0002xpvtq9k3zurz",
+  "teacherB": "cmw2dsm7i0003xpvtrp1c4s76",
+  "draft": {
+    "id": "cmw2eejgl0001xpy1njfc639v",
+    "slug": "fv-draft-a",
+    "status": "DRAFT",
+    "isPublished": false,
+    "createdById": "cmw2dsm7g0002xpvtq9k3zurz"
+  },
+  "pub": {
+    "id": "cmw2eejgt0003xpy1fy36gn3p",
+    "slug": "fv-pub-a",
+    "status": "PUBLISHED",
+    "isPublished": true,
+    "createdById": "cmw2dsm7g0002xpvtq9k3zurz"
+  },
+  "series": {
+    "id": "cmw2eejgw0004xpy11mkbzepr",
+    "slug": "fv-series-a",
+    "createdById": "cmw2dsm7g0002xpvtq9k3zurz",
+    "isPublished": false
+  }
+}

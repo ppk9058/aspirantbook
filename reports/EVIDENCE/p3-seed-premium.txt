@@ -1,0 +1,15 @@
+{
+  "course": "cmw2eejgt0003xpy1fy36gn3p",
+  "chapter": "cmw2emqia0001xpjr1kqoe9wk",
+  "paid": {
+    "id": "cmw2emqiv0003xpjr5zjdjklj",
+    "title": "FV Paid Lesson"
+  },
+  "trial": {
+    "id": "cmw2emqj60005xpjr15hgmv45",
+    "title": "FV Trial Lesson"
+  },
+  "SENTINEL_VIDEO": "https://cdn.example.test/SENTINEL_PAID_VIDEO.mp4",
+  "SENTINEL_CONTENT": "SENTINEL_PAID_CONTENT_BODY",
+  "SENTINEL_ATTACH": "https://cdn.example.test/SENTINEL_PAID_ATTACH.pdf"
+}

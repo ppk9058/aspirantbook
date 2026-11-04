@@ -1,0 +1,16 @@
+### /learn/[courseSlug]/[lessonId] paid lesson
+anon     /learn/fv-pub-a/cmw2emqiv0003xpjr5zjdjklj -> 307 video=NO content=NO attach=NO bytes=66
+free     /learn/fv-pub-a/cmw2emqiv0003xpjr5zjdjklj -> 307 video=NO content=NO attach=NO bytes=39732
+premium  /learn/fv-pub-a/cmw2emqiv0003xpjr5zjdjklj -> 200 video=YES content=YES attach=YES bytes=50565
+admin    /learn/fv-pub-a/cmw2emqiv0003xpjr5zjdjklj -> 200 video=YES content=YES attach=YES bytes=51490
+### /learn/[courseSlug]/[lessonId] trial lesson
+anon     /learn/fv-pub-a/cmw2emqj60005xpjr15hgmv45 -> 307 video=NO content=NO attach=NO bytes=66
+free     /learn/fv-pub-a/cmw2emqj60005xpjr15hgmv45 -> 200 video=YES content=YES attach=NO bytes=50347
+premium  /learn/fv-pub-a/cmw2emqj60005xpjr15hgmv45 -> 200 video=YES content=YES attach=YES bytes=50645
+### /courses/[slug]/learn/[lessonId] paid lesson
+anon     /courses/fv-pub-a/learn/cmw2emqiv0003xpjr5zjdjklj -> 307 video=NO content=NO attach=NO bytes=76
+free     /courses/fv-pub-a/learn/cmw2emqiv0003xpjr5zjdjklj -> 307 video=NO content=NO attach=NO bytes=42201
+premium  /courses/fv-pub-a/learn/cmw2emqiv0003xpjr5zjdjklj -> 307 video=NO content=NO attach=NO bytes=42028
+admin    /courses/fv-pub-a/learn/cmw2emqiv0003xpjr5zjdjklj -> 200 video=YES content=YES attach=YES bytes=60322
+### /courses/[slug]/learn/[lessonId] trial lesson
+free     /courses/fv-pub-a/learn/cmw2emqj60005xpjr15hgmv45 -> 200 video=YES content=YES attach=NO bytes=59677

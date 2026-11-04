@@ -1,0 +1,16 @@
+--- owner teacherA GET ---
+GET teacherA -> 200
+--- admin GET ---
+GET admin -> 200
+--- owner teacherA POST ---
+POST teacherA -> 200
+slot=cmw2elere001oxp79ro5ach6u
+--- teacherB DELETE teacherA slot ---
+DELETE teacherB -> 403
+{"error":"Access Denied: you can only manage courses you created"}
+--- owner teacherA DELETE own slot ---
+DELETE teacherA -> 200
+{"success":true,"message":"Slot deleted."}
+--- delete unknown slot ---
+DELETE unknown -> 404
+{"error":"Slot not found"}

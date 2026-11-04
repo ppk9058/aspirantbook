@@ -1,4 +1,4 @@
-process.env.NODE_ENV = "production";
+;(process.env as any).NODE_ENV = "production";
 delete process.env.APP_ENV;
 delete process.env.DEMO_MODE_ENABLED;
 delete process.env.ENABLE_DEMO_ROLE;

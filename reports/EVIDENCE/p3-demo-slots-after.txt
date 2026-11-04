@@ -1,0 +1,14 @@
+--- teacherB GET slots on teacherA course (read) ---
+GET teacherB -> 403
+{"error":"Access Denied: you can only manage courses you created"}
+--- teacherB POST slot on teacherA course (write) ---
+POST teacherB -> 403
+{"error":"Access Denied: you can only manage courses you created"}
+created slid=
+--- teacherB DELETE that slot ---
+--- free student POST slot ---
+POST free -> 403
+{"error":"Forbidden: Admin access required"}
+--- anon POST slot ---
+POST anon -> 401
+{"error":"Unauthorized"}

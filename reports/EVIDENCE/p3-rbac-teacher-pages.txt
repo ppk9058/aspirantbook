@@ -1,0 +1,10 @@
+route|anon|free|premium|teacherA|teacherB|admin
+/teacher/batches|307->/login|307->/|307->/|200|200|200
+/teacher/book-studio|307->/login|307->/|307->/|200|200|200
+/teacher/classes|307->/login|307->/|307->/|200|200|200
+/teacher/courses|307->/login|307->/|307->/|200|200|200
+/teacher/current-affairs|307->/login|307->/|307->/|200|200|200
+/teacher/pyqs|307->/login|307->/|307->/|200|200|200
+/teacher/questions|307->/login|307->/|307->/|200|200|200
+/teacher/test-series|307->/login|307->/|307->/|200|200|200
+/teacher/tutorials|307->/login|307->/|307->/|200|200|200

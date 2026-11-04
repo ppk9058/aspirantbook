@@ -1,0 +1,6 @@
+--- series owned by teacher A ---
+PATCH anon -> 401  {"error":"Unauthorized: Active session required"}
+PATCH free -> 403  {"error":"Forbidden: Admin or Teacher role required"}
+PATCH teacherB(cross) -> 403  {"error":"Forbidden: You do not have permission to edit this package"}
+PATCH teacherA(owner) -> 200  {"success":true,"data":{"id":"cmw2eejgw0004xpy11mkbzepr","title":"FV Series Renamed","slug":"fv-series-a","examName":"FV Exam","category":"FV","description":"ph
+PATCH admin -> 200  {"success":true,"data":{"id":"cmw2eejgw0004xpy11mkbzepr","title":"FV Series Renamed","slug":"fv-series-a","examName":"FV Exam","category":"FV","description":"ph

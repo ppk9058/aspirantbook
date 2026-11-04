@@ -1,0 +1,16 @@
+--- teacherB GET slots on teacherA course (read) ---
+GET teacherB -> 200
+{"success":true,"slots":[],"activeSlots":[],"totalEstimatedMinutes":0,"totalAudienceMinutesUsed":0,"hostMinutesUsed":0,"stageMinutesUsed":0,"screenShareMinutesUsed":0,"freeTierMinutesLimit":10000}
+--- teacherB POST slot on teacherA course (write) ---
+POST teacherB -> 200
+{"success":true,"slot":{"id":"cmw2egzf7001mxp7997ounlce","createdById":null,"courseId":"cmw2eejgl0001xpy1njfc639v","startTime":"2026-12-01T10:00:00.000Z","durationMinutes":30,"topic":"TB hijack slot","facultyName":"Teacher B","agoraChannelName":"demo_slot_fc639v_1793813884241","maxAudience":100,"sta
+created slid=cmw2egzf7001mxp7997ounlce
+--- teacherB DELETE that slot ---
+DELETE teacherB -> 200
+{"success":true,"message":"Slot deleted."}
+--- free student POST slot ---
+POST free -> 403
+{"error":"Forbidden: Admin access required"}
+--- anon POST slot ---
+POST anon -> 401
+{"error":"Unauthorized"}
