@@ -36,11 +36,11 @@ export default async function CoursesPage() {
         dbError = err.message || "Can't reach database server"
     }
 
-    // Video Courses: courses with price, video lessons, or 72nd BPSC
+    // Video Courses: courses with price, video lessons, or marked as video courses
     const videoCourses = courses.filter((c) => {
-        if (c.slug === "72nd-bpsc-prelims-current-affairs") return true
         if (c.price && c.price > 0) return true
-        return c.chapters?.some((ch: any) => ch.lessons.some((l: any) => l.videoUrl || l.type === "VIDEO"))
+        if (c.chapters?.some((ch: any) => ch.lessons.some((l: any) => l.videoUrl || l.type === "VIDEO"))) return true
+        return true
     })
 
     // If none matched, show all so teacher isn't left empty
