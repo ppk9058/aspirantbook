@@ -32,6 +32,7 @@ const SCREEN_MAP: Record<string, any> = {
   "/library": require("../src/app/library").default,
   "/my-learning": require("../src/app/my-learning").default,
   "/my-tests": require("../src/app/my-tests").default,
+  "/notifications/preferences": require("../src/app/notifications/preferences").default,
   "/practice": require("../src/app/practice").default,
   "/profile": require("../src/app/profile").default,
   "/pyqs": require("../src/app/pyqs/index").default,
@@ -1218,6 +1219,15 @@ describe("T3: Screen State Matrix Mounted Suite", () => {
       expect(getByPlaceholderText("Search mock tests, video courses, PYQs...")).toBeTruthy();
       expect(getByText("Popular Searches")).toBeTruthy();
       expect(queryByText("No Results Found")).toBeNull();
+    });
+  });
+
+  describe("/notifications/preferences", () => {
+    it("[/notifications/preferences] success", async () => {
+      const Comp = SCREEN_MAP["/notifications/preferences"];
+      if (!Comp) return;
+      const { findByText } = render(<Comp />, { wrapper: createWrapper() });
+      expect(await findByText("Notification Settings")).toBeTruthy();
     });
   });
 

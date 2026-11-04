@@ -19,6 +19,13 @@ describe("T2: Critical Screens - Shell & Navigation Mounted Tests", () => {
     jest.clearAllMocks();
     await Storage.clearAllAuthTokens();
     __setMockPathname("/");
+    jest.spyOn(api, "getMe").mockImplementation(async () => {
+      const u = await Storage.getUser();
+      if (u) {
+        return { ok: true, data: { ...u, role: (u as any).role || "STUDENT" } } as any;
+      }
+      return { ok: false, error: { code: "UNAUTHORIZED", message: "Not logged in" } } as any;
+    });
   });
 
   describe("1. Header (Guest vs Logged-In)", () => {
@@ -39,11 +46,16 @@ describe("T2: Critical Screens - Shell & Navigation Mounted Tests", () => {
 
     it("renders user avatar with initials in logged-in state", async () => {
       await Storage.setAccessToken("test-token");
-      await Storage.setUser({
+      const testUser = {
         id: "user-1",
         name: "Praveen Kumar",
         email: "praveen@aspirantbook.com",
-      });
+      };
+      await Storage.setUser(testUser);
+      jest.spyOn(api, "getMe").mockResolvedValue({
+        ok: true,
+        data: { ...testUser, role: "STUDENT" },
+      } as any);
 
       render(
         <ThemeProvider>
