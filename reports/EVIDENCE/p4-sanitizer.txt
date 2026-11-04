@@ -1,26 +1,10 @@
-PASS | clean | in="<script>alert(1)</script>" | out=""
-PASS | clean | in="<SCRIPT SRC=//evil.example/x.js></SCRIPT>" | out=""
-PASS | clean | in="<img src=x onerror=alert(1)>" | out="<img x>"
-PASS | clean | in="<img src=x OnErRoR = \"alert(1)\">" | out="<img x>"
-PASS | clean | in="<svg/onload=alert(1)>" | out="<svg/onload=alert(1)>"
-PASS | clean | in="<a href=\"javascript:alert(1)\">x</a>" | out="<a \"alert(1)\">x</a>"
-PASS | clean | in="<a href=\"JaVaScRiPt&#58;alert(1)\">x</a>" | out="<a \"JaVaScRiPt&#58;alert(1)\">x</a>"
-PASS | clean | in="<a href=\"data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\ | out="<a \"data:text/plain;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\">x</a>"
-PASS | clean | in="<iframe src=\"https://evil.example\"></iframe>" | out=""
-PASS | clean | in="<object data=\"x\"></object>" | out=""
-PASS | clean | in="<embed src=\"x\">" | out=""
-PASS | clean | in="<form action=\"https://evil.example\"><input name=x></form>" | out=""
-PASS | clean | in="<style>body{background:url(javascript:alert(1))}</style>" | out=""
-PASS | clean | in="<div style=\"width:expression(alert(1))\">x</div>" | out="<div style=\"width:blocked(alert(1))\">x</div>"
-PASS | clean | in="<base href=\"https://evil.example/\">" | out=""
-PASS | clean | in="<meta http-equiv=\"refresh\" content=\"0;url=https://evil.example\">" | out=""
-PASS | clean | in="<link rel=\"stylesheet\" href=\"https://evil.example/x.css\">" | out=""
-PASS | clean | in="<script>/* unterminated" | out=""
-PASS | clean | in="<<script>script>alert(1)<</script>/script>" | out=""
-PASS | clean | in="<math><mtext></mtext></math><script>alert(1)</script>" | out="<math><mtext></mtext></math>"
-PASS | inlineFmt | in="<script>alert(1)</script>" | out="&lt;script&gt;alert(1)&lt;/script&gt;"
-FAIL | inlineFmt | in="<img src=x onerror=alert(1)>" | out="&lt;img src=x onerror=alert(1)&gt;"
-PASS | inlineFmt | in="**bold** ==mark== `code`" | out="<strong>bold</strong> <mark class=\"rz-mark\">mark</mark> <code class=\"rz-code\">code</code>"
-PASS | inlineFmt | in="& < > \" '" | out="&amp; &lt; &gt; \" '"
+This file previously held the first, pre-fix sanitizer corpus output. That run
+used a weak detector that reported PASS for `<svg/onload=...>` even though the
+payload survived, so it was misleading and has been replaced by the two
+authoritative files:
 
-failures=1
+- reports/EVIDENCE/p4-sanitizer-before.txt  (old sanitizer, failures=2)
+- reports/EVIDENCE/p4-sanitizer-after.txt   (fixed sanitizer, failures=0)
+
+Script: reports/EVIDENCE/p4-sanitizer.ts
+See reports/PHASE_4.md section 4.2.2.

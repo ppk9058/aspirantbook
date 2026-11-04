@@ -1,0 +1,3 @@
+### stripe webhook fail-closed over HTTP (no STRIPE_WEBHOOK_SECRET configured locally)
+/api/webhooks/stripe     -> 500 {"error":"Webhook secret not configured"}
+/api/webhooks/stripe (no sig) -> 500 {"error":"Webhook secret not configured"}

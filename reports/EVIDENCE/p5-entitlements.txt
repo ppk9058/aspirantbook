@@ -1,0 +1,18 @@
+### test entitlement (checkTestAccess)
+PASS | anonymous -> LOCKED
+PASS | FREE user without subscription/enrolment -> LOCKED
+PASS | ADMIN -> ADMIN_OVERRIDE
+PASS | TEACHER role -> TEACHER_ACCESS
+PASS | ACTIVE subscription -> SUBSCRIPTION_ACTIVE
+PASS | expired subscription only -> LOCKED
+PASS | FREE series enrolment does not unlock PRO tests
+PASS | PURCHASED series enrolment unlocks the PRO test
+PASS | expired series enrolment does not unlock
+
+### Stripe configuration fails closed
+PASS | STRIPE_SECRET_KEY missing -> isStripeConfigured false
+PASS | STRIPE_SECRET_KEY missing -> getStripeClient throws, no fake client
+PASS | blank STRIPE_SECRET_KEY is treated as missing
+PASS | dummy key -> client object created offline (no API call)
+
+RESULT pass=13 fail=0

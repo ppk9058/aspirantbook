@@ -1,0 +1,11 @@
+mode=unconfigured keyId=null isTestMode=false
+PASS | getRazorpayClient throws when unconfigured (no placeholder key)
+Razorpay order creation failed: Error: Razorpay is not configured: set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET (no placeholder fallback)
+    at getRazorpayClient (/Users/praveenkumar/ws-launch/lib/payments/razorpay-config.ts:42:11)
+    at createRazorpayOrder (/Users/praveenkumar/ws-launch/lib/actions/payment/razorpay.ts:252:27)
+    at async waitForActual (node:assert:644:5)
+    at async Function.rejects (node:assert:767:25)
+    at async main (/Users/praveenkumar/ws-launch/reports/EVIDENCE/p5-prod-failclosed.ts:32:3)
+PASS | createRazorpayOrder fails loudly outside test mode (payments before=0 after=0)
+
+RESULT fail=0

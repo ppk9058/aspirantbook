@@ -1,0 +1,67 @@
+Razorpay credentials not configured
+[Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+### 1. payment signature verification (order|payment HMAC-SHA256)
+PASS | valid signature accepted
+PASS | tampered paymentId rejected
+PASS | tampered orderId rejected
+PASS | signature from a different secret rejected
+PASS | short/non-hex signature rejected without throwing
+RAZORPAY_KEY_SECRET is not configured; cannot verify payment signature
+PASS | missing RAZORPAY_KEY_SECRET fails closed
+
+### 2. webhook signature verification (raw body HMAC, separate secret)
+PASS | valid webhook signature accepted
+PASS | body tampered after signing rejected
+PASS | key secret is not accepted as webhook secret
+PASS | missing webhook secret fails closed
+
+### 3. webhook endpoint guards
+PASS | no signature header -> 400
+Razorpay webhook secret is not configured; failing closed
+PASS | webhook secret not configured -> 500 fail closed
+PASS | invalid signature -> 400
+[RazorpayWebhook] Rejected event outside 5-minute replay window: age=3600s
+PASS | event older than 5 minutes -> 400 replay window
+Unknown order record for order_id "order_p5_unknown"; skipping enrollment
+PASS | unknown order -> 200 acknowledged, enrollment skipped
+[RazorpayWebhook] Duplicate webhook event p5_evt_unknown ignored
+PASS | replayed event id -> duplicate acknowledged, no second write
+
+### 4. server-authoritative price (client amount ignored)
+PASS | client amount 1 for a ₹1999 course -> tampering rejected
+PASS | client amount 1999 -> order amount is the DB price 199900 paise
+PASS | no client amount at all -> order still priced from DB
+PASS | free course cannot create a payment order
+PASS | unpublished/draft course cannot create a payment order
+
+### 4b. coupon: server-side validation and reservation lock
+PASS | 10% coupon reduces a ₹1999 order to ₹1799.10 (179910 paise)
+PASS | same user reusing a perUserLimit=1 coupon is rejected
+PASS | unknown coupon code is rejected
+
+### 5. webhook fulfilment: amount mismatch, entitlement, idempotency
+Amount mismatch in webhook: expected=179910, got=100; skipping enrollment
+PASS | webhook with wrong amount -> enrolment skipped
+PASS | valid captured webhook -> 200 received
+PASS | enrolment created for the DB order course (payload notes ignored)
+PASS | coupon reservation is marked REDEEMED after capture
+PASS | payment marked COMPLETED with captured amount in minor units
+PASS | second delivery of the same payment is idempotent
+PASS | already-enrolled user cannot create a second paid order
+
+### 6. subscription plan fulfilment (MONTHLY)
+PASS | valid subscription webhook -> 200
+PASS | ACTIVE subscription created for the order
+PASS | user role upgraded to PREMIUM
+PASS | replayed subscription webhook does not duplicate the subscription
+
+### 7. payment.failed releases the pending order
+PASS | payment.failed marks the pending record FAILED and releases the reserved coupon
+
+### 8. fulfilment ownership and course assertions
+PASS | another user cannot fulfil someone else's order -> 403
+PASS | course swap against the stored order -> 400
+PASS | client-supplied lower amount at verify time -> 400
+PASS | unknown order at verify time -> 404
+
+RESULT pass=40 fail=0

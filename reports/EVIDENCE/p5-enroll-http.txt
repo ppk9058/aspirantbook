@@ -1,0 +1,19 @@
+### free/paid enrolment over HTTP (server http://127.0.0.1:3048, db launch_verify)
+anonymous, free course, no phone           -> 401 {"error":"Please sign in or provide a mobile number to enroll."}
+free user, paid course                     -> 403 {"error":"This is a paid course. Please complete checkout to enroll.","requiresPayment":true}
+free user, premium(price 0) course         -> 403 {"error":"This is a paid course. Please complete checkout to enroll.","requiresPayment":true}
+free user, DRAFT course                    -> 404 {"error":"Course not found"}
+free user, free course (1st)               -> 200 {"success":true,"message":"Enrolled successfully","courseId":"fv-free-b-id","courseTitle":"FV Free B","courseSlug":"fv-free-b","goalId":"ski
+free user, free course (2nd, idempotent)   -> 200 {"success":true,"message":"Enrolled successfully","courseId":"fv-free-b-id","courseTitle":"FV Free B","courseSlug":"fv-free-b","goalId":"ski
+anonymous, free course, phone auto-create  -> 200 {"success":true,"message":"Enrolled successfully","courseId":"fv-free-b-id","courseTitle":"FV Free B","courseSlug":"fv-free-b","goalId":"ski
+
+### /api/verify-payment/razorpay guards
+anonymous                                  -> 401 {"error":"Unauthorized: User must be signed in"}
+signed in, missing fields                  -> 400 {"error":"Missing required fields (orderId, paymentId, signature)"}
+signed in, forged signature wall           -> 400 {"error":"Invalid signature"}
+
+### razorpay webhook endpoints over HTTP (no configured provider secret locally)
+/api/webhooks/razorpay     no signature     -> 400 {"error":"No signature"}
+/api/webhooks/razorpay     forged signature -> 500 {"error":"Webhook secret not configured"}
+/api/razorpay/webhook      no signature     -> 400 {"error":"No signature"}
+/api/razorpay/webhook      forged signature -> 500 {"error":"Webhook secret not configured"}

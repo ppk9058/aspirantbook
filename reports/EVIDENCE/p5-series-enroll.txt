@@ -1,0 +1,6 @@
+### exam series enrolment entitlement (free user, PRO series)
+FREE enrollType on PRO series            -> 403 {"error":"This test series requires a Pass or Purchase"}
+PURCHASED enrollType without payment     -> 402 {"error":"Payment or active subscription required to enroll with PASS/PURCHASED"}
+PASS enrollType without payment          -> 402 {"error":"Payment or active subscription required to enroll with PASS/PURCHASED"}
+anonymous                                -> 401 {"error":"Unauthenticated"}
+premium user, PURCHASED                  -> 200 {"success":true,"enrollment":{"id":"cmw2fop010008xpy2yzhudoro","userId":"cmw2dsm7e0001xpvtxuogcudk",
