@@ -1,0 +1,14 @@
+# Mutation summary
+
+| # | Mutation | Exit | Failing tests | Verdict |
+|---|----------|------|---------------|---------|
+| 01 | 01-proof-not-required | 1 | 3 | RED (detected) |
+| 02 | 02-proof-reusable | 1 | 2 | RED (detected) |
+| 03 | 03-proof-expiry-ignored | 1 | 2 | RED (detected) |
+| 04 | 04-no-per-phone-limit | 1 | 2 | RED (detected) |
+| 05 | 05-no-per-ip-limit | 1 | 2 | RED (detected) |
+| 06 | 06-no-resend-cooldown | 1 | 2 | RED (detected) |
+| 07 | 07-binding-skipped | 1 | 2 | RED (detected) |
+| 08 | 08-replay-block-removed | 1 | 2 | RED (detected) |
+| 09 | 09-no-verify-attempt-limit | 1 | 2 | RED (detected) |
+| 10 | 10-dev-bypass-in-production | 1 | 2 | RED (detected) |

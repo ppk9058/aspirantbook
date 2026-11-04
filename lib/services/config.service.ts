@@ -2,6 +2,7 @@ import { AppConfigDto, DEFAULT_CONFIG } from "@aspirantbook/shared";
 import { NextRequest } from "next/server";
 import { getCanonicalBaseUrl } from "@/lib/config/brand";
 import { isDevBypassAllowed } from "@/lib/api/v1/dev-bypass";
+import { isOtpProviderConfigured } from "@/lib/services/sms-otp/provider";
 
 export function getAppConfig(req?: NextRequest | Request): AppConfigDto {
   const isMaintenance = process.env.MAINTENANCE_MODE === "true";
@@ -9,8 +10,11 @@ export function getAppConfig(req?: NextRequest | Request): AppConfigDto {
   const googleAuthEnabled = Boolean(
     process.env.GOOGLE_CLIENT_IDS || process.env.GOOGLE_CLIENT_ID
   );
+  // OTP is available only when a real provider is configured, or when an
+  // explicit dev bypass is allowed in a non-production build.
   const otpAuthEnabled = Boolean(
-    process.env.SMS_API_KEY || isDevBypassAllowed()
+    isOtpProviderConfigured() ||
+      (process.env.NODE_ENV !== "production" && isDevBypassAllowed())
   );
 
   let websiteUrl = process.env.WEBSITE_URL;

@@ -11,7 +11,7 @@ import {
   hashRefreshToken,
 } from "@/lib/api/v1/tokens";
 import { logAuditEvent } from "@/lib/api/v1/audit";
-import { isDevBypassAllowed } from "@/lib/api/v1/dev-bypass";
+import { otpService } from "@/lib/services/sms-otp/service";
 
 export const dynamic = "force-dynamic";
 
@@ -20,20 +20,6 @@ export async function POST(req: NextRequest) {
   try {
     const rl = await checkV1RateLimit(req, "auth_otp_verify", 10, 60, undefined, { failClosed: true });
     if (!rl.allowed) return rl.response!;
-
-    const devBypass = isDevBypassAllowed();
-
-    // When devBypass is off => ALWAYS 501, even if SMS_API_KEY is set.
-    // Prevents backdoor logins with arbitrary codes when SMS gateway key is configured.
-    if (!devBypass) {
-      return apiError(
-        "NOT_IMPLEMENTED",
-        "SMS OTP service is currently disabled. Please use email & password sign-in.",
-        501,
-        undefined,
-        reqId
-      );
-    }
 
     const body = await req.json().catch(() => ({}));
     const parsed = OtpVerifySchema.safeParse(body);
@@ -47,12 +33,45 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // In dev bypass, code "123456" is strictly required
-    if (parsed.data.code !== "123456") {
-      return apiError("UNAUTHORIZED", "Invalid verification code", 401, undefined, reqId);
+    const verified = await otpService.verifyOtp({
+      rawPhone: parsed.data.phoneNumber,
+      code: parsed.data.code,
+      verificationId: parsed.data.verificationId,
+      ip: getClientIp(req),
+    });
+
+    if (!verified.ok) {
+      switch (verified.code) {
+        case "invalid_phone":
+          return apiError("VALIDATION_ERROR", verified.message, 400, undefined, reqId);
+        case "invalid_code":
+        case "expired":
+        case "already_verified":
+        case "not_found":
+          return apiError("UNAUTHORIZED", verified.message, 401, undefined, reqId);
+        case "too_many_attempts":
+        case "provider_rate_limited":
+          return apiError(
+            "TOO_MANY_REQUESTS",
+            verified.message,
+            429,
+            verified.retryAfterSeconds ? { retryAfter: verified.retryAfterSeconds } : undefined,
+            reqId
+          );
+        case "not_configured":
+          return apiError(
+            "NOT_IMPLEMENTED",
+            "SMS OTP service is currently disabled. Please use email & password sign-in.",
+            501,
+            undefined,
+            reqId
+          );
+        default:
+          return apiError("PROVIDER_ERROR", verified.message, 502, undefined, reqId);
+      }
     }
 
-    const phoneNumber = parsed.data.phoneNumber;
+    const phoneNumber = verified.phone.nationalNumber;
     const syntheticEmail = `mobile_${phoneNumber}@aspirantbook.local`;
 
     let user = await prisma.user.findUnique({
@@ -132,10 +151,10 @@ export async function POST(req: NextRequest) {
 
     await logAuditEvent({
       actorId: user.id,
-      action: "USER_LOGIN_OTP_DEV_BYPASS",
+      action: verified.devBypass ? "USER_LOGIN_OTP_DEV_BYPASS" : "USER_LOGIN_OTP",
       targetId: session.id,
       ip,
-      details: { platform: parsed.data.platform, devBypass: true },
+      details: { platform: parsed.data.platform, devBypass: verified.devBypass },
     });
 
     return apiSuccess(

@@ -210,11 +210,18 @@ export function createApiClient(options: ApiClientOptions) {
         body: JSON.stringify(body),
       }),
     requestOtp: (body: { phoneNumber: string }) =>
-      request<{ message: string; phoneNumber: string; devBypass?: boolean }>("/api/v1/auth/otp/request", {
+      request<{
+        message: string;
+        phoneNumber: string;
+        verificationId?: string;
+        expiresIn?: number;
+        resendAfter?: number;
+        devBypass?: boolean;
+      }>("/api/v1/auth/otp/request", {
         method: "POST",
         body: JSON.stringify(body),
       }),
-    verifyOtp: (body: { phoneNumber: string; otp: string }) =>
+    verifyOtp: (body: { phoneNumber: string; otp: string; verificationId: string }) =>
       request<LoginResponseDto>("/api/v1/auth/otp/verify", {
         method: "POST",
         body: JSON.stringify(body),

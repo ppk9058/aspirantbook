@@ -1,0 +1,26 @@
+
+> aspirantbook-mobile@1.0.0 test:ui
+> jest tests/auth.test.tsx tests/auth-otp.mounted.test.tsx
+
+PASS tests/auth.test.tsx (6.05 s)
+  ● Console
+
+    console.log
+      [API] Resolved Base URL: http://127.0.0.1:3045 (source: env)
+
+      at Object.log (src/lib/api.ts:12:11)
+
+PASS tests/auth-otp.mounted.test.tsx (6.207 s)
+  ● Console
+
+    console.log
+      [API] Resolved Base URL: http://127.0.0.1:3045 (source: env)
+
+      at Object.log (src/lib/api.ts:12:11)
+
+
+Test Suites: 2 passed, 2 total
+Tests:       23 passed, 23 total
+Snapshots:   0 total
+Time:        6.67 s
+Ran all test suites matching /tests\/auth.test.tsx|tests\/auth-otp.mounted.test.tsx/i.

@@ -35,6 +35,8 @@ export default function LoginScreen() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpNotice, setOtpNotice] = useState<string | null>(null);
   const [otpAuthEnabled, setOtpAuthEnabled] = useState(false);
+  const [verificationId, setVerificationId] = useState<string | null>(null);
+  const [resendCountdown, setResendCountdown] = useState(0);
 
   useEffect(() => {
     let mounted = true;
@@ -55,6 +57,15 @@ export default function LoginScreen() {
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Resend cooldown, driven by the server response so both clients agree.
+  useEffect(() => {
+    if (!otpSent || resendCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCountdown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpSent, resendCountdown]);
 
   const handlePasswordLogin = async () => {
     setErrorMessage(null);
@@ -96,6 +107,34 @@ export default function LoginScreen() {
     }
   };
 
+  const requestOtp = async () => {
+    const cleanPhone = phoneNumber.trim();
+    const res = await api.requestOtp({ phoneNumber: cleanPhone });
+    if (!res.ok || !res.data) {
+      const retry = res.error?.details?.retryAfter;
+      setErrorMessage(
+        res.error?.code === "TOO_MANY_REQUESTS" && retry
+          ? `${res.error?.message || "Please wait before requesting another code."} (${retry}s)`
+          : res.error?.message || "Failed to request OTP. Please try again."
+      );
+      return false;
+    }
+    if (!res.data.verificationId) {
+      setErrorMessage("The verification service returned an invalid response. Please try again.");
+      return false;
+    }
+    setVerificationId(res.data.verificationId);
+    setResendCountdown(typeof res.data.resendAfter === "number" ? res.data.resendAfter : 30);
+    setOtpSent(true);
+    setOtp("");
+    setOtpNotice(
+      res.data.devBypass
+        ? res.data.message
+        : "Verification code sent to your mobile number."
+    );
+    return true;
+  };
+
   const handleRequestOtp = async () => {
     setErrorMessage(null);
     setOtpNotice(null);
@@ -111,16 +150,21 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const res = await api.requestOtp({ phoneNumber: cleanPhone });
-      if (!res.ok) {
-        setErrorMessage(res.error?.message || "Failed to request OTP. Please try again.");
-        return;
-      }
+      await requestOtp();
+    } catch {
+      setErrorMessage("Network error requesting verification code.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      setOtpSent(true);
-      if (res.data?.devBypass || res.data?.message?.includes("code")) {
-        setOtpNotice(res.data.message);
-      }
+  const handleResendOtp = async () => {
+    if (resendCountdown > 0 || loading) return;
+    setErrorMessage(null);
+    setOtpNotice(null);
+    setLoading(true);
+    try {
+      await requestOtp();
     } catch {
       setErrorMessage("Network error requesting verification code.");
     } finally {
@@ -134,12 +178,17 @@ export default function LoginScreen() {
       setErrorMessage("Please enter the 6-digit verification code.");
       return;
     }
+    if (!verificationId) {
+      setErrorMessage("Please request a verification code first.");
+      return;
+    }
 
     setLoading(true);
     try {
       const res = await api.verifyOtp({
         phoneNumber: phoneNumber.trim(),
         otp: otp.trim(),
+        verificationId,
       });
 
       if (!res.ok || !res.data) {
@@ -378,6 +427,8 @@ export default function LoginScreen() {
                         setOtpSent(false);
                         setOtp("");
                         setOtpNotice(null);
+                        setVerificationId(null);
+                        setResendCountdown(0);
                       }}
                     >
                       <Text style={[styles.forgotText, { color: colors.primary }]}>Change</Text>
@@ -409,9 +460,24 @@ export default function LoginScreen() {
                       value={otp}
                       onChangeText={setOtp}
                       keyboardType="number-pad"
+                      textContentType="oneTimeCode"
+                      autoComplete="sms-otp"
                       maxLength={6}
                       style={[styles.textInput, { color: colors.textPrimary, letterSpacing: 4 }]}
                     />
+                  </View>
+                  <View style={styles.resendRow}>
+                    {resendCountdown > 0 ? (
+                      <Text style={[styles.resendHint, { color: colors.textMuted }]}>
+                        Resend code in {resendCountdown}s
+                      </Text>
+                    ) : (
+                      <TouchableOpacity onPress={handleResendOtp} disabled={loading}>
+                        <Text style={[styles.forgotText, { color: colors.primary }]}>
+                          {loading ? "Sending..." : "Resend code"}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </View>
               )}
@@ -560,6 +626,14 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     marginBottom: 16,
+  },
+  resendRow: {
+    alignItems: "flex-end",
+    marginTop: 6,
+  },
+  resendHint: {
+    fontSize: 12,
+    fontWeight: "600",
   },
   inputLabel: {
     fontSize: 13,

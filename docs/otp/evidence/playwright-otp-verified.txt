@@ -1,0 +1,17 @@
+[WebServer]  ⚠ `devIndicators.appIsrStatus` is deprecated and no longer configurable. Please remove it from next.config.js.
+[WebServer]  ⚠ `devIndicators.buildActivity` is deprecated and no longer configurable. Please remove it from next.config.js.
+[WebServer]  ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+[WebServer]  We detected multiple lockfiles and selected the directory of /Users/praveenkumar/package-lock.json as the root directory.
+[WebServer]  To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+[WebServer]    See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+[WebServer]  Detected additional lockfiles: 
+[WebServer]    * /Users/praveenkumar/TS-otp/package-lock.json
+[WebServer] 
+[WebServer] [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+
+Running 1 test using 1 worker
+
+[WebServer] [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+  ✓  1 [mobile] › tests/e2e/otp-mobile-login.spec.ts:19:5 › web mobile OTP modal requests a code, then verifies with the returned verificationId (9.7s)
+
+  1 passed (32.9s)

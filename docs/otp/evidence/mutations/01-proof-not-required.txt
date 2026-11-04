@@ -1,0 +1,195 @@
+# Mutation 01-proof-not-required: Web sign-in accepts a phone number without a proof
+
+- File: `auth.ts`
+- Replaced: `if (!proof.valid) {`
+- With: `if (false) {`
+- Test command: `tests/otp/otp-security.test.ts`
+- Expected failing test: "an existing phone cannot sign in with no proof or with a forged proof"
+- Exit code: 1
+- File restored byte-for-byte after the run: true
+- Result: RED (mutation detected)
+
+## Failing test lines (raw)
+
+    not ok 2 - a proof for a different phone cannot sign in another number
+    not ok 3 - an existing phone cannot sign in with no proof or with a forged proof
+not ok 3 - OTP security: web authorize boundary
+
+## Raw summary line
+
+# fail 2
+
+## Raw output (full)
+
+```
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [SECURITY REFUSAL AT BOOT] MESSAGE_CENTRAL_CUSTOMER_ID and MESSAGE_CENTRAL_AUTH_KEY must be set together (or both left empty to keep OTP disabled).
+# Subtest: OTP security: production cannot enable any bypass
+    # Subtest: isOtpDevBypassAllowed is false in production even with the dev flag and APP_ENV=test
+    ok 1 - isOtpDevBypassAllowed is false in production even with the dev flag and APP_ENV=test
+      ---
+      duration_ms: 47.471666
+      type: 'test'
+      ...
+    # Subtest: the provider test override refuses to work in production
+    ok 2 - the provider test override refuses to work in production
+      ---
+      duration_ms: 0.459334
+      type: 'test'
+      ...
+    # Subtest: boot guard refuses production with a half-configured Message Central credential
+    ok 3 - boot guard refuses production with a half-configured Message Central credential
+      ---
+      duration_ms: 0.407459
+      type: 'test'
+      ...
+    # Subtest: boot guard does not break when OTP is simply unset
+    ok 4 - boot guard does not break when OTP is simply unset
+      ---
+      duration_ms: 0.194291
+      type: 'test'
+      ...
+    1..4
+ok 1 - OTP security: production cannot enable any bypass
+  ---
+  duration_ms: 49.668292
+  type: 'suite'
+  ...
+# Subtest: OTP security: config flag follows provider credentials
+    # Subtest: otpAuthEnabled is true when both provider credentials are present
+    ok 1 - otpAuthEnabled is true when both provider credentials are present
+      ---
+      duration_ms: 0.204
+      type: 'test'
+      ...
+    # Subtest: otpAuthEnabled is false in production without credentials
+    ok 2 - otpAuthEnabled is false in production without credentials
+      ---
+      duration_ms: 0.100625
+      type: 'test'
+      ...
+    1..2
+ok 2 - OTP security: config flag follows provider credentials
+  ---
+  duration_ms: 0.59075
+  type: 'suite'
+  ...
+# Subtest: OTP security: web authorize boundary
+    # Subtest: bare phoneNumber and forged proof are both rejected
+    ok 1 - bare phoneNumber and forged proof are both rejected
+      ---
+      duration_ms: 70.616916
+      type: 'test'
+      ...
+    # Subtest: a proof for a different phone cannot sign in another number
+    not ok 2 - a proof for a different phone cannot sign in another number
+      ---
+      duration_ms: 11.767667
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:6807'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        + actual - expected
+        
+        + {
+        +   email: 'otp_cross_9668083518@example.test',
+        +   id: 'cmvzzngj70000xp2mv78y7dfi',
+        +   image: null,
+        +   name: 'Cross',
+        +   phoneNumber: '9668083518',
+        +   role: 'FREE',
+        +   sessionVersion: 1
+        + }
+        - null
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: ~
+      actual:
+        id: 'cmvzzngj70000xp2mv78y7dfi'
+        email: 'otp_cross_9668083518@example.test'
+        name: 'Cross'
+        role: 'FREE'
+        image: ~
+        phoneNumber: '9668083518'
+        sessionVersion: 1
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:183:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: an existing phone cannot sign in with no proof or with a forged proof
+    not ok 3 - an existing phone cannot sign in with no proof or with a forged proof
+      ---
+      duration_ms: 5.245583
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:7403'
+      failureType: 'testCodeFailure'
+      error: |-
+        an existing account must not sign in with a forged proof
+        + actual - expected
+        
+        + {
+        +   email: 'otp_existing_proof_9668091449@example.test',
+        +   id: 'cmvzzngji0001xp2mfpz7p6rx',
+        +   image: null,
+        +   name: 'Existing Proof',
+        +   phoneNumber: '9668091449',
+        +   role: 'FREE',
+        +   sessionVersion: 1
+        + }
+        - null
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: ~
+      actual:
+        id: 'cmvzzngji0001xp2mfpz7p6rx'
+        email: 'otp_existing_proof_9668091449@example.test'
+        name: 'Existing Proof'
+        role: 'FREE'
+        image: ~
+        phoneNumber: '9668091449'
+        sessionVersion: 1
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:201:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    1..3
+not ok 3 - OTP security: web authorize boundary
+  ---
+  duration_ms: 88.415125
+  type: 'suite'
+  location: '/Users/praveenkumar/TS-otp/tests/otp/otp-security.test.ts:2:6249'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: OTP security: email + password regression
+    # Subtest: email and password login still works unchanged
+    ok 1 - email and password login still works unchanged
+      ---
+      duration_ms: 399.711833
+      type: 'test'
+      ...
+    1..1
+ok 4 - OTP security: email + password regression
+  ---
+  duration_ms: 399.880416
+  type: 'suite'
+  ...
+1..4
+# tests 10
+# suites 4
+# pass 8
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1360.709375
+```

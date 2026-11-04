@@ -1,0 +1,179 @@
+# Mutation 04-no-per-phone-limit: Per-phone send limit removed
+
+- File: `lib/services/sms-otp/service.ts`
+- Replaced: `config.sendPerPhone,`
+- With: `1000,`
+- Test command: `tests/otp/otp-core.test.ts`
+- Expected failing test: "per-phone send limit (3 / 10 min) triggers"
+- Exit code: 1
+- File restored byte-for-byte after the run: true
+- Result: RED (mutation detected)
+
+## Failing test lines (raw)
+
+    not ok 6 - per-phone send limit (3 / 10 min) triggers
+not ok 2 - OTP core: service flow (provider mocked at the adapter boundary)
+
+## Raw summary line
+
+# fail 1
+
+## Raw output (full)
+
+```
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: OTP core: phone normalisation
+    # Subtest: accepts 10-digit Indian mobiles starting 6-9 and normalises to +91
+    ok 1 - accepts 10-digit Indian mobiles starting 6-9 and normalises to +91
+      ---
+      duration_ms: 12.191458
+      type: 'test'
+      ...
+    # Subtest: accepts +91, 91 and leading-zero prefixes
+    ok 2 - accepts +91, 91 and leading-zero prefixes
+      ---
+      duration_ms: 0.253792
+      type: 'test'
+      ...
+    # Subtest: rejects non-Indian, short, long and invalid-prefix numbers
+    ok 3 - rejects non-Indian, short, long and invalid-prefix numbers
+      ---
+      duration_ms: 0.193834
+      type: 'test'
+      ...
+    # Subtest: masks phone numbers for logs
+    ok 4 - masks phone numbers for logs
+      ---
+      duration_ms: 0.097292
+      type: 'test'
+      ...
+    1..4
+ok 1 - OTP core: phone normalisation
+  ---
+  duration_ms: 13.486208
+  type: 'suite'
+  ...
+# Subtest: OTP core: service flow (provider mocked at the adapter boundary)
+    # Subtest: correct code succeeds and is single-use
+    ok 1 - correct code succeeds and is single-use
+      ---
+      duration_ms: 85.872625
+      type: 'test'
+      ...
+    # Subtest: wrong code fails and does not consume the verification id
+    ok 2 - wrong code fails and does not consume the verification id
+      ---
+      duration_ms: 13.034333
+      type: 'test'
+      ...
+    # Subtest: verification id is bound to the phone that requested it
+    ok 3 - verification id is bound to the phone that requested it
+      ---
+      duration_ms: 5.060167
+      type: 'test'
+      ...
+    # Subtest: expired verification is reported as expired
+    ok 4 - expired verification is reported as expired
+      ---
+      duration_ms: 7.295375
+      type: 'test'
+      ...
+    # Subtest: resend cooldown blocks an immediate second send
+    ok 5 - resend cooldown blocks an immediate second send
+      ---
+      duration_ms: 5.455458
+      type: 'test'
+      ...
+    # Subtest: per-phone send limit (3 / 10 min) triggers
+    not ok 6 - per-phone send limit (3 / 10 min) triggers
+      ---
+      duration_ms: 11.529459
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/otp/otp-core.test.ts:2:6960'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        
+        true !== false
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: false
+      actual: true
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/otp/otp-core.test.ts:179:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: per-IP send limit triggers across different phones
+    ok 7 - per-IP send limit triggers across different phones
+      ---
+      duration_ms: 8.537917
+      type: 'test'
+      ...
+    # Subtest: max verify attempts per verification id triggers
+    ok 8 - max verify attempts per verification id triggers
+      ---
+      duration_ms: 15.689667
+      type: 'test'
+      ...
+    # Subtest: invalid and non-Indian numbers are rejected before the provider is called
+    ok 9 - invalid and non-Indian numbers are rejected before the provider is called
+      ---
+      duration_ms: 0.2525
+      type: 'test'
+      ...
+    # Subtest: provider errors are mapped, and logs never contain the full phone or OTP
+    ok 10 - provider errors are mapped, and logs never contain the full phone or OTP
+      ---
+      duration_ms: 3.858291
+      type: 'test'
+      ...
+    1..10
+not ok 2 - OTP core: service flow (provider mocked at the adapter boundary)
+  ---
+  duration_ms: 157.359042
+  type: 'suite'
+  location: '/Users/praveenkumar/TS-otp/tests/otp/otp-core.test.ts:2:2674'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: OTP core: server-signed proof
+    # Subtest: proof is valid once, bound to the phone, and single-use
+    ok 1 - proof is valid once, bound to the phone, and single-use
+      ---
+      duration_ms: 6.913375
+      type: 'test'
+      ...
+    # Subtest: expired proof is rejected
+    ok 2 - expired proof is rejected
+      ---
+      duration_ms: 0.232375
+      type: 'test'
+      ...
+    # Subtest: tampered proof is rejected
+    ok 3 - tampered proof is rejected
+      ---
+      duration_ms: 0.111541
+      type: 'test'
+      ...
+    1..3
+ok 3 - OTP core: server-signed proof
+  ---
+  duration_ms: 7.391667
+  type: 'suite'
+  ...
+1..3
+# tests 17
+# suites 3
+# pass 16
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 593.370708
+```

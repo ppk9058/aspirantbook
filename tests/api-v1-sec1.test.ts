@@ -131,10 +131,22 @@ describe("SEC1: OTP / Reauth / Session Security Hardening", () => {
   // ─────────────────────────────────────────────────────────────
   it("SEC1.2: validateBootSecurity strictly refuses to boot when NODE_ENV=production and ALLOW_DEV_MOBILE_LOGIN=true", () => {
     const origNodeEnv = process.env.NODE_ENV;
+    const origAppEnv = process.env.APP_ENV;
     const origAllowDev = process.env.ALLOW_DEV_MOBILE_LOGIN;
+    const origDbUrl = process.env.DATABASE_URL;
+    const origDirectUrl = process.env.DIRECT_URL;
+    const origPersist = process.env.PERSIST_BACKEND;
 
     try {
+      // Use a production-shaped (remote, TLS, non-pooler) DB so the earlier
+      // local-DB / sslmode guards do not short-circuit before guard #3.
       (process.env as Record<string, string | undefined>).NODE_ENV = "production";
+      process.env.APP_ENV = "production";
+      process.env.DATABASE_URL =
+        "postgresql://prod:prod@db.example.com:5432/trillionskill?sslmode=require";
+      process.env.DIRECT_URL =
+        "postgresql://prod:prod@db.example.com:5432/trillionskill?sslmode=require";
+      process.env.PERSIST_BACKEND = "db";
       process.env.ALLOW_DEV_MOBILE_LOGIN = "true";
       assert.throws(
         () => validateBootSecurity(),
@@ -142,46 +154,59 @@ describe("SEC1: OTP / Reauth / Session Security Hardening", () => {
       );
     } finally {
       (process.env as Record<string, string | undefined>).NODE_ENV = origNodeEnv;
+      process.env.APP_ENV = origAppEnv;
       process.env.ALLOW_DEV_MOBILE_LOGIN = origAllowDev;
+      process.env.DATABASE_URL = origDbUrl;
+      process.env.DIRECT_URL = origDirectUrl;
+      process.env.PERSIST_BACKEND = origPersist;
     }
   });
 
   // ─────────────────────────────────────────────────────────────
-  // 3. OTP Request & Verify Always 501 When devBypass is Off
+  // 3. OTP Request & Verify Return 501 When No Provider Is Configured
   // ─────────────────────────────────────────────────────────────
-  it("SEC1.3: otp/request and otp/verify return 501 when devBypass is off (even if SMS_API_KEY is present)", async () => {
+  it("SEC1.3: otp/request and otp/verify return 501 when no SMS provider is configured (even if legacy SMS_API_KEY is present)", async () => {
     const origAllowDev = process.env.ALLOW_DEV_MOBILE_LOGIN;
     const origAppEnv = process.env.APP_ENV;
     const origSmsKey = process.env.SMS_API_KEY;
+    const origMcId = process.env.MESSAGE_CENTRAL_CUSTOMER_ID;
+    const origMcKey = process.env.MESSAGE_CENTRAL_AUTH_KEY;
 
     const testPhone = `+91999${Math.floor(1000000 + Math.random() * 9000000)}`;
 
     try {
-      // Turn off dev bypass and simulate SMS gateway key configured
+      // Turn off dev bypass and simulate a legacy SMS gateway key being present.
+      // The OTP service only trusts the Message Central adapter, so it stays off.
       delete process.env.ALLOW_DEV_MOBILE_LOGIN;
       process.env.APP_ENV = "staging";
       process.env.SMS_API_KEY = "fake_sms_gateway_api_key";
+      delete process.env.MESSAGE_CENTRAL_CUSTOMER_ID;
+      delete process.env.MESSAGE_CENTRAL_AUTH_KEY;
 
       // 1. otp/request must return 501
-      const reqReq = new NextRequest("http://127.0.0.1:3045/api/v1/auth/otp/request", {
+      const reqReq = new NextRequest("http://127.0.0.1:3047/api/v1/auth/otp/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phoneNumber: testPhone }),
       });
       const reqRes = await otpRequestRoute(reqReq);
-      assert.equal(reqRes.status, 501, "otp/request must return 501 when dev bypass is off");
+      assert.equal(reqRes.status, 501, "otp/request must return 501 when no provider is configured");
       const reqBody = await reqRes.json();
       assert.equal(reqBody.ok, false);
       assert.equal(reqBody.error.code, "NOT_IMPLEMENTED");
 
-      // 2. otp/verify must return 501
-      const verReq = new NextRequest("http://127.0.0.1:3045/api/v1/auth/otp/verify", {
+      // 2. otp/verify must return 501 (a verificationId is now required by the schema)
+      const verReq = new NextRequest("http://127.0.0.1:3047/api/v1/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber: testPhone, code: "999999" }),
+        body: JSON.stringify({
+          phoneNumber: testPhone,
+          code: "999999",
+          verificationId: "verification-id-without-provider",
+        }),
       });
       const verRes = await otpVerifyRoute(verReq);
-      assert.equal(verRes.status, 501, "otp/verify must return 501 when dev bypass is off");
+      assert.equal(verRes.status, 501, "otp/verify must return 501 when no provider is configured");
       const verBody = await verRes.json();
       assert.equal(verBody.ok, false);
       assert.equal(verBody.error.code, "NOT_IMPLEMENTED");
@@ -195,6 +220,10 @@ describe("SEC1: OTP / Reauth / Session Security Hardening", () => {
       process.env.ALLOW_DEV_MOBILE_LOGIN = origAllowDev;
       process.env.APP_ENV = origAppEnv;
       process.env.SMS_API_KEY = origSmsKey;
+      if (origMcId === undefined) delete process.env.MESSAGE_CENTRAL_CUSTOMER_ID;
+      else process.env.MESSAGE_CENTRAL_CUSTOMER_ID = origMcId;
+      if (origMcKey === undefined) delete process.env.MESSAGE_CENTRAL_AUTH_KEY;
+      else process.env.MESSAGE_CENTRAL_AUTH_KEY = origMcKey;
     }
   });
 
@@ -359,39 +388,67 @@ describe("SEC1: OTP / Reauth / Session Security Hardening", () => {
   // 6. Same Phone Number Re-Registration After Deletion
   // ─────────────────────────────────────────────────────────────
   it("SEC1.6: allows the same phone number to register again after account deletion/anonymization", async () => {
-    // 1. Delete pwdlessUser using fresh valid reauth token
-    const delToken = await createReauthToken(pwdlessUser.id, "delete_account", "5m", pwdlessUser.sessionId);
-    const delReq = new NextRequest("http://127.0.0.1:3045/api/v1/me", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${pwdlessUser.token}`,
-      },
-      body: JSON.stringify({ reauthToken: delToken }),
-    });
-    const delRes = await deleteMeRoute(delReq);
-    assert.equal(delRes.status, 200, "Account deletion must succeed with fresh valid token");
+    const origTrustProxy = process.env.TRUST_PROXY;
+    const uniqueIp = `198.51.100.${Math.floor(10 + Math.random() * 200)}`;
 
-    // 2. Registering again with the same phone number via OTP dev bypass:
-    const verifyReq = new NextRequest("http://127.0.0.1:3045/api/v1/auth/otp/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phoneNumber: pwdlessUser.phoneNumber, code: "123456" }),
-    });
+    try {
+      // 1. Delete pwdlessUser using fresh valid reauth token
+      const delToken = await createReauthToken(pwdlessUser.id, "delete_account", "5m", pwdlessUser.sessionId);
+      const delReq = new NextRequest("http://127.0.0.1:3047/api/v1/me", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${pwdlessUser.token}`,
+        },
+        body: JSON.stringify({ reauthToken: delToken }),
+      });
+      const delRes = await deleteMeRoute(delReq);
+      assert.equal(delRes.status, 200, "Account deletion must succeed with fresh valid token");
 
-    const verifyRes = await otpVerifyRoute(verifyReq);
-    assert.equal(verifyRes.status, 200, "Re-registration with same phone number must succeed");
-    const verifyBody = await verifyRes.json();
-    assert.equal(verifyBody.ok, true);
-    assert.ok(verifyBody.data.user.id);
-    assert.notEqual(verifyBody.data.user.id, pwdlessUser.id, "New account must have a fresh user id");
-    assert.equal(verifyBody.data.user.phoneNumber, pwdlessUser.phoneNumber);
-    assert.equal(verifyBody.data.user.email, `mobile_${pwdlessUser.phoneNumber}@aspirantbook.local`);
-    assert.equal(verifyBody.data.user.isActive, true);
+      // 2. Registering again with the same phone number via the real two-step
+      //    OTP flow (dev adapter in the local test DB).
+      process.env.TRUST_PROXY = "true";
+      const national = pwdlessUser.phoneNumber.replace(/^\+91/, "");
 
-    // Clean up newly created user
-    await prisma.deviceSession.deleteMany({ where: { userId: verifyBody.data.user.id } }).catch(() => {});
-    await prisma.user.delete({ where: { id: verifyBody.data.user.id } }).catch(() => {});
+      const reqReq = new NextRequest("http://127.0.0.1:3047/api/v1/auth/otp/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "cf-connecting-ip": uniqueIp },
+        body: JSON.stringify({ phoneNumber: pwdlessUser.phoneNumber }),
+      });
+      const reqRes = await otpRequestRoute(reqReq);
+      assert.equal(reqRes.status, 200, "Requesting a code for the freed number must succeed");
+      const reqBody = await reqRes.json();
+      assert.equal(reqBody.ok, true);
+      const verificationId = reqBody.data.verificationId as string;
+      assert.ok(verificationId, "A verification id must be returned");
+
+      const verifyReq = new NextRequest("http://127.0.0.1:3047/api/v1/auth/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "cf-connecting-ip": uniqueIp },
+        body: JSON.stringify({
+          phoneNumber: pwdlessUser.phoneNumber,
+          code: "123456",
+          verificationId,
+        }),
+      });
+
+      const verifyRes = await otpVerifyRoute(verifyReq);
+      assert.equal(verifyRes.status, 200, "Re-registration with same phone number must succeed");
+      const verifyBody = await verifyRes.json();
+      assert.equal(verifyBody.ok, true);
+      assert.ok(verifyBody.data.user.id);
+      assert.notEqual(verifyBody.data.user.id, pwdlessUser.id, "New account must have a fresh user id");
+      assert.equal(verifyBody.data.user.phoneNumber, national);
+      assert.equal(verifyBody.data.user.email, `mobile_${national}@aspirantbook.local`);
+      assert.equal(verifyBody.data.user.isActive, true);
+
+      // Clean up newly created user
+      await prisma.deviceSession.deleteMany({ where: { userId: verifyBody.data.user.id } }).catch(() => {});
+      await prisma.user.delete({ where: { id: verifyBody.data.user.id } }).catch(() => {});
+    } finally {
+      if (origTrustProxy === undefined) delete process.env.TRUST_PROXY;
+      else process.env.TRUST_PROXY = origTrustProxy;
+    }
   });
 
   // ─────────────────────────────────────────────────────────────

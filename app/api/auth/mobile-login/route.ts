@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
 import { isDevBypassAllowed } from "@/lib/api/v1/dev-bypass"
+import { isOtpProviderConfigured } from "@/lib/services/sms-otp/provider"
+import { otpService } from "@/lib/services/sms-otp/service"
+import { createOtpProof } from "@/lib/services/sms-otp/proof"
 
 const COURSE_ALIASES: Record<string, string> = {
     "half-yearly-678": "half-yearly-6",
@@ -25,6 +28,27 @@ const COURSE_ALIASES: Record<string, string> = {
     "class-10-revision": "class-10-board-revision-sprint",
 }
 
+function failureStatus(code: string): number {
+    switch (code) {
+        case "invalid_phone":
+            return 400
+        case "invalid_code":
+        case "expired":
+        case "already_verified":
+        case "not_found":
+            return 401
+        case "cooldown":
+        case "rate_limited":
+        case "provider_rate_limited":
+        case "too_many_attempts":
+            return 429
+        case "not_configured":
+            return 503
+        default:
+            return 502
+    }
+}
+
 export async function POST(req: NextRequest) {
     try {
         const clientIp = getClientIp(req)
@@ -37,37 +61,74 @@ export async function POST(req: NextRequest) {
             )
         }
 
-        const { phoneNumber, courseId, otp } = await req.json()
+        const body = await req.json().catch(() => ({}))
+        const { phoneNumber, code, verificationId, courseId } = body ?? {}
 
-        const isDevBypassEnabled = isDevBypassAllowed()
-
-        // In production (unless APP_ENV=test against local test DB) or when the dev flag is off, test OTP is disabled
-        if (!isDevBypassEnabled) {
+        // OTP is available only with a real provider, or an explicit dev bypass in
+        // a non-production build. Production can never take the bypass path.
+        const otpEnabled =
+            isOtpProviderConfigured() ||
+            (process.env.NODE_ENV !== "production" && isDevBypassAllowed())
+        if (!otpEnabled) {
             return NextResponse.json(
-                { error: "SMS OTP service is currently being configured. Mobile dev login is disabled." },
+                { error: "SMS OTP service is currently being configured. Mobile login is disabled." },
                 { status: 503 }
             )
         }
 
-        if (!phoneNumber || !/^[0-9]{10}$/.test(phoneNumber)) {
+        // ── Step 1: request a code. Never touches the User table, so the response
+        // cannot reveal whether an account exists for this number.
+        if (!code && !verificationId) {
+            const sent = await otpService.sendOtp({ rawPhone: phoneNumber, ip: clientIp })
+            if (!sent.ok) {
+                return NextResponse.json(
+                    {
+                        error: sent.message,
+                        ...(sent.retryAfterSeconds ? { retryAfter: sent.retryAfterSeconds } : {}),
+                    },
+                    { status: failureStatus(sent.code) }
+                )
+            }
+            return NextResponse.json({
+                success: true,
+                step: "otp",
+                verificationId: sent.verificationId,
+                expiresIn: sent.expiresInSeconds,
+                resendAfter: sent.resendAfterSeconds,
+                devBypass: sent.devBypass,
+            })
+        }
+
+        // ── Step 2: verify the code, then (and only then) find or create the user.
+        const verified = await otpService.verifyOtp({
+            rawPhone: phoneNumber,
+            code,
+            verificationId,
+            ip: clientIp,
+        })
+        if (!verified.ok) {
             return NextResponse.json(
-                { error: "Please enter a valid 10-digit mobile number." },
-                { status: 400 }
+                {
+                    error: verified.message,
+                    ...(verified.retryAfterSeconds ? { retryAfter: verified.retryAfterSeconds } : {}),
+                },
+                { status: failureStatus(verified.code) }
             )
         }
 
-        const syntheticEmail = `mobile_${phoneNumber}@aspirantbook.local`
+        const nationalNumber = verified.phone.nationalNumber
+        const syntheticEmail = `mobile_${nationalNumber}@aspirantbook.local`
 
-        // Find or create user by phone number
+        // Find or create user by phone number (existing synthetic-email convention).
         let user = await prisma.user.findUnique({
-            where: { phoneNumber },
+            where: { phoneNumber: nationalNumber },
             select: { id: true, name: true, email: true, phoneNumber: true, role: true },
         })
 
         if (!user) {
             user = await prisma.user.create({
                 data: {
-                    phoneNumber,
+                    phoneNumber: nationalNumber,
                     email: syntheticEmail,
                     name: "student",
                     role: "FREE",
@@ -131,8 +192,13 @@ export async function POST(req: NextRequest) {
             }
         }
 
+        // Single-use, phone-bound, ~2 minute proof. NextAuth's mobile provider
+        // requires and consumes this; the phone number alone is never enough.
+        const proof = createOtpProof(verified.phone.e164)
+
         const res = NextResponse.json({
             success: true,
+            proof,
             email: syntheticEmail,
             userId: user.id,
             name: user.name,

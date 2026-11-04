@@ -8,6 +8,8 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { checkLoginLockout, recordFailedLoginAttempt, clearLoginLockout } from "@/lib/auth/rate-limiter"
 import { isTurnstileEnabled, verifyTurnstileToken } from "@/lib/security/turnstile"
+import { normalizeIndianPhone } from "@/lib/services/sms-otp/phone"
+import { consumeOtpProof } from "@/lib/services/sms-otp/proof"
 
 export class LockedOutError extends CredentialsSignin {
     code = "account_locked"
@@ -235,6 +237,56 @@ export async function authorizeCredentials(
     }
 }
 
+/**
+ * Web mobile (OTP) sign-in.
+ *
+ * SECURITY: this authorizes ONLY when the caller presents a valid, unexpired,
+ * single-use, server-signed proof that was minted after a successful provider
+ * OTP verification for this exact phone number. A bare `phoneNumber` is never
+ * enough, so `signIn("mobile", { phoneNumber })` cannot log anyone in.
+ */
+export async function authorizeMobileCredentials(credentials: Record<string, any>) {
+    const parsed = z
+        .object({
+            phoneNumber: z.string().min(1).max(20),
+            proof: z.string().min(1).max(2048),
+        })
+        .safeParse(credentials)
+
+    if (!parsed.success) return null
+
+    const phone = normalizeIndianPhone(parsed.data.phoneNumber)
+    if (!phone.ok) return null
+
+    const proof = await consumeOtpProof(parsed.data.proof, phone.e164)
+    if (!proof.valid) {
+        console.warn(`[Auth] Mobile OTP sign-in rejected: ${proof.reason || "invalid proof"}`)
+        return null
+    }
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { phoneNumber: phone.nationalNumber },
+            select: { id: true, email: true, name: true, role: true, image: true, phoneNumber: true, sessionVersion: true },
+        })
+
+        if (!user) return null
+
+        return {
+            id: user.id,
+            email: user.email ?? `mobile_${phone.nationalNumber}@aspirantbook.local`,
+            name: user.name,
+            role: user.role,
+            image: user.image,
+            phoneNumber: user.phoneNumber,
+            sessionVersion: user.sessionVersion,
+        }
+    } catch (error) {
+        console.error("Mobile authorize error:", error)
+        return null
+    }
+}
+
 const nextAuthResult = NextAuth({
     ...authConfig,
     useSecureCookies: isSecureCookie,
@@ -364,58 +416,11 @@ const nextAuthResult = NextAuth({
             },
         }),
 
-        // Mobile-only login — dev/test bypass only, strictly disabled in production
+        // Mobile-only login — requires a server-signed OTP proof (never a bare phone)
         Credentials({
             id: "mobile",
             async authorize(credentials) {
-                const isProduction = process.env.NODE_ENV === "production"
-                let isLocalTestDb = false
-                try {
-                    const dbUrl = process.env.DATABASE_URL || ""
-                    const parsed = new URL(dbUrl)
-                    isLocalTestDb = (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") && parsed.pathname.endsWith("_test")
-                } catch {
-                    isLocalTestDb = false
-                }
-                const isDevBypassEnabled =
-                    (!isProduction && process.env.ALLOW_DEV_MOBILE_LOGIN === "true") ||
-                    (process.env.APP_ENV === "test" && isLocalTestDb)
-
-                if (!isDevBypassEnabled) {
-                    console.warn("[Auth] Dev mobile login bypass is disabled or blocked in production")
-                    return null
-                }
-
-                const parsed = z
-                    .object({ phoneNumber: z.string().regex(/^[0-9]{10}$/) })
-                    .safeParse(credentials)
-
-                if (!parsed.success) return null
-
-                const { phoneNumber } = parsed.data
-                const syntheticEmail = `mobile_${phoneNumber}@aspirantbook.local`
-
-                try {
-                    const user = await prisma.user.findUnique({
-                        where: { phoneNumber },
-                        select: { id: true, email: true, name: true, role: true, image: true, phoneNumber: true, sessionVersion: true },
-                    })
-
-                    if (!user) return null
-
-                    return {
-                        id: user.id,
-                        email: user.email ?? syntheticEmail,
-                        name: user.name,
-                        role: user.role,
-                        image: user.image,
-                        phoneNumber: user.phoneNumber,
-                        sessionVersion: user.sessionVersion,
-                    }
-                } catch (error) {
-                    console.error("Mobile authorize error:", error)
-                    return null
-                }
+                return authorizeMobileCredentials(credentials as any)
             },
         }),
     ],

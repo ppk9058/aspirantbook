@@ -63,6 +63,7 @@ export type OtpRequest = z.infer<typeof OtpRequestSchema>;
 export const OtpVerifySchema = z.object({
   phoneNumber: z.string().min(10, "Valid phone number required").max(15),
   code: z.string().length(6, "Verification code must be 6 digits"),
+  verificationId: z.string().min(1, "Verification id is required").max(200),
   deviceName: z.string().max(100).optional(),
   platform: z.enum(["android", "ios", "web"]).default("android"),
   appVersion: z.string().max(50).optional(),

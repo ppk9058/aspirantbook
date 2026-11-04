@@ -18,6 +18,7 @@ export default function MobileAuthModal() {
         otp,
         countdown,
         isVerifying,
+        isSending,
         errorMessage,
         successMessage,
         activeCourse,
@@ -223,15 +224,15 @@ export default function MobileAuthModal() {
                             <button
                                 type="button"
                                 onClick={handleGetOtp}
-                                disabled={phoneNumber.length !== 10}
+                                disabled={phoneNumber.length !== 10 || isSending}
                                 className={`w-full py-3.5 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all ${
-                                    phoneNumber.length === 10
+                                    phoneNumber.length === 10 && !isSending
                                         ? "bg-gradient-to-r from-[#F26522] to-[#FF7A38] hover:from-[#E05310] hover:to-[#F26522] text-white shadow-md hover:shadow-lg cursor-pointer transform active:scale-[0.99]"
                                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                 }`}
                             >
-                                <span>Get OTP</span>
-                                <ArrowRight className="h-4 w-4" />
+                                <span>{isSending ? "Sending..." : "Get OTP"}</span>
+                                {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
                             </button>
 
                             <div className="flex items-center justify-between text-xs pt-1 px-1">
@@ -324,9 +325,10 @@ export default function MobileAuthModal() {
                                             <button
                                                 type="button"
                                                 onClick={handleResendOtp}
-                                                className="text-[#F26522] hover:text-[#E05310] font-extrabold cursor-pointer hover:underline"
+                                                disabled={isSending}
+                                                className="text-[#F26522] hover:text-[#E05310] font-extrabold cursor-pointer hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
-                                                Resend OTP
+                                                {isSending ? "Sending..." : "Resend OTP"}
                                             </button>
                                         </div>
                                     )}
@@ -335,7 +337,7 @@ export default function MobileAuthModal() {
 
                             <div className="bg-gray-50 rounded-2xl p-3 border border-gray-100 flex items-center gap-2 text-[11px] text-gray-500">
                                 <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-                                <span>Fast login: Any 6 digits are accepted for instant student access.</span>
+                                <span>We&apos;ll verify the code sent to your mobile number.</span>
                             </div>
                         </div>
                     )}

@@ -1,0 +1,421 @@
+TAP version 13
+# [Prisma/ConnectionLimit] WARNING: DATABASE_URL lacks ?connection_limit. Each Next.js server instance may open uncontrolled connections, exhausting pool capacity. Formula: (instances * connection_limit <= pooler capacity). Add ?connection_limit=5&pool_timeout=10 to DATABASE_URL.
+# [Redis] REDIS_URL is not set: leaderboard and cache helpers fall back to per-instance memory.
+# Subtest: SEC1: OTP / Reauth / Session Security Hardening
+    # Subtest: SEC1.1: isDevBypassAllowed strictly rejects production and allows test/dev only under strict flags
+    ok 1 - SEC1.1: isDevBypassAllowed strictly rejects production and allows test/dev only under strict flags
+      ---
+      duration_ms: 0.891167
+      type: 'test'
+      ...
+    # Subtest: SEC1.2: validateBootSecurity strictly refuses to boot when NODE_ENV=production and ALLOW_DEV_MOBILE_LOGIN=true
+    not ok 2 - SEC1.2: validateBootSecurity strictly refuses to boot when NODE_ENV=production and ALLOW_DEV_MOBILE_LOGIN=true
+      ---
+      duration_ms: 2.88975
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/api-v1-sec1.test.ts:2:4618'
+      failureType: 'testCodeFailure'
+      error: |-
+        The input did not match the regular expression /ALLOW_DEV_MOBILE_LOGIN is enabled in NODE_ENV=production/. Input:
+        
+        'Error: [CRITICAL SECURITY REFUSAL AT BOOT] DATABASE_URL points at a local host or is unparseable in production. Production must use a remote database.'
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual:
+      error: '[CRITICAL SECURITY REFUSAL AT BOOT] DATABASE_URL points at a local host or is unparseable in production. Production must use a remote database.'
+      stack: |-
+        validateBootSecurity (/Users/praveenkumar/TS-otp/lib/boot-guard.ts:61:13)
+        <anonymous> (/Users/praveenkumar/TS-otp/tests/api-v1-sec1.test.ts:140:15)
+        getActual (node:assert:609:5)
+        Function.throws (node:assert:757:24)
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/api-v1-sec1.test.ts:139:14)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      operator: 'throws'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/api-v1-sec1.test.ts:139:14)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: SEC1.3: otp/request and otp/verify return 501 when devBypass is off (even if SMS_API_KEY is present)
+    not ok 3 - SEC1.3: otp/request and otp/verify return 501 when devBypass is off (even if SMS_API_KEY is present)
+      ---
+      duration_ms: 14.360542
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/api-v1-sec1.test.ts:2:5163'
+      failureType: 'testCodeFailure'
+      error: |-
+        otp/verify must return 501 when dev bypass is off
+        
+        400 !== 501
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 501
+      actual: 400
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/api-v1-sec1.test.ts:184:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: SEC1.4a: reauth enforces rate limit of 5 requests per 15 min per user+IP
+    ok 4 - SEC1.4a: reauth enforces rate limit of 5 requests per 15 min per user+IP
+      ---
+      duration_ms: 2811.431792
+      type: 'test'
+      ...
+    # Subtest: SEC1.4b: passwordless user reauth returns 501 REAUTH_UNAVAILABLE when devBypass is off
+    ok 5 - SEC1.4b: passwordless user reauth returns 501 REAUTH_UNAVAILABLE when devBypass is off
+      ---
+      duration_ms: 6.979667
+      type: 'test'
+      ...
+    # Subtest: SEC1.5: rejects account deletion on stolen access token without proof (REAUTH_REQUIRED)
+    ok 6 - SEC1.5: rejects account deletion on stolen access token without proof (REAUTH_REQUIRED)
+      ---
+      duration_ms: 5.444583
+      type: 'test'
+      ...
+    # Subtest: SEC1.5b: rejects expired, reused, other-user, and other-purpose reauth tokens
+    ok 7 - SEC1.5b: rejects expired, reused, other-user, and other-purpose reauth tokens
+      ---
+      duration_ms: 68.507375
+      type: 'test'
+      ...
+    # Subtest: SEC1.6: allows the same phone number to register again after account deletion/anonymization
+    not ok 8 - SEC1.6: allows the same phone number to register again after account deletion/anonymization
+      ---
+      duration_ms: 15.950167
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/api-v1-sec1.test.ts:2:12486'
+      failureType: 'testCodeFailure'
+      error: |-
+        Re-registration with same phone number must succeed
+        
+        400 !== 200
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 200
+      actual: 400
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/api-v1-sec1.test.ts:383:12)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+# [SECURITY ALERT] Refresh token reuse detected for family a69a1363-2ed2-4b6c-8bf3-366f97770247! Revoking family.
+# [SECURITY ALERT] Refresh token reuse detected for family a69a1363-2ed2-4b6c-8bf3-366f97770247! Revoking family.
+    # Subtest: SEC1.7: refresh token reuse after rotation immediately revokes the entire token family
+    ok 9 - SEC1.7: refresh token reuse after rotation immediately revokes the entire token family
+      ---
+      duration_ms: 488.48325
+      type: 'test'
+      ...
+    1..9
+not ok 1 - SEC1: OTP / Reauth / Session Security Hardening
+  ---
+  duration_ms: 3944.456834
+  type: 'suite'
+  location: '/Users/praveenkumar/TS-otp/tests/api-v1-sec1.test.ts:2:1444'
+  failureType: 'subtestsFailed'
+  error: '3 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: R9-S2-G: single dev-bypass policy and server-start boot guard
+    # Subtest: boot guard runs from instrumentation.ts register()
+    ok 1 - boot guard runs from instrumentation.ts register()
+      ---
+      duration_ms: 1.139334
+      type: 'test'
+      ...
+    # Subtest: mobile-login route delegates to isDevBypassAllowed instead of its own copy
+    not ok 2 - mobile-login route delegates to isDevBypassAllowed instead of its own copy
+      ---
+      duration_ms: 1.440708
+      type: 'test'
+      location: '/Users/praveenkumar/TS-otp/tests/unit/boot-guard-wiring.test.ts:2:2646'
+      failureType: 'testCodeFailure'
+      error: 'mobile-login must import the shared policy helper'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      actual: |-
+        import { NextRequest, NextResponse } from "next/server"
+        import { prisma } from "@/lib/prisma"
+        import { revalidatePath } from "next/cache"
+        import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
+        import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
+        import { isOtpDevBypassAllowed, isOtpProviderConfigured } from "@/lib/services/sms-otp/provider"
+        import { otpService } from "@/lib/services/sms-otp/service"
+        import { createOtpProof } from "@/lib/services/sms-otp/proof"
+        
+        const COURSE_ALIASES: Record<string, string> = {
+            "half-yearly-678": "half-yearly-6",
+            "half-yearly-78": "half-yearly-6",
+            "half-yearly-8": "half-yearly-6",
+            "upsc-prelims-mains-batch": "upsc-prelims-mains-comprehensive-batch",
+            "upsc-gs-primer": "upsc-gs-foundation-primer",
+            "bpsc-prelims-current-affairs": "72nd-bpsc-prelims-current-affairs",
+            "bpsc-video-2": "bpsc-2nd-video-tutorial",
+            "class-6-mastery": "class-6-complete-mastery-batch",
+            "class-6-starter": "class-6-foundation-starter",
+            "class-7-excellence": "class-7-academic-excellence-batch",
+            "class-7-booster": "class-7-concept-booster",
+            "class-8-olympiad": "class-8-olympiad-board-foundation-batch",
+            "class-8-essentials": "class-8-pre-foundation-essentials",
+            "class-9-target-95": "class-9-target-95-foundation-batch",
+            "class-9-bridge": "class-9-cbse-bridge-course",
+            "class-10-toppers": "class-10-board-toppers-comprehensive-batch",
+            "class-10-revision": "class-10-board-revision-sprint",
+        }
+        
+        function failureStatus(code: string): number {
+            switch (code) {
+                case "invalid_phone":
+                    return 400
+                case "invalid_code":
+                case "expired":
+                case "already_verified":
+                case "not_found":
+                    return 401
+                case "cooldown":
+                case "rate_limited":
+                case "provider_rate_limited":
+                case "too_many_attempts":
+                    return 429
+                case "not_configured":
+                    return 503
+                default:
+                    return 502
+            }
+        }
+        
+        export async function POST(req: NextRequest) {
+            try {
+                const clientIp = getClientIp(req)
+                const rateLimitKey = `mobile_login:${clientIp}`
+                const rl = await checkRateLimit(rateLimitKey, 10, 60, { failClosed: true })
+                if (!rl.allowed) {
+                    return NextResponse.json(
+                        { error: "Too many login requests. Please try again later." },
+                        { status: 429 }
+                    )
+                }
+        
+                const body = await req.json().catch(() => ({}))
+                const { phoneNumber, code, verificationId, courseId } = body ?? {}
+        
+                // OTP is available only with a real provider, or an explicit dev bypass in
+                // a non-production build. Production can never take the bypass path.
+                const otpEnabled = isOtpProviderConfigured() || isOtpDevBypassAllowed()
+                if (!otpEnabled) {
+                    return NextResponse.json(
+                        { error: "SMS OTP service is currently being configured. Mobile login is disabled." },
+                        { status: 503 }
+                    )
+                }
+        
+                // ── Step 1: request a code. Never touches the User table, so the response
+                // cannot reveal whether an account exists for this number.
+                if (!code && !verificationId) {
+                    const sent = await otpService.sendOtp({ rawPhone: phoneNumber, ip: clientIp })
+                    if (!sent.ok) {
+                        return NextResponse.json(
+                            {
+                                error: sent.message,
+                                ...(sent.retryAfterSeconds ? { retryAfter: sent.retryAfterSeconds } : {}),
+                            },
+                            { status: failureStatus(sent.code) }
+                        )
+                    }
+                    return NextResponse.json({
+                        success: true,
+                        step: "otp",
+                        verificationId: sent.verificationId,
+                        expiresIn: sent.expiresInSeconds,
+                        resendAfter: sent.resendAfterSeconds,
+                        devBypass: sent.devBypass,
+                    })
+                }
+        
+                // ── Step 2: verify the code, then (and only then) find or create the user.
+                const verified = await otpService.verifyOtp({
+                    rawPhone: phoneNumber,
+                    code,
+                    verificationId,
+                    ip: clientIp,
+                })
+                if (!verified.ok) {
+                    return NextResponse.json(
+                        {
+                            error: verified.message,
+                            ...(verified.retryAfterSeconds ? { retryAfter: verified.retryAfterSeconds } : {}),
+                        },
+                        { status: failureStatus(verified.code) }
+                    )
+                }
+        
+                const nationalNumber = verified.phone.nationalNumber
+                const syntheticEmail = `mobile_${nationalNumber}@aspirantbook.local`
+        
+                // Find or create user by phone number (existing synthetic-email convention).
+                let user = await prisma.user.findUnique({
+                    where: { phoneNumber: nationalNumber },
+                    select: { id: true, name: true, email: true, phoneNumber: true, role: true },
+                })
+        
+                if (!user) {
+                    user = await prisma.user.create({
+                        data: {
+                            phoneNumber: nationalNumber,
+                            email: syntheticEmail,
+                            name: "student",
+                            role: "FREE",
+                        },
+                        select: { id: true, name: true, email: true, phoneNumber: true, role: true },
+                    })
+                }
+        
+                // Auto-enroll into the course if courseId is provided (supports either DB ID, slug, or alias)
+                let enrolledCourse: { id: string; title: string; slug: string } | null = null
+                let goalId: string | null = null
+                let goalPersisted = true
+        
+                if (courseId) {
+                    const resolvedTarget = COURSE_ALIASES[courseId] || courseId
+                    const course = await prisma.course.findFirst({
+                        where: {
+                            OR: [
+                                { id: resolvedTarget },
+                                { slug: resolvedTarget },
+                                { id: courseId },
+                                { slug: courseId },
+                            ],
+                        },
+                        select: { id: true, slug: true, title: true, price: true, isPremium: true },
+                    })
+        
+                    if (course) {
+                        enrolledCourse = course
+                        goalId = getGoalForCourse(course)
+        
+                        // Only auto-enroll if course is explicitly free
+                        const isFreeCourse = !course.isPremium && (!course.price || course.price === 0)
+                        if (isFreeCourse) {
+                            const existing = await prisma.enrollment.findUnique({
+                                where: { userId_courseId: { userId: user.id, courseId: course.id } },
+                            })
+                            if (!existing) {
+                                await prisma.enrollment.create({
+                                    data: { userId: user.id, courseId: course.id },
+                                })
+                            }
+                        }
+        
+                        if (goalId) {
+                            try {
+                                await prisma.user.update({
+                                    where: { id: user.id },
+                                    data: { selectedGoal: goalId },
+                                })
+                            } catch (goalErr) {
+                                // B-007: no memory fallback. Login still succeeds, but the
+                                // failure is logged and reported to the client.
+                                console.error("[mobile-login] failed to persist the goal:", goalErr)
+                                goalPersisted = false
+                            }
+                        }
+        
+                        revalidatePath("/my-learning")
+                        revalidatePath("/dashboard")
+                    }
+                }
+        
+                // Single-use, phone-bound, ~2 minute proof. NextAuth's mobile provider
+                // requires and consumes this; the phone number alone is never enough.
+                const proof = createOtpProof(verified.phone.e164)
+        
+                const res = NextResponse.json({
+                    success: true,
+                    proof,
+                    email: syntheticEmail,
+                    userId: user.id,
+                    name: user.name,
+                    goalId: goalId || undefined,
+                    goalPersisted,
+                    enrolledCourseTitle: enrolledCourse?.title,
+                })
+        
+                if (goalId) {
+                    res.cookies.set("trillion_selected_goal", goalId, {
+                        path: "/",
+                        maxAge: 31536000,
+                        sameSite: "lax",
+                    })
+                }
+        
+                return res
+            } catch (error) {
+                console.error("Mobile login error:", error)
+                return NextResponse.json(
+                    { error: "Something went wrong. Please try again." },
+                    { status: 500 }
+                )
+            }
+        }
+        
+      operator: 'match'
+      stack: |-
+        TestContext.<anonymous> (/Users/praveenkumar/TS-otp/tests/unit/boot-guard-wiring.test.ts:56:12)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Test.postRun (node:internal/test_runner/test:1173:19)
+        Test.run (node:internal/test_runner/test:1101:12)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: config.service delegates the OTP bypass decision to isDevBypassAllowed
+    ok 3 - config.service delegates the OTP bypass decision to isDevBypassAllowed
+      ---
+      duration_ms: 0.187917
+      type: 'test'
+      ...
+    # Subtest: the shared policy is closed in production even when the dev flag is set
+    ok 4 - the shared policy is closed in production even when the dev flag is set
+      ---
+      duration_ms: 0.485709
+      type: 'test'
+      ...
+    # Subtest: the shared policy opens for an explicit local test database
+    ok 5 - the shared policy opens for an explicit local test database
+      ---
+      duration_ms: 0.4335
+      type: 'test'
+      ...
+    1..5
+not ok 2 - R9-S2-G: single dev-bypass policy and server-start boot guard
+  ---
+  duration_ms: 4.566958
+  type: 'suite'
+  location: '/Users/praveenkumar/TS-otp/tests/unit/boot-guard-wiring.test.ts:2:1915'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..2
+# tests 14
+# suites 2
+# pass 10
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4883.556667
