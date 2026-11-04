@@ -1,0 +1,6 @@
+[tsc-ratchet] Current checked-in baseline: 0 error(s)
+[tsc-ratchet] Running npx tsc --noEmit...
+[tsc-ratchet] Current tsc error count: 0
+
+✅ [PASS] TypeScript error count matches ratchet baseline (0 <= 0).
+

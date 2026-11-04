@@ -1,0 +1,7 @@
+  96 tests/e2e
+  93 tests/unit
+  59 apps/mobile/tests
+  19 tests
+   6 tests/content-engine
+   5 tests/seo
+   3 tests/otp
