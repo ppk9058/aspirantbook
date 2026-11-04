@@ -1,0 +1,17 @@
+=== fix/demo-role-prod-guard
+  lib/auth/demo-role.ts
+  lib/auth/rbac.ts
+  middleware.ts
+  tests/unit/demo-role-guard.test.ts
+=== feat/attempt-compaction
+  docs/evidence/PROGRESS.md
+  lib/test-db-guard.ts
+=== feat/ai-layer
+  app/(dashboard)/search/page.tsx
+  components/admin/AdminNav.tsx
+  prisma/schema.prisma
+=== feat/course-studio-generalize
+  app/api/auth/mobile-login/route.ts
+  components/admin/courses/VideoCourseEditorClient.tsx
+  components/course/CourseBundleView.tsx
+  prisma/schema.prisma

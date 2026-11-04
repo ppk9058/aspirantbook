@@ -1,0 +1,44 @@
+=== HEAD vs fix/demo-role-prod-guard
+CONFLICTS:
+Auto-merging app/api/auth/role/route.ts
+Auto-merging lib/actions/auth.ts
+Auto-merging lib/auth/demo-role.ts
+CONFLICT (add/add): Merge conflict in lib/auth/demo-role.ts
+Auto-merging lib/auth/rbac.ts
+CONFLICT (content): Merge conflict in lib/auth/rbac.ts
+Auto-merging middleware.ts
+CONFLICT (content): Merge conflict in middleware.ts
+Auto-merging tests/unit/demo-role-guard.test.ts
+CONFLICT (add/add): Merge conflict in tests/unit/demo-role-guard.test.ts
+=== HEAD vs feat/attempt-compaction
+CONFLICTS:
+Auto-merging docs/evidence/PROGRESS.md
+CONFLICT (content): Merge conflict in docs/evidence/PROGRESS.md
+Auto-merging lib/test-db-guard.ts
+CONFLICT (content): Merge conflict in lib/test-db-guard.ts
+Auto-merging prisma/schema.prisma
+=== HEAD vs feat/ai-layer
+CONFLICTS:
+Auto-merging app/(dashboard)/search/page.tsx
+CONFLICT (content): Merge conflict in app/(dashboard)/search/page.tsx
+Auto-merging app/api/doubts/route.ts
+Auto-merging components/admin/AdminHeader.tsx
+Auto-merging components/admin/AdminNav.tsx
+CONFLICT (content): Merge conflict in components/admin/AdminNav.tsx
+Auto-merging components/student/DoubtSubmissionModal.tsx
+Auto-merging prisma/schema.prisma
+CONFLICT (content): Merge conflict in prisma/schema.prisma
+=== HEAD vs feat/course-studio-generalize
+CONFLICTS:
+Auto-merging app/api/admin/courses/[id]/chapters/route.ts
+Auto-merging app/api/auth/mobile-login/route.ts
+CONFLICT (content): Merge conflict in app/api/auth/mobile-login/route.ts
+Auto-merging components/admin/courses/VideoCourseEditorClient.tsx
+CONFLICT (content): Merge conflict in components/admin/courses/VideoCourseEditorClient.tsx
+Auto-merging components/course/CourseBundleView.tsx
+CONFLICT (content): Merge conflict in components/course/CourseBundleView.tsx
+Auto-merging lib/services/courses.service.ts
+Auto-merging prisma/schema.prisma
+CONFLICT (content): Merge conflict in prisma/schema.prisma
+=== HEAD vs origin/main
+CONFLICTS:

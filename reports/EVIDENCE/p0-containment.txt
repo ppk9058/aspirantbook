@@ -1,0 +1,13 @@
+HEAD=26fd26230159b1e52f68e3c88fe5b9ad996ff641 branch=final-verify
+content-engine-integration: YES (ancestor of HEAD)
+seo-core: YES (ancestor of HEAD)
+otp-message-central: YES (ancestor of HEAD)
+perf-mobile-fix: YES (ancestor of HEAD)
+feat/launch-blockers: YES (ancestor of HEAD)
+fix/demo-role-prod-guard: NO ; unique HEAD..fix/demo-role-prod-guard = 1
+perf/exam-runtime: YES (ancestor of HEAD)
+feat/attempt-compaction: NO ; unique HEAD..feat/attempt-compaction = 14
+feat/ai-layer: NO ; unique HEAD..feat/ai-layer = 2
+feat/course-studio-generalize: NO ; unique HEAD..feat/course-studio-generalize = 3
+app/main: YES (ancestor of HEAD)
+origin/main: NO ; unique HEAD..origin/main = 17
