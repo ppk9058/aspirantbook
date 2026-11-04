@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ courseSlu
 
     const course = await prisma.course.findFirst({
         where: { OR: [{ slug: courseSlug }, { id: courseSlug }] },
-        select: { id: true, title: true, status: true, isPublished: true }
+        select: { id: true, title: true, status: true, isPublished: true, createdById: true }
     })
 
     if (!course || !isCourseVisibleToUser(course, userRole, userId)) {
@@ -36,6 +36,7 @@ export default async function CourseLandingPage({
 
     const { courseSlug } = await params
     const userRole = session?.user?.role
+    const userId = session?.user?.id
 
     let course: any = null
 
@@ -60,7 +61,7 @@ export default async function CourseLandingPage({
         course = null
     }
 
-    if (!course || !isCourseVisibleToUser(course, userRole)) {
+    if (!course || !isCourseVisibleToUser(course, userRole, userId)) {
         notFound()
     }
 

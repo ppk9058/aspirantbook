@@ -26,6 +26,7 @@ export async function GET(req: NextRequest, { params }: Params) {
         title: true,
         status: true,
         isPublished: true,
+        createdById: true,
         metadataJson: true,
       },
     })

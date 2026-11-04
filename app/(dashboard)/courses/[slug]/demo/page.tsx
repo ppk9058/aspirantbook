@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     auth(),
     prisma.course.findFirst({
       where: { OR: [{ slug }, { id: slug }] },
-      select: { id: true, title: true, status: true, isPublished: true }
+      select: { id: true, title: true, status: true, isPublished: true, createdById: true }
     }),
   ])
   const userRole = session?.user?.role

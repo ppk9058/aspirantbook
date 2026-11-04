@@ -23,7 +23,7 @@ export async function generateMetadata({
 
     const course = await prisma.course.findFirst({
         where: { OR: [{ slug }, { id: slug }] },
-        select: { id: true, slug: true, title: true, description: true, status: true, isPublished: true, updatedAt: true },
+        select: { id: true, slug: true, title: true, description: true, status: true, isPublished: true, createdById: true, updatedAt: true },
     })
 
     if (!course || !isCourseVisibleToUser(course, userRole, userId)) {

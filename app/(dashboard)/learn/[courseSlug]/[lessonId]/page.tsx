@@ -22,6 +22,7 @@ export default async function LearnLessonPage({
     let lesson: any = null
     let course: any = null
     let userRole = session.user.role || "USER"
+    const userId = session.user.id
     let hasAccess = false
     let progressMap: Record<string, any> = {}
 
@@ -59,7 +60,7 @@ export default async function LearnLessonPage({
         if (lesson) {
             course = lesson.chapter.course
 
-            if (!isCourseVisibleToUser(course, userRole)) {
+            if (!isCourseVisibleToUser(course, userRole, userId)) {
                 notFound()
             }
 
@@ -125,7 +126,7 @@ export default async function LearnLessonPage({
         notFound()
     }
 
-    if (!isCourseVisibleToUser(course, userRole)) {
+    if (!isCourseVisibleToUser(course, userRole, userId)) {
         notFound()
     }
 

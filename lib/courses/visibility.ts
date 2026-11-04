@@ -10,6 +10,7 @@
 export type CourseLike = {
   status?: string | null
   isPublished?: boolean | null
+  createdById?: string | null
   instructorId?: string | null
   authorId?: string | null
   userId?: string | null
@@ -28,7 +29,10 @@ export function isCourseVisibleToUser(
     userRole === "TEACHER" &&
     Boolean(
       userId &&
-      (course.instructorId === userId || course.authorId === userId || course.userId === userId)
+      (course.createdById === userId ||
+        course.instructorId === userId ||
+        course.authorId === userId ||
+        course.userId === userId)
     )
   if (isOwnerTeacher) return true
 
