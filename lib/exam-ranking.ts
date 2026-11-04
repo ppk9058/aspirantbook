@@ -96,13 +96,18 @@ export async function computeLiveAttemptRanking(
     SELECT
       COUNT(*)::int AS "totalCandidates",
       COUNT(*) FILTER (
-        WHERE score > $2
-           OR (score = $2 AND "timeTakenSecs" < $3)
-           OR (score = $2 AND "timeTakenSecs" = $3 AND "submittedAt" < $4)
-      )::int AS "betterCandidates"
-    FROM first_attempts;
+        WHERE f.id != $2
+          AND (
+            f.score > $3
+            OR (f.score = $3 AND f."timeTakenSecs" < $4)
+            OR (f.score = $3 AND f."timeTakenSecs" = $4 AND f."submittedAt" < ($5::timestamptz AT TIME ZONE 'UTC'))
+          )
+      )::int AS "betterCandidates",
+      EXISTS(SELECT 1 FROM first_attempts WHERE id = $2) AS "isFirstAttempt"
+    FROM first_attempts f;
     `,
     attempt.testId,
+    attempt.id,
     attempt.score,
     attempt.timeTakenSecs,
     mySubmittedAt
@@ -111,6 +116,7 @@ export async function computeLiveAttemptRanking(
   const totalCandidates = Number(res[0]?.totalCandidates ?? 1);
   const betterCandidates = Number(res[0]?.betterCandidates ?? 0);
   const rank = betterCandidates + 1;
+  const isFirstAttempt = Boolean(res[0]?.isFirstAttempt ?? true);
 
   const percentile =
     totalCandidates > 1
@@ -123,7 +129,7 @@ export async function computeLiveAttemptRanking(
     rank,
     percentile,
     totalCandidates,
-    isFirstAttempt: true,
+    isFirstAttempt,
     isStaff: false,
   };
 }
