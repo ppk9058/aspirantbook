@@ -37,6 +37,9 @@ export function isOtpDevBypassAllowed(): boolean {
 }
 
 export function isOtpProviderConfigured(): boolean {
+  if (testProviderOverride !== undefined) {
+    return testProviderOverride !== null;
+  }
   return isMessageCentralConfigured();
 }
 
