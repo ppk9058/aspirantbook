@@ -29,7 +29,7 @@ describe("studio hero draft", () => {
   test("missing values become empty strings, never undefined", () => {
     const draft = buildHeroDraft(null)
     for (const [key, value] of Object.entries(draft)) {
-      if (Array.isArray(value)) continue
+      if (Array.isArray(value) || typeof value === "boolean") continue
       assert.equal(typeof value, "string", `${key} must be a string`)
       assert.equal(value, "", `${key} must be empty`)
     }

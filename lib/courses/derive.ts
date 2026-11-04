@@ -166,3 +166,40 @@ export function unitDateRange(input: DeriveInput): { start: Date | null; end: Da
   const stats = deriveCourseStats(input)
   return { start: stats.firstClassDate, end: stats.lastClassDate }
 }
+
+export function formatUnitDateRange(input: DeriveInput): string {
+  const range = unitDateRange(input)
+  if (!range.start && !range.end) return ""
+  if (range.start && !range.end) return formatIstDate(range.start)
+  if (!range.start && range.end) return formatIstDate(range.end)
+  const startStr = formatIstDate(range.start)
+  const endStr = formatIstDate(range.end)
+  if (startStr === endStr) return startStr
+  return `${startStr} – ${endStr}`
+}
+
+export function deriveYearRange(years: Array<number | string>): { en: string; hi: string } {
+  const numYears = years
+    .map((y) => (typeof y === "number" ? y : parseInt(String(y), 10)))
+    .filter((y) => !Number.isNaN(y) && y > 1900 && y < 2100)
+    .sort((a, b) => a - b)
+  if (numYears.length === 0) return { en: "", hi: "" }
+  const min = numYears[0]
+  const max = numYears[numYears.length - 1]
+  if (min === max) {
+    return { en: String(min), hi: String(min) }
+  }
+  return {
+    en: `${min} to ${max}`,
+    hi: `${min} से ${max}`,
+  }
+}
+
+export function formatLectureAndHours(lectureCount: number, totalHours: number, lang: "en" | "hi" = "en"): string {
+  if (lang === "hi") {
+    return `${lectureCount} लेक्चर्स • ${totalHours} घंटे`
+  }
+  const lUnit = lectureCount === 1 ? "lecture" : "lectures"
+  const hUnit = totalHours === 1 ? "hour" : "hours"
+  return `${lectureCount} ${lUnit} • ${totalHours} ${hUnit}`
+}

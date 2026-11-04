@@ -15,9 +15,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     const data: any = {}
     if (body.title !== undefined) data.title = body.title.trim()
+    if (body.titleHi !== undefined) data.titleHi = body.titleHi ? body.titleHi.trim() : null
     if (body.slug !== undefined) data.slug = body.slug.trim().toLowerCase().replace(/[^a-z0-9]/g, "-")
     if (body.technology !== undefined) data.technology = body.technology.trim()
+    if (body.subtitle !== undefined) data.subtitle = body.subtitle ? body.subtitle.trim() : null
+    if (body.subtitleHi !== undefined) data.subtitleHi = body.subtitleHi ? body.subtitleHi.trim() : null
     if (body.description !== undefined) data.description = body.description.trim()
+    if (body.descriptionHi !== undefined) data.descriptionHi = body.descriptionHi ? body.descriptionHi.trim() : null
     if (body.thumbnailUrl !== undefined) data.thumbnailUrl = body.thumbnailUrl
     if (body.price !== undefined) data.price = Number(body.price)
     if (body.originalPrice !== undefined) data.originalPrice = Number(body.originalPrice)

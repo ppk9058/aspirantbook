@@ -18,6 +18,12 @@ export interface BilingualDraft {
   hi: string
 }
 
+export interface BadgeDraft {
+  label: string
+  labelHi: string
+  variant: "outlined" | "filled"
+}
+
 export interface HeroDraft {
   titleHi: string
   subtitle: string
@@ -40,6 +46,15 @@ export interface HeroDraft {
   thumbnailBadgeHi: string
   pillTags: string
   pillTagsHi: string
+  goalLabel: string
+  goalLabelHi: string
+  enrollCtaLabel: string
+  enrollCtaLabelHi: string
+  enrollHelperText: string
+  enrollHelperTextHi: string
+  heroBackground: string
+  hideIllustration: boolean
+  badges: BadgeDraft[]
   heroMetrics: HeroMetricDraft[]
   howItWorks: BilingualDraft[]
   whatYouGet: BilingualDraft[]
@@ -48,6 +63,7 @@ export interface HeroDraft {
 export const MAX_HERO_METRICS = 4
 export const MAX_PILL_TAGS = 8
 export const MAX_BILINGUAL_ITEMS = 12
+export const MAX_BADGES = 6
 
 const text = (value: unknown): string => (typeof value === "string" ? value : "")
 
@@ -71,7 +87,27 @@ function toBilingualList(value: unknown): BilingualDraft[] {
   }))
 }
 
+function toBadgesList(value: unknown): BadgeDraft[] {
+  if (!Array.isArray(value)) return []
+  return value.slice(0, MAX_BADGES).map((item: any) => ({
+    label: text(item?.label ?? item),
+    labelHi: text(item?.labelHi),
+    variant: item?.variant === "outlined" ? "outlined" : "filled",
+  }))
+}
+
 export function buildHeroDraft(meta: any, course?: any): HeroDraft {
+  const pillTagsEn = joinTags(meta?.pillTags)
+  const pillTagsHi = joinTags(meta?.pillTagsHi)
+
+  const rawBadges = Array.isArray(meta?.badges)
+    ? toBadgesList(meta.badges)
+    : splitTags(pillTagsEn).map((t, idx) => ({
+        label: t,
+        labelHi: splitTags(pillTagsHi)[idx] || "",
+        variant: (idx === 0 ? "outlined" : "filled") as "outlined" | "filled",
+      }))
+
   return {
     titleHi: text(course?.titleHi ?? meta?.titleHi),
     subtitle: text(course?.subtitle ?? meta?.subtitle),
@@ -92,8 +128,17 @@ export function buildHeroDraft(meta: any, course?: any): HeroDraft {
     lateJoinerTemplateHi: text(meta?.lateJoinerTemplateHi),
     thumbnailBadge: text(meta?.thumbnailBadge),
     thumbnailBadgeHi: text(meta?.thumbnailBadgeHi),
-    pillTags: joinTags(meta?.pillTags),
-    pillTagsHi: joinTags(meta?.pillTagsHi),
+    pillTags: pillTagsEn,
+    pillTagsHi: pillTagsHi,
+    goalLabel: text(course?.goalLabel ?? meta?.goalLabel ?? meta?.targetText),
+    goalLabelHi: text(course?.goalLabelHi ?? meta?.goalLabelHi),
+    enrollCtaLabel: text(course?.enrollCtaLabel ?? meta?.enrollCtaLabel),
+    enrollCtaLabelHi: text(course?.enrollCtaLabelHi ?? meta?.enrollCtaLabelHi),
+    enrollHelperText: text(course?.enrollHelperText ?? meta?.enrollHelperText),
+    enrollHelperTextHi: text(course?.enrollHelperTextHi ?? meta?.enrollHelperTextHi),
+    heroBackground: text(meta?.heroBackground),
+    hideIllustration: Boolean(meta?.hideIllustration),
+    badges: rawBadges,
     heroMetrics: Array.isArray(meta?.heroMetrics)
       ? meta.heroMetrics.slice(0, MAX_HERO_METRICS).map((metric: any) => ({
           value: text(metric?.value),
@@ -135,8 +180,24 @@ export function heroDraftToMetadata(draft: HeroDraft): Record<string, unknown> {
     lateJoinerTemplateHi: blankToNull(draft.lateJoinerTemplateHi),
     thumbnailBadge: blankToNull(draft.thumbnailBadge),
     thumbnailBadgeHi: blankToNull(draft.thumbnailBadgeHi),
+    goalLabel: blankToNull(draft.goalLabel),
+    goalLabelHi: blankToNull(draft.goalLabelHi),
+    enrollCtaLabel: blankToNull(draft.enrollCtaLabel),
+    enrollCtaLabelHi: blankToNull(draft.enrollCtaLabelHi),
+    enrollHelperText: blankToNull(draft.enrollHelperText),
+    enrollHelperTextHi: blankToNull(draft.enrollHelperTextHi),
+    heroBackground: blankToNull(draft.heroBackground),
+    hideIllustration: draft.hideIllustration,
     pillTags: splitTags(draft.pillTags),
     pillTagsHi: splitTags(draft.pillTagsHi),
+    badges: draft.badges
+      .filter((b) => b.label.trim())
+      .slice(0, MAX_BADGES)
+      .map((b) => ({
+        label: b.label.trim(),
+        labelHi: blankToNull(b.labelHi),
+        variant: b.variant,
+      })),
     heroMetrics: draft.heroMetrics
       .filter((metric) => metric.value.trim() && metric.label.trim())
       .slice(0, MAX_HERO_METRICS)
@@ -157,7 +218,7 @@ export function heroDraftToMetadata(draft: HeroDraft): Record<string, unknown> {
   }
 }
 
-/** Course columns that mirror Hero fields (titleHi/subtitle/descriptionHi). */
+/** Course columns that mirror Hero fields (titleHi/subtitle/subtitleHi/descriptionHi). */
 export function heroDraftToCourseColumns(draft: HeroDraft): Record<string, string | null> {
   return {
     titleHi: blankToNull(draft.titleHi),

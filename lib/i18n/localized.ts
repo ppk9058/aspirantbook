@@ -8,9 +8,7 @@
 
 export type Lang = "en" | "hi"
 
-export interface LocalizedSource {
-  [key: string]: unknown
-}
+export type LocalizedSource = Record<string, any>
 
 function isBlank(value: unknown): boolean {
   return value === null || value === undefined || (typeof value === "string" && value.trim().length === 0)

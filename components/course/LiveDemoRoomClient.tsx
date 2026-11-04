@@ -2101,10 +2101,10 @@ export default function LiveDemoRoomClient({
               <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
                 <span className="font-bold text-white block">Key Topics Covered in Demo</span>
                 <ul className="list-disc list-inside space-y-1 text-gray-300">
-                  <li>72nd BPSC Prelims syllabus structure and weightage</li>
-                  <li>Current Affairs 12-month timeline and Bihar special highlights</li>
-                  <li>How to read Economic Survey with minimum effort</li>
-                  <li>Answer elimination techniques for tricky MCQs</li>
+                  <li>Comprehensive syllabus structure and marks weightage</li>
+                  <li>Curriculum timeline and exam-specific high-yield focus areas</li>
+                  <li>Strategic concept revision with structured note-taking</li>
+                  <li>Answer elimination and speed-solving techniques</li>
                 </ul>
               </div>
               <p className="text-[11px] text-gray-400">

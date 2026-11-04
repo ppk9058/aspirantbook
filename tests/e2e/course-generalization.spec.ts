@@ -33,6 +33,10 @@ test.describe("Course Studio Generalization & Public Detail Proof Tests", () => 
     await prisma.$connect()
     nonce = newNonce()
     adminUser = await createActor(nonce, "ADMIN", "admin-generalization")
+    await prisma.user.update({
+      where: { id: adminUser.id },
+      data: { selectedGoal: "general" },
+    })
   })
 
   test.afterAll(async () => {
@@ -206,10 +210,10 @@ test.describe("Course Studio Generalization & Public Detail Proof Tests", () => 
     // Assert NO Syllabus block renders (empty optional block absent)
     await expect(page.locator('[data-testid="syllabus-section"]')).toHaveCount(0)
 
-    // Leak Test: verify course detail content does NOT contain any BPSC or seed course markers
-    const pageContent = await page.locator('[data-testid="course-detail-v2"]').innerText()
+    // Leak Test: verify the ENTIRE public page body contains zero BPSC or seed course markers
+    const fullBodyText = await page.innerText("body")
     for (const word of FORBIDDEN_LEAK_WORDS) {
-      expect(pageContent).not.toContain(word)
+      expect(fullBodyText).not.toContain(word)
     }
   })
 
@@ -329,10 +333,10 @@ test.describe("Course Studio Generalization & Public Detail Proof Tests", () => 
       await expect(visible(page, "डॉ. Arvind Mishra डॉ. अरविंद मिश्रा").or(visible(page, "डॉ. अरविंद मिश्रा"))).toBeVisible()
     }
 
-    // Leak Test
-    const pageContent = await page.locator('[data-testid="course-detail-v2"]').innerText()
+    // Leak Test: verify the ENTIRE public page body contains zero BPSC or seed course markers
+    const fullBodyText = await page.innerText("body")
     for (const word of FORBIDDEN_LEAK_WORDS) {
-      expect(pageContent).not.toContain(word)
+      expect(fullBodyText).not.toContain(word)
     }
   })
 
@@ -427,10 +431,10 @@ test.describe("Course Studio Generalization & Public Detail Proof Tests", () => 
     // Assert Teacher
     await expect(visible(page, "Ananya Sen")).toBeVisible()
 
-    // Leak Test
-    const pageContent = await page.locator('[data-testid="course-detail-v2"]').innerText()
+    // Leak Test: verify the ENTIRE public page body contains zero BPSC or seed course markers
+    const fullBodyText = await page.innerText("body")
     for (const word of FORBIDDEN_LEAK_WORDS) {
-      expect(pageContent).not.toContain(word)
+      expect(fullBodyText).not.toContain(word)
     }
   })
 })

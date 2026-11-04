@@ -308,6 +308,17 @@ export interface CourseDetailDto {
   ratingSummary?: CourseRatingSummaryDto;
   syllabus?: CourseSyllabusSummaryDto;
   sections?: CourseSectionFlagsDto;
+  theme?: Record<string, string> | null;
+  goalLabel?: string | null;
+  goalLabelHi?: string | null;
+  enrollCtaLabel?: string | null;
+  enrollCtaLabelHi?: string | null;
+  enrollHelperText?: string | null;
+  enrollHelperTextHi?: string | null;
+  badges?: Array<{ label: string; labelHi?: string | null; variant?: "outlined" | "filled" }>;
+  whatYouGet?: Array<{ en: string; hi?: string | null }>;
+  howItWorks?: Array<{ en: string; hi?: string | null }>;
+  tabsConfig?: Array<{ id: string; label: string; labelHi?: string; enabled: boolean; icon?: string }>;
 }
 
 export interface CourseLessonDetailDto {
