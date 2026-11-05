@@ -64,12 +64,20 @@ export default async function CoursesPage() {
                         Author and manage full-length video courses, video uploads, PDF downloads, and custom pricing ({displayCourses.length} video courses)
                     </p>
                 </div>
-                <Link href={`${basePath}/courses/new`}>
-                    <Button className="bg-orange-600 hover:bg-orange-700 text-white font-extrabold border-2 border-[#10162F] shadow-[3px_3px_0px_#10162F] flex items-center gap-2">
-                        <Plus className="h-4 w-4" />
-                        + Create Video Course
-                    </Button>
-                </Link>
+                <div className="flex items-center gap-2.5">
+                    <Link href="/admin/courses/teachers">
+                        <Button variant="outline" className="border-2 border-gray-300 font-bold flex items-center gap-2 hover:bg-orange-50 hover:border-orange-500 hover:text-orange-700">
+                            <BookOpen className="h-4 w-4" />
+                            Faculty &amp; Teacher Store
+                        </Button>
+                    </Link>
+                    <Link href={`${basePath}/courses/new`}>
+                        <Button className="bg-orange-600 hover:bg-orange-700 text-white font-extrabold border-2 border-[#10162F] shadow-[3px_3px_0px_#10162F] flex items-center gap-2">
+                            <Plus className="h-4 w-4" />
+                            + Create Video Course
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {/* Studio Switcher Banner */}

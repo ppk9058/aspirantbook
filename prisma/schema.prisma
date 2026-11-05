@@ -48,6 +48,7 @@ model User {
   couponRedemptions  CouponRedemption[]
   createdDemoSlots   DemoSlot[]          @relation("UserCreatedDemoSlots")
   currentAffairsPdfs CurrentAffairsPdf[] @relation("UserCurrentAffairsPdfs")
+  handledCallbackLeads CourseCallbackLead[] @relation("UserHandledCallbackLeads")
 
   @@index([email])
   @@index([role])
@@ -92,8 +93,12 @@ model Track {
 model Course {
   id              String            @id @default(cuid())
   title           String
+  titleHi         String?
+  subtitle        String?
+  subtitleHi      String?
   slug            String            @unique
   description     String
+  descriptionHi   String?
   thumbnailUrl    String?
   difficulty      Difficulty
   duration        Int               @default(0)
@@ -134,6 +139,10 @@ model Course {
   demoBookingsV2  DemoBooking[]
   coupons         Coupon[]
   couponRedemptions CouponRedemption[]
+  units           CourseUnit[]
+  callbackLeads   CourseCallbackLead[]
+  syllabusPapers  CourseSyllabusPaper[]
+  teachers        CourseTeacher[]
 
   @@index([slug])
   @@index([difficulty])
@@ -160,7 +169,11 @@ model Chapter {
   id             String          @id @default(cuid())
   externalId     String?
   title          String
+  titleHi        String?
   description    String?
+  descriptionHi  String?
+  subtopics      String[]        @default([])
+  subtopicsHi    String[]        @default([])
   order          Float           @default(1000)
   archivedAt     DateTime?
   locked         Boolean         @default(false)
@@ -168,29 +181,36 @@ model Chapter {
   gateMode       String          @default("inherit") // "inherit" | "free" | "preview" | "locked"
   previewPercentage Int?
   courseId       String
+  unitId         String?
   createdAt      DateTime        @default(now())
   course         Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  unit           CourseUnit?     @relation(fields: [unitId], references: [id], onDelete: SetNull)
   contentUploads ContentUpload[]
   lessons        Lesson[]
+  syllabusSections CourseSyllabusSection[]
 
   @@unique([courseId, externalId])
   @@index([courseId])
   @@index([order])
+  @@index([unitId])
 }
 
 model Lesson {
   id                        String          @id @default(cuid())
   externalId                String?
   title                     String
+  titleHi                   String?
   type                      LessonType
   order                     Float           @default(1000)
   xpReward                  Int             @default(10)
   videoUrl                  String?
   content                   String?
+  contentHi                 String?
   slides                    String?
   duration                  Int?
   durationText              String?
   isTrial                   Boolean         @default(false)
+  scheduledAt               DateTime?
   attachmentType            String?
   attachmentUrl             String?
   attachmentName            String?
@@ -215,6 +235,7 @@ model Lesson {
 
   @@unique([chapterId, externalId])
   @@index([chapterId])
+  @@index([scheduledAt])
   @@index([type])
   @@index([order])
   @@index([currentPublishedVersionId])
@@ -1395,4 +1416,242 @@ model AuditLog {
   @@index([targetId])
   @@index([createdAt])
 }
+
+/// Callback requests from the course page. Stored in our own DB only — no SMS is sent.
+enum CallbackLeadStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+model CourseUnit {
+  id               String                  @id @default(cuid())
+  courseId         String
+  title            String
+  titleHi          String?
+  tags             String[]                @default([])
+  order            Float                   @default(1000)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  course           Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  chapters         Chapter[]
+  syllabusSections CourseSyllabusSection[]
+
+  @@index([courseId])
+  @@index([order])
+}
+
+model CourseCallbackLead {
+  id          String             @id @default(cuid())
+  courseId    String
+  name        String
+  mobile      String // E.164, e.g. +919876543210
+  status      CallbackLeadStatus @default(NEW)
+  note        String?
+  source      String             @default("COURSE_DETAIL")
+  utm         String?
+  handledById String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  handledBy   User?              @relation("UserHandledCallbackLeads", fields: [handledById], references: [id], onDelete: SetNull)
+
+  @@index([courseId])
+  @@index([createdAt])
+  @@index([courseId, mobile, createdAt])
+}
+
+/// Exam syllabus authored per course. Optional: courses without papers hide the section.
+model CourseSyllabusPaper {
+  id              String                  @id @default(cuid())
+  courseId        String
+  key             String // e.g. "PRELIMS-GS"
+  title           String
+  titleHi         String?
+  marks           Int?
+  durationMinutes Int?
+  introText       String?
+  introTextHi     String?
+  order           Float                   @default(1000)
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  course          Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  sections        CourseSyllabusSection[]
+
+  @@unique([courseId, key])
+  @@index([courseId])
+}
+
+/// One syllabus section. Links to the real PYQ taxonomy via pyqSubject/pyqTopic,
+/// which map to ContentEngineQuestion.sub / .top (both indexed).
+model CourseSyllabusSection {
+  id          String              @id @default(cuid())
+  paperId     String
+  title       String
+  titleHi     String?
+  subtopics   String[]            @default([])
+  subtopicsHi String[]            @default([])
+  order       Float               @default(1000)
+  unitId      String?
+  chapterId   String?
+  pyqSubject  String?
+  pyqTopic    String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  paper       CourseSyllabusPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  unit        CourseUnit?         @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  chapter     Chapter?            @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+
+  @@index([paperId])
+  @@index([unitId])
+  @@index([chapterId])
+  @@index([pyqSubject, pyqTopic])
+}
+
+model ContentEngineBatch {
+  id             String                  @id @default(cuid())
+  createdById    String?
+  pastedText     String                  @db.Text
+  defaultSubject String?
+  defaultTopic   String?
+  defaultExam    String?
+  defaultYear    String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  questions      ContentEngineQuestion[]
+
+  @@index([createdById])
+  @@index([createdAt])
+}
+
+model ContentEngineQuestion {
+  id           String                         @id @default(cuid())
+  shortId      String                         @unique
+  textHash     String                         @unique
+  q            String                         @db.Text
+  options      Json
+  answer       String
+  answerIndex  Int                            @default(-1)
+  explanation  String?                        @db.Text
+  sub          String?
+  top          String?
+  exam         String?
+  year         String?
+  sourceTag    String?
+  sourceNo     Int?
+  batchId      String?
+  status       String                         @default("DRAFT") // DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED
+  isPublished  Boolean                        @default(false)
+  isInferred   Boolean                        @default(false)
+  isVerified   Boolean                        @default(false)
+  slug         String?
+  publishedAt  DateTime?
+  createdAt    DateTime                       @default(now())
+  updatedAt    DateTime                       @updatedAt
+  batch        ContentEngineBatch?            @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  translations ContentEngineTranslation[]
+  override     ContentEngineCategoryOverride?
+
+  @@index([batchId])
+  @@index([isPublished])
+  @@index([sub, top])
+  @@index([exam, year])
+  @@index([createdAt])
+}
+
+model ContentEngineTranslation {
+  id           String                @id @default(cuid())
+  questionId   String
+  lang         String // "hi" | "en"
+  q            String                @db.Text
+  options      Json
+  answer       String?
+  explanation  String?               @db.Text
+  top          String?
+  isReviewed   Boolean               @default(false)
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  question     ContentEngineQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, lang])
+  @@index([questionId])
+  @@index([lang, isReviewed])
+}
+
+model ContentEngineCategoryOverride {
+  id         String                @id @default(cuid())
+  questionId String                @unique
+  sub        String
+  top        String
+  subHi      String?
+  topHi      String?
+  exam       String?
+  year       String?
+  isManual   Boolean               @default(true)
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+  question   ContentEngineQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model ContentEngineExamAlias {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  pattern   String?
+  isEnabled Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isEnabled])
+}
+
+model ContentEngineSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Teacher {
+  id            String          @id @default(cuid())
+  name          String
+  nameHi        String?
+  role          String?
+  roleHi        String?
+  bio           String?
+  bioHi         String?
+  avatar        String?
+  credentials   Json?           @default("[]")
+  credentialsHi Json?           @default("[]")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  courses       CourseTeacher[]
+
+  @@index([name])
+}
+
+model CourseTeacher {
+  id        String   @id @default(cuid())
+  courseId  String
+  teacherId String
+  order     Int      @default(0)
+  isPrimary Boolean  @default(false)
+  role      String?
+  roleHi    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  teacher   Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, teacherId])
+  @@index([courseId])
+  @@index([teacherId])
+  @@index([order])
+}
+
+
 
