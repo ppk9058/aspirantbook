@@ -140,7 +140,7 @@ export function StickyCard({
 
       {/* Card Body */}
       <div className="p-6">
-        {/* Price Row: Shows FREE strictly when isFree is true */}
+        {/* Price Row: Shows FREE strictly when isFree is true; Price not set when price <= 0 */}
         <div className="flex items-baseline gap-2 flex-wrap">
           {isFree ? (
             <span
@@ -149,7 +149,7 @@ export function StickyCard({
             >
               FREE
             </span>
-          ) : (
+          ) : finalPrice > 0 ? (
             <>
               <span
                 className="text-3xl sm:text-4xl font-black text-[color:var(--cd-ink)]"
@@ -168,6 +168,10 @@ export function StickyCard({
                 </>
               )}
             </>
+          ) : (
+            <span className="text-2xl font-bold text-gray-500 italic">
+              Price not set
+            </span>
           )}
         </div>
 
@@ -196,12 +200,13 @@ export function StickyCard({
         {/* Divider */}
         <hr className="my-5 border-[color:var(--cd-cream-dark)]" />
 
-        {/* Two actions side by side: Share + Add to Calendar */}
-        <div className="grid grid-cols-2 gap-3 text-center">
+        {/* Stacked actions: Share + Add to Calendar */}
+        <div className="space-y-2 text-center">
           <button
             type="button"
             onClick={handleShare}
-            className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg py-2 text-xs font-bold text-gray-800 transition hover:bg-black/5 cursor-pointer"
+            data-testid="btn-share-course"
+            className="flex w-full min-h-[40px] items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs font-semibold text-gray-700 bg-black/[0.04] hover:bg-black/[0.08] transition cursor-pointer"
           >
             {shareCopied ? (
               <>
@@ -219,7 +224,8 @@ export function StickyCard({
           <button
             type="button"
             onClick={handleDownloadCalendar}
-            className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg py-2 text-xs font-bold text-gray-800 transition hover:bg-black/5 cursor-pointer"
+            data-testid="btn-add-calendar"
+            className="flex w-full min-h-[40px] items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs font-semibold text-gray-700 bg-black/[0.04] hover:bg-black/[0.08] transition cursor-pointer"
           >
             <Calendar className="h-4 w-4 text-gray-600" aria-hidden="true" />
             <span>{lang === "hi" ? "कैलेंडर में जोड़ें" : "Add to my calendar"}</span>

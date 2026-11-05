@@ -210,7 +210,7 @@ export function HeroSection({
 
             {/* Stats Row (Up to 4 Columns with thin vertical dividers) */}
             {stats.length > 0 && (
-              <div className="grid grid-cols-2 gap-4 divide-y divide-white/15 sm:grid-cols-4 sm:divide-x sm:divide-y-0 sm:divide-white/20">
+              <div className="grid grid-cols-2 gap-y-4 gap-x-2 divide-y divide-white/15 sm:grid-cols-4 sm:divide-x sm:divide-y-0 sm:divide-white/20 sm:gap-0 mt-6">
                 {stats.slice(0, 4).map((stat, idx) => {
                   const statVal = lang === "hi" && stat.valueHi ? stat.valueHi : stat.value
                   const rawCap = lang === "hi" && stat.captionHi ? stat.captionHi : stat.caption
@@ -227,14 +227,15 @@ export function HeroSection({
                     return rawCap
                   })()
                   return (
-                    <div key={idx} className={`${idx > 0 ? "sm:pl-5" : ""} pt-2 sm:pt-0`}>
+                    <div key={idx} className="pt-2 sm:pt-0 sm:px-4 sm:first:pl-0 sm:last:pr-0 min-w-0">
                       <div
-                        className="text-2xl font-black tracking-tight text-white sm:text-[28px]"
+                        className="text-xl sm:text-2xl lg:text-[26px] font-black tracking-tight text-white whitespace-nowrap overflow-hidden text-ellipsis"
                         style={{ fontFamily: "var(--cd-font-heading)" }}
+                        data-testid={`stat-value-${idx}`}
                       >
                         {statVal}
                       </div>
-                      <div className="mt-0.5 text-xs text-white/70 sm:text-sm leading-snug">
+                      <div className="mt-0.5 text-xs text-white/70 sm:text-sm leading-snug break-words">
                         {statCap}
                       </div>
                     </div>
@@ -245,7 +246,10 @@ export function HeroSection({
 
             {/* Late Join Note */}
             {lateJoinNote?.enabled && (lateJoinNote.text || lateJoinNote.textHi) && (
-              <div className="mt-6 flex flex-wrap items-baseline gap-2 text-xs sm:text-sm text-white/85">
+              <div
+                data-testid="hero-late-join-note"
+                className="mt-6 flex flex-wrap items-baseline gap-2 text-xs sm:text-sm text-white/85 pr-14 sm:pr-0 pb-3 sm:pb-0"
+              >
                 <span className="font-extrabold text-[color:var(--cd-gold)]">
                   {lang === "hi" ? lateJoinNote.labelHi || lateJoinNote.label || "देर से जुड़ रहे हैं?" : lateJoinNote.label || "Joining late?"}
                 </span>

@@ -34,8 +34,11 @@ test.describe("Mobile 360px Occlusion & Safe Touch Verification", () => {
           ],
           heroMetrics: [
             { label: "Students", value: "2,500+" },
-            { label: "Lectures", value: "85+" },
+            { label: "Lectures", value: "80+ Hours" },
+            { label: "Modules", value: "6 Modules" },
+            { label: "Medium", value: "Hindi First" },
           ],
+          lateJoinerTemplate: "Full recorded archive included from Day 1",
           units: [
             {
               id: "unit-1",
@@ -91,7 +94,8 @@ test.describe("Mobile 360px Occlusion & Safe Touch Verification", () => {
 
     for (let i = 0; i < tabCount; i++) {
       const tab = tabs.nth(i)
-      await tab.scrollIntoViewIfNeeded()
+      await tab.evaluate((el) => el.scrollIntoView({ block: "center" }))
+      await page.waitForTimeout(100)
       const box = await tab.boundingBox()
       expect(box).not.toBeNull()
       // Tab pill bottom must be well above the bottom bar top
@@ -121,5 +125,68 @@ test.describe("Mobile 360px Occlusion & Safe Touch Verification", () => {
     const scrollY = await page.evaluate(() => window.scrollY)
     const innerHeight = await page.evaluate(() => window.innerHeight)
     expect(scrollY + innerHeight).toBeGreaterThanOrEqual(barTop)
+  })
+
+  test("Mobile 360px: Floating AI button does NOT overlap or cut the 'Joining late?' text", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 })
+    await page.goto(`/courses/${testCourse.slug}`)
+    await page.waitForLoadState("domcontentloaded")
+    await page.waitForTimeout(500)
+
+    const lateJoinNote = page.locator('[data-testid="hero-late-join-note"]')
+    await expect(lateJoinNote).toBeVisible()
+
+    const aiButton = page.locator('[data-ai-button="true"]')
+    if (await aiButton.isVisible()) {
+      const noteBox = await lateJoinNote.boundingBox()
+      const aiBox = await aiButton.boundingBox()
+      expect(noteBox).not.toBeNull()
+      expect(aiBox).not.toBeNull()
+
+      // Assert bounding boxes do NOT intersect (no overlap / cutting)
+      const hasOverlap = !(
+        noteBox!.x + noteBox!.width <= aiBox!.x ||
+        aiBox!.x + aiBox!.width <= noteBox!.x ||
+        noteBox!.y + noteBox!.height <= aiBox!.y ||
+        aiBox!.y + aiBox!.height <= noteBox!.y
+      )
+      expect(hasOverlap).toBe(false)
+    }
+  })
+
+  test("Desktop 1280px: Stats row values stay strictly single-line and sticky card buttons stack neatly", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto(`/courses/${testCourse.slug}`)
+    await page.waitForLoadState("domcontentloaded")
+    await page.waitForTimeout(500)
+
+    // 1. Assert Desktop stats row values stay on one line (whitespace-nowrap)
+    const statValues = page.locator('[data-testid^="stat-value-"]')
+    const count = await statValues.count()
+    expect(count).toBeGreaterThanOrEqual(3)
+
+    for (let i = 0; i < count; i++) {
+      const statVal = statValues.nth(i)
+      await expect(statVal).toBeVisible()
+      const whiteSpace = await statVal.evaluate((el) => window.getComputedStyle(el).whiteSpace)
+      expect(whiteSpace).toBe("nowrap")
+      // Assert value text fits without line wrapping
+      const isSingleLine = await statVal.evaluate((el) => el.scrollHeight <= el.clientHeight + 4)
+      expect(isSingleLine).toBe(true)
+    }
+
+    // 2. Assert Sticky Card Share and Calendar buttons are stacked neatly as single clean rows
+    const shareBtn = page.locator('[data-testid="btn-share-course"]').first()
+    const calBtn = page.locator('[data-testid="btn-add-calendar"]').first()
+    await expect(shareBtn).toBeVisible()
+    await expect(calBtn).toBeVisible()
+
+    const shareBox = await shareBtn.boundingBox()
+    const calBox = await calBtn.boundingBox()
+    expect(shareBox).not.toBeNull()
+    expect(calBox).not.toBeNull()
+
+    // Assert stacked vertically: calBox top is below shareBox bottom
+    expect(calBox!.y).toBeGreaterThanOrEqual(shareBox!.y + shareBox!.height - 2)
   })
 })
