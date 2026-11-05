@@ -234,7 +234,7 @@ export default async function MyTestsPage() {
                         ? Math.round(latestAtt.percentile * 10) / 10
                         : 0,
                     rank: latestAtt.allIndiaRank || 0,
-                    totalCandidates: 1250,
+                    totalCandidates: 0,
                     accuracy,
                     timeSpentMins: Math.round((latestAtt.timeTakenSecs || 0) / 60),
                     correct: latestAtt.correctCount,
@@ -288,10 +288,10 @@ export default async function MyTestsPage() {
                 logoType,
                 users:
                     s.usersCount > 0
-                        ? `${(s.usersCount / 1000).toFixed(1)}k`
-                        : "12.5k",
-                totalTests: s.totalTests || 10,
-                freeTests: s.freeTests || 2,
+                        ? (s.usersCount >= 1000 ? `${(s.usersCount / 1000).toFixed(1)}k` : `${s.usersCount}`)
+                        : "",
+                totalTests: s.totalTests || 0,
+                freeTests: s.freeTests || 0,
                 isPro: Boolean(s.isPro),
                 languages: s.languages || "English, Hindi",
                 highlights: [

@@ -20,7 +20,7 @@ export default async function RegisterPage({
                         </div>
                     </div>
                     <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
-                    <p className="text-gray-600 mt-2">Join thousands of learners mastering new skills</p>
+                    <p className="text-gray-600 mt-2">Master new skills and prepare for your exams</p>
                 </div>
 
                 <RegisterForm />

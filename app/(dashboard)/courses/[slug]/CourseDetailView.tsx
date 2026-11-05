@@ -805,7 +805,7 @@ export function CourseDetailView({
             ? Math.round(totalDurationMinutes / 60)
             : 0
     const ratingCount = course.rating && course.rating > 0
-        ? (course.enrollmentCount ? Math.round(course.enrollmentCount * 0.08) : (course.reviews?.length || 0))
+        ? (course.reviews?.length || 0)
         : 0
 
     // Helper: Trigger creation of a new chapter and open Delhi Post Editor immediately (Requirement 2b)

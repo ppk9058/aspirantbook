@@ -84,7 +84,6 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                             className="relative p-1.5 sm:p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors active:scale-95"
                         >
                             <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
-                            <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white dark:ring-slate-900" />
                         </Link>
 
                         {/* Top-Right: Profile Avatar if logged-in, Login CTA if guest */}
