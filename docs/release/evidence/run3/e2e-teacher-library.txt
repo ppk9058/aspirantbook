@@ -1,0 +1,42 @@
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 4 tests using 1 worker
+
+  ✓  1 [desktop] › tests/e2e/teacher-library-multicourse.spec.ts:161:7 › Prisma Teacher Store: Multi-Course Attachment and Live Sync › Initial verification: Both Course A and Course B show initial teacher name (5.5s)
+  ✘  2 [desktop] › tests/e2e/teacher-library-multicourse.spec.ts:173:7 › Prisma Teacher Store: Multi-Course Attachment and Live Sync › Edit central teacher in Admin UI once, and assert BOTH course pages update (2.0m)
+  ✓  3 [mobile] › tests/e2e/teacher-library-multicourse.spec.ts:161:7 › Prisma Teacher Store: Multi-Course Attachment and Live Sync › Initial verification: Both Course A and Course B show initial teacher name (11.6s)
+  ✓  4 [mobile] › tests/e2e/teacher-library-multicourse.spec.ts:173:7 › Prisma Teacher Store: Multi-Course Attachment and Live Sync › Edit central teacher in Admin UI once, and assert BOTH course pages update (15.0s)
+
+
+  1) [desktop] › tests/e2e/teacher-library-multicourse.spec.ts:173:7 › Prisma Teacher Store: Multi-Course Attachment and Live Sync › Edit central teacher in Admin UI once, and assert BOTH course pages update 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.waitForResponse: Test timeout of 120000ms exceeded.
+
+      204 |     // Save teacher
+      205 |     const [saveRes] = await Promise.all([
+    > 206 |       page.waitForResponse((res) => res.url().includes("/api/admin/teachers") && res.request().method() === "POST"),
+          |            ^
+      207 |       page.locator('[data-testid="btn-save-teacher"]').click(),
+      208 |     ])
+      209 |     expect(saveRes.status()).toBe(200)
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/teacher-library-multicourse.spec.ts:206:12
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/teacher-library-multicours-74d5e-rt-BOTH-course-pages-update-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/teacher-library-multicours-74d5e-rt-BOTH-course-pages-update-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/teacher-library-multicours-74d5e-rt-BOTH-course-pages-update-desktop/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/teacher-library-multicours-74d5e-rt-BOTH-course-pages-update-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/e2e/teacher-library-multicourse.spec.ts:173:7 › Prisma Teacher Store: Multi-Course Attachment and Live Sync › Edit central teacher in Admin UI once, and assert BOTH course pages update 
+  3 passed (2.9m)

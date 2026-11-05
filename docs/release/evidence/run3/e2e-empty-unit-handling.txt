@@ -1,0 +1,150 @@
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 6 tests using 1 worker
+
+  ✘  1 [desktop] › tests/e2e/empty-unit-handling.spec.ts:114:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Studio Plan Editor and Completeness Panel show empty unit warning (1.0m)
+  ✘  2 [desktop] › tests/e2e/empty-unit-handling.spec.ts:143:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Public Course page completely omits the empty unit (2.2m)
+  ✓  3 [desktop] › tests/e2e/empty-unit-handling.spec.ts:157:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Wizard logic: Unnamed theme in a single-theme unit intentionally defaults to '{Unit Title} Outline' (5ms)
+  ✘  4 [mobile] › tests/e2e/empty-unit-handling.spec.ts:114:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Studio Plan Editor and Completeness Panel show empty unit warning (36.6s)
+  ✘  5 [mobile] › tests/e2e/empty-unit-handling.spec.ts:143:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Public Course page completely omits the empty unit (2.1m)
+  ✓  6 [mobile] › tests/e2e/empty-unit-handling.spec.ts:157:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Wizard logic: Unnamed theme in a single-theme unit intentionally defaults to '{Unit Title} Outline' (5ms)
+
+
+  1) [desktop] › tests/e2e/empty-unit-handling.spec.ts:114:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Studio Plan Editor and Completeness Panel show empty unit warning 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="empty-unit-warning-cmw3z69za0003xp0uqffprk17"]')
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-testid="empty-unit-warning-cmw3z69za0003xp0uqffprk17"]') with timeout 30000ms
+      - waiting for locator('[data-testid="empty-unit-warning-cmw3z69za0003xp0uqffprk17"]')
+
+
+      127 |     // 1. Assert Warning shows in Studio Plan Editor
+      128 |     const emptyWarning = page.locator(`[data-testid="empty-unit-warning-${emptyUnitId}"]`)
+    > 129 |     await expect(emptyWarning).toBeVisible({ timeout: 30000 })
+          |                                ^
+      130 |     await expect(emptyWarning).toContainText("Warning: 0 themes in this unit (will be omitted on public page)")
+      131 |
+      132 |     // 2. Assert Completeness Checklist modal shows warning
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/empty-unit-handling.spec.ts:129:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--92344-nel-show-empty-unit-warning-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--92344-nel-show-empty-unit-warning-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--92344-nel-show-empty-unit-warning-desktop/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--92344-nel-show-empty-unit-warning-desktop/error-context.md
+
+  2) [desktop] › tests/e2e/empty-unit-handling.spec.ts:143:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Public Course page completely omits the empty unit 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.innerText: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="course-detail-v2"]')
+
+
+      146 |     await page.waitForTimeout(500)
+      147 |
+    > 148 |     const publicContent = await page.locator('[data-testid="course-detail-v2"]').innerText()
+          |                                                                                  ^
+      149 |
+      150 |     // Unit 1 (has themes/lectures) MUST be present
+      151 |     expect(publicContent).toContain("Unit 1: Active Foundation")
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/empty-unit-handling.spec.ts:148:82
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--7a90a-letely-omits-the-empty-unit-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--7a90a-letely-omits-the-empty-unit-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--7a90a-letely-omits-the-empty-unit-desktop/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--7a90a-letely-omits-the-empty-unit-desktop/error-context.md
+
+  3) [mobile] › tests/e2e/empty-unit-handling.spec.ts:114:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Studio Plan Editor and Completeness Panel show empty unit warning 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="empty-unit-warning-cmw3zarcd0003xp7pz7mmv7ae"]')
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-testid="empty-unit-warning-cmw3zarcd0003xp7pz7mmv7ae"]') with timeout 30000ms
+      - waiting for locator('[data-testid="empty-unit-warning-cmw3zarcd0003xp7pz7mmv7ae"]')
+
+
+      127 |     // 1. Assert Warning shows in Studio Plan Editor
+      128 |     const emptyWarning = page.locator(`[data-testid="empty-unit-warning-${emptyUnitId}"]`)
+    > 129 |     await expect(emptyWarning).toBeVisible({ timeout: 30000 })
+          |                                ^
+      130 |     await expect(emptyWarning).toContainText("Warning: 0 themes in this unit (will be omitted on public page)")
+      131 |
+      132 |     // 2. Assert Completeness Checklist modal shows warning
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/empty-unit-handling.spec.ts:129:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--92344-nel-show-empty-unit-warning-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--92344-nel-show-empty-unit-warning-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--92344-nel-show-empty-unit-warning-mobile/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--92344-nel-show-empty-unit-warning-mobile/error-context.md
+
+  4) [mobile] › tests/e2e/empty-unit-handling.spec.ts:143:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Public Course page completely omits the empty unit 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.innerText: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="course-detail-v2"]')
+
+
+      146 |     await page.waitForTimeout(500)
+      147 |
+    > 148 |     const publicContent = await page.locator('[data-testid="course-detail-v2"]').innerText()
+          |                                                                                  ^
+      149 |
+      150 |     // Unit 1 (has themes/lectures) MUST be present
+      151 |     expect(publicContent).toContain("Unit 1: Active Foundation")
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/empty-unit-handling.spec.ts:148:82
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--7a90a-letely-omits-the-empty-unit-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--7a90a-letely-omits-the-empty-unit-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--7a90a-letely-omits-the-empty-unit-mobile/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/empty-unit-handling-Empty--7a90a-letely-omits-the-empty-unit-mobile/error-context.md
+
+  4 failed
+    [desktop] › tests/e2e/empty-unit-handling.spec.ts:114:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Studio Plan Editor and Completeness Panel show empty unit warning 
+    [desktop] › tests/e2e/empty-unit-handling.spec.ts:143:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Public Course page completely omits the empty unit 
+    [mobile] › tests/e2e/empty-unit-handling.spec.ts:114:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Studio Plan Editor and Completeness Panel show empty unit warning 
+    [mobile] › tests/e2e/empty-unit-handling.spec.ts:143:7 › Empty Unit Handling and Unnamed Theme Auto-Outline › Public Course page completely omits the empty unit 
+  2 passed (6.4m)

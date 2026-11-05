@@ -1,0 +1,121 @@
+app/admin/exercises/[id]/edit/page.tsx(45,26): error TS2322: Type '{ testCases: { id: string; createdAt: Date; exerciseId: string; input: string; expectedOutput: string; isHidden: boolean; }[]; } & { id: string; createdAt: Date; title: string; lessonId: string | null; ... 9 more ...; category: string | null; }' is not assignable to type '{ id: string; title: string; slug: string; description: string; language: string; difficulty: Difficulty; starterCode: string | null; solution: string | null; hints: string[]; lessonId: string | null; testCases: TestCase[]; } | undefined'.
+  Property 'description' is missing in type '{ testCases: { id: string; createdAt: Date; exerciseId: string; input: string; expectedOutput: string; isHidden: boolean; }[]; } & { id: string; createdAt: Date; title: string; lessonId: string | null; ... 9 more ...; category: string | null; }' but required in type '{ id: string; title: string; slug: string; description: string; language: string; difficulty: Difficulty; starterCode: string | null; solution: string | null; hints: string[]; lessonId: string | null; testCases: TestCase[]; }'.
+app/api/assessments/[id]/start/route.ts(52,13): error TS2322: Type '{ userId: string; assessmentId: string; answers: {}; score: number; passed: false; }' is not assignable to type '(Without<AssessmentAttemptCreateInput, AssessmentAttemptUncheckedCreateInput> & AssessmentAttemptUncheckedCreateInput) | (Without<...> & AssessmentAttemptCreateInput)'.
+  Type '{ userId: string; assessmentId: string; answers: {}; score: number; passed: false; }' is not assignable to type 'Without<AssessmentAttemptCreateInput, AssessmentAttemptUncheckedCreateInput> & AssessmentAttemptUncheckedCreateInput'.
+    Property 'timeSpent' is missing in type '{ userId: string; assessmentId: string; answers: {}; score: number; passed: false; }' but required in type 'AssessmentAttemptUncheckedCreateInput'.
+app/batches/[slug]/BatchDetailClient.tsx(99,24): error TS2339: Property 'coverImage' does not exist on type 'Batch'.
+components/admin/tracks/TrackCourseManager.tsx(45,33): error TS2345: Argument of type '{ id: string; title: string; thumbnailUrl: string | null; }[] | undefined' is not assignable to parameter of type 'SetStateAction<any[]>'.
+  Type 'undefined' is not assignable to type 'SetStateAction<any[]>'.
+components/admin/tracks/TrackForm.tsx(52,9): error TS2322: Type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished?: boolean | undefined; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>' is not assignable to type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+  Types of parameters 'options' and 'options' are incompatible.
+    Type 'ResolverOptions<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>' is not assignable to type 'ResolverOptions<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished?: boolean | undefined; }>'.
+      Type 'boolean | undefined' is not assignable to type 'boolean'.
+        Type 'undefined' is not assignable to type 'boolean'.
+components/admin/tracks/TrackForm.tsx(91,47): error TS2345: Argument of type '(values: { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }) => Promise<void>' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
+  Types of parameters 'values' and 'data' are incompatible.
+    Type 'TFieldValues' is not assignable to type '{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }'.
+      Type 'FieldValues' is missing the following properties from type '{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }': type, title, description, isPublished
+components/admin/tracks/TrackForm.tsx(94,25): error TS2322: Type 'Control<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues>' is not assignable to type 'Control<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+  The types of '_options.resolver' are incompatible between these types.
+    Type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | undefined'.
+      Type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues>' is not assignable to type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+        Type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, TFieldValues> | Promise<ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, TFieldValues>>' is not assignable to type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | Promise<...>'.
+          Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | Promise<...>'.
+            Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverSuccess<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+              Type 'TFieldValues' is not assignable to type '{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }'.
+                Type 'FieldValues' is missing the following properties from type '{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }': type, title, description, isPublished
+components/admin/tracks/TrackForm.tsx(111,25): error TS2322: Type 'Control<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues>' is not assignable to type 'Control<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+  The types of '_options.resolver' are incompatible between these types.
+    Type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | undefined'.
+      Type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues>' is not assignable to type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+        Type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, TFieldValues> | Promise<ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, TFieldValues>>' is not assignable to type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | Promise<...>'.
+          Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | Promise<...>'.
+            Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverSuccess<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+              Type 'TFieldValues' is not assignable to type '{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }'.
+                Type 'FieldValues' is missing the following properties from type '{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }': type, title, description, isPublished
+components/admin/tracks/TrackForm.tsx(137,21): error TS2322: Type 'Control<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues>' is not assignable to type 'Control<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+  The types of '_options.resolver' are incompatible between these types.
+    Type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | undefined'.
+      Type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues>' is not assignable to type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+        Type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, TFieldValues> | Promise<ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, TFieldValues>>' is not assignable to type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | Promise<...>'.
+          Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | Promise<...>'.
+            Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverSuccess<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+              Type 'TFieldValues' is not assignable to type '{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }'.
+                Type 'FieldValues' is missing the following properties from type '{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }': type, title, description, isPublished
+components/admin/tracks/TrackForm.tsx(155,21): error TS2322: Type 'Control<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues>' is not assignable to type 'Control<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+  The types of '_options.resolver' are incompatible between these types.
+    Type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues> | undefined' is not assignable to type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | undefined'.
+      Type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, TFieldValues>' is not assignable to type 'Resolver<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, any, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+        Type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, TFieldValues> | Promise<ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, TFieldValues>>' is not assignable to type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | Promise<...>'.
+          Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverResult<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }, { type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }> | Promise<...>'.
+            Type 'ResolverSuccess<TFieldValues>' is not assignable to type 'ResolverSuccess<{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }>'.
+              Type 'TFieldValues' is not assignable to type '{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }'.
+                Type 'FieldValues' is missing the following properties from type '{ type: "CAREER" | "SKILL"; title: string; description: string; isPublished: boolean; }': type, title, description, isPublished
+components/course/CourseBundleView.tsx(120,19): error TS2339: Property 'metadataJson' does not exist on type '{ id: string; title: string; slug: string; description: string; thumbnailUrl?: string | null | undefined; price?: number | null | undefined; originalPrice?: number | null | undefined; discountPercent?: number | ... 1 more ... | undefined; ... 5 more ...; chapters: ChapterItem[]; }'.
+components/course/CourseBundleView.tsx(121,34): error TS2339: Property 'metadataJson' does not exist on type '{ id: string; title: string; slug: string; description: string; thumbnailUrl?: string | null | undefined; price?: number | null | undefined; originalPrice?: number | null | undefined; discountPercent?: number | ... 1 more ... | undefined; ... 5 more ...; chapters: ChapterItem[]; }'.
+components/course/CourseBundleView.tsx(147,9): error TS2322: Type 'number | null | undefined' is not assignable to type 'string | number'.
+  Type 'undefined' is not assignable to type 'string | number'.
+components/course/CourseBundleView.tsx(287,15): error TS2339: Property 'schedule' does not exist on type 'Batch'.
+components/course/CourseBundleView.tsx(287,33): error TS2339: Property 'schedule' does not exist on type 'Batch'.
+components/course/CourseBundleView.tsx(288,13): error TS2339: Property 'schedule' does not exist on type 'Batch'.
+components/course/CourseBundleView.tsx(661,37): error TS7006: Parameter 'item' implicitly has an 'any' type.
+components/course/CourseBundleView.tsx(661,43): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+components/home/BatchEnrollModal.tsx(22,21): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(22,36): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(22,82): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(41,41): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(41,55): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(80,43): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(80,57): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(106,30): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(109,30): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(126,38): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(127,38): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(134,34): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(138,38): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(140,34): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(142,42): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(145,34): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(147,42): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(158,61): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(162,63): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(184,66): error TS18047: 'batch' is possibly 'null'.
+components/home/BatchEnrollModal.tsx(245,102): error TS18047: 'batch' is possibly 'null'.
+scripts/audit-pass4-sectionG-lock-leakage.ts(29,19): error TS18047: 'lockedLessonWithVideo.videoUrl' is possibly 'null'.
+scripts/audit-pass4-sectionG-lock-leakage.ts(73,28): error TS7006: Parameter 'url' implicitly has an 'any' type.
+scripts/audit-pass4-sectionG-lock-leakage.ts(84,32): error TS7006: Parameter 'res' implicitly has an 'any' type.
+scripts/audit-pass4-sectionG-lock-leakage.ts(106,50): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+scripts/capture-and-diff.ts(172,13): error TS2322: Type '{ diffRatio: number; missing: boolean; totalPixels?: undefined; diffPixels?: undefined; } | { diffRatio: number; missing: boolean; totalPixels: number; diffPixels: number; }' is not assignable to type '{ diffRatio: number; missing: boolean; totalPixels: number; diffPixels: number; }'.
+  Type '{ diffRatio: number; missing: boolean; totalPixels?: undefined; diffPixels?: undefined; }' is not assignable to type '{ diffRatio: number; missing: boolean; totalPixels: number; diffPixels: number; }'.
+    Types of property 'totalPixels' are incompatible.
+      Type 'undefined' is not assignable to type 'number'.
+scripts/seed-audit-users.ts(37,46): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(s: string, salt: string | number): Promise<string>', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+  Overload 2 of 2, '(s: string, salt: string | number, callback?: ((err: Error | null, hash: string) => void) | undefined, progressCallback?: ((percent: number) => void) | undefined): void', gave the following error.
+    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+scripts/seed-audit-users.ts(46,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | NullableStringFieldUpdateOperationsInput | null | undefined'.
+scripts/seed-audit-users.ts(52,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | null | undefined'.
+scripts/seed-audit-users.ts(142,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | NullableStringFieldUpdateOperationsInput | null | undefined'.
+scripts/seed-audit-users.ts(148,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | null | undefined'.
+scripts/seed-audit-users.ts(165,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | NullableStringFieldUpdateOperationsInput | null | undefined'.
+scripts/seed-audit-users.ts(171,13): error TS2322: Type 'Promise<string> & void' is not assignable to type 'string | null | undefined'.
+scripts/test-c1-viewport-user-mismatch.ts(113,23): error TS18047: 'aliceRendered' is possibly 'null'.
+scripts/test-c1-viewport-user-mismatch.ts(113,59): error TS18047: 'aliceRendered' is possibly 'null'.
+scripts/test-c1-viewport-user-mismatch.ts(114,21): error TS18047: 'bobRendered' is possibly 'null'.
+scripts/test-c1-viewport-user-mismatch.ts(114,53): error TS18047: 'bobRendered' is possibly 'null'.
+scripts/test-c1-viewport-user-mismatch.ts(121,14): error TS18047: 'aliceRendered' is possibly 'null'.
+scripts/test-c1-viewport-user-mismatch.ts(128,14): error TS18047: 'bobRendered' is possibly 'null'.
+scripts/test-m1-m2.ts(22,46): error TS2339: Property 'demoSettings' does not exist on type '{ demoSlots: { status: DemoSlotStatus; id: string; createdAt: Date; updatedAt: Date; startedAt: Date | null; courseId: string; endedAt: Date | null; ... 15 more ...; totalScreenMinutes: number; }[]; } & { ...; }'.
+scripts/test-pass4-sectionE-progress.ts(61,28): error TS7006: Parameter 'url' implicitly has an 'any' type.
+scripts/test-pass4-sectionF-razorpay-checkout.ts(54,28): error TS7006: Parameter 'url' implicitly has an 'any' type.
+scripts/test-pass5-section1.ts(185,13): error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type 'CreateOrderParams'.
+scripts/test-pass5-section1.ts(234,13): error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type 'CreateOrderParams'.
+scripts/test-pass5-section1.ts(297,13): error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type 'CreateOrderParams'.
+scripts/test-pass5-section1.ts(387,13): error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type 'CreateOrderParams'.
+scripts/test-report-links.ts(3,41): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+tools/loadtest/loadtest-runner.ts(168,21): error TS18047: 'testRecord' is possibly 'null'.
+tools/loadtest/loadtest-runner.ts(241,41): error TS18047: 'testRecord' is possibly 'null'.

@@ -1,0 +1,1167 @@
+TAP version 13
+# Subtest: BPSC Mains Demolish Template Counts (Spec Parity)
+    # Subtest: yields exactly 9 units, 41 themes, 9 lectures, ₹5,499 and teacher Abhimanyu Kumar
+    ok 1 - yields exactly 9 units, 41 themes, 9 lectures, ₹5,499 and teacher Abhimanyu Kumar
+      ---
+      duration_ms: 2.937792
+      type: 'test'
+      ...
+    1..1
+ok 1 - BPSC Mains Demolish Template Counts (Spec Parity)
+  ---
+  duration_ms: 5.140167
+  type: 'suite'
+  ...
+# Subtest: STEP 2 — DERIVED VALUES ONLY
+    # Subtest: derives exact counts, hours and date ranges for 1 unit(s)
+    ok 1 - derives exact counts, hours and date ranges for 1 unit(s)
+      ---
+      duration_ms: 266.62725
+      type: 'test'
+      ...
+    # Subtest: derives exact counts, hours and date ranges for 3 unit(s)
+    ok 2 - derives exact counts, hours and date ranges for 3 unit(s)
+      ---
+      duration_ms: 10.630334
+      type: 'test'
+      ...
+    # Subtest: derives exact counts, hours and date ranges for 6 unit(s)
+    ok 3 - derives exact counts, hours and date ranges for 6 unit(s)
+      ---
+      duration_ms: 8.341542
+      type: 'test'
+      ...
+    # Subtest: derives exact counts, hours and date ranges for 12 unit(s)
+    ok 4 - derives exact counts, hours and date ranges for 12 unit(s)
+      ---
+      duration_ms: 13.379208
+      type: 'test'
+      ...
+    # Subtest: derives exact counts, hours and date ranges for 30 unit(s)
+    ok 5 - derives exact counts, hours and date ranges for 30 unit(s)
+      ---
+      duration_ms: 90.579667
+      type: 'test'
+      ...
+    # Subtest: derives year range from question years (derived, not typed)
+    ok 6 - derives year range from question years (derived, not typed)
+      ---
+      duration_ms: 1.870917
+      type: 'test'
+      ...
+    # Subtest: derives syllabus question counts cleanly via buildSyllabusStats
+    ok 7 - derives syllabus question counts cleanly via buildSyllabusStats
+      ---
+      duration_ms: 0.74025
+      type: 'test'
+      ...
+    1..7
+ok 2 - STEP 2 — DERIVED VALUES ONLY
+  ---
+  duration_ms: 394.480834
+  type: 'suite'
+  ...
+# Subtest: Proof of Editability: 21 Fields Round-Trip Verification
+    # Subtest: edits every single field in course metadata and verifies public view receives all 21 edited fields
+    ok 1 - edits every single field in course metadata and verifies public view receives all 21 edited fields
+      ---
+      duration_ms: 9.558541
+      type: 'test'
+      ...
+    1..1
+ok 3 - Proof of Editability: 21 Fields Round-Trip Verification
+  ---
+  duration_ms: 13.798417
+  type: 'suite'
+  ...
+# Subtest: resolveCourseFormat
+    # Subtest: explicit metadata format wins over legacy heuristics
+    ok 1 - explicit metadata format wins over legacy heuristics
+      ---
+      duration_ms: 4.186625
+      type: 'test'
+      ...
+    # Subtest: legacy externalId is treated as a tutorial
+    ok 2 - legacy externalId is treated as a tutorial
+      ---
+      duration_ms: 0.486417
+      type: 'test'
+      ...
+    # Subtest: legacy BPSC slug rules still classify as bundle
+    ok 3 - legacy BPSC slug rules still classify as bundle
+      ---
+      duration_ms: 0.201167
+      type: 'test'
+      ...
+    # Subtest: paid or video or attachment courses are bundles
+    ok 4 - paid or video or attachment courses are bundles
+      ---
+      duration_ms: 0.273667
+      type: 'test'
+      ...
+    # Subtest: everything else is a document (reading) course
+    ok 5 - everything else is a document (reading) course
+      ---
+      duration_ms: 0.150292
+      type: 'test'
+      ...
+    # Subtest: malformed metadata never throws
+    ok 6 - malformed metadata never throws
+      ---
+      duration_ms: 0.377542
+      type: 'test'
+      ...
+    # Subtest: UPSC / SSC / Banking / Railways / Defence / Skills are format-agnostic
+    ok 7 - UPSC / SSC / Banking / Railways / Defence / Skills are format-agnostic
+      ---
+      duration_ms: 0.233084
+      type: 'test'
+      ...
+    1..7
+ok 4 - resolveCourseFormat
+  ---
+  duration_ms: 8.411208
+  type: 'suite'
+  ...
+# Subtest: listing predicates mirror the old inline filters
+    # Subtest: studio video list keeps paid, video-lesson and legacy BPSC courses
+    ok 1 - studio video list keeps paid, video-lesson and legacy BPSC courses
+      ---
+      duration_ms: 0.73725
+      type: 'test'
+      ...
+    # Subtest: tutorial catalog excludes video-ish courses
+    ok 2 - tutorial catalog excludes video-ish courses
+      ---
+      duration_ms: 0.469125
+      type: 'test'
+      ...
+    # Subtest: tutorial sitemap keeps the old slug-only rule
+    ok 3 - tutorial sitemap keeps the old slug-only rule
+      ---
+      duration_ms: 1.946333
+      type: 'test'
+      ...
+    1..3
+ok 5 - listing predicates mirror the old inline filters
+  ---
+  duration_ms: 4.039625
+  type: 'suite'
+  ...
+# Subtest: slug aliases
+    # Subtest: single alias map resolves both legacy and unknown identifiers
+    ok 1 - single alias map resolves both legacy and unknown identifiers
+      ---
+      duration_ms: 0.350583
+      type: 'test'
+      ...
+    1..1
+ok 6 - slug aliases
+  ---
+  duration_ms: 0.695792
+  type: 'suite'
+  ...
+# Subtest: exam categories and languages
+    # Subtest: categories cover every exam family the mission names
+    ok 1 - categories cover every exam family the mission names
+      ---
+      duration_ms: 7.366375
+      type: 'test'
+      ...
+    # Subtest: languages are ENGLISH, HINDI, HINGLISH with ENGLISH default
+    ok 2 - languages are ENGLISH, HINDI, HINGLISH with ENGLISH default
+      ---
+      duration_ms: 1.668416
+      type: 'test'
+      ...
+    1..2
+ok 7 - exam categories and languages
+  ---
+  duration_ms: 9.601292
+  type: 'suite'
+  ...
+# Subtest: bilingual fallback
+    # Subtest: Hindi is returned when present
+    ok 1 - Hindi is returned when present
+      ---
+      duration_ms: 2.872083
+      type: 'test'
+      ...
+    # Subtest: missing Hindi falls back to English, field by field
+    ok 2 - missing Hindi falls back to English, field by field
+      ---
+      duration_ms: 0.210292
+      type: 'test'
+      ...
+    # Subtest: blank Hindi string also falls back
+    ok 3 - blank Hindi string also falls back
+      ---
+      duration_ms: 0.11175
+      type: 'test'
+      ...
+    # Subtest: Hindi completeness counter
+    ok 4 - Hindi completeness counter
+      ---
+      duration_ms: 0.285167
+      type: 'test'
+      ...
+    1..4
+ok 8 - bilingual fallback
+  ---
+  duration_ms: 4.152792
+  type: 'suite'
+  ...
+# Subtest: brand config
+    # Subtest: brand comes from one config source
+    ok 1 - brand comes from one config source
+      ---
+      duration_ms: 0.43175
+      type: 'test'
+      ...
+    1..1
+ok 9 - brand config
+  ---
+  duration_ms: 1.195041
+  type: 'suite'
+  ...
+# Subtest: extracts bilingual titles and themes properly
+ok 10 - extracts bilingual titles and themes properly
+  ---
+  duration_ms: 5.065166
+  type: 'test'
+  ...
+# Subtest: loadManagedCourse ownership & access policy
+    # Subtest: ADMIN ok: admin can manage any course
+    ok 1 - ADMIN ok: admin can manage any course
+      ---
+      duration_ms: 75.892542
+      type: 'test'
+      ...
+    # Subtest: TEACHER owner ok: teacher can manage course they created
+    ok 2 - TEACHER owner ok: teacher can manage course they created
+      ---
+      duration_ms: 0.835125
+      type: 'test'
+      ...
+    # Subtest: TEACHER non-owner 403: teacher cannot manage course created by someone else
+    ok 3 - TEACHER non-owner 403: teacher cannot manage course created by someone else
+      ---
+      duration_ms: 1.024292
+      type: 'test'
+      ...
+    # Subtest: real TEACHER on null-creator course 403: real teacher cannot manage legacy course
+    ok 4 - real TEACHER on null-creator course 403: real teacher cannot manage legacy course
+      ---
+      duration_ms: 0.777417
+      type: 'test'
+      ...
+    # Subtest: demo-teacher on null-creator course ok: demo teacher allowed on legacy course
+    ok 5 - demo-teacher on null-creator course ok: demo teacher allowed on legacy course
+      ---
+      duration_ms: 1.093708
+      type: 'test'
+      ...
+    # Subtest: missing course 404: non-existent course returns 404
+    ok 6 - missing course 404: non-existent course returns 404
+      ---
+      duration_ms: 0.709917
+      type: 'test'
+      ...
+    1..6
+ok 11 - loadManagedCourse ownership & access policy
+  ---
+  duration_ms: 110.416709
+  type: 'suite'
+  ...
+# Subtest: getSnakeRows handles empty array
+ok 12 - getSnakeRows handles empty array
+  ---
+  duration_ms: 4.825708
+  type: 'test'
+  ...
+# Subtest: getSnakeRows handles N = 1
+ok 13 - getSnakeRows handles N = 1
+  ---
+  duration_ms: 0.41175
+  type: 'test'
+  ...
+# Subtest: getSnakeRows handles N = 4
+ok 14 - getSnakeRows handles N = 4
+  ---
+  duration_ms: 0.19675
+  type: 'test'
+  ...
+# Subtest: getSnakeRows handles N = 5 (exact 1 row)
+ok 15 - getSnakeRows handles N = 5 (exact 1 row)
+  ---
+  duration_ms: 0.3615
+  type: 'test'
+  ...
+# Subtest: getSnakeRows handles N = 6 (2 rows, 5 + 1)
+ok 16 - getSnakeRows handles N = 6 (2 rows, 5 + 1)
+  ---
+  duration_ms: 0.211041
+  type: 'test'
+  ...
+# Subtest: getSnakeRows handles N = 9 (BPSC Demolish: 5 + 4)
+ok 17 - getSnakeRows handles N = 9 (BPSC Demolish: 5 + 4)
+  ---
+  duration_ms: 1.452209
+  type: 'test'
+  ...
+# Subtest: getSnakeRows handles N = 10 (2 full rows)
+ok 18 - getSnakeRows handles N = 10 (2 full rows)
+  ---
+  duration_ms: 0.441583
+  type: 'test'
+  ...
+# Subtest: getSnakeRows handles N = 11 (3 rows: 5 + 5 + 1)
+ok 19 - getSnakeRows handles N = 11 (3 rows: 5 + 5 + 1)
+  ---
+  duration_ms: 0.415667
+  type: 'test'
+  ...
+# Subtest: getSnakeRows handles N = 30 (6 full rows)
+ok 20 - getSnakeRows handles N = 30 (6 full rows)
+  ---
+  duration_ms: 2.295875
+  type: 'test'
+  ...
+# Subtest: ICS generator (RFC 5545)
+    # Subtest: CRLF line endings, stable UID, DTSTAMP, UTC DTSTART
+    ok 1 - CRLF line endings, stable UID, DTSTAMP, UTC DTSTART
+      ---
+      duration_ms: 4.687417
+      type: 'test'
+      ...
+    # Subtest: text escaping and 75-octet folding
+    ok 2 - text escaping and 75-octet folding
+      ---
+      duration_ms: 0.680166
+      type: 'test'
+      ...
+    # Subtest: multi-byte characters fold on octet boundaries without splitting UTF-8
+    ok 3 - multi-byte characters fold on octet boundaries without splitting UTF-8
+      ---
+      duration_ms: 0.351542
+      type: 'test'
+      ...
+    # Subtest: course export produces one VEVENT per lecture and skips undated lessons
+    ok 4 - course export produces one VEVENT per lecture and skips undated lessons
+      ---
+      duration_ms: 0.57475
+      type: 'test'
+      ...
+    # Subtest: Google Calendar URL is encoded and dated in UTC
+    ok 5 - Google Calendar URL is encoded and dated in UTC
+      ---
+      duration_ms: 0.324333
+      type: 'test'
+      ...
+    1..5
+ok 21 - ICS generator (RFC 5545)
+  ---
+  duration_ms: 8.244333
+  type: 'suite'
+  ...
+# Subtest: derive: course metrics
+    # Subtest: counts lectures and total hours
+    ok 1 - counts lectures and total hours
+      ---
+      duration_ms: 0.613375
+      type: 'test'
+      ...
+    # Subtest: first class date is the earliest scheduledAt
+    ok 2 - first class date is the earliest scheduledAt
+      ---
+      duration_ms: 2.331708
+      type: 'test'
+      ...
+    # Subtest: recording ready only when a videoUrl exists
+    ok 3 - recording ready only when a videoUrl exists
+      ---
+      duration_ms: 0.7525
+      type: 'test'
+      ...
+    # Subtest: late joiner counts lectures already started that have recordings
+    ok 4 - late joiner counts lectures already started that have recordings
+      ---
+      duration_ms: 0.568334
+      type: 'test'
+      ...
+    # Subtest: late joiner hides when nothing has started or nothing is recorded
+    ok 5 - late joiner hides when nothing has started or nothing is recorded
+      ---
+      duration_ms: 0.53325
+      type: 'test'
+      ...
+    # Subtest: late joiner template supports {n} and hides when the course ended
+    ok 6 - late joiner template supports {n} and hides when the course ended
+      ---
+      duration_ms: 0.25775
+      type: 'test'
+      ...
+    # Subtest: start label says Started/Starts in IST
+    ok 7 - start label says Started/Starts in IST
+      ---
+      duration_ms: 61.972167
+      type: 'test'
+      ...
+    # Subtest: IST formatting is timezone-stable (no hydration mismatch)
+    ok 8 - IST formatting is timezone-stable (no hydration mismatch)
+      ---
+      duration_ms: 0.566416
+      type: 'test'
+      ...
+    # Subtest: unit date range spans its chapters
+    ok 9 - unit date range spans its chapters
+      ---
+      duration_ms: 0.229833
+      type: 'test'
+      ...
+    1..9
+ok 22 - derive: course metrics
+  ---
+  duration_ms: 68.58575
+  type: 'suite'
+  ...
+# Subtest: phone normalisation
+    # Subtest: accepts common Indian formats
+    ok 1 - accepts common Indian formats
+      ---
+      duration_ms: 0.434208
+      type: 'test'
+      ...
+    # Subtest: rejects garbage and short numbers
+    ok 2 - rejects garbage and short numbers
+      ---
+      duration_ms: 0.330375
+      type: 'test'
+      ...
+    # Subtest: isE164
+    ok 3 - isE164
+      ---
+      duration_ms: 0.201209
+      type: 'test'
+      ...
+    1..3
+ok 23 - phone normalisation
+  ---
+  duration_ms: 1.129292
+  type: 'suite'
+  ...
+# Subtest: metadata schema v2 (zod)
+    # Subtest: legacy metadata without v2 keys still parses
+    ok 1 - legacy metadata without v2 keys still parses
+      ---
+      duration_ms: 2.372416
+      type: 'test'
+      ...
+    # Subtest: unknown keys survive (passthrough)
+    ok 2 - unknown keys survive (passthrough)
+      ---
+      duration_ms: 5.0615
+      type: 'test'
+      ...
+    # Subtest: rejects wrong types with field errors
+    ok 3 - rejects wrong types with field errors
+      ---
+      duration_ms: 4.2065
+      type: 'test'
+      ...
+    # Subtest: enforces max lengths and array sizes
+    ok 4 - enforces max lengths and array sizes
+      ---
+      duration_ms: 2.022291
+      type: 'test'
+      ...
+    # Subtest: invalid JSON is reported, not thrown
+    ok 5 - invalid JSON is reported, not thrown
+      ---
+      duration_ms: 0.205041
+      type: 'test'
+      ...
+    # Subtest: default section flags
+    ok 6 - default section flags
+      ---
+      duration_ms: 0.166375
+      type: 'test'
+      ...
+    # Subtest: image URL guard rejects script/data URLs and allows https/uploaded paths
+    ok 7 - image URL guard rejects script/data URLs and allows https/uploaded paths
+      ---
+      duration_ms: 1.028
+      type: 'test'
+      ...
+    1..7
+ok 24 - metadata schema v2 (zod)
+  ---
+  duration_ms: 15.427375
+  type: 'suite'
+  ...
+# Subtest: DTO sanitizer keeps new Hindi/attachment fields gated
+    # Subtest: guest gets no video/content/attachment/Hindi content
+    ok 1 - guest gets no video/content/attachment/Hindi content
+      ---
+      duration_ms: 0.575
+      type: 'test'
+      ...
+    # Subtest: enrolled viewer gets the Hindi twin exactly like the English field
+    ok 2 - enrolled viewer gets the Hindi twin exactly like the English field
+      ---
+      duration_ms: 0.172209
+      type: 'test'
+      ...
+    # Subtest: course-level Hindi fields pass through the safe course DTO
+    ok 3 - course-level Hindi fields pass through the safe course DTO
+      ---
+      duration_ms: 0.670208
+      type: 'test'
+      ...
+    1..3
+ok 25 - DTO sanitizer keeps new Hindi/attachment fields gated
+  ---
+  duration_ms: 2.730291
+  type: 'suite'
+  ...
+# Subtest: studio hero draft
+    # Subtest: reads legacy metadata + course columns
+    ok 1 - reads legacy metadata + course columns
+      ---
+      duration_ms: 2.496375
+      type: 'test'
+      ...
+    # Subtest: missing values become empty strings, never undefined
+    ok 2 - missing values become empty strings, never undefined
+      ---
+      duration_ms: 0.671625
+      type: 'test'
+      ...
+    # Subtest: round-trips through metadata without inventing values
+    ok 3 - round-trips through metadata without inventing values
+      ---
+      duration_ms: 2.384917
+      type: 'test'
+      ...
+    # Subtest: drops blank metrics and blank bilingual items
+    ok 4 - drops blank metrics and blank bilingual items
+      ---
+      duration_ms: 6.893042
+      type: 'test'
+      ...
+    # Subtest: caps metric/tag counts (metadata cannot grow unbounded)
+    ok 5 - caps metric/tag counts (metadata cannot grow unbounded)
+      ---
+      duration_ms: 0.803708
+      type: 'test'
+      ...
+    # Subtest: course columns blank out to null so the public page falls back to English
+    ok 6 - course columns blank out to null so the public page falls back to English
+      ---
+      duration_ms: 0.288667
+      type: 'test'
+      ...
+    1..6
+ok 26 - studio hero draft
+  ---
+  duration_ms: 15.603125
+  type: 'suite'
+  ...
+# Subtest: syllabus stats
+    # Subtest: maps real per-year question counts per section
+    ok 1 - maps real per-year question counts per section
+      ---
+      duration_ms: 30.254792
+      type: 'test'
+      ...
+    # Subtest: sections without a PYQ link degrade gracefully (no fake numbers)
+    ok 2 - sections without a PYQ link degrade gracefully (no fake numbers)
+      ---
+      duration_ms: 0.550334
+      type: 'test'
+      ...
+    # Subtest: most-asked ordering is by real question count only
+    ok 3 - most-asked ordering is by real question count only
+      ---
+      duration_ms: 0.782625
+      type: 'test'
+      ...
+    1..3
+ok 27 - syllabus stats
+  ---
+  duration_ms: 36.309084
+  type: 'suite'
+  ...
+# Subtest: rating distribution
+    # Subtest: counts real reviews and computes percentages
+    ok 1 - counts real reviews and computes percentages
+      ---
+      duration_ms: 1.1175
+      type: 'test'
+      ...
+    # Subtest: hides the section when there are no reviews
+    ok 2 - hides the section when there are no reviews
+      ---
+      duration_ms: 0.320708
+      type: 'test'
+      ...
+    # Subtest: ignores out-of-range ratings instead of inventing data
+    ok 3 - ignores out-of-range ratings instead of inventing data
+      ---
+      duration_ms: 0.206292
+      type: 'test'
+      ...
+    1..3
+ok 28 - rating distribution
+  ---
+  duration_ms: 2.211625
+  type: 'suite'
+  ...
+# Subtest: getContrastRatio correctly calculates black on white
+ok 29 - getContrastRatio correctly calculates black on white
+  ---
+  duration_ms: 1.596167
+  type: 'test'
+  ...
+# Subtest: getContrastRatio correctly calculates identical colors
+ok 30 - getContrastRatio correctly calculates identical colors
+  ---
+  duration_ms: 0.220375
+  type: 'test'
+  ...
+# Subtest: evaluateThemeContrast passes default palette
+ok 31 - evaluateThemeContrast passes default palette
+  ---
+  duration_ms: 0.695542
+  type: 'test'
+  ...
+# Subtest: evaluateThemeContrast flags low contrast custom palette
+ok 32 - evaluateThemeContrast flags low contrast custom palette
+  ---
+  duration_ms: 0.367
+  type: 'test'
+  ...
+# Subtest: Image Upload Validation
+    # Subtest: allows valid PNG, JPG, WEBP under 5MB in thumbnails folder
+    ok 1 - allows valid PNG, JPG, WEBP under 5MB in thumbnails folder
+      ---
+      duration_ms: 1.921666
+      type: 'test'
+      ...
+    # Subtest: rejects non-images (PDF, MP4, EXE) in image folders
+    ok 2 - rejects non-images (PDF, MP4, EXE) in image folders
+      ---
+      duration_ms: 0.365459
+      type: 'test'
+      ...
+    # Subtest: rejects images larger than 5 MB
+    ok 3 - rejects images larger than 5 MB
+      ---
+      duration_ms: 0.158542
+      type: 'test'
+      ...
+    1..3
+ok 33 - Image Upload Validation
+  ---
+  duration_ms: 3.846084
+  type: 'suite'
+  ...
+# Subtest: Course Cover Fallback Generator & Validator
+    # Subtest: generates SVG data URI with safe escaping
+    ok 1 - generates SVG data URI with safe escaping
+      ---
+      duration_ms: 2.915833
+      type: 'test'
+      ...
+    # Subtest: isValidThumbnailUrl validates properly
+    ok 2 - isValidThumbnailUrl validates properly
+      ---
+      duration_ms: 0.482625
+      type: 'test'
+      ...
+    1..2
+ok 34 - Course Cover Fallback Generator & Validator
+  ---
+  duration_ms: 5.117417
+  type: 'suite'
+  ...
+# [CONTENT_AUDIT] UPDATE EXAM_TEST t-1 by anonymous
+# [CONTENT_AUDIT] BULK_QUICK_FIRST_N_FREE EXAM_TEST t-1,t-2 by anonymous
+# [CONTENT_AUDIT] UPDATE EXAM_TEST t-1 by anonymous
+# [CONTENT_AUDIT] BULK_REVERT_STATES EXAM_TEST t-1,t-2 by anonymous
+# [CONTENT_AUDIT] ARCHIVE EXAM_TEST test-preserve-1 by anonymous
+# [CONTENT_AUDIT] RESTORE_VERSION EXAM_TEST test-preserve-1 by anonymous
+# [CONTENT_AUDIT] UPDATE EXAM_TEST test-detach-1 by anonymous
+# [CONTENT_AUDIT] UPDATE EXAM_SERIES entity-456 by anonymous
+# Subtest: Automated Checklist Scenarios Integration Suite
+    # Subtest: Scenario 1: Change package slug and resolve via history returns package
+    ok 1 - Scenario 1: Change package slug and resolve via history returns package
+      ---
+      duration_ms: 33.755084
+      type: 'test'
+      ...
+    # Subtest: Scenario 2: Make first N free applies access, and Undo restores state
+    ok 2 - Scenario 2: Make first N free applies access, and Undo restores state
+      ---
+      duration_ms: 8.30225
+      type: 'test'
+      ...
+    # Subtest: Scenario 3: N=-1 and N greater than total tests are rejected
+    ok 3 - Scenario 3: N=-1 and N greater than total tests are rejected
+      ---
+      duration_ms: 0.678708
+      type: 'test'
+      ...
+    # Subtest: Scenario 4: Soft delete (archive) when attempts exist, hard delete when empty
+    ok 4 - Scenario 4: Soft delete (archive) when attempts exist, hard delete when empty
+      ---
+      duration_ms: 0.832709
+      type: 'test'
+      ...
+    # Subtest: Scenario 5: Teacher mutating another author's package gets 403
+    ok 5 - Scenario 5: Teacher mutating another author's package gets 403
+      ---
+      duration_ms: 2.011916
+      type: 'test'
+      ...
+    # Subtest: Scenario 6: IDOR cross-package tampering is blocked
+    ok 6 - Scenario 6: IDOR cross-package tampering is blocked
+      ---
+      duration_ms: 0.840417
+      type: 'test'
+      ...
+    # Subtest: Scenario 7: ts_demo_role cookie authorizes no mutation in production
+    ok 7 - Scenario 7: ts_demo_role cookie authorizes no mutation in production
+      ---
+      duration_ms: 1.274125
+      type: 'test'
+      ...
+    # Subtest: Scenario 8: Archive test then restore it preserves attempts
+    ok 8 - Scenario 8: Archive test then restore it preserves attempts
+      ---
+      duration_ms: 2.680459
+      type: 'test'
+      ...
+    # Subtest: Scenario 9: Detach test moves to Unassigned series excluded from catalogue
+    ok 9 - Scenario 9: Detach test moves to Unassigned series excluded from catalogue
+      ---
+      duration_ms: 3.007792
+      type: 'test'
+      ...
+    # Subtest: Scenario 10: Concurrent save rejected with 409 conflict when updatedAt differs
+    ok 10 - Scenario 10: Concurrent save rejected with 409 conflict when updatedAt differs
+      ---
+      duration_ms: 1.571042
+      type: 'test'
+      ...
+    # Subtest: Scenario 11: writeDualAuditLog writes dual audit logs
+    ok 11 - Scenario 11: writeDualAuditLog writes dual audit logs
+      ---
+      duration_ms: 1.75575
+      type: 'test'
+      ...
+    # Subtest: Scenario 12: Undo rejects with 409 if tests were modified by another session
+    ok 12 - Scenario 12: Undo rejects with 409 if tests were modified by another session
+      ---
+      duration_ms: 1.040125
+      type: 'test'
+      ...
+    # Subtest: Scenario 13: Toast duration constant is set to 20 seconds
+    ok 13 - Scenario 13: Toast duration constant is set to 20 seconds
+      ---
+      duration_ms: 0.372791
+      type: 'test'
+      ...
+    1..13
+ok 35 - Automated Checklist Scenarios Integration Suite
+  ---
+  duration_ms: 60.601167
+  type: 'suite'
+  ...
+# Subtest: verifyMutationAuth Unit Tests
+    # Subtest: rejects mutation when session is missing and no demo cookie provided
+    ok 1 - rejects mutation when session is missing and no demo cookie provided
+      ---
+      duration_ms: 212.822125
+      type: 'test'
+      ...
+    # Subtest: rejects mutation for non-creator student role
+    ok 2 - rejects mutation for non-creator student role
+      ---
+      duration_ms: 0.416667
+      type: 'test'
+      ...
+    # Subtest: blocks ts_demo_role cookie fallback in production environment
+    ok 3 - blocks ts_demo_role cookie fallback in production environment
+      ---
+      duration_ms: 1.790333
+      type: 'test'
+      ...
+    # Subtest: enforces teacher ownership: rejects teacher trying to mutate another author's content
+    ok 4 - enforces teacher ownership: rejects teacher trying to mutate another author's content
+      ---
+      duration_ms: 13.315834
+      type: 'test'
+      ...
+    # Subtest: authorizes teacher mutating their own content
+    ok 5 - authorizes teacher mutating their own content
+      ---
+      duration_ms: 0.34275
+      type: 'test'
+      ...
+    # Subtest: admin bypasses teacher ownership check
+    ok 6 - admin bypasses teacher ownership check
+      ---
+      duration_ms: 0.834292
+      type: 'test'
+      ...
+    1..6
+ok 36 - verifyMutationAuth Unit Tests
+  ---
+  duration_ms: 234.031083
+  type: 'suite'
+  ...
+# Subtest: IDOR Protection Unit Tests (verifyTestBelongsToPackage)
+    # Subtest: allows test when seriesId matches packageId
+    ok 1 - allows test when seriesId matches packageId
+      ---
+      duration_ms: 0.476208
+      type: 'test'
+      ...
+    # Subtest: blocks test when seriesId does not match packageId (cross-package tampering IDOR)
+    ok 2 - blocks test when seriesId does not match packageId (cross-package tampering IDOR)
+      ---
+      duration_ms: 1.104417
+      type: 'test'
+      ...
+    # Subtest: blocks test when testSeriesId is missing
+    ok 3 - blocks test when testSeriesId is missing
+      ---
+      duration_ms: 0.41325
+      type: 'test'
+      ...
+    1..3
+ok 37 - IDOR Protection Unit Tests (verifyTestBelongsToPackage)
+  ---
+  duration_ms: 5.927708
+  type: 'suite'
+  ...
+# Subtest: Soft vs Hard Delete Decision Unit Tests (decideDeleteAction)
+    # Subtest: decides hard_delete when item has 0 attempts, 0 enrollments, and 0 payments
+    ok 1 - decides hard_delete when item has 0 attempts, 0 enrollments, and 0 payments
+      ---
+      duration_ms: 0.354959
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has student attempts
+    ok 2 - decides archive (soft delete) when item has student attempts
+      ---
+      duration_ms: 0.110084
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has active enrollments
+    ok 3 - decides archive (soft delete) when item has active enrollments
+      ---
+      duration_ms: 0.110375
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has verified payments
+    ok 4 - decides archive (soft delete) when item has verified payments
+      ---
+      duration_ms: 0.100625
+      type: 'test'
+      ...
+    # Subtest: decides archive (soft delete) when item has multiple dependencies
+    ok 5 - decides archive (soft delete) when item has multiple dependencies
+      ---
+      duration_ms: 0.097375
+      type: 'test'
+      ...
+    1..5
+ok 38 - Soft vs Hard Delete Decision Unit Tests (decideDeleteAction)
+  ---
+  duration_ms: 1.030042
+  type: 'suite'
+  ...
+# Subtest: Exam Metrics & Single Source of Truth Tests
+    # Subtest: calculatePackageMetricsSummary correctly computes status and attempt counts
+    ok 1 - calculatePackageMetricsSummary correctly computes status and attempt counts
+      ---
+      duration_ms: 48.658917
+      type: 'test'
+      ...
+    # Subtest: calculatePackageMetricsSummary handles empty array safely
+    ok 2 - calculatePackageMetricsSummary handles empty array safely
+      ---
+      duration_ms: 0.663834
+      type: 'test'
+      ...
+    # Subtest: computePackageMetrics calculates average score percentage correctly without zero division
+    ok 3 - computePackageMetrics calculates average score percentage correctly without zero division
+      ---
+      duration_ms: 0.525459
+      type: 'test'
+      ...
+    # Subtest: computePackageMetrics safely handles series with 0 attempts and 0 tests
+    ok 4 - computePackageMetrics safely handles series with 0 attempts and 0 tests
+      ---
+      duration_ms: 4.529125
+      type: 'test'
+      ...
+    # Subtest: isAnalyticsUser correctly filters out staff and test emails
+    ok 5 - isAnalyticsUser correctly filters out staff and test emails
+      ---
+      duration_ms: 0.226416
+      type: 'test'
+      ...
+    # Subtest: getAnalyticsUserWhere returns role excluding staff and test domains
+    ok 6 - getAnalyticsUserWhere returns role excluding staff and test domains
+      ---
+      duration_ms: 5.237208
+      type: 'test'
+      ...
+    1..6
+ok 39 - Exam Metrics & Single Source of Truth Tests
+  ---
+  duration_ms: 62.05425
+  type: 'suite'
+  ...
+# Subtest: Exam Labels & Enums Formatting Tests
+    # Subtest: formatTestType maps test types correctly
+    ok 1 - formatTestType maps test types correctly
+      ---
+      duration_ms: 0.926583
+      type: 'test'
+      ...
+    # Subtest: formatDifficulty maps difficulties correctly
+    ok 2 - formatDifficulty maps difficulties correctly
+      ---
+      duration_ms: 2.036833
+      type: 'test'
+      ...
+    # Subtest: formatLanguage maps language codes correctly
+    ok 3 - formatLanguage maps language codes correctly
+      ---
+      duration_ms: 0.951
+      type: 'test'
+      ...
+    1..3
+ok 40 - Exam Labels & Enums Formatting Tests
+  ---
+  duration_ms: 4.783375
+  type: 'suite'
+  ...
+# Subtest: System Series Slugs Tests
+    # Subtest: SYSTEM_SERIES_SLUGS contains unassigned tests system series
+    ok 1 - SYSTEM_SERIES_SLUGS contains unassigned tests system series
+      ---
+      duration_ms: 0.287625
+      type: 'test'
+      ...
+    1..1
+ok 41 - System Series Slugs Tests
+  ---
+  duration_ms: 0.403791
+  type: 'suite'
+  ...
+# Starting 50-attempt golden replay comparison...
+# Subtest: Exam Runtime Performance Optimizations & Parity Suite
+    # Subtest: TEST 1: Zero leakage in question set delivery and cache
+    ok 1 - TEST 1: Zero leakage in question set delivery and cache
+      ---
+      duration_ms: 91.652958
+      type: 'test'
+      ...
+    # Subtest: TEST 2: Cloudflare CF-Connecting-IP extraction when TRUST_PROXY=true
+    ok 2 - TEST 2: Cloudflare CF-Connecting-IP extraction when TRUST_PROXY=true
+      ---
+      duration_ms: 45.050416
+      type: 'test'
+      ...
+# All 50 attempts produced 100% byte-identical scoring, percentile and rank across both legacy and fast paths!
+    # Subtest: TEST 3: Golden Parity Replay of 50 Attempts (Legacy vs Fast Optimization)
+    ok 3 - TEST 3: Golden Parity Replay of 50 Attempts (Legacy vs Fast Optimization)
+      ---
+      duration_ms: 18945.400542
+      type: 'test'
+      ...
+    # Subtest: TEST 4: Batch Sync Equivalence & Monotonic Sequence Guard
+    ok 4 - TEST 4: Batch Sync Equivalence & Monotonic Sequence Guard
+      ---
+      duration_ms: 490.660542
+      type: 'test'
+      ...
+    1..4
+ok 42 - Exam Runtime Performance Optimizations & Parity Suite
+  ---
+  duration_ms: 20137.272875
+  type: 'suite'
+  ...
+# [E.1] Stale read observed when question is edited: true
+# Subtest: Task E: Correctness & Edge Case Verification Suite
+    # Subtest: E.1: Question cache invalidation & stale read measurement
+    ok 1 - E.1: Question cache invalidation & stale read measurement
+      ---
+      duration_ms: 107.910625
+      type: 'test'
+      ...
+# [E.2] User 2 Graded Result allIndiaRank: null, percentile: null
+# [E.2] BUG CONFIRMED: Student receives rank=null on submit when leaderboard cache is ON: true
+    # Subtest: E.2: Rank and percentile right after student submit with Leaderboard Cache ON
+    ok 2 - E.2: Rank and percentile right after student submit with Leaderboard Cache ON
+      ---
+      duration_ms: 378.407292
+      type: 'test'
+      ...
+# [E.2b] Candidate A rank: 1, Candidate B rank: 1
+    # Subtest: E.2b: Leaderboard tie-breaking logic audit
+    ok 3 - E.2b: Leaderboard tie-breaking logic audit
+      ---
+      duration_ms: 31.657834
+      type: 'test'
+      ...
+    # Subtest: E.3: Deadline grace period enforcement check
+    ok 4 - E.3: Deadline grace period enforcement check
+      ---
+      duration_ms: 3.703625
+      type: 'test'
+      ...
+    # Subtest: E.4: clientSeq edge cases with raw SQL upsert
+    ok 5 - E.4: clientSeq edge cases with raw SQL upsert
+      ---
+      duration_ms: 32.95075
+      type: 'test'
+      ...
+    # Subtest: E.5: FAST_GRADING edge cases (0 answers, 1 answer, unanswered, deleted, null correctOption)
+    ok 6 - E.5: FAST_GRADING edge cases (0 answers, 1 answer, unanswered, deleted, null correctOption)
+      ---
+      duration_ms: 154.515625
+      type: 'test'
+      ...
+    # Subtest: E.6: Zero-leakage verified on question payload
+    ok 7 - E.6: Zero-leakage verified on question payload
+      ---
+      duration_ms: 1.049625
+      type: 'test'
+      ...
+    1..7
+ok 43 - Task E: Correctness & Edge Case Verification Suite
+  ---
+  duration_ms: 1129.19
+  type: 'suite'
+  ...
+# Subtest: ExamSyllabusSection Guards & Localization
+    # Subtest: prevents NaN in tabs, header, and info box when counts are undefined
+    ok 1 - prevents NaN in tabs, header, and info box when counts are undefined
+      ---
+      duration_ms: 35.687708
+      type: 'test'
+      ...
+    1..1
+ok 44 - ExamSyllabusSection Guards & Localization
+  ---
+  duration_ms: 37.173625
+  type: 'suite'
+  ...
+# Subtest: Mobile Course View-Model: renders cleanly without leak words and brand comes from config
+ok 45 - Mobile Course View-Model: renders cleanly without leak words and brand comes from config
+  ---
+  duration_ms: 44.753208
+  type: 'test'
+  ...
+# Subtest: Pluralization Helper (EN and HI)
+    # Subtest: English: singular (count = 1) vs plural (count = 0, 2, 5)
+    ok 1 - English: singular (count = 1) vs plural (count = 0, 2, 5)
+      ---
+      duration_ms: 1.44175
+      type: 'test'
+      ...
+    # Subtest: Hindi: singular vs plural forms
+    ok 2 - Hindi: singular vs plural forms
+      ---
+      duration_ms: 20.581583
+      type: 'test'
+      ...
+    # Subtest: formatLecturesAndHours handles combinations
+    ok 3 - formatLecturesAndHours handles combinations
+      ---
+      duration_ms: 0.229208
+      type: 'test'
+      ...
+    # Subtest: Guards against NaN or negative numbers
+    ok 4 - Guards against NaN or negative numbers
+      ---
+      duration_ms: 0.494666
+      type: 'test'
+      ...
+    1..4
+ok 46 - Pluralization Helper (EN and HI)
+  ---
+  duration_ms: 25.017791
+  type: 'suite'
+  ...
+# Subtest: Reusable Teacher Library (JSON & Multi-Course Attachment)
+    # Subtest: verifies one teacher attached to two different courses in course metadata
+    ok 1 - verifies one teacher attached to two different courses in course metadata
+      ---
+      duration_ms: 6.176792
+      type: 'test'
+      ...
+    # Subtest: proves central teacher stored once in data/teacher-library.json: editing once updates multiple courses referencing the ID
+    ok 2 - proves central teacher stored once in data/teacher-library.json: editing once updates multiple courses referencing the ID
+      ---
+      duration_ms: 5.003541
+      type: 'test'
+      ...
+    1..2
+ok 47 - Reusable Teacher Library (JSON & Multi-Course Attachment)
+  ---
+  duration_ms: 14.869833
+  type: 'suite'
+  ...
+# Subtest: Step 1 Unit Tests: Exact Goal Matching & No Substring Leaks
+    # Subtest: UPSC, BPSC, SSC must NOT match skills
+    ok 1 - UPSC, BPSC, SSC must NOT match skills
+      ---
+      duration_ms: 1.62325
+      type: 'test'
+      ...
+    # Subtest: C matches skills ONLY as an exact token
+    ok 2 - C matches skills ONLY as an exact token
+      ---
+      duration_ms: 1.404917
+      type: 'test'
+      ...
+    # Subtest: Target goal exact matching works as expected
+    ok 3 - Target goal exact matching works as expected
+      ---
+      duration_ms: 0.471042
+      type: 'test'
+      ...
+    # Subtest: Explicit alias mapping resolves properly
+    ok 4 - Explicit alias mapping resolves properly
+      ---
+      duration_ms: 1.238292
+      type: 'test'
+      ...
+    # Subtest: validateOrMapCanonicalGoals validates properly
+    ok 5 - validateOrMapCanonicalGoals validates properly
+      ---
+      duration_ms: 0.437375
+      type: 'test'
+      ...
+    1..5
+ok 48 - Step 1 Unit Tests: Exact Goal Matching & No Substring Leaks
+  ---
+  duration_ms: 7.47925
+  type: 'suite'
+  ...
+1..48
+# tests 152
+# suites 33
+# pass 152
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23272.366541

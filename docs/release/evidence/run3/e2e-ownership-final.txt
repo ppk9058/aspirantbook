@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: E2E / Integration: Teacher Course Ownership Isolation
+    # Subtest: Teacher A (owner) can manage course, chapter, unit, and lesson
+    ok 1 - Teacher A (owner) can manage course, chapter, unit, and lesson
+      ---
+      duration_ms: 25.38
+      type: 'test'
+      ...
+    # Subtest: Teacher B (non-owner) gets 403 on Teacher A's course
+    ok 2 - Teacher B (non-owner) gets 403 on Teacher A's course
+      ---
+      duration_ms: 15.075334
+      type: 'test'
+      ...
+    # Subtest: Teacher B (non-owner) gets 403 when trying to access Teacher A's chapter
+    ok 3 - Teacher B (non-owner) gets 403 when trying to access Teacher A's chapter
+      ---
+      duration_ms: 5.868125
+      type: 'test'
+      ...
+    # Subtest: Teacher B (non-owner) gets 403 when trying to access Teacher A's lesson
+    ok 4 - Teacher B (non-owner) gets 403 when trying to access Teacher A's lesson
+      ---
+      duration_ms: 5.353709
+      type: 'test'
+      ...
+    1..4
+ok 1 - E2E / Integration: Teacher Course Ownership Isolation
+  ---
+  duration_ms: 372.244541
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1222.273083

@@ -1,0 +1,90 @@
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 8 tests using 1 worker
+
+  ✘  1 [desktop] › tests/e2e/course-detail-v2.spec.ts:57:7 › Course Studio v2 detail page › v2 course renders the new detail design, English and Hindi (19.6s)
+  ✓  2 [desktop] › tests/e2e/course-detail-v2.spec.ts:100:7 › Course Studio v2 detail page › course without v2 metadata keeps the legacy detail view (4.0s)
+  ✓  3 [desktop] › tests/e2e/course-detail-v2.spec.ts:117:7 › Course Studio v2 detail page › BPSC Mains Demolish course renders pixel-faithfully and captures screenshots (21.4s)
+  ✓  4 [desktop] › tests/e2e/course-detail-v2.spec.ts:148:7 › Course Studio v2 detail page › SSC CGL Tier-2 Masterclass course renders non-BPSC layout and captures screenshots (10.9s)
+  ✘  5 [mobile] › tests/e2e/course-detail-v2.spec.ts:57:7 › Course Studio v2 detail page › v2 course renders the new detail design, English and Hindi (16.6s)
+  ✓  6 [mobile] › tests/e2e/course-detail-v2.spec.ts:100:7 › Course Studio v2 detail page › course without v2 metadata keeps the legacy detail view (2.0s)
+  ✓  7 [mobile] › tests/e2e/course-detail-v2.spec.ts:117:7 › Course Studio v2 detail page › BPSC Mains Demolish course renders pixel-faithfully and captures screenshots (16.1s)
+  ✓  8 [mobile] › tests/e2e/course-detail-v2.spec.ts:148:7 › Course Studio v2 detail page › SSC CGL Tier-2 Masterclass course renders non-BPSC layout and captures screenshots (42.7s)
+
+
+  1) [desktop] › tests/e2e/course-detail-v2.spec.ts:57:7 › Course Studio v2 detail page › v2 course renders the new detail design, English and Hindi 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'V2 Fixture cdv21793908748114', level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'V2 Fixture cdv21793908748114', level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'V2 Fixture cdv21793908748114', level: 1 })
+
+
+      77 |
+      78 |     // Hero + derived start label
+    > 79 |     await expect(page.getByRole("heading", { level: 1, name: `V2 Fixture ${nonce}` })).toBeVisible()
+         |                                                                                        ^
+      80 |     await expect(page.getByText("Complete GS foundation")).toBeVisible()
+      81 |
+      82 |     // Sections that are enabled
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/course-detail-v2.spec.ts:79:88
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-detail-v2-Course-St-e7a2b-il-design-English-and-Hindi-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-detail-v2-Course-St-e7a2b-il-design-English-and-Hindi-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-detail-v2-Course-St-e7a2b-il-design-English-and-Hindi-desktop/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-detail-v2-Course-St-e7a2b-il-design-English-and-Hindi-desktop/error-context.md
+
+  2) [mobile] › tests/e2e/course-detail-v2.spec.ts:57:7 › Course Studio v2 detail page › v2 course renders the new detail design, English and Hindi 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'V2 Fixture cdv21793908815478', level: 1 })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'V2 Fixture cdv21793908815478', level: 1 }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'V2 Fixture cdv21793908815478', level: 1 })
+
+
+      77 |
+      78 |     // Hero + derived start label
+    > 79 |     await expect(page.getByRole("heading", { level: 1, name: `V2 Fixture ${nonce}` })).toBeVisible()
+         |                                                                                        ^
+      80 |     await expect(page.getByText("Complete GS foundation")).toBeVisible()
+      81 |
+      82 |     // Sections that are enabled
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/course-detail-v2.spec.ts:79:88
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-detail-v2-Course-St-e7a2b-il-design-English-and-Hindi-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-detail-v2-Course-St-e7a2b-il-design-English-and-Hindi-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-detail-v2-Course-St-e7a2b-il-design-English-and-Hindi-mobile/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-detail-v2-Course-St-e7a2b-il-design-English-and-Hindi-mobile/error-context.md
+
+  2 failed
+    [desktop] › tests/e2e/course-detail-v2.spec.ts:57:7 › Course Studio v2 detail page › v2 course renders the new detail design, English and Hindi 
+    [mobile] › tests/e2e/course-detail-v2.spec.ts:57:7 › Course Studio v2 detail page › v2 course renders the new detail design, English and Hindi 
+  6 passed (2.7m)

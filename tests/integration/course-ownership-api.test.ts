@@ -151,10 +151,12 @@ describe("E2E / Integration: Teacher Course Ownership Isolation", () => {
 
     const chapterRes = await requireManagedChapter(teacherA, chapterId)
     assert.equal(Boolean(chapterRes.response), false)
+    if (!("chapterId" in chapterRes)) throw new Error("Expected chapterId in success response")
     assert.equal(chapterRes.chapterId, chapterId)
 
     const lessonRes = await requireManagedLesson(teacherA, lessonId)
     assert.equal(Boolean(lessonRes.response), false)
+    if (!("lessonId" in lessonRes)) throw new Error("Expected lessonId in success response")
     assert.equal(lessonRes.lessonId, lessonId)
   })
 
