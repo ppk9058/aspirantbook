@@ -1,0 +1,76 @@
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 12 tests using 1 worker
+
+  ✓   1 [desktop] › tests/e2e/course-axe-audit.spec.ts:55:9 › Axe Accessibility & Responsive Audit on UI-Created Courses › Responsive overflow check (mobile-360) across all 3 UI courses (default + expanded) (9.1s)
+  ✓   2 [desktop] › tests/e2e/course-axe-audit.spec.ts:55:9 › Axe Accessibility & Responsive Audit on UI-Created Courses › Responsive overflow check (tablet-768) across all 3 UI courses (default + expanded) (10.1s)
+  ✓   3 [desktop] › tests/e2e/course-axe-audit.spec.ts:55:9 › Axe Accessibility & Responsive Audit on UI-Created Courses › Responsive overflow check (desktop-1280) across all 3 UI courses (default + expanded) (22.3s)
+  ✓   4 [desktop] › tests/e2e/course-axe-audit.spec.ts:55:9 › Axe Accessibility & Responsive Audit on UI-Created Courses › Responsive overflow check (wide-1920) across all 3 UI courses (default + expanded) (31.5s)
+
+=== AXE AUDIT REPORT (Default): Railway NTPC CBT-1 Crash Course (/courses/railway-ntpc-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+
+=== AXE AUDIT REPORT (Expanded Hindi): Railway NTPC CBT-1 Crash Course (/courses/railway-ntpc-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+
+=== AXE AUDIT REPORT (Default): UPSC Prelims 2027 GS Foundation (/courses/upsc-prelims-2027-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+
+=== AXE AUDIT REPORT (Expanded Hindi): UPSC Prelims 2027 GS Foundation (/courses/upsc-prelims-2027-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+
+=== AXE AUDIT REPORT (Default): IBPS PO Mains Banking Awareness (/courses/ibps-po-mains-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+
+=== AXE AUDIT REPORT (Expanded Hindi): IBPS PO Mains Banking Awareness (/courses/ibps-po-mains-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+  ✓   5 [desktop] › tests/e2e/course-axe-audit.spec.ts:95:7 › Axe Accessibility & Responsive Audit on UI-Created Courses › Axe accessibility audit on all 3 UI-created courses (default & expanded) (28.2s)
+
+=== AXE AUDIT REPORT: Studio Edit Page (/admin/courses/cmw3uk30b005hxptjpb3w59yb/edit) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+  ✓   6 [desktop] › tests/e2e/course-axe-audit.spec.ts:164:7 › Axe Accessibility & Responsive Audit on UI-Created Courses › Axe accessibility & responsive audit on Studio Edit Page (26.7s)
+  ✓   7 [mobile] › tests/e2e/course-axe-audit.spec.ts:55:9 › Axe Accessibility & Responsive Audit on UI-Created Courses › Responsive overflow check (mobile-360) across all 3 UI courses (default + expanded) (19.8s)
+  ✓   8 [mobile] › tests/e2e/course-axe-audit.spec.ts:55:9 › Axe Accessibility & Responsive Audit on UI-Created Courses › Responsive overflow check (tablet-768) across all 3 UI courses (default + expanded) (7.7s)
+  ✓   9 [mobile] › tests/e2e/course-axe-audit.spec.ts:55:9 › Axe Accessibility & Responsive Audit on UI-Created Courses › Responsive overflow check (desktop-1280) across all 3 UI courses (default + expanded) (9.5s)
+  ✓  10 [mobile] › tests/e2e/course-axe-audit.spec.ts:55:9 › Axe Accessibility & Responsive Audit on UI-Created Courses › Responsive overflow check (wide-1920) across all 3 UI courses (default + expanded) (11.2s)
+
+=== AXE AUDIT REPORT (Default): Railway NTPC CBT-1 Crash Course (/courses/railway-ntpc-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+
+=== AXE AUDIT REPORT (Expanded Hindi): Railway NTPC CBT-1 Crash Course (/courses/railway-ntpc-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+
+=== AXE AUDIT REPORT (Default): UPSC Prelims 2027 GS Foundation (/courses/upsc-prelims-2027-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+
+=== AXE AUDIT REPORT (Expanded Hindi): UPSC Prelims 2027 GS Foundation (/courses/upsc-prelims-2027-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+
+=== AXE AUDIT REPORT (Default): IBPS PO Mains Banking Awareness (/courses/ibps-po-mains-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+
+=== AXE AUDIT REPORT (Expanded Hindi): IBPS PO Mains Banking Awareness (/courses/ibps-po-mains-e2e-20261105175559789-048vd) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+  ✓  11 [mobile] › tests/e2e/course-axe-audit.spec.ts:95:7 › Axe Accessibility & Responsive Audit on UI-Created Courses › Axe accessibility audit on all 3 UI-created courses (default & expanded) (24.1s)
+
+=== AXE AUDIT REPORT: Studio Edit Page (/admin/courses/cmw3uk30b005hxptjpb3w59yb/edit) ===
+Total Violations: 0
+Critical/Serious Violations: 0
+  ✓  12 [mobile] › tests/e2e/course-axe-audit.spec.ts:164:7 › Axe Accessibility & Responsive Audit on UI-Created Courses › Axe accessibility & responsive audit on Studio Edit Page (18.0s)
+
+  12 passed (4.1m)

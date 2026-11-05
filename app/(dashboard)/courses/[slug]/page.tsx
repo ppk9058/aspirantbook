@@ -17,7 +17,6 @@ import { CourseDetailV2 } from "@/components/course/detail/CourseDetailV2"
 import { parseCourseMetadata, readSectionFlags } from "@/lib/courses/metadata-schema"
 import { loadCourseSyllabus } from "@/lib/courses/syllabus"
 import { deriveRatingDistribution } from "@/lib/courses/ratings"
-import { resolveCourseTeachers } from "@/lib/teachers/library"
 import { isValidThumbnailUrl, sanitizeThumbnailUrl, generateCourseCoverSvg } from "@/lib/courses/cover-fallback"
 
 export const dynamic = "force-dynamic"
@@ -374,7 +373,33 @@ export default async function CourseDetailPage({
                   }))
                 : null
             const rawTeachers = meta.teachers && meta.teachers.length > 0 ? (meta.teachers as any) : (batch?.teachers ? batch.teachers : [])
-            const resolvedTeachers = dbCourseTeachers || resolveCourseTeachers(rawTeachers)
+            let resolvedTeachers = dbCourseTeachers
+            if (!resolvedTeachers && rawTeachers.length > 0) {
+              const teacherIds = rawTeachers
+                .map((t: any) => t.teacherId || t.id)
+                .filter((id: any): id is string => typeof id === "string" && id.length > 0)
+              if (teacherIds.length > 0) {
+                const dbTeachers = await prisma.teacher.findMany({
+                  where: { id: { in: teacherIds } },
+                })
+                const dbMap = new Map(dbTeachers.map((t) => [t.id, t]))
+                resolvedTeachers = rawTeachers.map((ct: any, idx: number) => {
+                  const refId = ct.teacherId || ct.id
+                  const central = refId ? dbMap.get(refId) : null
+                  if (central) {
+                    return {
+                      ...central,
+                      isPrimary: ct.isPrimary !== undefined ? Boolean(ct.isPrimary) : idx === 0,
+                      role: ct.role || central.role,
+                      roleHi: ct.roleHi || central.roleHi,
+                    }
+                  }
+                  return ct
+                })
+              } else {
+                resolvedTeachers = rawTeachers
+              }
+            }
 
             const safeThumb = isValidThumbnailUrl(safeCourse.thumbnailUrl)
                 ? sanitizeThumbnailUrl(safeCourse.thumbnailUrl)

@@ -1,0 +1,305 @@
+[db:check] Verifying schema against connected DB: 127***.0.0.1:54329/trillionskill_test
+[db:check] Database schema is in sync with Prisma schema. No drift detected.
+[db:check] Verified Authwall columns in Prisma schema: isGated, previewPercentage, seoMode, gateTitle, gateSubtitle, gateMode, blockCount, contentHash.
+
+Running 8 tests using 1 worker
+
+  ✘  1 [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:90:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Broken/404 thumbnail displays generated cover with no broken img visible (42.3s)
+  ✘  2 [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:105:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Broken/404 thumbnail displays generated cover with no broken img visible at 360px (22.4s)
+  ✘  3 [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:120:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Valid thumbnail loads successfully with naturalWidth > 0 (26.7s)
+  ✘  4 [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:132:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Valid thumbnail loads successfully with naturalWidth > 0 at 360px (24.6s)
+  ✘  5 [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:90:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Broken/404 thumbnail displays generated cover with no broken img visible (43.3s)
+  ✘  6 [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:105:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Broken/404 thumbnail displays generated cover with no broken img visible at 360px (19.3s)
+  ✘  7 [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:120:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Valid thumbnail loads successfully with naturalWidth > 0 (19.8s)
+  ✘  8 [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:132:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Valid thumbnail loads successfully with naturalWidth > 0 at 360px (21.9s)
+
+
+  1) [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:90:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Broken/404 thumbnail displays generated cover with no broken img visible 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="generated-cover"]:visible').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-testid="generated-cover"]:visible').first() with timeout 15000ms
+      - waiting for locator('[data-testid="generated-cover"]:visible').first()
+
+
+       96 |     // Assert that the generated fallback cover is displayed
+       97 |     const cover = page.locator('[data-testid="generated-cover"]:visible').first()
+    >  98 |     await expect(cover).toBeVisible()
+          |                         ^
+       99 |
+      100 |     // Assert that no broken image is visible
+      101 |     const brokenImg = page.locator('img[src*="guaranteed-404"]:visible')
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/course-thumbnail-fallback.spec.ts:98:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--f5782--with-no-broken-img-visible-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--f5782--with-no-broken-img-visible-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--f5782--with-no-broken-img-visible-desktop/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--f5782--with-no-broken-img-visible-desktop/error-context.md
+
+  2) [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:105:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Broken/404 thumbnail displays generated cover with no broken img visible at 360px 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="generated-cover"]:visible').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-testid="generated-cover"]:visible').first() with timeout 15000ms
+      - waiting for locator('[data-testid="generated-cover"]:visible').first()
+
+
+      111 |     // Assert that the generated fallback cover is displayed in the active mobile view
+      112 |     const cover = page.locator('[data-testid="generated-cover"]:visible').first()
+    > 113 |     await expect(cover).toBeVisible()
+          |                         ^
+      114 |
+      115 |     // Assert that no broken image is visible
+      116 |     const brokenImg = page.locator('img[src*="guaranteed-404"]:visible')
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/course-thumbnail-fallback.spec.ts:113:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--4ea7b-broken-img-visible-at-360px-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--4ea7b-broken-img-visible-at-360px-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--4ea7b-broken-img-visible-at-360px-desktop/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--4ea7b-broken-img-visible-at-360px-desktop/error-context.md
+
+  3) [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:120:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Valid thumbnail loads successfully with naturalWidth > 0 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('img[src*="course-bpsc.svg"]:visible').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('img[src*="course-bpsc.svg"]:visible').first() with timeout 15000ms
+      - waiting for locator('img[src*="course-bpsc.svg"]:visible').first()
+
+
+      125 |
+      126 |     const img = page.locator('img[src*="course-bpsc.svg"]:visible').first()
+    > 127 |     await expect(img).toBeVisible()
+          |                       ^
+      128 |     const isLoaded = await img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)
+      129 |     expect(isLoaded).toBe(true)
+      130 |   })
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/course-thumbnail-fallback.spec.ts:127:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--ae00b-ssfully-with-naturalWidth-0-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--ae00b-ssfully-with-naturalWidth-0-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--ae00b-ssfully-with-naturalWidth-0-desktop/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--ae00b-ssfully-with-naturalWidth-0-desktop/error-context.md
+
+  4) [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:132:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Valid thumbnail loads successfully with naturalWidth > 0 at 360px 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('img[src*="course-bpsc.svg"]:visible').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('img[src*="course-bpsc.svg"]:visible').first() with timeout 15000ms
+      - waiting for locator('img[src*="course-bpsc.svg"]:visible').first()
+
+
+      137 |
+      138 |     const img = page.locator('img[src*="course-bpsc.svg"]:visible').first()
+    > 139 |     await expect(img).toBeVisible()
+          |                       ^
+      140 |     const isLoaded = await img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)
+      141 |     expect(isLoaded).toBe(true)
+      142 |   })
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/course-thumbnail-fallback.spec.ts:139:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--6ef98-ith-naturalWidth-0-at-360px-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--6ef98-ith-naturalWidth-0-at-360px-desktop/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--6ef98-ith-naturalWidth-0-at-360px-desktop/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--6ef98-ith-naturalWidth-0-at-360px-desktop/error-context.md
+
+  5) [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:90:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Broken/404 thumbnail displays generated cover with no broken img visible 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="generated-cover"]:visible').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-testid="generated-cover"]:visible').first() with timeout 15000ms
+      - waiting for locator('[data-testid="generated-cover"]:visible').first()
+
+
+       96 |     // Assert that the generated fallback cover is displayed
+       97 |     const cover = page.locator('[data-testid="generated-cover"]:visible').first()
+    >  98 |     await expect(cover).toBeVisible()
+          |                         ^
+       99 |
+      100 |     // Assert that no broken image is visible
+      101 |     const brokenImg = page.locator('img[src*="guaranteed-404"]:visible')
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/course-thumbnail-fallback.spec.ts:98:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--f5782--with-no-broken-img-visible-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--f5782--with-no-broken-img-visible-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--f5782--with-no-broken-img-visible-mobile/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--f5782--with-no-broken-img-visible-mobile/error-context.md
+
+  6) [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:105:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Broken/404 thumbnail displays generated cover with no broken img visible at 360px 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="generated-cover"]:visible').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-testid="generated-cover"]:visible').first() with timeout 15000ms
+      - waiting for locator('[data-testid="generated-cover"]:visible').first()
+
+
+      111 |     // Assert that the generated fallback cover is displayed in the active mobile view
+      112 |     const cover = page.locator('[data-testid="generated-cover"]:visible').first()
+    > 113 |     await expect(cover).toBeVisible()
+          |                         ^
+      114 |
+      115 |     // Assert that no broken image is visible
+      116 |     const brokenImg = page.locator('img[src*="guaranteed-404"]:visible')
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/course-thumbnail-fallback.spec.ts:113:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--4ea7b-broken-img-visible-at-360px-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--4ea7b-broken-img-visible-at-360px-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--4ea7b-broken-img-visible-at-360px-mobile/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--4ea7b-broken-img-visible-at-360px-mobile/error-context.md
+
+  7) [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:120:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Valid thumbnail loads successfully with naturalWidth > 0 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('img[src*="course-bpsc.svg"]:visible').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('img[src*="course-bpsc.svg"]:visible').first() with timeout 15000ms
+      - waiting for locator('img[src*="course-bpsc.svg"]:visible').first()
+
+
+      125 |
+      126 |     const img = page.locator('img[src*="course-bpsc.svg"]:visible').first()
+    > 127 |     await expect(img).toBeVisible()
+          |                       ^
+      128 |     const isLoaded = await img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)
+      129 |     expect(isLoaded).toBe(true)
+      130 |   })
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/course-thumbnail-fallback.spec.ts:127:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--ae00b-ssfully-with-naturalWidth-0-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--ae00b-ssfully-with-naturalWidth-0-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--ae00b-ssfully-with-naturalWidth-0-mobile/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--ae00b-ssfully-with-naturalWidth-0-mobile/error-context.md
+
+  8) [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:132:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Valid thumbnail loads successfully with naturalWidth > 0 at 360px 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('img[src*="course-bpsc.svg"]:visible').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('img[src*="course-bpsc.svg"]:visible').first() with timeout 15000ms
+      - waiting for locator('img[src*="course-bpsc.svg"]:visible').first()
+
+
+      137 |
+      138 |     const img = page.locator('img[src*="course-bpsc.svg"]:visible').first()
+    > 139 |     await expect(img).toBeVisible()
+          |                       ^
+      140 |     const isLoaded = await img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)
+      141 |     expect(isLoaded).toBe(true)
+      142 |   })
+        at /Users/praveenkumar/TrillionSkill/tests/e2e/course-thumbnail-fallback.spec.ts:139:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--6ef98-ith-naturalWidth-0-at-360px-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--6ef98-ith-naturalWidth-0-at-360px-mobile/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--6ef98-ith-naturalWidth-0-at-360px-mobile/error-context.md
+
+    Error Context: logs/verify-studio/e2e/playwright-results/course-thumbnail-fallback--6ef98-ith-naturalWidth-0-at-360px-mobile/error-context.md
+
+  8 failed
+    [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:90:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Broken/404 thumbnail displays generated cover with no broken img visible 
+    [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:105:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Broken/404 thumbnail displays generated cover with no broken img visible at 360px 
+    [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:120:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Valid thumbnail loads successfully with naturalWidth > 0 
+    [desktop] › tests/e2e/course-thumbnail-fallback.spec.ts:132:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Valid thumbnail loads successfully with naturalWidth > 0 at 360px 
+    [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:90:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Broken/404 thumbnail displays generated cover with no broken img visible 
+    [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:105:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Broken/404 thumbnail displays generated cover with no broken img visible at 360px 
+    [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:120:7 › Course Thumbnail Fallback & Cover Verification › Desktop: Valid thumbnail loads successfully with naturalWidth > 0 
+    [mobile] › tests/e2e/course-thumbnail-fallback.spec.ts:132:7 › Course Thumbnail Fallback & Cover Verification › Mobile: Valid thumbnail loads successfully with naturalWidth > 0 at 360px 

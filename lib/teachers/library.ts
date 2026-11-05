@@ -103,7 +103,8 @@ export function upsertTeacher(teacher: ReusableTeacher): ReusableTeacher {
  */
 export function resolveCourseTeachers(courseTeachers: any[]): ReusableTeacher[] {
   if (!Array.isArray(courseTeachers) || courseTeachers.length === 0) return []
-  const library = readTeacherLibraryRaw()
+  const needsLookup = courseTeachers.some((ct) => !ct.name && (ct.teacherId || ct.id))
+  const library = needsLookup ? readTeacherLibraryRaw() : []
   const libraryMap = new Map<string, ReusableTeacher>()
   for (const t of library) {
     libraryMap.set(t.id, t)
