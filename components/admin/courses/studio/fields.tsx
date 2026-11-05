@@ -40,6 +40,7 @@ export function TextInput({
   maxLength,
   lang,
   type = "text",
+  "aria-label": ariaLabel,
 }: {
   id?: string
   value: string
@@ -48,6 +49,7 @@ export function TextInput({
   maxLength?: number
   lang?: string
   type?: string
+  "aria-label"?: string
 }) {
   return (
     <input
@@ -58,6 +60,7 @@ export function TextInput({
       placeholder={placeholder}
       maxLength={maxLength}
       lang={lang}
+      aria-label={ariaLabel || placeholder || id || "Input field"}
       className={inputClass}
     />
   )
@@ -71,6 +74,7 @@ export function TextArea({
   rows = 3,
   maxLength,
   lang,
+  "aria-label": ariaLabel,
 }: {
   id?: string
   value: string
@@ -79,6 +83,7 @@ export function TextArea({
   rows?: number
   maxLength?: number
   lang?: string
+  "aria-label"?: string
 }) {
   return (
     <textarea
@@ -89,6 +94,7 @@ export function TextArea({
       placeholder={placeholder}
       maxLength={maxLength}
       lang={lang}
+      aria-label={ariaLabel || placeholder || id || "Text field"}
       className={inputClass}
     />
   )
@@ -100,15 +106,23 @@ export function Select({
   onChange,
   options,
   placeholder,
+  "aria-label": ariaLabel,
 }: {
   id?: string
   value: string
   onChange: (value: string) => void
   options: Array<{ value: string; label: string }>
   placeholder?: string
+  "aria-label"?: string
 }) {
   return (
-    <select id={id} value={value} onChange={(event) => onChange(event.target.value)} className={inputClass}>
+    <select
+      id={id}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      aria-label={ariaLabel || placeholder || id || "Select option"}
+      className={inputClass}
+    >
       {placeholder && <option value="">{placeholder}</option>}
       {options.map((option) => (
         <option key={option.value} value={option.value}>

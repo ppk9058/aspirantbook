@@ -242,17 +242,17 @@ export function HeroDetailsTab({
             {draft.heroMetrics.map((metric, index) => (
               <li key={index} className="rounded-xl border border-gray-200 p-3">
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <Field label="Value (English)">
-                    <TextInput value={metric.value} onChange={(v) => setMetric(index, { value: v })} maxLength={40} />
+                  <Field label="Value (English)" htmlFor={`metric-val-${index}`}>
+                    <TextInput id={`metric-val-${index}`} aria-label="Metric Value (English)" value={metric.value} onChange={(v) => setMetric(index, { value: v })} maxLength={40} />
                   </Field>
-                  <Field label="Value (Hindi)">
-                    <TextInput value={metric.valueHi} onChange={(v) => setMetric(index, { valueHi: v })} maxLength={40} lang="hi" />
+                  <Field label="Value (Hindi)" htmlFor={`metric-val-hi-${index}`}>
+                    <TextInput id={`metric-val-hi-${index}`} aria-label="Metric Value (Hindi)" value={metric.valueHi} onChange={(v) => setMetric(index, { valueHi: v })} maxLength={40} lang="hi" />
                   </Field>
-                  <Field label="Label (English)">
-                    <TextInput value={metric.label} onChange={(v) => setMetric(index, { label: v })} maxLength={60} />
+                  <Field label="Label (English)" htmlFor={`metric-lbl-${index}`}>
+                    <TextInput id={`metric-lbl-${index}`} aria-label="Metric Label (English)" value={metric.label} onChange={(v) => setMetric(index, { label: v })} maxLength={60} />
                   </Field>
-                  <Field label="Label (Hindi)">
-                    <TextInput value={metric.labelHi} onChange={(v) => setMetric(index, { labelHi: v })} maxLength={60} lang="hi" />
+                  <Field label="Label (Hindi)" htmlFor={`metric-lbl-hi-${index}`}>
+                    <TextInput id={`metric-lbl-hi-${index}`} aria-label="Metric Label (Hindi)" value={metric.labelHi} onChange={(v) => setMetric(index, { labelHi: v })} maxLength={60} lang="hi" />
                   </Field>
                 </div>
                 <button
@@ -289,14 +289,16 @@ export function HeroDetailsTab({
             {draft.badges.map((badge, index) => (
               <li key={index} className="rounded-xl border border-gray-200 p-3">
                 <div className="grid gap-2 sm:grid-cols-3">
-                  <Field label="Label (English)">
-                    <TextInput value={badge.label} onChange={(v) => setBadge(index, { label: v })} maxLength={40} />
+                  <Field label="Label (English)" htmlFor={`badge-lbl-${index}`}>
+                    <TextInput id={`badge-lbl-${index}`} aria-label="Badge Label (English)" value={badge.label} onChange={(v) => setBadge(index, { label: v })} maxLength={40} />
                   </Field>
-                  <Field label="Label (Hindi)">
-                    <TextInput value={badge.labelHi} onChange={(v) => setBadge(index, { labelHi: v })} maxLength={40} lang="hi" />
+                  <Field label="Label (Hindi)" htmlFor={`badge-lbl-hi-${index}`}>
+                    <TextInput id={`badge-lbl-hi-${index}`} aria-label="Badge Label (Hindi)" value={badge.labelHi} onChange={(v) => setBadge(index, { labelHi: v })} maxLength={40} lang="hi" />
                   </Field>
-                  <Field label="Variant">
+                  <Field label="Variant" htmlFor={`badge-var-${index}`}>
                     <Select
+                      id={`badge-var-${index}`}
+                      aria-label="Badge Variant"
                       value={badge.variant}
                       onChange={(v) => setBadge(index, { variant: v as "outlined" | "filled" })}
                       options={[

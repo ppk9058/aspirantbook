@@ -283,7 +283,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             name: "Lead Academic Faculty",
             role: "Senior Instructor & Mentor",
             subject: initialCourse.technology || "Core Curriculum",
-            experience: "10+ Years",
+            experience: "",
             qualification: "Senior Educator • Subject Lead",
             avatar: "/curious-avatar.svg",
             bio: "Dedicated faculty with comprehensive experience in mentoring top-ranking students.",
@@ -668,11 +668,6 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     setStudioDirty(true)
     toast.success(`Loaded template "${tpl.name || data.title}"! Click Save Course to apply changes.`)
     setShowTemplateModal(false)
-  }
-
-  const handleLoadDemolishTemplate = () => {
-    const demolish = COURSE_TEMPLATES.find((t) => t.id === "bpsc-demolish") || COURSE_TEMPLATES[0]
-    handleApplyTemplate(demolish)
   }
 
   const completeness = useMemo(() => {
@@ -1279,7 +1274,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
               <ArrowLeft className="w-3.5 h-3.5" /> Video Course Studio
             </Link>
             <div className="h-4 w-[1px] bg-gray-200" />
-            <span className="text-xs font-bold text-orange-600 uppercase tracking-wider flex items-center gap-1">
+            <span className="text-xs font-bold text-orange-700 uppercase tracking-wider flex items-center gap-1">
               <Sparkles className="w-3.5 h-3.5" /> Video Course Studio &bull; Teacher & Admin Editor
             </span>
           </div>
@@ -1379,7 +1374,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             <button
               onClick={handleSaveCourse}
               disabled={isSaving}
-              className="px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 shadow-sm shadow-orange-500/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
+              className="px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-orange-700 hover:bg-orange-800 shadow-sm shadow-orange-500/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
               {isSaving ? "Saving..." : "Save Course"}
@@ -1416,6 +1411,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             </label>
             <input
               type="text"
+              aria-label="Course Title"
               value={title}
               onChange={(e) => handleTitleChange(e.target.value)}
               className="w-full text-xl sm:text-2xl font-extrabold text-gray-900 px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
@@ -1426,10 +1422,11 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             <div>
               <label className="block font-bold text-gray-700 mb-1 flex items-center justify-between">
                 <span>URL Slug</span>
-                <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Permanent</span>
+                <span className="text-[10px] text-gray-600 font-semibold uppercase tracking-wider">Permanent</span>
               </label>
               <input
                 type="text"
+                aria-label="Course URL Slug"
                 value={slug}
                 readOnly
                 disabled
@@ -1439,6 +1436,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             <div>
               <label className="block font-bold text-gray-700 mb-1">Target Category / Goal *</label>
               <select
+                aria-label="Target Category / Goal"
                 value={technology}
                 onChange={(e) => setTechnology(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-gray-200 font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
@@ -1461,6 +1459,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             <div>
               <label className="block font-bold text-gray-700 mb-1">Status</label>
               <select
+                aria-label="Course Status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-gray-200 font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
@@ -1563,7 +1562,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             onClick={() => setActiveTab("hero")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === "hero"
-                ? "bg-orange-600 text-white shadow-xs"
+                ? "bg-orange-700 text-white shadow-xs"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
           >
@@ -1576,7 +1575,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             onClick={() => setActiveTab("theme")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === "theme"
-                ? "bg-orange-600 text-white shadow-xs"
+                ? "bg-orange-700 text-white shadow-xs"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
           >
@@ -1589,7 +1588,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             onClick={() => setActiveTab("tabs")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === "tabs"
-                ? "bg-orange-600 text-white shadow-xs"
+                ? "bg-orange-700 text-white shadow-xs"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
           >
@@ -1602,7 +1601,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             onClick={() => setActiveTab("plan")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === "plan"
-                ? "bg-orange-600 text-white shadow-xs"
+                ? "bg-orange-700 text-white shadow-xs"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
           >
@@ -1615,7 +1614,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             onClick={() => setActiveTab("examSyllabus")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === "examSyllabus"
-                ? "bg-orange-600 text-white shadow-xs"
+                ? "bg-orange-700 text-white shadow-xs"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
           >
@@ -1628,7 +1627,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             onClick={() => setActiveTab("leads")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === "leads"
-                ? "bg-orange-600 text-white shadow-xs"
+                ? "bg-orange-700 text-white shadow-xs"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
           >
@@ -1641,7 +1640,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             onClick={() => setActiveTab("sections")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === "sections"
-                ? "bg-orange-600 text-white shadow-xs"
+                ? "bg-orange-700 text-white shadow-xs"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
           >
@@ -1654,7 +1653,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             onClick={() => setActiveTab("syllabus")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === "syllabus"
-                ? "bg-orange-600 text-white shadow-xs"
+                ? "bg-orange-700 text-white shadow-xs"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
           >
@@ -2300,6 +2299,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     <div>
                       <label className="block font-bold text-gray-700 mb-1">Teaching Language / Medium *</label>
                       <select
+                        aria-label="Teaching Language / Medium"
                         value={language}
                         onChange={(e) => setLanguage(e.target.value)}
                         className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-semibold text-gray-800"
@@ -2315,6 +2315,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                       <label className="block font-bold text-gray-700 mb-1">Target Exam / Goal Audience</label>
                       <input
                         type="text"
+                        aria-label="Target Exam / Goal Audience"
                         value={targetAudience}
                         onChange={(e) => setTargetAudience(e.target.value)}
                         placeholder="e.g. Targeted for UPSC CSE 2026 Aspirants"
@@ -2602,6 +2603,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   </label>
                   <input
                     type="number"
+                    aria-label="Selling Price"
                     value={price}
                     onChange={(e) => handlePriceChange(Number(e.target.value), originalPrice)}
                     className="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
@@ -2614,6 +2616,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   </label>
                   <input
                     type="number"
+                    aria-label="Original Price / MRP"
                     value={originalPrice}
                     onChange={(e) => handlePriceChange(price, Number(e.target.value))}
                     className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none"
@@ -2640,6 +2643,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     </label>
                     <input
                       type="text"
+                      aria-label="Coupon Code"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                       placeholder="OFF50"
@@ -2652,6 +2656,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     </label>
                     <input
                       type="number"
+                      aria-label="Discount Percentage"
                       value={couponDiscount}
                       onChange={(e) => setCouponDiscount(Number(e.target.value))}
                       className="w-full px-2.5 py-1.5 text-xs font-bold rounded-xl border border-gray-200"
@@ -2884,6 +2889,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                       </label>
                       <input
                         type="datetime-local"
+                        aria-label="Start Date and Time"
                         value={newSlotDateTime}
                         onChange={(e) => setNewSlotDateTime(e.target.value)}
                         className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
@@ -2894,6 +2900,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         <label className="text-[10px] font-bold text-gray-600 mb-0.5 block">Duration (Mins)</label>
                         <input
                           type="number"
+                          aria-label="Duration in minutes"
                           min="15"
                           max="180"
                           value={newSlotDuration}
@@ -2905,6 +2912,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         <label className="text-[10px] font-bold text-gray-600 mb-0.5 block">Max Audience</label>
                         <input
                           type="number"
+                          aria-label="Max Audience"
                           min="10"
                           max="1000"
                           value={newSlotMaxAudience}
@@ -3983,7 +3991,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   ...heroDraftToMetadata(heroDraft),
                 } as any}
                 sections={sectionFlags}
-                syllabus={{ hasSyllabus: true, papers: [] }}
+                syllabus={{ hasSyllabus: false, papers: [] }}
                 teachers={teachers.map((t, idx) => ({
                   id: String(idx),
                   name: t.name,
