@@ -49,6 +49,7 @@ model User {
   createdDemoSlots   DemoSlot[]          @relation("UserCreatedDemoSlots")
   currentAffairsPdfs CurrentAffairsPdf[] @relation("UserCurrentAffairsPdfs")
   handledCallbackLeads CourseCallbackLead[] @relation("UserHandledCallbackLeads")
+  createdCourses     Course[]            @relation("UserCreatedCourses")
 
   @@index([email])
   @@index([role])
@@ -126,6 +127,8 @@ model Course {
   seoMode           String            @default("preview") // "preview" | "bot-full"
   gateTitle         String?
   gateSubtitle      String?
+  createdById     String?
+  createdBy       User?             @relation("UserCreatedCourses", fields: [createdById], references: [id], onDelete: SetNull)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   chapters        Chapter[]
@@ -149,6 +152,7 @@ model Course {
   @@index([status])
   @@index([isPublished])
   @@index([status, enrollmentCount])
+  @@index([createdById])
 }
 
 model TrackCourse {

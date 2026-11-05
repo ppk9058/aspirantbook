@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { creatorIdFor } from "@/lib/auth/course-access"
 import { logContentAudit } from "@/lib/actions/admin/audit"
 import { importTutorialPackage } from "@/lib/actions/admin/tutorial-import"
 import { validateOrMapCanonicalGoals } from "@/lib/tutorials-goal-categories"
@@ -55,6 +56,7 @@ export async function POST(req: Request) {
       const result = await importTutorialPackage(body, {
         dryRun: body.dryRun,
         publishImmediately: body.publishImmediately ?? (body.status === "PUBLISHED"),
+        creatorId: creatorIdFor(user),
       })
 
       if (!result.success) {
@@ -193,6 +195,7 @@ export async function POST(req: Request) {
           isPremium: false,
           status: (effectiveStatus as any) || "PUBLISHED",
           isPublished,
+          createdById: creatorIdFor(user),
           thumbnailUrl: "/course-bpsc.svg",
           hasTrialLesson: true,
           metadataJson: theme ? JSON.stringify({ theme }) : null,

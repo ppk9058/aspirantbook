@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { requireManagedCourse } from "@/lib/auth/course-access-server"
 
 /**
  * POST /api/admin/courses/[id]/draft
@@ -18,6 +19,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     const { id } = await params
+    const access = await requireManagedCourse(user, id)
+    if (access.response) return access.response
+
     const body = await req.json()
 
     const existing = await prisma.course.findUnique({

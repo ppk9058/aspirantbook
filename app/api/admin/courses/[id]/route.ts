@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { requireManagedCourse } from "@/lib/auth/course-access-server"
+import { decideCourseDelete } from "@/lib/auth/course-access"
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -11,6 +13,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
 
     const { id } = await params
+    const access = await requireManagedCourse(user, id)
+    if (access.response) return access.response
+
     const body = await req.json()
 
     const data: any = {}
@@ -77,6 +82,18 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     const { id } = await params
+    const access = await requireManagedCourse(user, id)
+    if (access.response) return access.response
+
+    const decision = decideCourseDelete(access.course.enrollmentRowCount || access.course.enrollmentCount)
+    if (decision === "archive") {
+      await prisma.course.update({
+        where: { id },
+        data: { status: "ARCHIVED", isPublished: false },
+      })
+      return NextResponse.json({ success: true, message: "Course archived due to active enrollments", archived: true })
+    }
+
     await prisma.course.delete({ where: { id } })
     return NextResponse.json({ success: true, message: "Course deleted successfully" })
   } catch (error: any) {

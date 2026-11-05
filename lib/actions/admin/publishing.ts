@@ -3,12 +3,19 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { toCourseAccessUser } from "@/lib/auth/course-access"
+import { loadManagedCourse } from "@/lib/auth/course-access-server"
 
 export async function publishCourse(courseId: string) {
     const session = await auth()
 
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "TEACHER")) {
         throw new Error("Unauthorized")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     // Update course status to PUBLISHED
@@ -36,6 +43,11 @@ export async function unpublishCourse(courseId: string) {
 
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "TEACHER")) {
         throw new Error("Unauthorized")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     const course = await prisma.course.update({

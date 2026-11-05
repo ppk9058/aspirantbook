@@ -1,0 +1,53 @@
+TAP version 13
+# Subtest: loadManagedCourse ownership & access policy
+    # Subtest: ADMIN ok: admin can manage any course
+    ok 1 - ADMIN ok: admin can manage any course
+      ---
+      duration_ms: 36.716667
+      type: 'test'
+      ...
+    # Subtest: TEACHER owner ok: teacher can manage course they created
+    ok 2 - TEACHER owner ok: teacher can manage course they created
+      ---
+      duration_ms: 0.516416
+      type: 'test'
+      ...
+    # Subtest: TEACHER non-owner 403: teacher cannot manage course created by someone else
+    ok 3 - TEACHER non-owner 403: teacher cannot manage course created by someone else
+      ---
+      duration_ms: 0.689792
+      type: 'test'
+      ...
+    # Subtest: real TEACHER on null-creator course 403: real teacher cannot manage legacy course
+    ok 4 - real TEACHER on null-creator course 403: real teacher cannot manage legacy course
+      ---
+      duration_ms: 0.501541
+      type: 'test'
+      ...
+    # Subtest: demo-teacher on null-creator course ok: demo teacher allowed on legacy course
+    ok 5 - demo-teacher on null-creator course ok: demo teacher allowed on legacy course
+      ---
+      duration_ms: 0.78775
+      type: 'test'
+      ...
+    # Subtest: missing course 404: non-existent course returns 404
+    ok 6 - missing course 404: non-existent course returns 404
+      ---
+      duration_ms: 0.503375
+      type: 'test'
+      ...
+    1..6
+ok 1 - loadManagedCourse ownership & access policy
+  ---
+  duration_ms: 41.087542
+  type: 'suite'
+  ...
+1..1
+# tests 6
+# suites 1
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 423.853375

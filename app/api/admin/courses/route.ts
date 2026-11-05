@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { creatorIdFor } from "@/lib/auth/course-access"
 
 export async function POST(req: Request) {
   try {
@@ -82,6 +83,7 @@ export async function POST(req: Request) {
         isPremium: Boolean(isPremium),
         status: (status as any) || "DRAFT",
         isPublished,
+        createdById: creatorIdFor(user),
         schemaVersion: 2,
         thumbnailUrl: thumbnailUrl || "/placeholder-course.svg",
         theme: theme || null,

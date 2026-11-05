@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { canEditChapter, canDeleteChapter } from "@/lib/auth/permissions"
+import { toCourseAccessUser } from "@/lib/auth/course-access"
+import { loadManagedCourse } from "@/lib/auth/course-access-server"
 import { logContentAudit } from "@/lib/actions/admin/audit"
 
 const ChapterSchema = z.object({
@@ -42,6 +44,11 @@ export async function createChapter(courseId: string, data: { title: string; des
 
     if (!session || !canEditChapter(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to create chapter")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     const validated = ChapterSchema.parse(data)
@@ -89,6 +96,18 @@ export async function updateChapter(
 
     if (!session || !canEditChapter(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to update chapter")
+    }
+
+    const existingChapter = await prisma.chapter.findUnique({
+        where: { id: chapterId },
+        select: { courseId: true },
+    })
+    if (!existingChapter) {
+        throw new Error("Chapter not found")
+    }
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), existingChapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     // Validate fields if provided
@@ -142,6 +161,11 @@ export async function updateChaptersGateMode(
         throw new Error("Unauthorized: Insufficient permissions to update chapters")
     }
 
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
+    }
+
     const cleanPercentage =
         previewPercentage === null || previewPercentage === undefined
             ? null
@@ -186,6 +210,11 @@ export async function deleteChapter(chapterId: string) {
         throw new Error("Chapter not found")
     }
 
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), chapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
+    }
+
     // Delete chapter (lessons will be cascade deleted)
     await prisma.chapter.delete({
         where: { id: chapterId },
@@ -208,6 +237,11 @@ export async function reorderChapters(courseId: string, chapterIds: string[]) {
 
     if (!session || !canEditChapter(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to reorder chapters")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     // Update order for each chapter
@@ -250,6 +284,11 @@ export async function duplicateChapter(chapterId: string) {
 
     if (!sourceChapter) {
         throw new Error("Source chapter not found")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), sourceChapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     const maxOrder = await prisma.chapter.findFirst({

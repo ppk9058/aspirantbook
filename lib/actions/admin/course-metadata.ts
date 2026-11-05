@@ -3,6 +3,8 @@
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { canEditCourse } from "@/lib/auth/permissions"
+import { toCourseAccessUser } from "@/lib/auth/course-access"
+import { loadManagedCourse } from "@/lib/auth/course-access-server"
 import { logContentAudit } from "@/lib/actions/admin/audit"
 import { prisma } from "@/lib/prisma"
 import {
@@ -45,6 +47,11 @@ export async function updateCourseMetadataAction(
 
     if (!session || !canEditCourse(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to edit course metadata")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     const updated = await saveCourseCustomMetadata(courseId, data)

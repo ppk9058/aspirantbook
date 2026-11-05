@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { requireManagedChapter, requireManagedLesson } from "@/lib/auth/course-access-server"
 
 export async function POST(req: Request) {
   try {
@@ -13,6 +14,9 @@ export async function POST(req: Request) {
     if (!body.chapterId || !body.title) {
       return NextResponse.json({ error: "Chapter ID and lesson title are required" }, { status: 400 })
     }
+
+    const access = await requireManagedChapter(user, body.chapterId)
+    if (access.response) return access.response
 
     const highestLesson = await prisma.lesson.findFirst({
       where: { chapterId: body.chapterId },
@@ -58,6 +62,9 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Lesson ID is required" }, { status: 400 })
     }
 
+    const access = await requireManagedLesson(user, body.lessonId)
+    if (access.response) return access.response
+
     const data: any = {}
     if (body.title !== undefined) data.title = body.title.trim()
     if (body.type !== undefined) data.type = body.type
@@ -94,6 +101,9 @@ export async function DELETE(req: Request) {
     if (!lessonId) {
       return NextResponse.json({ error: "Lesson ID is required" }, { status: 400 })
     }
+
+    const access = await requireManagedLesson(user, lessonId)
+    if (access.response) return access.response
 
     await prisma.lesson.delete({ where: { id: lessonId } })
     return NextResponse.json({ success: true, message: "Lesson deleted successfully" })

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { formatUtcToIst, isSlotExpired } from "@/lib/demo/slot-utils"
+import { requireManagedCourse } from "@/lib/auth/course-access-server"
+import { toCourseAccessUser } from "@/lib/auth/course-access"
 
 interface Params {
   params: Promise<{ id: string }>
@@ -150,6 +152,9 @@ export async function POST(req: NextRequest, { params }: Params) {
     }
 
     const { id } = await params
+    const access = await requireManagedCourse(toCourseAccessUser(session?.user), id)
+    if (access.response) return access.response
+
     const body = await req.json()
     const { startTimeUtc, durationMinutes = 60, topic, facultyName, maxAudience = 100 } = body
 
@@ -202,6 +207,17 @@ export async function DELETE(req: NextRequest) {
     if (!slotId) {
       return NextResponse.json({ error: "slotId is required." }, { status: 400 })
     }
+
+    const slot = await prisma.demoSlot.findUnique({
+      where: { id: slotId },
+      select: { id: true, courseId: true },
+    })
+    if (!slot) {
+      return NextResponse.json({ error: "Slot not found." }, { status: 404 })
+    }
+
+    const access = await requireManagedCourse(toCourseAccessUser(session?.user), slot.courseId)
+    if (access.response) return access.response
 
     await prisma.demoSlot.delete({
       where: { id: slotId },

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserContext } from "@/lib/auth/rbac";
+import { creatorIdFor } from "@/lib/auth/course-access";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -54,6 +55,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         isPremium: original.isPremium,
         isPublished: false, // Draft by default
         status: "DRAFT",
+        createdById: creatorIdFor(user),
         metadataJson: original.metadataJson,
       },
     });

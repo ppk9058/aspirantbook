@@ -9,6 +9,7 @@ import {
   normalizeBlockWithBid,
 } from "@/lib/validations/tutorial-schema"
 import { validateOrMapCanonicalGoals } from "@/lib/tutorials-goal-categories"
+import { creatorIdFor, toCourseAccessUser } from "@/lib/auth/course-access"
 import crypto from "crypto"
 
 export interface ImportOptions {
@@ -17,6 +18,7 @@ export interface ImportOptions {
   courseId?: string
   updateCourseMeta?: boolean
   archiveOrphans?: boolean
+  creatorId?: string | null
 }
 
 export type LessonMergeStatus = "created" | "updated" | "unlocked" | "unchanged" | "conflict"
@@ -309,6 +311,12 @@ export async function importTutorialPackage(
 
     const userRole = (session?.user as any)?.role
     const userId = session?.user?.id || "system"
+    const effectiveCreatorId =
+      options.creatorId !== undefined
+        ? options.creatorId
+        : session?.user
+        ? creatorIdFor(toCourseAccessUser(session.user))
+        : null
     const isProduction = process.env.NODE_ENV === "production"
 
     // 1. Security Check: Real Role Guard
@@ -788,6 +796,7 @@ export async function importTutorialPackage(
               prerequisites: parsedPrerequisites,
               status: effectiveStatus,
               isPublished: effectiveIsPublished,
+              createdById: effectiveCreatorId,
               theme: effectiveTheme as any,
               metadataJson: JSON.stringify({
                 format: "tutorial",

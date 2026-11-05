@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { LessonType } from "@prisma/client"
 import { canEditContent, canDeleteContent } from "@/lib/auth/permissions"
+import { toCourseAccessUser } from "@/lib/auth/course-access"
+import { loadManagedCourse } from "@/lib/auth/course-access-server"
 import { logContentAudit } from "@/lib/actions/admin/audit"
 import { chunkContent, computeContentHash } from "@/lib/authwall/chunker"
 
@@ -62,6 +64,23 @@ export async function createLesson(
 
     if (!session || !canEditContent(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to create lesson")
+    }
+
+    const chapter = await prisma.chapter.findUnique({
+        where: { id: chapterId },
+        select: { courseId: true },
+    })
+    if (!chapter) {
+        throw new Error("Chapter not found")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), chapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
+    }
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), chapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     const validated = LessonSchema.parse(data)
@@ -130,6 +149,18 @@ export async function updateLesson(
         throw new Error("Unauthorized: Insufficient permissions to update lesson")
     }
 
+    const existingLesson = await prisma.lesson.findUnique({
+        where: { id: lessonId },
+        select: { chapter: { select: { courseId: true } } },
+    })
+    if (!existingLesson) {
+        throw new Error("Lesson not found")
+    }
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), existingLesson.chapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
+    }
+
     const contentBlocks = data.content ? chunkContent(data.content) : undefined
     const blockCount = contentBlocks ? contentBlocks.length : undefined
     const contentHash = contentBlocks ? computeContentHash(contentBlocks) : undefined
@@ -194,6 +225,11 @@ export async function updateLessonsGateMode(
         throw new Error("Unauthorized: Insufficient permissions to update lessons")
     }
 
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
+    }
+
     const cleanPercentage =
         previewPercentage === null || previewPercentage === undefined
             ? null
@@ -242,6 +278,11 @@ export async function deleteLesson(lessonId: string) {
         throw new Error("Lesson not found")
     }
 
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), lesson.chapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
+    }
+
     const courseId = lesson.chapter.courseId
 
     await prisma.lesson.delete({
@@ -275,6 +316,11 @@ export async function reorderLessons(chapterId: string, lessonIds: string[]) {
 
     if (!chapter) {
         throw new Error("Chapter not found")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), chapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     // Update order for each lesson
@@ -317,6 +363,11 @@ export async function duplicateLesson(lessonId: string) {
 
     if (!sourceLesson) {
         throw new Error("Lesson not found")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), sourceLesson.chapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     const maxOrder = await prisma.lesson.findFirst({
@@ -375,6 +426,11 @@ export async function saveLessonDraft(
         throw new Error("Lesson not found")
     }
 
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), lesson.chapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
+    }
+
     // Create a new draft LessonVersion
     const version = await prisma.lessonVersion.create({
         data: {
@@ -422,6 +478,11 @@ export async function publishLessonVersion(
 
     if (!lesson) {
         throw new Error("Lesson not found")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), lesson.chapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     // Determine blocks to publish
@@ -593,6 +654,11 @@ export async function restoreLessonVersion(versionId: string) {
 
     if (!versionToRestore) {
         throw new Error("Version not found")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), versionToRestore.lesson.chapter.courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     const lesson = versionToRestore.lesson

@@ -7,6 +7,8 @@ import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { deleteFromS3 } from "@/lib/aws-s3"
 import { canCreateCourse, canEditCourse, canDeleteCourse, isEditorUser } from "@/lib/auth/permissions"
+import { creatorIdFor, toCourseAccessUser } from "@/lib/auth/course-access"
+import { loadManagedCourse } from "@/lib/auth/course-access-server"
 import { logContentAudit } from "@/lib/actions/admin/audit"
 
 const CourseDraftSchema = z.object({
@@ -67,6 +69,7 @@ export async function createCourseDraft(prevState: any, formData: FormData) {
                 isPremium,
                 status: statusVal,
                 isPublished,
+                createdById: creatorIdFor(toCourseAccessUser(session?.user)),
                 thumbnailUrl: "/placeholder-course.svg", // Default placeholder
             },
         })
@@ -99,6 +102,11 @@ export async function updateCourseDraft(courseId: string, data: any) {
 
     if (!session || !canEditCourse(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to edit course")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     if (data.status) {
@@ -150,6 +158,11 @@ export async function updateCourseInline(courseId: string, fields: Record<string
 
     if (!session || !canEditCourse(session.user)) {
         throw new Error("Unauthorized: Insufficient permissions to edit course")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     const data: Record<string, any> = {}
@@ -211,6 +224,11 @@ export async function updateCourseThumbnail(courseId: string, thumbnailUrl: stri
         throw new Error("Unauthorized")
     }
 
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
+    }
+
     const course = await prisma.course.findUnique({
         where: { id: courseId },
     })
@@ -238,6 +256,11 @@ export async function deleteDraft(courseId: string) {
 
     if (!session || !isEditorUser(session.user)) {
         throw new Error("Unauthorized")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     // Only allow deleting drafts
@@ -302,6 +325,11 @@ export async function togglePublishStatus(courseId: string) {
 
     if (!session || !isEditorUser(session.user)) {
         throw new Error("Unauthorized")
+    }
+
+    const managed = await loadManagedCourse(toCourseAccessUser(session.user), courseId)
+    if ("error" in managed) {
+        throw new Error(managed.error)
     }
 
     const course = await prisma.course.findUnique({
