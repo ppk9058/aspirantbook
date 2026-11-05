@@ -1,0 +1,49 @@
+
+=== TASK C: REMOTE-DB LATENCY BENCHMARKS VIA TOXIPROXY ===
+Loaded 100 question IDs from test fixture.
+
+--- Testing with 0ms Added Network Latency (Round-Trip Delay: ~0ms) ---
+[0ms] Running submit requests with Flags OFF (Sequential Loop)...
+  [0ms Flags OFF] Submit p50 = 284 ms, p95 = 1090 ms
+[0ms] Running submit requests with Flags ON (Atomic UNNEST)...
+  [0ms Flags ON]  Submit p50 = 69 ms, p95 = 613 ms (4.1x speedup)
+
+--- Testing with 20ms Added Network Latency (Round-Trip Delay: ~40ms) ---
+[20ms] Running submit requests with Flags OFF (Sequential Loop)...
+  [20ms Flags OFF] Submit p50 = 354 ms, p95 = 733 ms
+[20ms] Running submit requests with Flags ON (Atomic UNNEST)...
+  [20ms Flags ON]  Submit p50 = 22 ms, p95 = 219 ms (16.1x speedup)
+
+--- Testing with 40ms Added Network Latency (Round-Trip Delay: ~80ms) ---
+[40ms] Running submit requests with Flags OFF (Sequential Loop)...
+  [40ms Flags OFF] Submit p50 = 225 ms, p95 = 523 ms
+[40ms] Running submit requests with Flags ON (Atomic UNNEST)...
+  [40ms Flags ON]  Submit p50 = 80 ms, p95 = 817 ms (2.8x speedup)
+
+=== TASK C COMPLETED SUCCESSFULLY! ===
+[
+  {
+    "latencyMs": 0,
+    "flagsOffP50": 284,
+    "flagsOffP95": 1090,
+    "flagsOnP50": 69,
+    "flagsOnP95": 613,
+    "speedupP50": "4.1x"
+  },
+  {
+    "latencyMs": 20,
+    "flagsOffP50": 354,
+    "flagsOffP95": 733,
+    "flagsOnP50": 22,
+    "flagsOnP95": 219,
+    "speedupP50": "16.1x"
+  },
+  {
+    "latencyMs": 40,
+    "flagsOffP50": 225,
+    "flagsOffP95": 523,
+    "flagsOnP50": 80,
+    "flagsOnP95": 817,
+    "speedupP50": "2.8x"
+  }
+]

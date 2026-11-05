@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "latencyMs": 0,
+      "flagsOffP50": 284,
+      "flagsOffP95": 1090,
+      "flagsOnP50": 69,
+      "flagsOnP95": 613,
+      "speedupP50": "4.1x"
+    },
+    {
+      "latencyMs": 20,
+      "flagsOffP50": 354,
+      "flagsOffP95": 733,
+      "flagsOnP50": 22,
+      "flagsOnP95": 219,
+      "speedupP50": "16.1x"
+    },
+    {
+      "latencyMs": 40,
+      "flagsOffP50": 225,
+      "flagsOffP95": 523,
+      "flagsOnP50": 80,
+      "flagsOnP95": 817,
+      "speedupP50": "2.8x"
+    }
+  ]
+}

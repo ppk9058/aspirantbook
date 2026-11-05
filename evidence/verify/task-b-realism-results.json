@@ -1,0 +1,14 @@
+{
+  "vuCount": 30,
+  "totalRequests": 30,
+  "successfulRequests": 0,
+  "failedRequests": 30,
+  "startHerdP50": 698,
+  "startHerdP95": 814,
+  "syncP50": 0,
+  "syncP95": 0,
+  "submitHerdP50": 0,
+  "submitHerdP95": 0,
+  "overallDurationSec": 0.96,
+  "requestsPerSec": 31.3
+}

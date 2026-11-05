@@ -1,0 +1,14 @@
+PrismaClientKnownRequestError: 
+Invalid `prisma.examAttemptAnswer.create()` invocation in
+/Users/praveenkumar/TrillionSkill/tools/loadtest/verification-benchmarks.ts:408:40
+
+  405   data: { userId: `u_vu_bench_${i}`, testId: "et_perf_100q", status: "IN_PROGRESS", startedAt: new Date() },
+  406 });
+  407 for (let q = 1; q <= 20; q++) {
+→ 408   await prisma.examAttemptAnswer.create(
+Foreign key constraint violated on the constraint: `ExamAttemptAnswer_questionId_fkey`
+    at ei.handleRequestError (/Users/praveenkumar/TrillionSkill/node_modules/@prisma/client/src/runtime/RequestHandler.ts:228:13)
+    at ei.handleAndLogRequestError (/Users/praveenkumar/TrillionSkill/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    at ei.request (/Users/praveenkumar/TrillionSkill/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    at async a (/Users/praveenkumar/TrillionSkill/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    at async runBenchmarkSuite (/Users/praveenkumar/TrillionSkill/tools/loadtest/verification-benchmarks.ts:408:9)
