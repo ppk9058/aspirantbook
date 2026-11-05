@@ -258,6 +258,7 @@ test.describe("Final Artifact Screenshot Capture", () => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto(`/courses/${ibpsCourse.slug}`)
     await page.waitForLoadState("domcontentloaded")
+    await expect(page.locator("h1")).toContainText("IBPS", { timeout: 10000 })
     await page.waitForTimeout(600)
 
     await page.screenshot({
@@ -268,6 +269,7 @@ test.describe("Final Artifact Screenshot Capture", () => {
     await page.setViewportSize({ width: 360, height: 740 })
     await page.goto(`/courses/${ibpsCourse.slug}`)
     await page.waitForLoadState("domcontentloaded")
+    await expect(page.locator("h1")).toContainText("IBPS", { timeout: 10000 })
     await page.waitForTimeout(600)
 
     await page.screenshot({
@@ -284,6 +286,7 @@ test.describe("Final Artifact Screenshot Capture", () => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto(`/courses/${upscCourse.slug}`)
     await page.waitForLoadState("domcontentloaded")
+    await expect(page.locator("h1")).toBeVisible({ timeout: 10000 })
     await page.waitForTimeout(400)
 
     // Switch to Hindi
@@ -295,6 +298,29 @@ test.describe("Final Artifact Screenshot Capture", () => {
 
     await page.screenshot({
       path: path.join(ARTIFACTS_DIR, "upsc-hindi.png"),
+    })
+  })
+
+  test("Capture Desktop Scrolled Sticky Enrollment Card", async ({ page }) => {
+    if (!upscCourse) return
+
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto(`/courses/${upscCourse.slug}`)
+    await page.waitForLoadState("domcontentloaded")
+    await expect(page.locator("h1")).toBeVisible({ timeout: 10000 })
+    await page.waitForTimeout(500)
+
+    // Scroll down to activate sticky enrollment card
+    await page.evaluate(() => window.scrollBy(0, 300))
+    await page.waitForTimeout(800)
+
+    const run3EvidenceDir = path.resolve(process.cwd(), "docs/release/evidence/run3")
+    if (!fs.existsSync(run3EvidenceDir)) {
+      fs.mkdirSync(run3EvidenceDir, { recursive: true })
+    }
+
+    await page.screenshot({
+      path: path.join(run3EvidenceDir, "sticky-card-desktop.png"),
     })
   })
 })

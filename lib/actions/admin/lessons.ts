@@ -78,10 +78,6 @@ export async function createLesson(
     if ("error" in managed) {
         throw new Error(managed.error)
     }
-    const managed = await loadManagedCourse(toCourseAccessUser(session.user), chapter.courseId)
-    if ("error" in managed) {
-        throw new Error(managed.error)
-    }
 
     const validated = LessonSchema.parse(data)
 
