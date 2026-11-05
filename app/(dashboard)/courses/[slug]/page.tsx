@@ -28,6 +28,10 @@ const getCachedCourseBySlug = unstable_cache(
             where: { OR: [{ slug }, { id: slug }] },
             include: {
                 units: { orderBy: { order: "asc" } },
+                teachers: {
+                    orderBy: { order: "asc" },
+                    include: { teacher: true },
+                },
                 chapters: {
                     orderBy: { order: "asc" },
                     include: {
@@ -121,6 +125,10 @@ export default async function CourseDetailPage({
             where: { OR: [{ slug }, { id: slug }] },
             include: {
                 units: { orderBy: { order: "asc" } },
+                teachers: {
+                    orderBy: { order: "asc" },
+                    include: { teacher: true },
+                },
                 chapters: {
                     orderBy: { order: "asc" },
                     include: {
@@ -357,8 +365,16 @@ export default async function CourseDetailPage({
             const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
             const shareUrl = `${baseUrl}/courses/${course.slug}`
 
+            const dbCourseTeachers = (cachedCourse as any).teachers?.length > 0
+                ? (cachedCourse as any).teachers.map((ct: any) => ({
+                    ...ct.teacher,
+                    isPrimary: ct.isPrimary,
+                    role: ct.role || ct.teacher.role,
+                    roleHi: ct.roleHi || ct.teacher.roleHi,
+                  }))
+                : null
             const rawTeachers = meta.teachers && meta.teachers.length > 0 ? (meta.teachers as any) : (batch?.teachers ? batch.teachers : [])
-            const resolvedTeachers = resolveCourseTeachers(rawTeachers)
+            const resolvedTeachers = dbCourseTeachers || resolveCourseTeachers(rawTeachers)
 
             const safeThumb = isValidThumbnailUrl(safeCourse.thumbnailUrl)
                 ? sanitizeThumbnailUrl(safeCourse.thumbnailUrl)
@@ -374,7 +390,9 @@ export default async function CourseDetailPage({
                         course={{
                             ...safeCourse,
                             thumbnailUrl: safeThumb,
-                            units: (course as any).units || [],
+                            units: ((course as any).units || []).filter((u: any) =>
+                                (course as any).chapters?.some((c: any) => c.unitId === u.id)
+                            ),
                         } as any}
                         metadata={meta}
                         sections={flags}

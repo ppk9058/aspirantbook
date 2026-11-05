@@ -3,6 +3,7 @@ import { DEFAULT_SECTION_FLAGS, type SectionFlags, type CourseMetadataV2 } from 
 import { isValidThumbnailUrl, sanitizeThumbnailUrl, generateCourseCoverSvg } from "@/lib/courses/cover-fallback"
 import { resolveCourseTeachers } from "@/lib/teachers/library"
 import type { CourseDetailV2Props } from "@/components/course/detail/CourseDetailV2"
+export type { CourseDetailV2Props }
 import type { DetailCourse, DetailTeacher, DetailFaq, HeroStat, BadgeChip, LateJoinNote, SyllabusPaperSummary } from "@/components/course/detail/types"
 
 const DEFAULT_THEME_TOKENS = {
@@ -106,9 +107,16 @@ function normalizeCredentials(creds: any): Array<{ label: string; labelHi?: stri
  * Guarantees 100% safe defaults for every nested array and object, preventing crashes.
  */
 export function buildCourseDetailViewModel(input: CourseDraftInput): CourseDetailV2Props {
-  const isFree = input.isFree ?? (Number(input.price) === 0 && !input.isPremium)
-  const price = isFree ? 0 : Math.max(0, Number(input.price) || 0)
-  const originalPrice = isFree ? 0 : Math.max(price, Number(input.originalPrice ?? input.mrp) || 0)
+  const isFree = Boolean(input.isFree)
+  const rawPrice =
+    input.price === undefined || input.price === null || input.price === ""
+      ? 0
+      : Number(input.price)
+  const price = isFree ? 0 : Math.max(0, isNaN(rawPrice) ? 0 : rawPrice)
+  const rawOriginal = Number(input.originalPrice ?? input.mrp)
+  const originalPrice = isFree
+    ? 0
+    : Math.max(price, isNaN(rawOriginal) ? 0 : rawOriginal)
 
   // Normalize thumbnail
   const rawThumb = input.thumbnailUrl
@@ -166,7 +174,16 @@ export function buildCourseDetailViewModel(input: CourseDraftInput): CourseDetai
     )
   }
 
-  const normalizedUnits = rawUnits.map((u, idx) => ({
+  // Filter out empty units (units with 0 themes / chapters) on public course page
+  const nonEmptyUnits = rawUnits.filter((u) => {
+    if (Array.isArray(u.themes)) return u.themes.length > 0
+    if (normalizedChapters.length > 0) {
+      return normalizedChapters.some((ch) => ch.unitId === u.id)
+    }
+    return false
+  })
+
+  const normalizedUnits = nonEmptyUnits.map((u, idx) => ({
     id: u.id || `unit-${idx + 1}`,
     title: u.title || `Unit ${idx + 1}`,
     titleHi: u.titleHi || null,
