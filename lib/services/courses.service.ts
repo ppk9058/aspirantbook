@@ -10,10 +10,11 @@ import {
   MyLearningItemDto,
   CareerTrackDto,
   CareerTrackDetailDto,
-} from "@/packages/shared/src/dto/content.dto";
+} from "@aspirantbook/shared";
 import { parseCourseMetadata, readSectionFlags } from "@/lib/courses/metadata-schema";
 import { deriveRatingDistribution } from "@/lib/courses/ratings";
 import { loadCourseSyllabus } from "@/lib/courses/syllabus";
+import { generateCourseCoverSvg, isValidThumbnailUrl } from "@/lib/courses/cover-fallback";
 
 export async function getCoursesList(
   viewer: Viewer,
@@ -163,12 +164,25 @@ export async function getCourseDetail(
     totalLessons += ch.lessons.length;
   });
 
+  // ── Additive v2 payload ────────────────────────────────────────────────────
+  const metaResult = parseCourseMetadata(course.metadataJson);
+  const meta = metaResult.ok ? metaResult.data : {};
+  const sections = readSectionFlags(meta);
+
+  const safeThumbnail = isValidThumbnailUrl(course.thumbnailUrl)
+    ? course.thumbnailUrl!
+    : generateCourseCoverSvg({
+        title: course.title,
+        category: course.technology || undefined,
+        brand: (meta as any).brand || undefined,
+      });
+
   const courseSummary: CourseSummaryDto = {
     id: course.id,
     title: course.title,
     slug: course.slug,
     description: course.description,
-    thumbnailUrl: course.thumbnailUrl,
+    thumbnailUrl: safeThumbnail,
     difficulty: course.difficulty,
     duration: course.duration,
     rating: course.rating,
@@ -183,11 +197,6 @@ export async function getCourseDetail(
     subtitleHi: course.subtitleHi,
     descriptionHi: course.descriptionHi,
   };
-
-  // ── Additive v2 payload ────────────────────────────────────────────────────
-  const metaResult = parseCourseMetadata(course.metadataJson);
-  const meta = metaResult.ok ? metaResult.data : {};
-  const sections = readSectionFlags(meta);
 
   const units = (course.units || []).map((unit) => ({
     id: unit.id,
