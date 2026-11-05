@@ -111,6 +111,7 @@ export function SubNav({
                 key={item.id}
                 type="button"
                 role="tab"
+                data-testid={`subnav-tab-${item.id}`}
                 aria-selected={isSelected}
                 aria-controls={item.id}
                 onClick={() => scrollTo(item.id)}

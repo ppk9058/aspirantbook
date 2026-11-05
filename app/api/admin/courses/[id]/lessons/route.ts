@@ -35,6 +35,7 @@ export async function POST(req: Request) {
         attachmentName: body.attachmentName || null,
         attachmentUrl: body.attachmentUrl || null,
         content: body.content || null,
+        scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : null,
       },
     })
 
@@ -67,6 +68,7 @@ export async function PUT(req: Request) {
     if (body.attachmentName !== undefined) data.attachmentName = body.attachmentName || null
     if (body.attachmentUrl !== undefined) data.attachmentUrl = body.attachmentUrl || null
     if (body.content !== undefined) data.content = body.content || null
+    if (body.scheduledAt !== undefined) data.scheduledAt = body.scheduledAt ? new Date(body.scheduledAt) : null
 
     const updated = await prisma.lesson.update({
       where: { id: body.lessonId },

@@ -60,6 +60,7 @@ import { TabsTab, DEFAULT_TABS, type TabConfigItem } from "./studio/TabsTab"
 import { DEFAULT_THEME_TOKENS, type CourseThemeTokens } from "@/components/course/detail/theme"
 import { CourseDetailV2 } from "@/components/course/detail/CourseDetailV2"
 import { PreviewErrorBoundary } from "@/components/course/detail/PreviewErrorBoundary"
+import { CourseLivePreviewModal } from "./CourseLivePreviewModal"
 import { buildCourseDetailViewModel } from "@/lib/courses/view-model"
 import { useDirtyGuard } from "./studio/useDirtyGuard"
 import { buildHeroDraft, heroDraftToMetadata, heroDraftToCourseColumns, type HeroDraft } from "./studio/draft"
@@ -79,6 +80,7 @@ interface LessonItem {
   content?: string | null
   videoUrl?: string | null
   isTrial?: boolean
+  scheduledAt?: string | Date | null
   order: number
 }
 
@@ -128,12 +130,12 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const [slug, setSlug] = useState(course.slug)
   const [technology, setTechnology] = useState(course.technology || "Skills & Tech")
   const [description, setDescription] = useState(course.description)
-  const [price, setPrice] = useState(course.price || 3299)
-  const [originalPrice, setOriginalPrice] = useState(course.originalPrice || 4499)
-  const [discountPercent, setDiscountPercent] = useState(course.discountPercent || 27)
-  const [couponCode, setCouponCode] = useState(course.couponCode || "OFF50")
-  const [couponDiscount, setCouponDiscount] = useState(course.couponDiscount || 50)
-  const [expiresAt, setExpiresAt] = useState(course.expiresAt || "Oct 30, 2026")
+  const [price, setPrice] = useState(course.price ?? 0)
+  const [originalPrice, setOriginalPrice] = useState(course.originalPrice ?? 0)
+  const [discountPercent, setDiscountPercent] = useState(course.discountPercent ?? 0)
+  const [couponCode, setCouponCode] = useState(course.couponCode || "")
+  const [couponDiscount, setCouponDiscount] = useState(course.couponDiscount ?? 0)
+  const [expiresAt, setExpiresAt] = useState(course.expiresAt || "")
   const [hasTrialLesson, setHasTrialLesson] = useState(course.hasTrialLesson ?? true)
   const [isPremium, setIsPremium] = useState(course.isPremium ?? true)
   const [status, setStatus] = useState(course.status || "PUBLISHED")
@@ -472,6 +474,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const [lessonDurationText, setLessonDurationText] = useState("1h 45m 00s")
   const [lessonVideoUrl, setLessonVideoUrl] = useState("")
   const [isTrial, setIsTrial] = useState(false)
+  const [lessonScheduledAt, setLessonScheduledAt] = useState("")
   const [attachmentType, setAttachmentType] = useState<"PDF" | "ARTICLE" | "LIVE" | "VIDEO">("PDF")
   const [attachmentName, setAttachmentName] = useState("")
   const [attachmentUrl, setAttachmentUrl] = useState("")
@@ -1175,6 +1178,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     setLessonDurationText(lesson.durationText || "")
     setLessonVideoUrl(lesson.videoUrl || "")
     setIsTrial(Boolean(lesson.isTrial))
+    setLessonScheduledAt(lesson.scheduledAt ? new Date(lesson.scheduledAt).toISOString().slice(0, 16) : "")
     setAttachmentType((lesson.attachmentType as any) || "PDF")
     setAttachmentName(lesson.attachmentName || "")
     setAttachmentUrl(lesson.attachmentUrl || "")
@@ -1196,6 +1200,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           durationText: lessonDurationText,
           videoUrl: lessonVideoUrl || null,
           isTrial,
+          scheduledAt: lessonScheduledAt ? new Date(lessonScheduledAt).toISOString() : null,
           attachmentType: attachmentUrl || attachmentName ? attachmentType : null,
           attachmentName: attachmentName || null,
           attachmentUrl: attachmentUrl || null,
@@ -1239,6 +1244,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           durationText: lessonDurationText,
           videoUrl: lessonVideoUrl || null,
           isTrial,
+          scheduledAt: lessonScheduledAt ? new Date(lessonScheduledAt).toISOString() : null,
           attachmentType: attachmentUrl || attachmentName ? attachmentType : null,
           attachmentName: attachmentName || null,
           attachmentUrl: attachmentUrl || null,
@@ -2129,6 +2135,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
 
                                     {/* EDIT LESSON BUTTON */}
                                     <button
+                                      data-testid="btn-edit-lesson"
                                       onClick={() => openEditLesson(lesson, chapter.id)}
                                       className="px-2.5 py-1.5 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors flex items-center gap-1 shadow-2xs"
                                       title="Edit lesson details, video, and PDF"
@@ -2247,6 +2254,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                             <label className="block font-bold text-gray-700 mb-1">Full Name (English) *</label>
                             <input
                               type="text"
+                              data-testid={`input-teacher-name-${idx}`}
                               value={teacher.name || ""}
                               onChange={(e) => handleUpdateTeacher(idx, "name", e.target.value)}
                               placeholder="e.g. Dr. Rajesh Sharma"
@@ -2267,6 +2275,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                             <label className="block font-bold text-gray-700 mb-1">Role / Designation (English) *</label>
                             <input
                               type="text"
+                              data-testid={`input-teacher-role-${idx}`}
                               value={teacher.role || ""}
                               onChange={(e) => handleUpdateTeacher(idx, "role", e.target.value)}
                               placeholder="e.g. Senior Faculty & Mentor"
@@ -2627,6 +2636,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                               <label className="block font-bold text-gray-700 mb-1">Question (English) *</label>
                               <input
                                 type="text"
+                                data-testid={`input-faq-question-${idx}`}
                                 value={faq.question || ""}
                                 onChange={(e) => handleUpdateFaq(idx, "question", e.target.value)}
                                 placeholder="e.g. How do I access video lectures and notes after enrolling?"
@@ -3742,12 +3752,27 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                 <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer">
                   <input
                     type="checkbox"
+                    data-testid="input-lesson-is-trial"
                     checked={isTrial}
                     onChange={(e) => setIsTrial(e.target.checked)}
                     className="rounded text-orange-600 focus:ring-orange-500"
                   />
                   <span>Mark as Free Trial Lesson (Students can preview this without buying bundle)</span>
                 </label>
+              </div>
+
+              {/* Scheduled Date/Time */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Scheduled Date &amp; Time (IST)
+                </label>
+                <input
+                  type="datetime-local"
+                  data-testid="input-lesson-scheduled-at"
+                  value={lessonScheduledAt}
+                  onChange={(e) => setLessonScheduledAt(e.target.value)}
+                  className="w-full px-3 py-2 text-xs border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                />
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
@@ -3760,6 +3785,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                 </button>
                 <button
                   type="submit"
+                  data-testid="btn-save-edit-lesson"
                   className="px-4 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-sm"
                 >
                   Save Changes
@@ -4006,71 +4032,13 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
         </div>
       )}
 
-      {/* Live Preview Modal (renders public CourseDetailV2 in real-time from draft state) */}
-      {showLivePreview && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="flex items-center justify-between border-b border-gray-800 bg-gray-900 px-6 py-3 text-white">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-extrabold tracking-wide uppercase text-orange-400">
-                Studio Live Preview
-              </span>
-              <span className="rounded bg-white/10 px-2 py-0.5 text-xs text-gray-300">
-                Unsaved Draft
-              </span>
-            </div>
-
-            {/* Viewport switchers */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPreviewViewport("desktop")}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
-                  previewViewport === "desktop"
-                    ? "bg-orange-600 text-white"
-                    : "bg-gray-800 text-gray-400 hover:text-white"
-                }`}
-              >
-                <Monitor className="h-3.5 w-3.5" />
-                <span>Desktop (1280px)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPreviewViewport("mobile")}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
-                  previewViewport === "mobile"
-                    ? "bg-orange-600 text-white"
-                    : "bg-gray-800 text-gray-400 hover:text-white"
-                }`}
-              >
-                <Smartphone className="h-3.5 w-3.5" />
-                <span>Mobile (360px)</span>
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowLivePreview(false)}
-              className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white cursor-pointer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-950 flex justify-center">
-            <div
-              className={`transition-all duration-300 overflow-hidden bg-[#F0EAD9] shadow-2xl ${
-                previewViewport === "mobile"
-                  ? "w-[390px] min-h-[750px] rounded-[36px] border-[6px] border-gray-800 my-auto"
-                  : "w-full max-w-7xl rounded-2xl"
-              }`}
-            >
-              <PreviewErrorBoundary>
-                <CourseDetailV2 {...previewViewModel} />
-              </PreviewErrorBoundary>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Unified Live Preview Modal (renders public CourseDetailV2 in real-time from draft state) */}
+      <CourseLivePreviewModal
+        isOpen={showLivePreview}
+        onClose={() => setShowLivePreview(false)}
+        title={title || "Studio Live Preview"}
+        viewModel={previewViewModel}
+      />
 
       {/* Template Picker Modal */}
       {showTemplateModal && (

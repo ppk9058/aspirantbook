@@ -43,12 +43,14 @@ function formatLectureDate(dateStr?: string | Date | null): string {
 
 export function LecturesSection({
   course,
-  units = [],
+  units: rawUnits = [],
   chapters = [],
   lang,
   isEnrolled,
   onOpenLesson,
 }: LecturesSectionProps) {
+  // Omit empty units (0 themes / chapters) from public view
+  const units = rawUnits.filter((u) => chapters.some((c) => c.unitId === u.id))
   const [activeUnitId, setActiveUnitId] = useState<string>(units[0]?.id || "")
   const [collapsedThemes, setCollapsedThemes] = useState<Record<string, boolean>>({})
 
@@ -246,14 +248,17 @@ export function LecturesSection({
                                         {lessonTitle}
                                       </p>
                                       {lesson.isTrial && (
-                                        <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 whitespace-nowrap">
+                                        <span
+                                          data-testid="badge-free-preview"
+                                          className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 whitespace-nowrap"
+                                        >
                                           {lang === "hi" ? "फ्री प्रीव्यू" : "Free Preview"}
                                         </span>
                                       )}
                                     </div>
                                     <p className="mt-0.5 text-xs text-gray-600 truncate whitespace-nowrap overflow-hidden">
                                       {lesson.scheduledAt ? (
-                                        <span>{formatIstDate(lesson.scheduledAt)} · {formatLectureTime(lesson.scheduledAt)}</span>
+                                        <span data-testid="lecture-scheduled-time">{formatIstDate(lesson.scheduledAt)} · {formatLectureTime(lesson.scheduledAt)}</span>
                                       ) : (
                                         <span>{dateLabel}</span>
                                       )} • {duration} • <span className="font-medium text-emerald-800">{statusText}</span>

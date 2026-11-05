@@ -136,6 +136,7 @@ export function ThemeTab({ theme, onChange, onReset }: ThemeTabProps) {
                   />
                   <input
                     type="text"
+                    data-testid={`theme-color-${key}`}
                     value={val}
                     onChange={(e) => onChange({ [key]: e.target.value })}
                     placeholder="#1B1F4A"

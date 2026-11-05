@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { ArrowDown, ArrowUp, FileText, Plus, Upload } from "lucide-react"
+import { AlertTriangle, ArrowDown, ArrowUp, FileText, Plus, Upload } from "lucide-react"
 import { Field, InlineError, InlineSuccess, StudioSection, TextInput, TextArea } from "./fields"
 
 interface Unit {
@@ -502,7 +502,7 @@ export function CoursePlanTab({ courseId, chapters, onChaptersChanged }: CourseP
 
                 <div className="grid gap-2 sm:grid-cols-2">
                   <Field label="Title (English)">
-                    <TextInput value={unit.title} onChange={(value) => updateUnit(unit, { title: value })} maxLength={120} />
+                    <TextInput id={`edit-unit-title-${index}`} value={unit.title} onChange={(value) => updateUnit(unit, { title: value })} maxLength={120} />
                   </Field>
                   <Field label="Title (Hindi)">
                     <TextInput
@@ -524,6 +524,16 @@ export function CoursePlanTab({ courseId, chapters, onChaptersChanged }: CourseP
                     {unit._count?.chapters ?? chapters.filter((chapter) => chapter.unitId === unit.id).length} chapters
                   </span>
                 </div>
+
+                {((unit._count?.chapters ?? chapters.filter((chapter) => chapter.unitId === unit.id).length) === 0) && (
+                  <div
+                    data-testid={`empty-unit-warning-${unit.id}`}
+                    className="mt-2 flex items-center gap-1.5 rounded-lg bg-amber-50 border border-amber-200 px-2.5 py-1 text-xs font-bold text-amber-800"
+                  >
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    <span>Warning: 0 themes in this unit (will be omitted on public page)</span>
+                  </div>
+                )}
 
                 <ul className="mt-2 divide-y divide-gray-100">
                   {chapters

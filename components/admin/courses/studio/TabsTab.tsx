@@ -97,6 +97,7 @@ export function TabsTab({ tabs, onChange, onReset }: TabsTabProps) {
                     <button
                       type="button"
                       disabled={idx === currentTabs.length - 1}
+                      data-testid={`btn-move-tab-down-${idx}`}
                       onClick={() => handleMove(idx, "down")}
                       className="p-1 rounded hover:bg-gray-100 text-gray-500 disabled:opacity-30 cursor-pointer"
                       title="Move tab later"
@@ -114,6 +115,7 @@ export function TabsTab({ tabs, onChange, onReset }: TabsTabProps) {
                   <div>
                     <input
                       type="text"
+                      data-testid={`tab-label-en-${idx}`}
                       value={tab.label}
                       onChange={(e) => handleUpdate(idx, { label: e.target.value })}
                       placeholder="Label (English)"
