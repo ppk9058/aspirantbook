@@ -34,6 +34,7 @@ const MANAGED_COURSE_SELECT = {
   status: true,
   isPublished: true,
   enrollmentCount: true,
+  createdById: true,
   thumbnailUrl: true,
   metadataJson: true,
   _count: { select: { enrollments: true } },
@@ -53,7 +54,7 @@ export async function loadManagedCourse(
     return { status: 403, error: "Access Denied: you can only manage courses you created" }
   }
   const { _count, ...rest } = course
-  return { course: { ...rest, createdById: null, enrollmentRowCount: _count.enrollments } as ManagedCourse }
+  return { course: { ...rest, enrollmentRowCount: _count.enrollments } as ManagedCourse }
 }
 
 /** Route-handler flavour: returns `{ course }` or `{ response }`. */
