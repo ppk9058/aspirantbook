@@ -1,14 +1,16 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import React, { useMemo, useState } from "react"
 import { ChevronDown, Search } from "lucide-react"
 import { localized, type Lang } from "@/lib/i18n/localized"
+import { pluralize } from "@/lib/i18n/pluralize"
 import type { SyllabusPaperSummary } from "./types"
 import { fontStackFor } from "./theme"
 
 interface ExamSyllabusSectionProps {
   lang: Lang
   papers: SyllabusPaperSummary[]
+  courseCategory?: string | null
   onJumpToUnit?: (unitId: string) => void
   onToggleLang?: (nextLang: Lang) => void
 }
@@ -16,6 +18,7 @@ interface ExamSyllabusSectionProps {
 export function ExamSyllabusSection({
   lang,
   papers = [],
+  courseCategory,
   onJumpToUnit,
   onToggleLang,
 }: ExamSyllabusSectionProps) {
@@ -34,39 +37,63 @@ export function ExamSyllabusSection({
     [papers, activePaperId]
   )
 
-  // Compute summary sentence
-  const totalQuestionsAllPapers = papers.reduce(
-    (sum, p) => sum + p.sections.reduce((sSum, sec) => sSum + sec.totalQuestions, 0),
-    0
-  )
+  const getSectionQuestions = (sec: any): number => {
+    const q = Number(sec?.totalQuestions)
+    return Number.isFinite(q) && q > 0 ? q : 0
+  }
 
-  // Auto-generated sentence from real counts
-  const paperSummaries = papers.map((p) => {
-    const qCount = p.sections.reduce((acc, s) => acc + s.totalQuestions, 0)
-    const title = localized(p, "title", lang) || p.title
-    return `${title} has had ${qCount} questions`
-  })
+  const getPaperQuestions = (paper?: SyllabusPaperSummary | null): number => {
+    if (!paper || !Array.isArray(paper.sections)) return 0
+    return paper.sections.reduce((acc, s) => acc + getSectionQuestions(s), 0)
+  }
+
+  // Auto-generated sentence from real counts with exam name from course category
+  const paperSummaries = papers
+    .map((p) => {
+      const qCount = getPaperQuestions(p)
+      const title = localized(p, "title", lang) || p.title
+      if (qCount <= 0) return null
+      return lang === "hi"
+        ? `${title} में ${pluralize(qCount, "question", "hi")}`
+        : `${title} has had ${pluralize(qCount, "question", "en")}`
+    })
+    .filter((s): s is string => Boolean(s))
+
+  const examContext = courseCategory?.trim()
+    ? (lang === "hi" ? `${courseCategory} परीक्षाओं में` : `Across recent ${courseCategory} exams`)
+    : (lang === "hi" ? "हाल की परीक्षाओं में" : "Across recent exams")
 
   const infoBoxText =
-    lang === "hi"
-      ? `बीपीएससी मेन्स परीक्षाओं में, ${paperSummaries.join(", ")} पूछे गए हैं।`
-      : `Across recent Mains exams, ${paperSummaries.join(", ")}, fully mapped to course units below.`
+    paperSummaries.length > 0
+      ? lang === "hi"
+        ? `${examContext}, ${paperSummaries.join(", ")} पूछे गए हैं।`
+        : `${examContext}, ${paperSummaries.join(", ")}, fully mapped to course units below.`
+      : lang === "hi"
+      ? `विस्तृत परीक्षा पाठ्यक्रम और मुख्य विषय नीचे दिए गए हैं।`
+      : `Detailed syllabus topic breakdown mapped to course units below.`
 
   if (papers.length === 0 || !activePaper) return null
 
-  // Filter sections by search
-  const filteredSections = activePaper.sections.filter((sec) => {
+  // Filter sections by search and exclude placeholder/empty sections
+  const validSections = (activePaper.sections || []).filter(
+    (sec) => sec.title && sec.title.trim() !== "" && sec.title.trim().toLowerCase() !== "new syllabus section"
+  )
+
+  const filteredSections = validSections.filter((sec) => {
     if (!searchQuery.trim()) return true
     const q = searchQuery.toLowerCase()
     const nameMatch = sec.title.toLowerCase().includes(q) || (sec.titleHi || "").toLowerCase().includes(q)
-    const topicMatch = sec.subtopics.some((t) => t.toLowerCase().includes(q)) || (sec.subtopicsHi || []).some((t) => t.toLowerCase().includes(q))
+    const topicMatch =
+      (sec.subtopics || []).some((t) => t.toLowerCase().includes(q)) ||
+      (sec.subtopicsHi || []).some((t) => t.toLowerCase().includes(q))
     return nameMatch || topicMatch
   })
 
   // Order sections
-  const displaySections = viewMode === "mostAsked"
-    ? [...filteredSections].sort((a, b) => b.totalQuestions - a.totalQuestions)
-    : filteredSections
+  const displaySections =
+    viewMode === "mostAsked"
+      ? [...filteredSections].sort((a, b) => getSectionQuestions(b) - getSectionQuestions(a))
+      : filteredSections
 
   const expandAll = () => {
     const next: Record<string, boolean> = {}
@@ -122,8 +149,8 @@ export function ExamSyllabusSection({
               {papers.map((paper) => {
                 const isSelected = paper.id === activePaper.id
                 const title = localized(paper, "title", lang) || paper.title
-                const questionsCount = paper.sections.reduce((acc, s) => acc + s.totalQuestions, 0)
-                const tabLabel = `${title} – ${questionsCount} questions`
+                const questionsCount = getPaperQuestions(paper)
+                const tabLabel = questionsCount > 0 ? `${title} – ${pluralize(questionsCount, "question", lang)}` : title
 
                 return (
                   <button
@@ -218,10 +245,22 @@ export function ExamSyllabusSection({
                 >
                   {localized(activePaper, "title", lang) || activePaper.title}
                 </h3>
-                <p className="mt-1 text-xs text-gray-600">
-                  {activePaper.marks || 300} marks, {Math.round((activePaper.durationMinutes || 180) / 60)} hours,{" "}
-                  {activePaper.sections.reduce((sum, s) => sum + s.totalQuestions, 0)} questions since recent papers
-                </p>
+                {(() => {
+                  const paperQuestions = getPaperQuestions(activePaper)
+                  const durationHrs = Number(activePaper.durationMinutes) > 0 ? Math.round(Number(activePaper.durationMinutes) / 60) : 0
+                  const marksNum = Number(activePaper.marks) > 0 ? Number(activePaper.marks) : 0
+                  const parts: string[] = []
+                  if (marksNum > 0) parts.push(`${marksNum} ${lang === "hi" ? "अंक" : "marks"}`)
+                  if (durationHrs > 0) parts.push(pluralize(durationHrs, "hour", lang))
+                  if (paperQuestions > 0) {
+                    parts.push(lang === "hi" ? `विगत प्रश्नपत्रों के ${paperQuestions} प्रश्न` : `${paperQuestions} questions since recent papers`)
+                  }
+                  return parts.length > 0 ? (
+                    <p className="mt-1 text-xs text-gray-600">
+                      {parts.join(", ")}
+                    </p>
+                  ) : null
+                })()}
               </div>
 
               {/* Legend & Show all button */}
@@ -259,7 +298,7 @@ export function ExamSyllabusSection({
               {displaySections.map((section) => {
                 const isExpanded = !!expandedSections[section.id]
                 const sectionTitle = localized(section, "title", lang) || section.title
-                const questionsCount = section.totalQuestions || 0
+                const questionsCount = getSectionQuestions(section)
 
                 return (
                   <div
@@ -283,7 +322,7 @@ export function ExamSyllabusSection({
                           </p>
 
                           {/* Sparkline of bars if real PYQs exist */}
-                          {section.byYear && section.byYear.length > 0 ? (
+                          {questionsCount > 0 && section.byYear && section.byYear.length > 0 ? (
                             <div className="mt-1 flex items-center gap-1.5">
                               <div className="flex items-end gap-1 h-4">
                                 {section.byYear.map((yr, idx) => (
@@ -301,12 +340,16 @@ export function ExamSyllabusSection({
                                 ))}
                               </div>
                               <span className="text-[11px] text-gray-600 font-semibold">
-                                {questionsCount} questions
+                                {pluralize(questionsCount, "question", lang)}
                               </span>
                             </div>
+                          ) : questionsCount > 0 ? (
+                            <span className="text-[11px] text-gray-600 font-semibold">
+                              {pluralize(questionsCount, "question", lang)}
+                            </span>
                           ) : (
                             <span className="text-[11px] text-gray-500 font-medium">
-                              Syllabus topic
+                              {lang === "hi" ? "पाठ्यक्रम विषय" : "Syllabus topic"}
                             </span>
                           )}
                         </div>

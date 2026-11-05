@@ -115,7 +115,8 @@ export function AboutSection({
 
               {teacherName && (
                 <p className="mt-1 text-sm text-gray-700">
-                  Taught by <span className="font-bold text-gray-900">{teacherName}</span>
+                  {lang === "hi" ? "शिक्षक: " : "Taught by "}
+                  <span className="font-bold text-gray-900">{teacherName}</span>
                 </p>
               )}
 

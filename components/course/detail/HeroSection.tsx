@@ -147,7 +147,7 @@ export function HeroSection({
   return (
     <section
       aria-label="Course overview"
-      className="relative w-full overflow-hidden bg-[color:var(--cd-navy)] text-white"
+      className="relative w-full bg-[color:var(--cd-navy)] text-white"
       style={{ fontFamily: fontStackFor(lang) }}
     >
       <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8 lg:pt-14">
@@ -185,7 +185,8 @@ export function HeroSection({
 
                 <div className="min-w-0">
                   <p className="text-sm text-white/90 sm:text-base">
-                    Taught by <span className="font-bold text-white">{teacherName}</span>
+                    {lang === "hi" ? "शिक्षक: " : "Taught by "}
+                    <span className="font-bold text-white">{teacherName}</span>
                   </p>
                   {credentials.length > 0 && (
                     <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-white/70 sm:text-sm">
@@ -204,12 +205,24 @@ export function HeroSection({
             {/* Horizontal divider rule */}
             <hr className="my-6 border-white/20" />
 
-            {/* Stats Row (4 Columns with thin vertical dividers) */}
+            {/* Stats Row (Up to 4 Columns with thin vertical dividers) */}
             {stats.length > 0 && (
               <div className="grid grid-cols-2 gap-4 divide-y divide-white/15 sm:grid-cols-4 sm:divide-x sm:divide-y-0 sm:divide-white/20">
-                {stats.map((stat, idx) => {
+                {stats.slice(0, 4).map((stat, idx) => {
                   const statVal = lang === "hi" && stat.valueHi ? stat.valueHi : stat.value
-                  const statCap = lang === "hi" && stat.captionHi ? stat.captionHi : stat.caption
+                  const rawCap = lang === "hi" && stat.captionHi ? stat.captionHi : stat.caption
+                  const statCap = (() => {
+                    if (lang === "hi") {
+                      if (stat.captionHi && stat.captionHi.trim()) return stat.captionHi
+                      const lower = (stat.caption || "").toLowerCase().trim()
+                      if (lower === "batch starts" || lower === "starts") return "बैच प्रारंभ"
+                      if (lower === "first class") return "प्रथम कक्षा"
+                      if (lower === "live classes" || lower === "live sessions") return "लाइव कक्षाएं"
+                      if (lower === "recorded classes" || lower === "recordings") return "रिकॉर्डेड कक्षाएं"
+                      if (lower === "validity" || lower === "till exam") return "परीक्षा तक वैध"
+                    }
+                    return rawCap
+                  })()
                   return (
                     <div key={idx} className={`${idx > 0 ? "sm:pl-5" : ""} pt-2 sm:pt-0`}>
                       <div
@@ -312,8 +325,8 @@ export function HeroSection({
               </div>
             )}
 
-            {/* Goal label and half gold sun on the path end */}
-            <div className="relative z-10 flex items-end gap-3 self-end pr-4 lg:pr-32">
+            {/* Goal label and half gold sun on the path end (placed to the left of desktop purchase card) */}
+            <div className="relative z-10 flex items-end gap-3 self-end pr-4 lg:mr-[380px]">
               {effectiveGoal ? (
                 <span className="text-xs font-bold text-white/90 sm:text-sm tracking-wide">
                   {effectiveGoal}

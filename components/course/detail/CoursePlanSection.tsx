@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 import type { Lang } from "@/lib/i18n/localized"
+import { pluralize, formatLecturesAndHours } from "@/lib/i18n/pluralize"
 import type { DetailChapter, DetailUnit } from "./types"
 import { fontStackFor } from "./theme"
 
@@ -226,9 +227,9 @@ export function CoursePlanSection({
           {lang === "hi" ? "कोर्स प्लान" : "Course plan"}
         </h2>
         <span className="text-sm font-semibold text-gray-600 sm:text-base">
-          {totalUnitCount} {lang === "hi" ? "यूनिट्स" : totalUnitCount === 1 ? "unit" : "units"},{" "}
-          {totalThemeCount} {lang === "hi" ? "थीम्स" : totalThemeCount === 1 ? "theme" : "themes"},{" "}
-          {totalLectureCount} {lang === "hi" ? "लेक्चर्स" : totalLectureCount === 1 ? "lecture" : "lectures"}
+          {pluralize(totalUnitCount, "unit", lang)},{" "}
+          {pluralize(totalThemeCount, "theme", lang)},{" "}
+          {pluralize(totalLectureCount, "lecture", lang)}
         </span>
       </div>
 
@@ -289,8 +290,8 @@ export function CoursePlanSection({
                   const unitTitle = lang === "hi" && unit.titleHi ? unit.titleHi : unit.title
                   const metaLabel =
                     unit.lectureCount > 0
-                      ? `${unit.lectureCount} lectures, ${unit.hours} hours`
-                      : `${unit.themeCount} themes`
+                      ? formatLecturesAndHours(unit.lectureCount, unit.hours, lang)
+                      : pluralize(unit.themeCount, "theme", lang)
 
                   return (
                     <div key={unit.id} className="flex flex-col">
@@ -363,7 +364,7 @@ export function CoursePlanSection({
 
                               {/* Accordion Subtopics */}
                               {isExpanded && theme.subtopics.length > 0 && (
-                                <div className="mt-2 pl-1 text-[11px] leading-relaxed text-gray-600 animate-in fade-in duration-150">
+                                <div className="mt-2 pl-1 text-[11px] leading-relaxed text-gray-800">
                                   {(lang === "hi" && theme.subtopicsHi?.length > 0
                                     ? theme.subtopicsHi
                                     : theme.subtopics
@@ -409,8 +410,8 @@ export function CoursePlanSection({
           const unitTitle = lang === "hi" && unit.titleHi ? unit.titleHi : unit.title
           const metaLabel =
             unit.lectureCount > 0
-              ? `${unit.lectureCount} lectures, ${unit.hours} hours`
-              : `${unit.themeCount} themes`
+              ? formatLecturesAndHours(unit.lectureCount, unit.hours, lang)
+              : pluralize(unit.themeCount, "theme", lang)
 
           return (
             <div key={unit.id} className="relative">

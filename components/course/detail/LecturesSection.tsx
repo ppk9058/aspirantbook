@@ -6,6 +6,7 @@ import type { Lang } from "@/lib/i18n/localized"
 import type { DetailChapter, DetailCourse, DetailLesson, DetailUnit } from "./types"
 import { fontStackFor } from "./theme"
 import { formatIstDate, formatLectureTime } from "@/lib/courses/derive"
+import { pluralize } from "@/lib/i18n/pluralize"
 
 interface LecturesSectionProps {
   course: DetailCourse
@@ -99,7 +100,7 @@ export function LecturesSection({
           const isSelected = unit.id === (activeUnit?.id ?? "")
           const unitChaptersList = chapters.filter((c) => c.unitId === unit.id)
           const lecturesCount = unitChaptersList.flatMap((c) => c.lessons).length
-          const metaText = lecturesCount > 0 ? `${lecturesCount} lectures` : `${unitChaptersList.length} themes`
+          const metaText = lecturesCount > 0 ? pluralize(lecturesCount, "lecture", lang) : pluralize(unitChaptersList.length, "theme", lang)
           const title = lang === "hi" && unit.titleHi ? unit.titleHi : unit.title
 
           return (
@@ -116,7 +117,7 @@ export function LecturesSection({
               }`}
             >
               <span
-                className="text-sm font-black text-gray-950 truncate max-w-[150px]"
+                className="text-sm font-black text-gray-950 line-clamp-2"
                 style={{ fontFamily: "var(--cd-font-heading)" }}
                 lang={lang}
               >
@@ -235,22 +236,22 @@ export function LecturesSection({
                                     </div>
                                   </div>
 
-                                  <div className="min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-2">
                                       <p
-                                        className="text-sm font-black text-gray-950 truncate"
+                                        className="text-sm font-black text-gray-950 line-clamp-2 break-words"
                                         style={{ fontFamily: "var(--cd-font-heading)" }}
                                         lang={lang}
                                       >
                                         {lessonTitle}
                                       </p>
                                       {lesson.isTrial && (
-                                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                                        <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 whitespace-nowrap">
                                           {lang === "hi" ? "फ्री प्रीव्यू" : "Free Preview"}
                                         </span>
                                       )}
                                     </div>
-                                    <p className="mt-0.5 text-xs text-gray-600">
+                                    <p className="mt-0.5 text-xs text-gray-600 truncate whitespace-nowrap overflow-hidden">
                                       {lesson.scheduledAt ? (
                                         <span>{formatIstDate(lesson.scheduledAt)} · {formatLectureTime(lesson.scheduledAt)}</span>
                                       ) : (

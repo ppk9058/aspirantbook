@@ -99,7 +99,7 @@ export function SubNav({
         {/* Tab Pills */}
         <div
           role="tablist"
-          className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5"
+          className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 touch-pan-x overscroll-x-contain"
         >
           {items.map((item) => {
             const isSelected = active === item.id
@@ -130,7 +130,7 @@ export function SubNav({
 
         {/* Right sticky enroll info: shown when hero scrolled past */}
         {isStuck && priceLabel && onEnroll && (
-          <div className="hidden shrink-0 items-center gap-3 pl-4 sm:flex animate-in fade-in duration-200">
+          <div className="hidden shrink-0 items-center gap-3 pl-4 sm:flex">
             <span
               className="text-lg font-black text-[color:var(--cd-ink)]"
               style={{ fontFamily: "var(--cd-font-heading)" }}

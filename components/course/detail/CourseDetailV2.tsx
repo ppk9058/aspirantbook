@@ -222,7 +222,7 @@ export function CourseDetailV2(props: CourseDetailV2Props) {
   const showPlan = flags.plan && (course.units?.length || 0) > 0 || course.chapters.length > 0
   const showTeachers = flags.teachers && teachers.length > 0
   const showQuestions = flags.questions && (faqs.length > 0 || (ratingSummary && ratingSummary.visible))
-  const showLectures = flags.lectures && course.chapters.length > 0
+  const showLectures = flags.lectures && course.chapters.some((ch) => (ch.lessons?.length || 0) > 0)
 
   const configuredTabs: Array<{ id: string; label: string; labelHi?: string; enabled: boolean }> =
     Array.isArray((metadata as any)?.tabsConfig) && (metadata as any).tabsConfig.length > 0
@@ -319,7 +319,7 @@ export function CourseDetailV2(props: CourseDetailV2Props) {
         goalLabelHi={effectiveGoalHi}
         hideIllustration={(metadata as any)?.hideIllustration ?? false}
         rightSlot={
-          <div className="hidden lg:block lg:-mb-32">
+          <div className="hidden lg:block lg:-mb-32 lg:translate-y-4 relative z-30">
             <StickyCard
               course={{
                 ...course,
@@ -378,7 +378,7 @@ export function CourseDetailV2(props: CourseDetailV2Props) {
       </div>
 
       {/* Main Content Sections on Cream Page */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-12">
+      <main className="mx-auto max-w-7xl px-4 pt-8 pb-28 sm:px-6 lg:px-8 space-y-12 lg:pb-16">
         {/* About Section */}
         {flags.about && (
           <AboutSection
@@ -422,6 +422,7 @@ export function CourseDetailV2(props: CourseDetailV2Props) {
           <ExamSyllabusSection
             lang={lang}
             papers={syllabus.papers}
+            courseCategory={course.technology}
             onJumpToUnit={jumpToUnit}
             onToggleLang={changeLang}
           />
@@ -453,7 +454,7 @@ export function CourseDetailV2(props: CourseDetailV2Props) {
           style={{ fontFamily: fontStackFor(lang) }}
         >
           <div className="flex flex-col">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-700">
               {lang === "hi" ? "कुल फीस" : "Total Fee"}
             </span>
             <span

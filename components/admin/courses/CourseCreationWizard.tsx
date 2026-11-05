@@ -711,17 +711,19 @@ export function CourseCreationWizard() {
             : null,
         },
         units: units.map((u, uIdx) => ({
-          title: u.title,
+          title: u.title.trim() || `Unit ${u.number || uIdx + 1}`,
           titleHi: u.titleHi || null,
           tag: u.tag || "",
           order: u.number || uIdx + 1,
-          themes: u.themes.map((th, thIdx) => ({
-            title: th.title,
-            titleHi: th.titleHi || null,
-            subtopics: th.subtopics,
-            subtopicsHi: th.subtopicsHi || [],
-            order: thIdx + 1,
-            lectures: th.lectures.map((l, lIdx) => {
+          themes: u.themes
+            .filter((th) => th.title && th.title.trim() && th.title.trim().toLowerCase() !== "theme 1")
+            .map((th, thIdx) => ({
+              title: th.title.trim(),
+              titleHi: th.titleHi || null,
+              subtopics: th.subtopics,
+              subtopicsHi: th.subtopicsHi || [],
+              order: thIdx + 1,
+              lectures: th.lectures.map((l, lIdx) => {
               let scheduledIso: string | undefined = undefined
               if (l.date) {
                 const timeStr = l.time && l.time.length === 5 ? l.time : "19:00"
@@ -752,15 +754,17 @@ export function CourseCreationWizard() {
               durationMinutes: p.durationMinutes,
               introText: p.introQuote,
               order: pIdx + 1,
-              sections: p.sections.map((sec, sIdx) => ({
-                title: sec.title,
-                titleHi: sec.titleHi || null,
-                subtopics: sec.subtopics,
-                unitIndex: sec.unitIndex,
-                pyqSubject: sec.pyqSubject,
-                pyqTopic: sec.pyqTopic,
-                order: sIdx + 1,
-              })),
+              sections: p.sections
+                .filter((sec) => sec.title && sec.title.trim() && sec.title.trim().toLowerCase() !== "new syllabus section")
+                .map((sec, sIdx) => ({
+                  title: sec.title.trim(),
+                  titleHi: sec.titleHi || null,
+                  subtopics: sec.subtopics,
+                  unitIndex: sec.unitIndex,
+                  pyqSubject: sec.pyqSubject,
+                  pyqTopic: sec.pyqTopic,
+                  order: sIdx + 1,
+                })),
             }))
           : [],
       }
@@ -880,7 +884,7 @@ export function CourseCreationWizard() {
             <span className="text-xs font-black uppercase tracking-wider text-orange-600">Step 1 • Optional Picker</span>
             <h2 className="text-xl font-bold text-gray-900 mt-1">Start from Blank or Choose a Sample Template</h2>
             <p className="text-xs text-gray-500 mt-0.5">
-              The Blank Course starts completely empty with zero BPSC or exam defaults. Samples demonstrate how other exams structure their courses.
+              The Blank Course starts completely empty with zero hardcoded or exam defaults. Samples demonstrate how other exams structure their courses.
             </p>
           </div>
 
@@ -1379,9 +1383,9 @@ export function CourseCreationWizard() {
                       id: Math.random().toString(36).substring(2, 7),
                       name: "",
                       nameHi: "",
-                      role: "Senior Educator",
-                      roleHi: "वरिष्ठ शिक्षक",
-                      credentials: [{ label: "10+ Yrs Experience" }],
+                      role: "",
+                      roleHi: "",
+                      credentials: [],
                       isPrimary: prev.length === 0,
                     },
                   ])
@@ -1676,6 +1680,88 @@ export function CourseCreationWizard() {
             )}
           </div>
 
+          {/* Badges Section */}
+          <div className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-3 text-xs">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="font-bold text-gray-900">Hero Badges &amp; Tags</span>
+                <p className="text-[11px] text-gray-500">
+                  Highlight key course characteristics (e.g. Bilingual, Live + Recorded, Full Access).
+                </p>
+              </div>
+              <button
+                type="button"
+                data-testid="btn-add-badge"
+                onClick={() => setBadges((prev) => [...prev, { label: "", variant: prev.length === 0 ? "outlined" : "filled" }])}
+                className="px-3 py-1.5 rounded-lg bg-orange-600 text-white font-bold text-xs cursor-pointer"
+              >
+                + Add Badge
+              </button>
+            </div>
+            {badges.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {badges.map((b, bIdx) => (
+                  <div key={bIdx} className="flex items-center gap-1.5 p-2 rounded-lg border border-gray-200 bg-white">
+                    <input
+                      type="text"
+                      data-testid={`input-badge-label-${bIdx}`}
+                      value={b.label}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        setBadges((prev) => prev.map((item, i) => (i === bIdx ? { ...item, label: val } : item)))
+                      }}
+                      placeholder="Badge label"
+                      className="px-2 py-1 text-xs rounded border border-gray-200 font-semibold"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setBadges((prev) => prev.filter((_, i) => i !== bIdx))}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Late Join Note Section */}
+          <div className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-3 text-xs">
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 font-bold text-gray-900 cursor-pointer">
+                <input
+                  type="checkbox"
+                  data-testid="checkbox-late-join"
+                  checked={lateJoinEnabled}
+                  onChange={(e) => setLateJoinEnabled(e.target.checked)}
+                  className="rounded border-gray-300 text-orange-600"
+                />
+                <span>Enable Late-Join Note on Hero</span>
+              </label>
+            </div>
+            {lateJoinEnabled && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <input
+                  type="text"
+                  data-testid="input-late-join-text"
+                  value={lateJoinText}
+                  onChange={(e) => setLateJoinText(e.target.value)}
+                  placeholder="e.g. Recordings of all past sessions are available immediately."
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white font-medium"
+                />
+                <input
+                  type="text"
+                  data-testid="input-late-join-text-hi"
+                  value={lateJoinTextHi}
+                  onChange={(e) => setLateJoinTextHi(e.target.value)}
+                  placeholder="e.g. पिछली सभी कक्षाओं की रिकॉर्डिंग तुरंत उपलब्ध हैं।"
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white font-medium"
+                />
+              </div>
+            )}
+          </div>
+
           {/* What You Get & How It Works */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-3">
@@ -1948,12 +2034,12 @@ export function CourseCreationWizard() {
                     {
                       id: `u-${prev.length + 1}`,
                       number: prev.length + 1,
-                      title: `Unit ${prev.length + 1}`,
+                      title: "",
                       tag: "",
                       themes: [
                         {
                           id: `th-${prev.length + 1}-1`,
-                          title: "Theme 1",
+                          title: "",
                           subtopics: [],
                           lectures: [],
                         },
@@ -2230,7 +2316,7 @@ export function CourseCreationWizard() {
                                     ...u.themes,
                                     {
                                       id: `th-${uIdx + 1}-${u.themes.length + 1}`,
-                                      title: `Theme ${u.themes.length + 1}`,
+                                      title: "",
                                       subtopics: [],
                                       lectures: [],
                                     },
@@ -2369,7 +2455,7 @@ export function CourseCreationWizard() {
                           onClick={() => {
                             const newSec: WizardSyllabusSection = {
                               id: Math.random().toString(36).substring(2, 7),
-                              title: "New Syllabus Section",
+                              title: "",
                               subtopics: [],
                             }
                             setSyllabusPapers((prev) =>
@@ -2950,6 +3036,7 @@ export function CourseCreationWizard() {
                     whatYouGet,
                     howItWorks,
                     faqs,
+                    tabsConfig,
                   } as any}
                   syllabus={{
                     hasSyllabus: syllabusEnabled && syllabusPapers.length > 0,
@@ -2961,14 +3048,16 @@ export function CourseCreationWizard() {
                       marks: p.marks || null,
                       durationMinutes: p.durationMinutes || null,
                       totalQuestions: 0,
-                      sections: p.sections.map((s) => ({
-                        id: s.id,
-                        title: s.title,
-                        titleHi: s.titleHi || null,
-                        subtopics: s.subtopics,
-                        totalQuestions: 0,
-                        byYear: [],
-                      })),
+                      sections: p.sections
+                        .filter((s) => s.title && s.title.trim() && s.title.trim().toLowerCase() !== "new syllabus section")
+                        .map((s) => ({
+                          id: s.id,
+                          title: s.title.trim(),
+                          titleHi: s.titleHi || null,
+                          subtopics: s.subtopics,
+                          totalQuestions: 0,
+                          byYear: [],
+                        })),
                     })),
                   } as any}
                   teachers={teachers as any}

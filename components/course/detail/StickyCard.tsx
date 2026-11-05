@@ -40,6 +40,7 @@ export function StickyCard({
 }: StickyCardProps) {
   const [shareCopied, setShareCopied] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
+  const [imgError, setImgError] = useState(false)
   const finalPrice = Math.round(estimatedFinalPrice)
 
   const handleShare = async () => {
@@ -92,9 +93,14 @@ export function StickyCard({
     >
       {/* 16:10 Thumbnail Card Image */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-[color:var(--cd-navy)]">
-        {course.thumbnailUrl ? (
+        {!imgError && course.thumbnailUrl && course.thumbnailUrl.trim() !== "" ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={course.thumbnailUrl} alt={course.title} className="h-full w-full object-cover" />
+          <img
+            src={course.thumbnailUrl}
+            alt={course.title}
+            onError={() => setImgError(true)}
+            className="h-full w-full object-cover"
+          />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-[color:var(--cd-navy)] to-[color:var(--cd-navy-light)] p-4 text-center text-white">
             <span className="rounded bg-[color:var(--cd-gold)] px-2.5 py-0.5 text-[10px] font-black uppercase text-[color:var(--cd-navy)]">
@@ -109,9 +115,9 @@ export function StickyCard({
 
       {/* Card Body */}
       <div className="p-6">
-        {/* Price Row */}
+        {/* Price Row: Shows FREE strictly when isFree is true */}
         <div className="flex items-baseline gap-2 flex-wrap">
-          {isFree || finalPrice <= 0 ? (
+          {isFree ? (
             <span
               className="text-3xl sm:text-4xl font-black text-emerald-700"
               style={{ fontFamily: "var(--cd-font-heading)" }}

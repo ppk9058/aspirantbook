@@ -33,7 +33,7 @@ export function BottomCtaBar({
 }: BottomCtaBarProps) {
   if (!visible) return null
 
-  const free = isFree || finalPrice <= 0
+  const free = Boolean(isFree)
   const showStrike = !free && typeof originalPrice === "number" && originalPrice > finalPrice
 
   return (
