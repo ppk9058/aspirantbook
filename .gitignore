@@ -67,3 +67,4 @@ artifacts/
 .env.test
 graphify-out/
 uploads/
+apps/mobile/node_modules/
