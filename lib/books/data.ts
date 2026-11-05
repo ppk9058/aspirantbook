@@ -15,9 +15,9 @@ export const BOOKS_DATA: Book[] = [
     price: 800,
     originalPrice: 999,
     discountPercent: 20,
-    rating: 4.6,
-    ratingCount: 5,
-    reviewCount: 5,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/cbse-10-solved-papers.svg",
     thumbnails: [
       {
@@ -135,9 +135,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 1160,
     originalPrice: 1546,
     discountPercent: 25,
-    rating: 5.0,
-    ratingCount: 18,
-    reviewCount: 14,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/cbse-10-bundle.svg",
     thumbnails: [
       {
@@ -185,9 +185,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 280,
     originalPrice: 349,
     discountPercent: 20,
-    rating: 4.7,
-    ratingCount: 9,
-    reviewCount: 7,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/cbse-10-english.svg",
     thumbnails: [
       {
@@ -235,9 +235,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 320,
     originalPrice: 399,
     discountPercent: 20,
-    rating: 4.8,
-    ratingCount: 12,
-    reviewCount: 10,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/cbse-10-social-science.svg",
     thumbnails: [
       {
@@ -278,9 +278,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 599,
     originalPrice: 750,
     discountPercent: 20,
-    rating: 4.9,
-    ratingCount: 42,
-    reviewCount: 35,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/rd-sharma-maths.svg",
     thumbnails: [
       {
@@ -328,9 +328,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 350,
     originalPrice: 500,
     discountPercent: 30,
-    rating: 4.9,
-    ratingCount: 28,
-    reviewCount: 22,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/bpsc-current-affairs.svg",
     thumbnails: [
       {
@@ -378,9 +378,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 420,
     originalPrice: 600,
     discountPercent: 30,
-    rating: 4.8,
-    ratingCount: 31,
-    reviewCount: 26,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/bpsc-solved-papers.svg",
     thumbnails: [
       {
@@ -421,9 +421,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 499,
     originalPrice: 699,
     discountPercent: 28,
-    rating: 4.9,
-    ratingCount: 54,
-    reviewCount: 46,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/indian-polity.svg",
     thumbnails: [
       {
@@ -464,9 +464,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 399,
     originalPrice: 599,
     discountPercent: 33,
-    rating: 4.7,
-    ratingCount: 18,
-    reviewCount: 14,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/cbse-10-solved-papers.svg",
     thumbnails: [
       {
@@ -514,9 +514,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 349,
     originalPrice: 499,
     discountPercent: 30,
-    rating: 4.8,
-    ratingCount: 22,
-    reviewCount: 19,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/cbse-10-solved-papers.svg",
     thumbnails: [
       {
@@ -564,9 +564,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 599,
     originalPrice: 999,
     discountPercent: 40,
-    rating: 4.9,
-    ratingCount: 68,
-    reviewCount: 51,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/indian-polity.svg",
     thumbnails: [
       {
@@ -614,9 +614,9 @@ Every single solution includes NCERT textbook page references, step-by-step mark
     price: 299,
     originalPrice: 499,
     discountPercent: 40,
-    rating: 4.9,
-    ratingCount: 89,
-    reviewCount: 77,
+    rating: 0,
+    ratingCount: 0,
+    reviewCount: 0,
     coverImage: "/images/books/indian-polity.svg",
     thumbnails: [
       {

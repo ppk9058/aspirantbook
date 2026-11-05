@@ -94,26 +94,15 @@ export default function TopNavBar() {
                             aria-label="Notifications"
                         >
                             <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
-                            <span className="absolute top-1 sm:top-1.5 right-1 sm:right-1.5 w-2 h-2 bg-[#EF4444] rounded-full ring-2 ring-white dark:ring-[#05192D]" />
                         </button>
 
                         {showNotifications && (
                             <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-[#0a2540] rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50">
                                 <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                                     <h3 className="font-semibold text-sm text-gray-900 dark:text-white">Notifications</h3>
-                                    <span className="text-xs text-[#1448d8] font-medium cursor-pointer">Mark all read</span>
                                 </div>
-                                <div className="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
-                                    <div className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
-                                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100">Welcome to aspirantbook!</p>
-                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Start with your first interactive lesson today.</p>
-                                        <p className="text-[10px] text-gray-400 mt-1">Just now</p>
-                                    </div>
-                                    <div className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
-                                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100">Daily Streak Challenge</p>
-                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Keep learning today to maintain your streak!</p>
-                                        <p className="text-[10px] text-gray-400 mt-1">3 hours ago</p>
-                                    </div>
+                                <div className="p-6 text-center text-xs text-gray-500 dark:text-gray-400">
+                                    No new notifications
                                 </div>
                             </div>
                         )}

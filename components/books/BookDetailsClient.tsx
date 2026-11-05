@@ -262,15 +262,19 @@ function BookDetailsContent({ initialBook, slug }: BookDetailsClientProps) {
               </div>
 
               {/* Rating & Reviews */}
-              <div className="flex items-center gap-2.5 pt-1">
-                <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-600 text-white text-xs font-black shadow-2xs">
-                  <span>{book.rating}</span>
-                  <Star className="w-3 h-3 fill-white" />
+              {book.rating && book.rating > 0 ? (
+                <div className="flex items-center gap-2.5 pt-1">
+                  <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-600 text-white text-xs font-black shadow-2xs">
+                    <span>{book.rating}</span>
+                    <Star className="w-3 h-3 fill-white" />
+                  </div>
+                  {book.ratingCount && book.ratingCount > 0 ? (
+                    <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+                      {book.ratingCount} ratings and {book.reviewCount} reviews
+                    </span>
+                  ) : null}
                 </div>
-                <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
-                  {book.ratingCount} ratings and {book.reviewCount} reviews
-                </span>
-              </div>
+              ) : null}
             </div>
 
             {/* Price Box */}
@@ -467,17 +471,25 @@ function BookDetailsContent({ initialBook, slug }: BookDetailsClientProps) {
 
                 {activeTab === "reviews" && (
                   <div className="space-y-4 text-center py-4">
-                    <div className="flex items-center justify-center gap-1">
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} className="w-5 h-5 fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Rated <strong className="text-gray-900 dark:text-white">{book.rating} out of 5</strong> based on {book.ratingCount} student ratings.
-                    </p>
-                    <span className="text-[11px] text-gray-400 block">
-                      Verified purchaser reviews are automatically refreshed.
-                    </span>
+                    {book.ratingCount && book.ratingCount > 0 ? (
+                      <>
+                        <div className="flex items-center justify-center gap-1">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star key={s} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                          ))}
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Rated <strong className="text-gray-900 dark:text-white">{book.rating} out of 5</strong> based on {book.ratingCount} student ratings.
+                        </p>
+                        <span className="text-[11px] text-gray-400 block">
+                          Verified purchaser reviews are automatically refreshed.
+                        </span>
+                      </>
+                    ) : (
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        No customer reviews yet for this edition.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

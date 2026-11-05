@@ -72,7 +72,7 @@ export interface AttemptRecord {
     totalMarks: number
     percentile: number
     rank: number
-    totalCandidates: number
+    totalCandidates?: number
     accuracy: number
     timeSpentMins: number
     correct: number
@@ -669,7 +669,7 @@ export default function MyTestsHubClient({
                                             <div>
                                                 <p className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400">ALL INDIA RANK</p>
                                                 <p className="text-base font-black text-amber-500 mt-0.5">
-                                                    {attempt.rank > 0 ? <>#{attempt.rank} <span className="text-xs text-slate-600 dark:text-slate-400 font-normal">/ {attempt.totalCandidates}</span></> : "—"}
+                                                    {attempt.rank > 0 ? <>#{attempt.rank}{attempt.totalCandidates && attempt.totalCandidates > 0 ? <span className="text-xs text-slate-600 dark:text-slate-400 font-normal"> / {attempt.totalCandidates}</span> : null}</> : "—"}
                                                 </p>
                                             </div>
                                             <div>
@@ -828,7 +828,7 @@ export default function MyTestsHubClient({
                                 <div className="flex-1">
                                     <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase">{item.category}</span>
                                     <h3 className="text-xs font-extrabold text-slate-900 dark:text-white line-clamp-2 mt-0.5">{item.title}</h3>
-                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{item.totalTests} tests • {item.users} enrolled</p>
+                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{item.totalTests} tests{item.users ? ` • ${item.users} enrolled` : ""}</p>
                                 </div>
                                 <Link href={item.url} className="w-full inline-flex items-center justify-center gap-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-700 dark:hover:bg-emerald-700 text-slate-800 dark:text-slate-200 hover:text-white text-xs font-bold transition-all min-h-[44px]">
                                     Explore <ChevronRight className="w-3.5 h-3.5" />

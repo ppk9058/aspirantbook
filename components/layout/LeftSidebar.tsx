@@ -8,7 +8,6 @@ import {
     Compass,
     BookOpen,
     PlayCircle,
-    Target,
     PanelLeftClose,
     PanelLeftOpen,
     HelpCircle,
@@ -194,22 +193,6 @@ export default function LeftSidebar() {
                     )
                 })}
             </nav>
-
-            {/* Footer Widget: Daily Goal / XP */}
-            {!effectiveCollapsed && (
-                <div className="p-3 m-2 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 text-xs">
-                    <div className="flex items-center justify-between text-[11px] mb-1.5">
-                        <span className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 font-medium">
-                            <Target className="h-3.5 w-3.5 text-[#1DB954]" />
-                            Daily Goal
-                        </span>
-                        <span className="text-[#1448d8] font-bold">15 / 30m</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-[#1448d8] to-[#1DB954] w-1/2 rounded-full" />
-                    </div>
-                </div>
-            )}
         </aside>
     )
 }
