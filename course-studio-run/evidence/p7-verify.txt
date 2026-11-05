@@ -1,0 +1,21 @@
+== Course Studio generalize — verify ==
+   branch: feat/course-studio-generalize
+
+PASS  web typecheck (npx tsc --noEmit)
+PASS  web lint (npm run lint)
+PASS  unit: course format / i18n / derive / ics / draft
+PASS  db: units, syllabus authoring, PYQ counts
+PASS  api: v1 course + callback contracts
+PASS  mobile typecheck (apps/mobile npx tsc --noEmit)
+PASS  e2e: course detail v2 (Playwright @ http://127.0.0.1:3045)
+
+== Summary ==
+  PASS  web typecheck (npx tsc --noEmit)
+  PASS  web lint (npm run lint)
+  PASS  unit: course format / i18n / derive / ics / draft
+  PASS  db: units, syllabus authoring, PYQ counts
+  PASS  api: v1 course + callback contracts
+  PASS  mobile typecheck (apps/mobile npx tsc --noEmit)
+  PASS  e2e: course detail v2 (Playwright @ http://127.0.0.1:3045)
+
+RESULT: PASS

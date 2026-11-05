@@ -44,7 +44,7 @@ export function BottomCtaBar({
             <p className="text-xs font-bold text-emerald-700">You are enrolled</p>
           ) : free ? (
             <p className="text-lg font-black text-emerald-600">FREE</p>
-          ) : (
+          ) : finalPrice > 0 ? (
             <p className="flex flex-wrap items-baseline gap-1.5">
               <span className="text-lg font-black text-gray-900">₹{finalPrice.toLocaleString("en-IN")}</span>
               {showStrike && (
@@ -56,6 +56,8 @@ export function BottomCtaBar({
                 <Tag className="h-3 w-3" aria-hidden="true" /> limited
               </span>
             </p>
+          ) : (
+            <p className="text-sm font-bold text-gray-500 italic">Price not set</p>
           )}
         </div>
 

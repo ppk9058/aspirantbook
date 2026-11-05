@@ -25,6 +25,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@aspirantbook/shared": [
+        "./packages/shared/src/index.ts"
       ]
     }
   },

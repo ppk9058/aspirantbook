@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   Plus,
   Trash2,
   Calendar,
@@ -41,6 +42,7 @@ import { BRAND_NAME } from "@/lib/brand"
 import { IconPicker } from "./studio/IconPicker"
 import { CourseDetailV2 } from "@/components/course/detail/CourseDetailV2"
 import { PreviewErrorBoundary } from "@/components/course/detail/PreviewErrorBoundary"
+import { CourseLivePreviewModal } from "./CourseLivePreviewModal"
 import { buildCourseDetailViewModel } from "@/lib/courses/view-model"
 import { computeContrastRatio, hasContrastWarning } from "@/lib/courses/contrast"
 
@@ -141,8 +143,8 @@ export function CourseCreationWizard() {
 
   // Step B: Pricing
   const [isFree, setIsFree] = useState<boolean>(false)
-  const [price, setPrice] = useState<number>(999)
-  const [mrp, setMrp] = useState<number>(1999)
+  const [price, setPrice] = useState<number>(0)
+  const [mrp, setMrp] = useState<number>(0)
   const [currency, setCurrency] = useState<string>("INR")
   const [ctaLabel, setCtaLabel] = useState<string>("Enroll now")
   const [ctaLabelHi, setCtaLabelHi] = useState<string>("अभी प्रवेश लें")
@@ -828,42 +830,56 @@ export function CourseCreationWizard() {
               }
             : null,
         },
-        units: units.map((u, uIdx) => ({
-          title: u.title.trim() || `Unit ${u.number || uIdx + 1}`,
-          titleHi: u.titleHi || null,
-          tag: u.tag || "",
-          tagHi: u.tagHi || null,
-          order: u.number || uIdx + 1,
-          themes: u.themes
-            .filter((th) => th.title && th.title.trim() && th.title.trim().toLowerCase() !== "theme 1")
-            .map((th, thIdx) => ({
-              title: th.title.trim(),
-              titleHi: th.titleHi || null,
-              subtopics: th.subtopics,
-              subtopicsHi: th.subtopicsHi || [],
-              order: thIdx + 1,
-              lectures: th.lectures.map((l, lIdx) => {
-              let scheduledIso: string | undefined = undefined
-              if (l.date) {
-                const timeStr = l.time && l.time.length === 5 ? l.time : "19:00"
-                try {
-                  scheduledIso = new Date(`${l.date}T${timeStr}:00+05:30`).toISOString()
-                } catch {
-                  scheduledIso = new Date().toISOString()
+        units: units.map((u, uIdx) => {
+          const unitTitle = u.title.trim() || `Unit ${u.number || uIdx + 1}`
+          return {
+            title: unitTitle,
+            titleHi: u.titleHi || null,
+            tag: u.tag || "",
+            tagHi: u.tagHi || null,
+            order: u.number || uIdx + 1,
+            themes: u.themes
+              .map((th, thIdx) => {
+                const trimmedTitle = th.title?.trim()
+                const effectiveTitle =
+                  trimmedTitle && trimmedTitle.toLowerCase() !== "theme 1"
+                    ? trimmedTitle
+                    : (th.lectures.length > 0 || u.themes.length === 1 ? `${unitTitle} Outline` : "")
+                return {
+                  ...th,
+                  title: effectiveTitle,
                 }
-              }
-              return {
-                title: l.title,
-                titleHi: l.titleHi || null,
-                durationMin: l.durationMin,
-                scheduledAt: scheduledIso,
-                isTrial: l.isTrial,
-                status: l.status,
-                videoUrl: l.videoUrl || null,
-              }
-            }),
-          })),
-        })),
+              })
+              .filter((th) => th.title && th.title.toLowerCase() !== "theme 1")
+              .map((th, thIdx) => ({
+                title: th.title,
+                titleHi: th.titleHi || null,
+                subtopics: th.subtopics,
+                subtopicsHi: th.subtopicsHi || [],
+                order: thIdx + 1,
+                lectures: th.lectures.map((l) => {
+                  let scheduledIso: string | undefined = undefined
+                  if (l.date) {
+                    const timeStr = l.time && l.time.length === 5 ? l.time : "19:00"
+                    try {
+                      scheduledIso = new Date(`${l.date}T${timeStr}:00+05:30`).toISOString()
+                    } catch {
+                      scheduledIso = new Date().toISOString()
+                    }
+                  }
+                  return {
+                    title: l.title,
+                    titleHi: l.titleHi || null,
+                    durationMin: l.durationMin,
+                    scheduledAt: scheduledIso,
+                    isTrial: l.isTrial,
+                    status: l.status,
+                    videoUrl: l.videoUrl || null,
+                  }
+                }),
+              })),
+          }
+        }),
         syllabusPapers: syllabusEnabled
           ? syllabusPapers.map((p, pIdx) => ({
               key: p.key,
@@ -2254,6 +2270,15 @@ export function CourseCreationWizard() {
 
                   {/* Themes inside unit */}
                   <div className="space-y-3 pl-3 border-l-2 border-orange-200">
+                    {unit.themes.length === 0 && (
+                      <div
+                        data-testid={`wizard-empty-unit-warning-${uIdx}`}
+                        className="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-1.5 font-bold"
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-700" />
+                        <span>Warning: 0 themes in this unit (will be omitted on public page)</span>
+                      </div>
+                    )}
                     {unit.themes.map((theme, thIdx) => (
                       <div key={theme.id || thIdx} className="p-3 rounded-lg border border-gray-100 bg-gray-50/70 space-y-2">
                         <div className="flex items-center justify-between">
@@ -3077,68 +3102,14 @@ export function CourseCreationWizard() {
       )}
 
       {/* ======================================================== */}
-      {/* LIVE PREVIEW MODAL */}
+      {/* UNIFIED LIVE PREVIEW MODAL */}
       {/* ======================================================== */}
-      {showLivePreviewModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl w-full max-w-6xl h-[92vh] flex flex-col overflow-hidden shadow-2xl">
-            {/* Modal Header */}
-            <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-black uppercase tracking-wider text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">
-                  Live Studio Preview
-                </span>
-                <span className="text-xs font-bold text-gray-700 truncate max-w-xs">{title || "Course Preview"}</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="flex items-center rounded-lg border border-gray-200 bg-white p-0.5 text-xs font-bold">
-                  <button
-                    type="button"
-                    onClick={() => setPreviewViewport("desktop")}
-                    className={`px-2.5 py-1 rounded-md transition-colors ${
-                      previewViewport === "desktop" ? "bg-purple-600 text-white" : "text-gray-600"
-                    }`}
-                  >
-                    Desktop (1280px)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPreviewViewport("mobile")}
-                    className={`px-2.5 py-1 rounded-md transition-colors ${
-                      previewViewport === "mobile" ? "bg-purple-600 text-white" : "text-gray-600"
-                    }`}
-                  >
-                    Mobile (390px)
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowLivePreviewModal(false)}
-                  className="p-1 rounded-lg hover:bg-gray-200 text-gray-500"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Body: Render CourseDetailV2 in interactive frame */}
-            <div className="flex-1 overflow-y-auto bg-gray-100 flex justify-center p-2 sm:p-4">
-              <div
-                className={`bg-white transition-all shadow-lg overflow-y-auto ${
-                  previewViewport === "mobile"
-                    ? "w-[390px] min-h-[844px] rounded-3xl border-8 border-gray-900"
-                    : "w-full rounded-xl"
-                }`}
-              >
-                <PreviewErrorBoundary>
-                  <CourseDetailV2 {...wizardPreviewModel} />
-                </PreviewErrorBoundary>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <CourseLivePreviewModal
+        isOpen={showLivePreviewModal}
+        onClose={() => setShowLivePreviewModal(false)}
+        title={title || "Course Creation Preview"}
+        viewModel={wizardPreviewModel}
+      />
     </main>
   )
 }

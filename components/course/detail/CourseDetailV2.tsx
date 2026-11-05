@@ -7,6 +7,7 @@ import type { CourseMetadataV2 } from "@/lib/courses/metadata-schema"
 import { DEFAULT_SECTION_FLAGS, type SectionFlags } from "@/lib/courses/metadata-schema"
 import { deriveCourseStats, deriveLateJoiner, formatIstDate } from "@/lib/courses/derive"
 import { BRAND_NAME } from "@/lib/brand"
+import { pluralize } from "@/lib/i18n/pluralize"
 import { HeroSection } from "./HeroSection"
 import { SubNav, type SubNavItem } from "./SubNav"
 import { AboutSection } from "./AboutSection"
@@ -132,11 +133,21 @@ export function CourseDetailV2(props: CourseDetailV2Props) {
       })
     }
     if (derivedCourseStats.lectureCount > 0) {
+      const lecVal = pluralize(derivedCourseStats.lectureCount, "lecture", "en")
+      const lecValHi = pluralize(derivedCourseStats.lectureCount, "lecture", "hi")
+      const hrCap =
+        derivedCourseStats.totalHours === 1
+          ? "1 hour of teaching"
+          : `${derivedCourseStats.totalHours} hours of teaching`
+      const hrCapHi =
+        derivedCourseStats.totalHours === 1
+          ? "1 घंटा शिक्षण"
+          : `${derivedCourseStats.totalHours} घंटे शिक्षण`
       metrics.push({
-        value: `${derivedCourseStats.lectureCount} lectures`,
-        valueHi: `${derivedCourseStats.lectureCount} लेक्चर्स`,
-        caption: `${derivedCourseStats.totalHours} hours of teaching`,
-        captionHi: `${derivedCourseStats.totalHours} घंटे शिक्षण`,
+        value: lecVal,
+        valueHi: lecValHi,
+        caption: hrCap,
+        captionHi: hrCapHi,
       })
     }
     return metrics

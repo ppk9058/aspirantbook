@@ -1,0 +1,2 @@
+courses total: 43
+v2 detail path: 0
