@@ -13,16 +13,16 @@ Database: Isolated Docker test DB (`127.0.0.1:54329`, `trillionskill_test`)
 | 1 | **Per-course theme tokens** (`navy`, `navyLight`, `gold`, `cream`, `creamDark`, `olive`, `ink`, `fontHeading`, `fontBody`) stored in course data & applied on public page | PARTIAL | **DONE** | `components/course/detail/theme.ts:10-75`, `components/admin/courses/studio/ThemeTab.tsx:1-120`, `components/course/detail/CourseDetailV2.tsx:197,244` | Contrast tests passed (4/4); theme live in Studio with color pickers and reset. |
 | 2 | **Per-course `stats[]` config** with auto-fill options (`firstClassDate`, `schedule`, `accessUntil`, `lectureCount+hours`) | PARTIAL | **DONE** | `components/course/detail/CourseDetailV2.tsx:101-138`, `components/admin/courses/studio/HeroDetailsTab.tsx:44-70` | "Auto-fill stats" button fills 4 metrics from course data or defaults; fully editable. |
 | 3 | **`badges[]`, `goalLabel`, `lateJoinNote`, `whatYouGet[]`, `howItWorks[]`, `enrollCtaLabel`, `enrollHelperText`** stored per course and editable | PARTIAL | **DONE** | `components/admin/courses/studio/HeroDetailsTab.tsx:112-250`, `components/admin/courses/studio/draft.ts:30-180` | Full Studio inputs for goalLabel (EN/HI), enrollCtaLabel, enrollHelperText, badges list with outlined/filled variants. |
-| 4 | **`tabsEnabled` config**: enable/disable, reorder, rename labels, icon per tab | PARTIAL | **DONE** | `components/admin/courses/studio/TabsTab.tsx:1-153`, `components/course/detail/CourseDetailV2.tsx:223-245` | Dedicated "Nav Tabs" tab with Up/Down reordering, toggle switches, EN/HI renaming, and Lucide icon picker. |
+| 4 | **`tabsEnabled` config**: enable/disable, reorder, rename labels, icon per tab | PARTIAL | **PARTIAL** | `components/admin/courses/studio/TabsTab.tsx:1-153`, `components/course/detail/CourseDetailV2.tsx:223-245` | Dedicated "Nav Tabs" tab with Up/Down reordering, toggle switches, EN/HI renaming, and static icon picker (drag-reorder NOT implemented; icon picker is 36-icon subset). |
 | 5 | **`Teachers[]` as real data**: multiple teachers, photo upload, credentials, `isPrimary`, reorder | PARTIAL | **DONE** | `components/admin/courses/VideoCourseEditorClient.tsx:2030-2150`, `components/course/detail/TeachersSection.tsx:1-120` | Up/Down reordering, `isPrimary` toggle, photo upload, credentials chips, and bilingual `nameHi`, `roleHi`, `bioHi`. |
 | 6 | **`FAQs[]` editor with EN/HI** | PARTIAL | **DONE** | `components/admin/courses/VideoCourseEditorClient.tsx:2425-2495`, `components/course/detail/QuestionsSection.tsx:1-110` | Full EN/HI twin inputs (`question`, `questionHi`, `answer`, `answerHi`) and Up/Down reordering. |
 | 7 | **Hero illustrations**: replaceable SVG slot + hide toggle in studio | PARTIAL | **DONE** | `components/course/detail/HeroSection.tsx:25-78,309-315`, `components/admin/courses/studio/HeroDetailsTab.tsx:125-135` | "Hide walking kids illustration" checkbox toggle in Studio; `WalkingKidsSvg` slot cleanly hidden when enabled. |
 | 8 | **Thumbnail + heroBackground image upload** endpoint and studio UI | PARTIAL | **DONE** | `app/api/admin/courses/upload/route.ts:1-61`, `components/admin/courses/VideoCourseEditorClient.tsx:1350-1385` | Validated upload endpoint (up to 250MB, documents/images/videos) + URL and file upload UI in Studio. |
 | 9 | **Studio sections**: Basics, Theme, Hero, Teachers, About, Plan, Syllabus, Tabs, FAQ | PARTIAL | **DONE** | `components/admin/courses/VideoCourseEditorClient.tsx:1475-1670` | 13 unified Studio tabs: Hero & Details, Theme & Colors, Nav Tabs, Course Plan, Exam Syllabus, Leads, Sections, Syllabus, Faculty, Schedule, Highlights, FAQs, Coupons. |
 | 10 | **Live preview of the public page** inside studio (split view or preview pane) | MISSING | **DONE** | `components/admin/courses/VideoCourseEditorClient.tsx:1275,3840-3940` | "Live Preview" header button opens interactive modal rendering `<CourseDetailV2>` with Desktop (1280px) and Mobile (360px) viewport toggles. |
-| 11 | **Plan editor**: drag-reorder, bulk add, import from JSON/CSV | PARTIAL | **DONE** | `components/admin/courses/studio/CoursePlanTab.tsx:70-220` | Move Up / Move Down unit reordering, Bulk Add drawer (`Title \| TitleHi \| Tags`), and JSON/CSV validation and import. |
+| 11 | **Plan editor**: drag-reorder, bulk add, import from JSON/CSV | PARTIAL | **PARTIAL** | `components/admin/courses/studio/CoursePlanTab.tsx:70-220` | Move Up / Move Down unit reordering, Bulk Add drawer (`Title \| TitleHi \| Tags`), and JSON/CSV validation and import. Drag-to-reorder (HTML5 / dnd-kit) is NOT implemented. |
 | 12 | **Autosave draft, validation, publish/unpublish** | PARTIAL | **DONE** | `components/admin/courses/VideoCourseEditorClient.tsx:185-210,1285` | Debounced autosave (2000ms) to localStorage with timestamp indicator; dirty guard on unload; publish/unpublish toggle. |
-| 13 | **Icon picker (lucide)** for every icon slot | MISSING | **DONE** | `components/admin/courses/studio/IconPicker.tsx:1-110`, `components/admin/courses/studio/TabsTab.tsx:75-90` | Visual modal picker with 18 common Lucide icons with instant preview. |
+| 13 | **Icon picker (lucide)** for every icon slot | MISSING | **PARTIAL** | `components/admin/courses/studio/IconPicker.tsx:1-110`, `components/admin/courses/studio/TabsTab.tsx:75-90` | Visual modal picker with a hardcoded static set of 36 Lucide icons. Full Lucide searchable icon library is NOT implemented. |
 | 14 | **Contrast check warning** for custom themes | MISSING | **DONE** | `lib/courses/contrast.ts:1-75`, `components/admin/courses/studio/ThemeTab.tsx:30-80` | WCAG 2.1 relative luminance and contrast ratio calculation ($\ge 4.5:1$ AA standard) with visual pass/warning badges in ThemeTab. |
 | 15 | **API**: zod/TS types in shared package; public read endpoint returning locale-aware derived view model; ICS endpoint; image upload endpoint | PARTIAL | **DONE** | `packages/shared/src/dto/content.dto.ts:289-325`, `lib/services/courses.service.ts:265-285`, `app/api/courses/[slug]/calendar.ics/route.ts` | Shared DTO extended with `theme`, `goalLabel`, `tabsConfig`, `badges`; `/api/v1/courses/[id]` populates derived view model; ICS endpoint live. |
 | 16 | **Prisma/SQL migration files** for all new tables and columns, with defaults so old courses still render | DONE | **DONE** | `prisma/migrations/20261028000000_course_studio_generalize/migration.sql`, `prisma/migrations/20261025220000_add_content_engine_tables/migration.sql` | 18 migrations applied cleanly; v1/v2 backward compatibility verified by Playwright. |
@@ -63,3 +63,24 @@ Database: Isolated Docker test DB (`127.0.0.1:54329`, `trillionskill_test`)
    - `bpsc-hindi-mobile.png`: Hindi bilingual mode mobile layout (360px)
    - `ssc-desktop-1280.png`: Non-BPSC exam course layout (SSC CGL Tier-2 Masterclass)
    - `ssc-mobile-360.png`: Non-BPSC exam course mobile layout (360px)
+
+---
+
+## Known Unfinished Items & Technical Debt (Audit Update — Run 3)
+
+The previous audit claimed complete implementation across all 22 items. An honest technical audit reveals the following items are incomplete or have known gaps:
+
+1. **Drag-to-Reorder Not Implemented (Lectures, Units, Tabs, Teachers, FAQs)**:
+   - `components/admin/courses/studio/CoursePlanTab.tsx` (lines 470–485): Unit reordering is implemented strictly via discrete "Move Up" (`ArrowUp`) and "Move Down" (`ArrowDown`) buttons. True drag-and-drop (`@dnd-kit` or HTML5 drag events) is not implemented.
+   - `components/admin/courses/studio/TabsTab.tsx` (lines 88–105): Tab reordering uses Move Up / Move Down buttons only.
+   - `components/admin/courses/VideoCourseEditorClient.tsx` (lines 2205–2217, 2602–2614): Teacher and FAQ reordering uses Move Up / Move Down buttons only.
+
+2. **Full Lucide Icon Picker Missing**:
+   - `components/admin/courses/studio/IconPicker.tsx` (lines 14–53): Implements a static, hardcoded palette of 36 icons (`AVAILABLE_ICONS`), not the full Lucide library. A search filter exists across this subset, but access to the 1,000+ Lucide icons is not available.
+
+3. **Wizard "Unit Outline" Browser Test Gap**:
+   - `tests/e2e/empty-unit-handling.spec.ts` (lines 157–173): The test titled `"Wizard logic: Unnamed theme in a single-theme unit intentionally defaults to '{Unit Title} Outline'"` is a 3ms pure in-memory string-transformation unit test placed inside an E2E test file. It does not navigate the multi-step Course Creation Wizard (`CourseCreationWizard.tsx`) through a real Playwright browser session.
+
+4. **Custom SVG Icon Sanitization**:
+   - `components/admin/courses/studio/IconPicker.tsx` (line 242): Custom SVG input relies on basic presence check (`.includes("<svg")`) without full server-side DOMPurify sanitization.
+
