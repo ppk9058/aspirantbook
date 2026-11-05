@@ -181,7 +181,9 @@ export function CoursePlanSection({
       subtopicsHi: ch.subtopicsHi || [],
     }))
 
-    const tag = unit.tags && unit.tags.length > 0 ? unit.tags[0] : ""
+    const tag = lang === "hi" && (unit as any).tagHi
+      ? (unit as any).tagHi
+      : (unit.tags && unit.tags.length > 0 ? unit.tags[0] : (unit as any).tag || "")
 
     return {
       id: unit.id,
@@ -196,7 +198,12 @@ export function CoursePlanSection({
       dateRange: unit.dateRange,
       themes,
     }
-  })
+  }).filter((u) => u.themeCount > 0 || u.lectureCount > 0)
+    .map((u, idx) => ({
+      ...u,
+      number: idx + 1,
+      numberStr: String(idx + 1).padStart(2, "0"),
+    }))
 
   // Compute derived summary metrics
   const totalUnitCount = displayUnits.length

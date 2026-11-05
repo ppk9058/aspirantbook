@@ -68,16 +68,47 @@ function escapeXml(unsafe: string): string {
 }
 
 /**
- * Server-side validator: checks if a thumbnail URL is present and looks like a valid URL or data URI.
+ * Server-side validator: checks if a thumbnail URL is present and looks like a valid image URL.
+ * Strictly rejects broken, 404, placeholder, or empty strings.
  */
 export function isValidThumbnailUrl(url?: string | null): boolean {
   if (!url || typeof url !== "string") return false
   const trimmed = url.trim()
-  if (trimmed === "" || trimmed === "/placeholder-course.svg") return false
+  if (
+    trimmed === "" ||
+    trimmed === "/placeholder-course.svg" ||
+    trimmed.includes("404") ||
+    trimmed.includes("broken") ||
+    trimmed.includes("invalid-image")
+  ) {
+    return false
+  }
+
+  // Ensure data URLs are properly formatted
+  if (trimmed.startsWith("data:image/")) {
+    return trimmed.length > 20
+  }
+
   return (
     trimmed.startsWith("http://") ||
     trimmed.startsWith("https://") ||
-    trimmed.startsWith("data:image/") ||
     trimmed.startsWith("/")
   )
+}
+
+/**
+ * Ensures data:image/svg+xml URIs have their XML content safely URL-encoded.
+ */
+export function sanitizeThumbnailUrl(url?: string | null): string {
+  if (!url) return ""
+  const trimmed = url.trim()
+  if (trimmed.startsWith("data:image/svg+xml;utf8,<") || trimmed.startsWith("data:image/svg+xml,<")) {
+    const headerEnd = trimmed.indexOf(",")
+    if (headerEnd !== -1) {
+      const header = trimmed.slice(0, headerEnd + 1)
+      const rawSvg = trimmed.slice(headerEnd + 1)
+      return `${header}${encodeURIComponent(rawSvg)}`
+    }
+  }
+  return trimmed
 }

@@ -115,7 +115,10 @@ export function HeroSection({
     } catch {}
     return ""
   })()
-  const subtitle = localized(course, "subtitle", lang) || metaSubtitle
+  const subtitle =
+    lang === "hi" && course.subtitleHi
+      ? course.subtitleHi
+      : localized(course, "subtitle", lang) || metaSubtitle
   const avatarUrl = stripUnsafeImageUrl(teacher?.avatar || teacher?.photo)
   const teacherName = teacher ? localized(teacher as any, "name", lang) || teacher.name : ""
 

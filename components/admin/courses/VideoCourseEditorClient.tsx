@@ -59,6 +59,8 @@ import { ThemeTab } from "./studio/ThemeTab"
 import { TabsTab, DEFAULT_TABS, type TabConfigItem } from "./studio/TabsTab"
 import { DEFAULT_THEME_TOKENS, type CourseThemeTokens } from "@/components/course/detail/theme"
 import { CourseDetailV2 } from "@/components/course/detail/CourseDetailV2"
+import { PreviewErrorBoundary } from "@/components/course/detail/PreviewErrorBoundary"
+import { buildCourseDetailViewModel } from "@/lib/courses/view-model"
 import { useDirtyGuard } from "./studio/useDirtyGuard"
 import { buildHeroDraft, heroDraftToMetadata, heroDraftToCourseColumns, type HeroDraft } from "./studio/draft"
 import { readSectionFlags, type SectionFlags } from "@/lib/courses/metadata-schema"
@@ -119,6 +121,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const coursesUrl = isTeacher ? "/teacher/courses" : "/admin/courses"
   const [course, setCourse] = useState(initialCourse)
   const [chapters, setChapters] = useState<ChapterItem[]>(initialCourse.chapters)
+  const units = (course as any).units || []
 
   // Course Details Form State
   const [title, setTitle] = useState(course.title)
@@ -181,6 +184,13 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const [lastAutosaved, setLastAutosaved] = useState<string | null>(null)
   const [studioDirty, setStudioDirty] = useState(false)
   useDirtyGuard(studioDirty)
+
+  const [origin, setOrigin] = useState("")
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setOrigin(window.location.origin)
+    }
+  }, [])
 
   // Debounced draft autosave to localStorage
   useEffect(() => {
@@ -681,11 +691,45 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
       { label: "Thumbnail / Cover", ok: Boolean(thumbnailUrl && thumbnailUrl !== "/placeholder-course.svg"), hint: "Upload a 16:10 thumbnail or custom cover" },
       { label: "Hero Stats & Highlights", ok: Boolean(heroDraft.heroMetrics?.length || heroDraft.whatYouGet?.length), hint: "Add stats chips or key benefits" },
     ]
+
+    const isHindiTarget = language === "hi" || language === "bilingual" || Boolean(heroDraft.titleHi?.trim())
+    const missingHindiFields: string[] = []
+    if (isHindiTarget) {
+      if (!heroDraft.titleHi?.trim()) missingHindiFields.push("Title")
+      if (!heroDraft.subtitleHi?.trim()) missingHindiFields.push("Subtitle")
+      if (!heroDraft.descriptionHi?.trim()) missingHindiFields.push("Description")
+      if (teachers.some((t: any) => !t.nameHi?.trim())) missingHindiFields.push("Teacher Name(s)")
+      if (units.some((u: any) => !u.titleHi?.trim())) missingHindiFields.push("Unit Title(s)")
+      if (heroDraft.heroMetrics?.some((m: any) => m.label && !m.labelHi?.trim())) missingHindiFields.push("Stats Label(s)")
+      if (heroDraft.badges?.some((b: any) => b.label && !b.labelHi?.trim())) missingHindiFields.push("Badge Label(s)")
+    }
+
+    const emptyUnits = units.filter((u: any) => {
+      const unitChs = chapters.filter((c: any) => c.unitId === u.id)
+      return unitChs.length === 0
+    })
+    const hasEmptyUnits = emptyUnits.length > 0
+
+    if (isHindiTarget) {
+      checks.push({
+        label: "Hindi Translations",
+        ok: missingHindiFields.length === 0,
+        hint: missingHindiFields.length === 0 ? "All key fields localized in Hindi" : `Missing Hindi: ${missingHindiFields.join(", ")}`,
+      })
+    }
+    if (hasEmptyUnits) {
+      checks.push({
+        label: "Empty Units Warning",
+        ok: false,
+        hint: `Warning: ${emptyUnits.length} unit(s) have 0 themes (${emptyUnits.map((u: any) => u.title).join(", ")})`,
+      })
+    }
+
     const completedCount = checks.filter((c) => c.ok).length
     const percent = Math.round((completedCount / checks.length) * 100)
     const hasZeroLectures = totalLectures === 0
-    return { checks, completedCount, total: checks.length, percent, hasZeroLectures, totalLectures }
-  }, [title, slug, technology, price, teachers, chapters, thumbnailUrl, heroDraft])
+    return { checks, completedCount, total: checks.length, percent, hasZeroLectures, totalLectures, hasEmptyUnits, emptyUnits }
+  }, [title, slug, technology, price, teachers, chapters, units, language, thumbnailUrl, heroDraft])
 
   const handleExportJson = () => {
     const courseExport = {
@@ -709,6 +753,59 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     URL.revokeObjectURL(url)
     toast.success("Course exported as JSON.")
   }
+
+  const previewViewModel = useMemo(() => {
+    return buildCourseDetailViewModel({
+      ...course,
+      id: course.id,
+      title: title || course.title,
+      titleHi: heroDraft.titleHi || null,
+      subtitle: heroDraft.subtitle || null,
+      subtitleHi: heroDraft.subtitleHi || null,
+      description: description || course.description,
+      descriptionHi: heroDraft.descriptionHi || null,
+      slug: slug || course.slug,
+      price: Number(price),
+      originalPrice: Number(originalPrice),
+      thumbnailUrl: thumbnailUrl || course.thumbnailUrl,
+      technology: technology || course.technology,
+      units: units.length > 0 ? units : (course as any).units || [],
+      chapters: chapters.length > 0 ? chapters : (course as any).chapters || [],
+      teachers,
+      faqs,
+      stats: heroDraft.heroMetrics,
+      badges: heroDraft.badges,
+      whatYouGet: heroDraft.whatYouGet,
+      howItWorks: heroDraft.howItWorks,
+      goalLabel: heroDraft.goalLabel,
+      goalLabelHi: heroDraft.goalLabelHi,
+      enrollCtaLabel: heroDraft.enrollCtaLabel,
+      enrollCtaLabelHi: heroDraft.enrollCtaLabelHi,
+      enrollHelperText: heroDraft.enrollHelperText,
+      enrollHelperTextHi: heroDraft.enrollHelperTextHi,
+      tabsConfig,
+      themeTokens,
+      sections: sectionFlags,
+      syllabus: { hasSyllabus: false, papers: [] },
+    })
+  }, [
+    course,
+    title,
+    heroDraft,
+    description,
+    slug,
+    price,
+    originalPrice,
+    thumbnailUrl,
+    technology,
+    units,
+    chapters,
+    teachers,
+    faqs,
+    tabsConfig,
+    themeTokens,
+    sectionFlags,
+  ])
 
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -1358,6 +1455,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
 
             <button
               type="button"
+              data-testid="btn-studio-live-preview"
               onClick={() => setShowLivePreview(true)}
               className="px-3 py-1.5 rounded-xl text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors flex items-center gap-1.5 cursor-pointer"
             >
@@ -1372,6 +1470,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             )}
 
             <button
+              data-testid="btn-save-course"
               onClick={handleSaveCourse}
               disabled={isSaving}
               className="px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-orange-700 hover:bg-orange-800 shadow-sm shadow-orange-500/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
@@ -2948,14 +3047,14 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     <div className="min-w-0 flex-1 pr-2">
                       <span className="text-[10px] font-black text-blue-700 block uppercase tracking-wider">Facebook Ads</span>
                       <span className="text-[11px] font-mono text-gray-700 truncate block">
-                        {typeof window !== "undefined" ? `${window.location.origin}/courses/${slug}?utm_source=facebook&utm_campaign=demo_ads` : `/courses/${slug}?utm_source=facebook`}
+                        {origin ? `${origin}/courses/${slug}?utm_source=facebook&utm_campaign=demo_ads` : `/courses/${slug}?utm_source=facebook`}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
                         if (typeof window !== "undefined") {
-                          navigator.clipboard.writeText(`${window.location.origin}/courses/${slug}?utm_source=facebook&utm_campaign=demo_ads`)
+                          navigator.clipboard.writeText(`${origin || window.location.origin}/courses/${slug}?utm_source=facebook&utm_campaign=demo_ads`)
                           setCopiedVariant("fb")
                           setTimeout(() => setCopiedVariant(null), 2000)
                         }
@@ -2971,14 +3070,14 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     <div className="min-w-0 flex-1 pr-2">
                       <span className="text-[10px] font-black text-pink-700 block uppercase tracking-wider">Instagram Ads</span>
                       <span className="text-[11px] font-mono text-gray-700 truncate block">
-                        {typeof window !== "undefined" ? `${window.location.origin}/courses/${slug}?utm_source=instagram&utm_campaign=demo_ads` : `/courses/${slug}?utm_source=instagram`}
+                        {origin ? `${origin}/courses/${slug}?utm_source=instagram&utm_campaign=demo_ads` : `/courses/${slug}?utm_source=instagram`}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
                         if (typeof window !== "undefined") {
-                          navigator.clipboard.writeText(`${window.location.origin}/courses/${slug}?utm_source=instagram&utm_campaign=demo_ads`)
+                          navigator.clipboard.writeText(`${origin || window.location.origin}/courses/${slug}?utm_source=instagram&utm_campaign=demo_ads`)
                           setCopiedVariant("ig")
                           setTimeout(() => setCopiedVariant(null), 2000)
                         }
@@ -2994,14 +3093,14 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     <div className="min-w-0 flex-1 pr-2">
                       <span className="text-[10px] font-black text-gray-600 block uppercase tracking-wider">Standard Direct Link</span>
                       <span className="text-[11px] font-mono text-gray-700 truncate block">
-                        {typeof window !== "undefined" ? `${window.location.origin}/courses/${slug}` : `/courses/${slug}`}
+                        {origin ? `${origin}/courses/${slug}` : `/courses/${slug}`}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
                         if (typeof window !== "undefined") {
-                          navigator.clipboard.writeText(`${window.location.origin}/courses/${slug}`)
+                          navigator.clipboard.writeText(`${origin || window.location.origin}/courses/${slug}`)
                           setCopiedVariant("base")
                           setTimeout(() => setCopiedVariant(null), 2000)
                         }
@@ -3965,58 +4064,9 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   : "w-full max-w-7xl rounded-2xl"
               }`}
             >
-              <CourseDetailV2
-                course={{
-                  ...course,
-                  title: title || course.title,
-                  titleHi: heroDraft.titleHi || null,
-                  subtitle: heroDraft.subtitle || null,
-                  subtitleHi: heroDraft.subtitleHi || null,
-                  description: description || course.description,
-                  descriptionHi: heroDraft.descriptionHi || null,
-                  price: Number(price),
-                  originalPrice: Number(originalPrice),
-                  thumbnailUrl: thumbnailUrl || null,
-                  chapters: course.chapters,
-                  technology: technology || course.technology,
-                  enrollCtaLabel: heroDraft.enrollCtaLabel || null,
-                  enrollCtaLabelHi: heroDraft.enrollCtaLabelHi || null,
-                  enrollHelperText: heroDraft.enrollHelperText || null,
-                  enrollHelperTextHi: heroDraft.enrollHelperTextHi || null,
-                } as any}
-                metadata={{
-                  ...initialMeta,
-                  theme: themeTokens,
-                  tabsConfig: tabsConfig,
-                  ...heroDraftToMetadata(heroDraft),
-                } as any}
-                sections={sectionFlags}
-                syllabus={{ hasSyllabus: false, papers: [] }}
-                teachers={teachers.map((t, idx) => ({
-                  id: String(idx),
-                  name: t.name,
-                  nameHi: t.nameHi || null,
-                  role: t.role || null,
-                  roleHi: t.roleHi || null,
-                  avatar: t.avatar || null,
-                  credentials: t.credentials ? t.credentials.split(",").map((c: string) => ({ label: c.trim() })) : [],
-                  bio: t.bio || null,
-                  bioHi: t.bioHi || null,
-                  isPrimary: Boolean(t.isPrimary || idx === 0),
-                }))}
-                faqs={faqs.map((f, i) => ({
-                  id: String(i),
-                  question: f.question,
-                  questionHi: f.questionHi || null,
-                  answer: f.answer,
-                  answerHi: f.answerHi || null,
-                }))}
-                goalLabel={heroDraft.goalLabel || undefined}
-                goalLabelHi={heroDraft.goalLabelHi || null}
-                badges={heroDraft.badges}
-                whatYouGet={heroDraft.whatYouGet}
-                howItWorks={heroDraft.howItWorks}
-              />
+              <PreviewErrorBoundary>
+                <CourseDetailV2 {...previewViewModel} />
+              </PreviewErrorBoundary>
             </div>
           </div>
         </div>

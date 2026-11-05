@@ -17,6 +17,8 @@ import { CourseDetailV2 } from "@/components/course/detail/CourseDetailV2"
 import { parseCourseMetadata, readSectionFlags } from "@/lib/courses/metadata-schema"
 import { loadCourseSyllabus } from "@/lib/courses/syllabus"
 import { deriveRatingDistribution } from "@/lib/courses/ratings"
+import { resolveCourseTeachers } from "@/lib/teachers/library"
+import { isValidThumbnailUrl, sanitizeThumbnailUrl, generateCourseCoverSvg } from "@/lib/courses/cover-fallback"
 
 export const dynamic = "force-dynamic"
 
@@ -355,19 +357,30 @@ export default async function CourseDetailPage({
             const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aspirantbook.com"
             const shareUrl = `${baseUrl}/courses/${course.slug}`
 
+            const rawTeachers = meta.teachers && meta.teachers.length > 0 ? (meta.teachers as any) : (batch?.teachers ? batch.teachers : [])
+            const resolvedTeachers = resolveCourseTeachers(rawTeachers)
+
+            const safeThumb = isValidThumbnailUrl(safeCourse.thumbnailUrl)
+                ? sanitizeThumbnailUrl(safeCourse.thumbnailUrl)
+                : generateCourseCoverSvg({
+                    title: safeCourse.title,
+                    category: safeCourse.technology || "Course",
+                })
+
             return (
                 <>
                     {draftBanner}
                     <CourseDetailV2
                         course={{
                             ...safeCourse,
+                            thumbnailUrl: safeThumb,
                             units: (course as any).units || [],
                         } as any}
                         metadata={meta}
                         sections={flags}
                         syllabus={syllabusData as any}
                         ratingSummary={ratingSummary}
-                        teachers={meta.teachers && meta.teachers.length > 0 ? (meta.teachers as any) : (batch?.teachers ? batch.teachers : [])}
+                        teachers={resolvedTeachers as any}
                         faqs={meta.faqs && meta.faqs.length > 0 ? (meta.faqs as any) : (batch?.faqs || [])}
                         stats={meta.heroMetrics}
                         badges={(meta as any).badges}

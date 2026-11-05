@@ -40,6 +40,8 @@ import { DEFAULT_TABS, type TabConfigItem } from "./studio/TabsTab"
 import { BRAND_NAME } from "@/lib/brand"
 import { IconPicker } from "./studio/IconPicker"
 import { CourseDetailV2 } from "@/components/course/detail/CourseDetailV2"
+import { PreviewErrorBoundary } from "@/components/course/detail/PreviewErrorBoundary"
+import { buildCourseDetailViewModel } from "@/lib/courses/view-model"
 import { computeContrastRatio, hasContrastWarning } from "@/lib/courses/contrast"
 
 export interface WizardTeacher {
@@ -85,6 +87,7 @@ export interface WizardUnit {
   title: string
   titleHi?: string
   tag: string
+  tagHi?: string
   dateRange?: string
   themes: WizardTheme[]
 }
@@ -366,6 +369,7 @@ export function CourseCreationWizard() {
           title: u.title,
           titleHi: u.titleHi,
           tag: u.tag || "",
+          tagHi: u.tagHi || null,
           dateRange: u.dateRange,
           themes: Array.isArray(u.themes)
             ? u.themes.map((th: any, tIdx: number) => ({
@@ -623,6 +627,21 @@ export function CourseCreationWizard() {
 
   // Derived Completeness Checklist
   const completeness = useMemo(() => {
+    const isHindiTarget = languageMode === "hi" || languageMode === "bilingual" || Boolean(titleHi.trim())
+    const missingHindiFields: string[] = []
+    if (isHindiTarget) {
+      if (!titleHi.trim()) missingHindiFields.push("Title")
+      if (!subtitleHi.trim()) missingHindiFields.push("Subtitle")
+      if (!descriptionHi.trim()) missingHindiFields.push("Description")
+      if (teachers.some((t) => !t.nameHi?.trim())) missingHindiFields.push("Teacher Name(s)")
+      if (units.some((u) => !u.titleHi?.trim())) missingHindiFields.push("Unit Title(s)")
+      if (stats.some((s) => s.caption && !s.captionHi?.trim())) missingHindiFields.push("Stats Caption(s)")
+      if (badges.some((b) => b.label && !b.labelHi?.trim())) missingHindiFields.push("Badge Label(s)")
+    }
+
+    const emptyUnits = units.filter((u) => u.themes.length === 0)
+    const hasEmptyUnits = emptyUnits.length > 0
+
     const items = [
       { name: "Course Title", ready: Boolean(title.trim()), required: true, emptyEffect: "Blocks course creation" },
       { name: "Target Category", ready: Boolean(category.trim()), required: true, emptyEffect: "Blocks categorization" },
@@ -634,6 +653,24 @@ export function CourseCreationWizard() {
       { name: "Frequently Asked Questions", ready: faqs.length > 0, required: false, emptyEffect: "Hides FAQs accordion" },
     ]
 
+    if (isHindiTarget) {
+      items.push({
+        name: "Hindi Localization",
+        ready: missingHindiFields.length === 0,
+        required: languageMode === "hi",
+        emptyEffect: missingHindiFields.length === 0 ? "All key fields localized" : `Missing Hindi: ${missingHindiFields.join(", ")}`,
+      })
+    }
+
+    if (hasEmptyUnits) {
+      items.push({
+        name: "Empty Units Validation",
+        ready: false,
+        required: true,
+        emptyEffect: `Warning: ${emptyUnits.length} unit(s) have 0 themes (${emptyUnits.map((u) => u.title).join(", ")}). Must add themes or remove before publish.`,
+      })
+    }
+
     const totalLectures = units.reduce((acc, u) => acc + u.themes.reduce((tAcc, th) => tAcc + th.lectures.length, 0), 0)
     const hasZeroLectures = totalLectures === 0
 
@@ -642,8 +679,81 @@ export function CourseCreationWizard() {
       allReady: items.every((i) => !i.required || i.ready),
       hasZeroLectures,
       totalLectures,
+      hasEmptyUnits,
+      emptyUnits,
+      isHindiTarget,
+      missingHindiFields,
     }
-  }, [title, category, isFree, price, teachers, units, syllabusEnabled, syllabusPapers, thumbnailUrl, faqs])
+  }, [title, titleHi, subtitleHi, descriptionHi, category, isFree, price, teachers, units, syllabusEnabled, syllabusPapers, thumbnailUrl, faqs, stats, badges, languageMode])
+
+  const wizardPreviewModel = useMemo(() => {
+    return buildCourseDetailViewModel({
+      id: "preview-id",
+      title,
+      titleHi,
+      subtitle,
+      subtitleHi,
+      description,
+      descriptionHi,
+      slug,
+      category,
+      price: isFree ? 0 : price,
+      originalPrice: isFree ? 0 : mrp,
+      isFree,
+      thumbnailUrl,
+      brand: brandName,
+      language: languageMode,
+      units,
+      teachers,
+      faqs,
+      stats,
+      badges,
+      whatYouGet,
+      howItWorks,
+      goalLabel,
+      goalLabelHi,
+      enrollCtaLabel: ctaLabel,
+      enrollCtaLabelHi: ctaLabelHi,
+      enrollHelperText: ctaHelperText,
+      enrollHelperTextHi: ctaHelperTextHi,
+      tabsConfig,
+      themeTokens,
+      syllabusEnabled,
+      syllabusPapers,
+    })
+  }, [
+    title,
+    titleHi,
+    subtitle,
+    subtitleHi,
+    description,
+    descriptionHi,
+    slug,
+    category,
+    price,
+    mrp,
+    isFree,
+    thumbnailUrl,
+    brandName,
+    languageMode,
+    units,
+    teachers,
+    faqs,
+    stats,
+    badges,
+    whatYouGet,
+    howItWorks,
+    goalLabel,
+    goalLabelHi,
+    ctaLabel,
+    ctaLabelHi,
+    ctaHelperText,
+    ctaHelperTextHi,
+    tabsConfig,
+    themeTokens,
+    syllabusEnabled,
+    syllabusPapers,
+  ])
 
   // Final Course Submission
   const handleSubmitCourse = async (publishImmediate = false) => {
@@ -651,6 +761,14 @@ export function CourseCreationWizard() {
     if (!title.trim()) {
       setSubmitError("Course title is required before saving.")
       setCurrentStep(2)
+      return
+    }
+
+    if (publishImmediate && completeness.hasEmptyUnits) {
+      setSubmitError(
+        `Cannot publish: ${completeness.emptyUnits.length} unit(s) have 0 themes (${completeness.emptyUnits.map((u) => u.title).join(", ")}). Please add themes or remove empty units.`
+      )
+      setCurrentStep(6)
       return
     }
 
@@ -714,6 +832,7 @@ export function CourseCreationWizard() {
           title: u.title.trim() || `Unit ${u.number || uIdx + 1}`,
           titleHi: u.titleHi || null,
           tag: u.tag || "",
+          tagHi: u.tagHi || null,
           order: u.number || uIdx + 1,
           themes: u.themes
             .filter((th) => th.title && th.title.trim() && th.title.trim().toLowerCase() !== "theme 1")
@@ -1664,6 +1783,19 @@ export function CourseCreationWizard() {
                       />
                       <input
                         type="text"
+                        data-testid={`input-stat-value-hi-${sIdx}`}
+                        value={stat.valueHi || ""}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          setStats((prev) => prev.map((s, i) => (i === sIdx ? { ...s, valueHi: val } : s)))
+                        }}
+                        placeholder="Value (हिन्दी)"
+                        className="px-2.5 py-1 text-xs rounded border border-gray-200 bg-white font-bold"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
                         data-testid={`input-stat-caption-${sIdx}`}
                         value={stat.caption}
                         onChange={(e) => {
@@ -1671,6 +1803,17 @@ export function CourseCreationWizard() {
                           setStats((prev) => prev.map((s, i) => (i === sIdx ? { ...s, caption: val } : s)))
                         }}
                         placeholder="Caption (e.g. Batch starts)"
+                        className="px-2.5 py-1 text-xs rounded border border-gray-200 bg-white font-medium"
+                      />
+                      <input
+                        type="text"
+                        data-testid={`input-stat-caption-hi-${sIdx}`}
+                        value={stat.captionHi || ""}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          setStats((prev) => prev.map((s, i) => (i === sIdx ? { ...s, captionHi: val } : s)))
+                        }}
+                        placeholder="Caption (हिन्दी)"
                         className="px-2.5 py-1 text-xs rounded border border-gray-200 bg-white font-medium"
                       />
                     </div>
@@ -2086,6 +2229,17 @@ export function CourseCreationWizard() {
                           setUnits((prev) => prev.map((u, i) => (i === uIdx ? { ...u, tag: val } : u)))
                         }}
                         placeholder="Tag (e.g. Module 1)"
+                        className="text-[11px] font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded border border-orange-200 w-24"
+                      />
+                      <input
+                        type="text"
+                        data-testid={`input-unit-tag-hi-${uIdx}`}
+                        value={unit.tagHi || ""}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          setUnits((prev) => prev.map((u, i) => (i === uIdx ? { ...u, tagHi: val } : u)))
+                        }}
+                        placeholder="Tag (हिन्दी)"
                         className="text-[11px] font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded border border-orange-200 w-24"
                       />
                     </div>
@@ -2977,92 +3131,9 @@ export function CourseCreationWizard() {
                     : "w-full rounded-xl"
                 }`}
               >
-                <CourseDetailV2
-                  course={{
-                    id: "preview-id",
-                    title: title || "Untitled Course",
-                    titleHi: titleHi || null,
-                    subtitle: subtitle || null,
-                    subtitleHi: subtitleHi || null,
-                    slug: slug || "preview-course",
-                    description: description || "",
-                    descriptionHi: descriptionHi || null,
-                    technology: category,
-                    price: isFree ? 0 : price,
-                    originalPrice: isFree ? 0 : mrp,
-                    isPremium: !isFree,
-                    thumbnailUrl: thumbnailUrl || "/placeholder-course.svg",
-                    chapters: units.flatMap((u) =>
-                      u.themes.map((th) => ({
-                        id: th.id,
-                        title: th.title,
-                        titleHi: th.titleHi || null,
-                        subtopics: th.subtopics,
-                        unitId: u.id,
-                        lessons: th.lectures.map((l) => ({
-                          id: l.id,
-                          title: l.title,
-                          type: "VIDEO",
-                          duration: l.durationMin,
-                          isTrial: l.isTrial,
-                        })),
-                      }))
-                    ),
-                    units: units.map((u) => ({
-                      id: u.id,
-                      title: u.title,
-                      titleHi: u.titleHi || null,
-                      tags: u.tag ? [u.tag] : [],
-                      order: u.number,
-                    })),
-                  } as any}
-                  metadata={{
-                    brand: brandName || BRAND_NAME,
-                    language: languageMode,
-                    goalLabel: goalLabel || null,
-                    goalLabelHi: goalLabelHi || null,
-                    enrollCtaLabel: ctaLabel || null,
-                    enrollCtaLabelHi: ctaLabelHi || null,
-                    enrollHelperText: ctaHelperText || null,
-                    enrollHelperTextHi: ctaHelperTextHi || null,
-                    theme: themeTokens,
-                    teachers: teachers as any,
-                    heroMetrics: stats.map((s) => ({
-                      value: s.value,
-                      valueHi: s.valueHi,
-                      label: s.caption,
-                      labelHi: s.captionHi,
-                    })) as any,
-                    whatYouGet,
-                    howItWorks,
-                    faqs,
-                    tabsConfig,
-                  } as any}
-                  syllabus={{
-                    hasSyllabus: syllabusEnabled && syllabusPapers.length > 0,
-                    papers: syllabusPapers.map((p) => ({
-                      id: p.id,
-                      key: p.key,
-                      title: p.title,
-                      titleHi: p.titleHi || null,
-                      marks: p.marks || null,
-                      durationMinutes: p.durationMinutes || null,
-                      totalQuestions: 0,
-                      sections: p.sections
-                        .filter((s) => s.title && s.title.trim() && s.title.trim().toLowerCase() !== "new syllabus section")
-                        .map((s) => ({
-                          id: s.id,
-                          title: s.title.trim(),
-                          titleHi: s.titleHi || null,
-                          subtopics: s.subtopics,
-                          totalQuestions: 0,
-                          byYear: [],
-                        })),
-                    })),
-                  } as any}
-                  teachers={teachers as any}
-                  faqs={faqs as any}
-                />
+                <PreviewErrorBoundary>
+                  <CourseDetailV2 {...wizardPreviewModel} />
+                </PreviewErrorBoundary>
               </div>
             </div>
           </div>

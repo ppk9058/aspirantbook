@@ -38,6 +38,7 @@ export function CoursePlanTab({ courseId, chapters, onChaptersChanged }: CourseP
   const [newTitle, setNewTitle] = useState("")
   const [newTitleHi, setNewTitleHi] = useState("")
   const [newTags, setNewTags] = useState("")
+  const [newTagsHi, setNewTagsHi] = useState("")
   const [busy, setBusy] = useState(false)
 
   // Bulk add state
@@ -87,6 +88,7 @@ export function CoursePlanTab({ courseId, chapters, onChaptersChanged }: CourseP
           title: newTitle,
           titleHi: newTitleHi,
           tags: newTags.split(",").map((tag) => tag.trim()).filter(Boolean),
+          tagsHi: newTagsHi.split(",").map((tag) => tag.trim()).filter(Boolean),
         }),
       })
       const data = await res.json()
@@ -95,6 +97,7 @@ export function CoursePlanTab({ courseId, chapters, onChaptersChanged }: CourseP
       setNewTitle("")
       setNewTitleHi("")
       setNewTags("")
+      setNewTagsHi("")
       setSuccess("Unit created")
     } catch (err: any) {
       setError(err.message || "Could not create unit")
@@ -322,15 +325,18 @@ export function CoursePlanTab({ courseId, chapters, onChaptersChanged }: CourseP
         }
       >
         {/* Single Unit Form */}
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Unit title (English)" htmlFor="unit-title" required>
             <TextInput id="unit-title" value={newTitle} onChange={setNewTitle} maxLength={120} placeholder="Unit 1 — Foundation" />
           </Field>
           <Field label="Unit title (Hindi)" htmlFor="unit-title-hi">
             <TextInput id="unit-title-hi" value={newTitleHi} onChange={setNewTitleHi} maxLength={120} lang="hi" />
           </Field>
-          <Field label="Tags" htmlFor="unit-tags" hint="Comma separated (max 8)">
+          <Field label="Tags (English)" htmlFor="unit-tags" hint="Comma separated">
             <TextInput id="unit-tags" value={newTags} onChange={setNewTags} placeholder="GS, Prelims" />
+          </Field>
+          <Field label="Tags (Hindi)" htmlFor="unit-tags-hi" hint="कॉमा से अलग करें">
+            <TextInput id="unit-tags-hi" value={newTagsHi} onChange={setNewTagsHi} placeholder="सामान्य अध्ययन, प्रारंभिक" lang="hi" />
           </Field>
         </div>
         <button

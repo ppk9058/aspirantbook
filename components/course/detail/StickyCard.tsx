@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Calendar, Check, Copy, Share2 } from "lucide-react"
 import type { CalendarLecture } from "./CalendarMenu"
 import type { DetailCourse } from "./types"
 import { fontStackFor } from "./theme"
 import type { Lang } from "@/lib/i18n/localized"
+import { isValidThumbnailUrl, sanitizeThumbnailUrl, generateCourseCoverSvg } from "@/lib/courses/cover-fallback"
 
 interface StickyCardProps {
   course: DetailCourse
@@ -41,7 +42,23 @@ export function StickyCard({
   const [shareCopied, setShareCopied] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
   const [imgError, setImgError] = useState(false)
+  const imgRef = useRef<HTMLImageElement | null>(null)
   const finalPrice = Math.round(estimatedFinalPrice)
+
+  const hasValidThumb = isValidThumbnailUrl(course.thumbnailUrl)
+  const safeThumbnail = sanitizeThumbnailUrl(course.thumbnailUrl)
+  const showFallbackCover = !hasValidThumb || imgError
+
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth === 0) {
+      setImgError(true)
+    }
+  }, [safeThumbnail])
+
+  const fallbackSvgUri = generateCourseCoverSvg({
+    title: course.title,
+    category: thumbnailBadge || course.technology || "Course",
+  })
 
   const handleShare = async () => {
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -93,22 +110,30 @@ export function StickyCard({
     >
       {/* 16:10 Thumbnail Card Image */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-[color:var(--cd-navy)]">
-        {!imgError && course.thumbnailUrl && course.thumbnailUrl.trim() !== "" ? (
+        {!showFallbackCover ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={course.thumbnailUrl}
+            ref={imgRef}
+            src={safeThumbnail}
             alt={course.title}
+            data-testid={safeThumbnail.startsWith("data:image/svg+xml") ? "generated-cover" : "course-thumbnail"}
             onError={() => setImgError(true)}
+            onLoad={(e) => {
+              if (e.currentTarget.naturalWidth === 0) setImgError(true)
+            }}
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-[color:var(--cd-navy)] to-[color:var(--cd-navy-light)] p-4 text-center text-white">
-            <span className="rounded bg-[color:var(--cd-gold)] px-2.5 py-0.5 text-[10px] font-black uppercase text-[color:var(--cd-navy)]">
-              {thumbnailBadge || "Course"}
-            </span>
-            <p className="mt-2 line-clamp-2 text-base font-extrabold" style={{ fontFamily: "var(--cd-font-heading)" }}>
-              {course.title}
-            </p>
+          <div
+            data-testid="generated-cover"
+            className="flex h-full w-full flex-col items-center justify-center p-4 text-center text-white relative overflow-hidden"
+            style={{
+              backgroundImage: `url("${fallbackSvgUri}")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            <span className="sr-only">{course.title}</span>
           </div>
         )}
       </div>

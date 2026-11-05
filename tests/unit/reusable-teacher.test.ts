@@ -1,6 +1,13 @@
 import test, { describe } from "node:test"
 import assert from "node:assert/strict"
 import { parseCourseMetadata } from "../../lib/courses/metadata-schema"
+import {
+  getAllTeachers,
+  getTeacherById,
+  upsertTeacher,
+  resolveCourseTeachers,
+  type ReusableTeacher,
+} from "../../lib/teachers/library"
 
 describe("Reusable Teacher Library (JSON & Multi-Course Attachment)", () => {
   const sharedTeacher = {
@@ -41,5 +48,50 @@ describe("Reusable Teacher Library (JSON & Multi-Course Attachment)", () => {
     // Assert same teacher identity attached to both courses
     assert.equal(parsed1.data?.teachers?.[0].name, parsed2.data?.teachers?.[0].name)
     assert.equal(parsed1.data?.teachers?.[0].role, parsed2.data?.teachers?.[0].role)
+  })
+
+  test("proves central teacher stored once in data/teacher-library.json: editing once updates multiple courses referencing the ID", () => {
+    const teacherId = "teacher-dr-vikas"
+
+    // Initial state check
+    const initialTeacher = getTeacherById(teacherId)
+    assert.ok(initialTeacher, "Default teacher-dr-vikas must exist in teacher library")
+
+    // Course A and Course B only store reference { teacherId: "teacher-dr-vikas" }
+    const courseATeachersRef = [{ teacherId }]
+    const courseBTeachersRef = [{ teacherId, role: "Visiting Ethics Mentor" }] // with custom course role
+
+    const resolvedA1 = resolveCourseTeachers(courseATeachersRef)
+    const resolvedB1 = resolveCourseTeachers(courseBTeachersRef)
+    assert.equal(resolvedA1[0].name, initialTeacher.name)
+    assert.equal(resolvedB1[0].name, initialTeacher.name)
+    assert.equal(resolvedB1[0].role, "Visiting Ethics Mentor")
+
+    // Update central teacher profile once
+    const updatedBio = "Updated Central Profile: 20+ Years Mentoring 50,000+ Aspirants"
+    const updatedName = "Dr. Vikas Divyakirti (Chief Faculty)"
+    upsertTeacher({
+      id: teacherId,
+      name: updatedName,
+      bio: updatedBio,
+      credentials: [{ label: "20+ Yrs Mentorship" }, { label: "UPSC Gold Medalist" }],
+    })
+
+    // Both Course A and Course B resolve again
+    const resolvedA2 = resolveCourseTeachers(courseATeachersRef)
+    const resolvedB2 = resolveCourseTeachers(courseBTeachersRef)
+
+    // PROOF: Both courses immediately receive the updated name, bio, and credentials!
+    assert.equal(resolvedA2[0].name, updatedName)
+    assert.equal(resolvedB2[0].name, updatedName)
+    assert.equal(resolvedA2[0].bio, updatedBio)
+    assert.equal(resolvedB2[0].bio, updatedBio)
+    assert.equal(resolvedA2[0].credentials?.[0]?.label, "20+ Yrs Mentorship")
+    assert.equal(resolvedB2[0].credentials?.[0]?.label, "20+ Yrs Mentorship")
+
+    // Restore original profile
+    upsertTeacher(initialTeacher)
+    const restored = getTeacherById(teacherId)
+    assert.equal(restored?.name, initialTeacher.name)
   })
 })

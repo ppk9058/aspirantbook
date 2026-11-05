@@ -378,7 +378,7 @@ export function CourseDetailV2(props: CourseDetailV2Props) {
       </div>
 
       {/* Main Content Sections on Cream Page */}
-      <main className="mx-auto max-w-7xl px-4 pt-8 pb-28 sm:px-6 lg:px-8 space-y-12 lg:pb-16">
+      <main className="mx-auto max-w-7xl px-4 pt-8 pb-36 sm:pb-40 lg:pb-16 space-y-12">
         {/* About Section */}
         {flags.about && (
           <AboutSection
@@ -450,6 +450,7 @@ export function CourseDetailV2(props: CourseDetailV2Props) {
       {/* Fixed Bottom CTA bar for Phones (< 768px) */}
       {allowPurchases && (
         <div
+          data-testid="mobile-bottom-cta-bar"
           className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between border-t border-[color:var(--cd-cream-dark)] bg-[color:var(--cd-cream-card)]/95 px-4 py-3 backdrop-blur-md lg:hidden shadow-lg"
           style={{ fontFamily: fontStackFor(lang) }}
         >
