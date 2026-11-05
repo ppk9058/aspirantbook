@@ -166,3 +166,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [...staticRoutes, ...courseUrls, ...bookUrls, ...seriesUrls, ...quizUrls, ...tutorialUrls, ...pyqUrls]
 }
+
+export const dynamic = "force-dynamic";
