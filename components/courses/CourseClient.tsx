@@ -4,10 +4,11 @@ import { useState, useMemo, useEffect } from "react"
 import SearchBar from "@/components/courses/SearchBar"
 import CourseTabs from "@/components/courses/CourseTabs"
 import CourseCard from "@/components/courses/CourseCard"
-import { BookOpen, Sparkles, Check, ChevronRight } from "lucide-react"
+import { BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGoal } from "@/components/providers/GoalProvider"
-import GoalIcon from "@/components/layout/GoalIcon"
+import StudentPageHeader from "@/components/layout/StudentPageHeader"
+import StudentPageToolbar from "@/components/layout/StudentPageToolbar"
 import { ALL_GOAL_COURSES } from "@/lib/goal-courses-data"
 import { classifyCourse, isCourseMatchingGoal } from "@/lib/course-classifier"
 
@@ -28,8 +29,6 @@ interface Course {
     subject?: string
 }
 
-import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
-
 interface CourseClientProps {
     dbCourses?: Course[]
     enrolledCourseIds: string[]
@@ -47,7 +46,7 @@ export default function CourseClient({
     badgeMap = {},
     serverGoalIds = [],
 }: CourseClientProps) {
-    const { selectedGoal, selectedGoals, selectedGoalIds, openGoalModal } = useGoal()
+    const { selectedGoal, selectedGoals } = useGoal()
 
     const allCourses = useMemo(() => {
         const combined: Course[] = [...ALL_GOAL_COURSES]
@@ -236,99 +235,31 @@ export default function CourseClient({
 
     return (
         <div className="space-y-6">
-            {/* Header with Title & Filter Trigger */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                        Explore Courses
-                    </h1>
-                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                        Interactive, syllabus-aligned courses curated for your target goals
-                    </p>
-                </div>
-            </div>
-
-            {/* Shared Goal & Exam Target Bar */}
-            <GoalSelectorBar
-                title="Target Exams & Courses"
-                subtitle="Showing video and structured courses personalized to your active exam targets"
+            <StudentPageHeader
+                title="Explore courses"
+                subtitle="Interactive, syllabus-aligned courses curated for your target goals"
             />
 
-            {/* Active Goal Dynamic Banner */}
-            <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1448d8] to-[#1DB954] text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
-                        <GoalIcon name={selectedGoal.icon} className="h-6 w-6" />
-                    </div>
-                    <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-500/30">
-                                Active Goal
-                            </span>
-                            <h2 className="text-sm sm:text-base font-extrabold text-gray-900 dark:text-white">
-                                {selectedGoal.fullName || selectedGoal.name}
-                            </h2>
-                        </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                            {filterByGoal
-                                ? `Showing courses and subjects curated for ${selectedGoal.name}.`
-                                : `Showing all courses across all exams and domains.`}
-                        </p>
-                    </div>
-                </div>
-
-                <div data-scroll-x="true" className="flex items-center gap-2 flex-wrap">
-                    <button
-                        onClick={() => setFilterByGoal(!filterByGoal)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                            filterByGoal
-                                ? "bg-white dark:bg-slate-800 text-teal-700 dark:text-teal-300 border-teal-300 shadow-2xs hover:bg-slate-50"
-                                : "bg-teal-600 text-white border-teal-600 shadow-sm hover:bg-teal-700"
-                        }`}
-                    >
-                        {filterByGoal ? "Show All Courses" : `Show Only ${selectedGoal.name}`}
-                    </button>
-                    <button
-                        onClick={openGoalModal}
-                        className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5"
-                    >
-                        <span>Change Goal</span>
-                        <ChevronRight className="h-3.5 w-3.5 text-teal-500" />
-                    </button>
-                </div>
-            </div>
-
-            {/* Category Pills (Dynamic according to Goal) */}
-            <div>
-                <CourseTabs
-                    tabs={categoryTabs}
-                    activeTab={selectedCategory}
-                    onChange={setSelectedCategory}
-                    variant="pills"
-                />
-            </div>
-
-            {/* Search & Tabs Row */}
-            <div className="space-y-4">
-                <SearchBar value={search} onChange={setSearch} />
-                <CourseTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} variant="underline" />
-            </div>
+            <StudentPageToolbar
+                tabs={<CourseTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} variant="underline" />}
+                search={<SearchBar value={search} onChange={setSearch} />}
+                chips={<CourseTabs tabs={categoryTabs} activeTab={selectedCategory} onChange={setSelectedCategory} variant="pills" />}
+            />
 
             {/* Main Content: Full-width Course Grid */}
-            <div className="w-full">
-                <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-4 flex items-center justify-between">
+            <div className="w-full pb-32 lg:pb-20">
+                <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-4 flex flex-wrap items-center justify-between gap-2">
                     <span>
                         Showing <span className="font-bold text-gray-900 dark:text-white">{filteredCourses.length}</span> {filteredCourses.length === 1 ? 'course' : 'courses'}
                         {filterByGoal && ` for ${selectedGoal.name}`}
                     </span>
-                    {filterByGoal && (
-                        <button
-                            onClick={() => setFilterByGoal(false)}
-                            className="text-xs font-semibold text-teal-700 dark:text-teal-400 hover:underline"
-                        >
-                            View all courses
-                        </button>
-                    )}
+                    <button
+                        type="button"
+                        onClick={() => setFilterByGoal(!filterByGoal)}
+                        className="ml-auto inline-flex min-h-[44px] items-center text-xs font-semibold text-teal-700 hover:underline sm:min-h-0 dark:text-teal-400"
+                    >
+                        {filterByGoal ? "Show courses for all exams" : "Show only my exam courses"}
+                    </button>
                 </div>
 
                 {filteredCourses.length > 0 ? (
