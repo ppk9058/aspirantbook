@@ -35,6 +35,7 @@ import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
 import { openWebUrl } from "../../lib/web-links";
 import { getLocalCourseProgress, CourseProgressMap } from "../../lib/course-progress";
+import { CourseDetailExtras } from "../../components/course/CourseDetailExtras";
 import { CourseDetailDto, CourseChapterDto } from "@aspirantbook/shared";
 
 export default function CourseDetailScreen() {
@@ -394,6 +395,8 @@ export default function CourseDetailScreen() {
                   />
                 )}
               </View>
+              {/* Additive v2 course detail blocks */}
+              <CourseDetailExtras data={course} lang="en" />
             </View>
           </>
         )}

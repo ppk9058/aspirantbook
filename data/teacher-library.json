@@ -1,0 +1,54 @@
+[
+  {
+    "id": "teacher-dr-vikas",
+    "name": "Dr. Vikas Sharma",
+    "nameHi": "डॉ. विकास शर्मा",
+    "role": "Chief Faculty & Academic Director",
+    "roleHi": "मुख्य संकाय एवं अकादमिक निदेशक",
+    "avatar": "/instructors/vikas.jpg",
+    "credentials": [
+      {
+        "label": "Ph.D. History"
+      },
+      {
+        "label": "12+ Yrs Teaching"
+      }
+    ],
+    "credentialsHi": [
+      {
+        "label": "पीएच.डी. इतिहास"
+      },
+      {
+        "label": "12+ वर्ष शिक्षण"
+      }
+    ],
+    "bio": "Mentored 500+ UPSC & BPSC toppers over the past decade.",
+    "bioHi": "पिछले एक दशक में 500+ यूपीएससी और बीपीएससी टॉपर्स का मार्गदर्शन किया।"
+  },
+  {
+    "id": "teacher-priya-nair",
+    "name": "Priya Nair",
+    "nameHi": "प्रिया नायर",
+    "role": "Quantitative Aptitude Specialist",
+    "roleHi": "गणितीय अभियोग्यता विशेषज्ञ",
+    "avatar": "/instructors/priya.jpg",
+    "credentials": [
+      {
+        "label": "AIR 14 Banking"
+      },
+      {
+        "label": "8+ Yrs Coaching"
+      }
+    ],
+    "credentialsHi": [
+      {
+        "label": "एआईआर 14 बैंकिंग"
+      },
+      {
+        "label": "8+ वर्ष कोचिंग"
+      }
+    ],
+    "bio": "Specialized in fast arithmetic shortcuts and DI for banking and SSC aspirants.",
+    "bioHi": "बैंकिंग और एसएससी उम्मीदवारों के लिए तेज अंकगणित और डीआई में विशेषज्ञ।"
+  }
+]

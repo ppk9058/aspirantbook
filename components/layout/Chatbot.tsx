@@ -77,6 +77,7 @@ export function Chatbot() {
         !pathname.includes("/my-tests") &&
         !pathname.includes("/leaderboard")
     )
+    const isCourseDetailPage = Boolean(pathname && pathname.startsWith("/courses/"))
 
     return (
         <>
@@ -84,7 +85,11 @@ export function Chatbot() {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 data-ai-button="true"
-                className={`fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-3 sm:right-5 z-40 h-10 w-10 sm:h-12 sm:w-12 p-2 sm:p-2.5 rounded-full bg-gradient-to-r from-[#1448d8] to-[#1DB954] text-white shadow-lg hover:shadow-xl items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation ${
+                className={`fixed ${
+                    isCourseDetailPage
+                        ? "bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))]"
+                        : "bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))]"
+                } lg:bottom-6 right-3 sm:right-5 z-40 h-10 w-10 sm:h-12 sm:w-12 p-2 sm:p-2.5 rounded-full bg-gradient-to-r from-[#1448d8] to-[#1DB954] text-white shadow-lg hover:shadow-xl items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation ${
                     isStickyBarPage ? "hidden sm:flex" : "flex"
                 }`}
                 aria-label="Open AI Learning Assistant"

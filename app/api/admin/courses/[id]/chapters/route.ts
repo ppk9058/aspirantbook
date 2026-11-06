@@ -97,6 +97,63 @@ export async function PUT(req: Request) {
   }
 }
 
+export async function PATCH(req: Request) {
+  try {
+    const user = await getCurrentUserContext()
+    if (!user.isAuthenticated || (user.role !== "ADMIN" && user.role !== "TEACHER")) {
+      return NextResponse.json({ error: "Access Denied" }, { status: 403 })
+    }
+
+    const body = await req.json()
+    if (!body.chapterId) {
+      return NextResponse.json({ error: "Chapter ID is required" }, { status: 400 })
+    }
+
+    const access = await requireManagedChapter(user, body.chapterId)
+    if (access.response) return access.response
+
+    const data: any = {}
+    if (body.titleHi !== undefined) data.titleHi = body.titleHi?.toString().trim().slice(0, 200) || null
+    if (body.subtopics !== undefined) {
+      data.subtopics = Array.isArray(body.subtopics)
+        ? body.subtopics.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 20)
+        : []
+    }
+    if (body.subtopicsHi !== undefined) {
+      data.subtopicsHi = Array.isArray(body.subtopicsHi)
+        ? body.subtopicsHi.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 20)
+        : []
+    }
+    if (body.unitId !== undefined) {
+      if (body.unitId) {
+        const course = await prisma.chapter.findUnique({
+          where: { id: body.chapterId },
+          select: { courseId: true },
+        })
+        const unit = await prisma.courseUnit.findFirst({
+          where: { id: String(body.unitId), courseId: course?.courseId || "" },
+          select: { id: true },
+        })
+        if (!unit) return NextResponse.json({ error: "Unit not found for this course" }, { status: 404 })
+        data.unitId = unit.id
+      } else {
+        data.unitId = null
+      }
+    }
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: "Nothing to update" }, { status: 400 })
+    }
+
+    const updated = await prisma.chapter.update({ where: { id: body.chapterId }, data })
+    invalidateCourseContent(access.course.slug)
+    return NextResponse.json(updated)
+  } catch (error: any) {
+    console.error("PATCH /api/admin/courses/[id]/chapters error:", error)
+    return NextResponse.json({ error: error.message || "Failed to update chapter" }, { status: 500 })
+  }
+}
+
 export async function DELETE(req: Request) {
   try {
     const user = await getCurrentUserContext()

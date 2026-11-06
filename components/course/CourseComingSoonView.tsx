@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import CuriousNavbar from "@/components/common/CuriousNavbar"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { BRAND_NAME } from "@/lib/brand"
 
 interface CourseComingSoonViewProps {
     slug: string
@@ -177,7 +178,7 @@ export function CourseComingSoonView({
                                 What Will Be Included in This Video Batch
                             </h3>
                             <p className="text-xs sm:text-sm text-gray-600">
-                                Every AspirantBook video course is structured for complete concept mastery, regular practice, and exam excellence.
+                                Every {BRAND_NAME} video course is structured for complete concept mastery, regular practice, and exam excellence.
                             </p>
                         </div>
 

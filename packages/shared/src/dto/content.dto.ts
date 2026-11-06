@@ -173,6 +173,11 @@ export interface CourseSummaryDto {
   chaptersCount: number;
   lessonsCount: number;
   isEnrolled: boolean;
+  // ── Additive (v2) fields — all optional so older mobile builds keep working ──
+  titleHi?: string | null;
+  subtitle?: string | null;
+  subtitleHi?: string | null;
+  descriptionHi?: string | null;
 }
 
 export interface CourseLessonItemDto {
@@ -184,6 +189,9 @@ export interface CourseLessonItemDto {
   order: number;
   isLocked: boolean;
   isCompleted: boolean;
+  // ── Additive (v2) ──
+  titleHi?: string | null;
+  scheduledAt?: string | null;
 }
 
 export interface CourseChapterDto {
@@ -191,12 +199,126 @@ export interface CourseChapterDto {
   title: string;
   order: number;
   lessons: CourseLessonItemDto[];
+  // ── Additive (v2) ──
+  titleHi?: string | null;
+  unitId?: string | null;
+  subtopics?: string[];
+  subtopicsHi?: string[];
+}
+
+export interface CourseUnitDto {
+  id: string;
+  title: string;
+  titleHi?: string | null;
+  tags: string[];
+  order: number;
+}
+
+export interface CourseHeroMetricDto {
+  value: string;
+  valueHi?: string | null;
+  label: string;
+  labelHi?: string | null;
+}
+
+export interface CourseTeacherDto {
+  name: string;
+  nameHi?: string | null;
+  role?: string | null;
+  roleHi?: string | null;
+  subject?: string | null;
+  experience?: string | null;
+  qualification?: string | null;
+  qualificationHi?: string | null;
+  avatar?: string | null;
+  bio?: string | null;
+  bioHi?: string | null;
+}
+
+export interface CourseFaqDto {
+  question: string;
+  questionHi?: string | null;
+  answer: string;
+  answerHi?: string | null;
+}
+
+export interface CourseRatingSummaryDto {
+  total: number;
+  average: number;
+  buckets: Array<{ stars: number; count: number; percent: number }>;
+  visible: boolean;
+}
+
+export interface CourseSyllabusSectionSummaryDto {
+  id: string;
+  title: string;
+  titleHi?: string | null;
+  subtopics: string[];
+  subtopicsHi: string[];
+  unitId?: string | null;
+  unitTitle?: string | null;
+  totalQuestions: number;
+  byYear: Array<{ year: number; count: number }>;
+}
+
+export interface CourseSyllabusSummaryDto {
+  hasSyllabus: boolean;
+  papers: Array<{
+    id: string;
+    key: string;
+    title: string;
+    titleHi?: string | null;
+    marks?: number | null;
+    durationMinutes?: number | null;
+    introText?: string | null;
+    introTextHi?: string | null;
+    sections: CourseSyllabusSectionSummaryDto[];
+  }>;
+}
+
+export interface CourseSectionFlagsDto {
+  about: boolean;
+  plan: boolean;
+  syllabus: boolean;
+  teachers: boolean;
+  questions: boolean;
+  lectures: boolean;
+  callback: boolean;
 }
 
 export interface CourseDetailDto {
   course: CourseSummaryDto;
   chapters: CourseChapterDto[];
   isEnrolled: boolean;
+  // ── Additive (v2). Consumers must treat every field as optional. ──
+  units?: CourseUnitDto[];
+  hero?: {
+    metrics: CourseHeroMetricDto[];
+    pillTags: string[];
+    pillTagsHi: string[];
+    firstClassDate?: string | null;
+    lateJoinerText?: string | null;
+    lateJoinerTextHi?: string | null;
+    instructor?: CourseTeacherDto | null;
+  };
+  teachers?: CourseTeacherDto[];
+  faqs?: CourseFaqDto[];
+  aboutHighlights?: string[];
+  aboutHighlightsHi?: string[];
+  ratingSummary?: CourseRatingSummaryDto;
+  syllabus?: CourseSyllabusSummaryDto;
+  sections?: CourseSectionFlagsDto;
+  theme?: Record<string, string> | null;
+  goalLabel?: string | null;
+  goalLabelHi?: string | null;
+  enrollCtaLabel?: string | null;
+  enrollCtaLabelHi?: string | null;
+  enrollHelperText?: string | null;
+  enrollHelperTextHi?: string | null;
+  badges?: Array<{ label: string; labelHi?: string | null; variant?: "outlined" | "filled" }>;
+  whatYouGet?: Array<{ en: string; hi?: string | null }>;
+  howItWorks?: Array<{ en: string; hi?: string | null }>;
+  tabsConfig?: Array<{ id: string; label: string; labelHi?: string; enabled: boolean; icon?: string }>;
 }
 
 export interface CourseLessonDetailDto {
