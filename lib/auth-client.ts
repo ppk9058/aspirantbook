@@ -15,10 +15,10 @@ const COOKIES_TO_CLEAR = [
 ]
 
 /**
- * Instant, 100% reliable sign-out helper.
- * Immediately clears all auth cookies client-side and triggers the server-side
- * cookie purge route (/api/auth/logout), completing in under 50ms without
- * waiting for slow CSRF round-trips.
+ * Sign-out helper.
+ * Clears all auth cookies client-side, POSTs to the server-side cookie purge
+ * route (/api/auth/logout), then hard-navigates to "/" whether that request
+ * succeeds or fails so the UI cannot keep a stale signed-in shell.
  */
 export function safeSignOut(callbackUrl: string = "/") {
   if (typeof document !== "undefined") {
@@ -29,11 +29,27 @@ export function safeSignOut(callbackUrl: string = "/") {
     }
   }
 
-  // Submit POST form for safe, CSRF-hardened logout
-  const form = document.createElement("form")
-  form.method = "POST"
-  form.action = `/api/auth/logout?callbackUrl=${encodeURIComponent(callbackUrl)}`
-  document.body.appendChild(form)
-  form.submit()
+  if (typeof window === "undefined") return
+
+  // Always finish with a hard navigation to a fixed same-origin path. This
+  // discards any cached RSC/router state so the header cannot keep showing the
+  // signed-in UI. The destination is deliberately NOT derived from callbackUrl
+  // (or any query param), so sign-out can never become an open redirect.
+  const hardNavigateHome = () => window.location.assign("/")
+
+  // Follow the logout route's redirect so its Set-Cookie headers are applied
+  // before we navigate. Any response (or network failure) still ends in the
+  // hard navigation below, so the UI can never be left showing a stale session.
+  void fetch("/api/auth/logout", {
+    method: "POST",
+    credentials: "same-origin",
+    redirect: "follow",
+    cache: "no-store",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  }).then(hardNavigateHome, hardNavigateHome)
+
+  // Keep the parameter in the public signature for existing callers, but it is
+  // intentionally ignored: the post-logout target is always "/".
+  void callbackUrl
 }
 
