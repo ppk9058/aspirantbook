@@ -123,7 +123,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const coursesUrl = isTeacher ? "/teacher/courses" : "/admin/courses"
   const [course, setCourse] = useState(initialCourse)
   const [chapters, setChapters] = useState<ChapterItem[]>(initialCourse.chapters)
-  const units = (course as any).units || []
+  const units = useMemo(() => (course as any).units || [], [course])
 
   // Course Details Form State
   const [title, setTitle] = useState(course.title)
