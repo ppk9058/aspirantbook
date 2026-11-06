@@ -3,10 +3,15 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { toMinorUnits } from "@/lib/money"
+import { PROTECTED_ROLES } from "@/lib/payments/role-safety"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 export async function upgradeSubscription(plan: "MONTHLY" | "YEARLY") {
+    if (process.env.NODE_ENV === "production") {
+        return { success: false, error: "Mock subscription upgrade is disabled in production" }
+    }
+
     const session = await auth()
 
     if (!session?.user?.id) {
@@ -49,9 +54,12 @@ export async function upgradeSubscription(plan: "MONTHLY" | "YEARLY") {
         },
     })
 
-    // Update user role
-    await prisma.user.update({
-        where: { id: session.user.id },
+    // Update user role (guarded)
+    await prisma.user.updateMany({
+        where: {
+            id: session.user.id,
+            role: { notIn: [...PROTECTED_ROLES] },
+        },
         data: { role: "PREMIUM" },
     })
 

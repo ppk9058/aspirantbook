@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { PROTECTED_ROLES } from "@/lib/payments/role-safety"
 import { revalidatePath } from "next/cache"
 import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/auth/tokens"
 import bcrypt from "bcryptjs"
@@ -248,14 +249,26 @@ export async function manuallyActivateSubscription(
         },
     })
 
-    // Update user role to PREMIUM and increment sessionVersion
+    // Update user sessionVersion
     await prisma.user.update({
         where: { id: userId },
         data: {
-            role: "PREMIUM",
             sessionVersion: { increment: 1 },
         },
     })
+
+    // Guarded role write to PREMIUM: ADMIN and TEACHER keep their role
+    await prisma.user.updateMany({
+        where: {
+            id: userId,
+            role: { notIn: [...PROTECTED_ROLES] },
+        },
+        data: {
+            role: "PREMIUM",
+        },
+    })
+
+    await writeAuditLog(session.user.id, "USER_SUBSCRIPTION_ACTIVATE", userId, { plan, durationMonths })
 
     revalidatePath("/admin/users")
     revalidatePath(`/admin/users/${userId}`)

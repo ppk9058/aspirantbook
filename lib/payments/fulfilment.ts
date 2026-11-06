@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { PROTECTED_ROLES } from "@/lib/payments/role-safety"
 
 export interface FulfilPaymentParams {
     orderId: string
@@ -224,8 +225,11 @@ export async function fulfilPaymentOrder(params: FulfilPaymentParams): Promise<F
                 },
             })
 
-            await tx.user.update({
-                where: { id: orderRecord.userId },
+            await tx.user.updateMany({
+                where: {
+                    id: orderRecord.userId,
+                    role: { notIn: [...PROTECTED_ROLES] },
+                },
                 data: { role: "PREMIUM" },
             })
 
