@@ -21,13 +21,19 @@ function handleLogout(req: NextRequest) {
   const safeCallback = sanitizeReturnPath(rawCallback, "/")
   const response = NextResponse.redirect(new URL(safeCallback, req.url))
 
+  const isHttps = url.protocol === "https:" || req.headers.get("x-forwarded-proto") === "https"
+  const isProduction = process.env.NODE_ENV === "production"
+  const requestOrEnvSecure = isHttps || isProduction
+
   for (const cookieName of COOKIES_TO_DELETE) {
-    response.cookies.delete(cookieName)
-    // Also set explicit expired cookie header for compatibility across domain paths
+    const isPrefixed = cookieName.startsWith("__Secure-") || cookieName.startsWith("__Host-")
     response.cookies.set(cookieName, "", {
       path: "/",
       maxAge: 0,
       expires: new Date(0),
+      sameSite: "lax",
+      httpOnly: true,
+      secure: isPrefixed || requestOrEnvSecure,
     })
   }
 
