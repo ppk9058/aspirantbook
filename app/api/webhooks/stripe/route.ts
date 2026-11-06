@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { stripe } from "@/lib/payments/stripe"
 import { prisma } from "@/lib/prisma"
+import { PROTECTED_ROLES } from "@/lib/payments/role-safety"
 import Stripe from "stripe"
 
 export async function POST(request: NextRequest) {
@@ -120,48 +121,54 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
     // providerId is unique, so a retried checkout can never create a second
     // subscription. A concurrent duplicate is treated as already handled.
-    let newSubscription: { id: string }
+    const externalId = (session.payment_intent as string) || session.id
+    const amount = session.amount_total ? session.amount_total / 100 : 0
+    const amountMinor = typeof session.amount_total === "number" ? session.amount_total : Math.round(amount * 100)
+
     try {
-        newSubscription = await prisma.subscription.create({
-            data: {
-                userId,
-                plan,
-                status: "ACTIVE",
-                provider: "STRIPE",
-                providerId: subscriptionId,
-                startDate: new Date(subscription.current_period_start * 1000),
-                endDate: new Date(subscription.current_period_end * 1000),
-            },
+        await prisma.$transaction(async (tx) => {
+            const newSubscription = await tx.subscription.create({
+                data: {
+                    userId,
+                    plan,
+                    status: "ACTIVE",
+                    provider: "STRIPE",
+                    providerId: subscriptionId,
+                    startDate: new Date(subscription.current_period_start * 1000),
+                    endDate: new Date(subscription.current_period_end * 1000),
+                },
+            })
+
+            // Create initial payment record (idempotent on the Stripe payment id)
+            await tx.payment.upsert({
+                where: { externalId },
+                update: {},
+                create: {
+                    userId,
+                    subscriptionId: newSubscription.id,
+                    amount,
+                    amountMinor,
+                    currency: session.currency?.toUpperCase() || "USD",
+                    status: "COMPLETED",
+                    paymentMethod: "card",
+                    paymentProvider: "stripe",
+                    externalId,
+                },
+            })
+
+            // Guarded role write to PREMIUM: ADMIN and TEACHER keep their role
+            await tx.user.updateMany({
+                where: {
+                    id: userId,
+                    role: { notIn: [...PROTECTED_ROLES] },
+                },
+                data: { role: "PREMIUM" },
+            })
         })
     } catch (err: any) {
         if (err?.code === "P2002") return
         throw err
     }
-
-    // Create initial payment record (idempotent on the Stripe payment id)
-    const externalId = (session.payment_intent as string) || session.id
-    const amount = session.amount_total ? session.amount_total / 100 : 0
-    await prisma.payment.upsert({
-        where: { externalId },
-        update: {},
-        create: {
-            userId,
-            subscriptionId: newSubscription.id,
-            amount,
-            amountMinor: typeof session.amount_total === "number" ? session.amount_total : Math.round(amount * 100),
-            currency: session.currency?.toUpperCase() || "USD",
-            status: "COMPLETED",
-            paymentMethod: "card",
-            paymentProvider: "stripe",
-            externalId,
-        },
-    })
-
-    // Update user role to PREMIUM
-    await prisma.user.update({
-        where: { id: userId },
-        data: { role: "PREMIUM" },
-    })
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -185,15 +192,34 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
     if (!dbSubscription) return
 
-    await prisma.subscription.update({
-        where: { id: dbSubscription.id },
-        data: { status: "CANCELED" },
-    })
+    // Return early if already canceled (idempotent)
+    if (dbSubscription.status === "CANCELED") return
 
-    // Downgrade user to FREE
-    await prisma.user.update({
-        where: { id: dbSubscription.userId },
-        data: { role: "FREE" },
+    await prisma.$transaction(async (tx) => {
+        await tx.subscription.update({
+            where: { id: dbSubscription.id },
+            data: { status: "CANCELED" },
+        })
+
+        // Check if the user has any other ACTIVE subscription
+        const otherActiveSubscription = await tx.subscription.findFirst({
+            where: {
+                userId: dbSubscription.userId,
+                status: "ACTIVE",
+                id: { not: dbSubscription.id },
+            },
+        })
+
+        // Demote to FREE only when the user's role is PREMIUM and no other ACTIVE subscription exists
+        if (!otherActiveSubscription) {
+            await tx.user.updateMany({
+                where: {
+                    id: dbSubscription.userId,
+                    role: "PREMIUM",
+                },
+                data: { role: "FREE" },
+            })
+        }
     })
 }
 
