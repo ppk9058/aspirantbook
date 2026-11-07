@@ -4,9 +4,6 @@ import React, { useState } from "react"
 import Link from "next/link"
 import BookStoreHeader from "@/components/books/BookStoreHeader"
 import CartDrawer from "@/components/books/CartDrawer"
-import dynamic from "next/dynamic"
-
-const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
 import { BookCartProvider, useBookCart } from "@/lib/books/cartContext"
 import { BOOKS_DATA } from "@/lib/books/data"
 import { Book } from "@/lib/books/types"
@@ -25,7 +22,6 @@ import {
 
 function OrdersContent() {
   const { orders } = useBookCart()
-  const [selectedBookForReader, setSelectedBookForReader] = useState<Book | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
 
   // Fallback demo order so the page isn't totally barren on first load
@@ -200,14 +196,13 @@ function OrdersContent() {
 
                     {/* Instant Access Action Buttons */}
                     <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto pt-2 sm:pt-0">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedBookForReader(item.book)}
+                      <Link
+                        href={`/books/read/${encodeURIComponent(item.book.id)}`}
                         className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-colors"
                       >
                         <BookOpen className="w-3.5 h-3.5" />
                         <span>Read Online</span>
-                      </button>
+                      </Link>
 
                       <button
                         type="button"
@@ -228,20 +223,6 @@ function OrdersContent() {
           ))}
         </div>
       </div>
-
-      {/* Secure Purchased PDF Viewer Modal */}
-      {selectedBookForReader && (
-        <SecurePdfViewer
-          src={`/api/books/${encodeURIComponent(selectedBookForReader.id)}/download?inline=1`}
-          downloadUrl={`/api/books/${encodeURIComponent(selectedBookForReader.id)}/download?download=true`}
-          title={selectedBookForReader.title}
-          author={selectedBookForReader.author}
-          isOpen={Boolean(selectedBookForReader)}
-          onClose={() => setSelectedBookForReader(null)}
-          downloadAllowed={true}
-          badgeLabel="Verified eBook"
-        />
-      )}
 
       {/* Slide-over Cart Drawer */}
       <CartDrawer />
