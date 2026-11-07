@@ -14,12 +14,12 @@ interface S3Config {
  * Resolves S3 configuration at call time and fails with an explicit error when a
  * required environment variable is missing (instead of crashing on a non-null assertion).
  */
-function getS3Config(): S3Config {
+function getS3Config(requireBucket = true): S3Config {
     const accessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY
     const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY
     const bucketName = process.env.AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || process.env.S3_BUCKET
 
-    if (!accessKeyId || !secretAccessKey || !bucketName) {
+    if (!accessKeyId || !secretAccessKey || (requireBucket && !bucketName)) {
         throw new Error(
             "S3 is not configured: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_S3_BUCKET_NAME are required " +
                 "(aliases accepted: S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET)"
@@ -34,7 +34,7 @@ function getS3Config(): S3Config {
 
     return {
         region: process.env.AWS_REGION || process.env.S3_REGION || "us-east-1",
-        bucketName,
+        bucketName: bucketName || "",
         accessKeyId,
         secretAccessKey,
         endpoint,
@@ -44,9 +44,9 @@ function getS3Config(): S3Config {
 
 let s3Client: S3Client | null = null
 
-function getS3Client(): S3Client {
+function getS3Client(skipBucketCheck = false): S3Client {
     if (!s3Client) {
-        const config = getS3Config()
+        const config = getS3Config(!skipBucketCheck)
         s3Client = new S3Client({
             region: config.region,
             endpoint: config.endpoint,
@@ -64,6 +64,7 @@ export interface PresignedUrlOptions {
     key: string
     contentType: string
     expiresIn?: number
+    bucketName?: string
 }
 
 /**
@@ -73,15 +74,16 @@ export async function generatePresignedUrl({
     key,
     contentType,
     expiresIn = 3600, // 1 hour default
+    bucketName: overrideBucketName,
 }: PresignedUrlOptions): Promise<string> {
-    const { bucketName } = getS3Config()
+    const bucketName = overrideBucketName || getS3Config().bucketName
     const command = new PutObjectCommand({
         Bucket: bucketName,
         Key: key,
         ContentType: contentType,
     })
 
-    const url = await getSignedUrl(getS3Client(), command, { expiresIn })
+    const url = await getSignedUrl(getS3Client(Boolean(overrideBucketName)), command, { expiresIn })
     return url
 }
 

@@ -2,6 +2,7 @@ import crypto from "crypto"
 import path from "path"
 import fs from "fs/promises"
 import { validateUpload } from "./upload-validator"
+import { isPublicStorageConfigured } from "@/lib/storage/public-url"
 
 export type UploadCategory = "image" | "pdf" | "video" | "dataset"
 
@@ -168,6 +169,11 @@ export async function storeUpload(input: {
   maxBytes?: number
   /** "private" keeps the local fallback outside /public, matching legacy pyq/ca paths. */
   visibility?: "public" | "private"
+  /**
+   * Explicit opt-in used only by Book Studio. Omitted keeps every other
+   * caller on the existing private-bucket behaviour.
+   */
+  storageClass?: "public" | "private"
 }): Promise<StoredUpload> {
   const folder = (input.folder || "general").replace(/[^a-zA-Z0-9_-]/g, "")
   if (!folder) throw new UploadError(400, "Invalid upload folder")
@@ -175,13 +181,24 @@ export async function storeUpload(input: {
   const validated = validateUploadForStorage(input.file, input.buffer, input.category, input.maxBytes)
   const key = `${folder}/${validated.fileName}`
 
+  const wantsPublicStorage = input.storageClass === "public"
+
   if (isS3Configured()) {
+    if (wantsPublicStorage && !isPublicStorageConfigured()) {
+      throw new UploadError(503, "Public file storage is not configured.")
+    }
+
     const { uploadToS3 } = await import("@/lib/s3")
     const safeFile = new File([new Uint8Array(input.buffer)], validated.fileName, {
       type: validated.mimeType,
     })
     try {
-      const { url } = await uploadToS3(safeFile, storageTypeFor(input.category), key)
+      const { url } = await uploadToS3(
+        safeFile,
+        storageTypeFor(input.category),
+        key,
+        input.storageClass ? { storageClass: input.storageClass } : {}
+      )
       return {
         url,
         key,
@@ -191,6 +208,11 @@ export async function storeUpload(input: {
         storage: "s3",
       }
     } catch (err) {
+      if (wantsPublicStorage) {
+        // Never fall back to the private bucket or local disk when S3 mode is on.
+        console.error("[upload] Public object storage upload failed; not falling back.", err)
+        throw new UploadError(502, "Public file storage is unavailable. Please try again later.")
+      }
       if (process.env.NODE_ENV === "production") {
         console.error("[upload] Object storage upload failed; failing closed.", err)
         throw new UploadError(502, "File storage is unavailable. Please try again later.")

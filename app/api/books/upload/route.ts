@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
         folder: wantsSample ? "books-sample" : "books-secure",
         maxBytes: MAX_PDF_BYTES,
         visibility: wantsSample ? "public" : "private",
+        storageClass: wantsSample ? "public" : "private",
       })
 
       return NextResponse.json({
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
       category: "image",
       folder: "books",
       maxBytes: MAX_IMAGE_BYTES,
+      storageClass: "public",
     })
 
     return NextResponse.json({

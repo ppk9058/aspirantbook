@@ -91,6 +91,18 @@ export async function resolveBookFilePath(input: unknown): Promise<string> {
   return realFile
 }
 
+/**
+ * Pure fallback decision after the local disk read misses. Only a valid
+ * relative storage key on a configured private bucket is served from R2.
+ */
+export function planBookFileFallback(input: {
+  storageKey: string | null
+  privateStorageConfigured: boolean
+}): "private-s3" | "missing" {
+  if (!input.storageKey || !input.privateStorageConfigured) return "missing"
+  return "private-s3"
+}
+
 /** Reads a book file or throws a BookFileError with an HTTP status. Never fabricates a file. */
 export async function readBookFile(input: unknown): Promise<Buffer> {
   const filePath = await resolveBookFilePath(input)

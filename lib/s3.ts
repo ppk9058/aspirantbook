@@ -5,6 +5,7 @@ import {
     GetObjectCommand,
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { buildPublicUrl, getPublicBaseUrl, getPublicBucketName } from './storage/public-url'
 
 // Lazily resolve S3 client with S3 / MinIO compatibility
 export function getS3Client(): S3Client {
@@ -34,6 +35,16 @@ export function getBucketName(): string {
     )
 }
 
+/** True when the private bucket and credentials are present. */
+export function isPrivateStorageConfigured(): boolean {
+    const hasKey = Boolean(process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY)
+    const hasSecret = Boolean(process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY)
+    const hasBucket = Boolean(
+        process.env.AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || process.env.S3_BUCKET
+    )
+    return hasKey && hasSecret && hasBucket
+}
+
 // File type configurations
 export const FILE_CONFIGS = {
     video: {
@@ -60,13 +71,24 @@ export const FILE_CONFIGS = {
 
 export type FileType = keyof typeof FILE_CONFIGS
 
+export type StorageClass = 'public' | 'private'
+
+export interface UploadToS3Options {
+    /**
+     * Explicit opt-in. When omitted, the legacy private-bucket URL response is
+     * kept for every existing caller.
+     */
+    storageClass?: StorageClass
+}
+
 /**
  * Upload a file to S3
  */
 export async function uploadToS3(
     file: File,
     fileType: FileType,
-    customPath?: string
+    customPath?: string,
+    options: UploadToS3Options = {}
 ): Promise<{ url: string; key: string }> {
     const config = FILE_CONFIGS[fileType]
 
@@ -90,9 +112,22 @@ export async function uploadToS3(
     const fileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
     const key = customPath || `${config.folder}/${timestamp}-${randomString}-${fileName}`
 
+    const isPublicStorageClass = options.storageClass === 'public'
+    const isPrivateStorageClass = options.storageClass === 'private'
+
+    let bucketName: string
+    if (isPublicStorageClass) {
+        const publicBucketName = getPublicBucketName()
+        if (!publicBucketName || !getPublicBaseUrl()) {
+            throw new Error('Public file storage is not configured.')
+        }
+        bucketName = publicBucketName
+    } else {
+        bucketName = getBucketName()
+    }
+
     try {
         const client = getS3Client()
-        const bucketName = getBucketName()
         const s3Endpoint = process.env.S3_ENDPOINT || process.env.AWS_ENDPOINT
         const s3ForcePathStyle =
             process.env.S3_FORCE_PATH_STYLE === 'true' ||
@@ -111,7 +146,15 @@ export async function uploadToS3(
 
         await client.send(command)
 
-        // Construct URL
+        if (isPublicStorageClass) {
+            return { url: buildPublicUrl(key), key }
+        }
+        if (isPrivateStorageClass) {
+            // Book Studio stores the relative object key, never an absolute URL.
+            return { url: key, key }
+        }
+
+        // Construct URL (legacy response for callers that do not opt in)
         const region = process.env.AWS_REGION || process.env.S3_REGION || 'us-east-1'
         const url = s3Endpoint
             ? (s3ForcePathStyle ? `${s3Endpoint}/${bucketName}/${key}` : `https://${bucketName}.${new URL(s3Endpoint).host}/${key}`)
@@ -127,12 +170,19 @@ export async function uploadToS3(
 /**
  * Get a presigned download URL for private files
  */
-export async function getPrivateFileSignedUrl(key: string, expiresIn = 3600): Promise<string> {
+export async function getPrivateFileSignedUrl(
+    key: string,
+    expiresIn = 3600,
+    options: { contentDisposition?: string } = {}
+): Promise<string> {
     const client = getS3Client()
     const bucketName = getBucketName()
     const command = new GetObjectCommand({
         Bucket: bucketName,
         Key: key,
+        ...(options.contentDisposition
+            ? { ResponseContentDisposition: options.contentDisposition }
+            : {}),
     })
     return getSignedUrl(client, command, { expiresIn })
 }
