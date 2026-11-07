@@ -190,7 +190,7 @@ export default async function PricingPage() {
                                 },
                                 {
                                     title: "Live Batches",
-                                    line: "The price is shown in INR on the batch page next to the Buy Now button.",
+                                    line: "Details and enrollment for each live batch are shown on its batch page.",
                                     href: resolveAnchorHref("/#all-courses-container", hasRealBatches),
                                     linkText: "Browse live batches",
                                     icon: Layers,
