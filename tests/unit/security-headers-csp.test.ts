@@ -186,4 +186,19 @@ describe("R12-C: Security headers and CSP", () => {
       }
     }
   });
+
+  it("C-R12-14: CSP frame-src allows private R2 storage origin, blob: and data:", async () => {
+    delete require.cache[require.resolve(nextConfigPath)];
+    const config = require(nextConfigPath);
+    headers = await config.headers();
+    const mainRoute = headers.find((h: any) => h.source === "/:path*");
+    const csp = mainRoute.headers.find((h: any) => h.key === "Content-Security-Policy");
+    const frameSrc = csp.value.match(/frame-src\s+([^;]+)/)?.[1] || "";
+    assert.ok(
+      frameSrc.includes("https://aspirantbook-files.ae55f76e25efc786fa816ab0f463a146.r2.cloudflarestorage.com"),
+      "frame-src must include private R2 storage origin"
+    );
+    assert.ok(frameSrc.includes("blob:"), "frame-src must include blob:");
+    assert.ok(frameSrc.includes("data:"), "frame-src must include data:");
+  });
 });
