@@ -89,7 +89,7 @@ export default function RefundPolicyPage() {
                 <strong>Live Batches:</strong> Full refund before the first live class; within 7 days of batch start provided no more than 2 live classes were attended.
               </li>
               <li>
-                <strong>ePDF Books &amp; Study Notes:</strong> Non-refundable once downloaded or opened, EXCEPT in cases of duplicate payment, incorrect file delivered, or a corrupted/unopenable file that cannot be replaced.
+                <strong>ePDF Books &amp; Study Notes:</strong> ePDF books and study notes are delivered directly inside the user&apos;s logged-in account on the website, mobile web, and app (under &quot;Book&quot; at /books/orders &mdash; &quot;My Orders &amp; Purchased eBooks&quot;) and are not sent by email; &quot;downloaded or opened&quot; refers to accessing or opening the content within the account. Non-refundable once downloaded or opened, EXCEPT in cases of duplicate payment, incorrect file delivered, or a corrupted/unopenable file that cannot be replaced.
               </li>
             </ul>
           </section>

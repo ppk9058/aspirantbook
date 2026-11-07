@@ -7,6 +7,8 @@ import HomeLogoLink from "@/components/home/HomeLogoLink"
 import Footer from "@/components/layout/Footer"
 import { LANDING_NAV_ITEMS } from "@/lib/navigation/landing-nav"
 import { getBaseUrl, safeJsonLdStringify } from "@/lib/seo/core"
+import { hasRealBatchesAvailable } from "@/lib/home/has-real-batches"
+import { resolveAnchorHref } from "@/lib/home/real-batches"
 
 export const revalidate = 60
 
@@ -64,6 +66,7 @@ export default async function LandingHomePage() {
     // dynamic and defeated `revalidate = 60`; the two pieces of the header that
     // depend on the session now read it on the client.
     const baseUrl = getBaseUrl()
+    const hasRealBatches = await hasRealBatchesAvailable()
     const homeJsonLd = baseUrl
         ? {
               "@context": "https://schema.org",
@@ -219,7 +222,7 @@ export default async function LandingHomePage() {
                             {/* Primary + secondary actions */}
                             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
                                 <a
-                                    href="#all-courses-container"
+                                    href={resolveAnchorHref("#all-courses-container", hasRealBatches)}
                                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F26522] to-rose-500 px-8 py-3.5 text-base font-extrabold text-white shadow-lg shadow-orange-500/25 transition-all duration-200 hover:from-[#E05310] hover:to-rose-600 hover:shadow-xl active:scale-95 sm:text-lg"
                                 >
                                     <span>View Learning Programs</span>

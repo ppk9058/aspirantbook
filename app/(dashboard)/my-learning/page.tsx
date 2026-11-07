@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import MyLearningClient from "@/components/learning/MyLearningClient"
 import { formatUtcToIst } from "@/lib/demo/slot-utils"
+import { hasRealBatchesAvailable } from "@/lib/home/has-real-batches"
 
 export default async function MyLearningPage() {
     const session = await auth()
@@ -230,10 +231,13 @@ export default async function MyLearningPage() {
         })
     }
 
+    const hasRealBatches = await hasRealBatchesAvailable()
+
     return (
         <MyLearningClient
             courses={coursesWithProgress}
             upcomingDemos={upcomingDemos}
+            hasRealBatches={hasRealBatches}
         />
     )
 }

@@ -1,14 +1,20 @@
 import { auth } from "@/auth"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, X, Crown } from "lucide-react"
+import { Check, X, Crown, BookOpen, ClipboardList, Layers, FileText } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import PricingPlanButton from "@/components/pricing/PricingPlanButton"
+import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
+import { hasRealBatchesAvailable } from "@/lib/home/has-real-batches"
+import { resolveAnchorHref } from "@/lib/home/real-batches"
 
 export default async function PricingPage() {
     const session = await auth()
     const user = session?.user
     const isPremiumActive = user?.subscriptionStatus === "ACTIVE" || user?.role === "PREMIUM"
+    // Server-side check so the Live Batches link can fall back to /courses when
+    // the homepage batch section renders nothing (same rule as app/page.tsx).
+    const hasRealBatches = await hasRealBatchesAvailable()
 
     const plans = [
         {
@@ -35,8 +41,7 @@ export default async function PricingPage() {
         {
             name: "PREMIUM",
             price: "₹499",
-            priceUSD: "$19",
-            period: "per month",
+            period: "per year",
             description: "Everything you need to master coding",
             features: [
                 "Access to all courses",
@@ -50,10 +55,14 @@ export default async function PricingPage() {
             ],
             limitations: [],
             buttonText: isPremiumActive ? "Already active" : "Get Pass Now",
-            buttonLink: "/checkout?plan=monthly",
+            buttonLink: "/checkout?plan=yearly",
             variant: "default" as const,
         },
     ]
+
+    const visiblePlans = SHOW_PREMIUM_PLAN
+        ? plans
+        : plans.filter((plan) => plan.name !== "PREMIUM")
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-950 py-12">
@@ -63,12 +72,14 @@ export default async function PricingPage() {
                         Simple, Transparent Pricing
                     </h1>
                     <p className="text-xl text-gray-600 dark:text-slate-400 max-w-2xl mx-auto">
-                        Start for free, upgrade when you're ready. No hidden fees.
+                        {SHOW_PREMIUM_PLAN
+                            ? "Start for free, upgrade when you're ready. No hidden fees."
+                            : "Start for free. Buy only the courses, test series, batches or books you need. No hidden fees."}
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
-                    {plans.map((plan) => (
+                <div className={`grid grid-cols-1 gap-8 mx-auto items-stretch ${SHOW_PREMIUM_PLAN ? "md:grid-cols-2 max-w-4xl" : "max-w-md"}`}>
+                    {visiblePlans.map((plan) => (
                         <Card
                             key={plan.name}
                             className={`relative bg-white dark:bg-slate-900 border-2 rounded-3xl transition-all duration-300 flex flex-col justify-between overflow-hidden ${
@@ -92,7 +103,7 @@ export default async function PricingPage() {
                                         {plan.name === "PREMIUM" ? "Pro Learner" : "Starter"}
                                     </div>
                                     <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2">
-                                        {plan.name} PASS
+                                        {plan.name === "PREMIUM" ? `${plan.name} PASS` : plan.name}
                                     </div>
                                     <div className="flex items-baseline justify-center gap-1 mb-2">
                                         <span className={`text-4xl sm:text-5xl font-black tracking-tight ${plan.name === "PREMIUM" ? "text-blue-700 dark:text-blue-400" : "text-slate-900 dark:text-white"}`}>
@@ -147,6 +158,82 @@ export default async function PricingPage() {
                         </Card>
                     ))}
                 </div>
+
+                {!SHOW_PREMIUM_PLAN && (
+                    <section className="mt-12 sm:mt-16" aria-labelledby="pricing-by-product">
+                        <div className="text-center mb-6 sm:mb-8">
+                            <h2
+                                id="pricing-by-product"
+                                className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2"
+                            >
+                                Pricing by product
+                            </h2>
+                            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                                Prices are set per product and may differ between products.
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                            {[
+                                {
+                                    title: "Courses",
+                                    line: "The price is shown in INR on the course page next to the Buy Now button.",
+                                    href: "/courses",
+                                    linkText: "Browse courses",
+                                    icon: BookOpen,
+                                },
+                                {
+                                    title: "Test Series",
+                                    line: "Open a test series to see its details and enroll.",
+                                    href: "/test-series",
+                                    linkText: "Browse test series",
+                                    icon: ClipboardList,
+                                },
+                                {
+                                    title: "Live Batches",
+                                    line: "The price is shown in INR on the batch page next to the Buy Now button.",
+                                    href: resolveAnchorHref("/#all-courses-container", hasRealBatches),
+                                    linkText: "Browse live batches",
+                                    icon: Layers,
+                                },
+                                {
+                                    title: "ePDF Books",
+                                    line: "The price is shown in INR on the book page next to the Buy Now button.",
+                                    href: "/books",
+                                    linkText: "Browse books",
+                                    icon: FileText,
+                                },
+                            ].map((product) => {
+                                const ProductIcon = product.icon
+                                return (
+                                    <Card
+                                        key={product.title}
+                                        className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                                    >
+                                        <CardContent className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
+                                            <div className="space-y-2">
+                                                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+                                                    <ProductIcon className="h-5 w-5" />
+                                                </div>
+                                                <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                                                    {product.title}
+                                                </h3>
+                                                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-snug">
+                                                    {product.line}
+                                                </p>
+                                            </div>
+                                            <Link
+                                                href={product.href}
+                                                className="inline-flex items-center min-h-[44px] text-xs sm:text-sm font-bold text-blue-700 dark:text-blue-400 hover:underline"
+                                            >
+                                                {product.linkText} →
+                                            </Link>
+                                        </CardContent>
+                                    </Card>
+                                )
+                            })}
+                        </div>
+                    </section>
+                )}
 
                 <div className="mt-12 text-center">
                     <p className="text-gray-600 dark:text-slate-400">

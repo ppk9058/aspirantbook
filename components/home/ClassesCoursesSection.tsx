@@ -2,11 +2,12 @@ import Link from "next/link"
 import Image from "next/image"
 import { BookOpen, Calendar, ChevronRight, Phone } from "lucide-react"
 import ClassesTabsClient from "./ClassesTabsClient"
-import { CLASS_TABS, COURSES_DATA, COURSE_SLUG_MAP, BatchCourse } from "./homepage-courses.data"
+import { CLASS_TABS, COURSE_SLUG_MAP, BatchCourse } from "./homepage-courses.data"
 import BatchCardItem from "./BatchCardItem"
 import { prisma } from "@/lib/prisma"
 import { formatUtcToIst, isSlotExpired } from "@/lib/demo/slot-utils"
 import { getPlatformSetting, PLATFORM_SETTING_KEYS } from "@/lib/platform-settings"
+import { filterRealSections } from "@/lib/home/real-batches"
 
 export { COURSE_SLUG_MAP }
 export type { BatchCourse }
@@ -20,13 +21,18 @@ async function getHomepageCards(): Promise<Record<string, { sectionTitle: string
             return parsed
         }
     } catch (e) {
-        // Fallback to static COURSES_DATA
+        // Fallback to empty object
     }
-    return COURSES_DATA
+    return {}
 }
 
 export default async function ClassesCoursesSection() {
-    const cardsData = await getHomepageCards()
+    const rawCardsData = await getHomepageCards()
+    const { sections, filteredTabs, hasRealBatches } = filterRealSections(rawCardsData, CLASS_TABS)
+
+    if (!hasRealBatches || filteredTabs.length === 0) {
+        return null
+    }
 
     // Fetch upcoming demo slots dynamically to show badges only when enabled and slot exists
     let demoBadgeMap: Record<string, string> = {}
@@ -73,13 +79,13 @@ export default async function ClassesCoursesSection() {
 
     return (
         <section id="all-courses-container" className="border-t border-gray-100 bg-white pt-10 pb-24 dark:border-white/10 dark:bg-gray-950">
-            <ClassesTabsClient tabs={CLASS_TABS}>
+            <ClassesTabsClient tabs={filteredTabs}>
                 {/* Courses Sections by Class - Server Rendered */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-16">
-                    {CLASS_TABS.filter((t) => t.id !== "all").map((tab) => {
+                    {filteredTabs.filter((t) => t.id !== "all").map((tab) => {
                         const classKey = tab.id
-                        const section = cardsData[classKey] || COURSES_DATA[classKey]
-                        if (!section) return null
+                        const section = sections[classKey]
+                        if (!section || !section.batches || section.batches.length === 0) return null
 
                         return (
                             <div

@@ -5,12 +5,20 @@ import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { ArrowRight, User } from "lucide-react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { resolveAnchorHref } from "@/lib/home/real-batches"
 
 interface CuriousNavbarProps {
   activeTab?: string
+  /**
+   * Whether the homepage batch section (#all-courses-container and the exam
+   * sections) is actually rendered. When false, those links fall back to
+   * /courses. Defaults to true so callers that do not pass it keep their
+   * current behaviour.
+   */
+  hasRealBatches?: boolean
 }
 
-export default function CuriousNavbar({ activeTab }: CuriousNavbarProps) {
+export default function CuriousNavbar({ activeTab, hasRealBatches = true }: CuriousNavbarProps) {
   const { data: session } = useSession()
   const { openMobileAuth } = useMobileAuth()
   const logoHref = session?.user ? "/dashboard" : "/"
@@ -47,7 +55,7 @@ export default function CuriousNavbar({ activeTab }: CuriousNavbarProps) {
             </span>
           </Link>
           <Link
-            href="/#all-courses-container"
+            href={resolveAnchorHref("/#all-courses-container", hasRealBatches)}
             className={`hover:text-[#F26522] transition-colors ${
               activeTab === "school-prep" ? "text-[#F26522] font-bold" : ""
             }`}
@@ -55,7 +63,7 @@ export default function CuriousNavbar({ activeTab }: CuriousNavbarProps) {
             School Prep
           </Link>
           <Link
-            href="/#section-upsc"
+            href={resolveAnchorHref("/#section-upsc", hasRealBatches)}
             className={`hover:text-[#F26522] transition-colors ${
               activeTab === "upsc" ? "text-[#F26522] font-bold" : ""
             }`}
@@ -63,7 +71,7 @@ export default function CuriousNavbar({ activeTab }: CuriousNavbarProps) {
             UPSC
           </Link>
           <Link
-            href="/#section-bpsc"
+            href={resolveAnchorHref("/#section-bpsc", hasRealBatches)}
             className={`hover:text-[#F26522] transition-colors ${
               activeTab === "bpsc" ? "text-[#F26522] font-bold" : ""
             }`}
@@ -145,13 +153,13 @@ export default function CuriousNavbar({ activeTab }: CuriousNavbarProps) {
             App
           </span>
         </Link>
-        <Link href="/#all-courses-container" className="hover:text-orange-700 transition-colors shrink-0">
+        <Link href={resolveAnchorHref("/#all-courses-container", hasRealBatches)} className="hover:text-orange-700 transition-colors shrink-0">
           School Prep
         </Link>
-        <Link href="/#section-upsc" className="hover:text-orange-700 transition-colors shrink-0">
+        <Link href={resolveAnchorHref("/#section-upsc", hasRealBatches)} className="hover:text-orange-700 transition-colors shrink-0">
           UPSC
         </Link>
-        <Link href="/#section-bpsc" className="hover:text-orange-700 transition-colors shrink-0">
+        <Link href={resolveAnchorHref("/#section-bpsc", hasRealBatches)} className="hover:text-orange-700 transition-colors shrink-0">
           BPSC
         </Link>
         <Link

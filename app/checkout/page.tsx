@@ -25,6 +25,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import { useRazorpayCheckout } from "@/lib/payments/useRazorpayCheckout"
+import { shouldRedirectPremiumCheckout } from "@/lib/config/premium"
 
 declare global {
     interface Window {
@@ -158,6 +159,19 @@ function CheckoutContent() {
     }, [rawCourseId, couponParam])
 
     const activeUser = session?.user || localUser
+
+    // The Premium (pass) plan is hidden until the Admin pass price exists, so a
+    // plan-only checkout (no product id) goes back to /pricing. Product checkouts
+    // (course, batch, test series, book) are untouched.
+    const redirectToPricing = shouldRedirectPremiumCheckout({
+        productId: rawCourseId,
+        plan: searchParams.get("plan"),
+    })
+    useEffect(() => {
+        if (redirectToPricing) {
+            router.replace("/pricing")
+        }
+    }, [redirectToPricing, router])
 
     // Quick mobile registration/login helper
     const handleQuickLogin = async (phone: string): Promise<string | null> => {
@@ -366,6 +380,11 @@ function CheckoutContent() {
             setPhoneError(error.message || "Failed to start payment. Please check your connection.")
             setIsLoading(false)
         }
+    }
+
+    if (redirectToPricing) {
+        // Redirect to /pricing is in flight (see effect above); render nothing.
+        return null
     }
 
     if (isCourseLoading) {

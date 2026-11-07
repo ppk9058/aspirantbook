@@ -16,6 +16,7 @@ import {
 import { useSession } from "next-auth/react"
 import { safeSignOut } from "@/lib/auth-client"
 import { useTheme } from "@/components/providers/ThemeProvider"
+import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 
 interface MobileProfileSheetProps {
     isOpen: boolean
@@ -101,23 +102,25 @@ export default function MobileProfileSheet({ isOpen, onClose, hasActivePass }: M
                     )}
 
                     {/* Pass Upgrade / Pro Badge */}
-                    <div className="mt-3">
-                        <Link
-                            href={hasActivePass ? "/subscription" : "/pricing"}
-                            onClick={onClose}
-                            className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-transform active:scale-95 ${
-                                hasActivePass
-                                    ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
-                                    : "bg-teal-600 text-white shadow-xs hover:bg-teal-700"
-                            }`}
-                        >
-                            <span className="flex items-center gap-1.5">
-                                <Zap className="h-3.5 w-3.5 fill-current" />
-                                {hasActivePass ? "Pass Active (Pro Access)" : "Upgrade with Pass"}
-                            </span>
-                            <ChevronRight className="h-3.5 w-3.5" />
-                        </Link>
-                    </div>
+                    {SHOW_PREMIUM_PLAN && (
+                        <div className="mt-3">
+                            <Link
+                                href={hasActivePass ? "/subscription" : "/pricing"}
+                                onClick={onClose}
+                                className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-transform active:scale-95 ${
+                                    hasActivePass
+                                        ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
+                                        : "bg-teal-600 text-white shadow-xs hover:bg-teal-700"
+                                }`}
+                            >
+                                <span className="flex items-center gap-1.5">
+                                    <Zap className="h-3.5 w-3.5 fill-current" />
+                                    {hasActivePass ? "Pass Active (Pro Access)" : "Upgrade with Pass"}
+                                </span>
+                                <ChevronRight className="h-3.5 w-3.5" />
+                            </Link>
+                        </div>
+                    )}
                 </div>
 
                 {/* Account Navigation Links */}

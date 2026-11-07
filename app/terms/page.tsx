@@ -98,6 +98,9 @@ export default function TermsPage() {
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               Course enrollments, test passes, and digital book purchases provide instant access to digital goods. Details regarding pricing, validity durations, and renewal terms are clearly indicated on checkout.
             </p>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              <strong>Delivery of digital products:</strong> Digital access is granted in the user&apos;s account immediately after successful payment. Purchased ePDF books and study notes are available to read or download exclusively within the user&apos;s logged-in account on the website, mobile web, and app (under the sidebar &quot;Book&quot; section at <Link href="/books/orders" className="text-indigo-600 dark:text-indigo-400 underline font-semibold">/books/orders</Link> &mdash; &quot;My Orders &amp; Purchased eBooks&quot;); they are not delivered via email. Nothing is shipped physically, and no shipping or handling charges apply. All digital content is licensed strictly for the buyer&apos;s personal study and may not be shared, resold, or redistributed.
+            </p>
           </section>
 
           <section className="space-y-3">
