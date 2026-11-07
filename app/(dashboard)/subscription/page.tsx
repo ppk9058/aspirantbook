@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Crown, Check, X, Calendar, CreditCard } from "lucide-react"
 import Link from "next/link"
+import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 
 export default async function SubscriptionPage() {
     const session = await auth()
@@ -82,6 +83,10 @@ export default async function SubscriptionPage() {
         },
     ]
 
+    const visiblePlans = SHOW_PREMIUM_PLAN
+        ? plans
+        : plans.filter((plan) => plan.name !== "PREMIUM")
+
     return (
         <div className="space-y-6 sm:space-y-8 pb-12">
             {/* Header */}
@@ -157,8 +162,8 @@ export default async function SubscriptionPage() {
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-4 sm:mb-6">
                     Choose Your Plan
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                    {plans.map((plan) => (
+                <div className={`grid grid-cols-1 gap-6 items-stretch ${SHOW_PREMIUM_PLAN ? "md:grid-cols-2" : "max-w-md mx-auto"}`}>
+                    {visiblePlans.map((plan) => (
                         <Card
                             key={plan.name}
                             className={`relative bg-white dark:bg-slate-900 border-2 rounded-3xl transition-all duration-300 flex flex-col justify-between overflow-hidden ${

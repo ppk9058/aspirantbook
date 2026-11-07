@@ -26,9 +26,11 @@ import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import type { Batch, BatchTier } from "@/lib/batches-service"
 import { CourseTeachersSection } from "@/components/course/CourseTeachersSection"
+import { resolveAnchorHref } from "@/lib/home/real-batches"
 
 interface BatchDetailClientProps {
   batch: Batch
+  hasRealBatches: boolean
 }
 
 const NAV_TABS = [
@@ -40,7 +42,7 @@ const NAV_TABS = [
   { id: "more-details", label: "More Details" },
 ]
 
-export default function BatchDetailClient({ batch }: BatchDetailClientProps) {
+export default function BatchDetailClient({ batch, hasRealBatches }: BatchDetailClientProps) {
   const router = useRouter()
   const { openMobileAuth } = useMobileAuth()
   const [activeTab, setActiveTab] = useState<string>("features")
@@ -149,7 +151,7 @@ export default function BatchDetailClient({ batch }: BatchDetailClientProps) {
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900">
       {/* Project Navbar */}
-      <CuriousNavbar activeTab="school-prep" />
+      <CuriousNavbar activeTab="school-prep" hasRealBatches={hasRealBatches} />
 
       {/* Top Breadcrumbs & Batch Hero Header */}
       <div className="bg-white border-b border-gray-200">
@@ -160,7 +162,7 @@ export default function BatchDetailClient({ batch }: BatchDetailClientProps) {
               Home
             </Link>
             <span>&gt;</span>
-            <Link href="/#all-courses-container" className="hover:text-[#F26522] transition-colors">
+            <Link href={resolveAnchorHref("/#all-courses-container", hasRealBatches)} className="hover:text-[#F26522] transition-colors">
               School Prep
             </Link>
             <span>&gt;</span>

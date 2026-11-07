@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Home, ClipboardList, BookOpen, Zap } from "lucide-react"
 import { getDashboardHref } from "@/lib/auth/roles"
+import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 
 interface MobileNativeBottomBarProps {
     hasActivePass?: boolean
@@ -92,6 +93,11 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
         },
     ]
 
+    // Premium is hidden until the Admin pass price exists (see lib/config/premium).
+    const visibleTabs = SHOW_PREMIUM_PLAN
+        ? tabs
+        : tabs.filter((tab) => tab.name !== "Pass")
+
     return (
         <nav
             aria-label="Mobile Bottom Navigation"
@@ -99,7 +105,7 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
             className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] select-none safe-area-bottom w-full max-w-full overflow-hidden"
         >
             <div className="flex items-center justify-around h-15 px-1 sm:px-2 min-w-0 max-w-full">
-                {tabs.map((tab) => {
+                {visibleTabs.map((tab) => {
                     const Icon = tab.icon
                     const active = tab.isActive
 

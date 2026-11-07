@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getBatchBySlug, getAllBatches } from "@/lib/batches-service"
+import { hasRealBatchesAvailable } from "@/lib/home/has-real-batches"
 import BatchDetailClient from "./BatchDetailClient"
 
 interface BatchPageProps {
@@ -40,5 +41,7 @@ export default async function BatchDetailPage({ params }: BatchPageProps) {
     notFound()
   }
 
-  return <BatchDetailClient batch={batch} />
+  const hasRealBatches = await hasRealBatchesAvailable()
+
+  return <BatchDetailClient batch={batch} hasRealBatches={hasRealBatches} />
 }

@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { resolveAnchorHref } from "@/lib/home/real-batches"
 import {
     Pencil,
     ChevronDown,
@@ -83,9 +84,10 @@ export interface UpcomingDemoItem {
 interface MyLearningClientProps {
     courses: CourseProgressItem[]
     upcomingDemos?: UpcomingDemoItem[]
+    hasRealBatches: boolean
 }
 
-export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLearningClientProps) {
+export default function MyLearningClient({ courses, upcomingDemos = [], hasRealBatches }: MyLearningClientProps) {
     const router = useRouter()
     const { data: session } = useSession()
     const { openMobileAuth } = useMobileAuth()
@@ -340,7 +342,7 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                             Explore our UPSC, BPSC, and School preparation courses on the homepage or course catalog to enroll and start learning.
                         </p>
                         <Link
-                            href="/#all-courses-container"
+                            href={resolveAnchorHref("/#all-courses-container", hasRealBatches)}
                             className="inline-block px-5 py-2.5 rounded-xl bg-[#5B47FB] text-white text-xs font-bold hover:bg-[#4a36ea] transition-all"
                         >
                             Explore Courses &amp; Batches

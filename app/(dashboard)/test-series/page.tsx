@@ -33,6 +33,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 
 interface TestSeriesItem {
     id: string; slug?: string; title: string; category: string; description?: string
@@ -566,7 +567,8 @@ export default function TestSeriesPage() {
             </div>
 
             {/* Teacher Authored Tests Available Notification Banner */}
-            {/* Top Pass Hero Banner - Compact & Clean */}
+            {/* Top Pass Hero Banner - Compact & Clean (Premium only) */}
+            {SHOW_PREMIUM_PLAN && (
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#003B73] via-[#005B96] to-[#00A896] text-white shadow-lg p-4 sm:p-6 border border-white/10">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
                     <div className="space-y-1.5 min-w-0">
@@ -594,6 +596,7 @@ export default function TestSeriesPage() {
                     </div>
                 </div>
             </div>
+            )}
 
             {/* Section Header with Search Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -861,22 +864,24 @@ export default function TestSeriesPage() {
                             >
                                 Start Free Mock Test
                             </Link>
-                            <button
-                                onClick={() => {
-                                    setActiveModalSeries(null)
-                                    setIsPassModalOpen(true)
-                                }}
-                                className="py-3 px-5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm text-center shadow-md transition-colors"
-                            >
-                                Unlock Full Pass
-                            </button>
+                            {SHOW_PREMIUM_PLAN && (
+                                <button
+                                    onClick={() => {
+                                        setActiveModalSeries(null)
+                                        setIsPassModalOpen(true)
+                                    }}
+                                    className="py-3 px-5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm text-center shadow-md transition-colors"
+                                >
+                                    Unlock Full Pass
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Pass Membership Modal */}
-            {isPassModalOpen && (
+            {/* Pass Membership Modal (Premium only) */}
+            {SHOW_PREMIUM_PLAN && isPassModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in-0">
                     <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6">
                         <div className="flex items-start justify-between">

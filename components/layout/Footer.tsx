@@ -1,7 +1,7 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ShieldCheck, Lock, Trash2, Heart, FileText } from "lucide-react"
+import { ShieldCheck, Lock, Trash2, Heart, FileText, Info, CreditCard } from "lucide-react"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -65,6 +65,18 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <li>
+                <Link href="/about" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5 text-amber-600" />
+                  <span>About Us</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Pricing</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/privacy" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Privacy Policy</span>
@@ -119,6 +131,8 @@ export default function Footer() {
         <div className="pt-8 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>&copy; {currentYear} aspirantbook. All rights reserved.</p>
           <div className="flex items-center gap-4">
+            <Link href="/about" className="hover:underline">About us</Link>
+            <Link href="/pricing" className="hover:underline">Pricing</Link>
             <Link href="/privacy" className="hover:underline">Privacy</Link>
             <Link href="/terms" className="hover:underline">Terms</Link>
             <Link href="/refund" className="hover:underline">Refunds</Link>

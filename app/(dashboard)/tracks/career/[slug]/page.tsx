@@ -14,6 +14,7 @@ import {
     Lock
 } from "lucide-react"
 import Link from "next/link"
+import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 
 export default async function CareerTrackDetailPage({
     params
@@ -43,11 +44,13 @@ export default async function CareerTrackDetailPage({
                         </p>
                         <h1 className="text-4xl font-bold mb-4">{track.title}</h1>
 
-                        <Link href={hasAccess ? `/tracks/career/${track.slug}/enroll` : "/pricing"}>
-                            <Button className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8">
-                                {hasAccess ? "Enroll in Track" : "Upgrade to Access"}
-                            </Button>
-                        </Link>
+                        {(hasAccess || SHOW_PREMIUM_PLAN) && (
+                            <Link href={hasAccess ? `/tracks/career/${track.slug}/enroll` : "/pricing"}>
+                                <Button className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8">
+                                    {hasAccess ? "Enroll in Track" : "Upgrade to Access"}
+                                </Button>
+                            </Link>
+                        )}
                     </div>
 
                     {/* Stats */}
@@ -180,9 +183,11 @@ export default async function CareerTrackDetailPage({
                             <p className="text-sm text-gray-600 mb-4">
                                 by <span className="font-semibold">aspirantbook</span>
                             </p>
-                            <Badge className="bg-green-100 text-green-700 mb-4">
-                                ✓ Included with Premium
-                            </Badge>
+                            {SHOW_PREMIUM_PLAN && (
+                                <Badge className="bg-green-100 text-green-700 mb-4">
+                                    ✓ Included with Premium
+                                </Badge>
+                            )}
                             <p className="text-sm text-gray-700 mb-4">
                                 Industry recognized certifications help you stand out and prove your skills. Prepare for certification by completing this track.
                             </p>
