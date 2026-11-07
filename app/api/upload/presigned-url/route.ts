@@ -11,6 +11,11 @@ import {
     MAX_VIDEO_SIZE,
 } from "@/lib/aws-s3"
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit"
+import {
+    buildPublicUrl,
+    getPublicBucketName,
+    isPublicStorageConfigured,
+} from "@/lib/storage/public-url"
 
 export async function POST(req: NextRequest) {
     try {
@@ -28,6 +33,7 @@ export async function POST(req: NextRequest) {
 
         const body = await req.json()
         const { filename, contentType, fileSize, folder = "uploads" } = body
+        const visibility = body.visibility === "public" ? "public" : "private"
 
         // Validate required fields
         if (!filename || !contentType || !fileSize) {
@@ -35,6 +41,29 @@ export async function POST(req: NextRequest) {
                 { error: "Missing required fields: filename, contentType, fileSize" },
                 { status: 400 }
             )
+        }
+
+        // Public visibility restrictions
+        if (visibility === "public") {
+            const role = (session.user as any)?.role
+            if (role !== "ADMIN") {
+                return NextResponse.json(
+                    { error: "Access Denied: Only Admins can request public upload URLs" },
+                    { status: 403 }
+                )
+            }
+            if (!contentType.startsWith("image/")) {
+                return NextResponse.json(
+                    { error: "Public visibility is only allowed for image uploads" },
+                    { status: 400 }
+                )
+            }
+            if (!isPublicStorageConfigured()) {
+                return NextResponse.json(
+                    { error: "Public file storage is not configured." },
+                    { status: 500 }
+                )
+            }
         }
 
         // Determine allowed types and max size based on content type
@@ -70,6 +99,25 @@ export async function POST(req: NextRequest) {
             )
         }
 
+        // Generate unique file key
+        const key = generateFileKey(folder, filename)
+
+        if (visibility === "public") {
+            const publicBucket = getPublicBucketName()!
+            const presignedUrl = await generatePresignedUrl({
+                key,
+                contentType,
+                expiresIn: 3600,
+                bucketName: publicBucket,
+            })
+
+            return NextResponse.json({
+                presignedUrl,
+                key,
+                url: buildPublicUrl(key),
+            })
+        }
+
         // Fail with an actionable error before signing when storage is not configured.
         const region = process.env.AWS_REGION || "us-east-1"
         const bucketName = process.env.AWS_S3_BUCKET_NAME
@@ -80,9 +128,6 @@ export async function POST(req: NextRequest) {
                 { status: 500 }
             )
         }
-
-        // Generate unique file key
-        const key = generateFileKey(folder, filename)
 
         // Generate presigned URL
         const presignedUrl = await generatePresignedUrl({

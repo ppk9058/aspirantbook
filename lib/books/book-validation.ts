@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { normalizeBookStorageKey } from "./book-file-storage"
+import { isAllowedPublicFileUrl } from "@/lib/storage/public-url"
 
 const fileRef = z
   .string()
@@ -9,8 +10,83 @@ const fileRef = z
   })
 
 /**
+ * Pure validation helper for coverImage.
+ * Passes if unchanged from existing, relative-key valid, or isAllowedPublicFileUrl.
+ */
+export function validateCoverImageRef(
+  value: string,
+  existingCoverImage?: string | null
+): { valid: boolean; value?: string; error?: string } {
+  if (value === "") return { valid: true, value: "" }
+  if (existingCoverImage !== undefined && existingCoverImage !== null && value === existingCoverImage) {
+    return { valid: true, value }
+  }
+  const normalized = normalizeBookStorageKey(value)
+  if (normalized !== null) {
+    return { valid: true, value: normalized }
+  }
+  if (isAllowedPublicFileUrl(value)) {
+    return { valid: true, value }
+  }
+  return { valid: false, error: "Invalid coverImage" }
+}
+
+/**
+ * Pure validation helper for images[].
+ * Each entry passes if contained in existing.images, equals existing.coverImage,
+ * relative-key valid, or isAllowedPublicFileUrl.
+ */
+export function validateImageEntryRef(
+  entry: string,
+  existingImages?: string[] | null,
+  existingCoverImage?: string | null
+): { valid: boolean; value?: string; error?: string } {
+  if (entry === "") return { valid: true, value: "" }
+  if (existingImages && existingImages.includes(entry)) {
+    return { valid: true, value: entry }
+  }
+  if (existingCoverImage !== undefined && existingCoverImage !== null && entry === existingCoverImage) {
+    return { valid: true, value: entry }
+  }
+  const normalized = normalizeBookStorageKey(entry)
+  if (normalized !== null) {
+    return { valid: true, value: normalized }
+  }
+  if (isAllowedPublicFileUrl(entry)) {
+    return { valid: true, value: entry }
+  }
+  return { valid: false, error: "Invalid images" }
+}
+
+/**
+ * Pure validation helper for samplePdfUrl.
+ * Passes if unchanged from existing, relative-key valid (storing normalized key),
+ * or isAllowedPublicFileUrl (storing absolute URL as-is).
+ */
+export function validateSamplePdfRef(
+  value: string,
+  existingSamplePdfUrl?: string | null
+): { valid: boolean; value?: string; error?: string } {
+  if (value === "") return { valid: true, value: "" }
+  if (existingSamplePdfUrl !== undefined && existingSamplePdfUrl !== null && value === existingSamplePdfUrl) {
+    return { valid: true, value }
+  }
+  const normalized = normalizeBookStorageKey(value)
+  if (normalized !== null) {
+    return { valid: true, value: normalized }
+  }
+  if (isAllowedPublicFileUrl(value)) {
+    return { valid: true, value }
+  }
+  return { valid: false, error: "Invalid samplePdfUrl" }
+}
+
+/**
  * A5/A12: explicit allowlist for book updates. Unknown keys are stripped, so a
  * caller can never mass-assign fields such as createdBy or arbitrary JSON.
+ *
+ * For coverImage, images[], and samplePdfUrl, zod enforces plain strings (max 1000)
+ * and route-level validation applies the unchanged/relative/public-url policy.
  */
 export const bookUpdateSchema = z
   .object({
@@ -45,7 +121,9 @@ export const bookUpdateSchema = z
     format: z.string().max(60).optional(),
     isBestseller: z.boolean().optional(),
     isFeatured: z.boolean().optional(),
-    samplePdfUrl: fileRef.optional(),
+    coverImage: z.string().max(1000).optional(),
+    images: z.array(z.string().max(1000)).max(8).optional(),
+    samplePdfUrl: z.string().max(1000).optional(),
     fullPdfUrl: fileRef.optional(),
     status: z.enum(["draft", "pending", "published", "rejected"]).optional(),
     tags: z.array(z.string().max(120)).max(50).optional(),
