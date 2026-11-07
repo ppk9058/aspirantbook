@@ -32,6 +32,8 @@ import {
 import { useState, useEffect, useMemo } from "react"
 import { useSession } from "next-auth/react"
 import { AppRole, getDashboardHref } from "@/lib/auth/roles"
+import BrandLogoLink from "@/components/layout/BrandLogoLink"
+import { isBooksRoute } from "@/components/layout/layout-utils"
 
 const TEACHER_NAV = [
     { name: "Teacher Dashboard", href: "/teacher", icon: Home },
@@ -70,6 +72,7 @@ export default function LeftSidebar() {
     const isTutorialPage = Boolean(
         pathname && (pathname.startsWith("/tutorials/") && pathname !== "/tutorials")
     )
+    const isBooksPage = isBooksRoute(pathname)
 
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [overrideState, setOverrideState] = useState<boolean | null>(null)
@@ -145,10 +148,23 @@ export default function LeftSidebar() {
 
     return (
         <aside
-            className={`hidden lg:flex flex-col fixed left-0 top-[60px] h-[calc(100vh-60px)] ${
+            className={`hidden lg:flex flex-col fixed left-0 ${
+                isBooksPage ? "top-0 h-screen" : "top-[60px] h-[calc(100vh-60px)]"
+            } ${
                 effectiveCollapsed ? "w-[68px]" : "w-[240px]"
             } bg-white dark:bg-[#030f1d] text-gray-800 dark:text-white border-r border-gray-200 dark:border-gray-800 transition-all duration-300 z-30`}
         >
+            {/* Header: Brand Logo on /books routes where TopNavBar is suppressed */}
+            {isBooksPage && (
+                <div
+                    className={`h-[60px] flex items-center ${
+                        effectiveCollapsed ? "justify-center px-2" : "px-4"
+                    } border-b border-gray-200 dark:border-gray-800 shrink-0`}
+                >
+                    <BrandLogoLink collapsed={effectiveCollapsed} />
+                </div>
+            )}
+
             {/* Header: Collapse Toggle */}
             <div className="flex items-center justify-between p-3 border-b border-gray-200/80 dark:border-gray-800/80">
                 {!effectiveCollapsed && (

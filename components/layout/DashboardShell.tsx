@@ -12,6 +12,7 @@ import MobileNativeBottomBar from "@/components/layout/MobileNativeBottomBar"
 import Breadcrumbs from "@/components/layout/Breadcrumbs"
 import { IS_MOBILE_NATIVE_SHELL_ENABLED } from "@/lib/config/mobile-shell"
 import { UnverifiedEmailBanner } from "@/components/auth/UnverifiedEmailBanner"
+import { isBooksRoute } from "@/components/layout/layout-utils"
 
 const Chatbot = dynamic(
     () => import("@/components/layout/Chatbot").then((m) => m.Chatbot),
@@ -55,7 +56,7 @@ export default function DashboardShell({
             (pathname.startsWith("/courses/") && pathname.includes("/learn"))
         )
     )
-    const isBooksPage = Boolean(pathname && pathname.startsWith("/books"))
+    const isBooksPage = isBooksRoute(pathname)
     const isTutorialPage = Boolean(
         pathname && (pathname.startsWith("/tutorials/") && pathname !== "/tutorials")
     )
