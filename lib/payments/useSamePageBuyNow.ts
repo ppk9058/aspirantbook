@@ -240,8 +240,11 @@ export function useSamePageBuyNow() {
           })
         }
       } catch (err: any) {
-        toast.error(err.message || "Failed to initiate checkout")
-        callbacks?.onError?.(err.message || "Failed to initiate checkout")
+        console.error("Order creation or checkout initiation failed:", err)
+        const friendlyMessage =
+          "We could not start the payment right now. Please try again in a few minutes or contact support."
+        toast.error(friendlyMessage)
+        callbacks?.onError?.(friendlyMessage)
       } finally {
         setIsProcessing(false)
       }
