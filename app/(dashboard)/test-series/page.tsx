@@ -585,7 +585,10 @@ export default function TestSeriesPage() {
                         </p>
                     </div>
 
-                    <div className="shrink-0">
+                    <div className="shrink-0 flex items-center gap-3">
+                        <span className="text-xs sm:text-sm font-black text-amber-300">
+                            ₹499 / year
+                        </span>
                         <button
                             onClick={() => setIsPassModalOpen(true)}
                             className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
@@ -900,7 +903,10 @@ export default function TestSeriesPage() {
                         </div>
 
                         <div className="p-4 rounded-2xl bg-gradient-to-r from-[#003B73] to-[#00A896] text-white space-y-2">
-                            <p className="text-xs uppercase font-extrabold tracking-wider text-cyan-200">All-In-One Pass</p>
+                            <div className="flex items-center justify-between">
+                                <p className="text-xs uppercase font-extrabold tracking-wider text-cyan-200">All-In-One Pass</p>
+                                <span className="text-sm font-black text-amber-300">₹499 / year</span>
+                            </div>
 
                             <p className="text-xs text-white/80">Unlimited access to UPSC, BPSC, School & Skill test series.</p>
                         </div>

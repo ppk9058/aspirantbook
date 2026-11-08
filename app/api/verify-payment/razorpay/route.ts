@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { getGoalForCourse } from "@/lib/utils/course-goal-mapper"
 import { fulfilPaymentOrder } from "@/lib/payments/fulfilment"
+import { resolveEffectivePlan } from "@/lib/payments/pass-plan"
 
 const COURSE_ALIASES: Record<string, string> = {
     "half-yearly-678": "half-yearly-6",
@@ -141,11 +142,21 @@ export async function POST(request: NextRequest) {
 
         // Fulfill payment and enrollment atomically and idempotently
         const targetCourseId = courseId || dbCourseId
+        const dbMeta = (dbOrderRecord.metadata as any) || {}
+        const isCourseOrder = Boolean(targetCourseId || dbCourseId)
+        const effectivePlan = resolveEffectivePlan(
+            {
+                plan: dbMeta.plan,
+                courseId: targetCourseId,
+                isPassOrder: !isCourseOrder,
+            },
+            plan
+        )
         const fulfillRes = await fulfilPaymentOrder({
             orderId,
             paymentId,
             courseId: targetCourseId,
-            plan: plan || (dbOrderRecord.metadata as any)?.plan,
+            plan: effectivePlan,
             currentUserId,
             amountPaise: parsedAmountPaise,
         })

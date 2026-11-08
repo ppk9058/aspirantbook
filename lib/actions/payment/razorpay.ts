@@ -6,6 +6,7 @@ import { isCourseVisibleToUser } from "@/lib/courses/visibility"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { getRazorpayClient, getRazorpayKeyId, isRazorpayTestMode } from "@/lib/payments/razorpay-config"
 import { toMinorUnits } from "@/lib/money"
+import { PASS_PRICE_PAISE } from "@/lib/payments/pass-plan"
 
 
 export interface CreateOrderParams {
@@ -26,10 +27,13 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
     }
 
     const isSimplePlan = typeof params === "string"
-    const plan = isSimplePlan ? params : params.plan
+    const rawPlan = isSimplePlan ? params : params.plan
     const courseId = isSimplePlan ? undefined : params.courseId
     const couponCode = isSimplePlan ? undefined : params.couponCode?.trim().toUpperCase()
     const explicitUserId = isSimplePlan ? undefined : params.userId
+
+    // Pass is YEARLY only (Rs 499). Normalize any subscription plan (including legacy MONTHLY) to YEARLY.
+    const plan = courseId ? (rawPlan || "COURSE") : "YEARLY"
 
     const userId = session?.user?.id || explicitUserId
 
@@ -212,10 +216,9 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         } else {
             amountInPaise = Math.round(effectiveCoursePrice * 100)
         }
-    } else if (plan === "YEARLY") {
-        amountInPaise = 499900 // ₹4,999
     } else {
-        amountInPaise = 49900 // ₹499
+        // Pass subscription: Rs 499 (49,900 paise), YEARLY ONLY
+        amountInPaise = PASS_PRICE_PAISE
     }
 
     // Client amount tampering check: if client sent an amount, ensure it matches server calculation
@@ -234,7 +237,7 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
         notes: {
             userId: userId,
             courseId: resolvedCourse?.id || courseId || "",
-            plan: plan || (courseId ? "COURSE" : "MONTHLY"),
+            plan,
         },
     }
 
@@ -268,7 +271,7 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
                     metadata: {
                         orderId: order.id,
                         courseId: resolvedCourse?.id || courseId || null,
-                        plan: plan || (courseId ? "COURSE" : "MONTHLY"),
+                        plan,
                         amountPaise: order.amount,
                         couponCode: couponValidation.coupon.code,
                         couponId: couponValidation.coupon.id,
@@ -290,7 +293,7 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
                     metadata: {
                         orderId: order.id,
                         courseId: resolvedCourse?.id || courseId || null,
-                        plan: plan || (courseId ? "COURSE" : "MONTHLY"),
+                        plan,
                         amountPaise: order.amount,
                     },
                 },

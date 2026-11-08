@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Crown, Loader2, Check, RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
+import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
 
 interface PricingPlanButtonProps {
     planName: string
@@ -60,9 +61,9 @@ export default function PricingPlanButton({
         await handleBuyNow(
             {
                 type: "subscription",
-                id: "MONTHLY",
+                id: "YEARLY",
                 title: "PREMIUM PASS - Pro Learner",
-                price: 499,
+                price: PASS_PRICE_INR,
                 isFree: false,
             },
             () => {
@@ -153,7 +154,7 @@ export default function PricingPlanButton({
                             <span className="text-base font-black text-blue-700 dark:text-blue-400">
                                 ₹499
                             </span>
-                            <span className="text-[11px] text-slate-500 block">/ monthly</span>
+                            <span className="text-[11px] text-slate-500 block">/ year</span>
                         </div>
                     </div>
 

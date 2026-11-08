@@ -112,8 +112,8 @@ export function useSamePageBuyNow() {
             },
           })
         } else if (item.type === "subscription") {
-          const planTier = item.id.toUpperCase() === "YEARLY" ? "yearly" : "monthly"
-          const plan = (item.id.toUpperCase() === "YEARLY" ? "YEARLY" : "MONTHLY") as "MONTHLY" | "YEARLY"
+          const planTier = "yearly"
+          const plan = "YEARLY" as const
 
           const order = await createRazorpayOrder({
             plan,

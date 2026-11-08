@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { createCheckoutSession } from "@/lib/actions/payment/stripe"
 import { createRazorpayOrder } from "@/lib/actions/payment/razorpay"
+import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
@@ -53,7 +54,7 @@ function CheckoutContent() {
     const { data: session, status: authStatus } = useSession()
 
     const rawCourseId = searchParams.get("courseId") || searchParams.get("slug") || searchParams.get("batchId")
-    const planParam = (searchParams.get("plan") || "monthly").toUpperCase() as "MONTHLY" | "YEARLY"
+    const planParam = (searchParams.get("plan") || "yearly").toUpperCase() as "MONTHLY" | "YEARLY"
     const couponParam = (searchParams.get("coupon") || "").trim().toUpperCase()
 
     const [course, setCourse] = useState<CourseCheckoutInfo | null>(null)
@@ -311,12 +312,12 @@ function CheckoutContent() {
             // ─── Razorpay Payment ────────────────────────────────────────────────
             const exactAmount = course
                 ? (appliedCoupon ? Math.round(appliedCoupon.finalPaise / 100) : course.price)
-                : (planParam === "YEARLY" ? 4999 : 499)
+                : PASS_PRICE_INR
             const order = await createRazorpayOrder({
                 amount: exactAmount,
                 courseId: course?.id,
                 courseTitle: course?.title,
-                plan: course ? undefined : planParam,
+                plan: course ? undefined : "YEARLY",
                 userId,
                 couponCode: appliedCoupon?.code || undefined,
             })
@@ -326,7 +327,7 @@ function CheckoutContent() {
                 amount: Number(order.amount),
                 currency: order.currency,
                 name: "aspirantbook",
-                description: course ? course.title : `${planParam} Subscription`,
+                description: course ? course.title : `${paymentMethod === "razorpay" ? "YEARLY" : planParam} Subscription`,
                 order_id: order.orderId,
                 prefill: {
                     name: activeUser?.name || "Student",
@@ -344,7 +345,7 @@ function CheckoutContent() {
                                 paymentId: response.razorpay_payment_id,
                                 signature: response.razorpay_signature,
                                 courseId: course?.id,
-                                plan: course ? undefined : planParam,
+                                plan: course ? undefined : "YEARLY",
                             }),
                         })
                         const verifyData = await verifyRes.json()
@@ -406,7 +407,7 @@ function CheckoutContent() {
         : course
         ? `₹${finalCoursePrice.toLocaleString("en-IN")}`
         : paymentMethod === "razorpay"
-        ? (planParam === "YEARLY" ? "₹4,999" : "₹499")
+        ? "₹499"
         : (planParam === "YEARLY" ? "$190" : "$19")
 
     return (
@@ -762,10 +763,10 @@ function CheckoutContent() {
                                         <div className="p-4 rounded-xl bg-purple-50/70 border border-purple-100 space-y-1">
                                             <div className="flex items-center justify-between">
                                                 <span className="font-extrabold text-sm text-gray-900">
-                                                    aspirantbook Premium ({planParam})
+                                                    aspirantbook Premium ({paymentMethod === "razorpay" ? "YEARLY" : planParam})
                                                 </span>
                                                 <span className="font-black text-base text-[#5B47FB]">
-                                                    {displayPrice}
+                                                    {paymentMethod === "razorpay" ? "₹499 / year" : displayPrice}
                                                 </span>
                                             </div>
                                             <p className="text-xs text-gray-500">

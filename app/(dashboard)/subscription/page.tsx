@@ -68,7 +68,7 @@ export default async function SubscriptionPage() {
         {
             name: "PREMIUM",
             price: "₹499",
-            period: "per month",
+            period: "per year",
             features: [
                 "Access to all courses",
                 "Unlimited coding exercises",
@@ -136,7 +136,7 @@ export default async function SubscriptionPage() {
                                     <div className="flex items-center gap-2">
                                         <CreditCard className="h-4 w-4 text-slate-400 dark:text-slate-500 shrink-0" />
                                         <span>
-                                            {activeSubscription.plan === "MONTHLY" ? "₹499/month" : "₹4,999/year"}
+                                            {activeSubscription.plan === "MONTHLY" ? "₹499/month" : "₹499/year"}
                                         </span>
                                     </div>
                                 </div>
