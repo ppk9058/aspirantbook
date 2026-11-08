@@ -33,6 +33,7 @@ export interface PyqStudentPaper {
   pageCount?: number | null
   accessType: string
   unlockPrice: number
+  canAccess?: boolean
   hasCbtMode: boolean
   cbtTestId?: string | null
   downloadCount: number
@@ -270,9 +271,9 @@ export function PyqStudentListingClient({
                   </div>
 
                   {/* Access Badge */}
-                  {paper.accessType === "PAID" ? (
+                  {paper.accessType === "PAID" || paper.accessType === "PASS_ONLY" ? (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                      <Lock className="w-3 h-3 text-amber-600" />₹{paper.unlockPrice}
+                      <Lock className="w-3 h-3 text-amber-600" />Pass
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -323,32 +324,67 @@ export function PyqStudentListingClient({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Link
-                    href={`/pyqs/pdf-view?paperId=${paper.id}`}
-                    className="flex-1 py-2 px-3 text-xs font-semibold text-center rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    View PDF
-                  </Link>
+                  {paper.canAccess === false ? (
+                    <>
+                      <Link
+                        href="/pricing"
+                        title="This paper needs the aspirantbook Pass"
+                        className="flex-1 py-2 px-3 text-xs font-semibold text-center rounded-xl bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <Lock className="w-3.5 h-3.5 text-amber-600" />
+                        Get Pass to View
+                      </Link>
 
-                  <a
-                    href={`/api/pyqs/file/${paper.id}?download=1`}
-                    download
-                    className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 border border-gray-200 rounded-xl transition-colors"
-                    title="Download Paper"
-                    aria-label={`Download ${paper.title}`}
-                  >
-                    <Download className="w-4 h-4" />
-                  </a>
+                      <Link
+                        href="/pricing"
+                        title="This paper needs the aspirantbook Pass"
+                        aria-label={`Get Pass to download ${paper.title}`}
+                        className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 border border-gray-200 rounded-xl transition-colors"
+                      >
+                        <Lock className="w-4 h-4" />
+                      </Link>
 
-                  {paper.hasCbtMode && paper.cbtTestId && (
-                    <Link
-                      href={`/test-series/${paper.cbtTestId}/instructions?testId=${paper.cbtTestId}`}
-                      className="py-2 px-3 text-xs font-semibold text-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1"
-                    >
-                      <Zap className="w-3.5 h-3.5" />
-                      Attempt Test
-                    </Link>
+                      {paper.hasCbtMode && paper.cbtTestId && (
+                        <Link
+                          href="/pricing"
+                          title="This paper needs the aspirantbook Pass"
+                          className="py-2 px-3 text-xs font-semibold text-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1"
+                        >
+                          <Zap className="w-3.5 h-3.5" />
+                          Attempt Test
+                        </Link>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href={`/pyqs/pdf-view?paperId=${paper.id}`}
+                        className="flex-1 py-2 px-3 text-xs font-semibold text-center rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        View PDF
+                      </Link>
+
+                      <a
+                        href={`/api/pyqs/file/${paper.id}?download=1`}
+                        download
+                        className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 border border-gray-200 rounded-xl transition-colors"
+                        title="Download Paper"
+                        aria-label={`Download ${paper.title}`}
+                      >
+                        <Download className="w-4 h-4" />
+                      </a>
+
+                      {paper.hasCbtMode && paper.cbtTestId && (
+                        <Link
+                          href={`/test-series/${paper.cbtTestId}/instructions?testId=${paper.cbtTestId}`}
+                          className="py-2 px-3 text-xs font-semibold text-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1"
+                        >
+                          <Zap className="w-3.5 h-3.5" />
+                          Attempt Test
+                        </Link>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

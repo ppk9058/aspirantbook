@@ -9,6 +9,7 @@ import { getStudentGoals } from "@/lib/goals/student-goals"
 import { applyPyqGoalFilter } from "@/lib/goals/goal-filters"
 
 import { adaptPyqsCatalogSeo } from "@/lib/seo/adapters/pyqs"
+import { hasActivePass, isPaperPaid } from "@/lib/pyqs/pyq-access"
 
 export const dynamic = "force-dynamic"
 
@@ -71,6 +72,38 @@ export default async function PreviousYearQuestionsPage() {
 
   const { papers: filteredPapers, categories: filteredCategories } = await getPyqCatalog(sortedGoalsStr)
 
+  const user = session?.user
+  const isAdmin = user?.role === "ADMIN"
+  const passActive = user?.id ? await hasActivePass(user.id) : false
+  const userUnlocks = user?.id && filteredPapers.some((p: any) => isPaperPaid(p.accessType))
+    ? new Set(
+        (
+          await prisma.pyqUnlock.findMany({
+            where: {
+              userId: user.id,
+              paperId: { in: filteredPapers.map((p: any) => p.id) },
+            },
+            select: { paperId: true },
+          })
+        ).map((u) => u.paperId)
+      )
+    : new Set<string>()
+
+  const sanitizedPapers = filteredPapers.map((paper: any) => {
+    const isOwner = Boolean(user && user.role === "TEACHER" && paper.creatorId === user.id)
+    const isPrivileged = isAdmin || isOwner
+    const isPaid = isPaperPaid(paper.accessType)
+    const canAccess = !isPaid || isPrivileged || passActive || userUnlocks.has(paper.id)
+
+    return {
+      ...paper,
+      canAccess,
+      // Strip raw storage URLs for non-privileged viewers to prevent payload leaks
+      paperPdfUrl: isPrivileged ? paper.paperPdfUrl : "",
+      solutionPdfUrl: isPrivileged ? paper.solutionPdfUrl : null,
+    }
+  })
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Header Banner */}
@@ -95,7 +128,7 @@ export default async function PreviousYearQuestionsPage() {
 
       {/* Main Student Listing Client */}
       <PyqStudentListingClient
-        initialPapers={filteredPapers as any}
+        initialPapers={sanitizedPapers as any}
         categories={filteredCategories as any}
       />
     </div>
