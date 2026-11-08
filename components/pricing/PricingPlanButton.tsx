@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Crown, Loader2, Check, RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
+import { PASS_INCLUDED_FEATURES } from "@/lib/payments/pass-marketing"
 
 interface PricingPlanButtonProps {
     planName: string
@@ -15,16 +16,7 @@ interface PricingPlanButtonProps {
     isCurrentUserPlan?: boolean
 }
 
-const PREMIUM_FEATURES = [
-    "Access to all courses",
-    "Unlimited coding exercises",
-    "All assessments and tutorials",
-    "Course completion certificates",
-    "Priority support",
-    "Downloadable resources",
-    "Ad-free experience",
-    "Early access to new content",
-]
+const PREMIUM_FEATURES = PASS_INCLUDED_FEATURES
 
 export default function PricingPlanButton({
     planName,

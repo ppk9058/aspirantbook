@@ -2,6 +2,9 @@
 
 import { useEffect, useState, useMemo } from "react"
 import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { buildPassLoginHref, evaluatePyqLockState } from "@/lib/pyqs/pass-popup"
+import { usePyqPassUnlock } from "@/lib/pyqs/usePyqPassUnlock"
 import {
   Search,
   Filter,
@@ -54,10 +57,22 @@ export interface PyqCategoryItem {
 export function PyqStudentListingClient({
   initialPapers,
   categories,
+  isAuthenticated = false,
 }: {
   initialPapers: PyqStudentPaper[]
   categories: PyqCategoryItem[]
+  isAuthenticated?: boolean
 }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const hasLockedPapers = useMemo(
+    () => initialPapers.some((paper) => evaluatePyqLockState(paper) === "locked"),
+    [initialPapers]
+  )
+  const { openPassCheckout, isProcessing: isPassProcessing, error: passError } = usePyqPassUnlock({
+    autoOpenEnabled: hasLockedPapers,
+    isAuthenticated,
+  })
   const [search, setSearch] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL")
   const [selectedStage, setSelectedStage] = useState<string>("ALL")
@@ -101,6 +116,16 @@ export function PyqStudentListingClient({
   }
 
   const hasActiveFilters = search || selectedCategory !== "ALL" || selectedStage !== "ALL" || selectedAccess !== "ALL"
+
+  // Locked PYQ click: same-page Pass Razorpay popup for signed-in students,
+  // /login with a safe return path to this page for guests.
+  const handlePassClick = () => {
+    if (!isAuthenticated) {
+      router.push(buildPassLoginHref(pathname || "/pyqs"))
+      return
+    }
+    void openPassCheckout()
+  }
 
   // Search and filters are client state, so they only work once React has
   // hydrated. Expose that fact so an automation (or a slow device) can wait for
@@ -324,35 +349,42 @@ export function PyqStudentListingClient({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {paper.canAccess === false ? (
+                  {evaluatePyqLockState(paper) === "locked" ? (
                     <>
-                      <Link
-                        href="/pricing"
+                      <button
+                        type="button"
+                        onClick={handlePassClick}
+                        disabled={isPassProcessing}
+                        data-testid="pyq-pass-unlock-cta"
                         title="This paper needs the aspirantbook Pass"
-                        className="flex-1 py-2 px-3 text-xs font-semibold text-center rounded-xl bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 transition-colors flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2 px-3 text-xs font-semibold text-center rounded-xl bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-60"
                       >
                         <Lock className="w-3.5 h-3.5 text-amber-600" />
-                        Get Pass to View
-                      </Link>
+                        {isPassProcessing ? "Opening checkout..." : "Get Pass to View"}
+                      </button>
 
-                      <Link
-                        href="/pricing"
+                      <button
+                        type="button"
+                        onClick={handlePassClick}
+                        disabled={isPassProcessing}
                         title="This paper needs the aspirantbook Pass"
                         aria-label={`Get Pass to download ${paper.title}`}
-                        className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 border border-gray-200 rounded-xl transition-colors"
+                        className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 border border-gray-200 rounded-xl transition-colors disabled:opacity-60"
                       >
                         <Lock className="w-4 h-4" />
-                      </Link>
+                      </button>
 
                       {paper.hasCbtMode && paper.cbtTestId && (
-                        <Link
-                          href="/pricing"
+                        <button
+                          type="button"
+                          onClick={handlePassClick}
+                          disabled={isPassProcessing}
                           title="This paper needs the aspirantbook Pass"
-                          className="py-2 px-3 text-xs font-semibold text-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1"
+                          className="py-2 px-3 text-xs font-semibold text-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1 disabled:opacity-60"
                         >
                           <Zap className="w-3.5 h-3.5" />
                           Attempt Test
-                        </Link>
+                        </button>
                       )}
                     </>
                   ) : (
@@ -387,6 +419,12 @@ export function PyqStudentListingClient({
                     </>
                   )}
                 </div>
+
+                {passError && (
+                  <p role="alert" className="text-[11px] font-semibold text-red-600">
+                    {passError}
+                  </p>
+                )}
               </div>
             </div>
           ))}

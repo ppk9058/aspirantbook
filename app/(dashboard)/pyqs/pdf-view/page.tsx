@@ -2,22 +2,39 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useSearchParams, useRouter } from "next/navigation"
-import { ArrowLeft, AlertCircle, Lock, Crown, ArrowRight } from "lucide-react"
+import { usePathname, useSearchParams, useRouter } from "next/navigation"
+import { ArrowLeft, AlertCircle, Lock, Crown, ArrowRight, Loader2 } from "lucide-react"
 import SecurePdfViewer from "@/components/pdf/SecurePdfViewer"
 import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
+import { buildPassLoginHref } from "@/lib/pyqs/pass-popup"
+import { usePyqPassUnlock } from "@/lib/pyqs/usePyqPassUnlock"
 
 export default function PYQPDFViewerPage() {
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const router = useRouter()
   const paperId = searchParams.get("paperId")
+  const currentPath = `${pathname || "/pyqs/pdf-view"}${searchParams?.toString() ? `?${searchParams.toString()}` : ""}`
 
   const [paper, setPaper] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [passRequired, setPassRequired] = useState(false)
   const [loginRequired, setLoginRequired] = useState(false)
+  // Bumped after a verified Pass payment so the access probe runs again and the
+  // same page renders the unlocked viewer (no /subscription redirect).
+  const [probeKey, setProbeKey] = useState(0)
+
+  const {
+    openPassCheckout,
+    isProcessing: isPassProcessing,
+    error: passError,
+  } = usePyqPassUnlock({
+    autoOpenEnabled: passRequired,
+    isAuthenticated: !loginRequired,
+    onUnlocked: () => setProbeKey((key) => key + 1),
+  })
 
   useEffect(() => {
     if (!paperId) {
@@ -75,7 +92,7 @@ export default function PYQPDFViewerPage() {
     return () => {
       isMounted = false
     }
-  }, [paperId])
+  }, [paperId, probeKey])
 
   if (loading) {
     return (
@@ -129,7 +146,7 @@ export default function PYQPDFViewerPage() {
 
           <div className="pt-2 space-y-2">
             <Link
-              href="/login"
+              href={buildPassLoginHref(currentPath)}
               className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold transition-colors shadow-sm"
             >
               <span>Log in to continue</span>
@@ -170,13 +187,31 @@ export default function PYQPDFViewerPage() {
           </div>
 
           <div className="pt-2 space-y-2">
-            <Link
-              href="/pricing"
-              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-colors shadow-sm"
+            <button
+              type="button"
+              onClick={() => void openPassCheckout()}
+              disabled={isPassProcessing}
+              data-testid="pyq-pass-unlock-cta"
+              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-colors shadow-sm disabled:opacity-60"
             >
-              <span>Get aspirantbook Pass</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+              {isPassProcessing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Opening checkout...</span>
+                </>
+              ) : (
+                <>
+                  <span>Get aspirantbook Pass</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+
+            {passError && (
+              <p role="alert" className="text-[11px] font-semibold text-red-600 px-1">
+                {passError}
+              </p>
+            )}
 
             <Link
               href="/pyqs"
