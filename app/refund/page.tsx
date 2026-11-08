@@ -80,6 +80,9 @@ export default function RefundPolicyPage() {
             </p>
             <ul className="list-disc pl-5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-2">
               <li>
+                <strong>Pass (All-Access Pass):</strong> The Pass is ₹499 per year, valid for 365 days from purchase. The Pass is non-refundable once purchased, EXCEPT in the case of a technical failure where payment was captured but the Pass was not activated on your account. In such cases, contact our support desk (details below) for verification and refund processing within 5-7 working days.
+              </li>
+              <li>
                 <strong>Test Series / Mock Tests:</strong> Full refund within 48 hours of purchase provided no test has been started.
               </li>
               <li>

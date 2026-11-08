@@ -924,9 +924,9 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
 
                         <button
                             onClick={() => setIsPassModalOpen(true)}
-                            className="w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer text-center min-h-[44px]"
+                            className="w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer text-center min-h-[44px] flex items-center justify-center gap-1.5"
                         >
-                            Get Pass
+                            <span>Get Pass • ₹499 / year</span>
                         </button>
                     </div>
                     )}
@@ -1058,7 +1058,10 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                         </div>
 
                         <div className="p-4 rounded-2xl bg-gradient-to-r from-[#003B73] to-[#00A896] text-white space-y-2">
-                            <p className="text-xs uppercase font-extrabold tracking-wider text-cyan-200">All-In-One Pass</p>
+                            <div className="flex items-center justify-between">
+                                <p className="text-xs uppercase font-extrabold tracking-wider text-cyan-200">All-In-One Pass</p>
+                                <span className="text-sm font-black text-amber-300">₹499 / year</span>
+                            </div>
                             
                             <p className="text-xs text-white/80">Unlimited access to Government Exam test series.</p>
                         </div>
