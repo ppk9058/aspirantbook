@@ -33,6 +33,7 @@ import {
 import { toggleLessonCompletion } from "@/lib/actions/course/progress"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
 import Image from "next/image"
 
 interface LessonItem {
@@ -114,6 +115,7 @@ export function CoursePlayerClient({
     allLessons[0]
 
   const [activeLesson, setActiveLesson] = useState<LessonItem>(initialLesson)
+  const { pdfDoc, openPdf, closePdf } = usePdfModal()
   // Real database-persisted progress state
   const [completedLessonIds, setCompletedLessonIds] = useState<{ [id: string]: boolean }>(
     initialCompletedIds
@@ -961,15 +963,24 @@ export function CoursePlayerClient({
                         </div>
                       </div>
 
-                      <a
-                        href={activeLesson.attachmentUrl || "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openPdf({
+                            src: activeLesson.attachmentUrl || "#",
+                            downloadUrl: activeLesson.attachmentUrl || undefined,
+                            title:
+                              activeLesson.attachmentName ||
+                              "Lecture Notes & Study Material",
+                            subtitle: activeLesson.title,
+                            badgeLabel: "Lesson Attachment",
+                          })
+                        }
                         className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center gap-1.5 shrink-0 shadow-sm"
                       >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Download PDF</span>
-                      </a>
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>View PDF</span>
+                      </button>
                     </div>
                   ) : (
                     <div className="p-8 text-center text-gray-500">
@@ -1026,6 +1037,8 @@ export function CoursePlayerClient({
           </div>
         </main>
       </div>
+
+      <PdfModal doc={pdfDoc} onClose={closePdf} />
     </div>
   )
 }

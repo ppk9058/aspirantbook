@@ -16,6 +16,7 @@ import {
   Search,
 } from "lucide-react"
 import Image from "next/image"
+import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
 
 interface Doubt {
   id: string
@@ -40,6 +41,7 @@ interface Doubt {
 }
 
 export default function TeacherQuestionsPage() {
+  const { pdfDoc, openPdf, closePdf } = usePdfModal()
   const [doubts, setDoubts] = useState<Doubt[]>([])
   const [loading, setLoading] = useState(true)
   const [filterTab, setFilterTab] = useState<"ALL" | "PENDING" | "ANSWERED">("PENDING")
@@ -268,6 +270,23 @@ export default function TeacherQuestionsPage() {
                         Zoom Attachment
                       </div>
                     </div>
+                  ) : doubt.attachment.type === "pdf" ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openPdf({
+                          src: doubt.attachment!.url,
+                          downloadUrl: doubt.attachment!.url,
+                          title: doubt.attachment!.name || "Doubt Attachment",
+                          subtitle: `Doubt • ${doubt.subject} (${doubt.studentName})`,
+                          badgeLabel: "Doubt Attachment",
+                        })
+                      }
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:border-[#1448d8]"
+                    >
+                      <FileText className="w-4 h-4 text-red-500" />
+                      <span>{doubt.attachment.name}</span>
+                    </button>
                   ) : (
                     <a
                       href={doubt.attachment.url}
@@ -411,6 +430,8 @@ export default function TeacherQuestionsPage() {
           </div>
         </div>
       )}
+
+      <PdfModal doc={pdfDoc} onClose={closePdf} />
     </div>
   )
 }

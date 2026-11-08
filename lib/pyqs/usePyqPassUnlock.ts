@@ -42,7 +42,7 @@ export function usePyqPassUnlock(options: UsePyqPassUnlockOptions = {}) {
 
   onUnlockedRef.current = onUnlocked
 
-  const openPassCheckout = useCallback(async () => {
+  const openPassCheckout = useCallback(async (onSuccess?: () => void) => {
     setError(null)
     await handleBuyNow(
       PYQ_PASS_BUY_ITEM,
@@ -51,6 +51,7 @@ export function usePyqPassUnlock(options: UsePyqPassUnlockOptions = {}) {
         // state. Never redirect to /subscription or /checkout.
         router.refresh()
         onUnlockedRef.current?.()
+        onSuccess?.()
       },
       {
         onError: (message) => setError(message),
