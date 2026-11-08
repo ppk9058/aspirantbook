@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { AppRole, normalizeAppRole } from "./roles"
+import { checkPaperAccess, isPaperPaid } from "@/lib/pyqs/pyq-access"
 
 export type EntitlementReason =
   | "FREE"
@@ -62,6 +63,40 @@ export async function checkTestAccess(
     // A teacher only has free access to tests they created
     if (test.createdById === userId) {
       return { allowed: true, reason: "TEACHER_ACCESS" }
+    }
+
+    // If this test is linked to a paid PYQ paper, apply PYQ pass gate
+    const linkedPaper = await prisma.pyqPaper.findFirst({
+      where: { cbtTestId: testId },
+      select: { id: true, accessType: true, creatorId: true },
+    })
+
+    if (linkedPaper && isPaperPaid(linkedPaper.accessType)) {
+      const access = await checkPaperAccess({
+        userId,
+        role,
+        paper: linkedPaper,
+      })
+
+      if (!access.allowed) {
+        return {
+          allowed: false,
+          reason: "LOCKED",
+          message: "This paper needs the aspirantbook Pass.",
+        }
+      }
+
+      return {
+        allowed: true,
+        reason:
+          access.reason === "PASS"
+            ? "SUBSCRIPTION_ACTIVE"
+            : access.reason === "ADMIN"
+            ? "ADMIN_OVERRIDE"
+            : access.reason === "OWNER"
+            ? "TEACHER_ACCESS"
+            : "PURCHASED",
+      }
     }
 
     // Free tests are accessible to all authenticated users

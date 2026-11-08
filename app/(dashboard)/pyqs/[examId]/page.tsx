@@ -4,6 +4,8 @@ import { ensureDefaultPyqData, getAllPapers } from "@/lib/pyqs-service"
 import { PyqStudentListingClient } from "@/components/pyqs/PyqStudentListingClient"
 import Link from "next/link"
 import { ArrowLeft, BookOpen, AlertCircle, Sparkles } from "lucide-react"
+import { auth } from "@/auth"
+import { hasActivePass, isPaperPaid } from "@/lib/pyqs/pyq-access"
 
 import { Metadata } from "next"
 import { adaptPyqCategorySeo } from "@/lib/seo/adapters/pyqs"
@@ -88,6 +90,39 @@ export default async function ExamCategoryDetailPage({
     includeAllStatuses: false,
   })
 
+  const session = await auth()
+  const user = session?.user
+  const isAdmin = user?.role === "ADMIN"
+  const passActive = user?.id ? await hasActivePass(user.id) : false
+  const userUnlocks = user?.id && papers.some((p: any) => isPaperPaid(p.accessType))
+    ? new Set(
+        (
+          await prisma.pyqUnlock.findMany({
+            where: {
+              userId: user.id,
+              paperId: { in: papers.map((p: any) => p.id) },
+            },
+            select: { paperId: true },
+          })
+        ).map((u) => u.paperId)
+      )
+    : new Set<string>()
+
+  const sanitizedPapers = papers.map((paper: any) => {
+    const isOwner = Boolean(user && user.role === "TEACHER" && paper.creatorId === user.id)
+    const isPrivileged = isAdmin || isOwner
+    const isPaid = isPaperPaid(paper.accessType)
+    const canAccess = !isPaid || isPrivileged || passActive || userUnlocks.has(paper.id)
+
+    return {
+      ...paper,
+      canAccess,
+      // Strip raw storage URLs for non-privileged viewers to prevent payload leaks
+      paperPdfUrl: isPrivileged ? paper.paperPdfUrl : "",
+      solutionPdfUrl: isPrivileged ? paper.solutionPdfUrl : null,
+    }
+  })
+
   const seo = adaptPyqCategorySeo(category)
 
   return (
@@ -151,7 +186,7 @@ export default async function ExamCategoryDetailPage({
 
       {/* Main Student Listing Client */}
       <PyqStudentListingClient
-        initialPapers={papers as any}
+        initialPapers={sanitizedPapers as any}
         categories={[{ id: category.id, name: category.name, slug: category.slug, badgeColor: category.badgeColor }]}
       />
     </div>

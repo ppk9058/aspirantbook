@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Viewer } from "@/lib/api/v1/viewer";
 import { resolveAccess } from "@/lib/authwall/resolveAccess";
 import { PyqExamDto, PyqPaperDto } from "@aspirantbook/shared";
+import { checkPaperAccess, canAccessPaidPaper, hasActivePass, isPaperPaid } from "@/lib/pyqs/pyq-access";
 
 export async function getPyqExams(): Promise<PyqExamDto[]> {
   const categories = await prisma.pyqCategory.findMany({
@@ -57,12 +58,24 @@ export async function getPyqPaper(
       questionIndex: i + 1,
     })),
     containerGate: {
-      isGated: paper.isGated || paper.accessType !== "FREE",
+      isGated: paper.isGated || isPaperPaid(paper.accessType),
       previewPercentage: paper.previewPercentage,
       gateTitle: paper.gateTitle,
       gateSubtitle: paper.gateSubtitle,
     },
   });
+
+  const paperAccess = await checkPaperAccess({
+    userId: viewer.userId,
+    role: viewer.role,
+    paper: {
+      id: paper.id,
+      accessType: paper.accessType,
+      creatorId: paper.creatorId,
+    },
+  });
+
+  const canAccessFile = !access.isLockedForGuest && paperAccess.allowed;
 
   return {
     id: paper.id,
@@ -76,7 +89,7 @@ export async function getPyqPaper(
     isLockedForGuest: access.isLockedForGuest,
     previewCount: access.previewCount,
     totalItemsCount: access.totalItemsCount,
-    fileUrl: access.isLockedForGuest ? null : paper.paperPdfUrl,
+    fileUrl: canAccessFile ? paper.paperPdfUrl : null,
   };
 }
 
@@ -104,6 +117,22 @@ export async function getPyqPapers(
     take: query?.limit ? Math.min(query.limit, 50) : 50,
   });
 
+  const passActive = viewer.userId ? await hasActivePass(viewer.userId) : false;
+  const userUnlocks =
+    viewer.userId && papers.some((p) => isPaperPaid(p.accessType))
+      ? new Set(
+          (
+            await prisma.pyqUnlock.findMany({
+              where: {
+                userId: viewer.userId,
+                paperId: { in: papers.map((p) => p.id) },
+              },
+              select: { paperId: true },
+            })
+          ).map((u) => u.paperId)
+        )
+      : new Set<string>();
+
   return papers.map((paper) => {
     const access = resolveAccess({
       viewer: {
@@ -114,12 +143,25 @@ export async function getPyqPapers(
         questionIndex: i + 1,
       })),
       containerGate: {
-        isGated: paper.isGated || paper.accessType !== "FREE",
+        isGated: paper.isGated || isPaperPaid(paper.accessType),
         previewPercentage: paper.previewPercentage,
         gateTitle: paper.gateTitle,
         gateSubtitle: paper.gateSubtitle,
       },
     });
+
+    const paperAccess = canAccessPaidPaper({
+      userId: viewer.userId,
+      role: viewer.role,
+      paper: {
+        accessType: paper.accessType,
+        creatorId: paper.creatorId,
+      },
+      hasPass: passActive,
+      hasUnlock: userUnlocks.has(paper.id),
+    });
+
+    const canAccessFile = !access.isLockedForGuest && paperAccess.allowed;
 
     return {
       id: paper.id,
@@ -133,7 +175,7 @@ export async function getPyqPapers(
       isLockedForGuest: access.isLockedForGuest,
       previewCount: access.previewCount,
       totalItemsCount: access.totalItemsCount,
-      fileUrl: access.isLockedForGuest ? null : paper.paperPdfUrl,
+      fileUrl: canAccessFile ? paper.paperPdfUrl : null,
     };
   });
 }

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { isVerifiedSearchEngineCrawler } from "@/lib/authwall/bot-verify"
+import { checkPaperAccess, isPaperPaid } from "@/lib/pyqs/pyq-access"
+import { extractPyqStorageKey } from "@/lib/pyqs/pyq-storage-key"
+import { getPrivateFileSignedUrl } from "@/lib/s3"
 import fs from "fs/promises"
 import fsSync from "fs"
 import path from "path"
@@ -40,35 +43,39 @@ export async function GET(
       }
     }
 
-    // 2. Access Check: PAID papers require unlock or ADMIN/owner role
-    if (paper.accessType === "PAID") {
-      const isOwner = user.isAuthenticated && user.role === "TEACHER" && paper.creatorId === user.userId
-      const isAdmin = user.isAuthenticated && user.role === "ADMIN"
+    // 2. Access Check: Paid papers require an active Pass, admin/owner, or legacy unlock
+    const paperAccess = await checkPaperAccess({
+      userId: user.userId,
+      role: user.role,
+      paper: {
+        id: paper.id,
+        accessType: paper.accessType,
+        creatorId: paper.creatorId,
+      },
+    })
 
-      if (!isAdmin && !isOwner) {
-        if (!user.isAuthenticated || !user.userId) {
-          return NextResponse.json(
-            { error: "Paid paper", unlockPrice: paper.unlockPrice },
-            { status: 403 }
-          )
-        }
-
-        const unlock = await prisma.pyqUnlock.findUnique({
-          where: {
-            userId_paperId: {
-              userId: user.userId,
-              paperId: paper.id,
-            },
+    if (!paperAccess.allowed) {
+      if (paperAccess.reason === "LOGIN_REQUIRED") {
+        return NextResponse.json(
+          {
+            error: "Login required",
+            code: "LOGIN_REQUIRED",
+            message: "Please log in to view this paper.",
+            loginUrl: "/login",
           },
-        })
-
-        if (!unlock) {
-          return NextResponse.json(
-            { error: "Paid paper", unlockPrice: paper.unlockPrice },
-            { status: 403 }
-          )
-        }
+          { status: 403 }
+        )
       }
+
+      return NextResponse.json(
+        {
+          error: "Pass required",
+          code: "PASS_REQUIRED",
+          message: "This paper needs the aspirantbook Pass.",
+          checkoutUrl: "/pricing",
+        },
+        { status: 403 }
+      )
     }
 
     // 3. Authwall Gate Check: Gated papers require authentication unless crawler in bot-full mode
@@ -104,7 +111,48 @@ export async function GET(
       )
     }
 
-    // Determine filesystem path
+    const safeTitle = paper.title.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 60)
+    const downloadFileName = `${safeTitle}${kind === "solution" ? "_Solution" : ""}.pdf`
+
+    const disposition = isDownload
+      ? `attachment; filename="${encodeURIComponent(downloadFileName)}"`
+      : `inline; filename="${encodeURIComponent(downloadFileName)}"`
+
+    // 1. S3 / Cloudflare R2 Remote Storage Branch
+    // Stored URLs may be virtual-hosted or path-style URLs, or already relative keys
+    const isRemote =
+      targetUrl.startsWith("http://") ||
+      targetUrl.startsWith("https://") ||
+      targetUrl.startsWith("pyq-private/")
+
+    if (isRemote) {
+      const storageKey = extractPyqStorageKey(targetUrl)
+      if (!storageKey) {
+        return NextResponse.json({ error: "File not found on storage" }, { status: 404 })
+      }
+
+      // Increment download count before redirect
+      if (isDownload) {
+        await prisma.pyqPaper.update({
+          where: { id: paper.id },
+          data: { downloadCount: { increment: 1 } },
+        }).catch((err) => console.error("Failed to increment download count:", err))
+      }
+
+      const signedUrl = await getPrivateFileSignedUrl(storageKey, 60, {
+        contentDisposition: disposition,
+      })
+
+      return new NextResponse(null, {
+        status: 302,
+        headers: {
+          Location: signedUrl,
+          "Cache-Control": "private, no-store, no-cache, must-revalidate",
+        },
+      })
+    }
+
+    // 2. Local Filesystem Storage Fallback (/uploads/...)
     let filePath = ""
     if (targetUrl.startsWith("/uploads/pyq-private/")) {
       const rel = targetUrl.replace(/^\/uploads\/pyq-private\//, "")
@@ -118,9 +166,6 @@ export async function GET(
       const p2 = path.join(process.cwd(), "public", "uploads", path.basename(rel))
       filePath = fsSync.existsSync(p1) ? p1 : p2
     } else {
-      if (targetUrl.startsWith("http://") || targetUrl.startsWith("https://")) {
-        return NextResponse.redirect(targetUrl)
-      }
       filePath = path.join(process.cwd(), "uploads", "pyq-private", path.basename(targetUrl))
     }
 
@@ -135,20 +180,14 @@ export async function GET(
       await prisma.pyqPaper.update({
         where: { id: paper.id },
         data: { downloadCount: { increment: 1 } },
-      })
+      }).catch((err) => console.error("Failed to increment download count:", err))
     }
 
-    const safeTitle = paper.title.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 60)
-    const downloadFileName = `${safeTitle}${kind === "solution" ? "_Solution" : ""}.pdf`
-
-    const disposition = isDownload
-      ? `attachment; filename="${encodeURIComponent(downloadFileName)}"`
-      : "inline"
-
+    // Paid papers must never get "public" Cache-Control
     const cacheControl =
-      paper.status === "PUBLISHED" && paper.accessType === "FREE"
+      paper.status === "PUBLISHED" && !isPaperPaid(paper.accessType)
         ? "public, max-age=3600"
-        : "private, no-store"
+        : "private, no-store, no-cache, must-revalidate"
 
     const nodeStream = fsSync.createReadStream(filePath)
     const webStream = Readable.toWeb(nodeStream)
