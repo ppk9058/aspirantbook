@@ -5,7 +5,6 @@ import Link from "next/link"
 import BookStoreHeader from "@/components/books/BookStoreHeader"
 import CartDrawer from "@/components/books/CartDrawer"
 import EBookReaderModal from "@/components/books/EBookReaderModal"
-import SecurePdfViewer from "@/components/books/SecurePdfViewer"
 import BookImageGallery from "@/components/books/BookImageGallery"
 import BookCard from "@/components/books/BookCard"
 import { BookCartProvider, useBookCart } from "@/lib/books/cartContext"
@@ -44,7 +43,6 @@ function BookDetailsContent({ initialBook, slug }: BookDetailsClientProps) {
   const [allBooks, setAllBooks] = useState<Book[]>(BOOKS_DATA)
   const [activeTab, setActiveTab] = useState<"description" | "details" | "who" | "highlights" | "reviews">("description")
   const [isReaderModalOpen, setIsReaderModalOpen] = useState(false)
-  const [isSecureViewerOpen, setIsSecureViewerOpen] = useState(false)
   const [copiedShare, setCopiedShare] = useState(false)
 
   const { items, addToCart, setIsCartOpen, orders } = useBookCart()
@@ -184,14 +182,13 @@ function BookDetailsContent({ initialBook, slug }: BookDetailsClientProps) {
                   Instant online access is active. You can read online or download the full PDF anytime.
                 </p>
                 <div className="flex items-center gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setIsSecureViewerOpen(true)}
+                  <Link
+                    href={`/books/read/${encodeURIComponent(book.id)}`}
                     className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md transition-all"
                   >
                     <BookOpen className="w-4 h-4" />
                     <span>Read Online</span>
-                  </button>
+                  </Link>
                   <a
                     href={`/api/books/${book.id}/download?download=true`}
                     download
@@ -555,16 +552,6 @@ function BookDetailsContent({ initialBook, slug }: BookDetailsClientProps) {
         isOpen={isReaderModalOpen}
         onClose={() => setIsReaderModalOpen(false)}
         initialPageIndex={0}
-      />
-
-      {/* Secure Full PDF Reader Modal (For verified owners) */}
-      <SecurePdfViewer
-        bookId={book.id}
-        title={book.title}
-        author={book.author}
-        isOpen={isSecureViewerOpen}
-        onClose={() => setIsSecureViewerOpen(false)}
-        downloadAllowed={true}
       />
 
       {/* Slide-over Cart Drawer */}

@@ -34,9 +34,7 @@ import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
 import { applyQuizGoalFilter } from "@/lib/goals/goal-filters"
 import { getQuizSlug } from "@/lib/current-affairs/slugs"
 import { useBatchUserStatus } from "@/lib/exam/batched-user-status"
-import dynamic from "next/dynamic"
-
-const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
+import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
 
 const MONTHS = [
   "January",
@@ -122,10 +120,6 @@ export default function CurrentAffairsQuizzesClient({
   const [pdfYear, setPdfYear] = useState<string>("ALL")
   const [pdfMonth, setPdfMonth] = useState<string>("ALL")
   const [pdfLang, setPdfLang] = useState<"ALL" | "EN" | "HI">("ALL")
-
-  // In-app PDF Viewer Modal state
-  const [viewerDoc, setViewerDoc] = useState<CurrentAffairsPdfDoc | null>(null)
-  const [viewerLang, setViewerLang] = useState<"en" | "hi">("en")
 
   // Quizzes state
   const [dbQuizzes, setDbQuizzes] = useState<QuizItem[]>([])
@@ -228,13 +222,6 @@ export default function CurrentAffairsQuizzesClient({
     setPdfs((prev) =>
       prev.map((p) => (p.id === doc.id ? { ...p, downloadCount: (p.downloadCount || 0) + 1 } : p))
     )
-  }
-
-  // PDF view handling (permitted for guests)
-  const handlePdfView = (doc: CurrentAffairsPdfDoc, preferredLang: "en" | "hi") => {
-    const lang = preferredLang === "hi" && doc.pdfUrlHi ? "hi" : "en"
-    setViewerDoc(doc)
-    setViewerLang(lang)
   }
 
   // "My Quiz History" click handling
@@ -542,14 +529,20 @@ export default function CurrentAffairsQuizzesClient({
 
                   {/* Actions: View & Download */}
                   <div className="mt-5 pt-3 border-t border-border flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => handlePdfView(doc, doc.pdfUrlEn ? "en" : "hi")}
+                    <Link
+                      href={buildPdfReaderHref({
+                        src: `/api/current-affairs/file/${doc.id}?lang=${doc.pdfUrlEn ? "en" : "hi"}`,
+                        downloadUrl: `/api/current-affairs/file/${doc.id}?lang=${doc.pdfUrlEn ? "en" : "hi"}&download=1`,
+                        title: doc.title,
+                        subtitle: `${MONTHS[doc.month - 1]} ${doc.year}`,
+                        badge: "Current Affairs Magazine",
+                      })}
                       data-testid={`btn-view-pdf-${doc.id}`}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold border border-border bg-background hover:bg-muted transition-colors text-foreground"
                     >
                       <Eye className="w-3.5 h-3.5 text-muted-foreground" />
                       <span>View PDF</span>
-                    </button>
+                    </Link>
 
                     <div className="flex items-center gap-1">
                       {doc.pdfUrlEn && (
@@ -823,21 +816,6 @@ export default function CurrentAffairsQuizzesClient({
           </div>
         )}
       </section>
-
-      {/* In-App PDF Preview Modal using shared SecurePdfViewer */}
-      {viewerDoc && (
-        <SecurePdfViewer
-          testId="ca-pdf-preview-modal"
-          isOpen={Boolean(viewerDoc)}
-          onClose={() => setViewerDoc(null)}
-          src={`/api/current-affairs/file/${viewerDoc.id}?lang=${viewerLang}`}
-          title={viewerDoc.title}
-          subtitle={`${MONTHS[viewerDoc.month - 1]} ${viewerDoc.year} • Preview Mode`}
-          downloadUrl={`/api/current-affairs/file/${viewerDoc.id}?lang=${viewerLang}&download=1`}
-          downloadAllowed={true}
-          badgeLabel="Current Affairs Magazine"
-        />
-      )}
     </div>
   )
 }

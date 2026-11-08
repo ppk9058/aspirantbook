@@ -7,7 +7,6 @@ import CartDrawer from "@/components/books/CartDrawer"
 import { BookCartProvider, useBookCart } from "@/lib/books/cartContext"
 import { BOOKS_DATA } from "@/lib/books/data"
 import { Book } from "@/lib/books/types"
-import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
 import {
   PackageCheck,
   Download,
@@ -23,7 +22,7 @@ import {
 
 function OrdersContent() {
   const { orders } = useBookCart()
-  const { pdfDoc, openPdf, closePdf } = usePdfModal()
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
 
   // Fallback demo order so the page isn't totally barren on first load
   const displayOrders = orders.length > 0 ? orders : [
@@ -48,16 +47,13 @@ function OrdersContent() {
     },
   ]
 
-  const openBookPdf = (book: Book, orderNumber?: string) => {
-    const orderParam = orderNumber ? `&order=${encodeURIComponent(orderNumber)}` : ""
-    openPdf({
-      src: `/api/books/${book.id}/download?inline=1${orderParam}`,
-      downloadUrl: `/api/books/${book.id}/download?download=true${orderParam}`,
-      title: book.title,
-      author: book.author,
-      subtitle: book.edition,
-      badgeLabel: "Verified Ebook",
-    })
+  const handleDownloadPdf = (book: Book, orderNumber?: string) => {
+    setDownloadingId(book.id)
+    const downloadUrl = `/api/books/${book.id}/download?download=true${orderNumber ? `&order=${encodeURIComponent(orderNumber)}` : ""}`
+    window.open(downloadUrl, "_blank")
+    setTimeout(() => {
+      setDownloadingId(null)
+    }, 1000)
   }
 
   const handleDownloadInvoice = (orderNumber: string) => {
@@ -210,11 +206,14 @@ function OrdersContent() {
 
                       <button
                         type="button"
-                        onClick={() => openBookPdf(item.book, order.orderNumber)}
+                        onClick={() => handleDownloadPdf(item.book, order.orderNumber)}
+                        disabled={downloadingId === item.book.id}
                         className="flex-1 sm:flex-initial px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 text-gray-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                       >
                         <Download className="w-3.5 h-3.5 text-gray-600" />
-                        <span>Download PDF</span>
+                        <span>
+                          {downloadingId === item.book.id ? "Preparing..." : "Download PDF"}
+                        </span>
                       </button>
                     </div>
                   </div>
@@ -227,8 +226,6 @@ function OrdersContent() {
 
       {/* Slide-over Cart Drawer */}
       <CartDrawer />
-
-      <PdfModal doc={pdfDoc} onClose={closePdf} />
     </div>
   )
 }

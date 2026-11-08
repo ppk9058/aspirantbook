@@ -21,7 +21,7 @@ import {
   Upload,
 } from "lucide-react"
 import { GateControlPanel } from "@/components/admin/authwall/GateControlPanel"
-import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
+import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
 
 interface Paper {
   id: string
@@ -65,7 +65,6 @@ export function PyqPapersListClient({
   categories: Category[]
   basePath?: string
 }) {
-  const { pdfDoc, openPdf, closePdf } = usePdfModal()
   const [papers, setPapers] = useState<Paper[]>(initialPapers)
   const [mounted, setMounted] = useState(false)
   const [search, setSearch] = useState("")
@@ -401,40 +400,38 @@ export function PyqPapersListClient({
                         {paper.year}
                       </span>
                       {paper.paperPdfUrl && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            openPdf({
-                              src: paper.paperPdfUrl,
-                              downloadUrl: paper.paperPdfUrl,
-                              title: paper.title,
-                              subtitle: `${paper.category.name} • ${paper.year}`,
-                              badgeLabel: "PYQ Paper",
-                            })
-                          }
+                        <Link
+                          href={buildPdfReaderHref({
+                            src: paper.paperPdfUrl,
+                            downloadUrl: paper.paperPdfUrl,
+                            title: paper.title,
+                            subtitle: `${paper.category.name} • ${paper.year}`,
+                            badge: "PYQ Paper",
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="text-[11px] text-orange-600 hover:text-orange-700 flex items-center gap-1 font-medium"
                         >
                           <FileText className="w-3 h-3" />
                           View PDF
-                        </button>
+                        </Link>
                       )}
                       {paper.solutionPdfUrl && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            openPdf({
-                              src: paper.solutionPdfUrl!,
-                              downloadUrl: paper.solutionPdfUrl!,
-                              title: `${paper.title} — Solution Key`,
-                              subtitle: `${paper.category.name} • ${paper.year}`,
-                              badgeLabel: "Solution Key",
-                            })
-                          }
+                        <Link
+                          href={buildPdfReaderHref({
+                            src: paper.solutionPdfUrl,
+                            downloadUrl: paper.solutionPdfUrl,
+                            title: `${paper.title} — Solution Key`,
+                            subtitle: `${paper.category.name} • ${paper.year}`,
+                            badge: "Solution Key",
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="text-[11px] text-blue-600 hover:text-blue-700 flex items-center gap-1 font-medium"
                         >
                           <FileText className="w-3 h-3" />
                           Solution PDF
-                        </button>
+                        </Link>
                       )}
                     </div>
                   </td>
@@ -764,8 +761,6 @@ export function PyqPapersListClient({
           </div>
         </div>
       )}
-
-      <PdfModal doc={pdfDoc} onClose={closePdf} />
     </div>
   )
 }

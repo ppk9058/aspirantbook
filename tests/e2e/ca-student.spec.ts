@@ -107,13 +107,12 @@ test.describe("Current Affairs Student Page & Security Gate C", () => {
     const closeBtn = page.locator('button:has(svg.lucide-x)').first()
     await closeBtn.click()
 
-    // 2. Guest clicks View PDF -> In-app preview modal opens with iframe
+    // 2. Guest clicks View PDF -> In-page PDF reader opens with iframe
     const viewBtn = page.locator(`[data-testid="btn-view-pdf-${publishedPdf.id}"]`)
     await viewBtn.click()
 
-    const previewModal = page.locator('[data-testid="ca-pdf-preview-modal"]')
-    await expect(previewModal).toBeVisible()
-    await expect(previewModal.locator("iframe")).toBeVisible()
+    await expect(page).toHaveURL(new RegExp(`/pdf/view\\?src=`))
+    await expect(page.locator("iframe")).toBeVisible()
   })
 
   test("C-03: Logged-in student downloads PDF directly and downloadCount increases", async ({ page }) => {

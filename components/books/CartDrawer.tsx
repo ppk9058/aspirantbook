@@ -9,7 +9,6 @@ import { useBookCheckout } from "@/lib/books/useBookCheckout"
 import dynamic from "next/dynamic"
 
 const PaymentSuccessModal = dynamic(() => import("./PaymentSuccessModal"), { ssr: false })
-const SecurePdfViewer = dynamic(() => import("./SecurePdfViewer"), { ssr: false })
 import {
   X,
   Plus,
@@ -56,6 +55,7 @@ export default function CartDrawer() {
   const [couponInput, setCouponInput] = useState("")
   const [couponMessage, setCouponMessage] = useState<{ text: string; isError: boolean } | null>(null)
 
+  const router = useRouter()
   const {
     initiateCheckout,
     isCheckingOut,
@@ -64,12 +64,9 @@ export default function CartDrawer() {
     closeSuccessModal,
     alreadyOwnedBook,
     clearAlreadyOwned,
-    activeReaderBook,
-    openReaderForBook,
-    closeReader,
   } = useBookCheckout()
 
-  if (!isCartOpen && !isSuccessModalOpen && !activeReaderBook) return null
+  if (!isCartOpen && !isSuccessModalOpen) return null
 
   const handleApplyCoupon = (codeToApply?: string) => {
     const code = codeToApply || couponInput
@@ -450,9 +447,9 @@ export default function CartDrawer() {
                 <button
                   type="button"
                   onClick={() => {
-                    openReaderForBook(alreadyOwnedBook.bookId, alreadyOwnedBook.bookTitle)
                     clearAlreadyOwned()
                     setIsCartOpen(false)
+                    router.push(`/books/read/${encodeURIComponent(alreadyOwnedBook.bookId)}`)
                   }}
                   className="px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-black text-[11px] transition-colors"
                 >
@@ -507,23 +504,12 @@ export default function CartDrawer() {
         isOpen={isSuccessModalOpen}
         onClose={closeSuccessModal}
         order={completedOrder}
-        onReadNow={(bookId, title, author) => {
-          openReaderForBook(bookId, title, author)
+        onReadNow={(bookId) => {
           setIsCartOpen(false)
+          closeSuccessModal()
+          router.push(`/books/read/${encodeURIComponent(bookId)}`)
         }}
       />
-
-      {/* Secure PDF Viewer */}
-      {activeReaderBook && (
-        <SecurePdfViewer
-          bookId={activeReaderBook.bookId}
-          title={activeReaderBook.title}
-          author={activeReaderBook.author}
-          isOpen={Boolean(activeReaderBook)}
-          onClose={closeReader}
-          downloadAllowed={true}
-        />
-      )}
     </div>
   )
 }

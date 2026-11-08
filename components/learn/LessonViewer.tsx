@@ -14,7 +14,7 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import VideoPlayer from "./VideoPlayer"
 import LessonSidebar from "./LessonSidebar"
-import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
+import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
 
 interface LessonViewerProps {
     lesson: any
@@ -37,7 +37,6 @@ export default function LessonViewer({
 }: LessonViewerProps) {
     const router = useRouter()
     const [currentLesson, setCurrentLesson] = useState(lesson)
-    const { pdfDoc, openPdf, closePdf } = usePdfModal()
     const [isEditing, setIsEditing] = useState(false)
     const [isCompleting, setIsCompleting] = useState(false)
     const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -229,21 +228,18 @@ export default function LessonViewer({
                                 {currentLesson.slides && (
                                     <Card className="p-6 mb-8 border-2 border-[#10162F] rounded-2xl shadow-[2px_2px_0px_#10162F]">
                                         <h3 className="text-sm font-bold text-[#10162F] mb-2">Lesson Materials</h3>
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                openPdf({
-                                                    src: currentLesson.slides,
-                                                    downloadUrl: currentLesson.slides,
-                                                    title: `${currentLesson.title} — Slides`,
-                                                    subtitle: course?.title,
-                                                    badgeLabel: "Lesson Slides",
-                                                })
-                                            }
-                                            className="text-[#3A10E5] font-bold text-xs hover:underline"
+                                        <Link
+                                            href={buildPdfReaderHref({
+                                                src: currentLesson.slides,
+                                                downloadUrl: currentLesson.slides,
+                                                title: `${currentLesson.title} — Slides`,
+                                                subtitle: course?.title,
+                                                badge: "Lesson Slides",
+                                            })}
+                                            className="text-[#3A10E5] font-bold text-xs hover:underline inline-block"
                                         >
                                             View Slides / Supplementary PDF
-                                        </button>
+                                        </Link>
                                     </Card>
                                 )}
 
@@ -312,8 +308,6 @@ export default function LessonViewer({
                 isOpen={sidebarOpen}
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
-
-            <PdfModal doc={pdfDoc} onClose={closePdf} />
         </div>
     )
 }
