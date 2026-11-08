@@ -416,24 +416,26 @@ test.describe("Book Studio Flow & Payment Security E2E", () => {
     await expect(page.locator('[data-testid="orders-page-root"][data-hydrated="true"]')).toBeVisible({ timeout: 15_000 })
     await expect(page.locator("h1")).toContainText(/Orders|Purchased Books|My Books/i)
 
-    // 6. Read Online button opens the SecurePdfViewer modal
-    const readOnlineBtn = page.locator('button:has-text("Read Online")').first()
-    await expect(readOnlineBtn).toBeVisible({ timeout: 10_000 })
-    await readOnlineBtn.click()
+    // 6. Read Online button opens the dedicated /books/read/[id] reader page
+    const readOnlineLink = page.locator('a:has-text("Read Online")').first()
+    await expect(readOnlineLink).toBeVisible({ timeout: 10_000 })
+    await readOnlineLink.click()
 
-    // Assert SecurePdfViewer modal appears with iframe streaming from /api/books/.../download
-    const pdfModal = page.locator('div[role="dialog"][aria-label*="PDF Viewer"]')
-    await expect(pdfModal).toBeVisible({ timeout: 10_000 })
-    const pdfIframe = pdfModal.locator("iframe")
-    await expect(pdfIframe).toBeVisible()
+    // Assert /books/read/[id] page appears with iframe streaming from /api/books/.../download
+    await expect(page).toHaveURL(new RegExp(`/books/read/${targetBookId}`))
+    const pdfIframe = page.locator("iframe")
+    await expect(pdfIframe).toBeVisible({ timeout: 10_000 })
     const iframeSrc = await pdfIframe.getAttribute("src")
     expect(iframeSrc).toContain("/api/books/")
     expect(iframeSrc).toContain("/download?inline=1")
 
-    // Close modal
-    const closeBtn = pdfModal.locator('button[aria-label="Close viewer"]')
-    await closeBtn.click()
-    await expect(pdfModal).not.toBeVisible()
+    // Navigate back to orders
+    const backBtn = page.locator('button[aria-label="Go back"]').first()
+    if (await backBtn.isVisible()) {
+      await backBtn.click()
+    } else {
+      await page.goto("/books/orders")
+    }
 
     // 7. Direct verified buyer download returns genuine %PDF- binary
     const downloadRes = await page.request.get(`/api/books/${targetBookId}/download?download=true`)

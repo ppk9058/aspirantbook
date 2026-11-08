@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useSearchParams, useRouter } from "next/navigation"
 import { ArrowLeft, AlertCircle, Lock, Crown, ArrowRight, Loader2 } from "lucide-react"
-import SecurePdfViewer from "@/components/pdf/SecurePdfViewer"
+import { PdfReaderFrame } from "@/components/pdf/PdfReaderFrame"
 import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
 import { buildPassLoginHref } from "@/lib/pyqs/pass-popup"
@@ -72,7 +72,20 @@ export default function PYQPDFViewerPage() {
               if (isMounted) setPassRequired(true)
             } else if (errData?.code === "LOGIN_REQUIRED") {
               if (isMounted) setLoginRequired(true)
+            } else {
+              if (isMounted) setError("You don't have access to this document.")
             }
+          } else if (fileRes.status === 401) {
+            if (isMounted) setLoginRequired(true)
+          } else if (fileRes.status === 404) {
+            if (isMounted) setError("File not found.")
+          } else if (fileRes.status >= 400) {
+            if (isMounted) setError("Could not load the document.")
+          }
+          try {
+            await fileRes.body?.cancel()
+          } catch {
+            // Body closed
           }
         } catch {
           // Probe network error is ignorable; viewer will handle or render stream
@@ -260,16 +273,13 @@ export default function PYQPDFViewerPage() {
 
   return (
     <>
-      <SecurePdfViewer
-        isOpen={true}
-        onClose={() => router.push("/pyqs")}
+      <PdfReaderFrame
         src={`/api/pyqs/file/${paper.id}`}
         downloadUrl={`/api/pyqs/file/${paper.id}?download=1`}
         title={paper.title}
         subtitle={`${paper.category?.name || "Official PYQ"} • ${paper.year} • ${paper.stage}`}
-        author={paper.subject || undefined}
-        downloadAllowed={true}
         badgeLabel="Official PYQ Paper"
+        fallbackBackUrl="/pyqs"
         testId="pyq-pdf-viewer"
       />
       <AuthwallUnlockToast />

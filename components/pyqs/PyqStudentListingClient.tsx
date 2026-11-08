@@ -5,15 +5,11 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { buildPassLoginHref, evaluatePyqLockState } from "@/lib/pyqs/pass-popup"
 import { usePyqPassUnlock } from "@/lib/pyqs/usePyqPassUnlock"
-import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
 import {
-  PYQ_PDF_BADGE_LABEL,
-  PYQ_PDF_MODAL_TEST_ID,
   PYQ_UNLOCK_PENDING_MESSAGE,
-  buildPyqPdfDownloadUrl,
   buildPyqPdfSource,
   resolvePostPaymentPdfAction,
-} from "@/lib/pyqs/pdf-modal"
+} from "@/lib/pyqs/pdf-reader"
 import {
   Search,
   Filter,
@@ -83,7 +79,6 @@ export function PyqStudentListingClient({
     autoOpenEnabled: hasLockedPapers,
     isAuthenticated,
   })
-  const { pdfDoc, openPdf, closePdf } = usePdfModal()
   // Set after a verified Pass payment when the file endpoint is not ready yet.
   const [unlockPaper, setUnlockPaper] = useState<PyqStudentPaper | null>(null)
   const [unlockState, setUnlockState] = useState<"idle" | "checking" | "pending" | "error">("idle")
@@ -131,20 +126,8 @@ export function PyqStudentListingClient({
 
   const hasActiveFilters = search || selectedCategory !== "ALL" || selectedStage !== "ALL" || selectedAccess !== "ALL"
 
-  const openPaperPdf = (paper: PyqStudentPaper) => {
-    openPdf({
-      src: buildPyqPdfSource(paper.id),
-      downloadUrl: buildPyqPdfDownloadUrl(paper.id),
-      title: paper.title,
-      subtitle: `${paper.category?.name || "Official PYQ"} • ${paper.year} • ${paper.stage}`,
-      author: paper.subject || undefined,
-      badgeLabel: PYQ_PDF_BADGE_LABEL,
-      testId: PYQ_PDF_MODAL_TEST_ID,
-    })
-  }
-
   // After payment, fulfilment can lag: probe the file endpoint once, then either
-  // open the modal or show the retry message. Never loop on its own.
+  // navigate to /pyqs/pdf-view or show the retry message. Never loop on its own.
   const verifyUnlockedPaper = async (paper: PyqStudentPaper) => {
     setUnlockPaper(paper)
     setUnlockState("checking")
@@ -163,7 +146,7 @@ export function PyqStudentListingClient({
         console.warn("PYQ PDF probe: response body already closed", cancelError)
       }
     } catch (probeError) {
-      console.warn("PYQ PDF probe failed; letting the modal try the file", probeError)
+      console.warn("PYQ PDF probe failed; letting the reader page try the file", probeError)
       status = 0
     }
 
@@ -171,7 +154,7 @@ export function PyqStudentListingClient({
     if (action === "open") {
       setUnlockState("idle")
       setUnlockPaper(null)
-      openPaperPdf(paper)
+      router.push(`/pyqs/pdf-view?paperId=${encodeURIComponent(paper.id)}`)
       return
     }
     setUnlockState(action)
@@ -493,14 +476,13 @@ export function PyqStudentListingClient({
                     </>
                   ) : (
                     <>
-                      <button
-                        type="button"
-                        onClick={() => openPaperPdf(paper)}
+                      <Link
+                        href={`/pyqs/pdf-view?paperId=${encodeURIComponent(paper.id)}`}
                         className="flex-1 py-2 px-3 text-xs font-semibold text-center rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors flex items-center justify-center gap-1.5"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         View PDF
-                      </button>
+                      </Link>
 
                       <a
                         href={`/api/pyqs/file/${paper.id}?download=1`}
@@ -535,8 +517,6 @@ export function PyqStudentListingClient({
           ))}
         </div>
       )}
-
-      <PdfModal doc={pdfDoc} onClose={closePdf} />
     </div>
   )
 }

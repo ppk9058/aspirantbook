@@ -63,3 +63,6 @@ export function isAllowedPublicFileUrl(value: string): boolean {
     return false
   }
 }
+
+export { isAllowedStorageFileUrl } from "./storage-origins"
+

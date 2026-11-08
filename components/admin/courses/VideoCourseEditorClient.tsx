@@ -38,7 +38,7 @@ import {
   Share2,
   Calendar,
 } from "lucide-react"
-import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
+import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
 import { CourseCouponsManager } from "./CourseCouponsManager"
 import Image from "next/image"
 
@@ -88,7 +88,6 @@ interface CourseEditProps {
 export function VideoCourseEditorClient({ course: initialCourse }: CourseEditProps) {
   const router = useRouter()
   const { data: session } = useSession()
-  const { pdfDoc, openPdf, closePdf } = usePdfModal()
   const isTeacher = session?.user?.role === "TEACHER"
   const coursesUrl = isTeacher ? "/teacher/courses" : "/admin/courses"
   const [course, setCourse] = useState(initialCourse)
@@ -2643,21 +2642,20 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            openPdf({
-                              src: attachmentUrl,
-                              downloadUrl: attachmentUrl,
-                              title: attachmentName || "Lesson Attachment",
-                              subtitle: course.title,
-                              badgeLabel: "Lesson Attachment",
-                            })
-                          }
+                        <Link
+                          href={buildPdfReaderHref({
+                            src: attachmentUrl,
+                            downloadUrl: attachmentUrl,
+                            title: attachmentName || "Lesson Attachment",
+                            subtitle: course.title,
+                            badge: "Lesson Attachment",
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="text-[11px] text-indigo-600 hover:underline"
                         >
                           View
-                        </button>
+                        </Link>
                         <button
                           type="button"
                           onClick={() => {
@@ -2926,21 +2924,20 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            openPdf({
-                              src: attachmentUrl,
-                              downloadUrl: attachmentUrl,
-                              title: attachmentName || "Lesson Attachment",
-                              subtitle: course.title,
-                              badgeLabel: "Lesson Attachment",
-                            })
-                          }
+                        <Link
+                          href={buildPdfReaderHref({
+                            src: attachmentUrl,
+                            downloadUrl: attachmentUrl,
+                            title: attachmentName || "Lesson Attachment",
+                            subtitle: course.title,
+                            badge: "Lesson Attachment",
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="text-[11px] text-indigo-600 hover:underline"
                         >
                           View
-                        </button>
+                        </Link>
                         <button
                           type="button"
                           onClick={() => {
@@ -3250,8 +3247,6 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           </div>
         </div>
       )}
-
-      <PdfModal doc={pdfDoc} onClose={closePdf} />
     </div>
   )
 }

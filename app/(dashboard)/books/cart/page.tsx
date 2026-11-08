@@ -26,7 +26,6 @@ import dynamic from "next/dynamic"
 import Image from "next/image"
 
 const PaymentSuccessModal = dynamic(() => import("@/components/books/PaymentSuccessModal"), { ssr: false })
-const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
 
 function CartPageContent() {
   const router = useRouter()
@@ -63,9 +62,6 @@ function CartPageContent() {
     closeSuccessModal,
     alreadyOwnedBook,
     clearAlreadyOwned,
-    activeReaderBook,
-    openReaderForBook,
-    closeReader,
   } = useBookCheckout()
 
   const handleApplyCoupon = (codeToApply?: string) => {
@@ -456,24 +452,11 @@ function CartPageContent() {
         isOpen={isSuccessModalOpen}
         onClose={closeSuccessModal}
         order={completedOrder}
-        onReadNow={(bookId, title, author) => {
-          openReaderForBook(bookId, title, author)
+        onReadNow={(bookId) => {
+          closeSuccessModal()
+          router.push(`/books/read/${encodeURIComponent(bookId)}`)
         }}
       />
-
-      {/* Secure PDF Viewer */}
-      {activeReaderBook && (
-        <SecurePdfViewer
-          src={`/api/books/${encodeURIComponent(activeReaderBook.bookId)}/download?inline=1`}
-          downloadUrl={`/api/books/${encodeURIComponent(activeReaderBook.bookId)}/download?download=true`}
-          title={activeReaderBook.title}
-          author={activeReaderBook.author}
-          isOpen={Boolean(activeReaderBook)}
-          onClose={closeReader}
-          downloadAllowed={true}
-          badgeLabel="Verified eBook"
-        />
-      )}
     </div>
   )
 }
