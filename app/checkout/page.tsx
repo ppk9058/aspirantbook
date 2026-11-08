@@ -22,6 +22,7 @@ import {
 import { createCheckoutSession } from "@/lib/actions/payment/stripe"
 import { createRazorpayOrder } from "@/lib/actions/payment/razorpay"
 import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
+import { PASS_SCOPE_SUMMARY } from "@/lib/payments/pass-marketing"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
@@ -770,7 +771,7 @@ function CheckoutContent() {
                                                 </span>
                                             </div>
                                             <p className="text-xs text-gray-500">
-                                                Full unlimited access to all courses, question banks, and live doubts.
+                                                {PASS_SCOPE_SUMMARY}
                                             </p>
                                         </div>
                                     </div>

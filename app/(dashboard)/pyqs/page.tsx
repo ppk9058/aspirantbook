@@ -130,6 +130,7 @@ export default async function PreviousYearQuestionsPage() {
       <PyqStudentListingClient
         initialPapers={sanitizedPapers as any}
         categories={filteredCategories as any}
+        isAuthenticated={Boolean(user)}
       />
     </div>
   )

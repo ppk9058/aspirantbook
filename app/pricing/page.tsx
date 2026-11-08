@@ -5,6 +5,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import PricingPlanButton from "@/components/pricing/PricingPlanButton"
 import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
+import { PASS_INCLUDED_FEATURES } from "@/lib/payments/pass-marketing"
 import { hasRealBatchesAvailable } from "@/lib/home/has-real-batches"
 import { resolveAnchorHref } from "@/lib/home/real-batches"
 
@@ -42,17 +43,8 @@ export default async function PricingPage() {
             name: "PREMIUM",
             price: "₹499",
             period: "per year",
-            description: "Everything you need to master coding",
-            features: [
-                "Access to all courses",
-                "Unlimited coding exercises",
-                "All assessments and tutorials",
-                "Course completion certificates",
-                "Priority support",
-                "Downloadable resources",
-                "Ad-free experience",
-                "Early access to new content",
-            ],
+            description: "PYQs, test series, current affairs, quizzes and tutorials",
+            features: PASS_INCLUDED_FEATURES,
             limitations: [],
             buttonText: isPremiumActive ? "Already active" : "Get Pass Now",
             buttonLink: "/checkout?plan=yearly",

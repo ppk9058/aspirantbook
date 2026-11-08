@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Crown, Check, X, Calendar, CreditCard } from "lucide-react"
 import Link from "next/link"
 import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
+import { PASS_INCLUDED_FEATURES } from "@/lib/payments/pass-marketing"
 
 export default async function SubscriptionPage() {
     const session = await auth()
@@ -69,16 +70,7 @@ export default async function SubscriptionPage() {
             name: "PREMIUM",
             price: "₹499",
             period: "per year",
-            features: [
-                "Access to all courses",
-                "Unlimited coding exercises",
-                "All assessments and tutorials",
-                "Course completion certificates",
-                "Priority support",
-                "Downloadable resources",
-                "Ad-free experience",
-                "Early access to new content",
-            ],
+            features: PASS_INCLUDED_FEATURES,
             limitations: [],
         },
     ]
