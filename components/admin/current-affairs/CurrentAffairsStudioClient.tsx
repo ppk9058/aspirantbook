@@ -23,6 +23,7 @@ import {
   Lock,
 } from "lucide-react"
 import { GateControlPanel } from "@/components/admin/authwall/GateControlPanel"
+import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
 
 const MONTHS = [
   "January",
@@ -86,6 +87,7 @@ export function CurrentAffairsStudioClient({
   userRole = "ADMIN",
   userId = "",
 }: Props) {
+  const { pdfDoc, openPdf, closePdf } = usePdfModal()
   const [items, setItems] = useState<CurrentAffairsPdfItem[]>(initialItems)
   const [search, setSearch] = useState("")
   const [filterYear, setFilterYear] = useState<string>("ALL")
@@ -487,30 +489,44 @@ export function CurrentAffairsStudioClient({
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
                         {item.pdfUrlEn ? (
-                          <a
-                            href={`/api/current-affairs/file/${item.id}?lang=en`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openPdf({
+                                src: `/api/current-affairs/file/${item.id}?lang=en`,
+                                downloadUrl: `/api/current-affairs/file/${item.id}?lang=en&download=1`,
+                                title: item.title,
+                                subtitle: `Current Affairs • English (${MONTHS[item.month - 1]} ${item.year})`,
+                                badgeLabel: "Current Affairs (EN)",
+                              })
+                            }
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 hover:underline"
                           >
                             <span>EN</span>
                             {item.fileSizeKbEn && (
                               <span className="text-[10px] opacity-75">({formatKb(item.fileSizeKbEn)})</span>
                             )}
-                          </a>
+                          </button>
                         ) : null}
                         {item.pdfUrlHi ? (
-                          <a
-                            href={`/api/current-affairs/file/${item.id}?lang=hi`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openPdf({
+                                src: `/api/current-affairs/file/${item.id}?lang=hi`,
+                                downloadUrl: `/api/current-affairs/file/${item.id}?lang=hi&download=1`,
+                                title: item.titleHi || item.title,
+                                subtitle: `Current Affairs • Hindi (${MONTHS[item.month - 1]} ${item.year})`,
+                                badgeLabel: "Current Affairs (HI)",
+                              })
+                            }
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 hover:underline"
                           >
                             <span>HI</span>
                             {item.fileSizeKbHi && (
                               <span className="text-[10px] opacity-75">({formatKb(item.fileSizeKbHi)})</span>
                             )}
-                          </a>
+                          </button>
                         ) : null}
                       </div>
                     </td>
@@ -794,6 +810,8 @@ export function CurrentAffairsStudioClient({
           </div>
         </div>
       )}
+
+      <PdfModal doc={pdfDoc} onClose={closePdf} />
     </div>
   )
 }

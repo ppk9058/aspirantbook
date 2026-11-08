@@ -80,7 +80,7 @@ export default function SecurePdfViewer({
       aria-modal="true"
       aria-label={`PDF Viewer: ${title}`}
     >
-      <div className="relative w-full max-w-6xl h-[92vh] max-h-[92vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-200 dark:border-slate-800">
+      <div className="relative w-full max-w-6xl h-[92dvh] max-h-[92dvh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-200 dark:border-slate-800">
         {/* Header Bar */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-gray-200 dark:border-slate-800 bg-gray-50/90 dark:bg-slate-900/90 shrink-0">
           <div className="min-w-0 pr-3 flex items-center gap-3">

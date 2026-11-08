@@ -5,6 +5,15 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { buildPassLoginHref, evaluatePyqLockState } from "@/lib/pyqs/pass-popup"
 import { usePyqPassUnlock } from "@/lib/pyqs/usePyqPassUnlock"
+import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
+import {
+  PYQ_PDF_BADGE_LABEL,
+  PYQ_PDF_MODAL_TEST_ID,
+  PYQ_UNLOCK_PENDING_MESSAGE,
+  buildPyqPdfDownloadUrl,
+  buildPyqPdfSource,
+  resolvePostPaymentPdfAction,
+} from "@/lib/pyqs/pdf-modal"
 import {
   Search,
   Filter,
@@ -20,6 +29,7 @@ import {
   ArrowUpDown,
   BookOpen,
   X,
+  Loader2,
 } from "lucide-react"
 
 export interface PyqStudentPaper {
@@ -73,6 +83,10 @@ export function PyqStudentListingClient({
     autoOpenEnabled: hasLockedPapers,
     isAuthenticated,
   })
+  const { pdfDoc, openPdf, closePdf } = usePdfModal()
+  // Set after a verified Pass payment when the file endpoint is not ready yet.
+  const [unlockPaper, setUnlockPaper] = useState<PyqStudentPaper | null>(null)
+  const [unlockState, setUnlockState] = useState<"idle" | "checking" | "pending" | "error">("idle")
   const [search, setSearch] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL")
   const [selectedStage, setSelectedStage] = useState<string>("ALL")
@@ -117,14 +131,63 @@ export function PyqStudentListingClient({
 
   const hasActiveFilters = search || selectedCategory !== "ALL" || selectedStage !== "ALL" || selectedAccess !== "ALL"
 
+  const openPaperPdf = (paper: PyqStudentPaper) => {
+    openPdf({
+      src: buildPyqPdfSource(paper.id),
+      downloadUrl: buildPyqPdfDownloadUrl(paper.id),
+      title: paper.title,
+      subtitle: `${paper.category?.name || "Official PYQ"} • ${paper.year} • ${paper.stage}`,
+      author: paper.subject || undefined,
+      badgeLabel: PYQ_PDF_BADGE_LABEL,
+      testId: PYQ_PDF_MODAL_TEST_ID,
+    })
+  }
+
+  // After payment, fulfilment can lag: probe the file endpoint once, then either
+  // open the modal or show the retry message. Never loop on its own.
+  const verifyUnlockedPaper = async (paper: PyqStudentPaper) => {
+    setUnlockPaper(paper)
+    setUnlockState("checking")
+
+    let status = 0
+    try {
+      const res = await fetch(buildPyqPdfSource(paper.id), {
+        method: "GET",
+        redirect: "manual",
+        cache: "no-store",
+      })
+      status = res.status
+      try {
+        await res.body?.cancel()
+      } catch (cancelError) {
+        console.warn("PYQ PDF probe: response body already closed", cancelError)
+      }
+    } catch (probeError) {
+      console.warn("PYQ PDF probe failed; letting the modal try the file", probeError)
+      status = 0
+    }
+
+    const action = resolvePostPaymentPdfAction(status)
+    if (action === "open") {
+      setUnlockState("idle")
+      setUnlockPaper(null)
+      openPaperPdf(paper)
+      return
+    }
+    setUnlockState(action)
+  }
+
   // Locked PYQ click: same-page Pass Razorpay popup for signed-in students,
   // /login with a safe return path to this page for guests.
-  const handlePassClick = () => {
+  const handlePassClick = (paper: PyqStudentPaper) => {
     if (!isAuthenticated) {
       router.push(buildPassLoginHref(pathname || "/pyqs"))
       return
     }
-    void openPassCheckout()
+    // After a verified payment the modal opens for the clicked paper.
+    void openPassCheckout(() => {
+      void verifyUnlockedPaper(paper)
+    })
   }
 
   // Search and filters are client state, so they only work once React has
@@ -250,6 +313,47 @@ export function PyqStudentListingClient({
         </span>
       </div>
 
+      {/* Post-payment unlock status: only shown after a verified Pass payment. */}
+      {unlockState !== "idle" && (
+        <div
+          role="status"
+          aria-live="polite"
+          data-testid="pyq-unlock-status"
+          className={`flex flex-wrap items-center gap-2 rounded-xl border px-4 py-3 text-xs font-semibold ${
+            unlockState === "pending"
+              ? "border-amber-200 bg-amber-50 text-amber-800"
+              : unlockState === "error"
+              ? "border-red-200 bg-red-50 text-red-700"
+              : "border-gray-200 bg-gray-50 text-gray-700"
+          }`}
+        >
+          {unlockState === "checking" ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Checking access…</span>
+            </>
+          ) : (
+            <>
+              <Lock className="w-4 h-4" />
+              <span>
+                {unlockState === "pending"
+                  ? PYQ_UNLOCK_PENDING_MESSAGE
+                  : "We could not confirm access. Please retry."}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (unlockPaper) void verifyUnlockedPaper(unlockPaper)
+                }}
+                className="ml-auto rounded-lg border border-current px-3 py-1 text-[11px] font-bold hover:bg-white/60 transition-colors"
+              >
+                Retry
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Paper Grid */}
       {filteredPapers.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
@@ -353,7 +457,7 @@ export function PyqStudentListingClient({
                     <>
                       <button
                         type="button"
-                        onClick={handlePassClick}
+                        onClick={() => handlePassClick(paper)}
                         disabled={isPassProcessing}
                         data-testid="pyq-pass-unlock-cta"
                         title="This paper needs the aspirantbook Pass"
@@ -365,7 +469,7 @@ export function PyqStudentListingClient({
 
                       <button
                         type="button"
-                        onClick={handlePassClick}
+                        onClick={() => handlePassClick(paper)}
                         disabled={isPassProcessing}
                         title="This paper needs the aspirantbook Pass"
                         aria-label={`Get Pass to download ${paper.title}`}
@@ -377,7 +481,7 @@ export function PyqStudentListingClient({
                       {paper.hasCbtMode && paper.cbtTestId && (
                         <button
                           type="button"
-                          onClick={handlePassClick}
+                          onClick={() => handlePassClick(paper)}
                           disabled={isPassProcessing}
                           title="This paper needs the aspirantbook Pass"
                           className="py-2 px-3 text-xs font-semibold text-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1 disabled:opacity-60"
@@ -389,13 +493,14 @@ export function PyqStudentListingClient({
                     </>
                   ) : (
                     <>
-                      <Link
-                        href={`/pyqs/pdf-view?paperId=${paper.id}`}
+                      <button
+                        type="button"
+                        onClick={() => openPaperPdf(paper)}
                         className="flex-1 py-2 px-3 text-xs font-semibold text-center rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors flex items-center justify-center gap-1.5"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         View PDF
-                      </Link>
+                      </button>
 
                       <a
                         href={`/api/pyqs/file/${paper.id}?download=1`}
@@ -430,6 +535,8 @@ export function PyqStudentListingClient({
           ))}
         </div>
       )}
+
+      <PdfModal doc={pdfDoc} onClose={closePdf} />
     </div>
   )
 }

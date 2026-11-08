@@ -38,6 +38,7 @@ import {
   Share2,
   Calendar,
 } from "lucide-react"
+import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
 import { CourseCouponsManager } from "./CourseCouponsManager"
 import Image from "next/image"
 
@@ -87,6 +88,7 @@ interface CourseEditProps {
 export function VideoCourseEditorClient({ course: initialCourse }: CourseEditProps) {
   const router = useRouter()
   const { data: session } = useSession()
+  const { pdfDoc, openPdf, closePdf } = usePdfModal()
   const isTeacher = session?.user?.role === "TEACHER"
   const coursesUrl = isTeacher ? "/teacher/courses" : "/admin/courses"
   const [course, setCourse] = useState(initialCourse)
@@ -2641,14 +2643,21 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <a
-                          href={attachmentUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openPdf({
+                              src: attachmentUrl,
+                              downloadUrl: attachmentUrl,
+                              title: attachmentName || "Lesson Attachment",
+                              subtitle: course.title,
+                              badgeLabel: "Lesson Attachment",
+                            })
+                          }
                           className="text-[11px] text-indigo-600 hover:underline"
                         >
                           View
-                        </a>
+                        </button>
                         <button
                           type="button"
                           onClick={() => {
@@ -2917,14 +2926,21 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <a
-                          href={attachmentUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openPdf({
+                              src: attachmentUrl,
+                              downloadUrl: attachmentUrl,
+                              title: attachmentName || "Lesson Attachment",
+                              subtitle: course.title,
+                              badgeLabel: "Lesson Attachment",
+                            })
+                          }
                           className="text-[11px] text-indigo-600 hover:underline"
                         >
                           View
-                        </a>
+                        </button>
                         <button
                           type="button"
                           onClick={() => {
@@ -3234,6 +3250,8 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           </div>
         </div>
       )}
+
+      <PdfModal doc={pdfDoc} onClose={closePdf} />
     </div>
   )
 }

@@ -18,6 +18,7 @@ import {
   Filter,
 } from "lucide-react"
 import DoubtSubmissionModal from "@/components/student/DoubtSubmissionModal"
+import { PdfModal, usePdfModal } from "@/components/pdf/usePdfModal"
 import Image from "next/image"
 
 interface Doubt {
@@ -44,6 +45,7 @@ interface Doubt {
 export default function DoubtsPage() {
   const { data: session } = useSession()
   const { openMobileAuth } = useMobileAuth()
+  const { pdfDoc, openPdf, closePdf } = usePdfModal()
   const [doubts, setDoubts] = useState<Doubt[]>([])
   const [loading, setLoading] = useState(true)
   const [filterTab, setFilterTab] = useState<"ALL" | "ANSWERED" | "PENDING">("ALL")
@@ -305,6 +307,24 @@ export default function DoubtsPage() {
                         Click to Zoom
                       </div>
                     </div>
+                  ) : doubt.attachment.type === "pdf" ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openPdf({
+                          src: doubt.attachment!.url,
+                          downloadUrl: doubt.attachment!.url,
+                          title: doubt.attachment!.name || "Doubt Attachment",
+                          subtitle: `Doubt • ${doubt.subject}`,
+                          badgeLabel: "Doubt Attachment",
+                        })
+                      }
+                      className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 hover:border-[#1448d8] transition-colors"
+                    >
+                      <FileText className="w-4 h-4 text-red-500" />
+                      <span>{doubt.attachment.name}</span>
+                      <span className="text-[10px] text-gray-400">({doubt.attachment.size || "PDF"})</span>
+                    </button>
                   ) : (
                     <a
                       href={doubt.attachment.url}
@@ -314,7 +334,7 @@ export default function DoubtsPage() {
                     >
                       <FileText className="w-4 h-4 text-red-500" />
                       <span>{doubt.attachment.name}</span>
-                      <span className="text-[10px] text-gray-400">({doubt.attachment.size || "PDF"})</span>
+                      <span className="text-[10px] text-gray-400">({doubt.attachment.size || "File"})</span>
                       <ExternalLink className="w-3.5 h-3.5 text-gray-400 ml-1" />
                     </a>
                   )}
@@ -404,6 +424,8 @@ export default function DoubtsPage() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={fetchDoubts}
       />
+
+      <PdfModal doc={pdfDoc} onClose={closePdf} />
     </div>
   )
 }
