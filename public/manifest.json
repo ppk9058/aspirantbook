@@ -1,7 +1,7 @@
 {
   "name": "AspirantBook",
   "short_name": "aspirantBook",
-  "description": "Master data science, AI & programming with interactive courses",
+  "description": "Exam-preparation platform for Indian competitive exams, with test series, previous year papers, and digital books.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#05192D",
