@@ -21,7 +21,7 @@ import {
     Layers,
     Filter,
 } from "lucide-react"
-import { cleanDescriptionSnippet, formatDate } from "@/lib/utils"
+import { cleanDescriptionSnippet, formatDate, pluralize } from "@/lib/utils"
 
 interface Lesson {
     id: string
@@ -262,11 +262,11 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal, g
                                         <div className="flex items-center gap-2 flex-wrap text-[11px] text-gray-600 dark:text-gray-400">
                                             <span className="flex items-center gap-1 font-bold text-gray-700 dark:text-gray-300 shrink-0">
                                                 <BookOpen className="h-3.5 w-3.5 text-[#3A10E5]" />
-                                                {tutorial.chapters?.length || 0} Chapters
+                                                {pluralize(tutorial.chapters?.length || 0, "Chapter")}
                                             </span>
                                             <span>•</span>
                                             <span className="font-bold text-gray-700 dark:text-gray-300 shrink-0">
-                                                {totalLessons} Text Lessons
+                                                {pluralize(totalLessons, "Text Lesson")}
                                             </span>
                                             {tutorial.updatedAt && (
                                                 <>
@@ -313,10 +313,10 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal, g
                                         )}
                                     </div>
 
-                                    <Link href={readHref} className="shrink-0 ml-auto">
+                                    <Link href={readHref} className="shrink-0 w-full sm:w-auto sm:ml-auto">
                                         <Button
                                             size="sm"
-                                            className="bg-[#3A10E5] hover:bg-[#300ec2] text-white font-extrabold border-2 border-[#10162F] shadow-[2px_2px_0px_#10162F] flex items-center gap-1.5 text-xs min-h-[36px] px-3 active:translate-x-[1px] active:translate-y-[1px]"
+                                            className="bg-[#3A10E5] hover:bg-[#300ec2] text-white font-extrabold border-2 border-[#10162F] shadow-[2px_2px_0px_#10162F] flex items-center gap-1.5 text-xs min-h-[36px] px-3 w-full sm:w-auto active:translate-x-[1px] active:translate-y-[1px]"
                                         >
                                             <Play className="h-3.5 w-3.5 fill-current" />
                                             Start Tutorial
@@ -328,7 +328,7 @@ export function TutorialsClientView({ initialTutorials, userRole, currentGoal, g
                                 {isExpanded && tutorial.chapters && (
                                     <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 space-y-2.5 animate-in fade-in-50 duration-200">
                                         <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                                            Curriculum Outline ({tutorial.chapters.length} Chapters • {totalLessons} Lessons)
+                                            Curriculum Outline ({pluralize(tutorial.chapters.length, "Chapter")} • {pluralize(totalLessons, "Lesson")})
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                             {tutorial.chapters.map((ch, chIdx) => (

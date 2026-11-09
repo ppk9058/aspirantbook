@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen, Layers } from "lucide-react-native";
+import { pluralize } from "../../lib/formatters";
 import { Card } from "@/components/common/Card";
 import { Skeleton } from "@/components/common/Skeleton";
 import { api } from "@/lib/api";
@@ -71,7 +72,7 @@ export default function LearnScreen() {
                 <View style={styles.metaInfo}>
                   <Layers size={13} color="#64748B" />
                   <Text style={styles.metaText}>
-                    {item.chaptersCount} Chapters • {item.lessonsCount} Lessons
+                    {pluralize(item.chaptersCount, "Chapter")} • {pluralize(item.lessonsCount, "Lesson")}
                   </Text>
                 </View>
 

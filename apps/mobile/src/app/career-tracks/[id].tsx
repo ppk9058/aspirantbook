@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
+import { pluralize } from "../../lib/formatters";
 import { ArrowLeft, Compass, CheckCircle2, Circle, Clock, ChevronRight } from "lucide-react-native";
 import { AppShell } from "../../components/shell/AppShell";
 import { Card } from "../../components/primitives/Card";
@@ -110,7 +111,7 @@ export default function CareerTrackDetailScreen() {
                 </Text>
               )}
               <Text style={[styles.courseCountText, { color: colors.textMuted }]}>
-                {courses.length} courses in structured sequence
+                {pluralize(courses.length, "course")} in structured sequence
               </Text>
             </View>
 

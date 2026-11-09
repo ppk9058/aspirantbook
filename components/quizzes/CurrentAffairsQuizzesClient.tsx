@@ -789,23 +789,26 @@ export default function CurrentAffairsQuizzesClient({
                     </div>
                   </div>
 
-                  {/* Footer Action */}
-                  <div className="mt-5 pt-3 flex items-center justify-between gap-3">
+                  {/* Footer Action: stacks on phones so the CTA is full width and cannot sit under the floating AI button */}
+                  <div className="mt-5 pt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
                     <span className="text-[11px] font-semibold text-muted-foreground">
                       {typeof quiz.attempts === "number"
                         ? `${quiz.attempts.toLocaleString()} attempted`
                         : null}
                     </span>
-                    <TestActionButton
-                      testId={quiz.id}
-                      seriesId={targetSeriesId}
-                      testTitle={quiz.title}
-                      status={userStatuses[quiz.id]}
-                      customStartUrl={`/current-affairs-quizzes/${quizSlug}/instructions`}
-                      returnPath={`/current-affairs-quizzes/${quizSlug}`}
-                      isGuest={isGuest}
-                      size="sm"
-                    />
+                    <div className="w-full sm:w-auto">
+                      <TestActionButton
+                        testId={quiz.id}
+                        seriesId={targetSeriesId}
+                        testTitle={quiz.title}
+                        status={userStatuses[quiz.id]}
+                        customStartUrl={`/current-affairs-quizzes/${quizSlug}/instructions`}
+                        returnPath={`/current-affairs-quizzes/${quizSlug}`}
+                        isGuest={isGuest}
+                        size="sm"
+                        className="w-full sm:w-auto"
+                      />
+                    </div>
                   </div>
                 </div>
               )

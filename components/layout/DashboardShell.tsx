@@ -92,6 +92,14 @@ export default function DashboardShell({
     const effectiveSidebarCollapsed =
         overrideState !== null ? overrideState : (isTutorialPage || isCollapsed)
 
+    // Shared bottom clearance so the last row of any dashboard page can scroll
+    // fully clear of the fixed AI launcher (components/layout/Chatbot.tsx sits at
+    // bottom-[calc(4.25rem+env(safe-area-inset-bottom))] and is 40-48px tall) plus
+    // the mobile bottom tab bar (~56-64px). Safe-area aware on phones/tablets;
+    // 96px on lg where the launcher is bottom-6 and 48px tall.
+    const bottomClearance =
+        "pb-[calc(9rem+env(safe-area-inset-bottom,0px))] sm:pb-[calc(8.5rem+env(safe-area-inset-bottom,0px))] lg:pb-24"
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors w-full max-w-full overflow-x-hidden">
             {/* Header: Desktop always gets TopNavBar (>= 1024px); Mobile gets MobileAppHeader if flag on, else TopNavBar */}
@@ -130,15 +138,15 @@ export default function DashboardShell({
                         ? "lg:ml-0 p-0"
                         : isBooksPage
                         ? effectiveSidebarCollapsed
-                            ? "lg:ml-[68px] pt-0 pb-32 sm:pb-24 lg:pb-8 px-0"
-                            : "lg:ml-[240px] pt-0 pb-32 sm:pb-24 lg:pb-8 px-0"
+                            ? `lg:ml-[68px] pt-0 ${bottomClearance} px-0`
+                            : `lg:ml-[240px] pt-0 ${bottomClearance} px-0`
                         : isTutorialPage
                         ? effectiveSidebarCollapsed
-                            ? "lg:ml-[68px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-0"
-                            : "lg:ml-[240px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-0"
+                            ? `lg:ml-[68px] pt-[60px] ${bottomClearance} px-0`
+                            : `lg:ml-[240px] pt-[60px] ${bottomClearance} px-0`
                         : effectiveSidebarCollapsed
-                        ? "lg:ml-[68px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8"
-                        : "lg:ml-[240px] pt-[60px] pb-36 sm:pb-28 lg:pb-12 px-4 sm:px-6 lg:px-8"
+                        ? `lg:ml-[68px] pt-[60px] ${bottomClearance} px-4 sm:px-6 lg:px-8`
+                        : `lg:ml-[240px] pt-[60px] ${bottomClearance} px-4 sm:px-6 lg:px-8`
                 }`}
             >
                 <div

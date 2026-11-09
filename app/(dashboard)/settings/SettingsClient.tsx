@@ -153,7 +153,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 pb-32 sm:pb-24 lg:pb-12">
+        <div className="max-w-4xl mx-auto space-y-6">
             {/* Header */}
             <div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
