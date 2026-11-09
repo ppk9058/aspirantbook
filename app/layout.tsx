@@ -9,7 +9,7 @@ const siteUrl = getBaseUrl()
 export const metadata: Metadata = {
   ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
   title: {
-    default: "aspirantbook - Interactive Learning Platform & Test Series",
+    default: "AspirantBook - Interactive Learning Platform & Test Series",
     template: "%s | aspirantbook",
   },
   description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "/",
     siteName: "aspirantbook",
-    title: "aspirantbook - Interactive Learning Platform & Test Series",
+    title: "AspirantBook - Interactive Learning Platform & Test Series",
     description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
     images: [
       {
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "aspirantbook - Interactive Learning Platform & Test Series",
+    title: "AspirantBook - Interactive Learning Platform & Test Series",
     description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
     images: ["/aspirant-logo.jpg"],
   },
