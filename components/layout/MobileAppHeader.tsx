@@ -52,7 +52,7 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                         <button
                             onClick={() => setIsDrawerOpen(true)}
                             aria-label="Open navigation menu"
-                            className="p-1.5 sm:p-2 -ml-1 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 flex-shrink-0"
+                            className="p-1.5 sm:p-2 -ml-1 min-h-11 min-w-11 flex items-center justify-center rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 flex-shrink-0"
                         >
                             <Menu className="h-5 w-5" />
                         </button>
@@ -70,7 +70,7 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                         <Link
                             href="/search"
                             aria-label="Search courses, test series, notes"
-                            className="p-1.5 sm:p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95"
+                            className="p-1.5 sm:p-2 min-h-11 min-w-11 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95"
                         >
                             <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                         </Link>
@@ -79,21 +79,21 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                         <Link
                             href="/dashboard"
                             aria-label="Notifications"
-                            className="relative p-1.5 sm:p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors active:scale-95"
+                            className="relative p-1.5 sm:p-2 min-h-11 min-w-11 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors active:scale-95"
                         >
                             <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
                         </Link>
 
                         {/* Top-Right: Profile Avatar if logged-in, Login CTA if guest */}
                         {status === "loading" ? (
-                            <div className="p-0.5 rounded-full ring-1 ring-slate-200 dark:ring-slate-700 flex-shrink-0 animate-pulse" aria-label="Loading profile skeleton">
+                            <div className="p-0.5 min-h-11 min-w-11 flex items-center justify-center rounded-full ring-1 ring-slate-200 dark:ring-slate-700 flex-shrink-0 animate-pulse" aria-label="Loading profile skeleton">
                                 <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-200 dark:bg-slate-700" />
                             </div>
                         ) : session?.user ? (
                             <button
                                 onClick={() => setIsProfileOpen(true)}
                                 aria-label="Account profile"
-                                className="p-0.5 rounded-full ring-1 ring-slate-200 dark:ring-slate-700 active:scale-95 transition-transform flex-shrink-0"
+                                className="p-0.5 min-h-11 min-w-11 flex items-center justify-center rounded-full ring-1 ring-slate-200 dark:ring-slate-700 active:scale-95 transition-transform flex-shrink-0"
                             >
                                 <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-300 font-extrabold text-xs flex items-center justify-center">
                                     {session.user.name?.[0]?.toUpperCase() || session.user.email?.[0]?.toUpperCase() || "U"}
@@ -103,7 +103,7 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                             <button
                                 type="button"
                                 onClick={() => openMobileAuth({ actionType: "login" })}
-                                className="px-2.5 py-1 text-xs font-bold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 rounded-lg shadow-2xs active:scale-95 transition-all flex items-center gap-1 shrink-0"
+                                className="px-2.5 py-1 min-h-11 flex items-center justify-center text-xs font-bold text-white bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 rounded-lg shadow-2xs active:scale-95 transition-all gap-1 shrink-0"
                                 aria-label="Login or Register"
                             >
                                 <span>Login</span>

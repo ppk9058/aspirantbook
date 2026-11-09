@@ -329,7 +329,7 @@ export function PyqStudentListingClient({
                 onClick={() => {
                   if (unlockPaper) void verifyUnlockedPaper(unlockPaper)
                 }}
-                className="ml-auto rounded-lg border border-current px-3 py-1 text-[11px] font-bold hover:bg-background/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
+                className="ml-auto rounded-lg border border-current px-3 py-1 min-h-11 inline-flex items-center text-[11px] font-bold hover:bg-background/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
               >
                 Retry
               </button>
