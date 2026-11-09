@@ -192,6 +192,8 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     borderRadius: 8,
     marginLeft: 10,
+    minHeight: 44,
+    justifyContent: "center",
   },
   readBtnText: {
     fontSize: 12,

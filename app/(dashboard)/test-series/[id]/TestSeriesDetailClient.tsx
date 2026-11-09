@@ -658,15 +658,17 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
 
                         {/* Key Stats Strip */}
                         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
-                            <span className="font-bold text-gray-900 dark:text-white">{seriesData.totalTests} Total Tests</span>
+                            <span className="font-bold text-gray-900 dark:text-white">
+                                {seriesData.totalTests} {seriesData.totalTests === 1 ? "Total Test" : "Total Tests"}
+                            </span>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
                             <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-extrabold border border-emerald-500/30 text-xs">
-                                {seriesData.freeTests} FREE TESTS
+                                {seriesData.freeTests} {seriesData.freeTests === 1 ? "FREE TEST" : "FREE TESTS"}
                             </span>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
                             <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                                 <Users className="h-3.5 w-3.5 text-gray-400" />
-                                <span>{seriesData.users} Users</span>
+                                <span>{seriesData.users} {seriesData.users === "1" || (seriesData.users as any) === 1 ? "User" : "Users"}</span>
                             </span>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
                             <span className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-medium">
@@ -710,7 +712,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                                     className="min-h-[44px] px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
                                 >
                                     <Plus className="h-4 w-4" />
-                                    <span>+ Create Test in Studio</span>
+                                    <span>Create Test in Studio</span>
                                 </Link>
                             )}
                         </div>
@@ -951,10 +953,10 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                                                     {item.title}
                                                 </h4>
                                                 <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
-                                                    <span>{item.totalTests} Total Tests</span>
+                                                    <span>{item.totalTests} {item.totalTests === 1 ? "Total Test" : "Total Tests"}</span>
                                                     <span className="mx-1.5">•</span>
                                                     <span className={item.freeTests > 0 ? "text-emerald-700 dark:text-emerald-400 font-bold" : ""}>
-                                                        {item.freeTests} Free Tests
+                                                        {item.freeTests} {item.freeTests === 1 ? "Free Test" : "Free Tests"}
                                                     </span>
                                                 </p>
                                             </div>
@@ -1102,7 +1104,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                         {seriesData.title}
                     </div>
                     <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">
-                        {seriesData.freeTests} Free Tests Available
+                        {seriesData.freeTests} {seriesData.freeTests === 1 ? "Free Test Available" : "Free Tests Available"}
                     </div>
                 </div>
                 <div className="shrink-0">

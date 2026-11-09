@@ -50,7 +50,7 @@ export default function MyLearningScreen() {
       >
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.textPrimary }]}>
-            My Batches & Learning
+            My Batches & Enrollment
           </Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Active courses, syllabus progress & video lesson bookmarks

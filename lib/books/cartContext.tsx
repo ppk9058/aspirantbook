@@ -1,8 +1,31 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from "react"
+import { useSession } from "next-auth/react"
 import { Book, CartItem, SavedItem, Coupon, BookOrder } from "./types"
 import { AVAILABLE_COUPONS } from "./data"
+import {
+  CART_STORAGE_KEY_PREFIX,
+  ORDERS_STORAGE_KEY_PREFIX,
+  SAVED_STORAGE_KEY_PREFIX,
+  getCartStorageKey,
+  getOrdersStorageKey,
+  getSavedStorageKey,
+  parseStoredList,
+  readStoredList,
+  writeStoredList,
+} from "./storageKeys"
+
+// Re-exported so existing importers keep working; the single implementation
+// lives in ./storageKeys so it can be unit-tested without React.
+export {
+  CART_STORAGE_KEY_PREFIX,
+  ORDERS_STORAGE_KEY_PREFIX,
+  SAVED_STORAGE_KEY_PREFIX,
+  getCartStorageKey,
+  getOrdersStorageKey,
+  getSavedStorageKey,
+}
 
 interface CartContextType {
   items: CartItem[]
@@ -33,12 +56,13 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
-const CART_STORAGE_KEY = "trillion_book_cart_items"
-const SAVED_STORAGE_KEY = "trillion_book_saved_items"
-const ORDERS_STORAGE_KEY = "trillion_book_orders_history"
-const COUPON_STORAGE_KEY = "trillion_book_applied_coupon"
+export const COUPON_STORAGE_KEY = "trillion_book_applied_coupon"
 
 export function BookCartProvider({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession()
+  const userId = session?.user?.id
+  const isLoggedIn = status === "authenticated" && Boolean(userId)
+
   const [items, setItems] = useState<CartItem[]>([])
   const [savedForLater, setSavedForLater] = useState<SavedItem[]>([])
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null)
@@ -46,46 +70,84 @@ export function BookCartProvider({ children }: { children: React.ReactNode }) {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
 
-  // Hydrate from localStorage on client mount
+  // Hydrate from localStorage on client mount (user-scoped)
   useEffect(() => {
     try {
-      const storedCart = localStorage.getItem(CART_STORAGE_KEY)
-      const storedSaved = localStorage.getItem(SAVED_STORAGE_KEY)
-      const storedOrders = localStorage.getItem(ORDERS_STORAGE_KEY)
-      const storedCoupon = localStorage.getItem(COUPON_STORAGE_KEY)
+      if (isLoggedIn && userId) {
+        const userCartKey = getCartStorageKey(userId)
+        const storedCart = localStorage.getItem(userCartKey)
+        if (storedCart) {
+          setItems(parseStoredList<CartItem>(storedCart))
+        } else {
+          // Check legacy key for migration
+          const legacyCart = localStorage.getItem(CART_STORAGE_KEY_PREFIX)
+          if (legacyCart) {
+            const parsed = parseStoredList<CartItem>(legacyCart)
+            if (parsed.length > 0) {
+              setItems(parsed)
+              localStorage.setItem(userCartKey, legacyCart)
+            }
+          }
+        }
 
-      if (storedCart) setItems(JSON.parse(storedCart))
-      if (storedSaved) setSavedForLater(JSON.parse(storedSaved))
-      if (storedOrders) setOrders(JSON.parse(storedOrders))
-      if (storedCoupon) setAppliedCoupon(JSON.parse(storedCoupon))
+        const userSavedKey = getSavedStorageKey(userId)
+        setSavedForLater(readStoredList<SavedItem>(localStorage, userSavedKey))
+
+        const storedCoupon = localStorage.getItem(COUPON_STORAGE_KEY)
+        if (storedCoupon) setAppliedCoupon(JSON.parse(storedCoupon) as Coupon)
+
+        const userOrdersKey = getOrdersStorageKey(userId)
+        const storedUserOrders = localStorage.getItem(userOrdersKey)
+        if (storedUserOrders) {
+          setOrders(parseStoredList<BookOrder>(storedUserOrders))
+        } else {
+          // Migration from legacy un-scoped key if it exists
+          const legacyOrders = localStorage.getItem(ORDERS_STORAGE_KEY_PREFIX)
+          if (legacyOrders) {
+            const parsed = parseStoredList<BookOrder>(legacyOrders)
+            if (parsed.length > 0) {
+              setOrders(parsed)
+              localStorage.setItem(userOrdersKey, legacyOrders)
+            }
+          }
+        }
+      } else {
+        // Guest users must NEVER see previous or stale user data
+        setItems([])
+        setSavedForLater([])
+        setOrders([])
+        setAppliedCoupon(null)
+      }
     } catch (e) {
       console.error("Failed to hydrate book cart:", e)
     } finally {
       setIsHydrated(true)
     }
-  }, [])
+  }, [isLoggedIn, userId])
 
-  // Sync to localStorage
+  // Sync items to localStorage (scoped to logged-in user only)
   useEffect(() => {
     if (!isHydrated) return
-    try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
-    } catch (e) {}
-  }, [items, isHydrated])
+    if (isLoggedIn && userId) {
+      writeStoredList(localStorage, getCartStorageKey(userId), items)
+    }
+  }, [items, isHydrated, isLoggedIn, userId])
 
+  // Sync saved items to localStorage (scoped to logged-in user only)
   useEffect(() => {
     if (!isHydrated) return
-    try {
-      localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(savedForLater))
-    } catch (e) {}
-  }, [savedForLater, isHydrated])
+    if (isLoggedIn && userId) {
+      writeStoredList(localStorage, getSavedStorageKey(userId), savedForLater)
+    }
+  }, [savedForLater, isHydrated, isLoggedIn, userId])
 
+  // Sync orders to localStorage (scoped to logged-in user only)
   useEffect(() => {
     if (!isHydrated) return
-    try {
-      localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders))
-    } catch (e) {}
-  }, [orders, isHydrated])
+    if (isLoggedIn && userId) {
+      writeStoredList(localStorage, getOrdersStorageKey(userId), orders)
+    }
+  }, [orders, isHydrated, isLoggedIn, userId])
 
   useEffect(() => {
     if (!isHydrated) return

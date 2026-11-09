@@ -22,7 +22,8 @@ export default function BookStoreHeader({
   const router = useRouter()
   const { totalCount, orders, setIsCartOpen } = useBookCart()
   const { wishlistIds } = useWishlist()
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const isLoggedIn = status === "authenticated" && Boolean(session?.user?.id)
 
   const userName = session?.user?.name || "Student"
   const userInitial = userName.charAt(0).toUpperCase()
@@ -64,7 +65,7 @@ export default function BookStoreHeader({
           >
             <div className="relative flex items-center">
               <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 dark:text-slate-300 group-hover:text-rose-500 transition-colors" />
-              {wishlistIds.length > 0 && (
+              {isLoggedIn && wishlistIds.length > 0 && (
                 <span className="absolute -top-1.5 -right-2 px-1.5 py-0.2 min-w-4 text-[10px] font-black rounded-full bg-rose-600 text-white flex items-center justify-center leading-none shadow-xs">
                   {wishlistIds.length}
                 </span>
@@ -81,7 +82,7 @@ export default function BookStoreHeader({
           >
             <div className="relative">
               <PackageCheck className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 dark:text-slate-300 group-hover:text-sky-600 transition-colors" />
-              {orders.length > 0 && (
+              {isLoggedIn && orders.length > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-700 text-white rounded-full text-[10px] font-extrabold flex items-center justify-center">
                   {orders.length}
                 </span>
@@ -90,17 +91,17 @@ export default function BookStoreHeader({
             <span className="hidden sm:inline">My Orders</span>
           </Link>
 
-          {/* My Cart Button (User requirement: "My cart (instead of My bag)") */}
+          {/* My Cart Button */}
           <button
             type="button"
             data-testid="header-cart-btn"
             onClick={() => setIsCartOpen(true)}
             className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 min-h-[44px] rounded-xl text-slate-700 dark:text-slate-300 hover:text-sky-700 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-slate-700 transition-all text-xs sm:text-sm font-bold relative group border border-transparent hover:border-sky-200"
-            title="Open Flipkart-style My Cart"
+            title="Open My Cart"
           >
             <div className="relative">
               <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700 dark:text-slate-300 group-hover:text-sky-600 transition-colors" />
-              {totalCount > 0 && (
+              {isLoggedIn && totalCount > 0 && (
                 <span className="absolute -top-2 -right-2.5 min-w-5 h-5 px-1 bg-sky-700 text-white rounded-full text-[11px] font-extrabold flex items-center justify-center animate-in zoom-in-75 shadow-xs">
                   {totalCount}
                 </span>

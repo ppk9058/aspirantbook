@@ -166,13 +166,13 @@ export default function ExamSeriesDetailScreen() {
             <View style={styles.metaItem}>
               <Layers size={14} color={colors.primary} />
               <Text style={[styles.metaText, { color: colors.textPrimary }]}>
-                {series.totalTests} Total Tests
+                {series.totalTests} {series.totalTests === 1 ? "Total Test" : "Total Tests"}
               </Text>
             </View>
             <View style={styles.metaItem}>
               <Award size={14} color={colors.success} />
               <Text style={[styles.metaText, { color: colors.textPrimary }]}>
-                {series.freeTests} Free Mocks
+                {series.freeTests} {series.freeTests === 1 ? "Free Mock" : "Free Mocks"}
               </Text>
             </View>
             <View style={styles.metaItem}>

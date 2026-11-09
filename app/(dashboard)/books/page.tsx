@@ -9,7 +9,7 @@ import { BookCartProvider } from "@/lib/books/cartContext"
 import { WishlistProvider } from "@/lib/books/wishlistContext"
 import { BOOKS_DATA } from "@/lib/books/data"
 import { Book } from "@/lib/books/types"
-import { BookOpen, ExternalLink, Zap } from "lucide-react"
+import { BookOpen, Zap } from "lucide-react"
 
 const BOOK_CHIP_CATEGORIES = [
   "All",
@@ -123,13 +123,8 @@ function BooksCatalogContent() {
     return list
   }, [filteredBooks, sortBy])
 
-  // Featured Row Books
-  const featuredRowBooks = useMemo(() => {
-    return allBooks.filter((b) => b.isFeatured || b.category.includes("CBSE") || b.category.includes("BPSC"))
-  }, [allBooks])
-
   return (
-    <div data-testid="books-page-root" data-hydrated={isHydrated ? "true" : "false"} className="space-y-6 pb-32 sm:pb-24 lg:pb-16 font-sans">
+    <div data-testid="books-page-root" data-hydrated={isHydrated ? "true" : "false"} className="space-y-6 pb-28 sm:pb-24 font-sans">
       {/* Store Header with Search, Orders, Cart */}
       <BookStoreHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
@@ -142,10 +137,10 @@ function BooksCatalogContent() {
           {/* Left Edge Fade */}
           <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 sm:w-10 z-10 bg-gradient-to-r from-gray-50/90 to-transparent dark:from-slate-900/90" />
 
-          {/* Scroll container */}
+          {/* Scroll container: filter pills gaps 12 to 16px */}
           <div
             data-scroll-x="true"
-            className="flex items-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory px-1 sm:px-2 py-1 scroll-smooth"
+            className="flex items-center gap-3 sm:gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory px-1 sm:px-2 py-1 scroll-smooth"
           >
             {BOOK_CHIP_CATEGORIES.map((chip) => {
               const isActive = selectedChip === chip
@@ -170,8 +165,8 @@ function BooksCatalogContent() {
           <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 sm:w-10 z-10 bg-gradient-to-l from-gray-50/90 to-transparent dark:from-slate-900/90" />
         </div>
 
-        {/* Title Bar & Sorting Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-slate-700 pb-4">
+        {/* Title Bar & Sorting Header: gap between title divider and first card is 16px */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-slate-700 pb-4 mb-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
               {selectedChip === "All" ? "All eBooks & Study Material" : `${selectedChip} eBooks & Notes`}
@@ -201,10 +196,10 @@ function BooksCatalogContent() {
         </div>
 
         {/* ======================================================== */}
-        {/* BOOKS LISTING GRID                                       */}
+        {/* BOOKS LISTING GRID: auto-fill minmax(240px, 1fr)         */}
         {/* ======================================================== */}
         {sortedBooks.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4 sm:gap-6">
             {sortedBooks.map((book) => (
               <BookCard key={book.id} book={book} />
             ))}
@@ -228,9 +223,9 @@ function BooksCatalogContent() {
           </div>
         )}
 
-        {/* Digital Delivery Guarantee Banner */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-sky-50 via-indigo-50 to-emerald-50 dark:from-slate-800 dark:via-slate-800/90 dark:to-slate-800 border border-sky-200/80 dark:border-slate-700 rounded-2xl text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-          <div className="space-y-1">
+        {/* Digital Delivery Guarantee Banner: 56 to 64px height */}
+        <div className="p-4 sm:px-6 min-h-[56px] sm:min-h-[64px] bg-gradient-to-r from-sky-50 via-indigo-50 to-emerald-50 dark:from-slate-800 dark:via-slate-800/90 dark:to-slate-800 border border-sky-200/80 dark:border-slate-700 rounded-2xl text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="space-y-0.5">
             <span className="font-extrabold text-sky-950 dark:text-sky-200 flex items-center gap-1.5 text-sm">
               <Zap className="w-4 h-4 text-amber-500 fill-amber-500" /> 100% Digital eBooks &amp; Fast Delivery
             </span>
@@ -240,44 +235,10 @@ function BooksCatalogContent() {
           </div>
           <Link
             href="/books/orders"
-            className="self-start sm:self-auto shrink-0 px-4 py-2 min-h-[44px] flex items-center rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs transition-colors shadow-2xs"
+            className="self-start sm:self-auto shrink-0 px-4 py-2 min-h-[44px] sm:min-h-[40px] flex items-center rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs transition-colors shadow-2xs"
           >
             My Purchased Books
           </Link>
-        </div>
-
-        {/* ======================================================== */}
-        {/* SECONDARY ROW: Toppers' Recommended Books                */}
-        {/* ======================================================== */}
-        <div className="p-5 sm:p-6 bg-sky-50/50 dark:bg-slate-800/60 border border-sky-100 dark:border-slate-700 rounded-3xl space-y-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-black text-gray-900 dark:text-white">
-                R.D. Sharma &amp; Toppers&apos; Recommended Books
-              </h2>
-              <span className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1 mt-0.5">
-                Powered by <strong className="text-gray-800 dark:text-gray-200 font-extrabold">Prepmarket &bull; AspirantBook</strong>
-              </span>
-            </div>
-
-            <Link
-              href="/books"
-              onClick={() => {
-                setSelectedChip("All")
-                setSearchQuery("")
-              }}
-              className="text-xs font-bold text-sky-700 dark:text-sky-400 hover:underline flex items-center gap-1 min-h-[44px]"
-            >
-              <span>View All</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {featuredRowBooks.slice(0, 4).map((book) => (
-              <BookCard key={`featured-${book.id}`} book={book} />
-            ))}
-          </div>
         </div>
       </div>
 

@@ -30,6 +30,7 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { useGoal } from "../../context/GoalContext";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import { pluralize } from "../../lib/formatters";
 import { DashboardSummaryDto } from "@aspirantbook/shared";
 
 type DashboardTestSummary = DashboardSummaryDto["upcomingOrRecentTests"][number];
@@ -213,7 +214,7 @@ export default function HomeScreen() {
                 >
                   <Flame size={16} color="#EA580C" />
                   <Text style={styles.streakText}>
-                    {data?.streakDays} Day Streak
+                    {pluralize(data?.streakDays || 0, "Day")} Streak
                   </Text>
                 </View>
               ) : null}

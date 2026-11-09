@@ -135,7 +135,7 @@ export default function TestsTabScreen() {
   };
 
   const filteredSeries = useMemo(() => {
-    let list = seriesQuery.data || [];
+    let list = (seriesQuery.data || []).filter((s) => (s.totalTests || 0) > 0);
     if (debouncedSearch.trim()) {
       const q = debouncedSearch.toLowerCase();
       list = list.filter(
@@ -197,14 +197,14 @@ export default function TestsTabScreen() {
             <View style={styles.statTag}>
               <Layers size={13} color={colors.primary} />
               <Text style={[styles.statTagText, { color: colors.textSecondary }]}>
-                {pkg.totalTests} Total Tests
+                {pkg.totalTests} {pkg.totalTests === 1 ? "Total Test" : "Total Tests"}
               </Text>
             </View>
             {pkg.freeTests > 0 && (
               <View style={styles.statTag}>
                 <CheckCircle2 size={13} color={colors.success} />
                 <Text style={[styles.statTagText, { color: colors.success }]}>
-                  {pkg.freeTests} Free Mocks
+                  {pkg.freeTests} {pkg.freeTests === 1 ? "Free Mock" : "Free Mocks"}
                 </Text>
               </View>
             )}

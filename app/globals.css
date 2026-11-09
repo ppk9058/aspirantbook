@@ -29,6 +29,19 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+    /* Spacing scale tokens (2.1: 4/8/12/16/24/32) */
+    --space-4: 4px;
+    --space-8: 8px;
+    --space-12: 12px;
+    --space-16: 16px;
+    --space-24: 24px;
+    --space-32: 32px;
+    --page-padding-desktop: 24px;
+    --page-padding-mobile: 16px;
+    --section-gap-desktop: 24px;
+    --section-gap-mobile: 16px;
+    --card-padding: 16px;
   }
 
   .dark {
