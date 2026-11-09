@@ -8,7 +8,7 @@ import { PdfReaderFrame } from "@/components/pdf/PdfReaderFrame"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "PDF Reader | aspirantbook",
+  title: "PDF Reader | AspirantBook",
   robots: {
     index: false,
     follow: false,

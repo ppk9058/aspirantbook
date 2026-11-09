@@ -82,7 +82,7 @@ export async function checkTestAccess(
         return {
           allowed: false,
           reason: "LOCKED",
-          message: "This paper needs the aspirantbook Pass.",
+          message: "This paper needs the AspirantBook Pass.",
         }
       }
 

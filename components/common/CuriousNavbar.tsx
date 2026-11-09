@@ -31,7 +31,7 @@ export default function CuriousNavbar({ activeTab, hasRealBatches = true }: Curi
 
         {/* Header Menu Links */}
         <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-gray-700">
-          {/* Skills -> navigates to existing aspirantbook dashboard */}
+          {/* Skills -> navigates to existing AspirantBook dashboard */}
           <Link
             href="/dashboard"
             className="hover:text-[#F26522] transition-colors flex items-center gap-1 text-[#F26522] font-bold"

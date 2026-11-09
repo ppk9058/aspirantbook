@@ -179,7 +179,7 @@ function CartPageContent() {
                             {item.book.title}
                           </Link>
                           <span className="text-xs text-gray-500 block mt-1">
-                            {item.book.edition} &bull; Seller: aspirantbook Official Store
+                            {item.book.edition} &bull; Seller: AspirantBook Official Store
                           </span>
                         </div>
 

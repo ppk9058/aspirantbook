@@ -27,8 +27,8 @@ export default function CreateBookModal({ isOpen, onClose, onSuccess }: CreateBo
   const [formData, setFormData] = useState({
     title: "",
     subtitle: "",
-    author: "aspirantbook Academic Team",
-    publisher: "aspirantbook Publications",
+    author: "AspirantBook Academic Team",
+    publisher: "AspirantBook Publications",
     category: "CBSE Class 10th Books",
     subcategory: "Previous Year Papers",
     subject: "Science",

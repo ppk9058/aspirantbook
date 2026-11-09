@@ -10,10 +10,10 @@ export const metadata: Metadata = {
   ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
   title: {
     default: "AspirantBook - Interactive Learning Platform & Test Series",
-    template: "%s | aspirantbook",
+    template: "%s | AspirantBook",
   },
-  description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
-  keywords: ["aspirantbook", "competitive exams", "test series", "eBooks", "interactive courses", "BPSC", "UPSC"],
+  description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with AspirantBook.",
+  keywords: ["AspirantBook", "competitive exams", "test series", "eBooks", "interactive courses", "BPSC", "UPSC"],
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
@@ -23,28 +23,28 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     url: "/",
-    siteName: "aspirantbook",
+    siteName: "AspirantBook",
     title: "AspirantBook - Interactive Learning Platform & Test Series",
-    description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with AspirantBook.",
     images: [
       {
         url: "/aspirant-logo.jpg",
         width: 1200,
         height: 630,
-        alt: "aspirantbook",
+        alt: "AspirantBook",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "AspirantBook - Interactive Learning Platform & Test Series",
-    description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with aspirantbook.",
+    description: "Master competitive exams, video courses, test series, and comprehensive digital eBooks with AspirantBook.",
     images: ["/aspirant-logo.jpg"],
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'aspirantbook',
+    title: 'AspirantBook',
   },
 };
 

@@ -113,7 +113,7 @@ export default function PrintPaperPage() {
             <div className="max-w-[850px] mx-auto my-4 sm:my-8 print:my-0 p-4 sm:p-12 bg-white print:p-0 shadow-lg print:shadow-none border border-gray-200 print:border-none">
                 {/* Header Strip */}
                 <div className="text-center border-b-2 border-black pb-4 mb-6">
-                    <h2 className="text-xs font-bold uppercase tracking-widest text-gray-600">aspirantbook Online CBT Examination</h2>
+                    <h2 className="text-xs font-bold uppercase tracking-widest text-gray-600">AspirantBook Online CBT Examination</h2>
                     <h1 className="text-xl font-black uppercase tracking-wide mt-1">72nd BPSC Combined Competitive Examination 2026</h1>
                     <p className="text-xs font-semibold text-gray-700 mt-0.5">Preliminary Mock Examination • Paper 1 (General Studies)</p>
 

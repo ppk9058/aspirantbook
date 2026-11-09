@@ -18,7 +18,7 @@ import {
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-    title: "My Tests | aspirantbook",
+    title: "My Tests | AspirantBook",
     description: "Continue in-progress mock exams, access your enrolled test series, and review detailed score reports.",
 }
 

@@ -789,7 +789,7 @@ function ResultContent() {
             >
               <span style={{ color: "#fff", fontSize: 9, fontWeight: 900 }}>TS</span>
             </div>
-            <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 14 }}>aspirantbook</span>
+            <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 14 }}>AspirantBook</span>
           </div>
           <div style={{ width: 1, height: 18, background: "#e5e7eb", margin: "0 4px", flexShrink: 0 }} />
           <span

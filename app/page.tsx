@@ -79,7 +79,7 @@ export default async function LandingHomePage() {
                   {
                       "@type": "Organization",
                       "@id": `${baseUrl}/#organization`,
-                      "name": "aspirantbook",
+                      "name": "AspirantBook",
                       "url": baseUrl,
                       "logo": {
                           "@type": "ImageObject",
@@ -90,7 +90,7 @@ export default async function LandingHomePage() {
                       "@type": "WebSite",
                       "@id": `${baseUrl}/#website`,
                       "url": baseUrl,
-                      "name": "aspirantbook",
+                      "name": "AspirantBook",
                       "publisher": {
                           "@id": `${baseUrl}/#organization`,
                       },

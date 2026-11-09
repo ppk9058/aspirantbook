@@ -1,7 +1,7 @@
 import CodingPracticeView from "@/components/practice/CodingPracticeView"
 
 export const metadata = {
-    title: "Coding Practice | aspirantbook",
+    title: "Coding Practice | AspirantBook",
     description: "Practice top curated coding interview problems asked by leading tech companies.",
 }
 

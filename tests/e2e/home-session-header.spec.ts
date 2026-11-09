@@ -53,7 +53,7 @@ test.describe("C1 landing header session states", () => {
       ).toHaveCount(0);
 
       // The brand link points at the landing page for a visitor.
-      const logo = page.getByRole("link", { name: /aspirantbook/ }).first();
+      const logo = page.getByRole("link", { name: /aspirantbook/i }).first();
       await expect(logo).toHaveAttribute("href", "/");
 
       // No horizontal page scroll at any width (the header is sticky).
@@ -87,7 +87,7 @@ test.describe("C1 landing header session states", () => {
 
       // A student's brand link resolves to their dashboard.
       await expect(
-        page.getByRole("link", { name: /aspirantbook/ }).first()
+        page.getByRole("link", { name: /aspirantbook/i }).first()
       ).toHaveAttribute("href", /^\/(dashboard)?$/, { timeout: 20_000 });
     }
   });
@@ -104,7 +104,7 @@ test.describe("C1 landing header session states", () => {
     await loginThroughUi(page, admin.email);
     await page.goto("/");
 
-    await expect(page.getByRole("link", { name: /aspirantbook/ }).first()).toHaveAttribute(
+    await expect(page.getByRole("link", { name: /aspirantbook/i }).first()).toHaveAttribute(
       "href",
       "/teacher",
       { timeout: 20_000 }

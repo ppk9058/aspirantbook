@@ -7,7 +7,7 @@ import MyPurchasesClient from "@/components/student/MyPurchasesClient"
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-  title: "My Purchases & Subscriptions | aspirantbook",
+  title: "My Purchases & Subscriptions | AspirantBook",
   description: "View all your enrolled Video Courses, Test Series, Batches, and Unlocked PYQs.",
 }
 

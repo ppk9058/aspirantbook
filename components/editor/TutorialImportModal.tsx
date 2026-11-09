@@ -480,7 +480,7 @@ export function parseGenAiTutorialJson(data: any, rawSource: string): ParsedTuto
         meta: {
             id: data.meta?.id || data.id || title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
             title,
-            brand: data.meta?.brand || "aspirantbook",
+            brand: data.meta?.brand || "AspirantBook",
             subject: technology,
             level: data.meta?.level || difficulty,
             status: data.meta?.status || "Free",
@@ -637,7 +637,7 @@ export function parseTutorialInput(raw: string): ParsedTutorialData {
             meta: {
                 id: embedId,
                 title,
-                brand: "aspirantbook",
+                brand: "AspirantBook",
                 subject: "Web Development",
                 level: "INTERMEDIATE",
                 status: "Free",
@@ -727,7 +727,7 @@ export function parseTutorialInput(raw: string): ParsedTutorialData {
         meta: {
             id: mdxId,
             title,
-            brand: "aspirantbook",
+            brand: "AspirantBook",
             subject: technology,
             level: difficulty,
             status: "Free",

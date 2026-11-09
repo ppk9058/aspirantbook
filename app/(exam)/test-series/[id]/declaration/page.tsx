@@ -202,7 +202,7 @@ function DeclarationContent() {
                         <div className="w-6 h-6 rounded bg-teal-500 flex items-center justify-center">
                             <span className="text-white text-[9px] font-black">TS</span>
                         </div>
-                        <span className="text-teal-600 font-black text-sm hidden xs:inline sm:inline">aspirantbook</span>
+                        <span className="text-teal-600 font-black text-sm hidden xs:inline sm:inline">AspirantBook</span>
                     </div>
                     <div className="w-px h-5 bg-gray-300 shrink-0" />
                     <span className="text-gray-700 text-xs sm:text-sm font-semibold truncate max-w-[160px] sm:max-w-md">{testTitle}</span>

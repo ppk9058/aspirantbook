@@ -342,7 +342,7 @@ export function AspirantbookTutorialView({
             : "All Levels"
 
         let parsedMeta: any = {
-            brand: course.technology || "aspirantbook",
+            brand: course.technology || "AspirantBook",
             subtitle: "Zero to Hero Mastery",
             categoryPill: "Mastery Curriculum",
             categorySubtitle: course.technology

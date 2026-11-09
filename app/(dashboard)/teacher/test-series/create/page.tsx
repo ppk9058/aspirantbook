@@ -2493,7 +2493,7 @@ function CreateTestContent() {
                             )}
                             {formData.accessMode === "pro" && (
                                 <p className="text-xs text-purple-700 dark:text-purple-400 font-semibold mt-1.5">
-                                    🔒 This test requires an active aspirantbook Pass subscription.
+                                    🔒 This test requires an active AspirantBook Pass subscription.
                                 </p>
                             )}
                         </div>

@@ -84,14 +84,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
 
     return {
-        title: `${course.title} | aspirantbook`,
-        description: course.description || `Enroll in ${course.title} on aspirantbook`,
+        title: `${course.title} | AspirantBook`,
+        description: course.description || `Enroll in ${course.title} on AspirantBook`,
         alternates: {
             canonical: `/courses/${course.slug || slug}`,
         },
         openGraph: {
-            title: `${course.title} | aspirantbook`,
-            description: course.description || `Enroll in ${course.title} on aspirantbook`,
+            title: `${course.title} | AspirantBook`,
+            description: course.description || `Enroll in ${course.title} on AspirantBook`,
             type: "website",
             url: `/courses/${course.slug || slug}`,
         },

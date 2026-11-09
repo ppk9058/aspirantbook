@@ -373,7 +373,7 @@ describe("checkTestAccess: integration gate for CBT tests linked to PYQ papers",
     const result = await checkTestAccess("student-1", "test-cbt-1", "STUDENT")
     assert.equal(result.allowed, false)
     assert.equal(result.reason, "LOCKED")
-    assert.equal(result.message, "This paper needs the aspirantbook Pass.")
+    assert.equal(result.message, "This paper needs the AspirantBook Pass.")
   })
 
   it("allows student WITH active Pass on FREE-mode test linked to a PAID paper", async () => {

@@ -1,5 +1,5 @@
 /**
- * Centralized Audit Logging Service for aspirantbook
+ * Centralized Audit Logging Service for AspirantBook
  * Tracks sensitive administrative, teacher, and payment operations for accountability.
  */
 

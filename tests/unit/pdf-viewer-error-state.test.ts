@@ -100,7 +100,7 @@ test("Status to message mapping: 403 unauthorized for books, PYQs, and custom me
   const pyqDetails = getPdfErrorDetails("unauthorized", { src: "/api/pyqs/file/pyq-1" })
   assert.ok(pyqDetails)
   assert.equal(pyqDetails?.title, "You don't have access to this document.")
-  assert.equal(pyqDetails?.description, "This paper needs the aspirantbook Pass.")
+  assert.equal(pyqDetails?.description, "This paper needs the AspirantBook Pass.")
 
   // Custom 403 message override
   const customDetails = getPdfErrorDetails("unauthorized", {

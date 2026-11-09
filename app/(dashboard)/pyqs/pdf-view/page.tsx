@@ -153,7 +153,7 @@ export default function PYQPDFViewerPage() {
               Please log in to view this paper
             </h2>
             <p className="text-xs text-gray-500 leading-relaxed">
-              Sign in to your aspirantbook account to access official previous year question papers.
+              Sign in to your AspirantBook account to access official previous year question papers.
             </p>
           </div>
 
@@ -192,10 +192,10 @@ export default function PYQPDFViewerPage() {
               All-Access Pass Required
             </span>
             <h2 className="text-lg font-black text-gray-900 pt-2">
-              This paper needs the aspirantbook Pass
+              This paper needs the AspirantBook Pass
             </h2>
             <p className="text-xs text-gray-500 leading-relaxed">
-              Unlock this official previous year paper, complete solutions, and full CBT mock simulation with the aspirantbook Pass.
+              Unlock this official previous year paper, complete solutions, and full CBT mock simulation with the AspirantBook Pass.
             </p>
           </div>
 
@@ -214,7 +214,7 @@ export default function PYQPDFViewerPage() {
                 </>
               ) : (
                 <>
-                  <span>Get aspirantbook Pass</span>
+                  <span>Get AspirantBook Pass</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

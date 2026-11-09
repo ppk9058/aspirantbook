@@ -167,7 +167,7 @@ export function RoseraModernReader({
       }
       className="min-h-screen font-sans antialiased flex flex-col selection:bg-purple-200 rosera-theme-root"
     >
-      {/* TOP HEADER (Matching Image 1: Green 'A' logo, aspirantbook, and 0/3 progress pill) */}
+      {/* TOP HEADER (Matching Image 1: Green 'A' logo, AspirantBook, and 0/3 progress pill) */}
       <header
         style={{ backgroundColor: currentBg }}
         className="h-14 border-b border-black/10 px-4 md:px-8 flex items-center justify-between z-20"

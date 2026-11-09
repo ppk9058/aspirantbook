@@ -119,7 +119,7 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                     <Link
                         href={user?.role === "TEACHER" ? "/teacher" : "/"}
                         className="flex items-center gap-3 group transition-transform active:scale-95 min-h-[44px]"
-                        title={user?.role === "TEACHER" ? "Return to Teacher Dashboard" : "Return to aspirantbook Home Page"}
+                        title={user?.role === "TEACHER" ? "Return to Teacher Dashboard" : "Return to AspirantBook Home Page"}
                     >
                         <div className="h-9 w-9 bg-purple-600 rounded-lg flex items-center justify-center shadow-md group-hover:bg-purple-500 transition-colors flex-shrink-0">
                             <span className="text-white font-black text-base">A</span>
@@ -129,7 +129,7 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                                 <span>{user?.role === "TEACHER" ? "Teacher Studio" : "Admin Portal"}</span>
                                 <ArrowUpRight className="h-3.5 w-3.5 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>
-                            <div className="text-xs text-purple-400 font-medium">aspirantbook</div>
+                            <div className="text-xs text-purple-400 font-medium">AspirantBook</div>
                         </div>
                     </Link>
 
@@ -240,7 +240,7 @@ export function AdminNav({ user: propUser }: AdminNavProps) {
                             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             {user?.role === "TEACHER" ? "Teacher Mode" : "Admin Mode"}
                         </span>
-                        <span className="text-[10px] text-slate-500">aspirantbook</span>
+                        <span className="text-[10px] text-slate-500">AspirantBook</span>
                     </div>
                 </div>
             </aside>

@@ -130,7 +130,7 @@ export function getPdfErrorDetails(
     } else if (options?.bookId || options?.src?.includes("/api/books/")) {
       description = "Buy this eBook to read the full PDF."
     } else if (options?.src?.includes("/api/pyqs/")) {
-      description = "This paper needs the aspirantbook Pass."
+      description = "This paper needs the AspirantBook Pass."
     }
 
     return {

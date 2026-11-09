@@ -38,7 +38,7 @@ export default function TermsPage() {
               Terms &amp; Conditions
             </h1>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              These Terms and Conditions govern your access to and use of aspirantbook (website, mobile applications, courses, mock exams, and digital library).
+              These Terms and Conditions govern your access to and use of AspirantBook (website, mobile applications, courses, mock exams, and digital library).
             </p>
           </div>
 
@@ -62,7 +62,7 @@ export default function TermsPage() {
               2. Intellectual Property &amp; Content Use
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              All question banks, CBT mock tests, video lessons, explanations, and digital eBooks provided on aspirantbook are proprietary educational materials protected by copyright law.
+              All question banks, CBT mock tests, video lessons, explanations, and digital eBooks provided on AspirantBook are proprietary educational materials protected by copyright law.
             </p>
             <ul className="list-disc pl-5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-1">
               <li>Content access is licensed solely for individual, non-commercial personal study.</li>

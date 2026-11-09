@@ -13,10 +13,10 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const quiz = await findQuizBySlug(slug)
-  if (!quiz) return { title: "Quiz Not Found | aspirantbook" }
+  if (!quiz) return { title: "Quiz Not Found | AspirantBook" }
 
   return {
-    title: `Instructions: ${quiz.title} | aspirantbook`,
+    title: `Instructions: ${quiz.title} | AspirantBook`,
     description: `Examination instructions and rules for ${quiz.title}.`,
     robots: {
       index: false,

@@ -37,7 +37,7 @@ test.describe("SEO & Structured Data Verification", () => {
 
         // Title and description
         const title = await page.title()
-        expect(title).toContain("aspirantbook")
+        expect(title).toContain("AspirantBook")
 
         const metaDesc = await page.locator('meta[name="description"]').getAttribute("content")
         expect(metaDesc).toBeTruthy()

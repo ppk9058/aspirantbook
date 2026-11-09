@@ -75,7 +75,7 @@ describe("SEO Module Adapters", () => {
         base
       )
       // Must match snapshot format exactly
-      assert.equal(res.title, "UPSC Economy CA - Current Affairs Quiz | aspirantbook")
+      assert.equal(res.title, "UPSC Economy CA - Current Affairs Quiz | AspirantBook")
       assert.equal(
         res.description,
         "Practice UPSC Economy CA with 10 questions in 10 minutes. Instant evaluation and detailed explanations."
@@ -161,7 +161,7 @@ describe("SEO Module Adapters", () => {
       const courseDesc = "Comprehensive course covering history, geography, economy and polity."
       const canonical = `${base}/courses/upsc-general-studies`
       const res = {
-        title: `${courseTitle} | aspirantbook`,
+        title: `${courseTitle} | AspirantBook`,
         description: courseDesc,
         canonicalUrl: canonical,
         robots: "index, follow",

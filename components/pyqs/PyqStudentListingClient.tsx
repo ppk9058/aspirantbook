@@ -455,7 +455,7 @@ export function PyqStudentListingClient({
                         onClick={() => handlePassClick(paper)}
                         disabled={isPassProcessing}
                         data-testid="pyq-pass-unlock-cta"
-                        title="This paper needs the aspirantbook Pass"
+                        title="This paper needs the AspirantBook Pass"
                         className="flex-1 py-2.5 px-4 text-xs font-bold text-center rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
                       >
                         <Lock className="w-3.5 h-3.5" />
@@ -467,7 +467,7 @@ export function PyqStudentListingClient({
                         type="button"
                         onClick={() => handlePassClick(paper)}
                         disabled={isPassProcessing}
-                        title="This paper needs the aspirantbook Pass"
+                        title="This paper needs the AspirantBook Pass"
                         aria-label={`Get Pass to download ${paper.title}`}
                         className="p-2.5 text-muted-foreground hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 border border-border/80 rounded-xl transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
@@ -479,7 +479,7 @@ export function PyqStudentListingClient({
                           type="button"
                           onClick={() => handlePassClick(paper)}
                           disabled={isPassProcessing}
-                          title="This paper needs the aspirantbook Pass"
+                          title="This paper needs the AspirantBook Pass"
                           className="py-2.5 px-3 text-xs font-semibold text-center rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/70 transition-colors flex items-center justify-center gap-1 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 shadow-2xs"
                         >
                           <Zap className="w-3.5 h-3.5 text-amber-500" />
