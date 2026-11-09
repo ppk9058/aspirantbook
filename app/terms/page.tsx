@@ -1,11 +1,12 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
+import BrandLogo from "@/components/brand/BrandLogo"
 import { ShieldCheck, ArrowLeft, BookOpen, AlertCircle, FileText } from "lucide-react"
 
 export const metadata = {
-  title: "Terms and Conditions | aspirantbook",
-  description: "Terms and Conditions governing the use of aspirantbook learning platform, mock tests, and digital educational content.",
+  title: "Terms and Conditions | AspirantBook",
+  description: "Terms and Conditions governing the use of AspirantBook learning platform, mock tests, and digital educational content.",
 }
 
 export default function TermsPage() {
@@ -14,18 +15,7 @@ export default function TermsPage() {
       {/* Top Header */}
       <header className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 px-4 sm:px-8 py-3.5">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image
-              src="/aspirant-logo-square.jpg"
-              alt="aspirantbook"
-              width={32}
-              height={32}
-              className="rounded-lg object-cover"
-            />
-            <span className="font-extrabold text-base tracking-tight text-slate-950 dark:text-white">
-              aspirantbook
-            </span>
-          </Link>
+          <BrandLogo size="sm" href="/" />
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white transition-colors"

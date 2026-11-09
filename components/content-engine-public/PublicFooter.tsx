@@ -9,7 +9,7 @@ export function PublicFooter({ lang = "en" }: { lang?: "en" | "hi" }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <span className="font-semibold text-foreground text-sm">
-              TrillionSkill Question & Answer Bank
+              AspirantBook Question &amp; Answer Bank
             </span>
             <p className="max-w-md">
               {isHi
@@ -35,7 +35,7 @@ export function PublicFooter({ lang = "en" }: { lang?: "en" | "hi" }) {
         </div>
 
         <div className="pt-4 border-t border-border/60 text-center">
-          <p>&copy; {new Date().getFullYear()} TrillionSkill. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} AspirantBook. All rights reserved.</p>
         </div>
       </div>
     </footer>

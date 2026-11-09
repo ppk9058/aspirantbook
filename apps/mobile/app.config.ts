@@ -31,7 +31,7 @@ if (isDevMode) {
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "aspirantbook",
+  name: "AspirantBook",
   slug: "aspirantbook",
   scheme: "aspirantbook",
   version: "1.0.0",

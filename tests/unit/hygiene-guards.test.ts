@@ -135,8 +135,9 @@ describe("R12-I: Codebase Hygiene Guards", () => {
       }
     }
 
-    // Both known large files must be accounted for and no new untracked large blobs added
-    const expected = ["assets/brand/splash-image.png", "docs/design_walkthrough.pdf"].sort();
+    // Every known large file must be accounted for and no new untracked large blobs added.
+    // splash-image.png is now 258 KB after the brand refresh, so it is no longer over 1 MB.
+    const expected = ["docs/design_walkthrough.pdf"].sort();
     assert.deepStrictEqual(
       over1MB.sort(),
       expected,

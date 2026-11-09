@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Image } from "react-native";
 import { Menu, Search, Bell } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useTheme } from "../../theme/ThemeProvider";
@@ -69,25 +69,18 @@ export function MobileAppHeader({
         <TouchableOpacity
           onPress={handleLogoPress}
           activeOpacity={0.8}
-          accessibilityLabel="Aspirantbook Home"
+          accessibilityLabel="AspirantBook Home"
           testID="mobile-header-logo"
           style={styles.brandRow}
         >
-          {/* Brand "T" Logo Box */}
-          <View
-            style={[
-              styles.logoBox,
-              {
-                backgroundColor: colors.brandFrom,
-                borderRadius: tokens.radius.lg,
-              },
-            ]}
-          >
-            <Text style={styles.logoLetter}>T</Text>
-          </View>
+          {/* Brand Logo Image */}
+          <Image
+            source={require("../../../../assets/brand/icon-192.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           <Text testID="mobile-header-brand-name" style={styles.brandText}>
-            <Text style={{ color: colors.brandTextPrimary }}>aspirant</Text>
-            <Text style={{ color: colors.brandTextAccent }}>book</Text>
+            aspirantBook
           </Text>
         </TouchableOpacity>
       </View>
@@ -201,19 +194,20 @@ const styles = StyleSheet.create({
   logoBox: {
     width: 28,
     height: 28,
-    alignItems: "center",
-    justifyContent: "center",
+    borderRadius: 14,
     marginRight: 6,
   },
-  logoLetter: {
-    color: "#FFFFFF",
-    fontWeight: "900",
-    fontSize: 14,
+  logoImage: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    marginRight: 6,
   },
   brandText: {
     fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: -0.3,
+    fontWeight: "900",
+    letterSpacing: -0.4,
+    color: "#ff0031",
   },
   rightGroup: {
     flexDirection: "row",

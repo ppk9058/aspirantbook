@@ -1,6 +1,6 @@
 {
-  "name": "aspirantbook",
-  "short_name": "aspirantbook",
+  "name": "AspirantBook",
+  "short_name": "aspirantBook",
   "description": "Master data science, AI & programming with interactive courses",
   "start_url": "/",
   "display": "standalone",

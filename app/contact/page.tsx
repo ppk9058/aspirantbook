@@ -1,6 +1,7 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
+import BrandLogo from "@/components/brand/BrandLogo"
 import { ArrowLeft, Mail, Phone, MapPin, Clock, ShieldCheck } from "lucide-react"
 import { ContactFormClient } from "./ContactFormClient"
 import { getBrandConfig } from "@/lib/config/brand"
@@ -21,18 +22,7 @@ export default function ContactPage() {
       {/* Top Header */}
       <header className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 px-4 sm:px-8 py-3.5">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image
-              src="/aspirant-logo-square.jpg"
-              alt={brand.brandName}
-              width={32}
-              height={32}
-              className="rounded-lg object-cover"
-            />
-            <span className="font-extrabold text-base tracking-tight text-slate-950 dark:white">
-              {brand.brandName}
-            </span>
-          </Link>
+          <BrandLogo size="sm" href="/" />
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 min-h-[44px] px-3 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white transition-colors"

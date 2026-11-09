@@ -27,6 +27,7 @@ import { useSession } from "next-auth/react"
 import { safeSignOut } from "@/lib/auth-client"
 import { useTheme } from "@/components/providers/ThemeProvider"
 import GoalSelectorButton from "@/components/layout/GoalSelectorButton"
+import BrandLogo from "@/components/brand/BrandLogo"
 
 import { getDashboardHref } from "@/lib/auth/roles"
 
@@ -72,14 +73,12 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
             <div className="relative w-4/5 max-w-xs bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col z-10 border-r border-slate-200 dark:border-slate-800">
                 {/* Drawer Header */}
                 <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                    <Link href={homeHref} onClick={onClose} data-testid="drawer-logo" className="flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-teal-500 rounded-lg">
-                        <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-lg flex items-center justify-center shadow-xs">
-                            <span className="text-white font-extrabold text-base">T</span>
-                        </div>
-                        <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-slate-100">
-                            aspirant<span className="text-teal-600 dark:text-teal-400">book</span>
-                        </span>
-                    </Link>
+                    <BrandLogo
+                        size="md"
+                        href={homeHref}
+                        onClick={onClose}
+                        data-testid="drawer-logo"
+                    />
 
                     <button
                         onClick={onClose}

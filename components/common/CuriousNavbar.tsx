@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react"
 import { ArrowRight, User } from "lucide-react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { resolveAnchorHref } from "@/lib/home/real-batches"
+import BrandLogo from "@/components/brand/BrandLogo"
 
 interface CuriousNavbarProps {
   activeTab?: string
@@ -26,21 +27,7 @@ export default function CuriousNavbar({ activeTab, hasRealBatches = true }: Curi
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
         {/* Brand Logo */}
-        <Link href={logoHref} className="flex items-center gap-2 sm:gap-3 group shrink min-w-0">
-          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full overflow-hidden flex-shrink-0 bg-[#F7EFE4] border border-[#ECDCC9] shadow-xs ring-1 ring-black/5 flex items-center justify-center transition-transform group-hover:scale-105 p-0.5">
-            <Image
-              src="/aspirant-logo.jpg"
-              alt="aspirantbook"
-              width={44}
-              height={44}
-              className="w-full h-full object-contain rounded-full"
-              priority
-            />
-          </div>
-          <span className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight flex items-center truncate">
-            aspirant<span className="text-orange-700 ml-0.5 font-black">book</span>
-          </span>
-        </Link>
+        <BrandLogo size="lg" href={logoHref} priority />
 
         {/* Header Menu Links */}
         <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-gray-700">
