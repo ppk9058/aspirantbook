@@ -154,14 +154,15 @@ export default function MyLearningClient({ courses, upcomingDemos = [], hasRealB
                             <span>My Enrolled &amp; Active Batches</span>
                         </div>
                         <h1 className="text-3xl sm:text-4xl font-extrabold text-[#10162F] tracking-tight">
-                            My Batches &amp; enrollment
+                            My Batches &amp; Enrollment
                         </h1>
                         <p className="text-xs sm:text-sm text-gray-500 mt-1">
                             All video courses and classroom batches you have enrolled in or are actively watching.
                         </p>
                     </div>
 
-                    {/* View Switcher: Cards vs List */}
+                    {/* View Switcher: Cards vs List (hidden for guests) */}
+                    {!isGuest && (
                     <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-xl self-start sm:self-center border border-gray-200 dark:border-slate-700">
                         <button
                             type="button"
@@ -188,6 +189,7 @@ export default function MyLearningClient({ courses, upcomingDemos = [], hasRealB
                             <span>Syllabus List</span>
                         </button>
                     </div>
+                    )}
                 </div>
 
                 {/* Upcoming Live Demos Card Section */}
@@ -254,7 +256,8 @@ export default function MyLearningClient({ courses, upcomingDemos = [], hasRealB
                     </div>
                 )}
 
-                {/* Tabs & Sort Row */}
+                {/* Tabs & Sort Row (hidden for guests) */}
+                {!isGuest && (
                 <div className="border-b-2 border-gray-200 flex flex-wrap items-center justify-between gap-4 pb-0">
                     {/* Tabs */}
                     <div className="flex items-center gap-8 -mb-0.5">
@@ -302,31 +305,34 @@ export default function MyLearningClient({ courses, upcomingDemos = [], hasRealB
                         </select>
                     </div>
                 </div>
+                )}
 
                 {/* Empty State */}
                 {isGuest ? (
-                    <div className="bg-white rounded-3xl border-2 border-indigo-100 dark:border-indigo-900/50 p-10 text-center space-y-4 shadow-sm">
-                        <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
-                            <LogIn className="w-6 h-6" />
+                    <div className="bg-white rounded-3xl border border-indigo-100 dark:border-indigo-900/50 p-6 text-center space-y-3 shadow-xs max-w-2xl mx-auto min-h-[160px] flex flex-col justify-center items-center">
+                        <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+                            <LogIn className="w-5 h-5" />
                         </div>
-                        <h3 className="font-extrabold text-lg text-gray-900">
-                            To view your enrolled batches &amp; watch history, login
-                        </h3>
-                        <p className="text-xs text-gray-500 max-w-sm mx-auto">
-                            Sign in with your mobile OTP to continue watching your live batches and lessons.
-                        </p>
-                        <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                        <div>
+                            <h3 className="font-extrabold text-base text-gray-900">
+                                To view your enrolled batches &amp; watch history, login
+                            </h3>
+                            <p className="text-xs text-gray-500 max-w-sm mx-auto mt-0.5">
+                                Sign in with your mobile OTP to continue watching your live batches and lessons.
+                            </p>
+                        </div>
+                        <div className="pt-1 flex flex-wrap items-center justify-center gap-3">
                             <button
                                 type="button"
                                 onClick={() => openMobileAuth({ actionType: "login", callbackUrl: "/my-learning" })}
-                                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2"
+                                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2 min-h-[40px] sm:min-h-[36px]"
                             >
                                 <LogIn className="w-4 h-4" />
                                 <span>Login with Mobile</span>
                             </button>
                             <Link
                                 href="/courses"
-                                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-xs font-bold hover:bg-gray-50 transition-all"
+                                className="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 text-xs font-bold hover:bg-gray-50 transition-all min-h-[40px] sm:min-h-[36px] flex items-center justify-center"
                             >
                                 Browse Courses
                             </Link>

@@ -72,7 +72,7 @@ export default function MyTestsScreen() {
       >
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.textPrimary }]}>
-            My Tests & Performance
+            My Tests
           </Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Resume in-progress exams, track enrolled packages, and review past results

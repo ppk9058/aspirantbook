@@ -186,18 +186,18 @@ export default function StudentDashboardClient({
       </div>
 
       {/* DESKTOP-PRESERVED & FULL TABLET/DESKTOP VIEW: Identical to existing UI on >= 1024px */}
-      {/* Active Goal / Cohort Context Ribbon (PW Style) */}
-      <div className="hidden lg:flex flex-wrap items-center justify-between gap-3 p-3.5 sm:px-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 text-slate-800 dark:text-slate-200">
-        <div className="flex items-center gap-3">
+      {/* Active Goal / Cohort Context Ribbon (PW Style) - slim 56px strip */}
+      <div className="hidden lg:flex flex-wrap items-center justify-between gap-3 min-h-[56px] py-2 px-3.5 sm:px-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 text-slate-800 dark:text-slate-200">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#1448d8] to-[#1DB954] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
             <GoalIcon name={selectedGoal.icon} className="h-4 w-4" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[10px] uppercase font-black tracking-wider text-teal-600 dark:text-teal-400">
                 Active Cohort
               </span>
-              <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">
+              <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white truncate">
                 {selectedGoal.fullName || selectedGoal.name}
               </span>
               {selectedSubGoal && (
@@ -206,7 +206,7 @@ export default function StudentDashboardClient({
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
               Displaying batches, lectures, and mock tests customized for {selectedGoal.name}
             </p>
           </div>
@@ -214,25 +214,25 @@ export default function StudentDashboardClient({
 
         <button
           onClick={openGoalModal}
-          className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5"
+          className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 shrink-0 min-h-[36px]"
         >
           <span>Switch Goal</span>
           <ChevronRight className="h-3.5 w-3.5 text-teal-500" />
         </button>
       </div>
 
-      {/* Guest Welcome Banner */}
+      {/* Guest Welcome Banner - slim 56px strip with halved gap */}
       {isGuest && (
-        <div className="bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3 text-center sm:text-left">
-            <div className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
-              <LogIn className="w-5 h-5" />
+        <div className="min-h-[56px] -mt-2 sm:-mt-3 py-2 px-3.5 sm:px-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/30 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4">
+          <div className="flex items-center gap-3 text-center sm:text-left min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+              <LogIn className="w-4 h-4" />
             </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
+            <div className="min-w-0">
+              <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white truncate">
                 To see your enrolled courses, login
               </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-300">
+              <p className="text-[11px] text-gray-600 dark:text-gray-300 truncate">
                 Track your live batches, CBT test progress, certificates and notes.
               </p>
             </div>
@@ -240,95 +240,105 @@ export default function StudentDashboardClient({
           <button
             type="button"
             onClick={handleLogin}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 shrink-0"
+            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 shrink-0 min-h-[40px] sm:min-h-[36px]"
           >
-            <LogIn className="w-4 h-4" />
+            <LogIn className="w-3.5 h-3.5" />
             <span>Login with Mobile</span>
           </button>
         </div>
       )}
 
-      {/* Quick Actions 5-Grid (Desktop / Tablet >= 1024px) */}
-      <div className="hidden lg:grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+      {/* Quick Actions 5-Grid (Desktop / Tablet >= 1024px): 80 to 88px height, 2 columns on mobile */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
         {/* Action 1: Jump to Learning */}
         <Link
           href={inProgressCourses[0] ? `/courses/${inProgressCourses[0].course.slug}` : "/courses"}
-          className="group p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-[#1448d8] dark:hover:border-[#1448d8] shadow-sm transition-all"
+          className="group h-[84px] p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-[#1448d8] dark:hover:border-[#1448d8] shadow-sm transition-all flex items-center gap-2.5 sm:gap-3"
         >
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <PlayCircle className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">
-            Continue Learning
-          </h3>
-          <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
-            {inProgressCourses[0] ? inProgressCourses[0].course.title : "Explore Course Catalog"}
-          </p>
+          <div className="min-w-0">
+            <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">
+              Continue Learning
+            </h3>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
+              {inProgressCourses[0] ? inProgressCourses[0].course.title : "Explore Catalog"}
+            </p>
+          </div>
         </Link>
 
         {/* Action 2: Text Tutorials */}
         <Link
           href="/tutorials"
-          className="group p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-[#3A10E5] dark:hover:border-indigo-400 shadow-sm transition-all"
+          className="group h-[84px] p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-[#3A10E5] dark:hover:border-indigo-400 shadow-sm transition-all flex items-center gap-2.5 sm:gap-3"
         >
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-[#3A10E5] dark:text-indigo-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-[#3A10E5] dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <GraduationCap className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">
-            Text Tutorials
-          </h3>
-          <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
-            Chapters & subtopics
-          </p>
+          <div className="min-w-0">
+            <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">
+              Text Tutorials
+            </h3>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
+              Chapters &amp; notes
+            </p>
+          </div>
         </Link>
 
         {/* Action 3: Previous Year Papers */}
         <Link
           href="/pyqs"
-          className="group p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm transition-all"
+          className="group h-[84px] p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm transition-all flex items-center gap-2.5 sm:gap-3"
         >
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <FileText className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">
-            Previous Year Papers
-          </h3>
-          <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
-            Official PYQ Archives
-          </p>
+          <div className="min-w-0">
+            <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">
+              Previous Papers
+            </h3>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
+              Official Archives
+            </p>
+          </div>
         </Link>
 
         {/* Action 4: Practice & CBT */}
         <Link
           href="/test-series"
-          className="group p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-purple-400 dark:hover:border-purple-500 shadow-sm transition-all"
+          className="group h-[84px] p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-purple-400 dark:hover:border-purple-500 shadow-sm transition-all flex items-center gap-2.5 sm:gap-3"
         >
-          <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <FileQuestion className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white">
-            CBT Mock Tests
-          </h3>
-          <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
-            Test readiness & ranks
-          </p>
+          <div className="min-w-0">
+            <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white truncate">
+              CBT Mock Tests
+            </h3>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
+              Ranks &amp; Analytics
+            </p>
+          </div>
         </Link>
 
         {/* Action 5: Ask a Doubt */}
         <button
           onClick={handleOpenDoubtModal}
-          className="group text-left p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-amber-400 dark:hover:border-amber-500 shadow-sm transition-all col-span-2 sm:col-span-1"
+          className="group text-left h-[84px] p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-[#05192D] border border-gray-200 dark:border-gray-800 hover:border-amber-400 dark:hover:border-amber-500 shadow-sm transition-all col-span-2 sm:col-span-1 flex items-center gap-2.5 sm:gap-3"
         >
-          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <HelpCircle className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white flex items-center gap-1">
-            Ask a Doubt
-            <Sparkles className="w-3 h-3 text-amber-500" />
-          </h3>
-          <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
-            Upload photo or PDF
-          </p>
+          <div className="min-w-0">
+            <h3 className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white flex items-center gap-1 truncate">
+              <span>Ask Doubt</span>
+              <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
+            </h3>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
+              Photo / PDF
+            </p>
+          </div>
         </button>
       </div>
 
@@ -398,38 +408,14 @@ export default function StudentDashboardClient({
         {/* Tab 1: Courses */}
         {activeTab === "courses" && (
           <div>
-            {isGuest ? (
-              <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center space-y-3">
-                <div className="w-12 h-12 bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-full flex items-center justify-center mx-auto">
-                  <LogIn className="w-6 h-6" />
-                </div>
-                <h4 className="font-bold text-gray-900 dark:text-white text-base">To see your enrolled courses, login</h4>
-                <p className="text-xs text-gray-500 max-w-sm mx-auto">Sign in with your mobile OTP to view your active enrollments and resume learning.</p>
-                <div className="pt-2 flex items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={handleLogin}
-                    className="px-5 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2"
-                  >
-                    <LogIn className="w-4 h-4" />
-                    <span>Login</span>
-                  </button>
-                  <Link
-                    href="/courses"
-                    className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    Browse Courses
-                  </Link>
-                </div>
-              </div>
-            ) : inProgressCourses.length === 0 ? (
-              <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center">
-                <BookOpen className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+            {inProgressCourses.length === 0 ? (
+              <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 text-center">
+                <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <h4 className="font-bold text-gray-900 dark:text-white text-sm">No courses started yet</h4>
                 <p className="text-xs text-gray-500 mt-1">Enroll in any of our specialized tracks below to jumpstart your career.</p>
                 <Link
                   href="/courses"
-                  className="mt-4 inline-block px-4 py-2 rounded-xl bg-[#1448d8] text-white text-xs font-semibold"
+                  className="mt-3 inline-block px-4 py-2 rounded-xl bg-[#1448d8] text-white text-xs font-semibold hover:bg-[#0f37a8] transition-colors"
                 >
                   Explore Courses
                 </Link>
@@ -524,7 +510,7 @@ export default function StudentDashboardClient({
         {activeTab === "tests" && (
           <div className="space-y-4">
             {testsLoading && (
-              <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center">
+              <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 text-center">
                 <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                   Loading mock tests…
                 </p>
@@ -535,7 +521,7 @@ export default function StudentDashboardClient({
             )}
 
             {!testsLoading && testsError && (
-              <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl border border-red-200 dark:border-red-900/60 p-8 text-center space-y-3">
+              <div className="bg-red-50 dark:bg-red-950/30 rounded-2xl border border-red-200 dark:border-red-900/60 p-4 sm:p-5 text-center space-y-3">
                 <p className="text-sm font-semibold text-red-700 dark:text-red-300">{testsError}</p>
                 <button
                   type="button"
@@ -548,8 +534,8 @@ export default function StudentDashboardClient({
             )}
 
             {!testsLoading && !testsError && mockTests.length === 0 && (
-              <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center space-y-3">
-                <FileQuestion className="w-10 h-10 text-gray-400 mx-auto" />
+              <div className="bg-white dark:bg-[#05192D] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 text-center space-y-3">
+                <FileQuestion className="w-8 h-8 text-gray-400 mx-auto" />
                 <h4 className="font-bold text-gray-900 dark:text-white text-sm">
                   No mock tests published yet
                 </h4>

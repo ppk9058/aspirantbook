@@ -2,6 +2,16 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
+import {
+  WISHLIST_STORAGE_KEY_PREFIX,
+  getWishlistStorageKey,
+  parseStoredList,
+  writeStoredList,
+} from "./storageKeys"
+
+// Re-exported so existing importers keep working; the single implementation
+// lives in ./storageKeys so it can be unit-tested without React.
+export { WISHLIST_STORAGE_KEY_PREFIX, getWishlistStorageKey }
 
 interface WishlistContextType {
   wishlistIds: string[]
@@ -13,32 +23,47 @@ interface WishlistContextType {
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined)
 
-const WISHLIST_STORAGE_KEY = "trillion_books_wishlist_ids"
-
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [wishlistIds, setWishlistIds] = useState<string[]>([])
   const [isHydrated, setIsHydrated] = useState(false)
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const userId = session?.user?.id
+  const isLoggedIn = status === "authenticated" && Boolean(userId)
 
-  // 1. Hydrate from localStorage
+  // 1. Hydrate from localStorage strictly scoped to userId
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(WISHLIST_STORAGE_KEY)
-      if (stored) {
-        setWishlistIds(JSON.parse(stored))
+      if (isLoggedIn && userId) {
+        const userWishlistKey = getWishlistStorageKey(userId)
+        const stored = localStorage.getItem(userWishlistKey)
+        if (stored) {
+          setWishlistIds(parseStoredList<string>(stored))
+        } else {
+          const legacy = localStorage.getItem(WISHLIST_STORAGE_KEY_PREFIX)
+          if (legacy) {
+            const parsed = parseStoredList<string>(legacy)
+            if (parsed.length > 0) {
+              setWishlistIds(parsed)
+              localStorage.setItem(userWishlistKey, legacy)
+            }
+          }
+        }
+      } else {
+        // Guests must see 0 wishlist items and no badges
+        setWishlistIds([])
       }
     } catch (e) {
       console.error("Failed to hydrate wishlist:", e)
     } finally {
       setIsHydrated(true)
     }
-  }, [])
+  }, [isLoggedIn, userId])
 
   // 2. Sync with server if logged in
   useEffect(() => {
     if (!isHydrated) return
 
-    if (session?.user?.id) {
+    if (isLoggedIn && userId) {
       // Fetch server wishlist and merge
       fetch("/api/books/wishlist")
         .then((res) => res.json())
@@ -46,9 +71,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
           if (data.success && Array.isArray(data.bookIds)) {
             setWishlistIds((prev) => {
               const merged = Array.from(new Set([...prev, ...data.bookIds]))
-              try {
-                localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(merged))
-              } catch {}
+              writeStoredList(localStorage, getWishlistStorageKey(userId), merged)
               // Also sync any local-only items up to server
               if (prev.length > 0) {
                 fetch("/api/books/wishlist", {
@@ -63,15 +86,15 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         })
         .catch(() => {})
     }
-  }, [isHydrated, session?.user?.id])
+  }, [isHydrated, isLoggedIn, userId])
 
-  // 3. Persist to localStorage
+  // 3. Persist to localStorage (scoped to logged-in user only)
   useEffect(() => {
     if (!isHydrated) return
-    try {
-      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlistIds))
-    } catch {}
-  }, [wishlistIds, isHydrated])
+    if (isLoggedIn && userId) {
+      writeStoredList(localStorage, getWishlistStorageKey(userId), wishlistIds)
+    }
+  }, [wishlistIds, isHydrated, isLoggedIn, userId])
 
   const isWishlisted = (bookId: string) => wishlistIds.includes(bookId)
 

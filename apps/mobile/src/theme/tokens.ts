@@ -260,7 +260,7 @@ export const TOKENS = {
     cbtHeaderHeight: 52,   // Section 6 Phase 4 spec
   },
 
-  // Spacing (web: standard Tailwind spacing 4px increments)
+  // Spacing (web: standard Tailwind spacing 4px increments; 2.1 scale 4/8/12/16/24/32)
   spacing: {
     xs: 4,     // px-1 / py-1
     sm: 8,     // px-2 / py-2
@@ -269,6 +269,11 @@ export const TOKENS = {
     xl: 20,    // p-5
     "2xl": 24, // p-6
     "3xl": 32, // p-8
+    pagePaddingDesktop: 24,
+    pagePaddingMobile: 16,
+    sectionGapDesktop: 24,
+    sectionGapMobile: 16,
+    cardPadding: 16,
   },
 
   // Radii (web: tailwind.config.ts#L121-L125)

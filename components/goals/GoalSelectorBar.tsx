@@ -9,12 +9,14 @@ interface GoalSelectorBarProps {
     title?: string
     subtitle?: string
     className?: string
+    compact?: boolean
 }
 
 export function GoalSelectorBar({
     title = "Your Target Exams & Goals",
     subtitle = "Showing curated tests, courses, tutorials, and previous year papers matching your active targets",
     className = "",
+    compact = false,
 }: GoalSelectorBarProps) {
     const {
         selectedGoals,
@@ -26,6 +28,54 @@ export function GoalSelectorBar({
     } = useGoal()
 
     if (!isLoaded) return null
+
+    if (compact) {
+        return (
+            <div
+                data-testid="shared-goal-selector-bar"
+                className={`bg-white dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700/80 rounded-2xl py-2 px-3.5 shadow-2xs flex items-center justify-between gap-2.5 min-h-[48px] overflow-x-auto ${className}`}
+            >
+                <div className="flex items-center gap-2 min-w-0 flex-1 overflow-x-auto no-scrollbar">
+                    <span className="text-xs font-black text-gray-800 dark:text-gray-200 shrink-0">
+                        {title}:
+                    </span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        {selectedGoals.map((g) => (
+                            <span
+                                key={g.id}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-extrabold bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-200 border border-teal-300 dark:border-teal-700 shadow-2xs"
+                            >
+                                <GoalIcon name={g.icon} className="w-3.5 h-3.5" />
+                                <span>{g.name}</span>
+                                {selectedGoalIds.length > 1 && (
+                                    <button
+                                        type="button"
+                                        data-remove-goal={g.id}
+                                        onClick={() => toggleGoal(g)}
+                                        className="text-teal-500 hover:text-red-600 transition-colors ml-0.5 p-0.5"
+                                        title={`Remove ${g.name}`}
+                                        aria-label={`Remove ${g.name}`}
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                )}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={openGoalModal}
+                    className="inline-flex items-center justify-center gap-1 px-2.5 py-1 min-h-[36px] rounded-xl bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800 text-xs font-bold transition-all shadow-2xs shrink-0"
+                    aria-label="Add or switch exam targets"
+                >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Add exam target</span>
+                </button>
+            </div>
+        )
+    }
 
     return (
         <div
@@ -54,7 +104,7 @@ export function GoalSelectorBar({
                     aria-label="Add or switch exam targets"
                 >
                     <Plus className="h-3.5 w-3.5" />
-                    <span>+ Add exam target</span>
+                    <span>Add exam target</span>
                 </button>
             </div>
 
