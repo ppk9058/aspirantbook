@@ -91,7 +91,7 @@ export default function ContentEnginePracticePage() {
 
     const tagLine = `#${currentQ.sub?.replace(/\s+/g, "") || "General"} #${currentQ.exam?.replace(/[\s/]+/g, "_") || "PYQ"}`
 
-    const text = `🎯 **Exam Question of the Day**\n\n${currentQ.q}\n\n${optionsText}\n\n||✅ Correct Answer: ${optLetters[currentQ.answerIndex]}\n\n📖 Explanation: ${currentQ.explanation || "N/A"} ||\n\n${tagLine}\n👉 Practice more at TrillionSkill`
+    const text = `🎯 **Exam Question of the Day**\n\n${currentQ.q}\n\n${optionsText}\n\n||✅ Correct Answer: ${optLetters[currentQ.answerIndex]}\n\n📖 Explanation: ${currentQ.explanation || "N/A"} ||\n\n${tagLine}\n👉 Practice more at AspirantBook`
 
     navigator.clipboard.writeText(text)
     toast.success("Telegram post formatted and copied to clipboard!")

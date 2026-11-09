@@ -24,7 +24,7 @@ export function formatTestType(type?: string | null): string {
 
 export const ACCESS_MODE_LABELS: Record<string, string> = {
   FREE: "Free Tier",
-  PRO: "TrillionPass PRO",
+  PRO: "AspirantBook Pass PRO",
 }
 
 export function formatAccessMode(mode?: string | null): string {

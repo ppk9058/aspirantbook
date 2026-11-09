@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic"
 
 export const metadata = {
   title: "Book Studio | Admin Panel",
-  description: "Create, publish, approve and manage PDF books on TrillionSkill",
+  description: "Create, publish, approve and manage PDF books on AspirantBook",
 }
 
 export default async function AdminBookStudioPage() {

@@ -204,7 +204,7 @@ export default async function TutorialSlugPage({
               description: course.description,
               provider: {
                   "@type": "Organization",
-                  name: "TrillionSkill",
+                  name: "AspirantBook",
                   url: getBaseUrl() || (process.env.NODE_ENV === "production" ? "https://aspirantbook.com" : "http://127.0.0.1:3045"),
               },
           }

@@ -29,7 +29,7 @@ export async function generateMetadata({
   const { exam: examSlug } = await params
   const examName = unslugify(examSlug)
   return {
-    title: `${examName} Previous Year Questions (PYQs) | TrillionSkill`,
+    title: `${examName} Previous Year Questions (PYQs) | AspirantBook`,
     description: `Complete archive of ${examName} previous year exam questions with verified solutions, answer keys, and year-wise breakdown.`,
   }
 }

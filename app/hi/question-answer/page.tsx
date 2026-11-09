@@ -13,7 +13,7 @@ export const revalidate = 3600 // 1 hour cache
 const BASE_URL = getBaseUrl()
 
 export const metadata: Metadata = {
-  title: "प्रतियोगी परीक्षा पिछले वर्ष के प्रश्नोत्तर (PYQs) | TrillionSkill हिन्दी",
+  title: "प्रतियोगी परीक्षा पिछले वर्ष के प्रश्नोत्तर (PYQs) | AspirantBook हिन्दी",
   description:
     "यूपीएससी, बीपीएससी, यूपीपीसीएस, आरएएस और एसएससी परीक्षाओं के प्रामाणिक पिछले वर्षों के प्रश्नोत्तर और विस्तृत हिन्दी समाधान।",
   alternates: BASE_URL

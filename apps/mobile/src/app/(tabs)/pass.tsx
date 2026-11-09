@@ -86,7 +86,7 @@ export default function PassTabScreen() {
           >
             {hasActivePass
               ? "Your Pass is Active!"
-              : "Upgrade to Aspirantbook Pass"}
+              : "Upgrade to AspirantBook Pass"}
           </Text>
 
           <Text

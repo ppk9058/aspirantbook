@@ -14,16 +14,16 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
 
   if (!book) {
     return {
-      title: "eBook Not Found | TrillionSkill",
+      title: "eBook Not Found | AspirantBook",
       description: "The requested eBook could not be found in our catalogue.",
     }
   }
 
-  const title = `${book.title} - ${book.author} | TrillionSkill eBook Store`
+  const title = `${book.title} - ${book.author} | AspirantBook`
   const description =
     book.shortDescription ||
     book.description?.slice(0, 160) ||
-    "Buy and read authentic digital PDF notes and eBooks instantly on TrillionSkill."
+    "Buy and read authentic digital PDF notes and eBooks instantly on AspirantBook."
 
   return {
     title,

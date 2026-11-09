@@ -26,7 +26,7 @@ export async function generateMetadata({
 
   const hiTr = q?.translations?.find((t: any) => t.isReviewed)
   if (!q || !q.slug || !q.isPublished || !hiTr) {
-    return { title: "Question Not Found | TrillionSkill" }
+    return { title: "Question Not Found | AspirantBook" }
   }
 
   const seoInput: SeoQuestionInput = {

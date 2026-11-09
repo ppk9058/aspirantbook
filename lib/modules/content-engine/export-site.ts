@@ -191,7 +191,7 @@ export function generateStaticSiteFiles(
   files.push({
     path: `${homeHubPath("en").replace(/^\/+/, "")}/index.html`,
     content: htmlShell(
-      "Question & Answer Bank | TrillionSkill",
+      "Question & Answer Bank | AspirantBook",
       `Explore ${published.length} verified competitive exam MCQs with detailed explanations.`,
       homeUrl,
       "index, follow",

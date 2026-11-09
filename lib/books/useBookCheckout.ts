@@ -89,7 +89,7 @@ export function useBookCheckout() {
         key: checkoutData.keyId,
         amount: checkoutData.amountPaise,
         currency: checkoutData.currency || "INR",
-        name: "TrillionSkill eBook Store",
+        name: "AspirantBook",
         description: (checkoutData.bookNames || []).join(", ").slice(0, 250) || "eBook Purchase",
         order_id: checkoutData.razorpayOrderId,
         prefill: {

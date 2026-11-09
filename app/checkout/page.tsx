@@ -815,7 +815,7 @@ function CheckoutContent() {
                                 </li>
                                 <li className="flex items-start gap-2">
                                     <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                                    <span>Certificate of Completion verified by aspirantbook</span>
+                                    <span>Certificate of Completion verified by aspirantBook</span>
                                 </li>
                             </ul>
                         </div>

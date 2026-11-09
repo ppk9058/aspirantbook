@@ -221,7 +221,7 @@ export function buildArticleJsonLd(opts: {
     ...(opts.dateModified ? { dateModified: opts.dateModified } : {}),
     author: {
       "@type": "Organization",
-      name: opts.authorName || "TrillionSkill",
+      name: opts.authorName || "AspirantBook",
     },
   }
 }

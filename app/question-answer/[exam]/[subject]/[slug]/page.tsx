@@ -27,7 +27,7 @@ export async function generateMetadata({
   const q = await getPublicQuestionBySlug(slug)
 
   if (!q || !q.slug || !q.isPublished) {
-    return { title: "Question Not Found | TrillionSkill" }
+    return { title: "Question Not Found | AspirantBook" }
   }
 
   const hiTr = q.translations?.find((t: any) => t.isReviewed)

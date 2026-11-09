@@ -127,7 +127,7 @@ export default function RegisterScreen() {
           <View style={styles.brandBadge}>
             <Sparkles size={14} color={colors.primary} />
             <Text style={[styles.brandBadgeText, { color: colors.primary }]}>
-              TrillionSkill
+              AspirantBook
             </Text>
           </View>
           <Text style={[styles.brandTitle, { color: colors.textPrimary }]}>

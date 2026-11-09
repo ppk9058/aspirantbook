@@ -12,7 +12,7 @@ export const revalidate = 3600 // 1 hour cache
 const BASE_URL = getBaseUrl()
 
 export const metadata: Metadata = {
-  title: "Competitive Exam Previous Year Questions (PYQs) | TrillionSkill",
+  title: "Competitive Exam Previous Year Questions (PYQs) | AspirantBook",
   description:
     "Explore authentic previous year questions, answer keys, and detailed solutions for UPSC CSE, BPSC, UPPCS, RAS, and SSC CGL.",
   alternates: BASE_URL
