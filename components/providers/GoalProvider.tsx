@@ -1,10 +1,11 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import goalsConfig from "@/data/goals-config.json"
 import { parseGoalIds, serializeGoalIds } from "@/lib/goals/student-goals"
+import { getQueryGoal, stripGoalParam } from "@/lib/goals/query-goal"
 
 function getClientCookie(name: string): string | null {
     if (typeof document === "undefined") return null
@@ -349,6 +350,63 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
             window.removeEventListener("storage", handleStorage)
         }
     }, [applyGoalsFromRaw, router, session?.user?.id, status])
+
+    // Apply ?goal= on client-side navigations after the provider is already mounted.
+    // The effect above handles hard loads and strips the param; this effect skips its
+    // first run so the same selection is never applied twice on mount.
+    const pathname = usePathname()
+    const didRunQueryGoalEffectRef = useRef(false)
+    const lastAppliedQueryGoalRef = useRef<string | null>(null)
+
+    useEffect(() => {
+        if (!didRunQueryGoalEffectRef.current) {
+            didRunQueryGoalEffectRef.current = true
+            return
+        }
+        if (typeof window === "undefined") return
+
+        const queryGoal = getQueryGoal(window.location.search)
+        if (!queryGoal) {
+            lastAppliedQueryGoalRef.current = null
+            return
+        }
+        if (lastAppliedQueryGoalRef.current === queryGoal.serialized) return
+        lastAppliedQueryGoalRef.current = queryGoal.serialized
+
+        const cookieGoal = getClientCookie(STORAGE_GOAL_KEY)
+        applyGoalsFromRaw(queryGoal.serialized, null)
+        try {
+            localStorage.setItem(STORAGE_GOAL_KEY, queryGoal.serialized)
+            localStorage.removeItem(STORAGE_SUBGOAL_KEY)
+        } catch {}
+        setGuestGoalCookie(queryGoal.serialized)
+
+        // Keep the query selection ahead of the later GET /api/user/goal sync.
+        cachedUserGoalPromise = Promise.resolve({
+            goal: { goalId: queryGoal.serialized, goalIds: queryGoal.ids, subGoalId: null },
+        })
+
+        if (session?.user?.id) {
+            fetch("/api/user/goal", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    goalId: queryGoal.serialized,
+                    goalIds: queryGoal.ids,
+                    subGoalId: null,
+                }),
+            }).catch(() => {})
+        } else {
+            pendingQueryGoalSyncRef.current = { serialized: queryGoal.serialized, ids: queryGoal.ids }
+        }
+
+        if (cookieGoal !== queryGoal.serialized) {
+            router.refresh()
+        }
+
+        const remaining = stripGoalParam(window.location.search)
+        window.history.replaceState(null, "", window.location.pathname + remaining + window.location.hash)
+    }, [pathname, applyGoalsFromRaw, router, session?.user?.id])
 
     const persistAbortControllerRef = useRef<AbortController | null>(null)
 
