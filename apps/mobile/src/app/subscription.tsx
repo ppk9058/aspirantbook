@@ -52,7 +52,7 @@ export default function SubscriptionScreen() {
             Subscription & Payments
           </Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Manage your Aspirantbook Pass access and payment history
+            Manage your AspirantBook Pass access and payment history
           </Text>
           {browserError && (
             <Text style={{ color: colors.danger, marginTop: 8, fontSize: 13 }}>
@@ -93,7 +93,7 @@ export default function SubscriptionScreen() {
               { color: hasActivePass ? colors.textPrimary : "#FFFFFF" },
             ]}
           >
-            {hasActivePass ? "Aspirantbook Pass (Pro Access)" : "Free Learner Tier"}
+            {hasActivePass ? "AspirantBook Pass (Pro Access)" : "Free Learner Tier"}
           </Text>
 
           <Text

@@ -46,7 +46,7 @@ export function buildAllTestCases(): TestCaseDef[] {
     { id: "J1-11", persona: "Anonymous", method: "GET", url: "/search?q=bpsc", expectedStatus: 200, expectedBodySnippet: "72nd BPSC Prelims Current Affairs", description: "Search returns published courses" },
     { id: "J1-12", persona: "Anonymous", method: "GET", url: "/search?q=draft", expectedStatus: 200, forbiddenBodySnippet: "Unreleased Draft Course", description: "Search excludes draft courses" },
     { id: "J1-13", persona: "Anonymous", method: "GET", url: "/search", expectedStatus: 200, expectedBodySnippet: "Search", description: "Search page with empty query" },
-    { id: "J1-14", persona: "Anonymous", method: "GET", url: "/", expectedStatus: 200, expectedBodySnippet: "aspirantbook", description: "Landing page loads" },
+    { id: "J1-14", persona: "Anonymous", method: "GET", url: "/", expectedStatus: 200, expectedBodySnippet: "AspirantBook", description: "Landing page loads" },
     { id: "J1-15", persona: "Anonymous", method: "GET", url: "/pricing", expectedStatus: 200, expectedBodySnippet: "Pricing", description: "Pricing page loads" },
     { id: "J1-16", persona: "Anonymous", method: "GET", url: "/current-affairs-quizzes", expectedStatus: 200, description: "Current affairs & quizzes open for guest browsing (HTTP 200)" },
     { id: "J1-17", persona: "Anonymous", method: "GET", url: "/books", expectedStatus: 200, description: "Online bookstore open for guest browsing (HTTP 200)" },
@@ -378,7 +378,7 @@ export function buildAllTestCases(): TestCaseDef[] {
 
   // J13 Resilience & UX Quality (15 cases)
   const j13Defs: TestCaseDef[] = [
-    { id: "J13-01", persona: "Anonymous", method: "GET", url: "/?utm_source=seo", expectedStatus: 200, expectedBodySnippet: "aspirantbook", description: "Homepage loads with SEO campaign tracking" },
+    { id: "J13-01", persona: "Anonymous", method: "GET", url: "/?utm_source=seo", expectedStatus: 200, expectedBodySnippet: "AspirantBook", description: "Homepage loads with SEO campaign tracking" },
     { id: "J13-02", persona: "Anonymous", method: "GET", url: "/pricing?plan=monthly", expectedStatus: 200, expectedBodySnippet: "Pricing", description: "Pricing page loads with monthly plan preselected" },
     { id: "J13-03", persona: "Anonymous", method: "GET", url: "/login?redirect=/dashboard", expectedStatus: 200, expectedBodySnippet: "Sign In", description: "Login page loads with redirect parameter" },
     { id: "J13-04", persona: "Anonymous", method: "GET", url: "/register?role=student", expectedStatus: 200, expectedBodySnippet: "Create your account", description: "Register page loads with student role" },

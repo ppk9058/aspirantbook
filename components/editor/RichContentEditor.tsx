@@ -1450,7 +1450,7 @@ export function RichContentEditor({
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="e.g. aspirantbook Audio"
+                                    placeholder="e.g. AspirantBook Audio"
                                     value={audioArtist}
                                     onChange={(e) => setAudioArtist(e.target.value)}
                                     className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-xs focus:border-[#10162F] focus:outline-none"

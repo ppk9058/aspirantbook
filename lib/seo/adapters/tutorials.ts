@@ -9,7 +9,7 @@ import type { SharedSeoOutput } from "../types"
 
 export function adaptTutorialsCatalogSeo(baseUrl?: string): SharedSeoOutput {
   const canonicalPath = "/tutorials"
-  const title = "Text-Based Tutorials | aspirantbook"
+  const title = "Text-Based Tutorials | AspirantBook"
   const description =
     "In-depth, step-by-step reading tutorials with interactive code blocks, diagrams, and curriculum authored in Tutorial Studio."
 

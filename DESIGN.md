@@ -1,7 +1,7 @@
 # DESIGN: Exam-Taking Runtime Architecture
 
 **Author**: Principal Engineer  
-**Scope**: AspirantBook / TrillionSkill Exam Subsystem  
+**Scope**: AspirantBook Exam Subsystem  
 **Target Concurrency**: 300 concurrent users today $\to$ 1,000 $\to$ 5,000 users  
 **Target Infrastructure**: Supabase Postgres Free Tier (pooler, 15–20 backend connections, 500MB cap), optional Redis (`REDIS_URL`), Cloudflare edge proxy, Docker-capable Node host (standalone Next.js).
 
@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary & Problem Statement
 
-TrillionSkill operates high-stakes Computer-Based Tests (CBT) for civil services and state exams. Tests typically comprise 100 to 150 questions with 60 to 120-minute durations.
+AspirantBook operates high-stakes Computer-Based Tests (CBT) for civil services and state exams. Tests typically comprise 100 to 150 questions with 60 to 120-minute durations.
 Under Phase 0 tracing against real database queries, the existing baseline exhibits three structural flaws that cause outage under even modest concurrency (300 users):
 1. **Submit Thundering Herd**: `gradeExamAttempt` executes 100 sequential `UPDATE` queries inside a single PostgreSQL transaction loop, holding connection pool slots for 1.5–2.5 seconds. At 300 concurrent submitters, connection demand reaches ~19 connections, saturating Supabase's 15–20 backend pooler limit and crashing at 1,000 users.
 2. **$O(N^2)$ Peer Attempt Scans**: `getTestRankings` runs an unbounded `findMany` across all submitted attempts of the test without caching. At 5,000 users, 5,000 submissions trigger 25,000,000 row parses in Node memory.

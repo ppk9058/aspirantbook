@@ -716,8 +716,8 @@ export default function TestSeriesPage() {
                                         key={item.id}
                                         className="rounded-2xl border border-gray-200/90 dark:border-gray-800 bg-white dark:bg-[#071d33] shadow-xs hover:shadow-lg transition-all duration-200 overflow-hidden flex flex-col justify-between group"
                                     >
-                                        {/* Card Top Header with Soft Lavender / Purple Gradient */}
-                                        <div className="bg-gradient-to-b from-[#F3ECFF] via-[#F8F5FF] to-white dark:from-[#1E1938] dark:to-[#071d33] p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800/80">
+                                        {/* Card Top Header with Soft Lavender / Purple Gradient in Light Mode, Rich Dark Slate in Dark Mode */}
+                                        <div className="bg-gradient-to-b from-[#F3ECFF] via-[#F8F5FF] to-white dark:from-[#0a1f38] dark:via-[#0c2442] dark:to-[#071d33] p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800/80">
                                             {/* Top Row: Exam Logo + User Count Badge */}
                                             <div className="flex items-center justify-between gap-2 mb-3.5">
                                                 <div className="w-12 h-12 rounded-full bg-white dark:bg-gray-900 shadow-2xs border border-purple-100 dark:border-purple-900/40 p-0.5 flex items-center justify-center flex-shrink-0">
@@ -889,7 +889,7 @@ export default function TestSeriesPage() {
                     <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6">
                         <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2">
-                                <span className="text-xl font-black text-gray-900 dark:text-white">aspirantbook</span>
+                                <span className="text-xl font-black text-[#ff0031] dark:text-[#ff385c] tracking-tight">aspirantBook</span>
                                 <span className="px-2 py-0.5 rounded-md bg-emerald-700 text-[10px] font-black text-white tracking-widest uppercase">
                                     PASS PRO
                                 </span>

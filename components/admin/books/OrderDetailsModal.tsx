@@ -14,7 +14,7 @@ export default function OrderDetailsModal({ order, onClose }: OrderDetailsModalP
   if (!order) return null
 
   const handleDownloadInvoice = () => {
-    const invoiceText = `aspirantbook Official Tax Invoice / Receipt
+    const invoiceText = `AspirantBook Official Tax Invoice / Receipt
 Order No: ${order.orderNumber}
 Date: ${order.date}
 Payment Method: ${order.paymentMethod}
@@ -29,7 +29,7 @@ ${order.couponDiscount ? `Coupon Discount (${order.couponCode}): -₹${order.cou
 Final Amount Paid: ₹${order.finalTotal}
 
 Digital License: INSTANT eBOOK ACCESS GRANTED
-Powered by aspirantbook Online Bookstore & Publications.
+Powered by AspirantBook Online Bookstore & Publications.
 `
     const blob = new Blob([invoiceText], { type: "text/plain" })
     const url = URL.createObjectURL(blob)

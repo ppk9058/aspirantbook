@@ -6,6 +6,7 @@ import { X, Loader2, CheckCircle2, ArrowRight, ShieldCheck } from "lucide-react"
 import Link from "next/link"
 import { useMobileAuth, triggerMobileAuth, MobileAuthCourseInfo, MobileAuthOptions } from "./MobileAuthContext"
 import { LoginForm } from "@/components/auth/LoginForm"
+import BrandLogo from "@/components/brand/BrandLogo"
 
 export { triggerMobileAuth as openMobileAuth }
 export type { MobileAuthCourseInfo }
@@ -78,20 +79,8 @@ export default function MobileAuthModal() {
                 {/* Brand Header */}
                 <div className="pt-7 pb-4 px-6 text-center border-b border-gray-100 bg-gradient-to-b from-[#FFFDF9] to-white">
                     <div className="flex justify-center mb-3">
-                        <div className="w-16 h-16 rounded-full overflow-hidden bg-[#F7EFE4] border-2 border-[#ECDCC9] shadow-sm flex items-center justify-center p-1 ring-4 ring-[#F26522]/10">
-                            <Image
-                                src="/aspirant-logo.jpg"
-                                alt="aspirantbook"
-                                width={64}
-                                height={64}
-                                className="w-full h-full object-contain rounded-full"
-                                priority
-                            />
-                        </div>
+                        <BrandLogo size="xl" priority />
                     </div>
-                    <h2 className="text-2xl font-black text-gray-900 tracking-tight flex items-center justify-center">
-                        aspirant<span className="text-[#F26522] ml-0.5 font-black">book</span>
-                    </h2>
                     <p className="text-xs text-gray-500 mt-1 font-medium">
                         {step === "phone"
                             ? "Enter your mobile number to get started"

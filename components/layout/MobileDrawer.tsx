@@ -27,6 +27,7 @@ import { useSession } from "next-auth/react"
 import { safeSignOut } from "@/lib/auth-client"
 import { useTheme } from "@/components/providers/ThemeProvider"
 import GoalSelectorButton from "@/components/layout/GoalSelectorButton"
+import BrandLogo from "@/components/brand/BrandLogo"
 
 import { getDashboardHref } from "@/lib/auth/roles"
 
@@ -72,19 +73,17 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
             <div className="relative w-4/5 max-w-xs bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col z-10 border-r border-slate-200 dark:border-slate-800">
                 {/* Drawer Header */}
                 <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                    <Link href={homeHref} onClick={onClose} data-testid="drawer-logo" className="flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-teal-500 rounded-lg">
-                        <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-lg flex items-center justify-center shadow-xs">
-                            <span className="text-white font-extrabold text-base">T</span>
-                        </div>
-                        <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-slate-100">
-                            aspirant<span className="text-teal-600 dark:text-teal-400">book</span>
-                        </span>
-                    </Link>
+                    <BrandLogo
+                        size="md"
+                        href={homeHref}
+                        onClick={onClose}
+                        data-testid="drawer-logo"
+                    />
 
                     <button
                         onClick={onClose}
                         data-testid="drawer-close"
-                        className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        className="p-2 min-h-11 min-w-11 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         aria-label="Close menu"
                     >
                         <X className="h-5 w-5" />
@@ -111,7 +110,7 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
                                 href={item.href}
                                 onClick={onClose}
                                 data-testid={item.testId}
-                                className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-colors ${
+                                className={`flex items-center justify-between px-3 py-2.5 min-h-11 rounded-xl text-xs font-semibold transition-colors ${
                                     isActive
                                         ? "bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 font-bold"
                                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -136,7 +135,7 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
                 <div className="p-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between safe-area-bottom">
                     <button
                         onClick={toggleTheme}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 min-h-11 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     >
                         {theme === "dark" ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
                         <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>

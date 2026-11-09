@@ -14,7 +14,7 @@ import { consumePassPopupParam, hasPendingPassPopup, PASS_POPUP_HANDLED_STORAGE_
 export const PYQ_PASS_BUY_ITEM = {
   type: "subscription" as const,
   id: "YEARLY",
-  title: "aspirantbook Pass (Yearly)",
+  title: "AspirantBook Pass (Yearly)",
   price: PASS_PRICE_INR,
   isFree: false,
 }

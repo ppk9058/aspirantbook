@@ -1,5 +1,5 @@
 /**
- * Centralized Role Definitions for aspirantbook
+ * Centralized Role Definitions for AspirantBook
  * Supports 3 primary RBAC roles: STUDENT, TEACHER, ADMIN
  * Designed to cleanly accommodate future roles (SUPER_ADMIN, CONTENT_MANAGER, MODERATOR).
  */

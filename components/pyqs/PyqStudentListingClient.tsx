@@ -185,23 +185,24 @@ export function PyqStudentListingClient({
       data-testid="pyqs-listing-root"
       data-hydrated={hydrated ? "true" : "false"}
     >
-      {/* Search & Filter Bar */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+      {/* Search & Filter Control Center */}
+      <div className="bg-card border border-border text-card-foreground rounded-2xl p-5 shadow-xs space-y-4">
+        {/* Tier 1: Search & Controls */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
           {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="lg:col-span-6 relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by exam, subject, or year (e.g. History, 2024)..."
-              className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+              className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-input bg-muted/40 dark:bg-muted/20 text-foreground placeholder:text-muted-foreground focus:bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md p-1 transition-colors"
                 aria-label="Clear search"
               >
                 <X className="w-4 h-4" />
@@ -209,79 +210,79 @@ export function PyqStudentListingClient({
             )}
           </div>
 
-          {/* Sort By Dropdown */}
-          <div className="flex items-center gap-2">
-            <div className="relative w-full sm:w-auto">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                aria-label="Sort papers"
-                className="w-full sm:w-auto px-3 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              >
-                <option value="year">Latest Exam Year</option>
-                <option value="downloads">Most Downloaded</option>
-                <option value="recent">Recently Added</option>
-              </select>
-            </div>
+          {/* Quick Selectors Group */}
+          <div className="lg:col-span-6 flex flex-wrap sm:flex-nowrap items-center gap-2 justify-start lg:justify-end">
+            {/* Stage Dropdown */}
+            <select
+              value={selectedStage}
+              onChange={(e) => setSelectedStage(e.target.value)}
+              aria-label="Filter by Stage"
+              className="w-full sm:w-auto px-3 py-2 text-xs font-semibold rounded-xl border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer shadow-2xs"
+            >
+              <option value="ALL">All Stages</option>
+              <option value="PRELIMS">Prelims</option>
+              <option value="MAINS">Mains</option>
+              <option value="INTERVIEW">Interview / Theory</option>
+            </select>
+
+            {/* Pricing Dropdown */}
+            <select
+              value={selectedAccess}
+              onChange={(e) => setSelectedAccess(e.target.value)}
+              aria-label="Filter by Price"
+              className="w-full sm:w-auto px-3 py-2 text-xs font-semibold rounded-xl border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer shadow-2xs"
+            >
+              <option value="ALL">All Pricing</option>
+              <option value="FREE">Free</option>
+              <option value="PAID">Paid</option>
+            </select>
+
+            {/* Sort Dropdown */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              aria-label="Sort papers"
+              className="w-full sm:w-auto px-3.5 py-2 text-xs font-semibold rounded-xl border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer shadow-2xs"
+            >
+              <option value="year">Latest Exam Year</option>
+              <option value="downloads">Most Downloaded</option>
+              <option value="recent">Recently Added</option>
+            </select>
           </div>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-100">
-          {/* Category Tabs */}
-          <button
-            onClick={() => setSelectedCategory("ALL")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-              selectedCategory === "ALL"
-                ? "bg-orange-600 text-white shadow-xs"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            All Categories
-          </button>
-          {categories.map((cat) => (
+        {/* Tier 2: Category Navigation & Reset */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border/70">
+          <div className="flex flex-wrap items-center gap-1.5">
             <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.slug)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                selectedCategory.toLowerCase() === cat.slug.toLowerCase()
-                  ? "bg-orange-600 text-white shadow-xs"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              onClick={() => setSelectedCategory("ALL")}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
+                selectedCategory === "ALL"
+                  ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent hover:border-border/60"
               }`}
             >
-              {cat.name}
+              All Categories
             </button>
-          ))}
-
-          {/* Stage Dropdown */}
-          <select
-            value={selectedStage}
-            onChange={(e) => setSelectedStage(e.target.value)}
-            aria-label="Filter by Stage"
-            className="px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 bg-gray-50 text-gray-700 focus:outline-none"
-          >
-            <option value="ALL">All Stages</option>
-            <option value="PRELIMS">Prelims</option>
-            <option value="MAINS">Mains</option>
-            <option value="INTERVIEW">Interview / Theory</option>
-          </select>
-
-          {/* Pricing Dropdown */}
-          <select
-            value={selectedAccess}
-            onChange={(e) => setSelectedAccess(e.target.value)}
-            aria-label="Filter by Price"
-            className="px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 bg-gray-50 text-gray-700 focus:outline-none"
-          >
-            <option value="ALL">All Pricing</option>
-            <option value="FREE">Free</option>
-            <option value="PAID">Paid</option>
-          </select>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.slug)}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 ${
+                  selectedCategory.toLowerCase() === cat.slug.toLowerCase()
+                    ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                    : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent hover:border-border/60"
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
 
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="text-xs text-orange-600 hover:text-orange-700 font-semibold px-2 py-1 ml-auto"
+              className="text-xs text-primary hover:text-primary/80 font-bold px-2 py-1 ml-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md transition-colors"
             >
               Reset Filters
             </button>
@@ -290,9 +291,9 @@ export function PyqStudentListingClient({
       </div>
 
       {/* Results Header */}
-      <div className="flex items-center justify-between text-xs text-gray-500 px-1">
+      <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
         <span>
-          Showing <strong className="text-gray-900 font-semibold">{filteredPapers.length}</strong> previous year papers
+          Showing <strong className="text-foreground font-bold">{filteredPapers.length}</strong> previous year papers
         </span>
       </div>
 
@@ -304,15 +305,15 @@ export function PyqStudentListingClient({
           data-testid="pyq-unlock-status"
           className={`flex flex-wrap items-center gap-2 rounded-xl border px-4 py-3 text-xs font-semibold ${
             unlockState === "pending"
-              ? "border-amber-200 bg-amber-50 text-amber-800"
+              ? "border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200"
               : unlockState === "error"
-              ? "border-red-200 bg-red-50 text-red-700"
-              : "border-gray-200 bg-gray-50 text-gray-700"
+              ? "border-destructive/30 bg-destructive/10 text-destructive"
+              : "border-border bg-muted/50 text-muted-foreground"
           }`}
         >
           {unlockState === "checking" ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
               <span>Checking access…</span>
             </>
           ) : (
@@ -328,7 +329,7 @@ export function PyqStudentListingClient({
                 onClick={() => {
                   if (unlockPaper) void verifyUnlockedPaper(unlockPaper)
                 }}
-                className="ml-auto rounded-lg border border-current px-3 py-1 text-[11px] font-bold hover:bg-white/60 transition-colors"
+                className="ml-auto rounded-lg border border-current px-3 py-1 min-h-11 inline-flex items-center text-[11px] font-bold hover:bg-background/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
               >
                 Retry
               </button>
@@ -339,95 +340,104 @@ export function PyqStudentListingClient({
 
       {/* Paper Grid */}
       {filteredPapers.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-          <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-gray-800">No matching papers found</h3>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1 mb-4">
-            We couldn't find any papers matching your filters. Try adjusting your search query or resetting filters.
-          </p>
+        <div className="bg-card border border-border text-card-foreground rounded-2xl p-12 sm:p-16 text-center shadow-xs space-y-4">
+          <div className="p-4 rounded-2xl bg-muted/60 border border-border/80 inline-flex mx-auto">
+            <BookOpen className="w-12 h-12 text-muted-foreground/60 stroke-[1.5]" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-foreground">No matching papers found</h3>
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto mt-1 leading-relaxed">
+              We couldn't find any papers matching your current search or filter combination.
+            </p>
+          </div>
           <button
             onClick={clearFilters}
-            className="px-4 py-2 bg-orange-600 text-white text-xs font-semibold rounded-xl hover:bg-orange-700 transition-colors"
+            className="px-5 py-2.5 bg-primary text-primary-foreground text-xs font-semibold rounded-xl hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors shadow-2xs"
           >
             Show All Papers
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredPapers.map((paper) => (
             <div
               key={paper.id}
-              className="bg-white rounded-2xl border border-gray-200 p-5 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between"
+              className="group relative flex flex-col justify-between bg-card text-card-foreground rounded-2xl border border-border/80 hover:border-primary/50 shadow-xs hover:shadow-lg transition-all duration-200 p-5 space-y-4"
             >
-              <div>
-                {/* Badges Bar */}
-                <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="space-y-3">
+                {/* Badges Bar: Category & Stage on left, Year & Access on right */}
+                <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                    <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-primary/10 text-primary border border-primary/20">
                       {paper.category.name}
                     </span>
-                    <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-700">
-                      {paper.year}
-                    </span>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                      className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold ${
                         paper.stage === "PRELIMS"
-                          ? "bg-blue-50 text-blue-700"
+                          ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-500/20"
                           : paper.stage === "MAINS"
-                          ? "bg-purple-50 text-purple-700"
-                          : "bg-amber-50 text-amber-700"
+                          ? "bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20"
+                          : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20"
                       }`}
                     >
                       {paper.stage}
                     </span>
                   </div>
 
-                  {/* Access Badge */}
-                  {paper.accessType === "PAID" || paper.accessType === "PASS_ONLY" ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                      <Lock className="w-3 h-3 text-amber-600" />Pass
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-muted text-foreground/80 border border-border/60">
+                      {paper.year}
                     </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      FREE
-                    </span>
-                  )}
+                    {paper.accessType === "PAID" || paper.accessType === "PASS_ONLY" ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/25">
+                        <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" />Pass
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                        FREE
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Title */}
-                <h4 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1.5">
+                <h3 className="font-bold text-foreground text-base line-clamp-2 leading-snug tracking-tight group-hover:text-primary transition-colors break-words min-h-[2.75rem]">
                   {paper.title}
-                </h4>
+                </h3>
 
                 {/* Subject & Sub-exam */}
-                <div className="space-y-1 mb-4">
+                <div className="space-y-1.5 text-xs">
                   {paper.subject && (
-                    <div className="text-xs font-medium text-gray-600 flex items-center gap-1.5">
-                      <span className="text-gray-400">Subject:</span>
-                      <span className="text-gray-800 font-semibold">{paper.subject}</span>
+                    <div className="font-medium text-muted-foreground flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-primary/70 shrink-0" />
+                      <span className="truncate text-foreground font-semibold">{paper.subject}</span>
                     </div>
                   )}
                   {paper.subExam && (
-                    <div className="text-[11px] text-gray-500">
-                      Sub-Exam: {paper.subExam.name}
+                    <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <span className="text-muted-foreground/70">Sub-Exam:</span>
+                      <span className="font-medium text-foreground/80 truncate">{paper.subExam.name}</span>
                     </div>
                   )}
                 </div>
 
                 {/* CBT Badge */}
                 {paper.hasCbtMode && (
-                  <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 text-[11px] font-semibold mb-3 border border-indigo-100">
-                    <Zap className="w-3 h-3 text-indigo-500" />
-                    CBT Simulator Mode Available
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs font-semibold border border-indigo-500/20">
+                    <Zap className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" />
+                    <span>CBT Simulator Practice Ready</span>
                   </div>
                 )}
               </div>
 
-              {/* Meta & Actions */}
-              <div className="pt-3 border-t border-gray-100 space-y-3">
-                <div className="flex items-center justify-between text-[11px] text-gray-400">
-                  <span>{paper.downloadCount || 0} downloads</span>
+              {/* Meta & Actions Footer */}
+              <div className="pt-3 border-t border-border/70 space-y-3">
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span className="inline-flex items-center gap-1">
+                    <Download className="w-3 h-3 text-muted-foreground/60" />
+                    {paper.downloadCount || 0} downloads
+                  </span>
                   {paper.pdfFileSizeKb ? (
                     <span>{paper.pdfFileSizeKb} KB</span>
                   ) : paper.pageCount ? (
@@ -435,28 +445,31 @@ export function PyqStudentListingClient({
                   ) : null}
                 </div>
 
+                {/* Actions: Obvious Primary Action + Quieter Secondary Actions */}
                 <div className="flex items-center gap-2">
                   {evaluatePyqLockState(paper) === "locked" ? (
                     <>
+                      {/* Primary CTA */}
                       <button
                         type="button"
                         onClick={() => handlePassClick(paper)}
                         disabled={isPassProcessing}
                         data-testid="pyq-pass-unlock-cta"
-                        title="This paper needs the aspirantbook Pass"
-                        className="flex-1 py-2 px-3 text-xs font-semibold text-center rounded-xl bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-60"
+                        title="This paper needs the AspirantBook Pass"
+                        className="flex-1 py-2.5 px-4 text-xs font-bold text-center rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
                       >
-                        <Lock className="w-3.5 h-3.5 text-amber-600" />
+                        <Lock className="w-3.5 h-3.5" />
                         {isPassProcessing ? "Opening checkout..." : "Get Pass to View"}
                       </button>
 
+                      {/* Quieter Secondary Actions */}
                       <button
                         type="button"
                         onClick={() => handlePassClick(paper)}
                         disabled={isPassProcessing}
-                        title="This paper needs the aspirantbook Pass"
+                        title="This paper needs the AspirantBook Pass"
                         aria-label={`Get Pass to download ${paper.title}`}
-                        className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 border border-gray-200 rounded-xl transition-colors disabled:opacity-60"
+                        className="p-2.5 text-muted-foreground hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 border border-border/80 rounded-xl transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <Lock className="w-4 h-4" />
                       </button>
@@ -466,28 +479,30 @@ export function PyqStudentListingClient({
                           type="button"
                           onClick={() => handlePassClick(paper)}
                           disabled={isPassProcessing}
-                          title="This paper needs the aspirantbook Pass"
-                          className="py-2 px-3 text-xs font-semibold text-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1 disabled:opacity-60"
+                          title="This paper needs the AspirantBook Pass"
+                          className="py-2.5 px-3 text-xs font-semibold text-center rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/70 transition-colors flex items-center justify-center gap-1 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 shadow-2xs"
                         >
-                          <Zap className="w-3.5 h-3.5" />
-                          Attempt Test
+                          <Zap className="w-3.5 h-3.5 text-amber-500" />
+                          <span>Test</span>
                         </button>
                       )}
                     </>
                   ) : (
                     <>
+                      {/* Primary CTA */}
                       <Link
                         href={`/pyqs/pdf-view?paperId=${encodeURIComponent(paper.id)}`}
-                        className="flex-1 py-2 px-3 text-xs font-semibold text-center rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2.5 px-4 text-xs font-bold text-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs transition-colors flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        View PDF
+                        <span>View PDF</span>
                       </Link>
 
+                      {/* Quieter Secondary Actions */}
                       <a
                         href={`/api/pyqs/file/${paper.id}?download=1`}
                         download
-                        className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 border border-gray-200 rounded-xl transition-colors"
+                        className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted border border-border/80 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         title="Download Paper"
                         aria-label={`Download ${paper.title}`}
                       >
@@ -497,10 +512,10 @@ export function PyqStudentListingClient({
                       {paper.hasCbtMode && paper.cbtTestId && (
                         <Link
                           href={`/test-series/${paper.cbtTestId}/instructions?testId=${paper.cbtTestId}`}
-                          className="py-2 px-3 text-xs font-semibold text-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1"
+                          className="py-2.5 px-3 text-xs font-semibold text-center rounded-xl bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/20 border border-indigo-500/20 transition-colors flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 shadow-2xs"
                         >
-                          <Zap className="w-3.5 h-3.5" />
-                          Attempt Test
+                          <Zap className="w-3.5 h-3.5 text-indigo-500" />
+                          <span>Test</span>
                         </Link>
                       )}
                     </>
@@ -508,7 +523,7 @@ export function PyqStudentListingClient({
                 </div>
 
                 {passError && (
-                  <p role="alert" className="text-[11px] font-semibold text-red-600">
+                  <p role="alert" className="text-[11px] font-semibold text-destructive">
                     {passError}
                   </p>
                 )}

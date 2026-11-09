@@ -1412,7 +1412,7 @@ function Arena() {
                         <div style={{ width: 22, height: 22, background: "#14b8a6", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center" }}>
                             <span style={{ color: "#fff", fontSize: 8, fontWeight: 900 }}>TS</span>
                         </div>
-                        <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 13 }}>aspirantbook</span>
+                        <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 13 }}>AspirantBook</span>
                     </div>
                     <div style={{ width: 1, height: 18, background: "#d1d5db", margin: "0 4px" }} />
                     <span style={{ color: "#374151", fontSize: 12, fontWeight: 600, maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

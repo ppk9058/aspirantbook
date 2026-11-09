@@ -256,7 +256,7 @@ function BooksCatalogContent() {
                 R.D. Sharma &amp; Toppers&apos; Recommended Books
               </h2>
               <span className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1 mt-0.5">
-                Powered by <strong className="text-gray-800 dark:text-gray-200 font-extrabold">Prepmarket &bull; aspirantbook</strong>
+                Powered by <strong className="text-gray-800 dark:text-gray-200 font-extrabold">Prepmarket &bull; AspirantBook</strong>
               </span>
             </div>
 

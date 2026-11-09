@@ -171,7 +171,7 @@ export function normalizeBook(raw: any): Book {
         { label: "Format", value: raw.format || "PDF eBook" },
         { label: "Pages", value: String(raw.pages || 240) },
         { label: "Language", value: raw.language || "English" },
-        { label: "Publisher", value: raw.publisher || "aspirantbook Publications" },
+        { label: "Publisher", value: raw.publisher || "AspirantBook Publications" },
         { label: "Edition", value: raw.edition || "2026 Edition" },
         { label: "File Size", value: raw.fileSize || `${raw.fileSizeMb || 18} MB` },
       ]
@@ -383,7 +383,7 @@ export async function createBook(bookData: Partial<Book>): Promise<Book> {
         { label: "Format", value: bookData.format || "PDF eBook" },
         { label: "Pages", value: String(bookData.pages || 240) },
         { label: "Language", value: bookData.language || "English" },
-        { label: "Publisher", value: bookData.publisher || "aspirantbook Publications" },
+        { label: "Publisher", value: bookData.publisher || "AspirantBook Publications" },
         { label: "Edition", value: bookData.edition || "2026 Edition" },
         { label: "File Size", value: bookData.fileSize || `${bookData.fileSizeMb || 18.5} MB` },
       ]
@@ -395,8 +395,8 @@ export async function createBook(bookData: Partial<Book>): Promise<Book> {
     slug,
     title: bookData.title || "Untitled eBook",
     subtitle: bookData.subtitle || "",
-    author: bookData.author || "aspirantbook Academic Team",
-    publisher: bookData.publisher || "aspirantbook Publications",
+    author: bookData.author || "AspirantBook Academic Team",
+    publisher: bookData.publisher || "AspirantBook Publications",
     category: bookData.category || "UPSC",
     subcategory: bookData.subcategory || "General",
     subject: bookData.subject || "General Studies",

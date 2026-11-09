@@ -881,7 +881,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
 
                         <div className="space-y-1.5 mb-4">
                             <div className="flex flex-wrap items-center gap-2 min-w-0">
-                                <span className="text-lg sm:text-xl font-black tracking-tight text-white">aspirantbook</span>
+                                <span className="text-lg sm:text-xl font-black tracking-tight text-white">aspirantBook</span>
                                 <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-xs text-[10px] font-black tracking-widest uppercase">
                                     PASS
                                 </span>
@@ -1044,7 +1044,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                     <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6">
                         <div className="flex items-start justify-between">
                             <div className="flex flex-wrap items-center gap-2 min-w-0">
-                                <span className="text-xl font-black text-gray-900 dark:text-white">aspirantbook</span>
+                                <span className="text-xl font-black text-[#ff0031] dark:text-[#ff385c] tracking-tight">aspirantBook</span>
                                 <span className="px-2 py-0.5 rounded-md bg-emerald-700 text-[10px] font-black text-white tracking-widest uppercase">
                                     PASS PRO
                                 </span>

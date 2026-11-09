@@ -1,5 +1,5 @@
 /**
- * aspirantbook Design System Tokens
+ * AspirantBook Design System Tokens
  * Centralized design constants to replace hardcoded values across components.
  */
 

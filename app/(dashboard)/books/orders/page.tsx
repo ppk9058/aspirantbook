@@ -58,7 +58,7 @@ function OrdersContent() {
 
   const handleDownloadInvoice = (orderNumber: string) => {
     const blob = new Blob([
-      `aspirantbook Official Tax Invoice / Receipt\nOrder No: ${orderNumber}\nDate: ${new Date().toLocaleDateString()}\nStatus: PAID & DELIVERED\n`
+      `AspirantBook Official Tax Invoice / Receipt\nOrder No: ${orderNumber}\nDate: ${new Date().toLocaleDateString()}\nStatus: PAID & DELIVERED\n`
     ], { type: "text/plain" })
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")

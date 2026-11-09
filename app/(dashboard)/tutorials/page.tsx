@@ -7,7 +7,7 @@ import { TutorialsClientView, TutorialItem } from "./TutorialsClientView"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-    title: "Text-Based Tutorials | aspirantbook",
+    title: "Text-Based Tutorials | AspirantBook",
     description: "In-depth, step-by-step reading tutorials with interactive code blocks, diagrams, and curriculum authored in Tutorial Studio.",
 }
 

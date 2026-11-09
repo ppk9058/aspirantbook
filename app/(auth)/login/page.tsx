@@ -1,6 +1,7 @@
 import { LoginForm } from "@/components/auth/LoginForm"
 import Link from "next/link"
 import Image from "next/image"
+import BrandLogo from "@/components/brand/BrandLogo"
 
 import { Suspense } from "react"
 
@@ -10,22 +11,8 @@ export default function LoginPage() {
             <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-800 p-5 sm:p-8 box-border">
                 <div className="text-center mb-7">
                     <div className="flex justify-center mb-3">
-                        <Link href="/" className="inline-block">
-                            <div className="w-16 h-16 rounded-full overflow-hidden bg-[#F7EFE4] border-2 border-[#ECDCC9] shadow-sm flex items-center justify-center p-1 ring-4 ring-[#F26522]/10 hover:scale-105 transition-transform">
-                                <Image
-                                    src="/aspirant-logo.jpg"
-                                    alt="aspirantbook"
-                                    width={64}
-                                    height={64}
-                                    className="w-full h-full object-contain rounded-full"
-                                    priority
-                                />
-                            </div>
-                        </Link>
+                        <BrandLogo size="xl" href="/" priority />
                     </div>
-                    <h1 className="text-2xl font-black text-gray-900 tracking-tight">
-                        aspirant<span className="text-[#F26522]">book</span>
-                    </h1>
                     <p className="text-xs text-gray-500 mt-1 font-medium">
                         Log in with verified mobile OTP, Google, or email to access your dashboard
                     </p>

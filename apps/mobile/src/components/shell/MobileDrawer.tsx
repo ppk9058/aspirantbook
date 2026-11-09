@@ -8,6 +8,7 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Dimensions,
+  Image,
 } from "react-native";
 import {
   X,
@@ -166,20 +167,13 @@ export function MobileDrawer({ isOpen, onClose, testID }: MobileDrawerProps) {
               testID="drawer-logo"
               style={styles.logoRow}
             >
-              <View
-                style={[
-                  styles.logoBox,
-                  {
-                    backgroundColor: colors.brandFrom,
-                    borderRadius: tokens.radius.lg,
-                  },
-                ]}
-              >
-                <Text style={styles.logoLetter}>T</Text>
-              </View>
+              <Image
+                source={require("../../../../assets/brand/icon-192.png")}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
               <Text style={styles.brandText}>
-                <Text style={{ color: colors.brandTextPrimary }}>aspirant</Text>
-                <Text style={{ color: colors.brandTextAccent }}>book</Text>
+                aspirantBook
               </Text>
             </TouchableOpacity>
 
@@ -385,19 +379,20 @@ const styles = StyleSheet.create({
   logoBox: {
     width: 32,
     height: 32,
-    alignItems: "center",
-    justifyContent: "center",
+    borderRadius: 16,
     marginRight: 8,
   },
-  logoLetter: {
-    color: "#FFFFFF",
-    fontWeight: "900",
-    fontSize: 16,
+  logoImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 8,
   },
   brandText: {
     fontSize: 17,
-    fontWeight: "800",
-    letterSpacing: -0.3,
+    fontWeight: "900",
+    letterSpacing: -0.4,
+    color: "#ff0031",
   },
   closeButton: {
     padding: 6,

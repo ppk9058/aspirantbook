@@ -153,11 +153,11 @@ export async function sendVerificationEmail(email: string, baseUrl: string): Pro
 
     const res = await sendEmail({
         to: email,
-        subject: "Verify your email address - TrillionSkill",
+        subject: "Verify your email address - AspirantBook",
         text: `Please verify your email address by visiting: ${verifyUrl}`,
         html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2>Verify your TrillionSkill Account</h2>
+            <h2>Verify your AspirantBook Account</h2>
             <p>Thank you for registering. Please click the button below to verify your email address:</p>
             <p style="margin: 30px 0;">
                 <a href="${verifyUrl}" style="background-color: #1448d8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Verify Email Address</a>
@@ -177,7 +177,7 @@ export async function sendPasswordResetEmail(email: string, baseUrl: string, cal
 
     const res = await sendEmail({
         to: email,
-        subject: "Reset your TrillionSkill password",
+        subject: "Reset your AspirantBook password",
         text: `Reset your password by visiting: ${resetUrl}`,
         html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -197,7 +197,7 @@ export async function sendPasswordResetEmail(email: string, baseUrl: string, cal
 export async function sendPasswordChangedEmail(email: string): Promise<boolean> {
     const res = await sendEmail({
         to: email,
-        subject: "Your TrillionSkill password was changed",
+        subject: "Your AspirantBook password was changed",
         text: `Your password has been successfully updated. If you did not make this change, please contact support immediately.`,
         html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">

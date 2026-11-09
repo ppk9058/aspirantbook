@@ -193,7 +193,7 @@ export async function POST(req: NextRequest) {
       `Hello ${studentName}! Your Free Live Demo for *${course.title}* is confirmed for *${ist.fullLabel}*.\n\n` +
       `🔗 *Your Live Class Link:* ${demoUrl}\n\n` +
       `✨ *Special Demo Benefit:* Join on time to unlock special enrollment discounts for full course enrollment.\n\n` +
-      `_Team TrillionSkill_`
+      `_Team AspirantBook_`
 
     await prisma.whatsAppMessageLog.create({
       data: {

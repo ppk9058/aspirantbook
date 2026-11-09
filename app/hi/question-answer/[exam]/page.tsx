@@ -34,7 +34,7 @@ export async function generateMetadata({
   const { exam: examSlug } = await params
   const examName = unslugify(examSlug)
   return {
-    title: `${examName} पिछले वर्षों के प्रश्नोत्तर (हिन्दी) | TrillionSkill`,
+    title: `${examName} पिछले वर्षों के प्रश्नोत्तर (हिन्दी) | AspirantBook`,
     description: `${examName} परीक्षा के प्रामाणिक पिछले वर्षों के प्रश्नोत्तर और विस्तृत हिन्दी व्याख्या।`,
   }
 }

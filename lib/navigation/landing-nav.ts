@@ -25,12 +25,10 @@ export const LANDING_NAV_ITEMS: LandingNavItem[] = [
     },
     {
         name: "UPSC",
-        href: "#section-upsc",
-        isExternalOrAnchor: true,
+        href: "/dashboard?goal=upsc",
     },
     {
         name: "BPSC",
-        href: "#section-bpsc",
-        isExternalOrAnchor: true,
+        href: "/dashboard?goal=bpsc",
     },
 ]

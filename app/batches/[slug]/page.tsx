@@ -24,11 +24,11 @@ export async function generateMetadata({ params }: BatchPageProps): Promise<Meta
   const batch = await getBatchBySlug(slug)
   if (!batch) {
     return {
-      title: "Batch Not Found - aspirantbook",
+      title: "Batch Not Found - AspirantBook",
     }
   }
   return {
-    title: `${batch.title} - aspirantbook`,
+    title: `${batch.title} - AspirantBook`,
     description: batch.targetText || `Enroll in ${batch.title} with live classes, study material & tests.`,
   }
 }

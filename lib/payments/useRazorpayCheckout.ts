@@ -51,7 +51,7 @@ export function useRazorpayCheckout() {
         key: options.key,
         amount: options.amount,
         currency: options.currency || "INR",
-        name: options.name || "aspirantbook",
+        name: options.name || "AspirantBook",
         description: options.description?.slice(0, 250) || "Secure Purchase",
         image: options.image || logoUrl,
         order_id: options.order_id,

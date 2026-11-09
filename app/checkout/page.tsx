@@ -327,7 +327,7 @@ function CheckoutContent() {
                 key: order.keyId,
                 amount: Number(order.amount),
                 currency: order.currency,
-                name: "aspirantbook",
+                name: "AspirantBook",
                 description: course ? course.title : `${paymentMethod === "razorpay" ? "YEARLY" : planParam} Subscription`,
                 order_id: order.orderId,
                 prefill: {
@@ -421,7 +421,7 @@ function CheckoutContent() {
                 <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-100 text-xs font-bold text-[#F26522] mb-2">
-                            <span>aspirantbook Secure Checkout</span>
+                            <span>AspirantBook Secure Checkout</span>
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
                             {isFree ? "Complete Free Enrollment" : "Complete Your Order"}
@@ -764,7 +764,7 @@ function CheckoutContent() {
                                         <div className="p-4 rounded-xl bg-purple-50/70 border border-purple-100 space-y-1">
                                             <div className="flex items-center justify-between">
                                                 <span className="font-extrabold text-sm text-gray-900">
-                                                    aspirantbook Premium ({paymentMethod === "razorpay" ? "YEARLY" : planParam})
+                                                    AspirantBook Premium ({paymentMethod === "razorpay" ? "YEARLY" : planParam})
                                                 </span>
                                                 <span className="font-black text-base text-[#5B47FB]">
                                                     {paymentMethod === "razorpay" ? "₹499 / year" : displayPrice}
@@ -815,7 +815,7 @@ function CheckoutContent() {
                                 </li>
                                 <li className="flex items-start gap-2">
                                     <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                                    <span>Certificate of Completion verified by aspirantbook</span>
+                                    <span>Certificate of Completion verified by aspirantBook</span>
                                 </li>
                             </ul>
                         </div>

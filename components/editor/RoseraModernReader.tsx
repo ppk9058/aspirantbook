@@ -14,6 +14,7 @@ import {
   Edit3,
 } from "lucide-react"
 import { RoseraRenderer } from "./RoseraRenderer"
+import BrandLogo from "@/components/brand/BrandLogo"
 
 interface Lesson {
   id?: string
@@ -166,23 +167,13 @@ export function RoseraModernReader({
       }
       className="min-h-screen font-sans antialiased flex flex-col selection:bg-purple-200 rosera-theme-root"
     >
-      {/* TOP HEADER (Matching Image 1: Green 'A' logo, aspirantbook, and 0/3 progress pill) */}
+      {/* TOP HEADER (Matching Image 1: Green 'A' logo, AspirantBook, and 0/3 progress pill) */}
       <header
         style={{ backgroundColor: currentBg }}
         className="h-14 border-b border-black/10 px-4 md:px-8 flex items-center justify-between z-20"
       >
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="flex items-center gap-2 group">
-            <div className="w-7 h-7 rounded-lg bg-[#059669] text-white flex items-center justify-center font-black text-sm shadow-xs">
-              A
-            </div>
-            <span
-              style={{ color: currentText }}
-              className="font-extrabold text-base md:text-lg tracking-tight group-hover:text-[#5844E8] transition-colors"
-            >
-              aspirantbook
-            </span>
-          </Link>
+          <BrandLogo size="sm" href="/dashboard" />
         </div>
 
         <div className="flex items-center gap-4">

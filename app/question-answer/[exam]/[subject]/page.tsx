@@ -37,7 +37,7 @@ export async function generateMetadata({
   const label = isYear ? yearOrSubject : unslugify(yearOrSubject)
 
   return {
-    title: `${examName} ${label} Questions | TrillionSkill`,
+    title: `${examName} ${label} Questions | AspirantBook`,
     description: `Practice ${examName} questions for ${label} with verified answer keys and complete explanations.`,
   }
 }

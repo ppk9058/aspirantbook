@@ -181,7 +181,7 @@ export default async function CareerTrackDetailPage({
                         <CardContent className="p-6">
                             <h3 className="font-bold text-lg mb-2">Certification Available</h3>
                             <p className="text-sm text-gray-600 mb-4">
-                                by <span className="font-semibold">aspirantbook</span>
+                                by <span className="font-semibold">AspirantBook</span>
                             </p>
                             {SHOW_PREMIUM_PLAN && (
                                 <Badge className="bg-green-100 text-green-700 mb-4">
