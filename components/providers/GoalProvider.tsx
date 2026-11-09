@@ -1,11 +1,11 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import goalsConfig from "@/data/goals-config.json"
 import { parseGoalIds, serializeGoalIds } from "@/lib/goals/student-goals"
-import { getQueryGoal, stripGoalParam } from "@/lib/goals/query-goal"
+import { getQueryGoal, shouldApplyQueryGoal, stripGoalParam } from "@/lib/goals/query-goal"
 
 function getClientCookie(name: string): string | null {
     if (typeof document === "undefined") return null
@@ -131,6 +131,78 @@ export function getCachedUserGoalPromise(): Promise<any> | null {
 
 export function setCachedUserGoalPromise(promise: Promise<any> | null) {
     cachedUserGoalPromise = promise
+}
+
+/**
+ * Applies `?goal=` after a client-side navigation. Rendered inside a Suspense
+ * boundary because useSearchParams opts the boundary into client rendering.
+ * The first run is skipped: GoalProvider's mount effect already handled a hard load.
+ */
+function QueryGoalSync({
+    applyGoalsFromRaw,
+    pendingQueryGoalSyncRef,
+}: {
+    applyGoalsFromRaw: (raw: string, subGoalId?: string | null) => void
+    pendingQueryGoalSyncRef: { current: { serialized: string; ids: string[] } | null }
+}) {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const { data: session } = useSession()
+    const didRunQueryGoalEffectRef = useRef(false)
+    const lastAppliedQueryGoalRef = useRef<string | null>(null)
+    const search = searchParams.toString()
+
+    useEffect(() => {
+        if (!didRunQueryGoalEffectRef.current) {
+            didRunQueryGoalEffectRef.current = true
+            return
+        }
+        if (typeof window === "undefined") return
+
+        const queryGoal = getQueryGoal(search)
+        if (!queryGoal) {
+            lastAppliedQueryGoalRef.current = null
+            return
+        }
+        if (!shouldApplyQueryGoal(lastAppliedQueryGoalRef.current, queryGoal)) return
+        lastAppliedQueryGoalRef.current = queryGoal.serialized
+
+        const cookieGoal = getClientCookie(STORAGE_GOAL_KEY)
+        applyGoalsFromRaw(queryGoal.serialized, null)
+        try {
+            localStorage.setItem(STORAGE_GOAL_KEY, queryGoal.serialized)
+            localStorage.removeItem(STORAGE_SUBGOAL_KEY)
+        } catch {}
+        setGuestGoalCookie(queryGoal.serialized)
+
+        // Keep the query selection ahead of the later GET /api/user/goal sync.
+        cachedUserGoalPromise = Promise.resolve({
+            goal: { goalId: queryGoal.serialized, goalIds: queryGoal.ids, subGoalId: null },
+        })
+
+        if (session?.user?.id) {
+            fetch("/api/user/goal", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    goalId: queryGoal.serialized,
+                    goalIds: queryGoal.ids,
+                    subGoalId: null,
+                }),
+            }).catch(() => {})
+        } else {
+            pendingQueryGoalSyncRef.current = { serialized: queryGoal.serialized, ids: queryGoal.ids }
+        }
+
+        if (cookieGoal !== queryGoal.serialized) {
+            router.refresh()
+        }
+
+        const remaining = stripGoalParam(search)
+        window.history.replaceState(null, "", window.location.pathname + remaining + window.location.hash)
+    }, [search, applyGoalsFromRaw, router, session?.user?.id, pendingQueryGoalSyncRef])
+
+    return null
 }
 
 export function GoalProvider({ children }: { children: React.ReactNode }) {
@@ -351,63 +423,6 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
         }
     }, [applyGoalsFromRaw, router, session?.user?.id, status])
 
-    // Apply ?goal= on client-side navigations after the provider is already mounted.
-    // The effect above handles hard loads and strips the param; this effect skips its
-    // first run so the same selection is never applied twice on mount.
-    const pathname = usePathname()
-    const didRunQueryGoalEffectRef = useRef(false)
-    const lastAppliedQueryGoalRef = useRef<string | null>(null)
-
-    useEffect(() => {
-        if (!didRunQueryGoalEffectRef.current) {
-            didRunQueryGoalEffectRef.current = true
-            return
-        }
-        if (typeof window === "undefined") return
-
-        const queryGoal = getQueryGoal(window.location.search)
-        if (!queryGoal) {
-            lastAppliedQueryGoalRef.current = null
-            return
-        }
-        if (lastAppliedQueryGoalRef.current === queryGoal.serialized) return
-        lastAppliedQueryGoalRef.current = queryGoal.serialized
-
-        const cookieGoal = getClientCookie(STORAGE_GOAL_KEY)
-        applyGoalsFromRaw(queryGoal.serialized, null)
-        try {
-            localStorage.setItem(STORAGE_GOAL_KEY, queryGoal.serialized)
-            localStorage.removeItem(STORAGE_SUBGOAL_KEY)
-        } catch {}
-        setGuestGoalCookie(queryGoal.serialized)
-
-        // Keep the query selection ahead of the later GET /api/user/goal sync.
-        cachedUserGoalPromise = Promise.resolve({
-            goal: { goalId: queryGoal.serialized, goalIds: queryGoal.ids, subGoalId: null },
-        })
-
-        if (session?.user?.id) {
-            fetch("/api/user/goal", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    goalId: queryGoal.serialized,
-                    goalIds: queryGoal.ids,
-                    subGoalId: null,
-                }),
-            }).catch(() => {})
-        } else {
-            pendingQueryGoalSyncRef.current = { serialized: queryGoal.serialized, ids: queryGoal.ids }
-        }
-
-        if (cookieGoal !== queryGoal.serialized) {
-            router.refresh()
-        }
-
-        const remaining = stripGoalParam(window.location.search)
-        window.history.replaceState(null, "", window.location.pathname + remaining + window.location.hash)
-    }, [pathname, applyGoalsFromRaw, router, session?.user?.id])
-
     const persistAbortControllerRef = useRef<AbortController | null>(null)
 
     const persistGoals = useCallback(
@@ -538,6 +553,12 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <GoalContext.Provider value={contextValue}>
+            <Suspense fallback={null}>
+                <QueryGoalSync
+                    applyGoalsFromRaw={applyGoalsFromRaw}
+                    pendingQueryGoalSyncRef={pendingQueryGoalSyncRef}
+                />
+            </Suspense>
             {children}
         </GoalContext.Provider>
     )

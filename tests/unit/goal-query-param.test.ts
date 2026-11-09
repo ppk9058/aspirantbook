@@ -1,7 +1,7 @@
 import { describe, it } from "node:test"
 import assert from "node:assert/strict"
 
-import { getQueryGoal, stripGoalParam } from "@/lib/goals/query-goal"
+import { getQueryGoal, shouldApplyQueryGoal, stripGoalParam } from "@/lib/goals/query-goal"
 
 describe("getQueryGoal", () => {
     it("returns null when there is no goal param", () => {
@@ -33,6 +33,24 @@ describe("getQueryGoal", () => {
     it("rejects ids that are not in the goals config", () => {
         assert.equal(getQueryGoal("?goal=not-a-real-goal"), null)
         assert.equal(getQueryGoal("?goal=upsc,not-a-real-goal")?.serialized, "upsc")
+    })
+})
+
+describe("shouldApplyQueryGoal", () => {
+    it("applies a new serialized selection", () => {
+        assert.equal(shouldApplyQueryGoal(null, getQueryGoal("?goal=upsc")), true)
+        assert.equal(shouldApplyQueryGoal("upsc", getQueryGoal("?goal=bpsc")), true)
+        assert.equal(shouldApplyQueryGoal("upsc", getQueryGoal("?goal=upsc,bpsc")), true)
+    })
+
+    it("does not re-apply the same serialized selection", () => {
+        assert.equal(shouldApplyQueryGoal("upsc", getQueryGoal("?goal=UPSC")), false)
+        assert.equal(shouldApplyQueryGoal("upsc,bpsc", getQueryGoal("?goal=upsc%2Cbpsc")), false)
+    })
+
+    it("does nothing when there is no query goal", () => {
+        assert.equal(shouldApplyQueryGoal("upsc", null), false)
+        assert.equal(shouldApplyQueryGoal(null, null), false)
     })
 })
 

@@ -25,6 +25,18 @@ export function getQueryGoal(search: string | null | undefined): QueryGoalSelect
 }
 
 /**
+ * Returns true only when the next query selection is present and differs from the
+ * last one applied. Guards both same-value re-renders and pathname-only changes.
+ */
+export function shouldApplyQueryGoal(
+    lastAppliedSerialized: string | null,
+    next: QueryGoalSelection | null
+): boolean {
+    if (!next) return false
+    return lastAppliedSerialized !== next.serialized
+}
+
+/**
  * Removes only the `goal` search param and returns the remaining query string,
  * including the leading "?" when other params survive. The hash is not handled
  * here on purpose: callers preserve window.location.hash separately.
