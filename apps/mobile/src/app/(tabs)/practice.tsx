@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/common/Skeleton";
 import { AvailableOnWebsiteModal } from "@/components/common/AvailableOnWebsiteModal";
 import { api } from "@/lib/api";
 import { COLORS } from "@/lib/theme";
+import { pluralize } from "../../lib/formatters";
 
 type PracticeTab = "tests" | "pyq" | "ca";
 
@@ -145,14 +146,14 @@ export default function PracticeScreen() {
                 <View style={styles.metaRow}>
                   <View style={styles.metaItem}>
                     <Clock size={13} color="#64748B" />
-                    <Text style={styles.metaText}>{t.durationMinutes} mins</Text>
+                    <Text style={styles.metaText}>{pluralize(t.durationMinutes, "min")}</Text>
                   </View>
                   <View style={styles.metaItem}>
                     <CheckCircle2 size={13} color="#64748B" />
-                    <Text style={styles.metaText}>{t.totalQuestions} Questions</Text>
+                    <Text style={styles.metaText}>{pluralize(t.totalQuestions, "Question")}</Text>
                   </View>
                   <View style={styles.metaItem}>
-                    <Text style={styles.metaText}>{t.totalMarks} Marks</Text>
+                    <Text style={styles.metaText}>{pluralize(t.totalMarks, "Mark")}</Text>
                   </View>
                 </View>
                 <View style={styles.actionRow}>

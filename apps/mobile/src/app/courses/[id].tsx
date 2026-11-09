@@ -33,6 +33,7 @@ import { ErrorState } from "../../components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import { pluralize } from "../../lib/formatters";
 import { openWebUrl } from "../../lib/web-links";
 import { getLocalCourseProgress, CourseProgressMap } from "../../lib/course-progress";
 import { CourseDetailDto, CourseChapterDto } from "@aspirantbook/shared";
@@ -285,7 +286,7 @@ export default function CourseDetailScreen() {
                 Course Curriculum
               </Text>
               <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-                {chapters.length} chapters • {allLessons.length} lessons
+                {pluralize(chapters.length, "chapter")} • {pluralize(allLessons.length, "lesson")}
               </Text>
 
               <View style={styles.chaptersList}>

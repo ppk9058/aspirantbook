@@ -119,8 +119,8 @@ export default function BookCard({ book }: BookCardProps) {
         </span>
       </div>
 
-      {/* Action Buttons: Add to Cart (turns into stepper) + Buy Now (gap 12px scale, 44px tap target) */}
-      <div className="mt-3 pt-2.5 grid grid-cols-2 gap-2">
+      {/* Action Buttons: Add to Cart (turns into stepper) + Buy Now (gap 12px scale, 44px tap target; full width per row on phones) */}
+      <div className="mt-3 pt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
         {cartItem ? (
           <div
             onClick={(e) => {
@@ -152,7 +152,7 @@ export default function BookCard({ book }: BookCardProps) {
             type="button"
             data-testid="book-card-add-to-cart-btn"
             onClick={handleAdd}
-            className="min-h-[44px] sm:min-h-[40px] px-2.5 rounded-xl border-2 border-indigo-600 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 font-extrabold text-xs transition-all shadow-2xs active:scale-95 flex items-center justify-center gap-1"
+            className="w-full min-h-[44px] sm:min-h-[40px] px-2.5 rounded-xl border-2 border-indigo-600 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 font-extrabold text-xs transition-all shadow-2xs active:scale-95 flex items-center justify-center gap-1"
           >
             <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
             <span>Add to Cart</span>
@@ -163,7 +163,7 @@ export default function BookCard({ book }: BookCardProps) {
           type="button"
           data-testid="book-card-buy-now-btn"
           onClick={handleBuyNow}
-          className="min-h-[44px] sm:min-h-[40px] px-2.5 rounded-xl bg-[#fb641b] hover:bg-[#e85813] text-white font-black text-xs transition-all shadow-sm active:scale-95 flex items-center justify-center gap-1"
+          className="w-full min-h-[44px] sm:min-h-[40px] px-2.5 rounded-xl bg-[#fb641b] hover:bg-[#e85813] text-white font-black text-xs transition-all shadow-sm active:scale-95 flex items-center justify-center gap-1"
         >
           <Zap className="w-3.5 h-3.5 fill-white shrink-0" />
           <span>Buy Now</span>

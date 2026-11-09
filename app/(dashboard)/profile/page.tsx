@@ -155,7 +155,7 @@ export default async function ProfilePage() {
         : "FREE"
 
     return (
-        <div className="space-y-6 sm:space-y-8 pb-32 sm:pb-24 lg:pb-12">
+        <div className="space-y-6 sm:space-y-8">
             {isDbError && (
                 <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs sm:text-sm flex items-center justify-between">
                     <span>⚠️ Database server is temporarily unreachable or waking up. Displaying your active session profile.</span>

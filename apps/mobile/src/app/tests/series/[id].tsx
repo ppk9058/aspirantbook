@@ -32,6 +32,7 @@ import { openWebUrl } from "../../../lib/web-links";
 import { ErrorState } from "../../../components/primitives/ErrorState";
 import { useTheme } from "../../../theme/ThemeProvider";
 import { api } from "../../../lib/api";
+import { pluralize } from "../../../lib/formatters";
 import { ExamSeriesTestItemDto } from "@aspirantbook/shared";
 
 type TestFilter = "ALL" | "FULL_MOCK" | "SECTIONAL_TEST" | "FREE";
@@ -234,7 +235,7 @@ export default function ExamSeriesDetailScreen() {
                     <View style={styles.timeTag}>
                       <Clock size={12} color={colors.textMuted} />
                       <Text style={[styles.timeText, { color: colors.textMuted }]}>
-                        {test.durationMinutes} mins
+                        {pluralize(test.durationMinutes, "min")}
                       </Text>
                     </View>
                   </View>
@@ -244,7 +245,7 @@ export default function ExamSeriesDetailScreen() {
                   </Text>
 
                   <Text style={[styles.testMeta, { color: colors.textSecondary }]}>
-                    {test.totalQuestions} Questions • {test.totalMarks} Marks
+                    {pluralize(test.totalQuestions, "Question")} • {pluralize(test.totalMarks, "Mark")}
                   </Text>
 
                   {/* User Attempt Status Banner if applicable */}

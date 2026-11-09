@@ -276,7 +276,7 @@ export default function CoursesTabScreen() {
                       Career & Skill Tracks
                     </Text>
                     <Text style={[styles.tracksBannerSub, { color: colors.textSecondary }]}>
-                      {tracks.length} structured end-to-end paths
+                      {pluralize(tracks.length, "structured end-to-end path", "structured end-to-end paths")}
                     </Text>
                   </View>
                 </View>

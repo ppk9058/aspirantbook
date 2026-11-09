@@ -37,6 +37,7 @@ import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 import { CourseTeachersSection } from "./CourseTeachersSection"
 import ScheduleDemoModal from "./ScheduleDemoModal"
 import Image from "next/image"
+import { pluralize } from "@/lib/utils"
 
 interface LessonItem {
   id: string
@@ -443,7 +444,7 @@ export function CourseBundleView({
                     <Video className="w-5 h-5 text-orange-600" />
                   </h2>
                   <p className="text-xs text-gray-500 mt-0.5">
-                    {course.chapters.length} Chapters • {totalLessons} lessons {totalAttachments > 0 && `• ${totalAttachments} attachments`}
+                    {pluralize(course.chapters.length, "Chapter")} • {pluralize(totalLessons, "lesson")} {totalAttachments > 0 && `• ${totalAttachments} attachments`}
                   </p>
                 </div>
                 {course.hasTrialLesson && (

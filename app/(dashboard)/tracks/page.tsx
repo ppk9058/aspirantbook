@@ -58,7 +58,7 @@ export default async function TracksPage({
     const displayedTracks = activeTab === "skills" ? skillTracks : careerTracks
 
     return (
-        <div className="space-y-6 sm:space-y-8 pb-32 sm:pb-24 lg:pb-12">
+        <div className="space-y-6 sm:space-y-8">
             {/* Hero Header */}
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#05192D] via-[#0a2540] to-[#0d2f52] p-6 sm:p-10 text-white border border-gray-800 shadow-xl">
                 <div className="absolute top-0 right-0 w-80 h-80 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />

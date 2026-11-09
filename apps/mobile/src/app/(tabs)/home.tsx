@@ -112,7 +112,7 @@ export default function HomeScreen() {
         <View style={styles.durationRow}>
           <Clock size={13} color={colors.textMuted} />
           <Text style={[styles.durationText, { color: colors.textMuted }]}>
-            {t.durationMinutes} mins
+            {pluralize(t.durationMinutes, "min")}
           </Text>
         </View>
       </View>
@@ -319,7 +319,7 @@ export default function HomeScreen() {
                       {data.todayQuiz.title}
                     </Text>
                     <Text style={[styles.quizMeta, { color: colors.textSecondary }]}>
-                      {data.todayQuiz.questionCount} Questions • Current Affairs & GK
+                      {pluralize(data.todayQuiz.questionCount, "Question")} • Current Affairs & GK
                     </Text>
                   </Card>
                 )}

@@ -124,7 +124,7 @@ function BooksCatalogContent() {
   }, [filteredBooks, sortBy])
 
   return (
-    <div data-testid="books-page-root" data-hydrated={isHydrated ? "true" : "false"} className="space-y-6 pb-28 sm:pb-24 font-sans">
+    <div data-testid="books-page-root" data-hydrated={isHydrated ? "true" : "false"} className="space-y-6 font-sans">
       {/* Store Header with Search, Orders, Cart */}
       <BookStoreHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
