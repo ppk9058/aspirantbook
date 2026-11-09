@@ -79,7 +79,7 @@ export function MobileAppHeader({
             style={styles.logoImage}
             resizeMode="contain"
           />
-          <Text testID="mobile-header-brand-name" style={styles.brandText}>
+          <Text testID="mobile-header-brand-name" style={styles.brandText} numberOfLines={1} ellipsizeMode="tail">
             aspirantBook
           </Text>
         </TouchableOpacity>
@@ -134,6 +134,7 @@ export function MobileAppHeader({
             onPress={onOpenProfile}
             accessibilityLabel="Account profile"
             testID="mobile-header-avatar"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={[
               styles.avatarButton,
               {
@@ -156,6 +157,7 @@ export function MobileAppHeader({
             onPress={handleLoginPress}
             accessibilityLabel="Login"
             testID="mobile-header-login-btn"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={[
               styles.loginButton,
               {
@@ -190,6 +192,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginLeft: 8,
+    flexShrink: 1,
+    minWidth: 0,
   },
   logoBox: {
     width: 28,
@@ -208,6 +212,7 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     letterSpacing: -0.4,
     color: "#ff0031",
+    flexShrink: 1,
   },
   rightGroup: {
     flexDirection: "row",
