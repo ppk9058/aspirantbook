@@ -8,6 +8,7 @@ import { useBookCart } from "@/lib/books/cartContext"
 import { useWishlist } from "@/lib/books/wishlistContext"
 import { useSession } from "next-auth/react"
 import ProfileDropdown from "@/components/layout/ProfileDropdown"
+import BrandLogo from "@/components/brand/BrandLogo"
 
 interface BookStoreHeaderProps {
   searchQuery?: string
@@ -29,20 +30,10 @@ export default function BookStoreHeader({
   return (
     <header className="sticky top-0 z-40 bg-white dark:bg-slate-800 border-b border-gray-200/90 dark:border-slate-700 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-6">
-        {/* Brand / Logo */}
-        <Link
-          href="/books"
-          className="flex items-center gap-2.5 shrink-0 group focus:outline-none min-h-[44px]"
-        >
-          <div className="w-9 h-9 rounded-full bg-indigo-600 dark:bg-slate-900 text-white flex items-center justify-center font-black text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform">
-            <span className="text-amber-400 font-serif text-base">T</span>S
-          </div>
-          <div className="hidden xs:flex flex-col">
-            <span className="text-lg font-black tracking-tight text-gray-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-              Store
-            </span>
-          </div>
-        </Link>
+        {/* Brand / Logo: Visible on mobile only, hidden on desktop where LeftSidebar renders BrandLogo */}
+        <div className="flex items-center shrink-0 lg:hidden">
+          <BrandLogo size="md" href="/books" />
+        </div>
 
         {/* Wide Search Products Bar matching Image 1 */}
         <div className="flex-1 max-w-2xl relative">

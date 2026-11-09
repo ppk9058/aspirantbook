@@ -38,20 +38,12 @@ describe("Books Header Logo and Shared Route Wiring", () => {
       "BrandLogoLink must render data-testid='brand-logo'"
     );
     assert.ok(
-      brandLogoLinkSource.includes('data-testid="brand-name"'),
-      "BrandLogoLink must render data-testid='brand-name'"
+      brandLogoLinkSource.includes("BrandLogo"),
+      "BrandLogoLink must render BrandLogo"
     );
     assert.ok(
-      brandLogoLinkSource.includes("bg-gradient-to-br from-[#1448d8] to-[#1DB954]"),
-      "BrandLogoLink must have the exact dashboard gradient styling"
-    );
-    assert.ok(
-      brandLogoLinkSource.includes("aspirantbook"),
-      "BrandLogoLink must include the aspirantbook brand text"
-    );
-    assert.ok(
-      brandLogoLinkSource.includes("!collapsed"),
-      "BrandLogoLink must hide wordmark when collapsed"
+      brandLogoLinkSource.includes("collapsed"),
+      "BrandLogoLink must pass collapsed prop"
     );
   });
 

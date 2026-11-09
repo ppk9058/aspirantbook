@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { ArrowLeft, ChevronRight, User, AlertCircle, Clock, FileQuestion, Award } from "lucide-react"
+import BrandLogo from "@/components/brand/BrandLogo"
 
 interface Props {
   quiz: {
@@ -58,12 +59,7 @@ export default function CurrentAffairsInstructionsClient({
       <header className="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 border-b border-gray-200 bg-white shrink-0 min-h-[56px]">
         {/* Brand Logo + Quiz Title */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <Link href="/" className="flex items-center gap-1.5 shrink-0 hover:opacity-90">
-            <div className="w-7 h-7 rounded-lg bg-teal-600 flex items-center justify-center shadow-xs">
-              <span className="text-white text-[10px] font-black">TS</span>
-            </div>
-            <span className="text-teal-700 font-black text-sm hidden sm:inline">aspirantbook</span>
-          </Link>
+          <BrandLogo size="sm" href="/" />
           <div className="w-px h-5 bg-gray-300 shrink-0" />
           <span className="text-gray-900 text-xs sm:text-sm font-bold truncate max-w-[170px] sm:max-w-md">
             {quiz.title}
