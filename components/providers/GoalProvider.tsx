@@ -179,6 +179,23 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
     }, [])
 
     const lastRefreshedMismatchRef = useRef<string | null>(null)
+    const pendingQueryGoalSyncRef = useRef<{ serialized: string; ids: string[] } | null>(null)
+
+    useEffect(() => {
+        if (session?.user?.id && pendingQueryGoalSyncRef.current) {
+            const { serialized, ids } = pendingQueryGoalSyncRef.current
+            pendingQueryGoalSyncRef.current = null
+            fetch("/api/user/goal", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    goalId: serialized,
+                    goalIds: ids,
+                    subGoalId: null,
+                }),
+            }).catch(() => {})
+        }
+    }, [session?.user?.id])
 
     // Load persisted selection from localStorage or user API
     useEffect(() => {
@@ -189,7 +206,58 @@ export function GoalProvider({ children }: { children: React.ReactNode }) {
 
             let needsRouterRefresh = false
 
-            if (savedGoalId) {
+            // Check mount-time URL search params for "goal"
+            const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null
+            const queryGoal = searchParams?.get("goal")
+            const validQueryGoalIds = queryGoal ? parseGoalIds(queryGoal, true) : []
+            const hasValidQueryGoal = validQueryGoalIds.length > 0
+
+            if (hasValidQueryGoal) {
+                const serialized = serializeGoalIds(validQueryGoalIds)
+                applyGoalsFromRaw(serialized, null)
+                try {
+                    localStorage.setItem(STORAGE_GOAL_KEY, serialized)
+                    localStorage.removeItem(STORAGE_SUBGOAL_KEY)
+                } catch {}
+                setGuestGoalCookie(serialized)
+
+                // Ensure query param wins over later GET /api/user/goal sync
+                cachedUserGoalPromise = Promise.resolve({
+                    goal: { goalId: serialized, goalIds: validQueryGoalIds, subGoalId: null },
+                })
+
+                if (cookieGoal !== serialized) {
+                    const mismatchKey = `${serialized}:::${cookieGoal}`
+                    if (lastRefreshedMismatchRef.current !== mismatchKey) {
+                        lastRefreshedMismatchRef.current = mismatchKey
+                        needsRouterRefresh = true
+                    }
+                } else {
+                    lastRefreshedMismatchRef.current = null
+                }
+
+                if (session?.user?.id) {
+                    fetch("/api/user/goal", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            goalId: serialized,
+                            goalIds: validQueryGoalIds,
+                            subGoalId: null,
+                        }),
+                    }).catch(() => {})
+                } else {
+                    pendingQueryGoalSyncRef.current = { serialized, ids: validQueryGoalIds }
+                }
+
+                // Strip only the "goal" param with window.history.replaceState
+                if (searchParams) {
+                    searchParams.delete("goal")
+                    const remaining = searchParams.toString()
+                    const newUrl = window.location.pathname + (remaining ? `?${remaining}` : "") + window.location.hash
+                    window.history.replaceState(null, "", newUrl)
+                }
+            } else if (savedGoalId) {
                 applyGoalsFromRaw(savedGoalId, savedSubGoalId)
                 if (cookieGoal !== savedGoalId) {
                     setGuestGoalCookie(savedGoalId)
