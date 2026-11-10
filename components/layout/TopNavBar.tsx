@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Search, Bell, User, Settings, LogOut, Sun, Moon, ShoppingBag } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -26,6 +26,10 @@ export default function TopNavBar() {
     const router = useRouter()
     const [showProfileMenu, setShowProfileMenu] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     return (
         <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/95 dark:bg-[#05192D]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 z-50 transition-colors">
@@ -69,10 +73,10 @@ export default function TopNavBar() {
                     <button
                         onClick={toggleTheme}
                         className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                        title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                        aria-label="Toggle theme"
+                        title={mounted ? (theme === "dark" ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme"}
+                        aria-label={mounted ? (theme === "dark" ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme"}
                     >
-                        {theme === "dark" ? (
+                        {mounted && theme === "dark" ? (
                             <Sun className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
                         ) : (
                             <Moon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />

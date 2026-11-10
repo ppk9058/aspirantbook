@@ -1,21 +1,17 @@
 "use client"
-
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Home, ClipboardList, BookOpen, Zap } from "lucide-react"
 import { getDashboardHref } from "@/lib/auth/roles"
 import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
-
 interface MobileNativeBottomBarProps {
     hasActivePass?: boolean
 }
-
 export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBottomBarProps) {
     const pathname = usePathname()
     const { data: session } = useSession()
     const homeHref = getDashboardHref(session?.user?.role, !!session?.user)
-
     // 1. Hide completely on full-screen flows:
     // - Test attempt: /test-series/[id]/attempt, /assessments/[id]/take
     // - Video watch: /courses/[slug]/learn/[lessonId], /learn/[courseSlug]/[lessonId]
@@ -26,19 +22,17 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
             pathname.startsWith("/test-execution")
         )
     )
-
     const isFullScreenVideoWatch = Boolean(
         pathname && (
             (pathname.startsWith("/courses/") && pathname.includes("/learn/")) ||
             pathname.startsWith("/learn/")
         )
     )
-
     if (isFullScreenAttempt || isFullScreenVideoWatch) {
         return null
     }
-
     // Determine active tab based on route hierarchy
+    // Home active on landing "/" OR /dashboard
     const isHomeActive = pathname === "/" || pathname === "/dashboard"
     const isTestsActive = Boolean(
         pathname && (
@@ -64,19 +58,13 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
             pathname.startsWith("/checkout")
         )
     )
-
+    // Order: Home -> Courses -> Pass -> Tests (per owner requirement)
     const tabs = [
         {
             name: "Home",
-            href: "/dashboard",
+            href: homeHref,
             icon: Home,
             isActive: isHomeActive,
-        },
-        {
-            name: "Tests",
-            href: "/test-series",
-            icon: ClipboardList,
-            isActive: isTestsActive,
         },
         {
             name: "Courses",
@@ -86,29 +74,33 @@ export default function MobileNativeBottomBar({ hasActivePass }: MobileNativeBot
         },
         {
             name: "Pass",
-            href: hasActivePass ? "/subscription" : "/pricing",
+            href: "/pricing",
             icon: Zap,
             isActive: isPassActive,
             badge: hasActivePass ? "ACTIVE" : undefined,
         },
+        {
+            name: "Tests",
+            href: "/test-series",
+            icon: ClipboardList,
+            isActive: isTestsActive,
+        },
     ]
-
     // Premium is hidden until the Admin pass price exists (see lib/config/premium).
     const visibleTabs = SHOW_PREMIUM_PLAN
         ? tabs
         : tabs.filter((tab) => tab.name !== "Pass")
-
     return (
         <nav
             aria-label="Mobile Bottom Navigation"
             data-mobile-bottom-nav="true"
-            className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] select-none safe-area-bottom w-full max-w-full overflow-hidden"
+            className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] select-none w-full max-w-full overflow-hidden"
+            style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}
         >
-            <div className="flex items-center justify-around h-15 px-1 sm:px-2 min-w-0 max-w-full">
+            <div className="flex items-center justify-around h-16 px-1 sm:px-2 min-w-0 max-w-full pt-1.5">
                 {visibleTabs.map((tab) => {
                     const Icon = tab.icon
                     const active = tab.isActive
-
                     return (
                         <Link
                             key={tab.name}

@@ -71,11 +71,12 @@ describe("mobile landing nav — Change 1: shared hamburger/drawer on the landin
     assert.match(page, /<LandingMobileNav \/>/)
   })
 
-  it("reuses MobileDrawer instead of adding a second drawer", () => {
+  it("reuses MobileDrawer instead of adding a second drawer and portals it to document.body", () => {
     const nav = readRepoFile("components/home/LandingMobileNav.tsx")
 
     assert.match(nav, /import MobileDrawer from "@\/components\/layout\/MobileDrawer"/)
-    assert.match(nav, /<MobileDrawer isOpen=\{isOpen\} onClose=\{\(\) => setIsOpen\(false\)\} \/>/)
+    assert.match(nav, /createPortal\(\s*<MobileDrawer/)
+    assert.match(nav, /document\.body/)
     // The hamburger itself is phone-only; desktop keeps the existing header.
     assert.match(nav, /landing-mobile-menu-btn[\s\S]*?lg:hidden/)
     assert.match(nav, /aria-label="Open navigation menu"/)
@@ -191,24 +192,39 @@ describe("mobile landing nav — Change 2: full wordmark, bell into the profile 
   })
 })
 
-describe("mobile landing nav — Change 3: the pill row is desktop-only", () => {
-  it("the pill row is hidden below lg and keeps its destinations on desktop", () => {
+describe("mobile landing nav — Change 3: the pill row is removed everywhere", () => {
+  it("the pill row does not exist anywhere under app/ and components/", () => {
     const page = readRepoFile("app/page.tsx")
+    assert.doesNotMatch(page, /landing-nav-pills/)
+    assert.doesNotMatch(page, /navTint/)
 
-    assert.match(page, /data-testid="landing-nav-pills"/)
-    assert.match(
-      page,
-      /data-testid="landing-nav-pills"[\s\S]{0,120}?className="hidden lg:flex /
-    )
-    // No leftover phone rule on the row.
-    assert.doesNotMatch(page, /className="md:hidden flex items-center gap-2 overflow-x-auto/)
-
-    // The removed row leaves no spacer: nothing else owns the same wrapper.
-    assert.match(page, /\{LANDING_NAV_ITEMS\.map\(\(item\) => \(/)
+    // Scan app/ and components/ to ensure landing-nav-pills is gone completely
+    const scanDir = (dir: string) => {
+      const entries = fs.readdirSync(path.resolve(ROOT, dir), { withFileTypes: true })
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name)
+        if (entry.isDirectory()) {
+          scanDir(fullPath)
+        } else if (/\.(tsx|ts|jsx|js)$/.test(entry.name)) {
+          const content = readRepoFile(fullPath)
+          assert.doesNotMatch(
+            content,
+            /data-testid=["']landing-nav-pills["']/,
+            `${fullPath} must not contain landing-nav-pills`
+          )
+        }
+      }
+    }
+    scanDir("app")
+    scanDir("components")
   })
 
-  it("every pill destination is reachable from the drawer", () => {
+  it("the six destinations are in the desktop header and the mobile drawer", () => {
+    const page = readRepoFile("app/page.tsx")
     const drawer = readRepoFile("components/layout/MobileDrawer.tsx")
+
+    // Desktop header still maps LANDING_NAV_ITEMS
+    assert.match(page, /\{LANDING_NAV_ITEMS\.map\(\(item\) =>/)
 
     const hrefs = [
       "/courses", // Courses
@@ -270,16 +286,18 @@ describe("mobile landing nav — protected surfaces stay identical to app/main",
     assert.equal(current, main, "components/layout/LeftSidebar.tsx must not change")
   })
 
-  it("Chatbot.tsx is unchanged compared with app/main", () => {
-    const current = readRepoFile("components/layout/Chatbot.tsx")
-    const main = readFromMain("components/layout/Chatbot.tsx")
+  it("the floating AI button is gone and WhatsApp support is wired", () => {
+    assert.equal(
+      fs.existsSync(path.resolve(ROOT, "components/layout/Chatbot.tsx")),
+      false,
+      "the mock AI chat must be removed, not left behind"
+    )
 
-    if (main === null) {
-      assert.match(current, /fixed bottom-\[calc/)
-      return
-    }
-
-    assert.equal(current, main, "components/layout/Chatbot.tsx must not change")
+    const launcher = readRepoFile("components/layout/WhatsAppButton.tsx")
+    assert.match(launcher, /export const SUPPORT_WHATSAPP_NUMBER = "8340665934"/)
+    assert.match(launcher, /https:\/\/wa\.me\/\$\{SUPPORT_WHATSAPP_E164\}/)
+    assert.match(launcher, /data-testid="whatsapp-fab"/)
+    assert.match(launcher, /aria-label=\{`Chat with aspirantBook support on WhatsApp/)
   })
 
   it("focus rules in app/globals.css are identical to app/main", () => {

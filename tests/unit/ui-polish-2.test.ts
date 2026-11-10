@@ -195,18 +195,24 @@ describe("UI polish 2 — plural counts on web match Expo", () => {
 })
 
 describe("UI polish 2 — protected surfaces stay identical to app/main", () => {
-  it("the floating AI launcher is not hidden, shrunk, moved, or re-layered", () => {
-    const chat = readRepoFile("components/layout/Chatbot.tsx")
+  it("the floating support launcher keeps its clearance slot and is a WhatsApp deep link", () => {
+    // The AI assistant was replaced by a WhatsApp support link; the geometry is
+    // the one the shared bottom clearance in DashboardShell was written for.
+    assert.equal(fs.existsSync(path.resolve(ROOT, "components/layout/Chatbot.tsx")), false)
 
+    const launcher = readRepoFile("components/layout/WhatsAppButton.tsx")
     assert.match(
-      chat,
+      launcher,
       /fixed bottom-\[calc\(4\.25rem\+env\(safe-area-inset-bottom,0px\)\)\] lg:bottom-6 right-3 sm:right-5 z-40 h-10 w-10 sm:h-12 sm:w-12/
     )
+    assert.match(launcher, /https:\/\/wa\.me\/\$\{SUPPORT_WHATSAPP_E164\}/)
+    assert.match(launcher, /SUPPORT_WHATSAPP_NUMBER = "8340665934"/)
+    assert.match(launcher, /target="_blank"/)
+    assert.match(launcher, /rel="noopener noreferrer"/)
 
-    const main = readFromMain("components/layout/Chatbot.tsx")
-    if (main !== null) {
-      assert.equal(chat, main, "Chatbot.tsx must be byte-identical to app/main")
-    }
+    const shell = readRepoFile("components/layout/DashboardShell.tsx")
+    assert.match(shell, /import\("@\/components\/layout\/WhatsAppButton"\)/)
+    assert.doesNotMatch(shell, /Chatbot/)
   })
 
   it("LeftSidebar.tsx is unchanged compared with app/main", () => {

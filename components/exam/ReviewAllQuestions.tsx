@@ -417,35 +417,37 @@ export default function ReviewAllQuestions({
                                                     return (
                                                         <div
                                                             key={letter}
-                                                            className={`p-3 rounded-xl border text-xs flex items-start gap-2.5 transition-all ${
+                                                            className={`p-3 rounded-xl border text-xs flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-2.5 transition-all ${
                                                                 isCorrect
                                                                     ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-900 dark:text-emerald-100 font-semibold shadow-xs"
                                                                     : "bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300"
                                                             }`}
                                                         >
-                                                            <span
-                                                                className={`w-5 h-5 rounded-md flex items-center justify-center font-black text-[11px] shrink-0 mt-0.5 ${
-                                                                    isCorrect
-                                                                        ? "bg-emerald-600 text-white"
-                                                                        : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                                                                }`}
-                                                            >
-                                                                {letter}
-                                                            </span>
-                                                            <div className="min-w-0 flex-1 space-y-0.5">
-                                                                {(languageMode === "both" || languageMode === "english") && (
-                                                                    <div className="whitespace-pre-line">
-                                                                        <MathRenderer text={opt?.english || `(Option ${letter} empty)`} />
-                                                                    </div>
-                                                                )}
-                                                                {(languageMode === "both" || languageMode === "hindi") && opt?.hindi && (
-                                                                    <div className="text-gray-500 dark:text-gray-400 text-[11px] whitespace-pre-line">
-                                                                        <MathRenderer text={opt.hindi} />
-                                                                    </div>
-                                                                )}
+                                                            <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                                                                <span
+                                                                    className={`w-5 h-5 rounded-md flex items-center justify-center font-black text-[11px] shrink-0 mt-0.5 ${
+                                                                        isCorrect
+                                                                            ? "bg-emerald-600 text-white"
+                                                                            : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                                                                    }`}
+                                                                >
+                                                                    {letter}
+                                                                </span>
+                                                                <div className="min-w-0 flex-1 space-y-0.5">
+                                                                    {(languageMode === "both" || languageMode === "english") && (
+                                                                        <div className="whitespace-pre-line break-words">
+                                                                            <MathRenderer text={opt?.english || `(Option ${letter} empty)`} />
+                                                                        </div>
+                                                                    )}
+                                                                    {(languageMode === "both" || languageMode === "hindi") && opt?.hindi && (
+                                                                        <div className="text-gray-500 dark:text-gray-400 text-[11px] whitespace-pre-line break-words">
+                                                                            <MathRenderer text={opt.hindi} />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                             {isCorrect && (
-                                                                <span className="shrink-0 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-black rounded-md">
+                                                                <span className="self-start sm:self-auto shrink-0 px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-black rounded-md pl-7 sm:pl-2">
                                                                     CORRECT
                                                                 </span>
                                                             )}

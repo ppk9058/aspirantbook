@@ -14,8 +14,8 @@ import { IS_MOBILE_NATIVE_SHELL_ENABLED } from "@/lib/config/mobile-shell"
 import { UnverifiedEmailBanner } from "@/components/auth/UnverifiedEmailBanner"
 import { isBooksRoute } from "@/components/layout/layout-utils"
 
-const Chatbot = dynamic(
-    () => import("@/components/layout/Chatbot").then((m) => m.Chatbot),
+const WhatsAppButton = dynamic(
+    () => import("@/components/layout/WhatsAppButton").then((m) => m.WhatsAppButton),
     { ssr: false }
 )
 
@@ -93,7 +93,7 @@ export default function DashboardShell({
         overrideState !== null ? overrideState : (isTutorialPage || isCollapsed)
 
     // Shared bottom clearance so the last row of any dashboard page can scroll
-    // fully clear of the fixed AI launcher (components/layout/Chatbot.tsx sits at
+    // fully clear of the fixed WhatsApp launcher (components/layout/WhatsAppButton.tsx sits at
     // bottom-[calc(4.25rem+env(safe-area-inset-bottom))] and is 40-48px tall) plus
     // the mobile bottom tab bar (~56-64px). Safe-area aware on phones/tablets;
     // 96px on lg where the launcher is bottom-6 and 48px tall.
@@ -170,7 +170,7 @@ export default function DashboardShell({
                 </div>
             </main>
 
-            {!isVideoWatchPage && <Chatbot />}
+            {!isVideoWatchPage && <WhatsAppButton />}
         </div>
     )
 }

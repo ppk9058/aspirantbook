@@ -3,29 +3,29 @@ import assert from "node:assert/strict"
 import { SHOW_PREMIUM_PLAN, shouldRedirectPremiumCheckout } from "@/lib/config/premium"
 
 describe("premium plan flag", () => {
-    it("keeps the Premium pass hidden until the Admin price exists", () => {
-        assert.equal(SHOW_PREMIUM_PLAN, false)
+    it("enables the Premium pass plan per owner decision", () => {
+        assert.equal(SHOW_PREMIUM_PLAN, true)
     })
 })
 
 describe("shouldRedirectPremiumCheckout", () => {
-    it("redirects a plan-only checkout with plan=yearly while Premium is hidden", () => {
+    it("redirects a plan-only checkout with plan=yearly while Premium is hidden (explicit argument)", () => {
         assert.equal(
-            shouldRedirectPremiumCheckout({ productId: null, plan: "yearly" }),
+            shouldRedirectPremiumCheckout({ productId: null, plan: "yearly", showPremiumPlan: false }),
             true
         )
     })
 
-    it("redirects a plan-only checkout with plan=monthly while Premium is hidden", () => {
+    it("redirects a plan-only checkout with plan=monthly while Premium is hidden (explicit argument)", () => {
         assert.equal(
-            shouldRedirectPremiumCheckout({ productId: null, plan: "monthly" }),
+            shouldRedirectPremiumCheckout({ productId: null, plan: "monthly", showPremiumPlan: false }),
             true
         )
     })
 
-    it("treats a missing plan param as monthly and redirects", () => {
+    it("treats a missing plan param as monthly and redirects while Premium is hidden (explicit argument)", () => {
         assert.equal(
-            shouldRedirectPremiumCheckout({ productId: undefined, plan: null }),
+            shouldRedirectPremiumCheckout({ productId: undefined, plan: null, showPremiumPlan: false }),
             true
         )
     })
@@ -46,6 +46,13 @@ describe("shouldRedirectPremiumCheckout", () => {
                 plan: "yearly",
                 showPremiumPlan: true,
             }),
+            false
+        )
+    })
+
+    it("does not redirect plan-only checkout by default when SHOW_PREMIUM_PLAN is true", () => {
+        assert.equal(
+            shouldRedirectPremiumCheckout({ productId: null, plan: "yearly" }),
             false
         )
     })

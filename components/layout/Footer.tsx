@@ -120,7 +120,7 @@ export default function Footer() {
 
         <div className="pt-8 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>&copy; {currentYear} AspirantBook. All rights reserved.</p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2">
             <Link href="/about" className="hover:underline">About us</Link>
             <Link href="/pricing" className="hover:underline">Pricing</Link>
             <Link href="/privacy" className="hover:underline">Privacy</Link>

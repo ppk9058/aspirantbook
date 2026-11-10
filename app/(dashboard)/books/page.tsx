@@ -11,64 +11,10 @@ import { BOOKS_DATA } from "@/lib/books/data"
 import { Book } from "@/lib/books/types"
 import { BookOpen, Zap } from "lucide-react"
 
-const BOOK_CHIP_CATEGORIES = [
-  "All",
-  "UPSC",
-  "BPSC",
-  "10th",
-  "9th",
-  "8th",
-  "Skills",
-  "Notes",
-] as const
-
-function bookMatchesChip(book: Book, chip: string): boolean {
-  if (chip === "All") return true
-  const cat = (book.category || "").toLowerCase()
-  const title = (book.title || "").toLowerCase()
-  const subcat = (book.subcategory || "").toLowerCase()
-
-  if (chip === "UPSC") {
-    return cat.includes("upsc") || subcat.includes("upsc") || title.includes("upsc") || cat.includes("civil services")
-  }
-  if (chip === "BPSC") {
-    return cat.includes("bpsc") || subcat.includes("bpsc") || title.includes("bpsc")
-  }
-  if (chip === "10th") {
-    return cat.includes("10th") || cat.includes("class 10") || title.includes("class 10")
-  }
-  if (chip === "9th") {
-    return cat.includes("9th") || cat.includes("class 9") || title.includes("class 9")
-  }
-  if (chip === "8th") {
-    return cat.includes("8th") || cat.includes("class 8") || title.includes("class 8")
-  }
-  if (chip === "Skills") {
-    return (
-      cat.includes("skill") ||
-      subcat.includes("skill") ||
-      title.includes("skill") ||
-      cat.includes("tech") ||
-      cat.includes("coding") ||
-      cat.includes("computer")
-    )
-  }
-  if (chip === "Notes") {
-    return (
-      cat.includes("notes") ||
-      subcat.includes("notes") ||
-      title.includes("notes") ||
-      subcat.includes("revision")
-    )
-  }
-  return false
-}
-
 function BooksCatalogContent() {
   const [isHydrated, setIsHydrated] = useState(false)
   const [allBooks, setAllBooks] = useState<Book[]>(BOOKS_DATA)
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedChip, setSelectedChip] = useState<string>("All")
   const [sortBy, setSortBy] = useState<string>("featured")
 
   useEffect(() => {
@@ -86,7 +32,8 @@ function BooksCatalogContent() {
       .catch(() => {})
   }, [])
 
-  // Filter books by search & category chip
+  // Filter books by search only — the exam/category chip row was removed from
+  // the storefront, so search and sort are the only controls.
   const filteredBooks = useMemo(() => {
     return allBooks.filter((book) => {
       // Search
@@ -101,14 +48,9 @@ function BooksCatalogContent() {
         }
       }
 
-      // Chip Category filter
-      if (!bookMatchesChip(book, selectedChip)) {
-        return false
-      }
-
       return true
     })
-  }, [allBooks, searchQuery, selectedChip])
+  }, [allBooks, searchQuery])
 
   // Sort filtered books
   const sortedBooks = useMemo(() => {
@@ -129,47 +71,11 @@ function BooksCatalogContent() {
       <BookStoreHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        {/* ======================================================== */}
-        {/* HORIZONTAL SINGLE-LINE SCROLL-SNAP CHIP FILTER BAR       */}
-        {/* With 44px tap targets, edge fade, data-scroll-x          */}
-        {/* ======================================================== */}
-        <div className="relative w-full pt-1">
-          {/* Left Edge Fade */}
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 sm:w-10 z-10 bg-gradient-to-r from-gray-50/90 to-transparent dark:from-slate-900/90" />
-
-          {/* Scroll container: filter pills gaps 12 to 16px */}
-          <div
-            data-scroll-x="true"
-            className="flex items-center gap-3 sm:gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory px-1 sm:px-2 py-1 scroll-smooth"
-          >
-            {BOOK_CHIP_CATEGORIES.map((chip) => {
-              const isActive = selectedChip === chip
-              return (
-                <button
-                  key={chip}
-                  type="button"
-                  onClick={() => setSelectedChip(chip)}
-                  className={`shrink-0 snap-start min-h-[44px] min-w-[44px] px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 select-none ${
-                    isActive
-                      ? "bg-sky-600 dark:bg-sky-500 text-white shadow-xs ring-2 ring-sky-600/20"
-                      : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-gray-200/90 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700"
-                  }`}
-                >
-                  {chip}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Right Edge Fade */}
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 sm:w-10 z-10 bg-gradient-to-l from-gray-50/90 to-transparent dark:from-slate-900/90" />
-        </div>
-
         {/* Title Bar & Sorting Header: gap between title divider and first card is 16px */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-slate-700 pb-4 mb-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
-              {selectedChip === "All" ? "All eBooks & Study Material" : `${selectedChip} eBooks & Notes`}
+              All eBooks &amp; Study Material
             </h1>
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
               Showing {sortedBooks.length} verified {sortedBooks.length === 1 ? "eBook" : "eBooks"}
@@ -209,11 +115,10 @@ function BooksCatalogContent() {
             <BookOpen className="w-12 h-12 text-slate-400 dark:text-slate-500 mx-auto" />
             <h3 className="text-base font-bold text-gray-800 dark:text-gray-200">No eBooks found</h3>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              Try adjusting your search terms or selecting &quot;All&quot; category.
+              Try a different search term.
             </p>
             <button
               onClick={() => {
-                setSelectedChip("All")
                 setSearchQuery("")
               }}
               className="px-4 py-2.5 min-h-[44px] rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold transition-colors"

@@ -466,12 +466,18 @@ export function SolutionsClient({
             </header>
 
             {/* ── FILTER CHIPS BAR ──────────────────────────────────── */}
-            <div className="flex items-center gap-2 px-5 py-2 bg-gray-50 border-b border-gray-200 overflow-x-auto shrink-0">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mr-1">Filter:</span>
+            {/* Phones: label on its own line, chips scroll horizontally with no
+                visible scrollbar so nothing is clipped mid-chip. */}
+            <div className="shrink-0 border-b border-gray-200 bg-gray-50 px-3 py-2 sm:px-5">
+                <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-gray-400 sm:hidden">
+                    Filter
+                </span>
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar snap-x">
+                <span className="mr-1 hidden shrink-0 text-[11px] font-bold uppercase tracking-wider text-gray-400 sm:inline">Filter:</span>
 
                 <button
                     onClick={() => { setFilter("ALL"); setCurrentIdx(0); }}
-                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                    className={`shrink-0 snap-start px-3 py-1 min-h-[36px] rounded-full text-xs font-bold transition-all ${
                         filter === "ALL" ? "bg-gray-900 text-white" : "bg-white border border-gray-300 text-gray-600 hover:bg-gray-100"
                     }`}
                 >
@@ -480,7 +486,7 @@ export function SolutionsClient({
 
                 <button
                     onClick={() => { setFilter("WRONG"); setCurrentIdx(0); }}
-                    className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                    className={`flex shrink-0 snap-start items-center gap-1 px-3 py-1 min-h-[36px] rounded-full text-xs font-bold transition-all ${
                         filter === "WRONG"
                             ? "bg-red-500 text-white shadow-xs"
                             : "bg-red-50 border border-red-200 text-red-600 hover:bg-red-100"
@@ -492,7 +498,7 @@ export function SolutionsClient({
 
                 <button
                     onClick={() => { setFilter("SKIPPED"); setCurrentIdx(0); }}
-                    className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                    className={`flex shrink-0 snap-start items-center gap-1 px-3 py-1 min-h-[36px] rounded-full text-xs font-bold transition-all ${
                         filter === "SKIPPED"
                             ? "bg-amber-500 text-white shadow-xs"
                             : "bg-amber-50 border border-amber-200 text-amber-600 hover:bg-amber-100"
@@ -504,7 +510,7 @@ export function SolutionsClient({
 
                 <button
                     onClick={() => { setFilter("CORRECT"); setCurrentIdx(0); }}
-                    className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                    className={`flex shrink-0 snap-start items-center gap-1 px-3 py-1 min-h-[36px] rounded-full text-xs font-bold transition-all ${
                         filter === "CORRECT"
                             ? "bg-emerald-600 text-white shadow-xs"
                             : "bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100"
@@ -516,7 +522,7 @@ export function SolutionsClient({
 
                 <button
                     onClick={() => { setFilter("BOOKMARKED"); setCurrentIdx(0); }}
-                    className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                    className={`flex shrink-0 snap-start items-center gap-1 px-3 py-1 min-h-[36px] rounded-full text-xs font-bold transition-all ${
                         filter === "BOOKMARKED"
                             ? "bg-purple-600 text-white shadow-xs"
                             : "bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100"
@@ -525,30 +531,31 @@ export function SolutionsClient({
                     <Bookmark className="h-3.5 w-3.5" />
                     <span>Bookmarked ({bookmarkedIds.length})</span>
                 </button>
+                </div>
             </div>
 
             {/* ── STUDENT PERFORMANCE / MODE RIBBON ─────────────────── */}
             {attemptMeta.hasAttempted ? (
-                <div className="flex items-center justify-between px-5 py-2.5 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border-b border-indigo-900/50 text-xs shrink-0 flex-wrap gap-2 shadow-xs">
-                    <div className="flex items-center gap-3">
+                <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-b border-indigo-900/50 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-3 py-2.5 text-xs text-white shadow-xs sm:px-5">
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
                         <span className="font-extrabold uppercase tracking-wider text-[11px] text-teal-400 flex items-center gap-1.5">
                             <Target className="h-3.5 w-3.5" /> Student Attempt:
                         </span>
-                        <span className="bg-white/10 px-2.5 py-0.5 rounded-full font-bold">
+                        <span className="whitespace-nowrap rounded-full bg-white/10 px-2.5 py-0.5 font-bold">
                             Score: <strong className="text-emerald-400">{attemptMeta.score.toFixed(2)}</strong> / {attemptMeta.totalMarks}
                         </span>
-                        <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">
+                        <span className="whitespace-nowrap rounded border border-emerald-500/30 bg-emerald-500/20 px-2 py-0.5 font-bold text-emerald-300">
                             ✓ {attemptMeta.correct} Correct
                         </span>
-                        <span className="bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-0.5 rounded font-bold">
+                        <span className="whitespace-nowrap rounded border border-red-500/30 bg-red-500/20 px-2 py-0.5 font-bold text-red-300">
                             ✗ {attemptMeta.wrong} Wrong
                         </span>
-                        <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-bold">
+                        <span className="whitespace-nowrap rounded border border-amber-500/30 bg-amber-500/20 px-2 py-0.5 font-bold text-amber-300">
                             ○ {attemptMeta.skipped} Skipped
                         </span>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                         <span className="text-gray-400 text-[11px] flex items-center gap-1">
                             <Clock className="h-3 w-3" /> Time: {Math.floor(attemptMeta.elapsed / 60)}m {attemptMeta.elapsed % 60}s
                         </span>
@@ -589,13 +596,13 @@ export function SolutionsClient({
                     ) : (
                         <>
                             {/* Question Header Meta */}
-                            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-                                <div className="flex items-center gap-3">
+                            <div className="flex flex-col gap-2 border-b border-gray-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
                                     <span className="text-base font-extrabold text-gray-900">
                                         Question No. {currentQ.id}
                                     </span>
                                     <span
-                                        className={`px-3 py-1 rounded-full text-xs font-extrabold flex items-center gap-1 border ${
+                                        className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-extrabold ${
                                             currentQ.status === "CORRECT"
                                                 ? "bg-emerald-100 border-emerald-300 text-emerald-800"
                                                 : currentQ.status === "WRONG"
@@ -622,14 +629,15 @@ export function SolutionsClient({
                                     </span>
                                 </div>
 
-                                <div className="flex items-center gap-3">
+                                <div className="flex shrink-0 items-center gap-3 self-end sm:self-auto">
                                     <span className="text-xs font-semibold text-gray-400">
                                         Topper Accuracy: <strong className="text-emerald-600">{currentQ.topperAccuracy}%</strong>
                                     </span>
 
                                     <button
                                         onClick={() => toggleBookmark(currentQ.id)}
-                                        className={`p-2 rounded-xl border transition-colors ${
+                                        aria-label="Bookmark question"
+                                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors ${
                                             bookmarkedIds.includes(currentQ.id)
                                                 ? "bg-purple-50 border-purple-300 text-purple-600"
                                                 : "border-gray-200 text-gray-400 hover:text-gray-700"
@@ -643,14 +651,14 @@ export function SolutionsClient({
 
                             {/* Student Attempt Verdict Banner */}
                             {attemptMeta.hasAttempted && (
-                                <div className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-between ${
+                                <div className={`flex items-start gap-2.5 rounded-xl border p-3.5 text-xs font-bold ${
                                     currentQ.status === "CORRECT"
                                         ? "bg-emerald-50/90 border-emerald-200 text-emerald-950"
                                         : currentQ.status === "WRONG"
                                         ? "bg-red-50/90 border-red-200 text-red-950"
                                         : "bg-slate-50 border-slate-200 text-slate-700"
                                 }`}>
-                                    <div className="flex items-center gap-2.5">
+                                    <div className="flex min-w-0 items-start gap-2.5">
                                         {currentQ.status === "CORRECT" && (
                                             <>
                                                 <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
@@ -711,7 +719,7 @@ export function SolutionsClient({
                                     return (
                                         <div
                                             key={i}
-                                            className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all shadow-xs ${
+                                            className={`flex flex-col gap-2 rounded-xl border-2 p-3.5 transition-all shadow-xs sm:flex-row sm:items-center sm:justify-between sm:p-4 ${
                                                 isUserRight
                                                     ? "border-emerald-500 bg-emerald-50/80 text-emerald-950 font-bold"
                                                     : isUserWrong
@@ -721,9 +729,9 @@ export function SolutionsClient({
                                                     : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
                                             }`}
                                         >
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex min-w-0 flex-1 items-start gap-3">
                                                 <div
-                                                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
+                                                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black ${
                                                         isUserRight
                                                             ? "bg-emerald-600 text-white"
                                                             : isUserWrong
@@ -735,10 +743,10 @@ export function SolutionsClient({
                                                 >
                                                     {["A", "B", "C", "D"][i]}
                                                 </div>
-                                                <span className="text-sm leading-snug">{opt}</span>
+                                                <span className="min-w-0 break-words text-sm leading-snug">{opt}</span>
                                             </div>
 
-                                            <div className="shrink-0 ml-3">
+                                            <div className="shrink-0 sm:ml-3 sm:self-center">
                                                 {isUserRight && (
                                                     <span className="px-2.5 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs">
                                                         <CheckCircle className="h-3.5 w-3.5" /> Your Answer (Correct)
@@ -762,9 +770,9 @@ export function SolutionsClient({
 
                             {/* ── DETAILED EXPLANATION CARD ─────────────────────── */}
                             <div className="bg-gradient-to-br from-blue-50/60 to-indigo-50/40 rounded-2xl border border-blue-100 p-6 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <Sparkles className="h-5 w-5 text-[#00A8FF]" />
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <div className="flex min-w-0 items-center gap-2">
+                                        <Sparkles className="h-5 w-5 shrink-0 text-[#00A8FF]" />
                                         <h3 className="text-sm font-extrabold text-gray-900">
                                             Detailed Step-by-Step Solution &amp; Analysis
                                         </h3>

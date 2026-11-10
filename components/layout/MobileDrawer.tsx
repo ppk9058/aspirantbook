@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -43,6 +44,46 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
     const pathname = usePathname()
     const { data: session } = useSession()
     const { theme, toggleTheme } = useTheme()
+    const closeBtnRef = useRef<HTMLButtonElement>(null)
+    const onCloseRef = useRef(onClose)
+
+    useEffect(() => {
+        onCloseRef.current = onClose
+    })
+
+    // Body scroll lock while drawer is open
+    useEffect(() => {
+        if (!isOpen) return
+        const originalOverflow = document.body.style.overflow
+        const originalPaddingRight = document.body.style.paddingRight
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+        document.body.style.overflow = "hidden"
+        if (scrollbarWidth > 0) {
+            document.body.style.paddingRight = `${scrollbarWidth}px`
+        }
+        return () => {
+            document.body.style.overflow = originalOverflow
+            document.body.style.paddingRight = originalPaddingRight
+        }
+    }, [isOpen])
+
+    // Close on Escape key
+    useEffect(() => {
+        if (!isOpen) return
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                onCloseRef.current()
+            }
+        }
+        document.addEventListener("keydown", handleEscape)
+        return () => document.removeEventListener("keydown", handleEscape)
+    }, [isOpen])
+
+    // Initial focus on close button
+    useEffect(() => {
+        if (!isOpen) return
+        closeBtnRef.current?.focus()
+    }, [isOpen])
 
     if (!isOpen) return null
 
@@ -76,7 +117,7 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
     const visibleNavItems = drawerNavItems.filter((item) => !isGuest || item.guestVisible !== false)
 
     return (
-        <div className="lg:hidden fixed inset-0 z-50 flex" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
+        <div className="lg:hidden fixed inset-0 z-[60] flex" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
             {/* Backdrop */}
             <div
                 className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
@@ -85,7 +126,7 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
             />
 
             {/* Slide-out Drawer Panel */}
-            <div className="relative w-4/5 max-w-xs bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col z-10 border-r border-slate-200 dark:border-slate-800">
+            <div className="relative w-4/5 max-w-xs bg-white dark:bg-slate-900 h-dvh max-h-dvh shadow-2xl flex flex-col z-10 border-r border-slate-200 dark:border-slate-800">
                 {/* Drawer Header */}
                 <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                     <BrandLogo
@@ -96,6 +137,7 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
                     />
 
                     <button
+                        ref={closeBtnRef}
                         onClick={onClose}
                         data-testid="drawer-close"
                         className="p-2 min-h-11 min-w-11 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"

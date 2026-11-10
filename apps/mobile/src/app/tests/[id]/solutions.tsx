@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ChevronLeft,
   ChevronRight,
@@ -36,6 +37,7 @@ export default function SolutionsScreen() {
   const { id: testId, attemptId } = useLocalSearchParams<{ id: string; attemptId: string }>();
   const router = useRouter();
   const { colors, tokens } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -86,7 +88,12 @@ export default function SolutionsScreen() {
   if (loading) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <View
+          style={[
+            styles.header,
+            { borderBottomColor: colors.border, paddingTop: insets.top, height: 52 + insets.top },
+          ]}
+        >
           <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
             <ChevronLeft size={24} color={colors.textPrimary} />
           </TouchableOpacity>
@@ -104,7 +111,12 @@ export default function SolutionsScreen() {
   if (errorMsg || !solutionsData) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <View
+          style={[
+            styles.header,
+            { borderBottomColor: colors.border, paddingTop: insets.top, height: 52 + insets.top },
+          ]}
+        >
           <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
             <ChevronLeft size={24} color={colors.textPrimary} />
           </TouchableOpacity>
@@ -125,7 +137,12 @@ export default function SolutionsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* 52px Top Header */}
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <View
+        style={[
+          styles.header,
+          { borderBottomColor: colors.border, paddingTop: insets.top, height: 52 + insets.top },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.headerBtn}
@@ -146,8 +163,14 @@ export default function SolutionsScreen() {
         ) : null}
       </View>
 
-      {/* Filter Chips Bar */}
-      <View style={styles.filterBar}>
+      {/* Filter Chips Bar — horizontally scrollable so all chips stay reachable
+          on 320-360px devices instead of being pushed off-screen. */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={[styles.filterBar, { borderBottomColor: colors.border }]}
+        contentContainerStyle={styles.filterBarContent}
+      >
         <Chip
           label="All"
           selected={filter === "ALL"}
@@ -180,7 +203,7 @@ export default function SolutionsScreen() {
             setCurrentIndex(0);
           }}
         />
-      </View>
+      </ScrollView>
 
       {filteredQuestions.length === 0 ? (
         <EmptyState
@@ -193,10 +216,19 @@ export default function SolutionsScreen() {
           }}
         />
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: 80 + insets.bottom },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
           {/* Question Status Banner */}
           <View style={styles.qHeaderRow}>
-            <Text style={[styles.qNumLabel, { color: colors.textPrimary }]}>
+            <Text
+              style={[styles.qNumLabel, { color: colors.textPrimary }]}
+              numberOfLines={2}
+            >
               Question {currentQ.questionNumber} of {allQuestions.length}
             </Text>
             {currentQ.isCorrect ? (
@@ -316,6 +348,8 @@ export default function SolutionsScreen() {
             {
               backgroundColor: colors.surface,
               borderTopColor: colors.border,
+              height: 56 + insets.bottom,
+              paddingBottom: insets.bottom,
             },
           ]}
         >
@@ -380,10 +414,15 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   filterBar: {
+    flexGrow: 0,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  filterBarContent: {
     flexDirection: "row",
     gap: 8,
     paddingHorizontal: 16,
     paddingVertical: 10,
+    alignItems: "center",
   },
   scrollContent: {
     padding: 16,
@@ -394,10 +433,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: 8,
   },
   qNumLabel: {
     fontSize: 15,
     fontWeight: "700",
+    flexShrink: 1,
   },
   questionCard: {
     padding: 16,
@@ -407,7 +448,7 @@ const styles = StyleSheet.create({
   },
   optionItem: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     minHeight: 52,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -421,6 +462,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
+    marginTop: 1,
+    flexShrink: 0,
   },
   optionLetter: {
     fontSize: 13,
@@ -428,9 +471,12 @@ const styles = StyleSheet.create({
   },
   optionTextWrap: {
     flex: 1,
+    minWidth: 0,
   },
   resultIconWrap: {
     marginLeft: 8,
+    marginTop: 3,
+    flexShrink: 0,
   },
   explanationCard: {
     padding: 16,

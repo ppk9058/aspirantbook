@@ -1032,6 +1032,7 @@ const styles = StyleSheet.create({
   },
   optionTextWrap: {
     flex: 1,
+    minWidth: 0,
   },
   bottomActionBar: {
     position: "absolute",
