@@ -16,6 +16,12 @@ export interface BrandLogoProps {
     className?: string
     priority?: boolean
     onClick?: () => void
+    /**
+     * Extra classes for the "aspirantBook" wordmark. Defaults to `truncate`.
+     * Headers that must always show the full wordmark (the phone header, which
+     * also carries search + avatar) pass a non-truncating class instead.
+     */
+    wordmarkClassName?: string
     "data-testid"?: string
 }
 
@@ -40,7 +46,9 @@ const SIZE_CONFIG: Record<
     lg: {
         box: "h-9 w-9 sm:h-11 sm:w-11",
         img: 44,
-        text: "text-xl sm:text-2xl font-black tracking-tight",
+        // Phone wordmark is 16px so the full 12-character "aspirantBook" fits at
+        // 320px next to the hamburger and the header CTA; sm+ is unchanged.
+        text: "text-base sm:text-2xl font-black tracking-tight",
     },
     xl: {
         box: "h-14 w-14 sm:h-16 sm:w-16",
@@ -57,6 +65,7 @@ export default function BrandLogo({
     className = "",
     priority = false,
     onClick,
+    wordmarkClassName = "truncate",
     "data-testid": testId,
 }: BrandLogoProps) {
     const { data: session } = useSession()
@@ -80,7 +89,7 @@ export default function BrandLogo({
             {showWordmark && !collapsed && (
                 <span
                     data-testid="brand-name"
-                    className={`truncate text-[#ff0031] dark:text-[#ff385c] ${config.text}`}
+                    className={`${wordmarkClassName} text-[#ff0031] dark:text-[#ff385c] ${config.text}`}
                 >
                     aspirantBook
                 </span>

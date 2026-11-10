@@ -14,6 +14,7 @@ export default function HomeLogoLink() {
         <BrandLogo
             size="lg"
             priority
+            wordmarkClassName="shrink-0 whitespace-nowrap"
             data-testid="home-brand-link"
         />
     )

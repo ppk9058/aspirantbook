@@ -13,16 +13,28 @@ describe("A4: KI-9 Guest State Cleanup & KI-13 GoalBar Copy Standardization", ()
   const testsPath = path.resolve(__dirname, "../src/app/(tabs)/tests.tsx");
   const headerPath = path.resolve(__dirname, "../src/components/shell/MobileAppHeader.tsx");
 
-  it("KI-9: MobileAppHeader gates notificationDot strictly behind isAuthenticated", () => {
+  it("KI-9: the header carries no notification dot; notifications live in the profile sheet", () => {
     const headerContent = fs.readFileSync(headerPath, "utf8");
-    // Verify notification dot is guarded by isAuthenticated
+    const profileSheetPath = path.resolve(
+      __dirname,
+      "../src/components/shell/MobileProfileSheet.tsx"
+    );
+    const profileSheetContent = fs.readFileSync(profileSheetPath, "utf8");
+
+    // The bell and its always-on rose dot were removed from the header: they
+    // competed with the brand wordmark for space at 320px and the dot was not
+    // backed by a real unread count.
     assert.ok(
-      headerContent.includes("{isAuthenticated ? (") || headerContent.includes("isAuthenticated &&"),
-      "MobileAppHeader must guard notification dot with isAuthenticated"
+      !headerContent.includes("testID=\"mobile-header-notification-dot\""),
+      "MobileAppHeader must not render a notification dot"
     );
     assert.ok(
-      headerContent.includes("testID=\"mobile-header-notification-dot\""),
-      "MobileAppHeader must tag notification dot with mobile-header-notification-dot"
+      !headerContent.includes("testID=\"mobile-header-bell\""),
+      "MobileAppHeader must not render a standalone bell"
+    );
+    assert.ok(
+      profileSheetContent.includes('testId: "profile-sheet-link-notifications"'),
+      "Notifications must be reachable from the profile sheet"
     );
   });
 

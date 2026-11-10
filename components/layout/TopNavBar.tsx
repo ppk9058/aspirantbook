@@ -79,8 +79,10 @@ export default function TopNavBar() {
                         )}
                     </button>
 
-                    {/* Notifications */}
-                    <div className="relative">
+                    {/* Notifications — desktop only. Below lg the same feature
+                        lives in the avatar dropdown (ProfileDropdown) so the
+                        phone header can show the full brand wordmark. */}
+                    <div className="relative hidden lg:block">
                         <button
                             onClick={() => setShowNotifications(!showNotifications)}
                             className="relative p-1.5 sm:p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
