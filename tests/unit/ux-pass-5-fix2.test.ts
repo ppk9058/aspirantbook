@@ -61,6 +61,11 @@ describe("UX Pass 5 Fix 2 - Issue 3: Global search", () => {
         assert.match(api, /tutorial/, "tutorial search missing")
         assert.match(api, /isPublished: true/, "must only search published items")
     })
+    it("Global search API uses strongly-typed prisma.examSeries and contains no (prisma as any)", () => {
+        const api = readFile("app/api/search/global/route.ts")
+        assert.match(api, /prisma\.examSeries\.findMany/, "must use prisma.examSeries.findMany")
+        assert.doesNotMatch(api, /\(prisma as any\)/, "must not cast prisma to any")
+    })
 })
 describe("UX Pass 5 Fix 2 - Issue 5: Bottom nav order and Pass tab", () => {
     it("MobileNativeBottomBar has tabs in order: Home, Courses, Pass, Tests", () => {

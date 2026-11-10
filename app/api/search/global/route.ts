@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { buildResultUrl } from "@/lib/search/result-url"
+import { isTextTutorialCourse } from "@/lib/course-classifier"
+
 /**
  * Global search API: searches across published test series, courses, and tutorials.
  * Returns grouped results for the landing header search.
@@ -8,7 +10,7 @@ import { buildResultUrl } from "@/lib/search/result-url"
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get("q")
-    
+
     // Validate query length (min 2, max 64 chars)
     if (!query || query.trim().length < 2) {
         return NextResponse.json({
@@ -17,39 +19,40 @@ export async function GET(request: NextRequest) {
             tutorials: [],
         })
     }
-    
+
     if (query.length > 64) {
         return NextResponse.json(
             { error: "Query too long (max 64 characters)" },
             { status: 400 }
         )
     }
-    
+
     const searchTerm = query.trim()
     try {
-        // Search published test series (if model exists)
-        let testSeries: any[] = []
-        try {
-            testSeries = await (prisma as any).testSeries?.findMany({
-                where: {
-                    isPublished: true,
-                    OR: [
-                        { title: { contains: searchTerm, mode: "insensitive" } },
-                        { description: { contains: searchTerm, mode: "insensitive" } },
-                    ],
-                },
-                select: {
-                    id: true,
-                    slug: true,
-                    title: true,
-                },
-                take: 5,
-                orderBy: { createdAt: "desc" },
-            }) || []
-        } catch (e) {
-            // TestSeries model may not exist
-            console.warn("TestSeries search skipped:", e)
-        }
+        // Search published test series using the real ExamSeries model
+        const testSeries = await prisma.examSeries.findMany({
+            where: {
+                isPublished: true,
+                isArchived: false,
+                OR: [
+                    { title: { contains: searchTerm, mode: "insensitive" } },
+                    { description: { contains: searchTerm, mode: "insensitive" } },
+                    { examName: { contains: searchTerm, mode: "insensitive" } },
+                    { category: { contains: searchTerm, mode: "insensitive" } },
+                ],
+            },
+            select: {
+                id: true,
+                slug: true,
+                title: true,
+            },
+            take: 5,
+            orderBy: { createdAt: "desc" },
+        }).catch((err) => {
+            console.error("ExamSeries search failed:", err)
+            throw err
+        })
+
         // Search published courses
         const courses = await prisma.course.findMany({
             where: {
@@ -66,32 +69,45 @@ export async function GET(request: NextRequest) {
             },
             take: 5,
             orderBy: { createdAt: "desc" },
+        }).catch((err) => {
+            console.error("Courses search failed:", err)
+            throw err
         })
-        // Search published tutorials (if model exists)
-        let tutorials: any[] = []
-        try {
-            tutorials = await (prisma as any).tutorial?.findMany({
-                where: {
-                    isPublished: true,
-                    OR: [
-                        { title: { contains: searchTerm, mode: "insensitive" } },
-                        { description: { contains: searchTerm, mode: "insensitive" } },
-                    ],
+
+        // Search published tutorials (stored in prisma.course as text tutorials authored in Tutorial Studio)
+        const candidateTutorials = await prisma.course.findMany({
+            where: {
+                isPublished: true,
+                OR: [
+                    { title: { contains: searchTerm, mode: "insensitive" } },
+                    { description: { contains: searchTerm, mode: "insensitive" } },
+                ],
+            },
+            select: {
+                id: true,
+                slug: true,
+                title: true,
+                chapters: {
+                    select: {
+                        lessons: {
+                            select: {
+                                type: true,
+                                videoUrl: true,
+                            },
+                        },
+                    },
                 },
-                select: {
-                    id: true,
-                    slug: true,
-                    title: true,
-                },
-                take: 5,
-                orderBy: { createdAt: "desc" },
-            }) || []
-        } catch (e) {
-            // Tutorial model may not exist
-            console.warn("Tutorial search skipped:", e)
-        }
+            },
+            take: 10,
+            orderBy: { createdAt: "desc" },
+        }).catch((err) => {
+            console.error("Tutorials search failed:", err)
+            throw err
+        })
+        const tutorials = candidateTutorials.filter(isTextTutorialCourse).slice(0, 5)
+
         return NextResponse.json({
-            testSeries: testSeries.map((ts: any) => ({
+            testSeries: testSeries.map((ts) => ({
                 id: ts.id,
                 title: ts.title,
                 href: buildResultUrl("testSeries", ts),
@@ -101,7 +117,7 @@ export async function GET(request: NextRequest) {
                 title: c.title,
                 href: buildResultUrl("course", c),
             })),
-            tutorials: tutorials.map((t: any) => ({
+            tutorials: tutorials.map((t) => ({
                 id: t.id,
                 title: t.title,
                 href: buildResultUrl("tutorial", t),
