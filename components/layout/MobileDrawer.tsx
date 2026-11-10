@@ -151,7 +151,7 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
                     mounted by the dashboard chrome, not on the landing page. */}
                 {!isGuest && (
                     <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Target Goal</span>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Select Target</span>
                         <GoalSelectorButton />
                     </div>
                 )}

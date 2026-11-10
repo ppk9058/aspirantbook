@@ -452,29 +452,6 @@ export default function TeacherTestSeriesManagePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#060f1c] p-3 sm:p-6 lg:p-10 space-y-6 sm:space-y-8">
-      {/* Email Verification Banner (Persistent dismiss) */}
-      {!emailDismissed && (
-        <div
-          data-testid="email-verification-banner"
-          className="p-3.5 rounded-2xl bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-900/50 flex items-center justify-between text-xs text-sky-800 dark:text-sky-300"
-        >
-          <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 shrink-0 text-[#00A8FF]" />
-            <span>
-              Authoring security enabled. Verify your teacher email in account settings to protect published mock exams.
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={dismissEmailBanner}
-            className="p-1 hover:bg-sky-100 dark:hover:bg-sky-900 rounded-lg min-h-[32px] min-w-[32px] flex items-center justify-center text-sky-700 dark:text-sky-400"
-            aria-label="Dismiss banner"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>

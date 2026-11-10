@@ -732,13 +732,6 @@ export default function TestSeriesPage() {
                                                 <div className="w-12 h-12 rounded-full bg-white dark:bg-gray-900 shadow-2xs border border-purple-100 dark:border-purple-900/40 p-0.5 flex items-center justify-center flex-shrink-0">
                                                     <ExamLogo logoType={item.logoType} />
                                                 </div>
-
-                                                {item.users && item.users !== "0" ? (
-                                                    <div className="bg-white/95 dark:bg-gray-800/90 border border-gray-200/80 dark:border-gray-700/80 px-2.5 py-1 rounded-full text-[11px] font-bold text-gray-700 dark:text-gray-200 flex items-center gap-1 shadow-2xs">
-                                                        <Zap className="h-3 w-3 text-amber-500 fill-amber-500" />
-                                                        <span>{formatCount(item.users, "User")}</span>
-                                                    </div>
-                                                ) : null}
                                             </div>
 
                                             {/* Title */}
@@ -849,12 +842,6 @@ export default function TestSeriesPage() {
                                 <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase">Free Tests</span>
                                 <p className="text-lg font-black text-emerald-700 dark:text-emerald-400">{activeModalSeries.freeTests}</p>
                             </div>
-                            {activeModalSeries.users && activeModalSeries.users !== "0" ? (
-                                <div>
-                                    <span className="text-[10px] text-gray-400 font-bold uppercase">Active Learners</span>
-                                    <p className="text-lg font-black text-gray-900 dark:text-white">{activeModalSeries.users}</p>
-                                </div>
-                            ) : null}
                         </div>
 
                         <div>

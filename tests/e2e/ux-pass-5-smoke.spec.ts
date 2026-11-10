@@ -222,3 +222,34 @@ test.describe("UX Pass 5 - Desktop pricing page at 1280px", () => {
         console.log("✓ Screenshot saved: /tmp/ux-fix3-shots/pricing-desktop-1280.png")
     })
 })
+
+test.describe("UX Pass 6 - /pricing redesign at 360px", () => {
+    test("Benefits card is above Price card, trust line visible, sticky Buy Now unique", async ({ page }) => {
+        await page.setViewportSize({ width: 360, height: 740 })
+        await page.goto(`${BASE_URL}/pricing`)
+
+        const benefitsCard = page.locator('[data-testid="pricing-benefits-card"]')
+        const priceCard = page.locator('[data-testid="pricing-price-card"]')
+
+        await expect(benefitsCard).toBeVisible({ timeout: 10000 })
+        await expect(priceCard).toBeVisible({ timeout: 10000 })
+
+        const benefitsBox = await benefitsCard.boundingBox()
+        const priceBox = await priceCard.boundingBox()
+
+        expect(benefitsBox).not.toBeNull()
+        expect(priceBox).not.toBeNull()
+
+        if (benefitsBox && priceBox) {
+            console.log(`Benefits card bottom: ${benefitsBox.y + benefitsBox.height}, Price card top: ${priceBox.y}`)
+            expect(benefitsBox.y + benefitsBox.height).toBeLessThanOrEqual(priceBox.y + 1)
+        }
+
+        const trustLine = page.getByText(/Secure payment powered by Razorpay/i)
+        await expect(trustLine).toBeVisible()
+
+        const visibleBuyNow = page.locator('[data-testid="pass-buy-now-btn"]:visible')
+        await expect(visibleBuyNow).toHaveCount(1)
+        console.log("✓ /pricing 360px order, trust line, and unique sticky button verified")
+    })
+})

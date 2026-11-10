@@ -159,7 +159,7 @@ test.describe.serial("Reproduce Goal Change Stale List Bug", () => {
     // 3. Open Goal Modal via GoalSelectorBar "+ Add exam target"
     const addExamBtn = page.getByRole("button", { name: /Add.*exam.*target/i });
     await addExamBtn.click();
-    await page.waitForSelector('text=Select your Target Exams', { timeout: 5000 });
+    await page.waitForSelector('text=Select Target', { timeout: 5000 });
 
     // In modal, click "SSC" to add SSC and click "UPSC" to remove UPSC
     const modal = page.locator('[role="dialog"]');

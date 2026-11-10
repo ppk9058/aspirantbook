@@ -13,7 +13,7 @@ interface GoalSelectorBarProps {
 }
 
 export function GoalSelectorBar({
-    title = "Your Target Exams & Goals",
+    title = "Select Target",
     subtitle = "Showing curated tests, courses, tutorials, and previous year papers matching your active targets",
     className = "",
     compact = false,
