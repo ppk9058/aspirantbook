@@ -38,13 +38,11 @@ export default function GoalModal() {
 
     // Prevent body scrolling when modal is open
     useEffect(() => {
-        if (isGoalModalOpen) {
-            document.body.style.overflow = "hidden"
-        } else {
-            document.body.style.overflow = ""
-        }
+        if (!isGoalModalOpen) return
+        const originalOverflow = document.body.style.overflow
+        document.body.style.overflow = "hidden"
         return () => {
-            document.body.style.overflow = ""
+            document.body.style.overflow = originalOverflow
         }
     }, [isGoalModalOpen])
 
@@ -59,11 +57,13 @@ export default function GoalModal() {
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape" && isGoalModalOpen) {
+                e.stopPropagation()
+                e.stopImmediatePropagation()
                 closeGoalModal()
             }
         }
-        window.addEventListener("keydown", handleKeyDown)
-        return () => window.removeEventListener("keydown", handleKeyDown)
+        window.addEventListener("keydown", handleKeyDown, true)
+        return () => window.removeEventListener("keydown", handleKeyDown, true)
     }, [isGoalModalOpen, closeGoalModal])
 
     // Filter popular goals

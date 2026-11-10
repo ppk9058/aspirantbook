@@ -14,7 +14,8 @@ import MobileDrawer from "@/components/layout/MobileDrawer"
  * drawer's `fixed inset-0` layout is sized against the viewport rather than
  * being constrained by `<header>`'s backdrop-filter containing block.
  *
- * Handles body scroll lock, Escape key, backdrop tap, and auto-close on route change.
+ * Body scroll lock and Escape key handling are managed directly by MobileDrawer.
+ * Auto-close on route change and returning focus to the trigger button are handled here.
  */
 export default function LandingMobileNav() {
     const [isOpen, setIsOpen] = useState(false)
@@ -24,32 +25,6 @@ export default function LandingMobileNav() {
     useEffect(() => {
         setMounted(true)
     }, [])
-    // Body scroll lock while drawer is open
-    useEffect(() => {
-        if (!isOpen) return
-        const originalOverflow = document.body.style.overflow
-        const originalPaddingRight = document.body.style.paddingRight
-        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-        document.body.style.overflow = "hidden"
-        if (scrollbarWidth > 0) {
-            document.body.style.paddingRight = `${scrollbarWidth}px`
-        }
-        return () => {
-            document.body.style.overflow = originalOverflow
-            document.body.style.paddingRight = originalPaddingRight
-        }
-    }, [isOpen])
-    // Close on Escape key
-    useEffect(() => {
-        if (!isOpen) return
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                handleClose()
-            }
-        }
-        document.addEventListener("keydown", handleEscape)
-        return () => document.removeEventListener("keydown", handleEscape)
-    }, [isOpen])
     // Close on route change
     useEffect(() => {
         setIsOpen(false)

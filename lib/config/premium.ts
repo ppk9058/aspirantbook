@@ -1,9 +1,8 @@
 /**
  * Master switch for the Premium (yearly pass) plan.
  *
- * Set this to `true` ONLY after the Admin pass price exists and checkout /
- * entitlements are fixed. While it is `false`, Premium selling UI is hidden and
- * products are bought individually at their own Admin-set prices.
+ * When `true`, Pass is sold and Pass checkouts are not redirected.
+ * When `false`, Premium selling UI is hidden and plan-only checkouts redirect to /pricing.
  */
 export const SHOW_PREMIUM_PLAN = true
 

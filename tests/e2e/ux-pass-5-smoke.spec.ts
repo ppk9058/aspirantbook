@@ -25,13 +25,22 @@ test.describe("UX Pass 5 - Hamburger opens on all pages at 360px", () => {
             
             // Find hamburger button (landing-mobile-menu-btn or similar)
             const hamburger = page.locator('[data-testid="landing-mobile-menu-btn"], button[aria-label*="menu" i]').first()
+            if (path === "/pricing") {
+                // Wait for positive anchor that proves page rendered & hydrated
+                const buyNowBtn = page.locator('[data-testid="pass-buy-now-btn"]:visible')
+                await expect(buyNowBtn).toBeVisible({ timeout: 10000 })
+                // Owner decision: /pricing has no header/hamburger, only sticky Buy Now
+                await expect(hamburger).toHaveCount(0)
+                console.log(`✓ ${name}: No hamburger on pricing (expected)`)
+                return
+            }
             await expect(hamburger).toBeVisible({ timeout: 10000 })
             
             // Click to open
             await hamburger.click()
             
-            // Verify drawer opened (check for drawer content or close button)
-            const drawer = page.locator('[role="dialog"], [data-testid="drawer-close"]')
+            // Verify drawer opened (check for dialog with Mobile Navigation Menu label)
+            const drawer = page.getByRole('dialog', { name: 'Mobile Navigation Menu' })
             await expect(drawer).toBeVisible({ timeout: 3000 })
             
             console.log(`✓ ${name}: Hamburger opens`)
@@ -102,7 +111,7 @@ test.describe("UX Pass 5 - Landing drawer behavior", () => {
 })
 
 test.describe("UX Pass 5 - Bottom nav", () => {
-    const testPages = ["/", "/courses", "/test-series", "/pricing"]
+    const testPages = ["/", "/courses", "/test-series"]
 
     for (const path of testPages) {
         test(`Bottom nav visible with correct order on ${path}`, async ({ page }) => {
@@ -127,6 +136,19 @@ test.describe("UX Pass 5 - Bottom nav", () => {
             expect(tabCount).toBeGreaterThanOrEqual(3)
         })
     }
+
+    test("Bottom nav is NOT rendered on /pricing (clean focused checkout)", async ({ page }) => {
+        await page.setViewportSize({ width: 360, height: 740 })
+        await page.goto(`${BASE_URL}/pricing`)
+
+        // Wait for positive anchor that proves page rendered & hydrated
+        const buyNowBtn = page.locator('[data-testid="pass-buy-now-btn"]:visible')
+        await expect(buyNowBtn).toBeVisible({ timeout: 10000 })
+
+        const bottomNav = page.locator('[data-mobile-bottom-nav="true"], nav[aria-label*="Bottom" i]')
+        await expect(bottomNav).toHaveCount(0)
+        console.log("✓ /pricing: No bottom nav (expected)")
+    })
 })
 
 test.describe("UX Pass 5 - Hydration warnings", () => {
