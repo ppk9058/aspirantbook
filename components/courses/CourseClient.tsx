@@ -41,8 +41,6 @@ interface CourseClientProps {
 export default function CourseClient({
     dbCourses = [],
     enrolledCourseIds,
-    completedCourseIds,
-    bookmarkedCourseIds,
     badgeMap = {},
     serverGoalIds = [],
 }: CourseClientProps) {
@@ -69,7 +67,6 @@ export default function CourseClient({
     }, [dbCourses])
 
     const [search, setSearch] = useState("")
-    const [activeTab, setActiveTab] = useState("all")
     const [selectedCategory, setSelectedCategory] = useState("all")
     const [filterByGoal, setFilterByGoal] = useState(true)
 
@@ -174,16 +171,7 @@ export default function CourseClient({
             })
         }
 
-        // 2. Active Tab (Enrolled / Completed / Bookmarked)
-        if (activeTab === 'my') {
-            result = result.filter(c => enrolledCourseIds.includes(c.id))
-        } else if (activeTab === 'completed') {
-            result = result.filter(c => completedCourseIds.includes(c.id))
-        } else if (activeTab === 'bookmarked') {
-            result = result.filter(c => bookmarkedCourseIds.includes(c.id))
-        }
-
-        // 3. Category Tab Filter
+        // 2. Category Tab Filter (topic, not enrolment status)
         if (selectedCategory !== "all") {
             const catLower = selectedCategory.toLowerCase()
             result = result.filter(c => {
@@ -215,7 +203,7 @@ export default function CourseClient({
             })
         }
 
-        // 4. Search Filter
+        // 3. Search Filter
         if (search) {
             const searchLower = search.toLowerCase()
             result = result.filter(c =>
@@ -225,13 +213,7 @@ export default function CourseClient({
         }
 
         return result
-    }, [allCourses, search, activeTab, selectedCategory, filterByGoal, selectedGoals, enrolledCourseIds, completedCourseIds, bookmarkedCourseIds])
-
-    const tabs = [
-        { id: 'all', label: filterByGoal ? `Curated Courses (${selectedGoals.map(g => g.name).join(', ')})` : 'All Courses', count: filteredCourses.length },
-        { id: 'my', label: 'Enrolled', count: enrolledCourseIds.length },
-        { id: 'completed', label: 'Completed', count: completedCourseIds.length },
-    ]
+    }, [allCourses, search, selectedCategory, filterByGoal, selectedGoals])
 
     return (
         <div className="space-y-6">
@@ -241,7 +223,6 @@ export default function CourseClient({
             />
 
             <StudentPageToolbar
-                tabs={<CourseTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} variant="underline" />}
                 search={<SearchBar value={search} onChange={setSearch} />}
                 chips={<CourseTabs tabs={categoryTabs} activeTab={selectedCategory} onChange={setSelectedCategory} variant="pills" />}
             />
@@ -269,7 +250,7 @@ export default function CourseClient({
                                 key={course.id}
                                 course={course as any}
                                 enrolled={enrolledCourseIds.includes(course.id)}
-                                progress={enrolledCourseIds.includes(course.id) ? 35 : 0}
+                                progress={0}
                                 index={index}
                                 promoBadge={badgeMap[course.id] || badgeMap[course.slug] || null}
                             />

@@ -93,7 +93,6 @@ export default function MyLearningClient({ courses, upcomingDemos = [], hasRealB
     const { openMobileAuth } = useMobileAuth()
     const isGuest = !session?.user
     const [viewMode, setViewMode] = useState<"cards" | "list">("cards")
-    const [activeTab, setActiveTab] = useState<"in-progress" | "completed">("in-progress")
     const [sortBy, setSortBy] = useState<"last-added" | "title" | "progress">("last-added")
     const [expandedCourses, setExpandedCourses] = useState<Record<string, boolean>>(() => {
         const initial: Record<string, boolean> = {}
@@ -110,11 +109,9 @@ export default function MyLearningClient({ courses, upcomingDemos = [], hasRealB
         }))
     }
 
-    // Filter courses by tab
-    const inProgressCourses = courses.filter((c) => !c.isCompleted)
-    const completedCourses = courses.filter((c) => c.isCompleted)
-
-    const currentList = activeTab === "in-progress" ? inProgressCourses : completedCourses
+    // One list: the In Progress / Completed tabs were removed, so every enrolled
+    // batch is shown together and ordering is the only control.
+    const currentList = courses
 
     // Sort list
     const sortedList = [...currentList].sort((a, b) => {
@@ -256,42 +253,9 @@ export default function MyLearningClient({ courses, upcomingDemos = [], hasRealB
                     </div>
                 )}
 
-                {/* Tabs & Sort Row (hidden for guests) */}
+                {/* Sort Row (hidden for guests) — status tabs removed */}
                 {!isGuest && (
-                <div className="border-b-2 border-gray-200 flex flex-wrap items-center justify-between gap-4 pb-0">
-                    {/* Tabs */}
-                    <div className="flex items-center gap-8 -mb-0.5">
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab("in-progress")}
-                            className={`pb-3 text-sm sm:text-base font-extrabold transition-colors relative cursor-pointer ${
-                                activeTab === "in-progress"
-                                    ? "text-[#10162F]"
-                                    : "text-gray-500 hover:text-gray-800"
-                            }`}
-                        >
-                            <span>In Progress ({inProgressCourses.length})</span>
-                            {activeTab === "in-progress" && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#3A10E5] rounded-full" />
-                            )}
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab("completed")}
-                            className={`pb-3 text-sm sm:text-base font-extrabold transition-colors relative cursor-pointer ${
-                                activeTab === "completed"
-                                    ? "text-[#10162F]"
-                                    : "text-gray-500 hover:text-gray-800"
-                            }`}
-                        >
-                            <span>Completed ({completedCourses.length})</span>
-                            {activeTab === "completed" && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#3A10E5] rounded-full" />
-                            )}
-                        </button>
-                    </div>
-
+                <div className="border-b-2 border-gray-200 flex flex-wrap items-center justify-end gap-4 pb-0">
                     {/* Sort Dropdown */}
                     <div className="pb-2">
                         <select
@@ -342,7 +306,7 @@ export default function MyLearningClient({ courses, upcomingDemos = [], hasRealB
                     <div className="bg-white rounded-3xl border-2 border-gray-200 p-12 text-center space-y-4">
                         <BookOpen className="w-12 h-12 text-gray-400 mx-auto" />
                         <h3 className="font-extrabold text-lg text-gray-900">
-                            {activeTab === "in-progress" ? "No active batches yet" : "No completed courses yet"}
+                            No batches yet
                         </h3>
                         <p className="text-xs text-gray-500 max-w-sm mx-auto">
                             Explore our UPSC, BPSC, and School preparation courses on the homepage or course catalog to enroll and start learning.
@@ -387,16 +351,6 @@ export default function MyLearningClient({ courses, upcomingDemos = [], hasRealB
                                                 fill
                                                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                                             />
-                                            {/* Status Badge */}
-                                            <div
-                                                className={`absolute top-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-white text-[10px] font-black uppercase tracking-wider shadow-sm ${
-                                                    item.isDemoWatched ? "bg-indigo-600" : "bg-emerald-600/90"
-                                                }`}
-                                            >
-                                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                                                <span>{item.isDemoWatched ? "Demo Watched" : pct > 0 ? `${pct}% Completed` : "Enrolled"}</span>
-                                            </div>
-
                                             <div className="absolute top-3 right-3 z-10 px-2 py-0.5 rounded bg-gray-900/80 backdrop-blur-xs text-white text-[10px] font-bold uppercase tracking-wider">
                                                 Video Batch
                                             </div>

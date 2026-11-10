@@ -5,7 +5,9 @@ import ClassesCoursesSection from "@/components/home/ClassesCoursesSection"
 import HomeHeaderUserCTA from "@/components/home/HomeHeaderUserCTA"
 import HomeLogoLink from "@/components/home/HomeLogoLink"
 import LandingMobileNav from "@/components/home/LandingMobileNav"
+import MobileNativeBottomBar from "@/components/layout/MobileNativeBottomBar"
 import Footer from "@/components/layout/Footer"
+import GlobalSearchButton from "@/components/layout/GlobalSearchButton"
 import LandingStatsStrip from "@/components/landing/LandingStatsStrip"
 import LandingPassSection from "@/components/landing/LandingPassSection"
 import LandingWhySection from "@/components/landing/LandingWhySection"
@@ -15,6 +17,7 @@ import { LANDING_NAV_ITEMS } from "@/lib/navigation/landing-nav"
 import { getBaseUrl, safeJsonLdStringify } from "@/lib/seo/core"
 import { hasRealBatchesAvailable } from "@/lib/home/has-real-batches"
 import { resolveAnchorHref } from "@/lib/home/real-batches"
+import { auth } from "@/auth"
 
 export const revalidate = 60 // Revalidate every 60s
 
@@ -58,21 +61,19 @@ const AUDIENCE_CHIPS = [
     { label: "Coding Skills", className: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/15 dark:text-fuchsia-300 dark:border-fuchsia-500/30" },
 ] as const
 
-const navTint = (href: string) =>
-    href === "/courses"
-        ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-500/15 dark:text-orange-300 dark:border-orange-500/30"
-        : href === "/test-series"
-        ? "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-300 dark:border-indigo-500/30"
-        : href === "/tutorials"
-        ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30"
-        : "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/30"
-
 export default async function LandingHomePage() {
     // C1: no `auth()` here. Reading the session on the server made this route
     // dynamic and defeated `revalidate = 60`; the two pieces of the header that
     // depend on the session now read it on the client.
     const baseUrl = getBaseUrl()
     const hasRealBatches = await hasRealBatchesAvailable()
+    
+    // Get session for bottom nav pass status
+    const session = await auth()
+    const hasActivePass = Boolean(
+        session?.user?.subscriptionStatus === "ACTIVE" ||
+        session?.user?.role === "PREMIUM"
+    )
     const homeJsonLd = baseUrl
         ? {
               "@context": "https://schema.org",
@@ -106,7 +107,7 @@ export default async function LandingHomePage() {
         : null
 
     return (
-        <div className="min-h-dvh bg-white text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900 dark:bg-gray-950 dark:text-gray-50">
+        <div className="min-h-dvh bg-white text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900 dark:bg-gray-950 dark:text-gray-50 pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
             {homeJsonLd && (
                 <script
                     type="application/ld+json"
@@ -152,36 +153,13 @@ export default async function LandingHomePage() {
                         })}
                     </nav>
 
-                    {/* Right Login / User State CTA */}
-                    <div className="flex flex-shrink-0 items-center gap-3">
+                    {/* Right: Search + Login / User State CTA */}
+                    <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2">
+                        <GlobalSearchButton />
                         <HomeHeaderUserCTA />
                     </div>
                 </div>
             </header>
-
-            {/* Desktop Sub-Navigation pills — desktop only (lg+). Below lg the same
-                destinations live in the hamburger drawer, so this row is fully
-                removed there (no gap, no reserved height). */}
-            <div
-                data-scroll-x="true"
-                data-testid="landing-nav-pills"
-                className="hidden lg:flex items-center gap-2 overflow-x-auto border-b border-gray-100 bg-gray-50/80 px-4 py-2.5 no-scrollbar dark:border-white/10 dark:bg-gray-900/60"
-            >
-                {LANDING_NAV_ITEMS.map((item) => (
-                    <Link
-                        key={item.name}
-                        href={item.href}
-                        className={`flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-transform active:scale-95 ${navTint(item.href)}`}
-                    >
-                        <span>{item.name}</span>
-                        {item.badge && (
-                            <span className="rounded-full bg-white/70 px-1.5 text-[9px] font-black dark:bg-white/10">
-                                {item.badge}
-                            </span>
-                        )}
-                    </Link>
-                ))}
-            </div>
 
             {/* Main Hero Section */}
             <main className="relative overflow-hidden">
@@ -301,6 +279,9 @@ export default async function LandingHomePage() {
 
             {/* Footer with Legal & Policies */}
             <Footer />
+            
+            {/* Mobile Bottom Navigation (phones only) */}
+            <MobileNativeBottomBar hasActivePass={hasActivePass} />
         </div>
     )
 }

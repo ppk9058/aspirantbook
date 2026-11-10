@@ -2,7 +2,13 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { getWebOrigin, buildWebUrl, openWebUrl } from "../src/lib/web-links";
+import {
+  getWebOrigin,
+  buildWebUrl,
+  openWebUrl,
+  buildWhatsAppSupportUrl,
+  SUPPORT_WHATSAPP_NUMBER,
+} from "../src/lib/web-links";
 
 describe("T5: Centralized Web Origin & Link Builder", () => {
   const origWeb = process.env.EXPO_PUBLIC_WEB_URL;
@@ -61,6 +67,19 @@ describe("T5: Centralized Web Origin & Link Builder", () => {
     const res = await openWebUrl("/pricing");
     assert.equal(res.success, false);
     assert.equal(res.error, "Web address not configured.");
+  });
+
+  it("builds the WhatsApp support deep link with a pre-filled message", () => {
+    assert.equal(SUPPORT_WHATSAPP_NUMBER, "8340665934");
+    assert.equal(
+      buildWhatsAppSupportUrl(),
+      "https://wa.me/918340665934?text=" +
+        encodeURIComponent("Hi aspirantBook team, I need help with my preparation.")
+    );
+    assert.equal(
+      buildWhatsAppSupportUrl("Need help with BPSC batch"),
+      "https://wa.me/918340665934?text=Need%20help%20with%20BPSC%20batch"
+    );
   });
 
   // Restore env vars

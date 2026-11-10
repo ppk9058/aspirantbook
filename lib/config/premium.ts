@@ -5,7 +5,7 @@
  * entitlements are fixed. While it is `false`, Premium selling UI is hidden and
  * products are bought individually at their own Admin-set prices.
  */
-export const SHOW_PREMIUM_PLAN = false
+export const SHOW_PREMIUM_PLAN = true
 
 /**
  * Pure rule for the checkout page: a Premium (pass) checkout is one that has no

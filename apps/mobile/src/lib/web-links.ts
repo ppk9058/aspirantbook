@@ -96,3 +96,21 @@ export async function openWebUrl(
 }
 
 export const openWebLink = openWebUrl;
+
+/* ── Support (WhatsApp) ──────────────────────────────────────────────────
+ * The web app replaced its floating "AI assistant" launcher with a direct
+ * WhatsApp support link. The native app has no floating launcher, so the same
+ * support channel lives in the account sheet that opens from the header on
+ * every screen. One number, one URL builder, no duplicated literals.
+ */
+export const SUPPORT_WHATSAPP_NUMBER = "8340665934";
+export const SUPPORT_WHATSAPP_E164 = `91${SUPPORT_WHATSAPP_NUMBER}`;
+export const DEFAULT_SUPPORT_MESSAGE =
+  "Hi aspirantBook team, I need help with my preparation.";
+
+/** Builds the wa.me deep link (optionally with a pre-filled message). */
+export function buildWhatsAppSupportUrl(
+  message: string = DEFAULT_SUPPORT_MESSAGE
+): string {
+  return `https://wa.me/${SUPPORT_WHATSAPP_E164}?text=${encodeURIComponent(message)}`;
+}

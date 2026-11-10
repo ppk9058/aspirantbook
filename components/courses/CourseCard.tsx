@@ -154,15 +154,15 @@ function CourseCard({
                         </div>
                     ) : null}
 
-                    {/* Progress Bar (if enrolled) */}
-                    {enrolled && (
+                    {/* Progress Bar: show ONLY when real progress > 0 exists, otherwise render nothing */}
+                    {enrolled && typeof progress === "number" && progress > 0 ? (
                         <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200 dark:bg-slate-700 border-t border-[#10162F]">
                             <div
                                 className="h-full bg-indigo-600 transition-all"
-                                style={{ width: `${progress}%` }}
+                                style={{ width: `${Math.min(100, progress)}%` }}
                             />
                         </div>
-                    )}
+                    ) : null}
                 </div>
 
                 {/* Content */}
