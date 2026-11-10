@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, Search, Bell } from "lucide-react"
+import { Menu, Search } from "lucide-react"
 import { useSession } from "next-auth/react"
 import MobileDrawer from "@/components/layout/MobileDrawer"
 import MobileProfileSheet from "@/components/layout/MobileProfileSheet"
@@ -60,11 +60,15 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                         <BrandLogo
                             size="sm"
                             href={homeHref}
+                            wordmarkClassName="shrink-0 whitespace-nowrap"
                             data-testid="mobile-header-logo"
                         />
                     </div>
 
-                    {/* Right Controls: Search, Notifications, Avatar */}
+                    {/* Right Controls: Search & Avatar.
+                        The notification bell moved into the avatar sheet
+                        (MobileProfileSheet) so the full "aspirantBook" wordmark
+                        always fits at 320px. */}
                     <div className="flex items-center gap-0.5 sm:gap-2 flex-shrink-0">
                         {/* Search Icon */}
                         <Link
@@ -73,15 +77,6 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
                             className="p-1.5 sm:p-2 min-h-11 min-w-11 flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95"
                         >
                             <Search className="h-4 w-4 sm:h-5 sm:w-5" />
-                        </Link>
-
-                        {/* Notification Bell */}
-                        <Link
-                            href="/dashboard"
-                            aria-label="Notifications"
-                            className="relative p-1.5 sm:p-2 min-h-11 min-w-11 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors active:scale-95"
-                        >
-                            <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
                         </Link>
 
                         {/* Top-Right: Profile Avatar if logged-in, Login CTA if guest */}

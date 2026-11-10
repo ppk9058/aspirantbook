@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Platform, Image } from "react-native";
-import { Menu, Search, Bell } from "lucide-react-native";
+import { Menu, Search } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
@@ -26,10 +26,6 @@ export function MobileAppHeader({
 
   const handleSearchPress = () => {
     router.push("/search" as any);
-  };
-
-  const handleNotificationsPress = () => {
-    router.push("/notifications/preferences" as any);
   };
 
   const handleLoginPress = () => {
@@ -79,13 +75,17 @@ export function MobileAppHeader({
             style={styles.logoImage}
             resizeMode="contain"
           />
-          <Text testID="mobile-header-brand-name" style={styles.brandText} numberOfLines={1} ellipsizeMode="tail">
+          {/* The full wordmark must never be clipped: the bell that used to sit
+              here now lives in the profile sheet, and the text is not allowed to
+              shrink, so "aspirantBook" always renders in full at 320–390px. */}
+          <Text testID="mobile-header-brand-name" style={styles.brandText}>
             aspirantBook
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Right Controls: Search, Bell with Rose Dot, Profile Avatar / Login CTA */}
+      {/* Right Controls: Search, Profile Avatar / Login CTA (notifications moved
+          into the profile sheet so the brand wordmark is never clipped) */}
       <View style={styles.rightGroup}>
         {/* Search */}
         <TouchableOpacity
@@ -96,29 +96,6 @@ export function MobileAppHeader({
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Search size={20} color={colors.textSecondary} />
-        </TouchableOpacity>
-
-        {/* Bell with rose dot (shown only for authenticated users) */}
-        <TouchableOpacity
-          onPress={handleNotificationsPress}
-          accessibilityLabel="Notifications"
-          testID="mobile-header-bell"
-          style={styles.iconButton}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Bell size={20} color={colors.textSecondary} />
-          {isAuthenticated ? (
-            <View
-              testID="mobile-header-notification-dot"
-              style={[
-                styles.notificationDot,
-                {
-                  backgroundColor: colors.notificationDot,
-                  borderColor: colors.surface,
-                },
-              ]}
-            />
-          ) : null}
         </TouchableOpacity>
 
         {/* Profile Avatar if logged-in, Login CTA if guest */}
@@ -192,8 +169,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginLeft: 8,
-    flexShrink: 1,
-    minWidth: 0,
+    flexShrink: 0,
   },
   logoBox: {
     width: 28,
@@ -212,7 +188,7 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     letterSpacing: -0.4,
     color: "#ff0031",
-    flexShrink: 1,
+    flexShrink: 0,
   },
   rightGroup: {
     flexDirection: "row",
@@ -222,15 +198,6 @@ const styles = StyleSheet.create({
     padding: 6,
     marginLeft: 4,
     position: "relative",
-  },
-  notificationDot: {
-    position: "absolute",
-    top: 4,
-    right: 4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    borderWidth: 1.5,
   },
   avatarButton: {
     width: 30,

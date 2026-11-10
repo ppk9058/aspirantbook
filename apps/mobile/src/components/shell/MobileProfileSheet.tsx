@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  Bell,
 } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -77,6 +78,14 @@ export function MobileProfileSheet({
       route: "/subscription",
       icon: CreditCard,
       testId: "profile-sheet-link-subscription",
+    },
+    {
+      // Notifications replaced the header bell: an item above Account Settings,
+      // same screen the old header bell opened. No placeholder dot.
+      name: "Notifications",
+      route: "/notifications/preferences",
+      icon: Bell,
+      testId: "profile-sheet-link-notifications",
     },
     {
       name: "Account Settings",

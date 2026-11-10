@@ -4,6 +4,7 @@ import { Video, Headphones, CalendarCheck, Award, ArrowRight, Sparkles, BookOpen
 import ClassesCoursesSection from "@/components/home/ClassesCoursesSection"
 import HomeHeaderUserCTA from "@/components/home/HomeHeaderUserCTA"
 import HomeLogoLink from "@/components/home/HomeLogoLink"
+import LandingMobileNav from "@/components/home/LandingMobileNav"
 import Footer from "@/components/layout/Footer"
 import LandingStatsStrip from "@/components/landing/LandingStatsStrip"
 import LandingPassSection from "@/components/landing/LandingPassSection"
@@ -115,9 +116,12 @@ export default async function LandingHomePage() {
 
             {/* Top Navigation Bar — sticky, compact on phones */}
             <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-lg dark:border-white/10 dark:bg-gray-950/85">
-                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-20 sm:px-8">
-                    {/* Brand Logo */}
-                    <HomeLogoLink />
+                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-3 sm:h-20 sm:gap-3 sm:px-8">
+                    {/* Mobile hamburger (below lg) + Brand Logo */}
+                    <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                        <LandingMobileNav />
+                        <HomeLogoLink />
+                    </div>
 
                     {/* Desktop Menu Links */}
                     <nav className="hidden items-center gap-5 text-sm font-semibold lg:gap-7 md:flex">
@@ -155,10 +159,13 @@ export default async function LandingHomePage() {
                 </div>
             </header>
 
-            {/* Mobile Sub-Navigation — colourful, scrollable chips (scrolls away, not sticky) */}
+            {/* Desktop Sub-Navigation pills — desktop only (lg+). Below lg the same
+                destinations live in the hamburger drawer, so this row is fully
+                removed there (no gap, no reserved height). */}
             <div
                 data-scroll-x="true"
-                className="md:hidden flex items-center gap-2 overflow-x-auto border-b border-gray-100 bg-gray-50/80 px-4 py-2.5 no-scrollbar dark:border-white/10 dark:bg-gray-900/60"
+                data-testid="landing-nav-pills"
+                className="hidden lg:flex items-center gap-2 overflow-x-auto border-b border-gray-100 bg-gray-50/80 px-4 py-2.5 no-scrollbar dark:border-white/10 dark:bg-gray-900/60"
             >
                 {LANDING_NAV_ITEMS.map((item) => (
                     <Link
