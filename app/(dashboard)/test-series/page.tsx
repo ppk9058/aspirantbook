@@ -34,6 +34,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
+import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
+import { usePassPurchaseModal } from "@/lib/payments/usePassPurchaseModal"
 
 interface TestSeriesItem {
     id: string; slug?: string; title: string; category: string; description?: string
@@ -253,7 +255,11 @@ export default function TestSeriesPage() {
     const [filterByGoal, setFilterByGoal] = useState<boolean>(true)
     const [savedSeries, setSavedSeries] = useState<string[]>([])
     const [activeModalSeries, setActiveModalSeries] = useState<TestSeriesItem | null>(null)
-    const [isPassModalOpen, setIsPassModalOpen] = useState(false)
+    const {
+        isOpen: isPassModalOpen,
+        openPassModal,
+        closePassModal,
+    } = usePassPurchaseModal()
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [seriesPackages, setSeriesPackages] = useState<TestSeriesItem[]>([])
     const [seriesLoading, setSeriesLoading] = useState(true)
@@ -593,7 +599,7 @@ export default function TestSeriesPage() {
                             ₹499 / year
                         </span>
                         <button
-                            onClick={() => setIsPassModalOpen(true)}
+                            onClick={(e) => openPassModal(e.currentTarget)}
                             className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
                         >
                             <span>Get Pass</span>
@@ -879,7 +885,7 @@ export default function TestSeriesPage() {
                                 <button
                                     onClick={() => {
                                         setActiveModalSeries(null)
-                                        setIsPassModalOpen(true)
+                                        openPassModal()
                                     }}
                                     className="py-3 px-5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm text-center shadow-md transition-colors"
                                 >
@@ -892,60 +898,11 @@ export default function TestSeriesPage() {
             )}
 
             {/* Pass Membership Modal (Premium only) */}
-            {SHOW_PREMIUM_PLAN && isPassModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in-0">
-                    <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6">
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-2">
-                                <span className="text-xl font-black text-[#ff0031] dark:text-[#ff385c] tracking-tight">aspirantBook</span>
-                                <span className="px-2 py-0.5 rounded-md bg-emerald-700 text-[10px] font-black text-white tracking-widest uppercase">
-                                    PASS PRO
-                                </span>
-                            </div>
-                            <button
-                                onClick={() => setIsPassModalOpen(false)}
-                                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-white"
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
-                        </div>
-
-                        <div className="p-4 rounded-2xl bg-gradient-to-r from-[#003B73] to-[#00A896] text-white space-y-2">
-                            <div className="flex items-center justify-between">
-                                <p className="text-xs uppercase font-extrabold tracking-wider text-cyan-200">All-In-One Pass</p>
-                                <span className="text-sm font-black text-amber-300">₹499 / year</span>
-                            </div>
-
-                            <p className="text-xs text-white/80">Unlimited access to UPSC, BPSC, School & Skill test series.</p>
-                        </div>
-
-                        <div className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300">
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>Mock tests for UPSC, BPSC, School & Skill exams</span>
-                            </div>
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>Previous Year Papers with instant detailed solutions</span>
-                            </div>
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>National Percentile and All India Rank Leaderboards</span>
-                            </div>
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>Unlimited Re-attempts on all Mocks</span>
-                            </div>
-                        </div>
-
-                        <Link
-                            href="/subscription"
-                            className="block w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm text-center shadow-lg transition-transform active:scale-[0.99]"
-                        >
-                            Subscribe Now
-                        </Link>
-                    </div>
-                </div>
+            {SHOW_PREMIUM_PLAN && (
+                <PassPurchaseModal
+                    isOpen={isPassModalOpen}
+                    onClose={closePassModal}
+                />
             )}
 
             {/* Create Test Series Package Modal */}

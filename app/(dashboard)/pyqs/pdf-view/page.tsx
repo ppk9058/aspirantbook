@@ -9,6 +9,7 @@ import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
 import { buildPassLoginHref } from "@/lib/pyqs/pass-popup"
 import { usePyqPassUnlock } from "@/lib/pyqs/usePyqPassUnlock"
+import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
 
 export default function PYQPDFViewerPage() {
   const searchParams = useSearchParams()
@@ -30,6 +31,9 @@ export default function PYQPDFViewerPage() {
     openPassCheckout,
     isProcessing: isPassProcessing,
     error: passError,
+    isPassModalOpen,
+    closePassModal,
+    handleModalSuccess,
   } = usePyqPassUnlock({
     autoOpenEnabled: passRequired,
     isAuthenticated: !loginRequired,
@@ -235,6 +239,12 @@ export default function PYQPDFViewerPage() {
             </Link>
           </div>
         </div>
+
+        <PassPurchaseModal
+          isOpen={isPassModalOpen}
+          onClose={closePassModal}
+          onSuccess={handleModalSuccess}
+        />
       </div>
     )
   }

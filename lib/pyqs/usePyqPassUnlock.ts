@@ -37,27 +37,29 @@ export function usePyqPassUnlock(options: UsePyqPassUnlockOptions = {}) {
   const router = useRouter()
   const { handleBuyNow, isProcessing } = useSamePageBuyNow()
   const [error, setError] = useState<string | null>(null)
+  const [isPassModalOpen, setIsPassModalOpen] = useState(false)
   const handledRef = useRef(false)
   const onUnlockedRef = useRef(onUnlocked)
+  const pendingSuccessCallbackRef = useRef<(() => void) | undefined>(undefined)
 
   onUnlockedRef.current = onUnlocked
 
+  const handleModalSuccess = useCallback(() => {
+    router.refresh()
+    onUnlockedRef.current?.()
+    pendingSuccessCallbackRef.current?.()
+    pendingSuccessCallbackRef.current = undefined
+  }, [router])
+
   const openPassCheckout = useCallback(async (onSuccess?: () => void) => {
     setError(null)
-    await handleBuyNow(
-      PYQ_PASS_BUY_ITEM,
-      () => {
-        // Server verified the payment: refresh the same page into the unlocked
-        // state. Never redirect to /subscription or /checkout.
-        router.refresh()
-        onUnlockedRef.current?.()
-        onSuccess?.()
-      },
-      {
-        onError: (message) => setError(message),
-      }
-    )
-  }, [handleBuyNow, router])
+    pendingSuccessCallbackRef.current = onSuccess
+    setIsPassModalOpen(true)
+  }, [])
+
+  const closePassModal = useCallback(() => {
+    setIsPassModalOpen(false)
+  }, [])
 
   useEffect(() => {
     if (!autoOpenEnabled || !isAuthenticated || handledRef.current) return
@@ -95,5 +97,12 @@ export function usePyqPassUnlock(options: UsePyqPassUnlockOptions = {}) {
     void openPassCheckout()
   }, [autoOpenEnabled, isAuthenticated, openPassCheckout, router])
 
-  return { openPassCheckout, isProcessing, error }
+  return {
+    openPassCheckout,
+    isProcessing,
+    error,
+    isPassModalOpen,
+    closePassModal,
+    handleModalSuccess,
+  }
 }
