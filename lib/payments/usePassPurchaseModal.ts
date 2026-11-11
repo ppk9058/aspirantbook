@@ -21,6 +21,12 @@ export interface UsePassPurchaseModalOptions {
   returnPath?: string
   /** If the user already has an active pass, modal should never open. */
   hasActivePass?: boolean
+  /**
+   * Send guests to /login (with the passPopup=1 return path) instead of
+   * opening the modal. Default true. Surfaces that gate guests themselves pass
+   * false so they keep their own login affordance.
+   */
+  redirectGuests?: boolean
 }
 
 /**
@@ -34,6 +40,7 @@ export function usePassPurchaseModal(options: UsePassPurchaseModalOptions = {}) 
     autoOpenEnabled = true,
     returnPath: customReturnPath,
     hasActivePass = false,
+    redirectGuests = true,
   } = options
 
   const [isOpen, setIsOpen] = useState(false)
@@ -63,7 +70,7 @@ export function usePassPurchaseModal(options: UsePassPurchaseModalOptions = {}) 
       }
 
       // Guest user: route to login with safe return path + passPopup=1
-      if (!isAuthenticated && status !== "loading") {
+      if (redirectGuests && !isAuthenticated && status !== "loading") {
         const targetPath =
           customReturnPath ||
           (typeof window !== "undefined"
@@ -75,7 +82,7 @@ export function usePassPurchaseModal(options: UsePassPurchaseModalOptions = {}) 
 
       setIsOpen(true)
     },
-    [hasActivePass, isAuthenticated, status, customReturnPath, pathname, router]
+    [hasActivePass, isAuthenticated, status, customReturnPath, pathname, router, redirectGuests]
   )
 
   const closePassModal = useCallback(() => {
