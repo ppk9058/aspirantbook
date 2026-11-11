@@ -118,6 +118,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_REDACT: "true"
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
 
   migrations-check:
     name: Database Migrations Check
@@ -283,9 +284,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image (no push, no secrets)
         run: docker build -t trillionskill:ci -f Dockerfile .
