@@ -12,6 +12,13 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# NOTE (self-hosted runner): actions/setup-node's `cache: "npm"` is deliberately
+# NOT used. The npm cache tarball for this repo is ~846 MB and restoring it cost
+# ~8 minutes per job (measured: 6m51s download + 1m09s extract), which pushed
+# "Check Launch Placeholders" past its 10 minute timeout. The runner is a
+# persistent Mac, so ~/.npm already stays warm between jobs and a plain
+# `npm ci` takes ~90s. Removing the remote cache makes jobs faster and avoids
+# the flaky "Cache service responded with 400" failures seen on this runner.
 jobs:
   lint:
     name: Lint & Code Quality
@@ -25,7 +32,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -46,7 +52,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -66,7 +71,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -119,6 +123,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_REDACT: "true"
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+          # The runner's shared TMPDIR (/var/folders/.../T) is reused by every
+          # job, so a partially-downloaded "gitleaks.tmp" from an earlier run
+          # makes the installer abort with
+          #   "Destination file path .../gitleaks.tmp already exists".
+          # Point the action at this job's own (cleaned) temp directory.
+          TMPDIR: ${{ runner.temp }}
 
   migrations-check:
     name: Database Migrations Check
@@ -137,7 +147,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -204,7 +213,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -257,7 +265,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -286,7 +293,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image (no push, no secrets)
-        run: docker build -t trillionskill:ci -f Dockerfile .
+        run: |
+          # The runner is a LaunchAgent session with no interactive login, so the
+          # Docker Desktop credential helper (credsStore "desktop") cannot unlock
+          # the macOS keychain and BuildKit dies while resolving the public
+          # `docker/dockerfile:1` frontend image:
+          #   error getting credentials - keychain cannot be accessed ...
+          # Use an empty, job-local docker config so nothing queries the keychain
+          # and public Docker Hub images are pulled anonymously.
+          export DOCKER_CONFIG="${{ runner.temp }}/docker-config"
+          mkdir -p "$DOCKER_CONFIG"
+          printf '{}' > "$DOCKER_CONFIG/config.json"
+          docker build -t trillionskill:ci -f Dockerfile .
 
   deploy-staging:
     name: Deploy to Staging (Disabled Stub)
