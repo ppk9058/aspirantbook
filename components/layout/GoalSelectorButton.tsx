@@ -35,8 +35,8 @@ export default function GoalSelectorButton() {
                 void import("@/components/layout/GoalModal")
             }}
             className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700/80 hover:border-gray-300 dark:hover:border-gray-600 transition-all text-left shadow-2xs group min-w-0"
-            title="Select Target"
-            aria-label="Select Target"
+            title="Click to add or switch your Target Exams & Goals"
+            aria-label="Switch or Add Goals"
         >
             <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-[#1448d8]/15 text-[#0f37a8] dark:text-[#1448d8] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
                 <GoalIcon name={selectedGoal.icon} className="h-3 w-3 sm:h-3.5 sm:w-3.5" />

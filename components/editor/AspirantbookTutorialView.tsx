@@ -1093,12 +1093,6 @@ export function AspirantbookTutorialView({
                                                 <span>·</span>
                                             </>
                                         )}
-                                        {meta.learners && (
-                                            <>
-                                                <span>{meta.learners}</span>
-                                                <span>·</span>
-                                            </>
-                                        )}
                                         <span style={{ color: cPrimary }}>
                                             {orderedLessons.length} Interactive Chapters
                                         </span>

@@ -50,7 +50,7 @@ const FAQS: FAQItem[] = [
         q: "What is the refund policy for the Pass?",
         a: (
             <>
-                Because the Pass delivers instant, complete digital access to all test series and question banks immediately upon purchase, fees are non-refundable once activated. However, 100% refunds are guaranteed in cases of duplicate payment deduction or technical activation failures. Please read our full{" "}
+                The Pass provides instant digital access upon purchase and is non-refundable once purchased, except in the case of a technical failure where payment was captured but the Pass was not activated on your account, or in the event of a duplicate payment deduction (refunded within 5-7 working days). Please read our full{" "}
                 <Link href="/refund" className="text-blue-600 dark:text-blue-400 font-semibold underline hover:no-underline">
                     Cancellation &amp; Refund Policy
                 </Link>
@@ -70,7 +70,7 @@ const FAQS: FAQItem[] = [
                 <Link href="/contact" className="text-blue-600 dark:text-blue-400 font-semibold underline hover:no-underline">
                     Contact page
                 </Link>
-                {" "}to submit a query or reach our support desk. Our learner assistance team typically responds within 24 hours on working days.
+                {" "}or email support@aspirantbook.com. All inquiries are acknowledged within 48 hours in accordance with our consumer protection and grievance policy.
             </>
         ),
     },

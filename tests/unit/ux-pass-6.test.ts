@@ -84,21 +84,14 @@ describe("UX Pass 6 - Part D: Goal Selector Text", () => {
         assert.doesNotMatch(modal, /Select your Target Exams &amp; Goals/, "Old verbose goal modal heading must be gone")
     })
 
-    it("GoalSelectorButton uses 'Select Target'", () => {
-        const btn = readRepoFile("components/layout/GoalSelectorButton.tsx")
-        assert.match(btn, /title="Select Target"/, "GoalSelectorButton title must be 'Select Target'")
-        assert.match(btn, /aria-label="Select Target"/, "GoalSelectorButton aria-label must be 'Select Target'")
-    })
-
-    it("MobileDrawer uses 'Select Target'", () => {
+    it("MobileDrawer preserves 'Target Goal' label", () => {
         const drawer = readRepoFile("components/layout/MobileDrawer.tsx")
-        assert.match(drawer, /Select Target/, "MobileDrawer goal section must display 'Select Target'")
-        assert.doesNotMatch(drawer, /Target Goal/, "MobileDrawer must not display 'Target Goal'")
+        assert.match(drawer, /Target Goal/, "MobileDrawer goal section must display 'Target Goal'")
     })
 
-    it("GoalSelectorBar default title is 'Select Target'", () => {
+    it("GoalSelectorBar preserves default title 'Your Target Exams & Goals'", () => {
         const bar = readRepoFile("components/goals/GoalSelectorBar.tsx")
-        assert.match(bar, /title = "Select Target"/, "GoalSelectorBar default title must be 'Select Target'")
+        assert.match(bar, /title = "Your Target Exams & Goals"/, "GoalSelectorBar default title must be preserved")
     })
 })
 

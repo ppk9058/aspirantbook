@@ -1048,8 +1048,8 @@ export function CourseDetailView({
                                 }}
                             />
 
-                            {/* Ratings Row */}
-                            {course.rating && course.rating > 0 ? (
+                            {/* Ratings Row (hidden on student-facing per UX Pass 6 F) */}
+                            {isEditor && course.rating && course.rating > 0 ? (
                                 <div className="flex items-center gap-2 text-sm pt-1">
                                     <span className="font-black text-base text-[color:var(--tutorial-ink,#1f2a6b)]">
                                         {course.rating.toFixed(1)}

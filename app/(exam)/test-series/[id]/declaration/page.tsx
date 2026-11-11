@@ -342,6 +342,7 @@ function DeclarationContent() {
                 <button
                     onClick={handleStartAttempt}
                     disabled={!agreed || starting}
+                    data-testid="cbt-start-attempt-btn"
                     className={`min-h-[44px] flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white transition-all ${
                         agreed && !starting
                             ? "bg-[#1448d8] hover:bg-[#0f37a8] shadow-md shadow-blue-600/25 cursor-pointer active:scale-98"

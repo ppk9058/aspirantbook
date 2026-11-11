@@ -282,6 +282,7 @@ function InstructionsContent() {
 
                 <Link
                     href={declarationHref}
+                    data-testid="cbt-instructions-next-btn"
                     className="min-h-[44px] px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-white transition-all flex items-center justify-center gap-2 bg-[#1448d8] hover:bg-[#0f37a8] shadow-md shadow-blue-600/20 active:scale-98"
                 >
                     <span>Next</span>
