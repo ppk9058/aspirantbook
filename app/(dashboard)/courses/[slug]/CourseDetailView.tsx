@@ -1048,8 +1048,8 @@ export function CourseDetailView({
                                 }}
                             />
 
-                            {/* Ratings Row */}
-                            {course.rating && course.rating > 0 ? (
+                            {/* Ratings Row (hidden on student-facing per UX Pass 6 F) */}
+                            {isEditor && course.rating && course.rating > 0 ? (
                                 <div className="flex items-center gap-2 text-sm pt-1">
                                     <span className="font-black text-base text-[color:var(--tutorial-ink,#1f2a6b)]">
                                         {course.rating.toFixed(1)}
@@ -1149,26 +1149,6 @@ export function CourseDetailView({
                                         )}
                                     </>
                                 )}
-
-                                {/* Overlapping Learner Avatars Stack */}
-                                {course.enrollmentCount && course.enrollmentCount > 0 ? (
-                                    <div className="flex items-center gap-2.5">
-                                        <div className="flex -space-x-2">
-                                            <div className="h-8 w-8 rounded-full border-2 border-[color:var(--tutorial-ink,#1f2a6b)] bg-[color:var(--tutorial-ink,#1f2a6b)] text-white flex items-center justify-center text-[10px] font-bold">
-                                                JD
-                                            </div>
-                                            <div className="h-8 w-8 rounded-full border-2 border-[color:var(--tutorial-ink,#1f2a6b)] bg-[color:var(--tutorial-yellow,#FFD15C)] text-[color:var(--tutorial-ink,#1f2a6b)] flex items-center justify-center text-[10px] font-bold">
-                                                AL
-                                            </div>
-                                            <div className="h-8 w-8 rounded-full border-2 border-[color:var(--tutorial-ink,#1f2a6b)] bg-[color:var(--tutorial-green,#0e9f78)] text-white flex items-center justify-center text-[10px] font-bold">
-                                                SK
-                                            </div>
-                                        </div>
-                                        <span className="text-xs sm:text-sm font-bold text-[color:var(--tutorial-ink,#1f2a6b)]">
-                                            {course.enrollmentCount.toLocaleString()} learners enrolled
-                                        </span>
-                                    </div>
-                                ) : null}
                             </div>
                         </div>
 

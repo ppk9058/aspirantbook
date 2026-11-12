@@ -136,7 +136,7 @@ export default function GoalModal() {
                         <div>
                             <div className="flex items-center gap-2">
                                 <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
-                                    Select your Target Exams &amp; Goals
+                                    Select Target
                                 </h2>
                                 <span className="bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
                                     Multi-Select Active

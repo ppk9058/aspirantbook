@@ -313,6 +313,6 @@ describe("B12 dashboard UI does not invent card values", () => {
     assert.equal(cards.includes('"4.8"'), false, "an unrated course must not display 4.8")
     assert.equal(cards.includes("12h curriculum"), false, "the curriculum length must be real")
     assert.match(cards, /course\.rating > 0/, "rating must fall back to a neutral label")
-    assert.match(cards, /New course/, "a course with no learners must say so")
+    assert.doesNotMatch(cards, /learners/, "learner counts are hidden on student-facing cards per UX Pass 6")
   })
 })

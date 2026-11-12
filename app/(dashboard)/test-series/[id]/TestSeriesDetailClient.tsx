@@ -256,15 +256,6 @@ function TestCardItem({
                     <Globe className="h-3.5 w-3.5 text-gray-400" />
                     <span>{test.languages}</span>
                 </span>
-                {Boolean(test.attempts) && (
-                    <>
-                        <span>•</span>
-                        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                            <Users className="h-3.5 w-3.5" />
-                            <span>{test.attempts} Attempts</span>
-                        </span>
-                    </>
-                )}
             </div>
 
             {/* Row 3: Full Syllabus directly inside card (hidden if no syllabus) */}
@@ -674,11 +665,6 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                             <span className="text-gray-300 dark:text-gray-700">|</span>
                             <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-extrabold border border-emerald-500/30 text-xs">
                                 {seriesData.freeTests} {seriesData.freeTests === 1 ? "FREE TEST" : "FREE TESTS"}
-                            </span>
-                            <span className="text-gray-300 dark:text-gray-700">|</span>
-                            <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                                <Users className="h-3.5 w-3.5 text-gray-400" />
-                                <span>{seriesData.users} {seriesData.users === "1" || (seriesData.users as any) === 1 ? "User" : "Users"}</span>
                             </span>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
                             <span className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-medium">

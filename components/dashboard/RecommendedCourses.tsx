@@ -109,19 +109,13 @@ export default function RecommendedCourses({ courses }: RecommendedCoursesProps)
                             </div>
 
                             <div className="mt-5 pt-3.5 border-t border-gray-100 dark:border-gray-800/80">
-                                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-3">
                                     <span className="flex items-center gap-1 font-medium">
                                         <Clock className="h-3.5 w-3.5 text-[#1448d8]" />
                                         {course.duration ||
                                             (course.lessonsCount
                                                 ? `${course.lessonsCount} lessons`
                                                 : "Self-paced")}
-                                    </span>
-                                    <span className="flex items-center gap-1 font-medium">
-                                        <Users className="h-3.5 w-3.5 text-gray-400" />
-                                        {course.enrollmentCount > 0
-                                            ? `${course.enrollmentCount.toLocaleString("en-IN")} learners`
-                                            : "New course"}
                                     </span>
                                 </div>
 

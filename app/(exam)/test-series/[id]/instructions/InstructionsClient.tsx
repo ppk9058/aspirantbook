@@ -3,9 +3,22 @@
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ChevronRight, ArrowLeft, User, AlertCircle } from "lucide-react"
+import {
+    ChevronRight,
+    ArrowLeft,
+    User,
+    AlertCircle,
+    Clock,
+    FileText,
+    CheckCircle2,
+    Bookmark,
+    EyeOff,
+    HelpCircle,
+    Save
+} from "lucide-react"
 import { useSession } from "next-auth/react"
 import { sanitizeReturnPath } from "@/lib/utils/return-path"
+import BrandLogo from "@/components/brand/BrandLogo"
 
 interface TestMeta {
     id: string
@@ -68,10 +81,10 @@ function InstructionsContent() {
 
     if (loading) {
         return (
-            <div className="h-[100dvh] w-full max-w-full flex items-center justify-center bg-white">
+            <div className="h-[100dvh] w-full max-w-full flex items-center justify-center bg-white dark:bg-gray-950">
                 <div className="text-center space-y-3">
-                    <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto" />
-                    <p className="text-sm text-gray-500">Loading instructions...</p>
+                    <div className="w-10 h-10 border-4 border-[#1448d8] border-t-transparent rounded-full animate-spin mx-auto" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Loading examination instructions...</p>
                 </div>
             </div>
         )
@@ -83,16 +96,16 @@ function InstructionsContent() {
     if (error || !test) {
         const backLabel = safeReturnPath.includes("/pyqs") ? "Back to Previous Papers" : "Back to Test Series"
         return (
-            <div className="h-[100dvh] w-full max-w-full flex flex-col items-center justify-center bg-white p-6">
+            <div className="h-[100dvh] w-full max-w-full flex flex-col items-center justify-center bg-white dark:bg-gray-950 p-6">
                 <div className="max-w-md w-full text-center space-y-4">
-                    <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+                    <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
                         <AlertCircle className="w-6 h-6" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">Unable to Load Test</h2>
-                    <p className="text-sm text-gray-600">{error || "The requested test was not found."}</p>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Unable to Load Examination</h2>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{error || "The requested test was not found."}</p>
                     <button
                         onClick={() => router.push(safeReturnPath)}
-                        className="min-h-[44px] px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-colors cursor-pointer"
+                        className="min-h-[44px] px-6 py-2.5 rounded-xl bg-[#1448d8] hover:bg-[#0f37a8] text-white font-semibold text-sm transition-colors cursor-pointer"
                     >
                         {backLabel}
                     </button>
@@ -111,111 +124,166 @@ function InstructionsContent() {
     const declarationHref = `/test-series/${seriesId}/declaration?${declarationQuery.toString()}`
 
     return (
-        <div className="h-[100dvh] w-full max-w-full flex flex-col bg-white overflow-hidden" style={{ fontFamily: "sans-serif" }}>
-            {/* ── TOP BAR ─────────────────────────────────────────── */}
-            <header className="flex items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3 border-b border-gray-200 bg-white shrink-0 min-h-[52px]">
-                {/* Logo + Title */}
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <div className="flex items-center gap-1 shrink-0">
-                        <div className="w-6 h-6 rounded bg-teal-500 flex items-center justify-center">
-                            <span className="text-white text-[9px] font-black">TS</span>
-                        </div>
-                        <span className="text-teal-600 font-black text-sm hidden xs:inline sm:inline">AspirantBook</span>
+        <div className="h-[100dvh] w-full max-w-full flex flex-col bg-slate-50 dark:bg-gray-950 overflow-hidden font-sans">
+            {/* Header */}
+            <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0 min-h-[56px] shadow-2xs">
+                <div className="flex items-center gap-3 min-w-0">
+                    <BrandLogo size="sm" showWordmark={true} />
+                    <div className="h-5 w-px bg-gray-200 dark:bg-gray-800 hidden sm:block shrink-0" />
+                    <div className="min-w-0">
+                        <span className="text-xs sm:text-sm font-black text-gray-900 dark:text-white truncate block max-w-[200px] sm:max-w-md">
+                            {testTitle}
+                        </span>
                     </div>
-                    <div className="w-px h-5 bg-gray-300 shrink-0" />
-                    <span className="text-gray-700 text-xs sm:text-sm font-semibold truncate max-w-[160px] sm:max-w-md">{testTitle}</span>
                 </div>
-                {/* Candidate */}
-                <div className="flex flex-col items-center gap-0.5 shrink-0 pl-2">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center">
-                        <User className="h-4 w-4 sm:h-5 sm:w-5 text-white/60" />
+
+                <div className="flex items-center gap-3 shrink-0">
+                    <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 font-semibold bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-xl">
+                        <Clock className="h-3.5 w-3.5 text-[#1448d8]" />
+                        <span>{test.durationMinutes} Mins</span>
+                        <span>•</span>
+                        <span>{test.totalQuestions} Questions</span>
                     </div>
-                    <span className="text-[10px] sm:text-xs font-semibold text-gray-700 truncate max-w-[70px] sm:max-w-none">{candidateName}</span>
+
+                    <div className="flex items-center gap-2 pl-2 border-l border-gray-200 dark:border-gray-800">
+                        <div className="w-8 h-8 rounded-full bg-[#1448d8]/10 text-[#1448d8] dark:bg-blue-950/60 dark:text-blue-300 flex items-center justify-center font-bold text-xs">
+                            <User className="h-4 w-4" />
+                        </div>
+                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200 hidden xs:inline max-w-[100px] truncate">
+                            {candidateName}
+                        </span>
+                    </div>
                 </div>
             </header>
-            <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-4 sm:py-5 max-w-4xl w-full" style={{ scrollbarWidth: "thin" }}>
 
-                <h2 className="font-bold text-gray-900 text-base mb-4">General Instructions :</h2>
-
-                <div className="text-sm text-gray-800 space-y-3 leading-relaxed">
-                    <p>1. The clock will be set at the server. The countdown timer at the top right corner of screen will display the remaining time available for you to complete the examination. When the timer reaches zero, the examination will end by itself. You need not terminate the examination or submit your paper.</p>
-
-                    <p>2. The Question Palette displayed on the right side of screen will show the status of each question using one of the following symbols:</p>
-
-                    <div className="ml-4 space-y-2 my-3">
-                        {[
-                            { color: "#00C17B", label: "Answered", desc: "You have answered the question." },
-                            { color: "#9333EA", label: "Marked", desc: "You have NOT answered the question, but have marked the question for review." },
-                            { color: "#e5e7eb", label: "Not Visited", textColor: "#374151", desc: "You have not visited the question yet.", border: "1px solid #9ca3af" },
-                            { color: "#9333EA", label: "Marked and answered", desc: "The question(s) \"Answered and Marked for Review\" will be considered for evaluation." },
-                            { color: "#EF4444", label: "Not Answered", desc: "You have visited the question but have not answered it." },
-                        ].map((item, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                                <div
-                                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                                    style={{ background: item.color, color: item.textColor ?? "white", border: item.border ?? "none" }}
-                                >
-                                    {i === 2 ? "1" : ""}
-                                </div>
-                                <p><strong>{item.label}:</strong> {item.desc}</p>
+            {/* Main Content Area */}
+            <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 max-w-4xl w-full mx-auto space-y-6 custom-scrollbar">
+                {/* Title Banner */}
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-5 sm:p-6 shadow-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+                        <div>
+                            <span className="text-[11px] font-black uppercase tracking-wider text-[#1448d8] dark:text-blue-400">
+                                Computer-Based Assessment
+                            </span>
+                            <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight mt-0.5">
+                                General Assessment Guidelines
+                            </h1>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs">
+                            <div className="bg-blue-50 dark:bg-blue-950/50 text-[#1448d8] dark:text-blue-300 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 border border-blue-200/60 dark:border-blue-900/40">
+                                <Clock className="h-3.5 w-3.5" />
+                                <span>{test.durationMinutes} Minutes</span>
                             </div>
-                        ))}
+                            <div className="bg-slate-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5">
+                                <FileText className="h-3.5 w-3.5" />
+                                <span>{test.totalQuestions} Questions</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <p>3. Click on the <strong>Mark for Review &amp; Next</strong> to save your answer for the current question and also mark it for review, and then go to the next question.</p>
-
-                    <p>Note that your answer for the current question will not be saved, if you navigate to another question directly by clicking on a question number without saving the answer to the previous question.</p>
-
-                    <p className="text-teal-600">You can view all the questions by clicking on the <strong className="text-gray-800">Question Paper</strong> button. <span className="text-red-500">This feature is provided, so that if you want you can just see the entire question paper at a glance.</span></p>
-
-                    <h3 className="font-bold text-gray-900 mt-4">Answering a Question :</h3>
-
-                    <p>4. Procedure for answering a multiple choice (MCQ) type question:</p>
-                    <div className="ml-6 space-y-1">
-                        <p>i. Choose one answer from the 4 options (A,B,C,D) given below the question, click on the bubble placed before the chosen option.</p>
-                        <p>ii. To deselect your chosen answer, click on the bubble of the chosen option again or click on the <strong>Clear Response</strong> button</p>
-                        <p>iii. To change your chosen answer, click on the bubble of another option.</p>
-                        <p>iv. To save your answer, you MUST click on the <strong>Save &amp; Next</strong></p>
-                    </div>
-
-                    <p>5. Procedure for answering a numerical answer type question :</p>
-                    <div className="ml-6 space-y-1">
-                        <p>i. To enter a number as your answer, use the virtual numerical keypad.</p>
-                        <p>ii. A fraction (e.g. -0.3 or -.3) can be entered as an answer with or without &quot;0&quot; before the decimal point. <span className="text-red-500">As many as four decimal points, e.g. 12.5435 or 0.003 or -932.6711 or 12.82 can be entered.</span></p>
-                        <p>iii. To clear your answer, click on the <strong>Clear Response</strong> button</p>
-                        <p>iv. To save your answer, you MUST click on the <strong>Save &amp; Next</strong></p>
-                    </div>
-
-                    <p>6. To mark a question for review, click on the <strong>Mark for Review &amp; Next</strong> button. If an answer is selected (for MCQ/MCAQ) entered (for numerical answer type) for a question that is <strong>Marked for Review</strong>, that answer will be considered in the evaluation unless the status is modified by the candidate.</p>
-
-                    <p>7. To change your answer to a question that has already been answered, first select that question for answering and then follow the procedure for answering that type of question.</p>
-
-                    <p>8. Note that ONLY Questions for which answers are <strong>saved</strong> or <strong>marked for review after answering</strong> will be considered for evaluation.</p>
-
-                    <p>9. Sections in this question paper are displayed on the top bar of the screen. Questions in a Section can be viewed by clicking on the name of that Section. The Section you are currently viewing will be highlighted.</p>
-
-                    <p>10. After clicking the <strong>Save &amp; Next</strong> button for the last question in a Section, you will automatically be taken to the first question of the next Section in sequence.</p>
-
-                    <p>11. You can move the mouse cursor over the name of a Section to view the answering status for that Section.</p>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-4 leading-relaxed">
+                        Please review these standardized operational guidelines carefully before proceeding to the candidate declaration. Ensure your device has an active internet connection and that you are prepared to complete the assessment within the allotted duration.
+                    </p>
                 </div>
-            </div>
 
-            {/* ── BOTTOM BAR ──────────────────────────────────────── */}
+                {/* Section 1: Timer and Auto-Submission */}
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-5 sm:p-6 shadow-xs">
+                    <h2 className="text-base font-extrabold text-gray-900 dark:text-white flex items-center gap-2 mb-3">
+                        <Clock className="h-4.5 w-4.5 text-[#1448d8]" />
+                        <span>1. Countdown Timer &amp; Automatic Submission</span>
+                    </h2>
+                    <ul className="space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed list-disc list-inside">
+                        <li>The assessment timer runs synchronously from the server. The remaining duration is continuously displayed in the top bar.</li>
+                        <li>When the timer expires, your test is automatically saved and submitted. You do not need to manually finalize before the clock reaches zero.</li>
+                        <li>Every response selection is saved in real time to the cloud so that unexpected device interruptions do not result in data loss.</li>
+                    </ul>
+                </div>
+
+                {/* Section 2: Question Palette & Status Legend */}
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-5 sm:p-6 shadow-xs">
+                    <h2 className="text-base font-extrabold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+                        <FileText className="h-4.5 w-4.5 text-[#1448d8]" />
+                        <span>2. Question Palette &amp; State Legend</span>
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-4">
+                        The Question Palette on your examination workspace visualizes your current progress across each question using distinctive state indicators:
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-gray-800/60 border border-gray-200/80 dark:border-gray-800">
+                            <span className="w-7 h-7 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                                <CheckCircle2 className="h-4 w-4" />
+                            </span>
+                            <div>
+                                <span className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white block">Answered</span>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400">Response is recorded and counted for evaluation.</span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-gray-800/60 border border-gray-200/80 dark:border-gray-800">
+                            <span className="w-7 h-7 rounded-lg bg-rose-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                                <AlertCircle className="h-4 w-4" />
+                            </span>
+                            <div>
+                                <span className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white block">Unanswered</span>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400">Question visited but no answer was chosen.</span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-gray-800/60 border border-gray-200/80 dark:border-gray-800">
+                            <span className="w-7 h-7 rounded-lg bg-purple-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+                                <Bookmark className="h-4 w-4" />
+                            </span>
+                            <div>
+                                <span className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white block">Marked for Review</span>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400">Flagged to revisit later; evaluated if an answer is selected.</span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-gray-800/60 border border-gray-200/80 dark:border-gray-800">
+                            <span className="w-7 h-7 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-black text-xs flex items-center justify-center shrink-0">
+                                <EyeOff className="h-4 w-4" />
+                            </span>
+                            <div>
+                                <span className="font-bold text-xs sm:text-sm text-gray-900 dark:text-white block">Not Visited</span>
+                                <span className="text-[11px] text-gray-500 dark:text-gray-400">You have not viewed this question yet.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 3: Answering Workflow */}
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-5 sm:p-6 shadow-xs">
+                    <h2 className="text-base font-extrabold text-gray-900 dark:text-white flex items-center gap-2 mb-3">
+                        <Save className="h-4.5 w-4.5 text-[#1448d8]" />
+                        <span>3. Workflow &amp; Response Navigation</span>
+                    </h2>
+                    <ul className="space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed list-disc list-inside">
+                        <li><strong>Selecting an Answer:</strong> Click directly on your intended option. To change your response, click another option.</li>
+                        <li><strong>Clearing a Selection:</strong> Use the &quot;Clear Response&quot; action if you wish to unselect your answer entirely.</li>
+                        <li><strong>Confirming Answers:</strong> Click &quot;Save &amp; Next&quot; to lock your response and proceed sequentially.</li>
+                        <li><strong>Reviewing Questions:</strong> Use &quot;Mark for Review &amp; Next&quot; to flag doubtful questions while maintaining your progress.</li>
+                    </ul>
+                </div>
+            </main>
+
+            {/* Bottom Bar */}
             <footer
-                className="flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 border-t border-gray-200 bg-gray-50 shrink-0"
+                className="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0 shadow-lg"
                 style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}
             >
                 <button
                     onClick={() => router.push(safeReturnPath)}
-                    className="min-h-[44px] px-3 py-2 flex items-center gap-1.5 text-sm text-teal-600 hover:text-teal-700 font-semibold transition-colors cursor-pointer"
+                    className="min-h-[44px] px-3.5 py-2 flex items-center gap-1.5 text-xs sm:text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-bold transition-colors cursor-pointer rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    <span>{safeReturnPath.includes("/pyqs") ? "Back to Papers" : "Go to Tests"}</span>
+                    <span>{safeReturnPath.includes("/pyqs") ? "Back to Papers" : "Back to Test Series"}</span>
                 </button>
+
                 <Link
                     href={declarationHref}
-                    className="min-h-[44px] px-6 py-2 rounded-lg text-sm font-bold text-white transition-colors flex items-center justify-center gap-1.5"
-                    style={{ backgroundColor: "#0ea5e9" }}
+                    data-testid="cbt-instructions-next-btn"
+                    className="min-h-[44px] px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-white transition-all flex items-center justify-center gap-2 bg-[#1448d8] hover:bg-[#0f37a8] shadow-md shadow-blue-600/20 active:scale-98"
                 >
                     <span>Next</span>
                     <ChevronRight className="h-4 w-4" />
@@ -227,14 +295,16 @@ function InstructionsContent() {
 
 export default function InstructionsClient() {
     return (
-        <Suspense fallback={
-            <div className="h-[100dvh] w-full max-w-full flex items-center justify-center bg-white">
-                <div className="text-center space-y-3">
-                    <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto" />
-                    <p className="text-sm text-gray-500">Loading instructions...</p>
+        <Suspense
+            fallback={
+                <div className="h-[100dvh] w-full max-w-full flex items-center justify-center bg-white dark:bg-gray-950">
+                    <div className="text-center space-y-3">
+                        <div className="w-10 h-10 border-4 border-[#1448d8] border-t-transparent rounded-full animate-spin mx-auto" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Loading examination instructions...</p>
+                    </div>
                 </div>
-            </div>
-        }>
+            }
+        >
             <InstructionsContent />
         </Suspense>
     )

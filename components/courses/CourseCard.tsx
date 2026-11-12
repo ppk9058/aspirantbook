@@ -178,22 +178,12 @@ function CourseCard({
 
                     {/* Footer Stats & Action */}
                     <div className="pt-3 border-t border-gray-100 dark:border-slate-700">
-                        {(course.duration > 0 || (course.enrollmentCount && course.enrollmentCount > 0)) ? (
-                            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 font-medium mb-3">
-                                {course.duration > 0 ? (
-                                    <span className="flex items-center gap-1">
-                                        <Clock className="h-3.5 w-3.5 text-[#10162F] dark:text-slate-300" />
-                                        {durationText}
-                                    </span>
-                                ) : <span />}
-                                {course.enrollmentCount && course.enrollmentCount > 0 ? (
-                                    <span className="flex items-center gap-1">
-                                        <Users className="h-3.5 w-3.5 text-[#10162F] dark:text-slate-300" />
-                                        {course.enrollmentCount >= 1000
-                                            ? `${(course.enrollmentCount / 1000).toFixed(1)}k learners`
-                                            : `${course.enrollmentCount} learners`}
-                                    </span>
-                                ) : null}
+                        {course.duration > 0 ? (
+                            <div className="flex items-center text-xs text-slate-600 dark:text-slate-400 font-medium mb-3">
+                                <span className="flex items-center gap-1">
+                                    <Clock className="h-3.5 w-3.5 text-[#10162F] dark:text-slate-300" />
+                                    {durationText}
+                                </span>
                             </div>
                         ) : null}
 

@@ -812,7 +812,7 @@ export default function MyTestsHubClient({
                                 <div className="flex-1">
                                     <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase">{item.category}</span>
                                     <h3 className="text-xs font-extrabold text-slate-900 dark:text-white line-clamp-2 mt-0.5">{item.title}</h3>
-                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{formatCount(item.totalTests, "test")}{item.users ? ` • ${formatCount(item.users, "user")} enrolled` : ""}</p>
+                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{formatCount(item.totalTests, "test")}</p>
                                 </div>
                                 <Link href={item.url} className="w-full inline-flex items-center justify-center gap-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-700 dark:hover:bg-emerald-700 text-slate-800 dark:text-slate-200 hover:text-white text-xs font-bold transition-all min-h-[44px]">
                                     Explore <ChevronRight className="w-3.5 h-3.5" />

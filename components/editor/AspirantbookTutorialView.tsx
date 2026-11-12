@@ -351,8 +351,8 @@ export function AspirantbookTutorialView({
             title: course.title,
             subject: course.technology || "Interactive Tutorial",
             status: course.isPremium ? "Premium" : "Free",
-            rating: (typeof course.rating === "number" && course.rating > 0) ? course.rating.toFixed(2) : undefined,
-            learners: (typeof course.enrollmentCount === "number" && course.enrollmentCount > 0) ? `${course.enrollmentCount.toLocaleString()} Learners Enrolled` : undefined,
+            rating: undefined,
+            learners: undefined,
             intro:
                 course.description ||
                 "Master core concepts step by step with hands-on runnable code, interactive diagrams, knowledge checks, and verified exercises.",
@@ -1090,12 +1090,6 @@ export function AspirantbookTutorialView({
                                         ) : (
                                             <>
                                                 <span className="text-emerald-700 dark:text-emerald-400 font-bold">Interactive Tutorial</span>
-                                                <span>·</span>
-                                            </>
-                                        )}
-                                        {meta.learners && (
-                                            <>
-                                                <span>{meta.learners}</span>
                                                 <span>·</span>
                                             </>
                                         )}

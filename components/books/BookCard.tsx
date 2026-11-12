@@ -96,13 +96,7 @@ export default function BookCard({ book }: BookCardProps) {
           <span className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
             {book.edition}
           </span>
-          {/* Rating Badge */}
-          {book.rating && book.rating > 0 ? (
-            <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-700 text-white text-[11px] font-extrabold shrink-0 shadow-2xs">
-              <span>{book.rating}</span>
-              <Star className="w-2.5 h-2.5 fill-white" />
-            </div>
-          ) : null}
+
         </div>
       </Link>
 
