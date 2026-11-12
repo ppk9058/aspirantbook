@@ -112,7 +112,7 @@ test("Open-popup-once guard", () => {
     "Back navigation into the callback must not reopen the popup"
   )
 
-  const hook = read("lib/pyqs/usePyqPassUnlock.ts")
+  const hook = read("lib/payments/usePassPurchaseModal.ts")
   assert.ok(
     hook.includes("PASS_POPUP_HANDLED_STORAGE_KEY"),
     "Auto-open must remember that this tab already opened the popup"
@@ -120,6 +120,14 @@ test("Open-popup-once guard", () => {
   assert.ok(
     hook.includes("router.replace(cleanPath"),
     "The trigger must be consumed from the URL before opening"
+  )
+  // One shared open-state hook: the PYQ surfaces must not re-implement the
+  // return-path / once-per-tab guard themselves.
+  const pyqHook = read("lib/pyqs/usePyqPassUnlock.ts")
+  assert.ok(pyqHook.includes("usePassPurchaseModal"), "PYQ surfaces must reuse the shared Pass hook")
+  assert.ok(
+    !pyqHook.includes("PASS_POPUP_HANDLED_STORAGE_KEY"),
+    "PYQ surfaces must not duplicate the popup guard"
   )
 })
 

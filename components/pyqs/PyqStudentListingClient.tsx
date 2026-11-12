@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { buildPassLoginHref, evaluatePyqLockState } from "@/lib/pyqs/pass-popup"
 import { usePyqPassUnlock } from "@/lib/pyqs/usePyqPassUnlock"
+import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
 import {
   PYQ_UNLOCK_PENDING_MESSAGE,
   buildPyqPdfSource,
@@ -75,7 +76,14 @@ export function PyqStudentListingClient({
     () => initialPapers.some((paper) => evaluatePyqLockState(paper) === "locked"),
     [initialPapers]
   )
-  const { openPassCheckout, isProcessing: isPassProcessing, error: passError } = usePyqPassUnlock({
+  const {
+    openPassCheckout,
+    isProcessing: isPassProcessing,
+    error: passError,
+    isPassModalOpen,
+    closePassModal,
+    handleModalSuccess,
+  } = usePyqPassUnlock({
     autoOpenEnabled: hasLockedPapers,
     isAuthenticated,
   })
@@ -532,6 +540,12 @@ export function PyqStudentListingClient({
           ))}
         </div>
       )}
+
+      <PassPurchaseModal
+        isOpen={isPassModalOpen}
+        onClose={closePassModal}
+        onSuccess={handleModalSuccess}
+      />
     </div>
   )
 }

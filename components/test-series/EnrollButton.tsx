@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { CheckCheck, Plus, Loader2, ShieldCheck, ArrowRight } from "lucide-react"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
+import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
+import { usePassPurchaseModal } from "@/lib/payments/usePassPurchaseModal"
 
 interface EnrollButtonProps {
     seriesId: string          // slug or id
@@ -28,6 +30,17 @@ export default function EnrollButton({
     const [enrolled, setEnrolled] = useState(false)
     const [loading, setLoading] = useState(true)
     const [effectiveIsFree, setEffectiveIsFree] = useState<boolean>(isFree)
+
+    const {
+        isOpen: isPassModalOpen,
+        openPassModal,
+        closePassModal,
+    } = usePassPurchaseModal({
+        onSuccess: () => {
+            setEnrolled(true)
+            onEnrolled?.()
+        },
+    })
 
     // Update effectiveIsFree when isFree prop changes
     useEffect(() => {
@@ -57,25 +70,12 @@ export default function EnrollButton({
         }
     }, [seriesId, session?.user?.id])
 
-    const handleEnroll = async () => {
+    const handleEnroll = async (e?: React.MouseEvent<HTMLButtonElement>) => {
         if (enrolled || isProcessing) return
 
         if (!effectiveIsFree) {
-            // Paid series / Pro pass: Open Razorpay checkout on the SAME page
-            await handleBuyNow(
-                {
-                    type: "package",
-                    id: seriesId,
-                    slug: seriesId,
-                    title: `Test Series Pass (${seriesId})`,
-                    price: 499,
-                    isFree: false,
-                },
-                () => {
-                    setEnrolled(true)
-                    onEnrolled?.()
-                }
-            )
+            // Paid series / Pro pass: Open Pass Purchase Modal on the SAME page
+            openPassModal(e?.currentTarget)
             return
         }
 
@@ -130,26 +130,37 @@ export default function EnrollButton({
     }
 
     return (
-        <button
-            onClick={handleEnroll}
-            disabled={isProcessing}
-            data-testid="series-enroll-btn"
-            data-hydrated="true"
-            className={`rounded-xl font-extrabold flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
-                effectiveIsFree
-                    ? "bg-[#1448d8] hover:bg-[#0f37a8] text-white shadow-md"
-                    : "bg-[#1448d8] hover:bg-[#0f37a8] text-white shadow-md"
-            } ${sizeClasses[size]} ${className}`}
-            aria-label={effectiveIsFree ? "Enroll Free" : "Get Pass"}
-        >
-            {isProcessing ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-            ) : effectiveIsFree ? (
-                <Plus className="w-4 h-4 stroke-[2.5]" />
-            ) : (
-                <ShieldCheck className="w-4 h-4" />
-            )}
-            {isProcessing ? "Processing…" : effectiveIsFree ? "Enroll Free" : "Get Pass"}
-        </button>
+        <>
+            <button
+                onClick={handleEnroll}
+                disabled={isProcessing}
+                data-testid="series-enroll-btn"
+                data-hydrated="true"
+                className={`rounded-xl font-extrabold flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
+                    effectiveIsFree
+                        ? "bg-[#1448d8] hover:bg-[#0f37a8] text-white shadow-md"
+                        : "bg-[#1448d8] hover:bg-[#0f37a8] text-white shadow-md"
+                } ${sizeClasses[size]} ${className}`}
+                aria-label={effectiveIsFree ? "Enroll Free" : "Get Pass"}
+            >
+                {isProcessing ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                ) : effectiveIsFree ? (
+                    <Plus className="w-4 h-4 stroke-[2.5]" />
+                ) : (
+                    <ShieldCheck className="w-4 h-4" />
+                )}
+                {isProcessing ? "Processing…" : effectiveIsFree ? "Enroll Free" : "Get Pass"}
+            </button>
+
+            <PassPurchaseModal
+                isOpen={isPassModalOpen}
+                onClose={closePassModal}
+                onSuccess={() => {
+                    setEnrolled(true)
+                    onEnrolled?.()
+                }}
+            />
+        </>
     )
 }

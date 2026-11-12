@@ -1,10 +1,10 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
+import { usePassPurchaseModal } from "@/lib/payments/usePassPurchaseModal"
 import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
-import { consumePassPopupParam, hasPendingPassPopup, PASS_POPUP_HANDLED_STORAGE_KEY } from "@/lib/pyqs/pass-popup"
 
 /**
  * The Pass checkout item. Same shape the /pricing "Get Pass" button sends, so
@@ -22,78 +22,62 @@ export const PYQ_PASS_BUY_ITEM = {
 interface UsePyqPassUnlockOptions {
   /** True when the current page still has something locked behind the Pass. */
   autoOpenEnabled?: boolean
-  /** Guests are sent to /login instead of opening checkout. */
+  /** Gates the auto-open after a guest logs in through the passPopup return path. */
   isAuthenticated?: boolean
   /** Runs after the server verified the payment (e.g. re-probe a PDF). */
   onUnlocked?: () => void
 }
 
 /**
- * Opens the Rs 499 yearly Pass popup on the same page, and (once) auto-opens it
- * after a guest logs in through the `passPopup=1` return path.
+ * PYQ surface adapter over the one shared Pass hook. All open/close state,
+ * focus return, the `passPopup=1` return-path handling and the once-per-tab
+ * auto-open guard live in usePassPurchaseModal; this only adds the
+ * "re-probe after payment" callback.
+ *
+ * Guests are never redirected here: the PYQ screens render their own login
+ * affordance, so `redirectGuests` is off to keep that behaviour.
  */
 export function usePyqPassUnlock(options: UsePyqPassUnlockOptions = {}) {
-  const { autoOpenEnabled = false, isAuthenticated = false, onUnlocked } = options
+  const { autoOpenEnabled = false, isAuthenticated, onUnlocked } = options
   const router = useRouter()
-  const { handleBuyNow, isProcessing } = useSamePageBuyNow()
-  const [error, setError] = useState<string | null>(null)
-  const handledRef = useRef(false)
+  const { isProcessing } = useSamePageBuyNow()
+  const [error] = useState<string | null>(null)
   const onUnlockedRef = useRef(onUnlocked)
+  const pendingSuccessCallbackRef = useRef<(() => void) | undefined>(undefined)
 
   onUnlockedRef.current = onUnlocked
 
-  const openPassCheckout = useCallback(async (onSuccess?: () => void) => {
-    setError(null)
-    await handleBuyNow(
-      PYQ_PASS_BUY_ITEM,
-      () => {
-        // Server verified the payment: refresh the same page into the unlocked
-        // state. Never redirect to /subscription or /checkout.
-        router.refresh()
-        onUnlockedRef.current?.()
-        onSuccess?.()
-      },
-      {
-        onError: (message) => setError(message),
-      }
-    )
-  }, [handleBuyNow, router])
+  const {
+    isOpen: isPassModalOpen,
+    openPassModal,
+    closePassModal,
+  } = usePassPurchaseModal({
+    autoOpenEnabled,
+    isAuthenticated,
+    redirectGuests: false,
+  })
 
-  useEffect(() => {
-    if (!autoOpenEnabled || !isAuthenticated || handledRef.current) return
-    if (typeof window === "undefined") return
+  const openPassCheckout = useCallback(
+    (onSuccess?: () => void) => {
+      pendingSuccessCallbackRef.current = onSuccess
+      openPassModal()
+    },
+    [openPassModal]
+  )
 
-    const { requested, cleanPath } = consumePassPopupParam(
-      `${window.location.pathname}${window.location.search}`
-    )
-    if (!requested) return
+  const handleModalSuccess = useCallback(() => {
+    router.refresh()
+    onUnlockedRef.current?.()
+    pendingSuccessCallbackRef.current?.()
+    pendingSuccessCallbackRef.current = undefined
+  }, [router])
 
-    let storageHandled = false
-    try {
-      storageHandled = window.sessionStorage.getItem(PASS_POPUP_HANDLED_STORAGE_KEY) === "1"
-    } catch (storageError) {
-      console.warn("PYQ Pass popup: sessionStorage unavailable", storageError)
-    }
-
-    const pending = hasPendingPassPopup({
-      requested,
-      alreadyHandled: handledRef.current || storageHandled,
-      passUnlockRequired: true,
-    })
-
-    handledRef.current = true
-    // Consume the trigger first so refresh/back cannot reopen the popup.
-    router.replace(cleanPath, { scroll: false })
-
-    if (!pending) return
-
-    try {
-      window.sessionStorage.setItem(PASS_POPUP_HANDLED_STORAGE_KEY, "1")
-    } catch (storageError) {
-      console.warn("PYQ Pass popup: sessionStorage unavailable", storageError)
-    }
-    void openPassCheckout()
-  }, [autoOpenEnabled, isAuthenticated, openPassCheckout, router])
-
-  return { openPassCheckout, isProcessing, error }
+  return {
+    openPassCheckout,
+    isProcessing,
+    error,
+    isPassModalOpen,
+    closePassModal,
+    handleModalSuccess,
+  }
 }
