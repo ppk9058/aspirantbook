@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -37,10 +37,38 @@ import {
   HelpCircle,
   Share2,
   Calendar,
+  PhoneCall,
+  Eye,
+  Copy,
+  Download,
+  ArrowUp,
+  ArrowDown,
+  Palette,
+  Sliders,
+  Smartphone,
+  Monitor,
 } from "lucide-react"
+import { COURSE_TEMPLATES, type CourseTemplate } from "@/lib/courses/templates"
 import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
 import { CourseCouponsManager } from "./CourseCouponsManager"
-import Image from "next/image"
+import { HeroDetailsTab } from "./studio/HeroDetailsTab"
+import { CoursePlanTab } from "./studio/CoursePlanTab"
+import { ExamSyllabusTab } from "./studio/ExamSyllabusTab"
+import { CallbackLeadsTab } from "./studio/CallbackLeadsTab"
+import { SectionsTab } from "./studio/SectionsTab"
+import { ThemeTab } from "./studio/ThemeTab"
+import { TabsTab, DEFAULT_TABS, type TabConfigItem } from "./studio/TabsTab"
+import { DEFAULT_THEME_TOKENS, type CourseThemeTokens } from "@/components/course/detail/theme"
+import { CourseDetailV2 } from "@/components/course/detail/CourseDetailV2"
+import { PreviewErrorBoundary } from "@/components/course/detail/PreviewErrorBoundary"
+import { CourseLivePreviewModal } from "./CourseLivePreviewModal"
+import { buildCourseDetailViewModel } from "@/lib/courses/view-model"
+import { useDirtyGuard } from "./studio/useDirtyGuard"
+import { buildHeroDraft, heroDraftToMetadata, heroDraftToCourseColumns, type HeroDraft } from "./studio/draft"
+import { readSectionFlags, type SectionFlags } from "@/lib/courses/metadata-schema"
+import { hindiCompletenessForList, hindiBadgeLabel } from "@/lib/i18n/localized"
+import { DEFAULT_COURSE_LANGUAGE, COURSE_LANGUAGES } from "@/lib/courses/languages"
+import { EXAM_CATEGORIES, EXAM_CATEGORY_GROUPS, isKnownExamCategory } from "@/lib/courses/categories"
 
 interface LessonItem {
   id: string
@@ -53,12 +81,15 @@ interface LessonItem {
   content?: string | null
   videoUrl?: string | null
   isTrial?: boolean
+  scheduledAt?: string | Date | null
   order: number
 }
 
 interface ChapterItem {
   id: string
   title: string
+  titleHi?: string | null
+  unitId?: string | null
   order: number
   lessons: LessonItem[]
 }
@@ -81,6 +112,7 @@ interface CourseEditProps {
     isPremium?: boolean
     status: string
     metadataJson?: string | null
+    theme?: any
     chapters: ChapterItem[]
   }
 }
@@ -92,18 +124,19 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const coursesUrl = isTeacher ? "/teacher/courses" : "/admin/courses"
   const [course, setCourse] = useState(initialCourse)
   const [chapters, setChapters] = useState<ChapterItem[]>(initialCourse.chapters)
+  const units = useMemo(() => (course as any).units || [], [course])
 
   // Course Details Form State
   const [title, setTitle] = useState(course.title)
   const [slug, setSlug] = useState(course.slug)
   const [technology, setTechnology] = useState(course.technology || "Skills & Tech")
   const [description, setDescription] = useState(course.description)
-  const [price, setPrice] = useState(course.price || 3299)
-  const [originalPrice, setOriginalPrice] = useState(course.originalPrice || 4499)
-  const [discountPercent, setDiscountPercent] = useState(course.discountPercent || 27)
-  const [couponCode, setCouponCode] = useState(course.couponCode || "OFF50")
-  const [couponDiscount, setCouponDiscount] = useState(course.couponDiscount || 50)
-  const [expiresAt, setExpiresAt] = useState(course.expiresAt || "Oct 30, 2026")
+  const [price, setPrice] = useState(course.price ?? 0)
+  const [originalPrice, setOriginalPrice] = useState(course.originalPrice ?? 0)
+  const [discountPercent, setDiscountPercent] = useState(course.discountPercent ?? 0)
+  const [couponCode, setCouponCode] = useState(course.couponCode || "")
+  const [couponDiscount, setCouponDiscount] = useState(course.couponDiscount ?? 0)
+  const [expiresAt, setExpiresAt] = useState(course.expiresAt || "")
   const [hasTrialLesson, setHasTrialLesson] = useState(course.hasTrialLesson ?? true)
   const [isPremium, setIsPremium] = useState(course.isPremium ?? true)
   const [status, setStatus] = useState(course.status || "PUBLISHED")
@@ -112,8 +145,10 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false)
   const [thumbnailInputUrl, setThumbnailInputUrl] = useState(course.thumbnailUrl || "/placeholder-course.svg")
 
-  // Studio Workspace Tab: "syllabus" | "teachers" | "schedule" | "highlights" | "faqs" | "coupons"
-  const [activeTab, setActiveTab] = useState<"syllabus" | "teachers" | "schedule" | "highlights" | "faqs" | "coupons">("syllabus")
+  // Studio Workspace Tab: "hero" | "theme" | "tabs" | "syllabus" | "plan" | "examSyllabus" | "teachers" | ... | "leads" | "sections"
+  const [activeTab, setActiveTab] = useState<
+    "hero" | "theme" | "tabs" | "syllabus" | "plan" | "examSyllabus" | "teachers" | "schedule" | "highlights" | "faqs" | "coupons" | "leads" | "sections"
+  >("hero")
 
   // Parsed Metadata State (Teachers, Schedule, About Highlights, FAQs)
   const initialMeta = (() => {
@@ -127,7 +162,129 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     return {}
   })()
 
-  const [language, setLanguage] = useState<string>(initialMeta.language || "HINGLISH")
+  // ── Course Studio v2 (P4) ───────────────────────────────────────────────
+  // Hero/details draft + section toggles live here; units and the exam syllabus
+  // are real DB rows saved by their own tabs.
+  const [heroDraft, setHeroDraft] = useState<HeroDraft>(() => buildHeroDraft(initialMeta, initialCourse as any))
+  const [sectionFlags, setSectionFlags] = useState<SectionFlags>(() => readSectionFlags(initialMeta))
+  const [themeTokens, setThemeTokens] = useState<CourseThemeTokens>(() => {
+    if (initialCourse.theme && typeof initialCourse.theme === "object") {
+      return initialCourse.theme as CourseThemeTokens
+    }
+    if (initialMeta.theme && typeof initialMeta.theme === "object") {
+      return initialMeta.theme as CourseThemeTokens
+    }
+    return DEFAULT_THEME_TOKENS
+  })
+  const [tabsConfig, setTabsConfig] = useState<TabConfigItem[]>(() => {
+    if (Array.isArray(initialMeta.tabsConfig) && initialMeta.tabsConfig.length > 0) {
+      return initialMeta.tabsConfig
+    }
+    return DEFAULT_TABS
+  })
+  const [showLivePreview, setShowLivePreview] = useState(false)
+  const [previewViewport, setPreviewViewport] = useState<"desktop" | "mobile">("desktop")
+  const [lastAutosaved, setLastAutosaved] = useState<string | null>(null)
+  const [studioDirty, setStudioDirty] = useState(false)
+  useDirtyGuard(studioDirty)
+
+  const [origin, setOrigin] = useState("")
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setOrigin(window.location.origin)
+    }
+  }, [])
+
+  // Debounced draft autosave to localStorage
+  useEffect(() => {
+    if (!studioDirty) return
+    const timer = setTimeout(() => {
+      try {
+        const draftKey = `studio_draft_${initialCourse.id}`
+        const draftData = {
+          heroDraft,
+          themeTokens,
+          tabsConfig,
+          sectionFlags,
+          title,
+          description,
+          price,
+          savedAt: new Date().toLocaleTimeString(),
+        }
+        localStorage.setItem(draftKey, JSON.stringify(draftData))
+        setLastAutosaved(draftData.savedAt)
+      } catch {}
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [studioDirty, heroDraft, themeTokens, tabsConfig, sectionFlags, title, description, price, initialCourse.id])
+
+  const patchHeroDraft = useCallback((patch: Partial<HeroDraft>) => {
+    setHeroDraft((prev) => ({ ...prev, ...patch }))
+    setStudioDirty(true)
+  }, [])
+
+  const patchThemeTokens = useCallback((patch: Partial<CourseThemeTokens>) => {
+    setThemeTokens((prev) => ({ ...prev, ...patch }))
+    setStudioDirty(true)
+  }, [])
+
+  const resetThemeTokens = useCallback(() => {
+    setThemeTokens(DEFAULT_THEME_TOKENS)
+    setStudioDirty(true)
+  }, [])
+
+  const patchTabsConfig = useCallback((tabs: TabConfigItem[]) => {
+    setTabsConfig(tabs)
+    setStudioDirty(true)
+  }, [])
+
+  const resetTabsConfig = useCallback(() => {
+    setTabsConfig(DEFAULT_TABS)
+    setStudioDirty(true)
+  }, [])
+
+  const changeSectionFlags = useCallback((next: SectionFlags) => {
+    setSectionFlags(next)
+    setStudioDirty(true)
+  }, [])
+
+  // Hindi coverage badge in the header: counts only fields that have English text.
+  const hindiMissing = (() => {
+    const courseText = hindiCompletenessForList(
+      [
+        {
+          subtitle: heroDraft.subtitle,
+          subtitleHi: heroDraft.subtitleHi,
+          description,
+          descriptionHi: heroDraft.descriptionHi,
+          scheduleText: heroDraft.scheduleText,
+          scheduleTextHi: heroDraft.scheduleTextHi,
+          validityText: heroDraft.validityText,
+          validityTextHi: heroDraft.validityTextHi,
+          validityNote: heroDraft.validityNote,
+          validityNoteHi: heroDraft.validityNoteHi,
+          enrollDisclaimer: heroDraft.enrollDisclaimer,
+          enrollDisclaimerHi: heroDraft.enrollDisclaimerHi,
+          lateJoinerTemplate: heroDraft.lateJoinerTemplate,
+          lateJoinerTemplateHi: heroDraft.lateJoinerTemplateHi,
+        },
+      ],
+      [
+        "subtitle",
+        "description",
+        "scheduleText",
+        "validityText",
+        "validityNote",
+        "enrollDisclaimer",
+        "lateJoinerTemplate",
+      ]
+    )
+    const teachers = hindiCompletenessForList(initialMeta.teachers || [], ["name", "role", "qualification", "bio"])
+    const faqs = hindiCompletenessForList(initialMeta.faqs || [], ["question", "answer"])
+    return courseText.missing + teachers.missing + faqs.missing
+  })()
+
+  const [language, setLanguage] = useState<string>(initialMeta.language || DEFAULT_COURSE_LANGUAGE)
   const [targetAudience, setTargetAudience] = useState<string>(
     initialMeta.targetText || `Targeted for students of ${initialCourse.technology || "Course"}`
   )
@@ -139,7 +296,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             name: "Lead Academic Faculty",
             role: "Senior Instructor & Mentor",
             subject: initialCourse.technology || "Core Curriculum",
-            experience: "10+ Years",
+            experience: "",
             qualification: "Senior Educator • Subject Lead",
             avatar: "/curious-avatar.svg",
             bio: "Dedicated faculty with comprehensive experience in mentoring top-ranking students.",
@@ -318,6 +475,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   const [lessonDurationText, setLessonDurationText] = useState("1h 45m 00s")
   const [lessonVideoUrl, setLessonVideoUrl] = useState("")
   const [isTrial, setIsTrial] = useState(false)
+  const [lessonScheduledAt, setLessonScheduledAt] = useState("")
   const [attachmentType, setAttachmentType] = useState<"PDF" | "ARTICLE" | "LIVE" | "VIDEO">("PDF")
   const [attachmentName, setAttachmentName] = useState("")
   const [attachmentUrl, setAttachmentUrl] = useState("")
@@ -370,12 +528,24 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     ])
   }
 
-  const handleUpdateTeacher = (index: number, field: string, value: string) => {
+  const handleUpdateTeacher = (index: number, field: string, value: any) => {
     setTeachers((prev) => prev.map((t, i) => (i === index ? { ...t, [field]: value } : t)))
   }
 
   const handleDeleteTeacher = (index: number) => {
     setTeachers((prev) => prev.filter((_, i) => i !== index))
+    setStudioDirty(true)
+  }
+
+  const handleMoveTeacher = (index: number, direction: "up" | "down") => {
+    const target = direction === "up" ? index - 1 : index + 1
+    if (target < 0 || target >= teachers.length) return
+    const next = [...teachers]
+    const temp = next[index]
+    next[index] = next[target]
+    next[target] = temp
+    setTeachers(next)
+    setStudioDirty(true)
   }
 
   const [uploadingTeacherIndex, setUploadingTeacherIndex] = useState<number | null>(null)
@@ -450,16 +620,268 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
 
   const handleDeleteFaq = (index: number) => {
     setFaqs((prev) => prev.filter((_, i) => i !== index))
+    setStudioDirty(true)
+  }
+
+  const handleMoveFaq = (index: number, direction: "up" | "down") => {
+    const target = direction === "up" ? index - 1 : index + 1
+    if (target < 0 || target >= faqs.length) return
+    const next = [...faqs]
+    const temp = next[index]
+    next[index] = next[target]
+    next[target] = temp
+    setFaqs(next)
+    setStudioDirty(true)
+  }
+
+  // Course Studio Template, Import/Export & Duplicate Actions
+  const [isDuplicating, setIsDuplicating] = useState(false)
+  const [showTemplateModal, setShowTemplateModal] = useState(false)
+  const [showCompletenessModal, setShowCompletenessModal] = useState(false)
+
+  const handleApplyTemplate = (tpl: any) => {
+    const data: any = tpl.template || tpl
+    setTitle(data.title || "")
+    setPrice(data.price || 0)
+    setOriginalPrice(data.mrp || data.originalPrice || data.price || 0)
+    setTechnology(data.technology || "")
+    setDescription(data.description || "")
+    if (data.slug) setSlug(data.slug)
+    patchHeroDraft({
+      titleHi: data.titleHi || "",
+      subtitle: data.subtitle || "",
+      subtitleHi: data.subtitleHi || "",
+      descriptionHi: data.descriptionHi || "",
+      lateJoinerTemplate: data.lateJoinNote?.text || "",
+      lateJoinerTemplateHi: data.lateJoinNote?.textHi || "",
+      pillTags: (data.badges || []).map((b: any) => b.label).join(", "),
+      pillTagsHi: (data.badges || []).map((b: any) => b.labelHi || "").filter(Boolean).join(", "),
+      heroMetrics: (data.stats || []).map((s: any) => ({
+        value: s.value,
+        valueHi: s.valueHi,
+        label: s.caption,
+        labelHi: s.captionHi,
+      })),
+      whatYouGet: (data.whatYouGet || []).map((w: any) => ({ en: w.text || w.en || "", hi: w.textHi || w.hi || "" })),
+      howItWorks: (data.howItWorks || []).map((h: any) => ({ en: h.text || h.en || "", hi: h.textHi || h.hi || "" })),
+    })
+    if (Array.isArray(data.teachers)) setTeachers(data.teachers as any)
+    if (Array.isArray(data.faqs)) {
+      setFaqs(
+        data.faqs.map((f: any) => ({
+          question: f.q || f.question,
+          questionHi: f.qHi || f.questionHi,
+          answer: f.a || f.answer,
+          answerHi: f.aHi || f.answerHi,
+        }))
+      )
+    }
+    if (data.theme) setThemeTokens(data.theme)
+    if (data.tabsConfig) setTabsConfig(data.tabsConfig)
+    if (data.language) setLanguage(data.language)
+    setStudioDirty(true)
+    toast.success(`Loaded template "${tpl.name || data.title}"! Click Save Course to apply changes.`)
+    setShowTemplateModal(false)
+  }
+
+  const completeness = useMemo(() => {
+    const totalLectures = chapters.reduce((sum, ch) => sum + (ch.lessons?.length || 0), 0)
+    const checks = [
+      { label: "Basic Title & Slug", ok: Boolean(title.trim() && slug.trim()), hint: "Set course title and URL slug" },
+      { label: "Category / Technology", ok: Boolean(technology.trim()), hint: "Select an exam or category" },
+      { label: "Pricing & Currency", ok: Boolean(price >= 0), hint: "Set price or mark as free" },
+      { label: "Teachers Attached", ok: teachers.length > 0, hint: "At least one instructor profile" },
+      { label: "Curriculum Units & Lectures", ok: chapters.length > 0 && totalLectures > 0, hint: `${totalLectures} lectures across ${chapters.length} units` },
+      { label: "Thumbnail / Cover", ok: Boolean(thumbnailUrl && thumbnailUrl !== "/placeholder-course.svg"), hint: "Upload a 16:10 thumbnail or custom cover" },
+      { label: "Hero Stats & Highlights", ok: Boolean(heroDraft.heroMetrics?.length || heroDraft.whatYouGet?.length), hint: "Add stats chips or key benefits" },
+    ]
+
+    const isHindiTarget = language === "hi" || language === "bilingual" || Boolean(heroDraft.titleHi?.trim())
+    const missingHindiFields: string[] = []
+    if (isHindiTarget) {
+      if (!heroDraft.titleHi?.trim()) missingHindiFields.push("Title")
+      if (!heroDraft.subtitleHi?.trim()) missingHindiFields.push("Subtitle")
+      if (!heroDraft.descriptionHi?.trim()) missingHindiFields.push("Description")
+      if (teachers.some((t: any) => !t.nameHi?.trim())) missingHindiFields.push("Teacher Name(s)")
+      if (units.some((u: any) => !u.titleHi?.trim())) missingHindiFields.push("Unit Title(s)")
+      if (heroDraft.heroMetrics?.some((m: any) => m.label && !m.labelHi?.trim())) missingHindiFields.push("Stats Label(s)")
+      if (heroDraft.badges?.some((b: any) => b.label && !b.labelHi?.trim())) missingHindiFields.push("Badge Label(s)")
+    }
+
+    const emptyUnits = units.filter((u: any) => {
+      const unitChs = chapters.filter((c: any) => c.unitId === u.id)
+      return unitChs.length === 0
+    })
+    const hasEmptyUnits = emptyUnits.length > 0
+
+    if (isHindiTarget) {
+      checks.push({
+        label: "Hindi Translations",
+        ok: missingHindiFields.length === 0,
+        hint: missingHindiFields.length === 0 ? "All key fields localized in Hindi" : `Missing Hindi: ${missingHindiFields.join(", ")}`,
+      })
+    }
+    if (hasEmptyUnits) {
+      checks.push({
+        label: "Empty Units Warning",
+        ok: false,
+        hint: `Warning: ${emptyUnits.length} unit(s) have 0 themes (${emptyUnits.map((u: any) => u.title).join(", ")})`,
+      })
+    }
+
+    const completedCount = checks.filter((c) => c.ok).length
+    const percent = Math.round((completedCount / checks.length) * 100)
+    const hasZeroLectures = totalLectures === 0
+    return { checks, completedCount, total: checks.length, percent, hasZeroLectures, totalLectures, hasEmptyUnits, emptyUnits }
+  }, [title, slug, technology, price, teachers, chapters, units, language, thumbnailUrl, heroDraft])
+
+  const handleExportJson = () => {
+    const courseExport = {
+      title,
+      technology,
+      price,
+      description,
+      heroDraft,
+      sectionFlags,
+      teachers,
+      faqs,
+      schedule,
+      aboutHighlights,
+    }
+    const blob = new Blob([JSON.stringify(courseExport, null, 2)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${slug || "course"}-export.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success("Course exported as JSON.")
+  }
+
+  const previewViewModel = useMemo(() => {
+    return buildCourseDetailViewModel({
+      ...course,
+      id: course.id,
+      title: title || course.title,
+      titleHi: heroDraft.titleHi || null,
+      subtitle: heroDraft.subtitle || null,
+      subtitleHi: heroDraft.subtitleHi || null,
+      description: description || course.description,
+      descriptionHi: heroDraft.descriptionHi || null,
+      slug: slug || course.slug,
+      price: Number(price),
+      originalPrice: Number(originalPrice),
+      thumbnailUrl: thumbnailUrl || course.thumbnailUrl,
+      technology: technology || course.technology,
+      units: units.length > 0 ? units : (course as any).units || [],
+      chapters: chapters.length > 0 ? chapters : (course as any).chapters || [],
+      teachers,
+      faqs,
+      stats: heroDraft.heroMetrics,
+      badges: heroDraft.badges,
+      whatYouGet: heroDraft.whatYouGet,
+      howItWorks: heroDraft.howItWorks,
+      goalLabel: heroDraft.goalLabel,
+      goalLabelHi: heroDraft.goalLabelHi,
+      enrollCtaLabel: heroDraft.enrollCtaLabel,
+      enrollCtaLabelHi: heroDraft.enrollCtaLabelHi,
+      enrollHelperText: heroDraft.enrollHelperText,
+      enrollHelperTextHi: heroDraft.enrollHelperTextHi,
+      tabsConfig,
+      themeTokens,
+      sections: sectionFlags,
+      syllabus: { hasSyllabus: false, papers: [] },
+    })
+  }, [
+    course,
+    title,
+    heroDraft,
+    description,
+    slug,
+    price,
+    originalPrice,
+    thumbnailUrl,
+    technology,
+    units,
+    chapters,
+    teachers,
+    faqs,
+    tabsConfig,
+    themeTokens,
+    sectionFlags,
+  ])
+
+  const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (evt) => {
+      try {
+        const parsed = JSON.parse(evt.target?.result as string)
+        if (parsed.title) setTitle(parsed.title)
+        if (parsed.technology) setTechnology(parsed.technology)
+        if (parsed.price !== undefined) setPrice(parsed.price)
+        if (parsed.description) setDescription(parsed.description)
+        if (parsed.heroDraft) patchHeroDraft(parsed.heroDraft)
+        if (parsed.sectionFlags) setSectionFlags(parsed.sectionFlags)
+        if (parsed.teachers) setTeachers(parsed.teachers)
+        if (parsed.faqs) setFaqs(parsed.faqs)
+        if (parsed.schedule) setSchedule(parsed.schedule)
+        if (parsed.aboutHighlights) setAboutHighlights(parsed.aboutHighlights)
+        toast.success("Course JSON imported successfully! Click Save Course to persist.")
+      } catch (err: any) {
+        toast.error("Invalid JSON file: " + err.message)
+      }
+    }
+    reader.readAsText(file)
+  }
+
+  const handleDuplicateCourse = async () => {
+    if (!confirm("Duplicate this course and all its units, chapters and syllabus?")) return
+    setIsDuplicating(true)
+    try {
+      const res = await fetch(`/api/admin/courses/${course.id}/duplicate`, { method: "POST" })
+      if (!res.ok) throw new Error("Failed to duplicate course")
+      const data = await res.json()
+      toast.success("Course duplicated! Navigating to the copy...")
+      router.push(`/admin/courses/${data.courseId}/edit`)
+    } catch (err: any) {
+      toast.error(err.message || "Failed to duplicate")
+    } finally {
+      setIsDuplicating(false)
+    }
   }
 
   // Save Main Course Metadata & Unified Batch Details
   const handleSaveCourse = async () => {
-    setIsSaving(true)
     setErrorMsg(null)
     setSuccessMsg(null)
 
+    if (!title.trim()) {
+      setErrorMsg("Course title is required before saving.")
+      return
+    }
+
+    const totalLectures = chapters.reduce((sum, ch) => sum + (ch.lessons?.length || 0), 0)
+    if (status === "PUBLISHED" && totalLectures === 0) {
+      const proceed = confirm(
+        "Warning: This course has 0 lectures. Publishing will display an empty curriculum to students. Proceed anyway?"
+      )
+      if (!proceed) return
+    }
+
+    setIsSaving(true)
+
     try {
       const metadataPayload = {
+        // Spread the existing object first so unknown/legacy keys survive a save.
+        ...initialMeta,
+        schemaVersion: 2,
+        // Hero & Details tab (overrides the fields it owns).
+        ...heroDraftToMetadata(heroDraft),
+        sections: sectionFlags,
+        theme: themeTokens,
+        tabsConfig: tabsConfig,
         language,
         targetText: targetAudience,
         classTag: technology,
@@ -468,6 +890,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
         aboutHighlights: aboutHighlights.filter((h) => h && h.trim().length > 0),
         faqs: faqs.filter((f) => f.question && f.question.trim().length > 0),
         demoSettings: {
+          ...(initialMeta.demoSettings || {}),
           enabled: demoEnabled,
           topic: demoTopic,
           facultyName: demoFaculty,
@@ -499,6 +922,8 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           isPremium,
           status,
           thumbnailUrl,
+          theme: themeTokens,
+          ...heroDraftToCourseColumns(heroDraft),
           metadataJson: JSON.stringify(metadataPayload),
         }),
       })
@@ -512,6 +937,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
       }))
 
       setSuccessMsg("Course specifications & pricing saved successfully!")
+      setStudioDirty(false)
       setTimeout(() => setSuccessMsg(null), 3500)
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to save course")
@@ -753,6 +1179,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     setLessonDurationText(lesson.durationText || "")
     setLessonVideoUrl(lesson.videoUrl || "")
     setIsTrial(Boolean(lesson.isTrial))
+    setLessonScheduledAt(lesson.scheduledAt ? new Date(lesson.scheduledAt).toISOString().slice(0, 16) : "")
     setAttachmentType((lesson.attachmentType as any) || "PDF")
     setAttachmentName(lesson.attachmentName || "")
     setAttachmentUrl(lesson.attachmentUrl || "")
@@ -774,6 +1201,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           durationText: lessonDurationText,
           videoUrl: lessonVideoUrl || null,
           isTrial,
+          scheduledAt: lessonScheduledAt ? new Date(lessonScheduledAt).toISOString() : null,
           attachmentType: attachmentUrl || attachmentName ? attachmentType : null,
           attachmentName: attachmentName || null,
           attachmentUrl: attachmentUrl || null,
@@ -817,6 +1245,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           durationText: lessonDurationText,
           videoUrl: lessonVideoUrl || null,
           isTrial,
+          scheduledAt: lessonScheduledAt ? new Date(lessonScheduledAt).toISOString() : null,
           attachmentType: attachmentUrl || attachmentName ? attachmentType : null,
           attachmentName: attachmentName || null,
           attachmentUrl: attachmentUrl || null,
@@ -949,18 +1378,77 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
               <ArrowLeft className="w-3.5 h-3.5" /> Video Course Studio
             </Link>
             <div className="h-4 w-[1px] bg-gray-200" />
-            <span className="text-xs font-bold text-orange-600 uppercase tracking-wider flex items-center gap-1">
+            <span className="text-xs font-bold text-orange-700 uppercase tracking-wider flex items-center gap-1">
               <Sparkles className="w-3.5 h-3.5" /> Video Course Studio &bull; Teacher & Admin Editor
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            <span
+              className={`hidden sm:inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+                hindiMissing > 0 ? "bg-amber-100 text-amber-900" : "bg-emerald-100 text-emerald-800"
+              }`}
+              title="Hindi coverage across course text, teachers and FAQs"
+            >
+              {hindiBadgeLabel(hindiMissing)}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => setShowTemplateModal(true)}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors flex items-center gap-1.5"
+              title="Browse and load course templates"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>Templates</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowCompletenessModal(true)}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors flex items-center gap-1.5"
+              title="Course Completeness Checklist"
+            >
+              <CheckCircle2 className={`w-3.5 h-3.5 ${completeness.percent === 100 ? "text-emerald-600" : "text-amber-500"}`} />
+              <span>Checklist ({completeness.percent}%)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDuplicateCourse}
+              disabled={isDuplicating}
+              className="hidden md:flex px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors items-center gap-1.5"
+              title="Duplicate course"
+            >
+              <Copy className="w-3.5 h-3.5 text-gray-600" />
+              <span>{isDuplicating ? "Copying..." : "Duplicate"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleExportJson}
+              className="hidden lg:flex px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors items-center gap-1.5"
+              title="Export course configuration to JSON"
+            >
+              <Download className="w-3.5 h-3.5 text-gray-600" />
+              <span>Export</span>
+            </button>
+
+            <label
+              className="hidden lg:flex px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors items-center gap-1.5 cursor-pointer"
+              title="Import course configuration from JSON"
+            >
+              <FileUp className="w-3.5 h-3.5 text-gray-600" />
+              <span>Import</span>
+              <input type="file" accept=".json,application/json" onChange={handleImportJson} className="hidden" />
+            </label>
+
             <Link
               href={isTeacher ? `/teacher/tutorials/${course.id}/edit` : `/admin/tutorials/${course.id}/edit`}
               className="px-3 py-1.5 rounded-xl text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors flex items-center gap-1.5"
             >
               <BookOpen className="w-3.5 h-3.5 text-[#3A10E5]" />
-              Rosera Editor
+              Rosera
             </Link>
 
             <Link
@@ -973,12 +1461,29 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             </Link>
 
             <button
+              type="button"
+              data-testid="btn-studio-live-preview"
+              onClick={() => setShowLivePreview(true)}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5 text-purple-600" />
+              <span>Live Preview</span>
+            </button>
+
+            {lastAutosaved && (
+              <span className="hidden xl:inline-block text-[11px] text-gray-500 font-medium">
+                Draft: {lastAutosaved}
+              </span>
+            )}
+
+            <button
+              data-testid="btn-save-course"
               onClick={handleSaveCourse}
               disabled={isSaving}
-              className="px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 shadow-sm shadow-orange-500/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
+              className="px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-orange-700 hover:bg-orange-800 shadow-sm shadow-orange-500/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
-              {isSaving ? "Saving Changes..." : "Save Course"}
+              {isSaving ? "Saving..." : "Save Course"}
             </button>
           </div>
         </div>
@@ -1012,6 +1517,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             </label>
             <input
               type="text"
+              aria-label="Course Title"
               value={title}
               onChange={(e) => handleTitleChange(e.target.value)}
               className="w-full text-xl sm:text-2xl font-extrabold text-gray-900 px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
@@ -1022,10 +1528,11 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             <div>
               <label className="block font-bold text-gray-700 mb-1 flex items-center justify-between">
                 <span>URL Slug</span>
-                <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Permanent</span>
+                <span className="text-[10px] text-gray-600 font-semibold uppercase tracking-wider">Permanent</span>
               </label>
               <input
                 type="text"
+                aria-label="Course URL Slug"
                 value={slug}
                 readOnly
                 disabled
@@ -1035,26 +1542,30 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
             <div>
               <label className="block font-bold text-gray-700 mb-1">Target Category / Goal *</label>
               <select
+                aria-label="Target Category / Goal"
                 value={technology}
                 onChange={(e) => setTechnology(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-gray-200 font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
               >
                 <option value="Skills & Tech">Skills & Tech (Coding & Dev)</option>
-                <option value="UPSC">UPSC Civil Services</option>
-                <option value="BPSC">BPSC Civil Services</option>
-                <option value="Class 10th">Class 10th (Boards & NTSE)</option>
-                <option value="Class 9th">Class 9th (School Foundation)</option>
-                <option value="Class 8th">Class 8th (Junior Foundation)</option>
-                <option value="Class 7th">Class 7th (Middle School)</option>
-                <option value="Class 6th">Class 6th (Junior School)</option>
-                <option value="Data Science & AI">Data Science & AI / ML</option>
-                <option value="DSA & Coding Interviews">DSA & Coding Interviews</option>
-                <option value="Govt. Job Exams">Govt. Job Exams (SSC/Banking/Railways)</option>
+                {EXAM_CATEGORY_GROUPS.map((group) => (
+                  <optgroup key={group} label={group}>
+                    {EXAM_CATEGORIES.filter((cat) => cat.group === group).map((cat) => (
+                      <option key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+                {technology && !isKnownExamCategory(technology) && (
+                  <option value={technology}>{technology} (custom)</option>
+                )}
               </select>
             </div>
             <div>
               <label className="block font-bold text-gray-700 mb-1">Status</label>
               <select
+                aria-label="Course Status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-gray-200 font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
@@ -1092,12 +1603,10 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           <div className="pt-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="relative w-24 h-14 rounded-xl overflow-hidden border-2 border-orange-200 bg-gray-100 shrink-0 shadow-2xs">
-                <Image
+                <img
                   src={thumbnailUrl || "/placeholder-course.svg"}
                   alt="First Video Thumbnail"
-                  fill
-                  sizes="96px"
-                  className="object-cover"
+                  className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                   <Play className="w-4 h-4 text-white drop-shadow" />
@@ -1156,10 +1665,101 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
         <div className="bg-white rounded-2xl border border-gray-200 p-2 shadow-xs mb-6 flex items-center gap-2 overflow-x-auto no-scrollbar">
           <button
             type="button"
+            onClick={() => setActiveTab("hero")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "hero"
+                ? "bg-orange-700 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Hero & Details</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("theme")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "theme"
+                ? "bg-orange-700 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Palette className="w-4 h-4" />
+            <span>Theme & Colors</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("tabs")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "tabs"
+                ? "bg-orange-700 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Sliders className="w-4 h-4" />
+            <span>Nav Tabs</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("plan")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "plan"
+                ? "bg-orange-700 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Course Plan</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("examSyllabus")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "examSyllabus"
+                ? "bg-orange-700 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Exam Syllabus</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("leads")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "leads"
+                ? "bg-orange-700 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <PhoneCall className="w-4 h-4" />
+            <span>Callback Leads</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("sections")}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "sections"
+                ? "bg-orange-700 text-white shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Eye className="w-4 h-4" />
+            <span>Sections</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab("syllabus")}
             className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === "syllabus"
-                ? "bg-orange-600 text-white shadow-xs"
+                ? "bg-orange-700 text-white shadow-xs"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
           >
@@ -1262,6 +1862,73 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column (8 cols): Syllabus Section / Chapter CRUD */}
           <div className="lg:col-span-8 space-y-6">
+            {activeTab === "hero" && (
+              <HeroDetailsTab
+                draft={heroDraft}
+                onChange={(patch) => {
+                  patchHeroDraft(patch)
+                  if (patch.category !== undefined) setTechnology(patch.category)
+                  if (patch.language !== undefined) setLanguage(patch.language)
+                }}
+                title={title}
+                onTitleChange={(value) => {
+                  setTitle(value)
+                  setStudioDirty(true)
+                }}
+                description={description}
+                onDescriptionChange={(value) => {
+                  setDescription(value)
+                  setStudioDirty(true)
+                }}
+              />
+            )}
+
+            {activeTab === "theme" && (
+              <ThemeTab
+                theme={themeTokens}
+                onChange={patchThemeTokens}
+                onReset={resetThemeTokens}
+              />
+            )}
+
+            {activeTab === "tabs" && (
+              <TabsTab
+                tabs={tabsConfig}
+                onChange={patchTabsConfig}
+                onReset={resetTabsConfig}
+              />
+            )}
+
+            {activeTab === "plan" && (
+              <CoursePlanTab
+                courseId={course.id}
+                chapters={chapters.map((chapter) => ({
+                  id: chapter.id,
+                  title: chapter.title,
+                  unitId: chapter.unitId ?? null,
+                }))}
+                onChaptersChanged={() => router.refresh()}
+              />
+            )}
+
+            {activeTab === "examSyllabus" && (
+              <ExamSyllabusTab
+                courseId={course.id}
+                chapters={chapters.map((chapter) => ({ id: chapter.id, title: chapter.title }))}
+              />
+            )}
+
+            {activeTab === "leads" && <CallbackLeadsTab courseId={course.id} />}
+
+            {activeTab === "sections" && (
+              <SectionsTab
+                flags={sectionFlags}
+                onFlagsChange={changeSectionFlags}
+                metadata={initialMeta}
+                heroFields={heroDraft as unknown as Record<string, unknown>}
+              />
+            )}
+
             {activeTab === "syllabus" && (
             <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
               <div className="p-5 border-b border-gray-100 flex items-center justify-between">
@@ -1469,6 +2136,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
 
                                     {/* EDIT LESSON BUTTON */}
                                     <button
+                                      data-testid="btn-edit-lesson"
                                       onClick={() => openEditLesson(lesson, chapter.id)}
                                       className="px-2.5 py-1.5 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors flex items-center gap-1 shadow-2xs"
                                       title="Edit lesson details, video, and PDF"
@@ -1531,42 +2199,112 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     teachers.map((teacher, idx) => (
                       <div key={idx} className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Faculty #{idx + 1}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteTeacher(idx)}
-                            className="text-xs font-semibold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            Remove
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-0.5">
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => handleMoveTeacher(idx, "up")}
+                                aria-label="Move instructor up"
+                                className="rounded p-1 text-gray-500 hover:bg-gray-200 disabled:opacity-30 cursor-pointer"
+                              >
+                                <ArrowUp className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={idx === teachers.length - 1}
+                                onClick={() => handleMoveTeacher(idx, "down")}
+                                aria-label="Move instructor down"
+                                className="rounded p-1 text-gray-500 hover:bg-gray-200 disabled:opacity-30 cursor-pointer"
+                              >
+                                <ArrowDown className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                            <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                              Faculty #{idx + 1}
+                            </span>
+                            {teacher.isPrimary && (
+                              <span className="rounded bg-orange-100 px-2 py-0.5 text-[10px] font-black text-orange-800 uppercase tracking-wider">
+                                Primary
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(teacher.isPrimary)}
+                                onChange={(e) => handleUpdateTeacher(idx, "isPrimary", e.target.checked)}
+                                className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                              />
+                              <span>Primary Instructor</span>
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteTeacher(idx)}
+                              className="text-xs font-semibold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Remove
+                            </button>
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                           <div>
-                            <label className="block font-bold text-gray-700 mb-1">Full Name *</label>
+                            <label className="block font-bold text-gray-700 mb-1">Full Name (English) *</label>
                             <input
                               type="text"
+                              data-testid={`input-teacher-name-${idx}`}
                               value={teacher.name || ""}
                               onChange={(e) => handleUpdateTeacher(idx, "name", e.target.value)}
-                              placeholder="e.g. Prof. Rahul Sharma"
+                              placeholder="e.g. Dr. Rajesh Sharma"
                               className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                             />
                           </div>
                           <div>
-                            <label className="block font-bold text-gray-700 mb-1">Role / Designation *</label>
+                            <label className="block font-bold text-gray-700 mb-1">Full Name (Hindi)</label>
                             <input
                               type="text"
-                              value={teacher.role || ""}
-                              onChange={(e) => handleUpdateTeacher(idx, "role", e.target.value)}
-                              placeholder="e.g. Senior Faculty & UPSC Mentor"
+                              value={teacher.nameHi || ""}
+                              onChange={(e) => handleUpdateTeacher(idx, "nameHi", e.target.value)}
+                              placeholder="e.g. डॉ. राजेश शर्मा"
                               className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                             />
                           </div>
                           <div>
-                            <label className="block font-bold text-gray-700 mb-1">Subject Specialty *</label>
+                            <label className="block font-bold text-gray-700 mb-1">Role / Designation (English) *</label>
+                            <input
+                              type="text"
+                              data-testid={`input-teacher-role-${idx}`}
+                              value={teacher.role || ""}
+                              onChange={(e) => handleUpdateTeacher(idx, "role", e.target.value)}
+                              placeholder="e.g. Senior Faculty & Mentor"
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block font-bold text-gray-700 mb-1">Role / Designation (Hindi)</label>
+                            <input
+                              type="text"
+                              value={teacher.roleHi || ""}
+                              onChange={(e) => handleUpdateTeacher(idx, "roleHi", e.target.value)}
+                              placeholder="e.g. वरिष्ठ शिक्षक एवं मेंटर"
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block font-bold text-gray-700 mb-1">Credentials (comma separated, shown under teacher name)</label>
+                            <input
+                              type="text"
+                              value={teacher.credentials || ""}
+                              onChange={(e) => handleUpdateTeacher(idx, "credentials", e.target.value)}
+                              placeholder="e.g. Subject Specialist, 10+ Yrs Experience, Ph.D, Author"
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block font-bold text-gray-700 mb-1">Subject Specialty</label>
                             <input
                               type="text"
                               value={teacher.subject || ""}
@@ -1576,36 +2314,14 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                             />
                           </div>
                           <div>
-                            <label className="block font-bold text-gray-700 mb-1">Teaching Experience</label>
-                            <input
-                              type="text"
-                              value={teacher.experience || ""}
-                              onChange={(e) => handleUpdateTeacher(idx, "experience", e.target.value)}
-                              placeholder="e.g. 12+ Years"
-                              className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                            />
-                          </div>
-                          <div>
-                            <label className="block font-bold text-gray-700 mb-1">Academic Qualifications</label>
-                            <input
-                              type="text"
-                              value={teacher.qualification || ""}
-                              onChange={(e) => handleUpdateTeacher(idx, "qualification", e.target.value)}
-                              placeholder="e.g. Ex-Civil Servant • M.A. Public Administration"
-                              className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                            />
-                          </div>
-                          <div>
                             <label className="block font-bold text-gray-700 mb-1">Avatar / Photo URL</label>
                             <div className="flex items-center gap-2">
                               {teacher.avatar && (
                                 <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-200 bg-purple-100 shrink-0 relative">
-                                  <Image
+                                  <img
                                     src={teacher.avatar}
                                     alt={teacher.name || "Teacher"}
-                                    width={32}
-                                    height={32}
-                                    className="h-full w-full object-cover"
+                                    className="w-full h-full object-cover"
                                   />
                                 </div>
                               )}
@@ -1635,13 +2351,23 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                               </label>
                             </div>
                           </div>
-                          <div className="sm:col-span-2">
-                            <label className="block font-bold text-gray-700 mb-1">Faculty Bio / Statement</label>
+                          <div>
+                            <label className="block font-bold text-gray-700 mb-1">Bio / Statement (English)</label>
                             <textarea
                               rows={2}
                               value={teacher.bio || ""}
                               onChange={(e) => handleUpdateTeacher(idx, "bio", e.target.value)}
                               placeholder="Short statement or mentoring highlights..."
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block font-bold text-gray-700 mb-1">Bio / Statement (Hindi)</label>
+                            <textarea
+                              rows={2}
+                              value={teacher.bioHi || ""}
+                              onChange={(e) => handleUpdateTeacher(idx, "bioHi", e.target.value)}
+                              placeholder="संक्षिप्त विवरण या मेंटरिंग की मुख्य बातें..."
                               className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                             />
                           </div>
@@ -1682,20 +2408,23 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     <div>
                       <label className="block font-bold text-gray-700 mb-1">Teaching Language / Medium *</label>
                       <select
+                        aria-label="Teaching Language / Medium"
                         value={language}
                         onChange={(e) => setLanguage(e.target.value)}
                         className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-semibold text-gray-800"
                       >
-                        <option value="HINGLISH">Hinglish (Hindi + English)</option>
-                        <option value="ENGLISH">English</option>
-                        <option value="HINDI">Hindi</option>
-                        <option value="BILINGUAL">Bilingual</option>
+                        {COURSE_LANGUAGES.map((lang) => (
+                          <option key={lang.value} value={lang.value}>
+                            {lang.label}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>
                       <label className="block font-bold text-gray-700 mb-1">Target Exam / Goal Audience</label>
                       <input
                         type="text"
+                        aria-label="Target Exam / Goal Audience"
                         value={targetAudience}
                         onChange={(e) => setTargetAudience(e.target.value)}
                         placeholder="e.g. Targeted for UPSC CSE 2026 Aspirants"
@@ -1867,9 +2596,31 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     faqs.map((faq, idx) => (
                       <div key={idx} className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            FAQ #{idx + 1}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-0.5">
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => handleMoveFaq(idx, "up")}
+                                aria-label="Move FAQ up"
+                                className="rounded p-1 text-gray-500 hover:bg-gray-200 disabled:opacity-30 cursor-pointer"
+                              >
+                                <ArrowUp className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={idx === faqs.length - 1}
+                                onClick={() => handleMoveFaq(idx, "down")}
+                                aria-label="Move FAQ down"
+                                className="rounded p-1 text-gray-500 hover:bg-gray-200 disabled:opacity-30 cursor-pointer"
+                              >
+                                <ArrowDown className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                            <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                              FAQ #{idx + 1}
+                            </span>
+                          </div>
                           <button
                             type="button"
                             onClick={() => handleDeleteFaq(idx)}
@@ -1880,26 +2631,51 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                           </button>
                         </div>
 
-                        <div className="space-y-2 text-xs">
-                          <div>
-                            <label className="block font-bold text-gray-700 mb-1">Question *</label>
-                            <input
-                              type="text"
-                              value={faq.question || ""}
-                              onChange={(e) => handleUpdateFaq(idx, "question", e.target.value)}
-                              placeholder="e.g. How do I access video lectures and notes after enrolling?"
-                              className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium"
-                            />
+                        <div className="space-y-3 text-xs">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-1">Question (English) *</label>
+                              <input
+                                type="text"
+                                data-testid={`input-faq-question-${idx}`}
+                                value={faq.question || ""}
+                                onChange={(e) => handleUpdateFaq(idx, "question", e.target.value)}
+                                placeholder="e.g. How do I access video lectures and notes after enrolling?"
+                                className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium"
+                              />
+                            </div>
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-1">Question (Hindi)</label>
+                              <input
+                                type="text"
+                                value={faq.questionHi || ""}
+                                onChange={(e) => handleUpdateFaq(idx, "questionHi" as any, e.target.value)}
+                                placeholder="e.g. नामांकन के बाद वीडियो और नोट्स कैसे एक्सेस करें?"
+                                className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium"
+                              />
+                            </div>
                           </div>
-                          <div>
-                            <label className="block font-bold text-gray-700 mb-1">Answer *</label>
-                            <textarea
-                              rows={2}
-                              value={faq.answer || ""}
-                              onChange={(e) => handleUpdateFaq(idx, "answer", e.target.value)}
-                              placeholder="Enter clear, helpful answer for prospective students..."
-                              className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium"
-                            />
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-1">Answer (English) *</label>
+                              <textarea
+                                rows={2}
+                                value={faq.answer || ""}
+                                onChange={(e) => handleUpdateFaq(idx, "answer", e.target.value)}
+                                placeholder="Enter clear, helpful answer for prospective students..."
+                                className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium"
+                              />
+                            </div>
+                            <div>
+                              <label className="block font-bold text-gray-700 mb-1">Answer (Hindi)</label>
+                              <textarea
+                                rows={2}
+                                value={faq.answerHi || ""}
+                                onChange={(e) => handleUpdateFaq(idx, "answerHi" as any, e.target.value)}
+                                placeholder="छात्रों के लिए स्पष्ट उत्तर दर्ज करें..."
+                                className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white font-medium"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1937,6 +2713,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   </label>
                   <input
                     type="number"
+                    aria-label="Selling Price"
                     value={price}
                     onChange={(e) => handlePriceChange(Number(e.target.value), originalPrice)}
                     className="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
@@ -1949,6 +2726,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   </label>
                   <input
                     type="number"
+                    aria-label="Original Price / MRP"
                     value={originalPrice}
                     onChange={(e) => handlePriceChange(price, Number(e.target.value))}
                     className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none"
@@ -1975,6 +2753,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     </label>
                     <input
                       type="text"
+                      aria-label="Coupon Code"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                       placeholder="OFF50"
@@ -1987,6 +2766,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     </label>
                     <input
                       type="number"
+                      aria-label="Discount Percentage"
                       value={couponDiscount}
                       onChange={(e) => setCouponDiscount(Number(e.target.value))}
                       className="w-full px-2.5 py-1.5 text-xs font-bold rounded-xl border border-gray-200"
@@ -2077,7 +2857,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     type="text"
                     value={demoTopic}
                     onChange={(e) => setDemoTopic(e.target.value)}
-                    placeholder="e.g. 72nd BPSC Prelims Strategy & Trend Analysis"
+                    placeholder="e.g. Strategy & Trend Analysis for the upcoming attempt"
                     className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   />
                 </div>
@@ -2219,6 +2999,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                       </label>
                       <input
                         type="datetime-local"
+                        aria-label="Start Date and Time"
                         value={newSlotDateTime}
                         onChange={(e) => setNewSlotDateTime(e.target.value)}
                         className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
@@ -2229,6 +3010,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         <label className="text-[10px] font-bold text-gray-600 mb-0.5 block">Duration (Mins)</label>
                         <input
                           type="number"
+                          aria-label="Duration in minutes"
                           min="15"
                           max="180"
                           value={newSlotDuration}
@@ -2240,6 +3022,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         <label className="text-[10px] font-bold text-gray-600 mb-0.5 block">Max Audience</label>
                         <input
                           type="number"
+                          aria-label="Max Audience"
                           min="10"
                           max="1000"
                           value={newSlotMaxAudience}
@@ -2275,14 +3058,14 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     <div className="min-w-0 flex-1 pr-2">
                       <span className="text-[10px] font-black text-blue-700 block uppercase tracking-wider">Facebook Ads</span>
                       <span className="text-[11px] font-mono text-gray-700 truncate block">
-                        {typeof window !== "undefined" ? `${window.location.origin}/courses/${slug}?utm_source=facebook&utm_campaign=demo_ads` : `/courses/${slug}?utm_source=facebook`}
+                        {origin ? `${origin}/courses/${slug}?utm_source=facebook&utm_campaign=demo_ads` : `/courses/${slug}?utm_source=facebook`}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
                         if (typeof window !== "undefined") {
-                          navigator.clipboard.writeText(`${window.location.origin}/courses/${slug}?utm_source=facebook&utm_campaign=demo_ads`)
+                          navigator.clipboard.writeText(`${origin || window.location.origin}/courses/${slug}?utm_source=facebook&utm_campaign=demo_ads`)
                           setCopiedVariant("fb")
                           setTimeout(() => setCopiedVariant(null), 2000)
                         }
@@ -2298,14 +3081,14 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     <div className="min-w-0 flex-1 pr-2">
                       <span className="text-[10px] font-black text-pink-700 block uppercase tracking-wider">Instagram Ads</span>
                       <span className="text-[11px] font-mono text-gray-700 truncate block">
-                        {typeof window !== "undefined" ? `${window.location.origin}/courses/${slug}?utm_source=instagram&utm_campaign=demo_ads` : `/courses/${slug}?utm_source=instagram`}
+                        {origin ? `${origin}/courses/${slug}?utm_source=instagram&utm_campaign=demo_ads` : `/courses/${slug}?utm_source=instagram`}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
                         if (typeof window !== "undefined") {
-                          navigator.clipboard.writeText(`${window.location.origin}/courses/${slug}?utm_source=instagram&utm_campaign=demo_ads`)
+                          navigator.clipboard.writeText(`${origin || window.location.origin}/courses/${slug}?utm_source=instagram&utm_campaign=demo_ads`)
                           setCopiedVariant("ig")
                           setTimeout(() => setCopiedVariant(null), 2000)
                         }
@@ -2321,14 +3104,14 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                     <div className="min-w-0 flex-1 pr-2">
                       <span className="text-[10px] font-black text-gray-600 block uppercase tracking-wider">Standard Direct Link</span>
                       <span className="text-[11px] font-mono text-gray-700 truncate block">
-                        {typeof window !== "undefined" ? `${window.location.origin}/courses/${slug}` : `/courses/${slug}`}
+                        {origin ? `${origin}/courses/${slug}` : `/courses/${slug}`}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
                         if (typeof window !== "undefined") {
-                          navigator.clipboard.writeText(`${window.location.origin}/courses/${slug}`)
+                          navigator.clipboard.writeText(`${origin || window.location.origin}/courses/${slug}`)
                           setCopiedVariant("base")
                           setTimeout(() => setCopiedVariant(null), 2000)
                         }
@@ -2383,7 +3166,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   required
                   value={chapterTitle}
                   onChange={(e) => setChapterTitle(e.target.value)}
-                  placeholder="e.g. Bihar Special Governance"
+                  placeholder="e.g. Modern History, Budget & Economy, Weekly Revision"
                   className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                 />
               </div>
@@ -2842,7 +3625,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                 <div className="pt-2 border-t border-sky-100 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="w-12 h-7 rounded bg-gray-200 overflow-hidden border border-amber-300 shrink-0">
-                      <Image src={thumbnailUrl || "/placeholder-course.svg"} alt="" width={48} height={28} className="h-full w-full object-cover" />
+                      <img src={thumbnailUrl || "/placeholder-course.svg"} alt="" className="w-full h-full object-cover" />
                     </div>
                     <div className="min-w-0">
                       <span className="text-[11px] font-bold text-sky-950 block truncate">Video Player Poster Thumbnail</span>
@@ -2982,12 +3765,27 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                 <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer">
                   <input
                     type="checkbox"
+                    data-testid="input-lesson-is-trial"
                     checked={isTrial}
                     onChange={(e) => setIsTrial(e.target.checked)}
                     className="rounded text-orange-600 focus:ring-orange-500"
                   />
                   <span>Mark as Free Trial Lesson (Students can preview this without buying bundle)</span>
                 </label>
+              </div>
+
+              {/* Scheduled Date/Time */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Scheduled Date &amp; Time (IST)
+                </label>
+                <input
+                  type="datetime-local"
+                  data-testid="input-lesson-scheduled-at"
+                  value={lessonScheduledAt}
+                  onChange={(e) => setLessonScheduledAt(e.target.value)}
+                  className="w-full px-3 py-2 text-xs border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                />
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
@@ -3000,6 +3798,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                 </button>
                 <button
                   type="submit"
+                  data-testid="btn-save-edit-lesson"
                   className="px-4 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-xl shadow-sm"
                 >
                   Save Changes
@@ -3037,12 +3836,10 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
 
             {/* Live Preview Card */}
             <div className="relative w-full aspect-video rounded-xl overflow-hidden border-2 border-orange-200 bg-gray-900 shadow-inner group">
-              <Image
+              <img
                 src={thumbnailInputUrl || thumbnailUrl || "/placeholder-course.svg"}
                 alt="Video Thumbnail Preview"
-                fill
-                sizes="(max-width: 768px) 100vw, 640px"
-                className="object-cover"
+                className="w-full h-full object-cover"
                 onError={(e: any) => {
                   e.currentTarget.src = "/placeholder-course.svg"
                 }}
@@ -3244,6 +4041,147 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Unified Live Preview Modal (renders public CourseDetailV2 in real-time from draft state) */}
+      <CourseLivePreviewModal
+        isOpen={showLivePreview}
+        onClose={() => setShowLivePreview(false)}
+        title={title || "Studio Live Preview"}
+        viewModel={previewViewModel}
+      />
+
+      {/* Template Picker Modal */}
+      {showTemplateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-2xl w-full border border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[85dvh]">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-orange-600" />
+                  Select Course Template
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Pre-populate your course form with realistic examples or start completely blank.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTemplateModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto space-y-3">
+              {COURSE_TEMPLATES.map((tpl) => (
+                <div
+                  key={tpl.id}
+                  onClick={() => handleApplyTemplate(tpl)}
+                  className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-orange-500 hover:bg-orange-50/30 dark:hover:bg-orange-950/20 cursor-pointer transition-all flex items-start justify-between gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">
+                        {tpl.name}
+                      </span>
+                      {tpl.id === "blank" && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                          Recommended Default
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">{tpl.description}</p>
+                    <div className="flex flex-wrap gap-2 pt-1 text-[11px] text-gray-500">
+                      <span>Category: <strong>{tpl.template.technology}</strong></span>
+                      <span>•</span>
+                      <span>Price: <strong>{tpl.template.price === 0 ? "Free" : `₹${tpl.template.price.toLocaleString("en-IN")}`}</strong></span>
+                      <span>•</span>
+                      <span>Language: <strong>{tpl.template.language}</strong></span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-400 border border-orange-200 dark:border-orange-800"
+                  >
+                    Apply
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Completeness Checklist Modal */}
+      {showCompletenessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-lg w-full border border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[85dvh]">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  Course Completeness Checklist
+                </h3>
+                <p className="text-xs text-gray-500">
+                  {completeness.completedCount} of {completeness.total} specification checks completed ({completeness.percent}%)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCompletenessModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto space-y-3">
+              <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                <div
+                  className="bg-orange-600 h-2.5 transition-all duration-300"
+                  style={{ width: `${completeness.percent}%` }}
+                />
+              </div>
+              <div className="space-y-2 pt-2">
+                {completeness.checks.map((c: any, i: number) => (
+                  <div
+                    key={i}
+                    className={`p-3 rounded-xl border flex items-start gap-3 ${
+                      c.ok
+                        ? "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-900 dark:text-emerald-200"
+                        : "bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
+                    }`}
+                  >
+                    {c.ok ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                    )}
+                    <div className="text-xs">
+                      <div className="font-bold">{c.label}</div>
+                      <div className="text-[11px] opacity-80">{c.hint}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {completeness.hasZeroLectures && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Warning: This course has 0 lectures. Add curriculum before publishing.</span>
+                </div>
+              )}
+            </div>
+            <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowCompletenessModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

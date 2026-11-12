@@ -335,7 +335,7 @@ export default function MobileAuthModal() {
 
                     {/* Bottom Terms */}
                     <p className="text-[11px] text-center text-gray-400 leading-relaxed pt-2 border-t border-gray-100">
-                        By proceeding, you agree to AspirantBook&apos;s Terms of Service &amp; Privacy Policy.
+                        By proceeding, you agree to our Terms of Service &amp; Privacy Policy.
                     </p>
                 </div>
             </div>

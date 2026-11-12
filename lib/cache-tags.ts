@@ -17,6 +17,7 @@ import { revalidateTag } from "next/cache"
  *   content-engine   lib/modules/content-engine/db-service (public questions)
  *   batches          lib/batches-service
  *   exam-series      lib/exam-tests, lib/exam-packages
+ *   course-syllabus  lib/courses/syllabus (per-course exam-syllabus view)
  */
 export const CACHE_TAGS = {
   courses: "courses",
@@ -28,6 +29,7 @@ export const CACHE_TAGS = {
   contentEngine: "content-engine",
   batches: "batches",
   examSeries: "exam-series",
+  courseSyllabus: "course-syllabus",
 } as const
 
 export type CacheTag = (typeof CACHE_TAGS)[keyof typeof CACHE_TAGS]

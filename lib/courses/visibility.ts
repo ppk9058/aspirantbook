@@ -44,9 +44,23 @@ export function isCourseVisibleToUser(
 }
 
 export function isCourseDetailReady(course: {
+  schemaVersion?: number | null
+  units?: Array<any> | null
   chapters?: Array<{ lessons?: Array<any> | null }> | null
+  metadataJson?: string | null
 } | null | undefined): boolean {
-  if (!course || !course.chapters || course.chapters.length === 0) {
+  if (!course) return false
+
+  let isV2 = (course as any).schemaVersion === 2 || ((course.units?.length || 0) > 0)
+  if (!isV2 && course.metadataJson) {
+    try {
+      const parsed = JSON.parse(course.metadataJson)
+      if (parsed.schemaVersion === 2) isV2 = true
+    } catch {}
+  }
+  if (isV2) return true
+
+  if (!course.chapters || course.chapters.length === 0) {
     return false
   }
   return course.chapters.some((ch) => ch.lessons && ch.lessons.length > 0)

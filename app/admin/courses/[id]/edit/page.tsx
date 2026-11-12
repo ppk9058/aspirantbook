@@ -19,6 +19,9 @@ export default async function CourseEditPage({
         course = await prisma.course.findUnique({
             where: { id: id },
             include: {
+                units: {
+                    orderBy: { order: "asc" },
+                },
                 chapters: {
                     include: {
                         lessons: {

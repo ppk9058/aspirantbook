@@ -10,15 +10,21 @@
 export interface SafeLessonDto {
   id: string
   title: string
+  /** Hindi title — public metadata, never gated. */
+  titleHi?: string | null
   type: string
   duration?: number | null
   durationText?: string | null
   order: number
   isTrial: boolean
   chapterId?: string
+  /** Scheduled class time — public metadata (no media). */
+  scheduledAt?: Date | string | null
   // Sensitive content fields - only present if viewer has access OR lesson is a trial lesson
   videoUrl?: string | null
   content?: string | null
+  /** Hindi twin of `content`; gated exactly like the English field. */
+  contentHi?: string | null
   attachmentType?: string | null
   attachmentName?: string | null
   attachmentUrl?: string | null
@@ -27,16 +33,24 @@ export interface SafeLessonDto {
 export interface SafeChapterDto {
   id: string
   title: string
+  titleHi?: string | null
   order: number
   courseId?: string
+  unitId?: string | null
+  subtopics?: string[]
+  subtopicsHi?: string[]
   lessons: SafeLessonDto[]
 }
 
 export interface SafeCourseDto {
   id: string
   title: string
+  titleHi?: string | null
+  subtitle?: string | null
+  subtitleHi?: string | null
   slug: string
   description?: string | null
+  descriptionHi?: string | null
   thumbnailUrl?: string | null
   price?: number | null
   originalPrice?: number | null
@@ -73,12 +87,14 @@ export function toSafeLessonDto(
   const safe: SafeLessonDto = {
     id: rawLesson.id,
     title: rawLesson.title,
+    titleHi: rawLesson.titleHi ?? null,
     type: rawLesson.type || "VIDEO",
     duration: rawLesson.duration ?? null,
     durationText: rawLesson.durationText ?? null,
     order: rawLesson.order ?? 0,
     isTrial,
     chapterId: rawLesson.chapterId,
+    scheduledAt: rawLesson.scheduledAt ?? null,
   }
 
   // Free text tutorials are public by spec: lesson content is readable by guests and logged-in users alike.
@@ -91,8 +107,10 @@ export function toSafeLessonDto(
 
   if (allowContent) {
     safe.content = rawLesson.content ?? null
+    safe.contentHi = rawLesson.contentHi ?? null
   } else {
     safe.content = null
+    safe.contentHi = null
   }
 
   if (isUnlocked) {
@@ -135,8 +153,12 @@ export function toSafeChapterDto(
   return {
     id: rawChapter.id,
     title: rawChapter.title,
+    titleHi: rawChapter.titleHi ?? null,
     order: rawChapter.order ?? 0,
     courseId: rawChapter.courseId,
+    unitId: rawChapter.unitId ?? null,
+    subtopics: Array.isArray(rawChapter.subtopics) ? rawChapter.subtopics : [],
+    subtopicsHi: Array.isArray(rawChapter.subtopicsHi) ? rawChapter.subtopicsHi : [],
     gateMode: rawChapter.gateMode || "inherit",
     previewPercentage: rawChapter.previewPercentage,
     lessons: Array.isArray(rawChapter.lessons)
@@ -190,8 +212,12 @@ export function toSafeCourseDto(
   return {
     id: rawCourse.id,
     title: rawCourse.title,
+    titleHi: rawCourse.titleHi ?? null,
+    subtitle: rawCourse.subtitle ?? null,
+    subtitleHi: rawCourse.subtitleHi ?? null,
     slug: rawCourse.slug,
     description: rawCourse.description ?? null,
+    descriptionHi: rawCourse.descriptionHi ?? null,
     thumbnailUrl: rawCourse.thumbnailUrl ?? null,
     price: rawCourse.price ?? null,
     originalPrice: rawCourse.originalPrice ?? null,
