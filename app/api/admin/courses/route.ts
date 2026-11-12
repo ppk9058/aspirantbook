@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { creatorIdFor } from "@/lib/auth/course-access"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 
 export async function POST(req: Request) {
   try {
@@ -253,6 +254,10 @@ export async function POST(req: Request) {
           }
         }
       }
+
+      // The new course's syllabus is a fresh cache key, but drop the tagged
+      // syllabus read (lib/courses/syllabus.ts) so nothing stale can survive.
+      safeRevalidateTags(CACHE_TAGS.courseSyllabus)
     }
 
     const fullCourse = await prisma.course.findUnique({

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { requireManagedCourse } from "@/lib/auth/course-access-server"
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags"
 
 export const dynamic = "force-dynamic"
 
@@ -12,6 +13,14 @@ export const dynamic = "force-dynamic"
  * taxonomy (`pyqSubject` → ContentEngineQuestion.sub, `pyqTopic` → .top) so the
  * public page can show real per-year question counts instead of invented ones.
  */
+
+/**
+ * Every write here changes the view served by the tagged syllabus read
+ * (lib/courses/syllabus.ts, tag "course-syllabus"), so drop that tag.
+ */
+function invalidateSyllabus() {
+  safeRevalidateTags(CACHE_TAGS.courseSyllabus)
+}
 
 const VALID_INCLUDE = ["paper", "section"] as const
 
@@ -105,6 +114,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         order: (highest?.order || 0) + 1,
       },
     })
+    invalidateSyllabus()
     return NextResponse.json(paper, { status: 201 })
   }
 
@@ -138,6 +148,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       order: (highest?.order || 0) + 1,
     },
   })
+  invalidateSyllabus()
   return NextResponse.json(section, { status: 201 })
 }
 
@@ -167,6 +178,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...(body?.order !== undefined ? { order: Number(body.order) } : {}),
       },
     })
+    invalidateSyllabus()
     return NextResponse.json(paper)
   }
 
@@ -192,6 +204,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body?.order !== undefined ? { order: Number(body.order) } : {}),
     },
   })
+  invalidateSyllabus()
   return NextResponse.json(section)
 }
 
@@ -211,6 +224,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     })
     if (!existing) return NextResponse.json({ error: "Section not found" }, { status: 404 })
     await prisma.courseSyllabusSection.delete({ where: { id: sectionId } })
+    invalidateSyllabus()
     return NextResponse.json({ success: true })
   }
 
@@ -218,6 +232,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const existing = await prisma.courseSyllabusPaper.findFirst({ where: { id: paperId, courseId: id }, select: { id: true } })
     if (!existing) return NextResponse.json({ error: "Paper not found" }, { status: 404 })
     await prisma.courseSyllabusPaper.delete({ where: { id: paperId } })
+    invalidateSyllabus()
     return NextResponse.json({ success: true })
   }
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserContext } from "@/lib/auth/rbac";
 import { creatorIdFor } from "@/lib/auth/course-access";
+import { CACHE_TAGS, safeRevalidateTags } from "@/lib/cache-tags";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -140,6 +141,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           },
         });
       }
+    }
+
+    if (original.syllabusPapers.length > 0) {
+      // The copied syllabus is a fresh per-course cache key, but keep the
+      // tagged syllabus read (lib/courses/syllabus.ts) from serving a stale
+      // empty view for the new course.
+      safeRevalidateTags(CACHE_TAGS.courseSyllabus);
     }
 
     return NextResponse.json({

@@ -103,7 +103,7 @@ describe("Exam Metrics & Single Source of Truth Tests", () => {
 
 describe("Exam Labels & Enums Formatting Tests", () => {
   test("formatTestType maps test types correctly", () => {
-    assert.equal(formatTestType("FULL_MOCK"), "Full Test")
+    assert.equal(formatTestType("FULL_MOCK"), "Full Mock")
     assert.equal(formatTestType("SECTIONAL"), "Sectional Test")
     assert.equal(formatTestType("CHAPTER"), "Chapter Quiz")
     assert.equal(formatTestType("PYQ"), "Previous Year Paper")

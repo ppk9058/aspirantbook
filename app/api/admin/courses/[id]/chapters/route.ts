@@ -62,42 +62,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 }
 
-export async function PUT(req: Request) {
-  try {
-    const user = await getCurrentUserContext()
-    if (!user.isAuthenticated || (user.role !== "ADMIN" && user.role !== "TEACHER")) {
-      return NextResponse.json({ error: "Access Denied" }, { status: 403 })
-    }
-
-    const body = await req.json()
-    if (!body.chapterId || !body.title) {
-      return NextResponse.json({ error: "Chapter ID and title are required" }, { status: 400 })
-    }
-
-    // A8: ownership is resolved from the chapter's course.
-    const access = await requireManagedChapter(user, body.chapterId)
-    if (access.response) return access.response
-
-    const updated = await prisma.chapter.update({
-      where: { id: body.chapterId },
-      data: {
-        title: body.title.trim(),
-        order: body.order !== undefined ? Number(body.order) : undefined,
-      },
-      include: {
-        lessons: true,
-      },
-    })
-
-    invalidateCourseContent(access.course.slug)
-    return NextResponse.json(updated)
-  } catch (error: any) {
-    console.error("PUT /api/admin/courses/[id]/chapters error:", error)
-    return NextResponse.json({ error: error.message || "Failed to update chapter" }, { status: 500 })
-  }
-}
-
-export async function PATCH(req: Request) {
+/**
+ * Shared by PUT (full title/order update) and PATCH (additive studio fields):
+ * both validate ownership the same way and must drop the cached course reads,
+ * so they run through one implementation with one invalidation call.
+ */
+async function updateChapter(req: Request, mode: "replace" | "patch") {
   try {
     const user = await getCurrentUserContext()
     if (!user.isAuthenticated || (user.role !== "ADMIN" && user.role !== "TEACHER")) {
@@ -106,52 +76,81 @@ export async function PATCH(req: Request) {
 
     const body = await req.json()
     if (!body.chapterId) {
-      return NextResponse.json({ error: "Chapter ID is required" }, { status: 400 })
+      return NextResponse.json(
+        { error: mode === "replace" ? "Chapter ID and title are required" : "Chapter ID is required" },
+        { status: 400 }
+      )
+    }
+    if (mode === "replace" && !body.title) {
+      return NextResponse.json({ error: "Chapter ID and title are required" }, { status: 400 })
     }
 
+    // A8: ownership is resolved from the chapter's course.
     const access = await requireManagedChapter(user, body.chapterId)
     if (access.response) return access.response
 
     const data: any = {}
-    if (body.titleHi !== undefined) data.titleHi = body.titleHi?.toString().trim().slice(0, 200) || null
-    if (body.subtopics !== undefined) {
-      data.subtopics = Array.isArray(body.subtopics)
-        ? body.subtopics.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 20)
-        : []
-    }
-    if (body.subtopicsHi !== undefined) {
-      data.subtopicsHi = Array.isArray(body.subtopicsHi)
-        ? body.subtopicsHi.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 20)
-        : []
-    }
-    if (body.unitId !== undefined) {
-      if (body.unitId) {
-        const course = await prisma.chapter.findUnique({
-          where: { id: body.chapterId },
-          select: { courseId: true },
-        })
-        const unit = await prisma.courseUnit.findFirst({
-          where: { id: String(body.unitId), courseId: course?.courseId || "" },
-          select: { id: true },
-        })
-        if (!unit) return NextResponse.json({ error: "Unit not found for this course" }, { status: 404 })
-        data.unitId = unit.id
-      } else {
-        data.unitId = null
+    if (mode === "replace") {
+      data.title = body.title.trim()
+      if (body.order !== undefined) data.order = Number(body.order)
+    } else {
+      if (body.titleHi !== undefined) data.titleHi = body.titleHi?.toString().trim().slice(0, 200) || null
+      if (body.subtopics !== undefined) {
+        data.subtopics = Array.isArray(body.subtopics)
+          ? body.subtopics.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 20)
+          : []
+      }
+      if (body.subtopicsHi !== undefined) {
+        data.subtopicsHi = Array.isArray(body.subtopicsHi)
+          ? body.subtopicsHi.map((s: unknown) => String(s).trim()).filter(Boolean).slice(0, 20)
+          : []
+      }
+      if (body.unitId !== undefined) {
+        if (body.unitId) {
+          const course = await prisma.chapter.findUnique({
+            where: { id: body.chapterId },
+            select: { courseId: true },
+          })
+          const unit = await prisma.courseUnit.findFirst({
+            where: { id: String(body.unitId), courseId: course?.courseId || "" },
+            select: { id: true },
+          })
+          if (!unit) return NextResponse.json({ error: "Unit not found for this course" }, { status: 404 })
+          data.unitId = unit.id
+        } else {
+          data.unitId = null
+        }
+      }
+
+      if (Object.keys(data).length === 0) {
+        return NextResponse.json({ error: "Nothing to update" }, { status: 400 })
       }
     }
 
-    if (Object.keys(data).length === 0) {
-      return NextResponse.json({ error: "Nothing to update" }, { status: 400 })
-    }
+    const updated = await prisma.chapter.update({
+      where: { id: body.chapterId },
+      data,
+      ...(mode === "replace" ? { include: { lessons: true } } : {}),
+    })
 
-    const updated = await prisma.chapter.update({ where: { id: body.chapterId }, data })
     invalidateCourseContent(access.course.slug)
     return NextResponse.json(updated)
   } catch (error: any) {
-    console.error("PATCH /api/admin/courses/[id]/chapters error:", error)
-    return NextResponse.json({ error: error.message || "Failed to update chapter" }, { status: 500 })
+    const method = mode === "replace" ? "PUT" : "PATCH"
+    console.error(`${method} /api/admin/courses/[id]/chapters error:`, error)
+    return NextResponse.json(
+      { error: error.message || "Failed to update chapter" },
+      { status: 500 }
+    )
   }
+}
+
+export async function PUT(req: Request) {
+  return updateChapter(req, "replace")
+}
+
+export async function PATCH(req: Request) {
+  return updateChapter(req, "patch")
 }
 
 export async function DELETE(req: Request) {
