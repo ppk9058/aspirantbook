@@ -13,7 +13,7 @@ name: Email Outbox Worker (Disabled Stub)
 
 jobs:
   process-email-outbox:
-    runs-on: [self-hosted, macOS, ARM64, mac-ci]
+    runs-on: ubuntu-latest
     # if: false # STUB: was explicitly disabled before the file was renamed
     steps:
       - name: Trigger Email Outbox Worker Route
