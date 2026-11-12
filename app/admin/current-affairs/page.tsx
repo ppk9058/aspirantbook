@@ -14,9 +14,7 @@ export default async function AdminCurrentAffairsPage() {
   const role = session.user.role
   const userId = session.user.id
 
-  const where: any = {
-    status: { not: "ARCHIVED" },
-  }
+  const where: any = {}
 
   if (role === "TEACHER") {
     where.createdById = userId

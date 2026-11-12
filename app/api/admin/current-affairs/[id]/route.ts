@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
+import { writeDualAuditLog } from "@/lib/exam/audit-helper"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -32,7 +34,7 @@ export async function GET(
       },
     })
 
-    if (!item || item.status === "ARCHIVED") {
+    if (!item) {
       return NextResponse.json({ error: "Document not found" }, { status: 404 })
     }
 
@@ -73,7 +75,7 @@ export async function PUT(
       where: { id },
     })
 
-    if (!existing || existing.status === "ARCHIVED") {
+    if (!existing) {
       return NextResponse.json({ error: "Document not found" }, { status: 404 })
     }
 
@@ -176,6 +178,17 @@ export async function PUT(
       },
     })
 
+    await writeDualAuditLog({
+      actorId: user.userId || "unknown",
+      action: "UPDATE",
+      targetId: id,
+      entityType: "CURRENT_AFFAIRS",
+      details: { title: existing.title, updateData },
+    })
+
+    revalidatePath("/admin/current-affairs")
+    revalidatePath("/current-affairs")
+
     return NextResponse.json({ success: true, data: updated })
   } catch (error: any) {
     console.error("Error updating Current Affairs PDF:", error)
@@ -204,7 +217,7 @@ export async function DELETE(
       where: { id },
     })
 
-    if (!existing || existing.status === "ARCHIVED") {
+    if (!existing) {
       return NextResponse.json({ error: "Document not found" }, { status: 404 })
     }
 
@@ -217,11 +230,22 @@ export async function DELETE(
       )
     }
 
-    // Soft delete only - never delete from DB or disk
+    // Soft delete only - archive status preserves records
     const updated = await prisma.currentAffairsPdf.update({
       where: { id },
       data: { status: "ARCHIVED" },
     })
+
+    await writeDualAuditLog({
+      actorId: user.userId || "unknown",
+      action: "ARCHIVE",
+      targetId: id,
+      entityType: "CURRENT_AFFAIRS",
+      details: { title: existing.title },
+    })
+
+    revalidatePath("/admin/current-affairs")
+    revalidatePath("/current-affairs")
 
     return NextResponse.json({
       success: true,
