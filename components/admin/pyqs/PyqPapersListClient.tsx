@@ -21,6 +21,7 @@ import {
   Upload,
 } from "lucide-react"
 import { GateControlPanel } from "@/components/admin/authwall/GateControlPanel"
+import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
 
 interface Paper {
   id: string
@@ -399,15 +400,38 @@ export function PyqPapersListClient({
                         {paper.year}
                       </span>
                       {paper.paperPdfUrl && (
-                        <a
-                          href={paper.paperPdfUrl}
+                        <Link
+                          href={buildPdfReaderHref({
+                            src: paper.paperPdfUrl,
+                            downloadUrl: paper.paperPdfUrl,
+                            title: paper.title,
+                            subtitle: `${paper.category.name} • ${paper.year}`,
+                            badge: "PYQ Paper",
+                          })}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                           className="text-[11px] text-orange-600 hover:text-orange-700 flex items-center gap-1 font-medium"
                         >
                           <FileText className="w-3 h-3" />
                           View PDF
-                        </a>
+                        </Link>
+                      )}
+                      {paper.solutionPdfUrl && (
+                        <Link
+                          href={buildPdfReaderHref({
+                            src: paper.solutionPdfUrl,
+                            downloadUrl: paper.solutionPdfUrl,
+                            title: `${paper.title} — Solution Key`,
+                            subtitle: `${paper.category.name} • ${paper.year}`,
+                            badge: "Solution Key",
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-blue-600 hover:text-blue-700 flex items-center gap-1 font-medium"
+                        >
+                          <FileText className="w-3 h-3" />
+                          Solution PDF
+                        </Link>
                       )}
                     </div>
                   </td>
@@ -448,9 +472,9 @@ export function PyqPapersListClient({
                   {/* Pricing & Mode */}
                   <td className="py-3.5 px-4 whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
-                      {paper.accessType === "PAID" ? (
+                      {paper.accessType === "PAID" || paper.accessType === "PASS_ONLY" ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                          <Lock className="w-3 h-3 text-amber-600" />₹{paper.unlockPrice}
+                          <Lock className="w-3 h-3 text-amber-600" />Pass
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">

@@ -4,11 +4,22 @@ import { Video, Headphones, CalendarCheck, Award, ArrowRight, Sparkles, BookOpen
 import ClassesCoursesSection from "@/components/home/ClassesCoursesSection"
 import HomeHeaderUserCTA from "@/components/home/HomeHeaderUserCTA"
 import HomeLogoLink from "@/components/home/HomeLogoLink"
+import LandingMobileNav from "@/components/home/LandingMobileNav"
+import MobileNativeBottomBar from "@/components/layout/MobileNativeBottomBar"
 import Footer from "@/components/layout/Footer"
+import GlobalSearchButton from "@/components/layout/GlobalSearchButton"
+import LandingStatsStrip from "@/components/landing/LandingStatsStrip"
+import LandingPassSection from "@/components/landing/LandingPassSection"
+import LandingWhySection from "@/components/landing/LandingWhySection"
+import LandingStep3Section from "@/components/landing/LandingStep3Section"
+import LandingStep4Section from "@/components/landing/LandingStep4Section"
 import { LANDING_NAV_ITEMS } from "@/lib/navigation/landing-nav"
 import { getBaseUrl, safeJsonLdStringify } from "@/lib/seo/core"
+import { hasRealBatchesAvailable } from "@/lib/home/has-real-batches"
+import { resolveAnchorHref } from "@/lib/home/real-batches"
+import { auth } from "@/auth"
 
-export const revalidate = 60
+export const revalidate = 60 // Revalidate every 60s
 
 // Colourful, mobile-first value pillars. One accent per pillar keeps the grid
 // vibrant without inventing any metrics or fake numbers.
@@ -50,20 +61,19 @@ const AUDIENCE_CHIPS = [
     { label: "Coding Skills", className: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/15 dark:text-fuchsia-300 dark:border-fuchsia-500/30" },
 ] as const
 
-const navTint = (href: string) =>
-    href === "/courses"
-        ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-500/15 dark:text-orange-300 dark:border-orange-500/30"
-        : href === "/test-series"
-        ? "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-300 dark:border-indigo-500/30"
-        : href === "/tutorials"
-        ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30"
-        : "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/30"
-
 export default async function LandingHomePage() {
     // C1: no `auth()` here. Reading the session on the server made this route
     // dynamic and defeated `revalidate = 60`; the two pieces of the header that
     // depend on the session now read it on the client.
     const baseUrl = getBaseUrl()
+    const hasRealBatches = await hasRealBatchesAvailable()
+    
+    // Get session for bottom nav pass status
+    const session = await auth()
+    const hasActivePass = Boolean(
+        session?.user?.subscriptionStatus === "ACTIVE" ||
+        session?.user?.role === "PREMIUM"
+    )
     const homeJsonLd = baseUrl
         ? {
               "@context": "https://schema.org",
@@ -71,7 +81,7 @@ export default async function LandingHomePage() {
                   {
                       "@type": "Organization",
                       "@id": `${baseUrl}/#organization`,
-                      "name": "aspirantbook",
+                      "name": "AspirantBook",
                       "url": baseUrl,
                       "logo": {
                           "@type": "ImageObject",
@@ -82,7 +92,7 @@ export default async function LandingHomePage() {
                       "@type": "WebSite",
                       "@id": `${baseUrl}/#website`,
                       "url": baseUrl,
-                      "name": "aspirantbook",
+                      "name": "AspirantBook",
                       "publisher": {
                           "@id": `${baseUrl}/#organization`,
                       },
@@ -97,7 +107,7 @@ export default async function LandingHomePage() {
         : null
 
     return (
-        <div className="min-h-dvh bg-white text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900 dark:bg-gray-950 dark:text-gray-50">
+        <div className="min-h-dvh bg-white text-gray-900 font-sans antialiased selection:bg-orange-100 selection:text-orange-900 dark:bg-gray-950 dark:text-gray-50 pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
             {homeJsonLd && (
                 <script
                     type="application/ld+json"
@@ -107,9 +117,12 @@ export default async function LandingHomePage() {
 
             {/* Top Navigation Bar — sticky, compact on phones */}
             <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-lg dark:border-white/10 dark:bg-gray-950/85">
-                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:h-20 sm:px-8">
-                    {/* Brand Logo */}
-                    <HomeLogoLink />
+                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-3 sm:h-20 sm:gap-3 sm:px-8">
+                    {/* Mobile hamburger (below lg) + Brand Logo */}
+                    <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                        <LandingMobileNav />
+                        <HomeLogoLink />
+                    </div>
 
                     {/* Desktop Menu Links */}
                     <nav className="hidden items-center gap-5 text-sm font-semibold lg:gap-7 md:flex">
@@ -140,33 +153,13 @@ export default async function LandingHomePage() {
                         })}
                     </nav>
 
-                    {/* Right Login / User State CTA */}
-                    <div className="flex flex-shrink-0 items-center gap-3">
+                    {/* Right: Search + Login / User State CTA */}
+                    <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2">
+                        <GlobalSearchButton />
                         <HomeHeaderUserCTA />
                     </div>
                 </div>
             </header>
-
-            {/* Mobile Sub-Navigation — colourful, scrollable chips (scrolls away, not sticky) */}
-            <div
-                data-scroll-x="true"
-                className="md:hidden flex items-center gap-2 overflow-x-auto border-b border-gray-100 bg-gray-50/80 px-4 py-2.5 no-scrollbar dark:border-white/10 dark:bg-gray-900/60"
-            >
-                {LANDING_NAV_ITEMS.map((item) => (
-                    <Link
-                        key={item.name}
-                        href={item.href}
-                        className={`flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-transform active:scale-95 ${navTint(item.href)}`}
-                    >
-                        <span>{item.name}</span>
-                        {item.badge && (
-                            <span className="rounded-full bg-white/70 px-1.5 text-[9px] font-black dark:bg-white/10">
-                                {item.badge}
-                            </span>
-                        )}
-                    </Link>
-                ))}
-            </div>
 
             {/* Main Hero Section */}
             <main className="relative overflow-hidden">
@@ -201,7 +194,7 @@ export default async function LandingHomePage() {
                             </h1>
 
                             <p className="max-w-xl text-base leading-relaxed text-gray-600 sm:text-lg dark:text-gray-300">
-                                Let&apos;s start learning and excel in GS, Current Affairs, CSAT, Coding Skills, Math, Science &amp; English.
+                                Let&apos;s start learning and excel in GS, Current Affairs, CSAT for UPSC, BPSC &amp; UPPSC
                             </p>
 
                             {/* Audience chips — real product lines only */}
@@ -218,19 +211,19 @@ export default async function LandingHomePage() {
 
                             {/* Primary + secondary actions */}
                             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
-                                <a
-                                    href="#all-courses-container"
-                                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#F26522] to-rose-500 px-8 py-3.5 text-base font-extrabold text-white shadow-lg shadow-orange-500/25 transition-all duration-200 hover:from-[#E05310] hover:to-rose-600 hover:shadow-xl active:scale-95 sm:text-lg"
-                                >
-                                    <span>View Learning Programs</span>
-                                    <ArrowRight className="h-5 w-5 stroke-[2.5]" />
-                                </a>
                                 <Link
-                                    href="/courses"
+                                    href="/register"
+                                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-green-600 hover:bg-green-700 px-8 py-3.5 text-base font-extrabold text-white shadow-lg shadow-green-600/25 transition-all duration-200 hover:shadow-xl active:scale-95 sm:text-lg"
+                                >
+                                    <span>Get Started for Free</span>
+                                    <ArrowRight className="h-5 w-5 stroke-[2.5]" />
+                                </Link>
+                                <Link
+                                    href="/test-series?goal=upsc,bpsc"
                                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-indigo-200 bg-white/70 px-6 py-3.5 text-sm font-bold text-indigo-700 transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50 active:scale-95 sm:text-base dark:border-indigo-500/30 dark:bg-transparent dark:text-indigo-300 dark:hover:bg-indigo-500/10"
                                 >
                                     <BookOpen className="h-5 w-5" />
-                                    <span>Explore All Courses</span>
+                                    <span>Explore Test Series</span>
                                 </Link>
                             </div>
                         </div>
@@ -239,7 +232,7 @@ export default async function LandingHomePage() {
                         <div className="flex justify-center lg:col-span-5 lg:justify-end">
                             <div className="relative mx-auto aspect-square w-full max-w-[300px] sm:max-w-[380px] lg:max-w-[420px]">
                                 {/* Organic multi-colour circle background */}
-                                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-orange-200 via-amber-100 to-rose-200 dark:from-orange-500/25 dark:via-amber-500/15 dark:to-rose-500/25" />
+                                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-100 via-sky-50 to-blue-200 dark:from-blue-900/25 dark:via-sky-900/15 dark:to-blue-900/25" />
                                 <Image
                                     src="/curious-hero-child.svg"
                                     alt="Child learning on a device"
@@ -274,11 +267,21 @@ export default async function LandingHomePage() {
                 </div>
             </main>
 
+            {/* Reference Landing Sections: Stats strip, Pass, Why, Step 3, Step 4 */}
+            <LandingStatsStrip />
+            <LandingPassSection />
+            <LandingWhySection />
+            <LandingStep3Section />
+            <LandingStep4Section />
+
             {/* Class 6 to 12 & Skills Batches Section */}
             <ClassesCoursesSection />
 
             {/* Footer with Legal & Policies */}
             <Footer />
+            
+            {/* Mobile Bottom Navigation (phones only) */}
+            <MobileNativeBottomBar hasActivePass={hasActivePass} />
         </div>
     )
 }

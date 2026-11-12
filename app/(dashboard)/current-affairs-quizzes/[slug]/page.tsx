@@ -33,7 +33,7 @@ import { adaptCurrentAffairsQuizSeo } from "@/lib/seo/adapters/current-affairs"
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const quiz = await findQuizBySlug(slug)
-  if (!quiz) return { title: "Quiz Not Found | aspirantbook" }
+  if (!quiz) return { title: "Quiz Not Found | AspirantBook" }
 
   const canonicalSlug = getQuizSlug(quiz)
   return adaptCurrentAffairsQuizSeo(quiz, canonicalSlug).metadata
@@ -85,7 +85,7 @@ export default async function CurrentAffairsQuizSlugPage({ params }: Props) {
     educationalLevel: "Competitive Examination (UPSC, BPSC, SSC)",
     provider: {
       "@type": "Organization",
-      name: "aspirantbook",
+      name: "AspirantBook",
       url: baseUrl,
     },
     learningResourceType: "Quiz",

@@ -715,7 +715,7 @@ export default function EditPackageModal({
               </div>
 
               <div className="p-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#071d33] space-y-2">
-                <span className="text-xs font-bold block">TrillionPass Inclusion</span>
+                <span className="text-xs font-bold block">AspirantBook Pass Inclusion</span>
                 <label className="flex items-center gap-2 cursor-pointer text-xs">
                   <input
                     type="checkbox"
@@ -726,7 +726,7 @@ export default function EditPackageModal({
                     }}
                     className="rounded text-[#00A8FF] h-4 w-4"
                   />
-                  <span>Included in TrillionPass</span>
+                  <span>Included in AspirantBook Pass</span>
                 </label>
                 <p className="text-[10px] text-gray-400">
                   Subscribers get full access automatically.

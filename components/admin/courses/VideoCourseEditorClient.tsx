@@ -49,6 +49,7 @@ import {
   Monitor,
 } from "lucide-react"
 import { COURSE_TEMPLATES, type CourseTemplate } from "@/lib/courses/templates"
+import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
 import { CourseCouponsManager } from "./CourseCouponsManager"
 import { HeroDetailsTab } from "./studio/HeroDetailsTab"
 import { CoursePlanTab } from "./studio/CoursePlanTab"
@@ -3424,14 +3425,20 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <a
-                          href={attachmentUrl}
+                        <Link
+                          href={buildPdfReaderHref({
+                            src: attachmentUrl,
+                            downloadUrl: attachmentUrl,
+                            title: attachmentName || "Lesson Attachment",
+                            subtitle: course.title,
+                            badge: "Lesson Attachment",
+                          })}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-[11px] text-indigo-600 hover:underline"
                         >
                           View
-                        </a>
+                        </Link>
                         <button
                           type="button"
                           onClick={() => {
@@ -3700,14 +3707,20 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <a
-                          href={attachmentUrl}
+                        <Link
+                          href={buildPdfReaderHref({
+                            src: attachmentUrl,
+                            downloadUrl: attachmentUrl,
+                            title: attachmentName || "Lesson Attachment",
+                            subtitle: course.title,
+                            badge: "Lesson Attachment",
+                          })}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-[11px] text-indigo-600 hover:underline"
                         >
                           View
-                        </a>
+                        </Link>
                         <button
                           type="button"
                           onClick={() => {

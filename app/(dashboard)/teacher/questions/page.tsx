@@ -16,6 +16,7 @@ import {
   Search,
 } from "lucide-react"
 import Image from "next/image"
+import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
 
 interface Doubt {
   id: string
@@ -268,6 +269,20 @@ export default function TeacherQuestionsPage() {
                         Zoom Attachment
                       </div>
                     </div>
+                  ) : doubt.attachment.type === "pdf" ? (
+                    <Link
+                      href={buildPdfReaderHref({
+                        src: doubt.attachment.url,
+                        downloadUrl: doubt.attachment.url,
+                        title: doubt.attachment.name || "Doubt Attachment",
+                        subtitle: `Doubt • ${doubt.subject} (${doubt.studentName})`,
+                        badge: "Doubt Attachment",
+                      })}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:border-[#1448d8]"
+                    >
+                      <FileText className="w-4 h-4 text-red-500" />
+                      <span>{doubt.attachment.name}</span>
+                    </Link>
                   ) : (
                     <a
                       href={doubt.attachment.url}

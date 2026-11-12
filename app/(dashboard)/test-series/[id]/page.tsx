@@ -20,7 +20,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
     const { id: seriesId } = await params
     if (seriesId === "current-affairs-system-series" || seriesId === "pyq-system-series") {
-        return { title: "Test Series | TrillionSkill" }
+        return { title: "Test Series | AspirantBook" }
     }
 
     const series = await prisma.examSeries.findFirst({
@@ -41,7 +41,7 @@ export async function generateMetadata({
     })
 
     if (!series) {
-        return { title: "Test Series Not Found | TrillionSkill" }
+        return { title: "Test Series Not Found | AspirantBook" }
     }
 
     return adaptTestSeriesDetailSeo(series).metadata

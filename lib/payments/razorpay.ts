@@ -12,12 +12,6 @@ export const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_
     })
     : null
 
-// Plan prices in INR
-export const RAZORPAY_PLANS = {
-    MONTHLY: 1499, // ₹1,499/month (~$19)
-    YEARLY: 14999, // ₹14,999/year (~$190, 17% discount)
-}
-
 export async function createRazorpayOrder({
     amount,
     currency = "INR",

@@ -29,7 +29,7 @@ export async function GET(_req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="trillionskill-tests-export-${Date.now()}.csv"`,
+        "Content-Disposition": `attachment; filename="aspirantbook-tests-export-${Date.now()}.csv"`,
       },
     })
   } catch (error: any) {

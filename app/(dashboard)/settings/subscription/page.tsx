@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar, CreditCard, Download } from "lucide-react"
 import Link from "next/link"
+import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 
 export default async function SubscriptionPage() {
     const session = await auth()
@@ -64,9 +65,11 @@ export default async function SubscriptionPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-2xl font-bold">{activeSubscription.plan}</h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        {activeSubscription.plan === "MONTHLY" ? "$19/month" : "$190/year"}
-                                    </p>
+                                    {SHOW_PREMIUM_PLAN && (
+                                        <p className="text-sm text-muted-foreground">
+                                            {activeSubscription.plan === "MONTHLY" ? "$19/month" : "$190/year"}
+                                        </p>
+                                    )}
                                 </div>
                                 <Badge variant={activeSubscription.status === "ACTIVE" ? "default" : "destructive"}>
                                     {activeSubscription.status}
@@ -95,9 +98,11 @@ export default async function SubscriptionPage() {
                             </div>
 
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-4">
-                                <Link href="/pricing">
-                                    <Button variant="outline">Change Plan</Button>
-                                </Link>
+                                {SHOW_PREMIUM_PLAN && (
+                                    <Link href="/pricing">
+                                        <Button variant="outline">Change Plan</Button>
+                                    </Link>
+                                )}
                                 <a
                                     href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "contact.aspirantbook@gmail.com"}?subject=${encodeURIComponent(`Plan help - ${activeSubscription.plan || "Pass"}`)}`}
                                     className="inline-flex items-center justify-center text-center min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground border border-border hover:bg-muted/50 transition-colors"
@@ -112,9 +117,23 @@ export default async function SubscriptionPage() {
                             <p className="text-muted-foreground mb-4">
                                 You're currently on the free plan
                             </p>
-                            <Link href="/pricing">
-                                <Button>Get Pass</Button>
-                            </Link>
+                            {SHOW_PREMIUM_PLAN ? (
+                                <Link href="/pricing">
+                                    <Button>Get Pass</Button>
+                                </Link>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    Products are priced individually.{" "}
+                                    <Link href="/pricing" className="text-primary hover:underline">
+                                        See pricing
+                                    </Link>{" "}
+                                    or{" "}
+                                    <Link href="/dashboard" className="text-primary hover:underline">
+                                        go to your dashboard
+                                    </Link>
+                                    .
+                                </p>
+                            )}
                         </div>
                     )}
                 </CardContent>

@@ -55,10 +55,9 @@ export default function HomeHeaderUserCTA({ initialSession }: HomeHeaderUserCTAP
                 <Link
                     href="/login"
                     prefetch={true}
-                    className="inline-flex min-h-11 shrink-0 items-center rounded-xl border-2 border-[#F26522] px-3 text-xs font-bold whitespace-nowrap text-[#F26522] transition-all duration-200 hover:bg-[#F26522] hover:text-white active:scale-95 sm:px-5 sm:text-sm dark:border-orange-400 dark:text-orange-300 dark:hover:bg-orange-500 dark:hover:text-white"
+                    className="inline-flex min-h-11 shrink-0 items-center rounded-xl bg-green-600 px-3 text-xs font-extrabold whitespace-nowrap text-white shadow-lg shadow-green-600/25 transition-all duration-200 hover:bg-green-700 hover:shadow-xl active:scale-95 sm:px-5 sm:text-sm"
                 >
-                    <span>Login</span>
-                    <span className="hidden sm:inline">/Register</span>
+                    <span>Get Started</span>
                 </Link>
             )}
         </div>

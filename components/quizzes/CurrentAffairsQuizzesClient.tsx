@@ -34,9 +34,7 @@ import { GoalSelectorBar } from "@/components/goals/GoalSelectorBar"
 import { applyQuizGoalFilter } from "@/lib/goals/goal-filters"
 import { getQuizSlug } from "@/lib/current-affairs/slugs"
 import { useBatchUserStatus } from "@/lib/exam/batched-user-status"
-import dynamic from "next/dynamic"
-
-const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
+import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
 
 const MONTHS = [
   "January",
@@ -122,10 +120,6 @@ export default function CurrentAffairsQuizzesClient({
   const [pdfYear, setPdfYear] = useState<string>("ALL")
   const [pdfMonth, setPdfMonth] = useState<string>("ALL")
   const [pdfLang, setPdfLang] = useState<"ALL" | "EN" | "HI">("ALL")
-
-  // In-app PDF Viewer Modal state
-  const [viewerDoc, setViewerDoc] = useState<CurrentAffairsPdfDoc | null>(null)
-  const [viewerLang, setViewerLang] = useState<"en" | "hi">("en")
 
   // Quizzes state
   const [dbQuizzes, setDbQuizzes] = useState<QuizItem[]>([])
@@ -230,13 +224,6 @@ export default function CurrentAffairsQuizzesClient({
     )
   }
 
-  // PDF view handling (permitted for guests)
-  const handlePdfView = (doc: CurrentAffairsPdfDoc, preferredLang: "en" | "hi") => {
-    const lang = preferredLang === "hi" && doc.pdfUrlHi ? "hi" : "en"
-    setViewerDoc(doc)
-    setViewerLang(lang)
-  }
-
   // "My Quiz History" click handling
   const handleMyQuizHistory = (e: React.MouseEvent) => {
     if (isGuest) {
@@ -308,35 +295,35 @@ export default function CurrentAffairsQuizzesClient({
     : "/admin/test-series/create?type=CURRENT_AFFAIRS"
 
   return (
-    <div className="space-y-10 pb-16">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#003B73] via-[#005B96] to-[#00A896] text-white p-6 sm:p-8 shadow-xl">
+    <div className="space-y-6 pb-16">
+      {/* Hero Header: 180 to 200px target */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#003B73] via-[#005B96] to-[#00A896] text-white p-5 sm:p-6 shadow-xl min-h-[180px]">
         <div className="absolute top-0 right-0 w-80 h-80 bg-teal-400/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-10 left-1/3 w-60 h-60 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-xs border border-white/20 text-xs font-bold uppercase tracking-wider text-teal-200">
               <Flame className="w-3.5 h-3.5 text-amber-300 fill-amber-300 animate-pulse" />
               <span>Current Affairs Command Center</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
               Current Affairs &amp; Quizzes
             </h1>
-            <p className="text-sm text-white/85 leading-relaxed">
+            <p className="text-xs sm:text-sm text-white/85 leading-relaxed">
               Stay ahead with curated monthly PDF digests, daily speed mocks, and bilingual practice
               tests designed for UPSC, BPSC, SSC, and State PSC examinations.
             </p>
           </div>
 
           {/* Action Buttons: Teacher/Admin gets Upload & Create; Guest/Student gets My Quiz History */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
             {isTeacherOrAdmin && (
               <>
                 <Link
                   href={uploadPdfHref}
                   data-testid="btn-upload-monthly-pdf"
-                  className="px-4 py-2.5 rounded-xl bg-white text-teal-800 font-bold text-xs sm:text-sm hover:bg-teal-50 transition-all shadow-md flex items-center justify-center gap-2"
+                  className="px-4 py-2 rounded-xl bg-white text-teal-800 font-bold text-xs sm:text-sm hover:bg-teal-50 transition-all shadow-md flex items-center justify-center gap-2 min-h-[40px]"
                 >
                   <Upload className="w-4 h-4 text-teal-600" />
                   <span>Upload Monthly PDF</span>
@@ -344,7 +331,7 @@ export default function CurrentAffairsQuizzesClient({
                 <Link
                   href={createQuizHref}
                   data-testid="btn-create-ca-quiz"
-                  className="px-4 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-white font-bold text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2"
+                  className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-white font-bold text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 min-h-[40px]"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create CA Quiz</span>
@@ -356,7 +343,7 @@ export default function CurrentAffairsQuizzesClient({
               href="/my-tests"
               onClick={handleMyQuizHistory}
               data-testid="btn-my-quiz-history"
-              className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 backdrop-blur-xs"
+              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 backdrop-blur-xs min-h-[40px]"
             >
               <Award className="w-4 h-4 text-amber-300" />
               <span>My Quiz History</span>
@@ -364,8 +351,8 @@ export default function CurrentAffairsQuizzesClient({
           </div>
         </div>
 
-        {/* Quick Highlights Bar */}
-        <div className="mt-6 pt-5 border-t border-white/15 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        {/* Quick Highlights Bar: ~56px height */}
+        <div className="mt-4 pt-3 border-t border-white/15 grid grid-cols-2 md:grid-cols-4 gap-2 text-center min-h-[56px] items-center">
           <div>
             <span className="text-xl sm:text-2xl font-black text-white">{pdfs.length}</span>
             <p className="text-[11px] text-white/70 uppercase font-semibold">Monthly Digests</p>
@@ -385,10 +372,10 @@ export default function CurrentAffairsQuizzesClient({
         </div>
       </div>
 
-      {/* Goal Selector */}
+      {/* Goal Selector - thin strip on one row */}
       <GoalSelectorBar
         title="Target Exams & Focus"
-        subtitle="Filter quizzes and materials tailored for your target exams"
+        compact={true}
       />
 
       {/* SECTION 1: Monthly Current Affairs PDFs */}
@@ -470,10 +457,9 @@ export default function CurrentAffairsQuizzesClient({
 
         {/* PDF Cards Grid */}
         {filteredPdfs.length === 0 ? (
-          <div className="text-center py-12 px-4 rounded-2xl border border-border bg-card">
-            <FileText className="w-10 h-10 text-muted-foreground mx-auto mb-2 opacity-40" />
-            <h4 className="text-sm font-bold text-foreground">No Current Affairs PDFs match filters</h4>
-            <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+          <div className="text-center py-4 px-4 rounded-2xl border border-border bg-card min-h-[110px] flex flex-col items-center justify-center">
+            <h4 className="text-xs sm:text-sm font-bold text-foreground">No Current Affairs PDFs match filters</h4>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
               Try adjusting the year, month, language, or search query.
             </p>
             <button
@@ -483,7 +469,7 @@ export default function CurrentAffairsQuizzesClient({
                 setPdfMonth("ALL")
                 setPdfLang("ALL")
               }}
-              className="mt-3 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground"
+              className="mt-2 px-3 py-1 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               Reset Filters
             </button>
@@ -542,14 +528,20 @@ export default function CurrentAffairsQuizzesClient({
 
                   {/* Actions: View & Download */}
                   <div className="mt-5 pt-3 border-t border-border flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => handlePdfView(doc, doc.pdfUrlEn ? "en" : "hi")}
+                    <Link
+                      href={buildPdfReaderHref({
+                        src: `/api/current-affairs/file/${doc.id}?lang=${doc.pdfUrlEn ? "en" : "hi"}`,
+                        downloadUrl: `/api/current-affairs/file/${doc.id}?lang=${doc.pdfUrlEn ? "en" : "hi"}&download=1`,
+                        title: doc.title,
+                        subtitle: `${MONTHS[doc.month - 1]} ${doc.year}`,
+                        badge: "Current Affairs Magazine",
+                      })}
                       data-testid={`btn-view-pdf-${doc.id}`}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold border border-border bg-background hover:bg-muted transition-colors text-foreground"
                     >
                       <Eye className="w-3.5 h-3.5 text-muted-foreground" />
                       <span>View PDF</span>
-                    </button>
+                    </Link>
 
                     <div className="flex items-center gap-1">
                       {doc.pdfUrlEn && (
@@ -585,23 +577,21 @@ export default function CurrentAffairsQuizzesClient({
 
       {/* SECTION 2: Current Affairs Quizzes (CBT) */}
       <section className="space-y-6 pt-6 border-t border-border" data-testid="section-ca-quizzes">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-teal-500/10 text-teal-600">
-                <FileQuestion className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
-                Current Affairs Quizzes &amp; CBT Tests
-              </h2>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-teal-500/10 text-teal-600">
+              <FileQuestion className="w-5 h-5" />
             </div>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Test your knowledge with daily speed mocks and time-bound sectionals with real exam CBT analytics.
-            </p>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+              Current Affairs Quizzes &amp; CBT Tests
+            </h2>
           </div>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Test your knowledge with daily speed mocks and time-bound sectionals with real exam CBT analytics.
+          </p>
 
-          {/* Horizontal Category Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+          {/* Horizontal Category Filter Pills on their own row to prevent clipping */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 w-full">
             {[
               { id: "all", label: "All Quizzes" },
               { id: "daily", label: "Daily Speed Tests" },
@@ -613,7 +603,7 @@ export default function CurrentAffairsQuizzesClient({
                 <button
                   key={tab.id}
                   onClick={() => setActiveQuizTab(tab.id as any)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 min-h-[36px] ${
                     isSelected
                       ? "bg-teal-600 text-white shadow-xs"
                       : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -770,8 +760,8 @@ export default function CurrentAffairsQuizzesClient({
                       )}
                     </div>
 
-                    {/* Meta Row: Questions, Time, Marks */}
-                    <div className="pt-2 grid grid-cols-3 gap-2 py-2 border-y border-border text-center">
+                    {/* Meta Row: Questions, Time, Marks (12 to 16px internal gap) */}
+                    <div className="mt-3 pt-2 grid grid-cols-3 gap-2 py-2 border-y border-border text-center">
                       <div>
                         <span className="text-xs font-black text-foreground">
                           {quiz.questions}
@@ -799,23 +789,26 @@ export default function CurrentAffairsQuizzesClient({
                     </div>
                   </div>
 
-                  {/* Footer Action */}
-                  <div className="mt-5 pt-3 flex items-center justify-between gap-3">
+                  {/* Footer Action: stacks on phones so the CTA is full width and cannot sit under the floating AI button */}
+                  <div className="mt-5 pt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
                     <span className="text-[11px] font-semibold text-muted-foreground">
                       {typeof quiz.attempts === "number"
                         ? `${quiz.attempts.toLocaleString()} attempted`
                         : null}
                     </span>
-                    <TestActionButton
-                      testId={quiz.id}
-                      seriesId={targetSeriesId}
-                      testTitle={quiz.title}
-                      status={userStatuses[quiz.id]}
-                      customStartUrl={`/current-affairs-quizzes/${quizSlug}/instructions`}
-                      returnPath={`/current-affairs-quizzes/${quizSlug}`}
-                      isGuest={isGuest}
-                      size="sm"
-                    />
+                    <div className="w-full sm:w-auto">
+                      <TestActionButton
+                        testId={quiz.id}
+                        seriesId={targetSeriesId}
+                        testTitle={quiz.title}
+                        status={userStatuses[quiz.id]}
+                        customStartUrl={`/current-affairs-quizzes/${quizSlug}/instructions`}
+                        returnPath={`/current-affairs-quizzes/${quizSlug}`}
+                        isGuest={isGuest}
+                        size="sm"
+                        className="w-full sm:w-auto"
+                      />
+                    </div>
                   </div>
                 </div>
               )
@@ -823,21 +816,6 @@ export default function CurrentAffairsQuizzesClient({
           </div>
         )}
       </section>
-
-      {/* In-App PDF Preview Modal using shared SecurePdfViewer */}
-      {viewerDoc && (
-        <SecurePdfViewer
-          testId="ca-pdf-preview-modal"
-          isOpen={Boolean(viewerDoc)}
-          onClose={() => setViewerDoc(null)}
-          src={`/api/current-affairs/file/${viewerDoc.id}?lang=${viewerLang}`}
-          title={viewerDoc.title}
-          subtitle={`${MONTHS[viewerDoc.month - 1]} ${viewerDoc.year} • Preview Mode`}
-          downloadUrl={`/api/current-affairs/file/${viewerDoc.id}?lang=${viewerLang}&download=1`}
-          downloadAllowed={true}
-          badgeLabel="Current Affairs Magazine"
-        />
-      )}
     </div>
   )
 }

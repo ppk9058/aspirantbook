@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { formatCount } from "@/lib/utils"
 import {
     Play,
     Clock,
@@ -171,12 +172,6 @@ function ExamBadge({ logoType }: { logoType: string }) {
     )
 }
 
-const WEAK_TOPICS = [
-    { topic: "Constitutional Amendments & Emergency Provisions", subject: "Polity", accuracy: 38, mistakes: 8, recAction: "Review Articles 352–360" },
-    { topic: "Modern Indian History – Tribal Revolts (1857–1947)", subject: "History", accuracy: 44, mistakes: 6, recAction: "Read NCERT Class 12 Ch. 8" },
-    { topic: "Clocks, Calendars & Speed-Time-Distance", subject: "Reasoning", accuracy: 48, mistakes: 5, recAction: "Practice 15 Speed Drills" },
-]
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function MyTestsHubClient({
     inProgressTests,
@@ -217,7 +212,27 @@ export default function MyTestsHubClient({
     const bestRank = recentAttempts.length ? Math.min(...recentAttempts.map((a) => a.rank)) : 0
 
     return (
-        <div className="space-y-8 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <div className="space-y-6 sm:space-y-8 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+
+            {/* ══════════════════════════════════════════════════════════════
+                PAGE HEADER: Unified name "My Tests" (3.9)
+            ══════════════════════════════════════════════════════════════ */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                        My Tests
+                    </h1>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Continue in-progress mock exams, access enrolled test series, and track your performance.
+                    </p>
+                </div>
+                <Link
+                    href="/test-series"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold transition-all min-h-[40px] sm:min-h-[44px] self-start sm:self-auto shrink-0 shadow-2xs"
+                >
+                    Browse Test Series
+                </Link>
+            </div>
 
             {/* ══════════════════════════════════════════════════════════════
                 SECTION 1 — TEST IN PROGRESS
@@ -301,7 +316,7 @@ export default function MyTestsHubClient({
                         href="/test-series"
                         className="text-xs font-bold text-teal-700 dark:text-teal-400 hover:underline"
                     >
-                        Browse all →
+                        Browse Test Series →
                     </Link>
                 </div>
 
@@ -320,7 +335,7 @@ export default function MyTestsHubClient({
                             <button
                                 type="button"
                                 onClick={(e) => handleAuthAction(e, "/my-tests")}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs transition-colors min-h-[44px]"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs transition-colors min-h-[44px]"
                             >
                                 <LogIn className="w-4 h-4" />
                                 Login with Mobile
@@ -330,7 +345,7 @@ export default function MyTestsHubClient({
                                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors min-h-[44px]"
                             >
                                 <Compass className="w-4 h-4" />
-                                Browse Catalog
+                                Browse Test Series
                             </Link>
                         </div>
                     </div>
@@ -448,6 +463,7 @@ export default function MyTestsHubClient({
             {/* ══════════════════════════════════════════════════════════════
                 SECTION 3 — PERFORMANCE HUB  (matching attached image)
             ══════════════════════════════════════════════════════════════ */}
+            {!isGuest && (
             <section
                 className="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-6"
                 aria-labelledby="heading-perf"
@@ -473,7 +489,7 @@ export default function MyTestsHubClient({
                         className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-sm shadow-md transition-all min-h-[44px]"
                     >
                         <Play className="w-4 h-4 fill-current" />
-                        Take More Mocks
+                        Browse Test Series
                     </Link>
                 </div>
 
@@ -541,8 +557,8 @@ export default function MyTestsHubClient({
                     {(["ATTEMPTS", "WEAK_AREAS", "BOOKMARKS"] as const).map((tab) => {
                         const labels: Record<string, string> = {
                             ATTEMPTS: `Attempted (${recentAttempts.length})`,
-                            WEAK_AREAS: `Weak Areas (${WEAK_TOPICS.length})`,
-                            BOOKMARKS: "Bookmarks (14)",
+                            WEAK_AREAS: "Weak Areas",
+                            BOOKMARKS: "Bookmarks",
                         }
                         return (
                             <button
@@ -582,7 +598,7 @@ export default function MyTestsHubClient({
                                     Login with Mobile
                                 </button>
                                 <Link href="/test-series" className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold min-h-[44px]">
-                                    Take a Mock Test
+                                    Browse Test Series
                                 </Link>
                             </div>
                         </div>
@@ -594,7 +610,7 @@ export default function MyTestsHubClient({
                                 Attempt a mock test to see your score, percentile, and All-India Rank here.
                             </p>
                             <Link href="/test-series" className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold min-h-[44px]">
-                                Take a Mock Test
+                                Browse Test Series
                             </Link>
                         </div>
                     ) : (
@@ -734,46 +750,13 @@ export default function MyTestsHubClient({
 
                 {/* TAB: Weak Areas */}
                 {perfTab === "WEAK_AREAS" && (
-                    recentAttempts.length === 0 ? (
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-10 text-center">
-                            <Sparkles className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto mb-3" />
-                            <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No weak areas identified yet</p>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Attempt tests for AI to diagnose your knowledge gaps.</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            <div className="rounded-2xl border border-amber-400/30 bg-amber-500/5 p-4 flex items-start gap-3">
-                                <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                                <div>
-                                    <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">AI Knowledge Gap Diagnostic</h4>
-                                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
-                                        Analyzed your test attempts — here are sub-topics where you lost marks due to negative marking or conceptual gaps.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {WEAK_TOPICS.map((item, i) => (
-                                    <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <span className="px-2 py-0.5 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-[10px] font-black uppercase">
-                                                Accuracy: {item.accuracy}%
-                                            </span>
-                                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">{item.subject}</span>
-                                        </div>
-                                        <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-snug">{item.topic}</h4>
-                                        <p className="text-xs text-red-600 dark:text-red-400">Lost marks on {item.mistakes} questions</p>
-                                        <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-xs">
-                                            <p className="font-bold text-slate-700 dark:text-slate-300">Action:</p>
-                                            <p className="text-slate-600 dark:text-slate-400 mt-0.5">{item.recAction}</p>
-                                        </div>
-                                        <Link href="/test-series" className="block text-center py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors min-h-[40px] flex items-center justify-center">
-                                            Practice Drills →
-                                        </Link>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-10 text-center">
+                        <Sparkles className="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto mb-3" />
+                        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No weak areas identified yet</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+                            Complete full-length mock tests to generate automated subject-level diagnostics and weak-area analysis.
+                        </p>
+                    </div>
                 )}
 
                 {/* TAB: Bookmarks */}
@@ -783,8 +766,8 @@ export default function MyTestsHubClient({
                             <Bookmark className="w-7 h-7" />
                         </div>
                         <div className="max-w-sm mx-auto">
-                            <h3 className="text-sm font-black text-slate-900 dark:text-white">14 Bookmarked Questions</h3>
-                            <p className="text-xs text-slate-500 mt-1">Questions you bookmarked during CBT attempts, saved for quick revision.</p>
+                            <h3 className="text-sm font-black text-slate-900 dark:text-white">No bookmarked questions yet</h3>
+                            <p className="text-xs text-slate-500 mt-1">Questions you bookmark during CBT test attempts and reviews will appear here for fast revision.</p>
                         </div>
                         {recentAttempts.length > 0 ? (
                             <Link href={recentAttempts[0].solutionUrl} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors min-h-[44px]">
@@ -793,13 +776,14 @@ export default function MyTestsHubClient({
                             </Link>
                         ) : (
                             <Link href="/test-series" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-colors min-h-[44px]">
-                                Attempt a Test to View Solutions
+                                Attempt a Test
                                 <ChevronRight className="w-4 h-4" />
                             </Link>
                         )}
                     </div>
                 )}
             </section>
+            )}
 
             {/* ══════════════════════════════════════════════════════════════
                 SECTION 4 — BROWSE TESTS
@@ -812,7 +796,7 @@ export default function MyTestsHubClient({
                             <h2 id="heading-browse" className="text-base font-black text-slate-900 dark:text-white mt-0.5">Browse Test Series</h2>
                         </div>
                         <Link href="/test-series" className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 dark:text-sky-400 hover:underline">
-                            Full Catalog <ArrowRight className="w-3.5 h-3.5" />
+                            Browse Test Series <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                     </div>
 
@@ -822,13 +806,13 @@ export default function MyTestsHubClient({
                                 <div className="flex items-center justify-between">
                                     <ExamBadge logoType={item.logoType} />
                                     <span className="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-black">
-                                        {item.isPro ? `${item.freeTests} Free Sample` : `${item.freeTests} Free`}
+                                        {item.freeTests > 0 ? `${item.freeTests} Free` : "No free tests"}
                                     </span>
                                 </div>
                                 <div className="flex-1">
                                     <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase">{item.category}</span>
                                     <h3 className="text-xs font-extrabold text-slate-900 dark:text-white line-clamp-2 mt-0.5">{item.title}</h3>
-                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{item.totalTests} tests{item.users ? ` • ${item.users} enrolled` : ""}</p>
+                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">{formatCount(item.totalTests, "test")}{item.users ? ` • ${formatCount(item.users, "user")} enrolled` : ""}</p>
                                 </div>
                                 <Link href={item.url} className="w-full inline-flex items-center justify-center gap-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-700 dark:hover:bg-emerald-700 text-slate-800 dark:text-slate-200 hover:text-white text-xs font-bold transition-all min-h-[44px]">
                                     Explore <ChevronRight className="w-3.5 h-3.5" />

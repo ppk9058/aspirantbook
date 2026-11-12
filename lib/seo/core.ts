@@ -11,9 +11,9 @@ let hasLoggedMissingSiteUrlWarning = false
 
 /**
  * Shared site name constant for SEO and JSON-LD schemas.
- * Defaults to "aspirantbook", overridable via NEXT_PUBLIC_SITE_NAME environment variable.
+ * Defaults to "AspirantBook", overridable via NEXT_PUBLIC_SITE_NAME environment variable.
  */
-export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "aspirantbook"
+export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "AspirantBook"
 
 /**
  * Returns canonical site origin dynamically from environment variables:
@@ -221,7 +221,7 @@ export function buildArticleJsonLd(opts: {
     ...(opts.dateModified ? { dateModified: opts.dateModified } : {}),
     author: {
       "@type": "Organization",
-      name: opts.authorName || "TrillionSkill",
+      name: opts.authorName || "AspirantBook",
     },
   }
 }

@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { BookCheck, FileText, CheckCircle2 } from "lucide-react-native";
 import { FlashList } from "@shopify/flash-list";
+import { AppShell } from "../../components/shell/AppShell";
 import { Card } from "@/components/common/Card";
 import { Skeleton } from "@/components/common/Skeleton";
 import { api } from "@/lib/api";
@@ -68,7 +69,7 @@ export default function LibraryScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <AppShell testID="library-tab-screen">
       <View style={styles.header}>
         <Text style={styles.screenTitle}>My Library</Text>
         <Text style={styles.screenSubtitle}>
@@ -108,7 +109,7 @@ export default function LibraryScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </AppShell>
   );
 }
 
@@ -192,6 +193,8 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     borderRadius: 8,
     marginLeft: 10,
+    minHeight: 44,
+    justifyContent: "center",
   },
   readBtnText: {
     fontSize: 12,

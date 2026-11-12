@@ -1,7 +1,8 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ShieldCheck, Lock, Trash2, Heart, FileText } from "lucide-react"
+import { ShieldCheck, Lock, Trash2, Heart, FileText, Info, CreditCard } from "lucide-react"
+import BrandLogo from "@/components/brand/BrandLogo"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -12,18 +13,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Column */}
           <div className="space-y-3 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5">
-              <Image
-                src="/aspirant-logo-square.jpg"
-                alt="aspirantbook"
-                width={32}
-                height={32}
-                className="rounded-lg object-cover"
-              />
-              <span className="font-black text-lg tracking-tight text-slate-950 dark:text-white">
-                aspirantbook
-              </span>
-            </Link>
+            <BrandLogo size="md" href="/" />
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               Empowering competitive exam aspirants with CBT mock series, expert live classes, and digital reading resources.
             </p>
@@ -64,6 +54,18 @@ export default function Footer() {
               Legal &amp; Compliance
             </h4>
             <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+              <li>
+                <Link href="/about" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5 text-amber-600" />
+                  <span>About Us</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Pricing</span>
+                </Link>
+              </li>
               <li>
                 <Link href="/privacy" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
@@ -117,8 +119,10 @@ export default function Footer() {
         </div>
 
         <div className="pt-8 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>&copy; {currentYear} aspirantbook. All rights reserved.</p>
-          <div className="flex items-center gap-4">
+          <p>&copy; {currentYear} AspirantBook. All rights reserved.</p>
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-2">
+            <Link href="/about" className="hover:underline">About us</Link>
+            <Link href="/pricing" className="hover:underline">Pricing</Link>
             <Link href="/privacy" className="hover:underline">Privacy</Link>
             <Link href="/terms" className="hover:underline">Terms</Link>
             <Link href="/refund" className="hover:underline">Refunds</Link>

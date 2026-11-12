@@ -41,7 +41,7 @@ export function PublicHeader({ lang = "en" }: { lang?: "en" | "hi" }) {
             href="/"
             className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:inline-block"
           >
-            TrillionSkill Home
+            AspirantBook Home
           </Link>
         </div>
       </div>

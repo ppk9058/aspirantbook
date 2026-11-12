@@ -113,7 +113,7 @@ test.describe("Step 5: Get Pass Now / Buy Now in Production Mode Browser", () =>
     const rzpOpts = await page.evaluate(() => (window as any).__lastRazorpayOpts)
 
     expect(rzpOpts).toBeDefined()
-    expect(rzpOpts.name).toBe("aspirantbook")
+    expect(rzpOpts.name).toBe("AspirantBook")
     expect(rzpOpts.description).toContain("PREMIUM PASS")
     expect(rzpOpts.theme?.color).toBe("#1448d8")
     expect(rzpOpts.image).toContain("/aspirant-logo.jpg")

@@ -31,6 +31,7 @@ import { EmptyState } from "../../../src/components/primitives/EmptyState";
 import { ErrorState } from "../../../src/components/primitives/ErrorState";
 import { useTheme } from "../../theme/ThemeProvider";
 import { api } from "../../lib/api";
+import { pluralize } from "../../lib/formatters";
 import { PyqExamDto, PyqPaperDto } from "@aspirantbook/shared";
 
 const EMPTY_PAPERS: PyqPaperDto[] = [];
@@ -107,7 +108,7 @@ export default function PyqsScreen() {
 
       {paper.totalQuestions && (
         <Text style={[styles.cardMeta, { color: colors.textSecondary }]}>
-          {paper.totalQuestions} Questions • Official Paper
+          {pluralize(paper.totalQuestions, "Question")} • Official Paper
         </Text>
       )}
 

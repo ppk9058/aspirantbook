@@ -48,11 +48,19 @@ export async function GET(
       isOwner,
     })
 
+    // Strip raw storage URLs unless the viewer is ADMIN or the owner teacher
+    const responsePaper =
+      isAdmin || isOwner
+        ? paper
+        : {
+            ...paper,
+            paperPdfUrl: null,
+            solutionPdfUrl: null,
+          }
+
     if (access.isLockedForGuest) {
       const sanitizedPaper = {
-        ...paper,
-        paperPdfUrl: null,
-        solutionPdfUrl: null,
+        ...responsePaper,
         isLockedForGuest: true,
         previewPercentage: access.effectivePercentage,
         gateTitle: access.gateTitle,
@@ -66,7 +74,7 @@ export async function GET(
       })
     }
 
-    return NextResponse.json(paper)
+    return NextResponse.json(responsePaper)
   } catch (error: any) {
     console.error("GET /api/pyqs/[paperId] error:", error)
     return NextResponse.json(

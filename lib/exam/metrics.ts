@@ -45,7 +45,7 @@ export const METRIC_DEFINITIONS: Record<string, MetricDefinition> = {
   pass: {
     key: "pass",
     label: "Pass Subscriptions",
-    tooltip: "Students accessing this series via an active TrillionPass subscription.",
+    tooltip: "Students accessing this series via an active AspirantBook Pass subscription.",
   },
   free: {
     key: "free",

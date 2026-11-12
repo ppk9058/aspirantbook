@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { useParams, useRouter, notFound } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -33,6 +33,10 @@ import { TestActionButton } from "@/components/test-series/TestActionButton"
 import { useGoal } from "@/components/providers/GoalProvider"
 import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
+import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
+import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
+import { usePassPurchaseModal } from "@/lib/payments/usePassPurchaseModal"
+import { resolveTestLockState, isPaidSeriesEnrolled } from "@/lib/test-series/lock-state"
 import { TEST_TYPE_LABELS } from "@/lib/exam/labels"
 import Image from "next/image"
 
@@ -74,6 +78,8 @@ function TestCardItem({
     session,
     testStatusMap,
     statusLoading,
+    isEnrolled,
+    enrollmentLoading,
     setIsPassModalOpen,
 }: {
     test: TestItem
@@ -82,6 +88,8 @@ function TestCardItem({
     session: any
     testStatusMap: Record<string, any>
     statusLoading: boolean
+    isEnrolled: boolean
+    enrollmentLoading: boolean
     setIsPassModalOpen: (open: boolean) => void
 }) {
     const [syllabusLang, setSyllabusLang] = useState<"en" | "hi">("en")
@@ -133,6 +141,16 @@ function TestCardItem({
             : hasEnglish
             ? test.syllabus
             : test.syllabusHi
+
+    const isFreeSample = Boolean(
+        currentSeries?.isPro && (test.isFree || (test as any).accessMode === "FREE" || (test as any).isFreeSample)
+    )
+    const lockState = resolveTestLockState({
+        isFree: test.isFree,
+        accessMode: (test as any).accessMode,
+        isFreeSample,
+        isEnrolled,
+    })
 
     return (
         <div className="p-4 sm:p-5 space-y-3 transition-colors hover:bg-gray-50/40 dark:hover:bg-white/5">
@@ -206,11 +224,13 @@ function TestCardItem({
                         seriesId={currentSeries.id}
                         testTitle={test.title}
                         status={testStatusMap[test.id]}
-                        loading={statusLoading}
+                        loading={statusLoading || (!lockState.isFreeForUser && enrollmentLoading)}
                         returnPath={`/test-series/${currentSeries.id}`}
-                        isLocked={!test.isFree}
+                        isLocked={lockState.lockedForUser}
+                        disabled={lockState.disabled}
+                        disabledLabel="Locked"
                         onUnlockClick={() => setIsPassModalOpen(true)}
-                        isFreeSample={Boolean(currentSeries.isPro && (test.isFree || (test as any).accessMode === "FREE" || (test as any).isFreeSample))}
+                        isFreeSample={isFreeSample}
                     />
                 </div>
             </div>
@@ -309,6 +329,58 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
     const [submittedAttempts, setSubmittedAttempts] = useState<Record<string, string>>({})
     const [testStatusMap, setTestStatusMap] = useState<Record<string, any>>({})
     const [statusLoading, setStatusLoading] = useState(true)
+    const [isEnrolled, setIsEnrolled] = useState(false)
+    const [enrollmentLoading, setEnrollmentLoading] = useState(Boolean(session?.user?.id))
+
+    const fetchEnrollment = useCallback(async () => {
+        if (!seriesId || !session?.user?.id) {
+            setIsEnrolled(false)
+            setEnrollmentLoading(false)
+            return
+        }
+        setEnrollmentLoading(true)
+        try {
+            const res = await fetch(`/api/exam/series/enroll?seriesId=${encodeURIComponent(seriesId)}`)
+            if (!res.ok) {
+                setIsEnrolled(false)
+                return
+            }
+            const data = await res.json()
+            setIsEnrolled(isPaidSeriesEnrolled(data))
+        } catch {
+            setIsEnrolled(false)
+        } finally {
+            setEnrollmentLoading(false)
+        }
+    }, [seriesId, session?.user?.id])
+
+    // Load series enrollment for authenticated user
+    useEffect(() => {
+        let isMounted = true
+        if (!seriesId || !session?.user?.id) {
+            setIsEnrolled(false)
+            setEnrollmentLoading(false)
+            return
+        }
+
+        setEnrollmentLoading(true)
+        fetch(`/api/exam/series/enroll?seriesId=${encodeURIComponent(seriesId)}`)
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+                if (!isMounted) return
+                setIsEnrolled(isPaidSeriesEnrolled(data))
+            })
+            .catch(() => {
+                if (isMounted) setIsEnrolled(false)
+            })
+            .finally(() => {
+                if (isMounted) setEnrollmentLoading(false)
+            })
+
+        return () => {
+            isMounted = false
+        }
+    }, [seriesId, session?.user?.id])
 
     // Load recommendations from dedicated server recommendations endpoint once GoalProvider is hydrated
     useEffect(() => {
@@ -389,7 +461,15 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
     const [activeTab, setActiveTab] = useState<"mock" | "pyp">("mock")
     const [isAdded, setIsAdded] = useState(false)
     const [tests, setTests] = useState<TestItem[]>([])
-    const [isPassModalOpen, setIsPassModalOpen] = useState(false)
+    const {
+        isOpen: isPassModalOpen,
+        openPassModal,
+        closePassModal,
+    } = usePassPurchaseModal({
+        onSuccess: () => {
+            fetchEnrollment()
+        },
+    })
     const [shareCopied, setShareCopied] = useState(false)
     const [selectedTestToAttempt, setSelectedTestToAttempt] = useState<TestItem | null>(null)
 
@@ -532,7 +612,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
             {/* Unified 2-Column Grid: Left Column flows continuously, Right Column is sticky */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
                 {/* Left Column: Header Card, Package Sections, Tests List */}
-                <div className="lg:col-span-8 space-y-4 sm:space-y-5 min-w-0">
+                <div className={`space-y-4 sm:space-y-5 min-w-0 ${SHOW_PREMIUM_PLAN || moreTestSeries.length > 0 ? "lg:col-span-8" : "lg:col-span-12"}`}>
                     {/* Header Hero Card */}
                     <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl p-4 sm:p-6 shadow-xs space-y-3.5 sm:space-y-4 overflow-hidden">
                         {/* Visual Banner at top of header card */}
@@ -588,15 +668,17 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
 
                         {/* Key Stats Strip */}
                         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
-                            <span className="font-bold text-gray-900 dark:text-white">{seriesData.totalTests} Total Tests</span>
+                            <span className="font-bold text-gray-900 dark:text-white">
+                                {seriesData.totalTests} {seriesData.totalTests === 1 ? "Total Test" : "Total Tests"}
+                            </span>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
                             <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-extrabold border border-emerald-500/30 text-xs">
-                                {seriesData.freeTests} FREE TESTS
+                                {seriesData.freeTests} {seriesData.freeTests === 1 ? "FREE TEST" : "FREE TESTS"}
                             </span>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
                             <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                                 <Users className="h-3.5 w-3.5 text-gray-400" />
-                                <span>{seriesData.users} Users</span>
+                                <span>{seriesData.users} {seriesData.users === "1" || (seriesData.users as any) === 1 ? "User" : "Users"}</span>
                             </span>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
                             <span className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-medium">
@@ -623,6 +705,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                                 seriesId={seriesId}
                                 isFree={currentSeries?.isFree ?? (currentSeries?.isPro ? false : true)}
                                 size="md"
+                                onEnrolled={fetchEnrollment}
                             />
 
                             <button
@@ -639,7 +722,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                                     className="min-h-[44px] px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
                                 >
                                     <Plus className="h-4 w-4" />
-                                    <span>+ Create Test in Studio</span>
+                                    <span>Create Test in Studio</span>
                                 </Link>
                             )}
                         </div>
@@ -772,7 +855,9 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                                                 session={session}
                                                 testStatusMap={testStatusMap}
                                                 statusLoading={statusLoading}
-                                                setIsPassModalOpen={setIsPassModalOpen}
+                                                isEnrolled={isEnrolled}
+                                                enrollmentLoading={enrollmentLoading}
+                                                setIsPassModalOpen={(open) => (open ? openPassModal() : closePassModal())}
                                             />
                                         ))}
                                     </div>
@@ -795,8 +880,10 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                 </div>
 
                 {/* Right Sticky Column (Get Pass card + More Testseries for you) */}
+                {(SHOW_PREMIUM_PLAN || moreTestSeries.length > 0) && (
                 <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-[76px] min-w-0">
-                    {/* Pass Widget */}
+                    {/* Pass Widget (Premium only) */}
+                    {SHOW_PREMIUM_PLAN && (
                     <div className="bg-gradient-to-b from-[#003B73] via-[#005B96] to-[#00A896] text-white rounded-3xl p-5 sm:p-6 shadow-xl relative overflow-hidden border border-white/10">
                         <div className="mb-3">
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-700 text-white uppercase tracking-wider shadow-xs">
@@ -806,7 +893,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
 
                         <div className="space-y-1.5 mb-4">
                             <div className="flex flex-wrap items-center gap-2 min-w-0">
-                                <span className="text-lg sm:text-xl font-black tracking-tight text-white">aspirantbook</span>
+                                <span className="text-lg sm:text-xl font-black tracking-tight text-white">aspirantBook</span>
                                 <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-xs text-[10px] font-black tracking-widest uppercase">
                                     PASS
                                 </span>
@@ -848,12 +935,13 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                         </div>
 
                         <button
-                            onClick={() => setIsPassModalOpen(true)}
-                            className="w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer text-center min-h-[44px]"
+                            onClick={(e) => openPassModal(e.currentTarget)}
+                            className="w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer text-center min-h-[44px] flex items-center justify-center gap-1.5"
                         >
-                            Get Pass
+                            <span>Get Pass • ₹499 / year</span>
                         </button>
                     </div>
+                    )}
 
                     {/* Right Sidebar: "More Testseries for you" (Filtered by target goal) */}
                     {moreTestSeries.length > 0 && (
@@ -875,10 +963,10 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                                                     {item.title}
                                                 </h4>
                                                 <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
-                                                    <span>{item.totalTests} Total Tests</span>
+                                                    <span>{item.totalTests} {item.totalTests === 1 ? "Total Test" : "Total Tests"}</span>
                                                     <span className="mx-1.5">•</span>
                                                     <span className={item.freeTests > 0 ? "text-emerald-700 dark:text-emerald-400 font-bold" : ""}>
-                                                        {item.freeTests} Free Tests
+                                                        {item.freeTests} {item.freeTests === 1 ? "Free Test" : "Free Tests"}
                                                     </span>
                                                 </p>
                                             </div>
@@ -890,6 +978,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                         </div>
                     )}
                 </div>
+                )}
             </div>
 
             {/* Test Simulation / Start Test Dialog */}
@@ -961,58 +1050,13 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                 </div>
             )}
 
-            {/* Pass Membership Modal */}
-            {isPassModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in-0">
-                    <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6">
-                        <div className="flex items-start justify-between">
-                            <div className="flex flex-wrap items-center gap-2 min-w-0">
-                                <span className="text-xl font-black text-gray-900 dark:text-white">aspirantbook</span>
-                                <span className="px-2 py-0.5 rounded-md bg-emerald-700 text-[10px] font-black text-white tracking-widest uppercase">
-                                    PASS PRO
-                                </span>
-                            </div>
-                            <button
-                                onClick={() => setIsPassModalOpen(false)}
-                                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-white"
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
-                        </div>
-
-                        <div className="p-4 rounded-2xl bg-gradient-to-r from-[#003B73] to-[#00A896] text-white space-y-2">
-                            <p className="text-xs uppercase font-extrabold tracking-wider text-cyan-200">All-In-One Pass</p>
-                            
-                            <p className="text-xs text-white/80">Unlimited access to Government Exam test series.</p>
-                        </div>
-
-                        <div className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300">
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>Access test series based on your subscription.</span>
-                            </div>
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>Mock tests for UPSC, BPSC, UPPSC & State exams</span>
-                            </div>
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>All India Rank & State-level percentile leaderboards</span>
-                            </div>
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>Unlimited Re-attempts on all Mocks</span>
-                            </div>
-                        </div>
-
-                        <Link
-                            href="/subscription"
-                            className="block w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm text-center shadow-lg transition-transform active:scale-[0.99]"
-                        >
-                            Subscribe Now
-                        </Link>
-                    </div>
-                </div>
+            {/* Pass Membership Modal (Premium only) */}
+            {SHOW_PREMIUM_PLAN && (
+                <PassPurchaseModal
+                    isOpen={isPassModalOpen}
+                    onClose={closePassModal}
+                    onSuccess={fetchEnrollment}
+                />
             )}
 
             {/* Mobile Sticky Action Bar above bottom nav */}
@@ -1022,7 +1066,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                         {seriesData.title}
                     </div>
                     <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">
-                        {seriesData.freeTests} Free Tests Available
+                        {seriesData.freeTests} {seriesData.freeTests === 1 ? "Free Test Available" : "Free Tests Available"}
                     </div>
                 </div>
                 <div className="shrink-0">
@@ -1030,6 +1074,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                         seriesId={seriesId}
                         isFree={currentSeries?.isFree ?? (currentSeries?.isPro ? false : true)}
                         size="sm"
+                        onEnrolled={fetchEnrollment}
                     />
                 </div>
             </div>

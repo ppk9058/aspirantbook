@@ -30,6 +30,7 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { useGoal } from "../../context/GoalContext";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import { pluralize } from "../../lib/formatters";
 import { DashboardSummaryDto } from "@aspirantbook/shared";
 
 type DashboardTestSummary = DashboardSummaryDto["upcomingOrRecentTests"][number];
@@ -111,7 +112,7 @@ export default function HomeScreen() {
         <View style={styles.durationRow}>
           <Clock size={13} color={colors.textMuted} />
           <Text style={[styles.durationText, { color: colors.textMuted }]}>
-            {t.durationMinutes} mins
+            {pluralize(t.durationMinutes, "min")}
           </Text>
         </View>
       </View>
@@ -213,7 +214,7 @@ export default function HomeScreen() {
                 >
                   <Flame size={16} color="#EA580C" />
                   <Text style={styles.streakText}>
-                    {data?.streakDays} Day Streak
+                    {pluralize(data?.streakDays || 0, "Day")} Streak
                   </Text>
                 </View>
               ) : null}
@@ -318,7 +319,7 @@ export default function HomeScreen() {
                       {data.todayQuiz.title}
                     </Text>
                     <Text style={[styles.quizMeta, { color: colors.textSecondary }]}>
-                      {data.todayQuiz.questionCount} Questions • Current Affairs & GK
+                      {pluralize(data.todayQuiz.questionCount, "Question")} • Current Affairs & GK
                     </Text>
                   </Card>
                 )}

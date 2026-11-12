@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { getBookById, updateBook, deleteBook } from "@/lib/books/bookService"
-import { bookUpdateSchema } from "@/lib/books/book-validation"
+import {
+  bookUpdateSchema,
+  validateCoverImageRef,
+  validateImageEntryRef,
+  validateSamplePdfRef,
+} from "@/lib/books/book-validation"
 import { normalizeBookStorageKey } from "@/lib/books/book-file-storage"
 
 export const dynamic = "force-dynamic"
@@ -69,14 +74,43 @@ export async function PUT(
     }
     const body = parsed.data
 
-    // Store canonical storage keys, never caller-supplied paths.
-    for (const field of ["fullPdfUrl", "samplePdfUrl"] as const) {
-      const value = body[field]
-      if (value !== undefined) {
-        body[field] = value === "" ? "" : normalizeBookStorageKey(value) || ""
-        if (value !== "" && body[field] === "") {
-          return NextResponse.json({ error: `Invalid ${field}` }, { status: 400 })
+    // Validate coverImage against unchanged/relative/public policy
+    if (body.coverImage !== undefined) {
+      const res = validateCoverImageRef(body.coverImage, existing.coverImage)
+      if (!res.valid) {
+        return NextResponse.json({ error: "Invalid coverImage" }, { status: 400 })
+      }
+      body.coverImage = res.value
+    }
+
+    // Validate images[] against unchanged/relative/public policy
+    if (body.images !== undefined) {
+      const validatedImages: string[] = []
+      for (const entry of body.images) {
+        const res = validateImageEntryRef(entry, existing.images, existing.coverImage)
+        if (!res.valid) {
+          return NextResponse.json({ error: "Invalid images" }, { status: 400 })
         }
+        validatedImages.push(res.value!)
+      }
+      body.images = validatedImages
+    }
+
+    // Validate samplePdfUrl: public https URLs are kept as-is, relative keys are normalized
+    if (body.samplePdfUrl !== undefined) {
+      const res = validateSamplePdfRef(body.samplePdfUrl, existing.samplePdfUrl)
+      if (!res.valid) {
+        return NextResponse.json({ error: "Invalid samplePdfUrl" }, { status: 400 })
+      }
+      body.samplePdfUrl = res.value
+    }
+
+    // Validate fullPdfUrl: relative key only, normalized as today
+    if (body.fullPdfUrl !== undefined) {
+      const value = body.fullPdfUrl
+      body.fullPdfUrl = value === "" ? "" : normalizeBookStorageKey(value) || ""
+      if (value !== "" && body.fullPdfUrl === "") {
+        return NextResponse.json({ error: "Invalid fullPdfUrl" }, { status: 400 })
       }
     }
 

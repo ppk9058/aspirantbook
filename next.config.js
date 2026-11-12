@@ -108,7 +108,7 @@ const nextConfig = {
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' data: https://fonts.gstatic.com",
             "img-src 'self' data: blob: https://*.razorpay.com https: http:",
-            "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://challenges.cloudflare.com https://www.youtube.com https://www.youtube-nocookie.com blob: data:",
+            "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://challenges.cloudflare.com https://www.youtube.com https://www.youtube-nocookie.com blob: data: https://aspirantbook-files.ae55f76e25efc786fa816ab0f463a146.r2.cloudflarestorage.com",
             `connect-src ${connectHosts.join(' ')}`,
             "media-src 'self' https: blob:",
             "worker-src 'self' blob:",

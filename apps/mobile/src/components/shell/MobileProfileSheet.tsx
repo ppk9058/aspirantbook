@@ -8,6 +8,7 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Dimensions,
+  Linking,
 } from "react-native";
 import {
   X,
@@ -19,12 +20,18 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  Bell,
+  MessageCircle,
 } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "../primitives/Button";
+import {
+  SUPPORT_WHATSAPP_NUMBER,
+  buildWhatsAppSupportUrl,
+} from "../../lib/web-links";
 
 export interface MobileProfileSheetProps {
   isOpen: boolean;
@@ -41,6 +48,7 @@ export function MobileProfileSheet({
   const insets = useSafeAreaInsets();
   const { colors, tokens, isDark, toggleTheme } = useTheme();
   const { user, isAuthenticated, hasActivePass, logout } = useAuth();
+  const [supportError, setSupportError] = React.useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -57,6 +65,20 @@ export function MobileProfileSheet({
   const handleLogout = async () => {
     onClose();
     await logout();
+  };
+
+  // Direct WhatsApp support, same number as the web launcher. No silent
+  // failure: if the link cannot be opened the sheet stays open and shows why.
+  const handleWhatsAppSupport = async () => {
+    setSupportError(null);
+    try {
+      await Linking.openURL(buildWhatsAppSupportUrl());
+      onClose();
+    } catch {
+      setSupportError(
+        `Could not open WhatsApp. Message us on ${SUPPORT_WHATSAPP_NUMBER}.`
+      );
+    }
   };
 
   const avatarInitial = (
@@ -77,6 +99,14 @@ export function MobileProfileSheet({
       route: "/subscription",
       icon: CreditCard,
       testId: "profile-sheet-link-subscription",
+    },
+    {
+      // Notifications replaced the header bell: an item above Account Settings,
+      // same screen the old header bell opened. No placeholder dot.
+      name: "Notifications",
+      route: "/notifications/preferences",
+      icon: Bell,
+      testId: "profile-sheet-link-notifications",
     },
     {
       name: "Account Settings",
@@ -317,6 +347,39 @@ export function MobileProfileSheet({
                 </TouchableOpacity>
               );
             })}
+            <Text
+              style={[
+                styles.sectionHeading,
+                { color: colors.textMuted, paddingTop: 14 },
+              ]}
+            >
+              SUPPORT
+            </Text>
+
+            <TouchableOpacity
+              onPress={handleWhatsAppSupport}
+              testID="profile-sheet-whatsapp"
+              accessibilityRole="button"
+              accessibilityLabel={`Chat with aspirantBook support on WhatsApp (${SUPPORT_WHATSAPP_NUMBER})`}
+              style={[styles.linkItem, { borderRadius: tokens.radius.xl }]}
+            >
+              <View style={styles.linkLeft}>
+                <MessageCircle size={18} color="#25D366" />
+                <Text style={[styles.linkText, { color: colors.textPrimary }]}>
+                  Chat on WhatsApp
+                </Text>
+              </View>
+              <ChevronRight size={14} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            {supportError ? (
+              <Text
+                style={[styles.supportError, { color: colors.danger }]}
+                accessibilityLiveRegion="polite"
+              >
+                {supportError}
+              </Text>
+            ) : null}
           </ScrollView>
 
           {/* Footer: Theme Toggle & Logout */}
@@ -512,6 +575,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "600",
     marginLeft: 12,
+  },
+  supportError: {
+    fontSize: 11,
+    fontWeight: "600",
+    paddingHorizontal: 12,
+    paddingTop: 8,
   },
   footer: {
     flexDirection: "row",

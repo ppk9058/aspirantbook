@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import { resolveAnchorHref } from "@/lib/home/real-batches"
 import {
     Pencil,
     ChevronDown,
@@ -83,15 +84,15 @@ export interface UpcomingDemoItem {
 interface MyLearningClientProps {
     courses: CourseProgressItem[]
     upcomingDemos?: UpcomingDemoItem[]
+    hasRealBatches: boolean
 }
 
-export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLearningClientProps) {
+export default function MyLearningClient({ courses, upcomingDemos = [], hasRealBatches }: MyLearningClientProps) {
     const router = useRouter()
     const { data: session } = useSession()
     const { openMobileAuth } = useMobileAuth()
     const isGuest = !session?.user
     const [viewMode, setViewMode] = useState<"cards" | "list">("cards")
-    const [activeTab, setActiveTab] = useState<"in-progress" | "completed">("in-progress")
     const [sortBy, setSortBy] = useState<"last-added" | "title" | "progress">("last-added")
     const [expandedCourses, setExpandedCourses] = useState<Record<string, boolean>>(() => {
         const initial: Record<string, boolean> = {}
@@ -108,11 +109,9 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
         }))
     }
 
-    // Filter courses by tab
-    const inProgressCourses = courses.filter((c) => !c.isCompleted)
-    const completedCourses = courses.filter((c) => c.isCompleted)
-
-    const currentList = activeTab === "in-progress" ? inProgressCourses : completedCourses
+    // One list: the In Progress / Completed tabs were removed, so every enrolled
+    // batch is shown together and ordering is the only control.
+    const currentList = courses
 
     // Sort list
     const sortedList = [...currentList].sort((a, b) => {
@@ -152,14 +151,15 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                             <span>My Enrolled &amp; Active Batches</span>
                         </div>
                         <h1 className="text-3xl sm:text-4xl font-extrabold text-[#10162F] tracking-tight">
-                            My Batches &amp; enrollment
+                            My Batches &amp; Enrollment
                         </h1>
                         <p className="text-xs sm:text-sm text-gray-500 mt-1">
                             All video courses and classroom batches you have enrolled in or are actively watching.
                         </p>
                     </div>
 
-                    {/* View Switcher: Cards vs List */}
+                    {/* View Switcher: Cards vs List (hidden for guests) */}
+                    {!isGuest && (
                     <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-xl self-start sm:self-center border border-gray-200 dark:border-slate-700">
                         <button
                             type="button"
@@ -186,6 +186,7 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                             <span>Syllabus List</span>
                         </button>
                     </div>
+                    )}
                 </div>
 
                 {/* Upcoming Live Demos Card Section */}
@@ -252,41 +253,9 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                     </div>
                 )}
 
-                {/* Tabs & Sort Row */}
-                <div className="border-b-2 border-gray-200 flex flex-wrap items-center justify-between gap-4 pb-0">
-                    {/* Tabs */}
-                    <div className="flex items-center gap-8 -mb-0.5">
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab("in-progress")}
-                            className={`pb-3 text-sm sm:text-base font-extrabold transition-colors relative cursor-pointer ${
-                                activeTab === "in-progress"
-                                    ? "text-[#10162F]"
-                                    : "text-gray-500 hover:text-gray-800"
-                            }`}
-                        >
-                            <span>In Progress ({inProgressCourses.length})</span>
-                            {activeTab === "in-progress" && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#3A10E5] rounded-full" />
-                            )}
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab("completed")}
-                            className={`pb-3 text-sm sm:text-base font-extrabold transition-colors relative cursor-pointer ${
-                                activeTab === "completed"
-                                    ? "text-[#10162F]"
-                                    : "text-gray-500 hover:text-gray-800"
-                            }`}
-                        >
-                            <span>Completed ({completedCourses.length})</span>
-                            {activeTab === "completed" && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#3A10E5] rounded-full" />
-                            )}
-                        </button>
-                    </div>
-
+                {/* Sort Row (hidden for guests) — status tabs removed */}
+                {!isGuest && (
+                <div className="border-b-2 border-gray-200 flex flex-wrap items-center justify-end gap-4 pb-0">
                     {/* Sort Dropdown */}
                     <div className="pb-2">
                         <select
@@ -300,31 +269,34 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                         </select>
                     </div>
                 </div>
+                )}
 
                 {/* Empty State */}
                 {isGuest ? (
-                    <div className="bg-white rounded-3xl border-2 border-indigo-100 dark:border-indigo-900/50 p-10 text-center space-y-4 shadow-sm">
-                        <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
-                            <LogIn className="w-6 h-6" />
+                    <div className="bg-white rounded-3xl border border-indigo-100 dark:border-indigo-900/50 p-6 text-center space-y-3 shadow-xs max-w-2xl mx-auto min-h-[160px] flex flex-col justify-center items-center">
+                        <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+                            <LogIn className="w-5 h-5" />
                         </div>
-                        <h3 className="font-extrabold text-lg text-gray-900">
-                            To view your enrolled batches &amp; watch history, login
-                        </h3>
-                        <p className="text-xs text-gray-500 max-w-sm mx-auto">
-                            Sign in with your mobile OTP to continue watching your live batches and lessons.
-                        </p>
-                        <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                        <div>
+                            <h3 className="font-extrabold text-base text-gray-900">
+                                To view your enrolled batches &amp; watch history, login
+                            </h3>
+                            <p className="text-xs text-gray-500 max-w-sm mx-auto mt-0.5">
+                                Sign in with your mobile OTP to continue watching your live batches and lessons.
+                            </p>
+                        </div>
+                        <div className="pt-1 flex flex-wrap items-center justify-center gap-3">
                             <button
                                 type="button"
                                 onClick={() => openMobileAuth({ actionType: "login", callbackUrl: "/my-learning" })}
-                                className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2"
+                                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2 min-h-[40px] sm:min-h-[36px]"
                             >
                                 <LogIn className="w-4 h-4" />
                                 <span>Login with Mobile</span>
                             </button>
                             <Link
                                 href="/courses"
-                                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-xs font-bold hover:bg-gray-50 transition-all"
+                                className="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 text-xs font-bold hover:bg-gray-50 transition-all min-h-[40px] sm:min-h-[36px] flex items-center justify-center"
                             >
                                 Browse Courses
                             </Link>
@@ -334,13 +306,13 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                     <div className="bg-white rounded-3xl border-2 border-gray-200 p-12 text-center space-y-4">
                         <BookOpen className="w-12 h-12 text-gray-400 mx-auto" />
                         <h3 className="font-extrabold text-lg text-gray-900">
-                            {activeTab === "in-progress" ? "No active batches yet" : "No completed courses yet"}
+                            No batches yet
                         </h3>
                         <p className="text-xs text-gray-500 max-w-sm mx-auto">
                             Explore our UPSC, BPSC, and School preparation courses on the homepage or course catalog to enroll and start learning.
                         </p>
                         <Link
-                            href="/#all-courses-container"
+                            href={resolveAnchorHref("/#all-courses-container", hasRealBatches)}
                             className="inline-block px-5 py-2.5 rounded-xl bg-[#5B47FB] text-white text-xs font-bold hover:bg-[#4a36ea] transition-all"
                         >
                             Explore Courses &amp; Batches
@@ -379,16 +351,6 @@ export default function MyLearningClient({ courses, upcomingDemos = [] }: MyLear
                                                 fill
                                                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                                             />
-                                            {/* Status Badge */}
-                                            <div
-                                                className={`absolute top-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-white text-[10px] font-black uppercase tracking-wider shadow-sm ${
-                                                    item.isDemoWatched ? "bg-indigo-600" : "bg-emerald-600/90"
-                                                }`}
-                                            >
-                                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                                                <span>{item.isDemoWatched ? "Demo Watched" : pct > 0 ? `${pct}% Completed` : "Enrolled"}</span>
-                                            </div>
-
                                             <div className="absolute top-3 right-3 z-10 px-2 py-0.5 rounded bg-gray-900/80 backdrop-blur-xs text-white text-[10px] font-bold uppercase tracking-wider">
                                                 Video Batch
                                             </div>

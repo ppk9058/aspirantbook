@@ -14,6 +14,7 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import VideoPlayer from "./VideoPlayer"
 import LessonSidebar from "./LessonSidebar"
+import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
 
 interface LessonViewerProps {
     lesson: any
@@ -227,14 +228,18 @@ export default function LessonViewer({
                                 {currentLesson.slides && (
                                     <Card className="p-6 mb-8 border-2 border-[#10162F] rounded-2xl shadow-[2px_2px_0px_#10162F]">
                                         <h3 className="text-sm font-bold text-[#10162F] mb-2">Lesson Materials</h3>
-                                        <a
-                                            href={currentLesson.slides}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-[#3A10E5] font-bold text-xs hover:underline"
+                                        <Link
+                                            href={buildPdfReaderHref({
+                                                src: currentLesson.slides,
+                                                downloadUrl: currentLesson.slides,
+                                                title: `${currentLesson.title} — Slides`,
+                                                subtitle: course?.title,
+                                                badge: "Lesson Slides",
+                                            })}
+                                            className="text-[#3A10E5] font-bold text-xs hover:underline inline-block"
                                         >
                                             View Slides / Supplementary PDF
-                                        </a>
+                                        </Link>
                                     </Card>
                                 )}
 

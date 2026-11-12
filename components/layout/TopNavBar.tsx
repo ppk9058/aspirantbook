@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Search, Bell, User, Settings, LogOut, Sun, Moon, ShoppingBag } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -15,7 +15,7 @@ import { useGoal } from "@/components/providers/GoalProvider"
 
 import GoalModal from "@/components/layout/GoalModal"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
-import { getDashboardHref } from "@/lib/auth/roles"
+import BrandLogoLink from "@/components/layout/BrandLogoLink"
 import ProfileDropdown from "@/components/layout/ProfileDropdown"
 
 export default function TopNavBar() {
@@ -26,20 +26,17 @@ export default function TopNavBar() {
     const router = useRouter()
     const [showProfileMenu, setShowProfileMenu] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
-
-    const homeHref = getDashboardHref(session?.user?.role, !!session?.user)
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     return (
         <header className="fixed top-0 left-0 right-0 h-[60px] bg-white/95 dark:bg-[#05192D]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 z-50 transition-colors">
             <div className="h-full px-2 sm:px-6 flex items-center justify-between gap-1.5 sm:gap-2 min-w-0">
                 {/* Logo & Goal Context Selector */}
                 <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
-                    <Link href={homeHref} data-testid="brand-logo" className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#1448d8] to-[#1DB954] rounded-lg flex items-center justify-center shadow-sm">
-                            <span className="text-white font-bold text-base sm:text-lg">T</span>
-                        </div>
-                        <span data-testid="brand-name" className="text-xl font-bold text-[#05192D] dark:text-white tracking-tight hidden md:inline">aspirantbook</span>
-                    </Link>
+                    <BrandLogoLink />
 
                     {/* Persistent PW-style Goal Switcher */}
                     <GoalSelectorButton />
@@ -76,18 +73,20 @@ export default function TopNavBar() {
                     <button
                         onClick={toggleTheme}
                         className="p-1.5 sm:p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                        title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                        aria-label="Toggle theme"
+                        title={mounted ? (theme === "dark" ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme"}
+                        aria-label={mounted ? (theme === "dark" ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme"}
                     >
-                        {theme === "dark" ? (
+                        {mounted && theme === "dark" ? (
                             <Sun className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
                         ) : (
                             <Moon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
                         )}
                     </button>
 
-                    {/* Notifications */}
-                    <div className="relative">
+                    {/* Notifications — desktop only. Below lg the same feature
+                        lives in the avatar dropdown (ProfileDropdown) so the
+                        phone header can show the full brand wordmark. */}
+                    <div className="relative hidden lg:block">
                         <button
                             onClick={() => setShowNotifications(!showNotifications)}
                             className="relative p-1.5 sm:p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"

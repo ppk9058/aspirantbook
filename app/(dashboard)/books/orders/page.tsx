@@ -4,9 +4,6 @@ import React, { useState } from "react"
 import Link from "next/link"
 import BookStoreHeader from "@/components/books/BookStoreHeader"
 import CartDrawer from "@/components/books/CartDrawer"
-import dynamic from "next/dynamic"
-
-const SecurePdfViewer = dynamic(() => import("@/components/pdf/SecurePdfViewer"), { ssr: false })
 import { BookCartProvider, useBookCart } from "@/lib/books/cartContext"
 import { BOOKS_DATA } from "@/lib/books/data"
 import { Book } from "@/lib/books/types"
@@ -25,31 +22,10 @@ import {
 
 function OrdersContent() {
   const { orders } = useBookCart()
-  const [selectedBookForReader, setSelectedBookForReader] = useState<Book | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
 
-  // Fallback demo order so the page isn't totally barren on first load
-  const displayOrders = orders.length > 0 ? orders : [
-    {
-      id: "demo-ord-1",
-      orderNumber: "TS-ORD-928471",
-      date: "26 Sep 2026, 06:15 PM",
-      originalTotal: 999,
-      discountTotal: 199,
-      couponDiscount: 0,
-      finalTotal: 800,
-      status: "COMPLETED" as const,
-      paymentMethod: "UPI Instant Payment",
-      items: [
-        {
-          bookId: BOOKS_DATA[0].id,
-          book: BOOKS_DATA[0],
-          quantity: 1,
-          addedAt: new Date().toISOString(),
-        },
-      ],
-    },
-  ]
+  // Real orders only - guests or users without orders see empty state (never mock data)
+  const displayOrders = orders
 
   const handleDownloadPdf = (book: Book, orderNumber?: string) => {
     setDownloadingId(book.id)
@@ -58,20 +34,6 @@ function OrdersContent() {
     setTimeout(() => {
       setDownloadingId(null)
     }, 1000)
-  }
-
-  const handleDownloadInvoice = (orderNumber: string) => {
-    const blob = new Blob([
-      `aspirantbook Official Tax Invoice / Receipt\nOrder No: ${orderNumber}\nDate: ${new Date().toLocaleDateString()}\nStatus: PAID & DELIVERED\n`
-    ], { type: "text/plain" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `Invoice-${orderNumber}.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
   }
 
   const [mounted, setMounted] = React.useState(false)
@@ -87,7 +49,7 @@ function OrdersContent() {
     >
       <BookStoreHeader />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
         {/* Breadcrumb Header */}
         <div className="flex items-center justify-between border-b border-gray-200 pb-4">
           <div>
@@ -101,53 +63,63 @@ function OrdersContent() {
 
           <Link
             href="/books"
-            className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-colors shadow-2xs"
+            className="px-4 py-2 min-h-[44px] flex items-center rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-colors shadow-2xs"
           >
-            Browse Store
+            Browse Books
           </Link>
         </div>
 
-        {/* Orders Listing */}
-        <div className="space-y-6">
-          {displayOrders.map((order) => (
-            <div
-              key={order.id}
-              className="bg-white border border-gray-200/90 rounded-2xl shadow-2xs overflow-hidden"
-            >
-              {/* Order Header Summary */}
-              <div className="p-4 sm:p-5 bg-gray-50/80 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-4 flex-wrap">
-                  <div>
-                    <span className="text-gray-400 block font-semibold">ORDER PLACED</span>
-                    <span className="font-bold text-gray-800">{order.date}</span>
+        {/* Orders Listing or Compact Empty State */}
+        {displayOrders.length === 0 ? (
+          <div className="p-8 sm:p-12 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl space-y-3">
+            <PackageCheck className="w-12 h-12 text-slate-400 dark:text-slate-500 mx-auto" />
+            <h3 className="text-base font-bold text-gray-800 dark:text-gray-200">No orders yet</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm mx-auto">
+              You haven&apos;t purchased any digital books or study notes yet. Explore our curated catalog.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/books"
+                className="inline-flex items-center px-4 py-2.5 min-h-[44px] rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold transition-colors shadow-2xs"
+              >
+                Browse Books
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {displayOrders.map((order) => (
+              <div
+                key={order.id}
+                className="bg-white border border-gray-200/90 rounded-2xl shadow-2xs overflow-hidden"
+              >
+                {/* Order Header Summary */}
+                <div className="p-4 sm:p-5 bg-gray-50/80 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <div>
+                      <span className="text-gray-400 block font-semibold">ORDER PLACED</span>
+                      <span className="font-bold text-gray-800">{order.date}</span>
+                    </div>
+
+                    <div>
+                      <span className="text-gray-400 block font-semibold">TOTAL PAID</span>
+                      <span className="font-extrabold text-gray-900">
+                        ₹{order.finalTotal.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-gray-400 block font-semibold">PAYMENT METHOD</span>
+                      <span className="font-semibold text-gray-700">{order.paymentMethod}</span>
+                    </div>
                   </div>
 
-                  <div>
-                    <span className="text-gray-400 block font-semibold">TOTAL PAID</span>
-                    <span className="font-extrabold text-gray-900">
-                      ₹{order.finalTotal.toLocaleString("en-IN")}
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono font-bold text-gray-500">
+                      #{order.orderNumber}
                     </span>
                   </div>
-
-                  <div>
-                    <span className="text-gray-400 block font-semibold">PAYMENT METHOD</span>
-                    <span className="font-semibold text-gray-700">{order.paymentMethod}</span>
-                  </div>
                 </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="font-mono font-bold text-gray-500">
-                    #{order.orderNumber}
-                  </span>
-                  <button
-                    onClick={() => handleDownloadInvoice(order.orderNumber)}
-                    className="text-xs font-bold text-sky-700 hover:underline flex items-center gap-1"
-                  >
-                    <span>Invoice</span>
-                    <FileText className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
 
               {/* Order Items */}
               <div className="divide-y divide-gray-100 p-4 sm:p-5 space-y-4">
@@ -200,14 +172,13 @@ function OrdersContent() {
 
                     {/* Instant Access Action Buttons */}
                     <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto pt-2 sm:pt-0">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedBookForReader(item.book)}
+                      <Link
+                        href={`/books/read/${encodeURIComponent(item.book.id)}`}
                         className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-colors"
                       >
                         <BookOpen className="w-3.5 h-3.5" />
                         <span>Read Online</span>
-                      </button>
+                      </Link>
 
                       <button
                         type="button"
@@ -227,21 +198,8 @@ function OrdersContent() {
             </div>
           ))}
         </div>
+        )}
       </div>
-
-      {/* Secure Purchased PDF Viewer Modal */}
-      {selectedBookForReader && (
-        <SecurePdfViewer
-          src={`/api/books/${encodeURIComponent(selectedBookForReader.id)}/download?inline=1`}
-          downloadUrl={`/api/books/${encodeURIComponent(selectedBookForReader.id)}/download?download=true`}
-          title={selectedBookForReader.title}
-          author={selectedBookForReader.author}
-          isOpen={Boolean(selectedBookForReader)}
-          onClose={() => setSelectedBookForReader(null)}
-          downloadAllowed={true}
-          badgeLabel="Verified eBook"
-        />
-      )}
 
       {/* Slide-over Cart Drawer */}
       <CartDrawer />

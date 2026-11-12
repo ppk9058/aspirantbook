@@ -3,7 +3,7 @@ import type { SharedSeoOutput } from "../types"
 
 export function adaptTestSeriesCatalogSeo(baseUrl?: string): SharedSeoOutput {
   const canonicalPath = "/test-series"
-  const title = "Online Test Series & Mock Exams | TrillionSkill"
+  const title = "Online Test Series & Mock Exams | AspirantBook"
   const description =
     "Practice online test series, full mocks, and subject-wise tests with real-time ranking and detailed solutions."
 
@@ -39,7 +39,7 @@ export function adaptTestSeriesDetailSeo(
   const isAvailable = (series.isPublished ?? true) && !series.isArchived
   const canonicalSlug = series.slug || series.id
   const canonicalPath = `/test-series/${canonicalSlug}`
-  const title = `${series.title} Test Series & Mock Tests | TrillionSkill`
+  const title = `${series.title} Test Series & Mock Tests | AspirantBook`
   const description =
     series.description ||
     `Take online mock tests for ${series.title}. Real-time analytics, all-India ranking, and detailed solutions.`

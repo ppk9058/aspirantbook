@@ -27,6 +27,10 @@ const ROUTE_LABELS: Record<string, string> = {
     "package": "Package",
     "users": "Users",
     "dashboard": "Dashboard",
+    "my-tests": "My Tests",
+    "my-learning": "My Batches & Enrollment",
+    "books": "Books",
+    "current-affairs-quizzes": "Current Affairs",
 }
 
 // Segments to skip in breadcrumbs (no dedicated page)
@@ -66,8 +70,8 @@ export default function Breadcrumbs() {
         return () => window.removeEventListener("update-breadcrumb-title", handleUpdate)
     }, [pathname])
 
-    // Don't show breadcrumbs on home page
-    if (pathname === "/") return null
+    // Don't show breadcrumbs on home page or top-level pages (2.3)
+    if (pathname === "/" || segments.length <= 1) return null
 
     // Filter out skipped segments and build breadcrumbs
     const breadcrumbs = segments
@@ -94,7 +98,7 @@ export default function Breadcrumbs() {
     if (breadcrumbs.length === 0) return null
 
     return (
-        <nav aria-label="Breadcrumb" data-testid="breadcrumbs" className="hidden sm:flex items-center space-x-1.5 text-xs text-gray-500 dark:text-gray-400 mb-4 overflow-x-auto whitespace-nowrap py-1">
+        <nav aria-label="Breadcrumb" data-testid="breadcrumbs" className="hidden sm:flex items-center space-x-1.5 text-xs text-gray-500 dark:text-gray-400 mb-4 overflow-x-auto whitespace-nowrap min-h-[36px] max-h-[40px] py-1 leading-normal">
             <Link
                 href={homeHref}
                 className="hover:text-[#1448d8] dark:hover:text-[#1448d8] transition-colors flex items-center gap-1.5 p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5"

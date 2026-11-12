@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
 import { getBookById, getAllOrders } from "@/lib/books/bookService"
-import { BookFileError, readBookFile } from "@/lib/books/book-file-storage"
+import {
+  BookFileError,
+  normalizeBookStorageKey,
+  planBookFileFallback,
+  readBookFile,
+} from "@/lib/books/book-file-storage"
+import { getPrivateFileSignedUrl, isPrivateStorageConfigured } from "@/lib/s3"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -82,11 +88,39 @@ export async function GET(
       )
     }
 
+    const isDownload = searchParams.get("download") === "true"
+    const disposition = isDownload ? "attachment" : "inline"
+    const safeFilename = `${book.slug || "ebook"}.pdf`
+    const storageKey = normalizeBookStorageKey(book.fullPdfUrl)
+
     let fileBuffer: Buffer
     try {
       fileBuffer = await readBookFile(book.fullPdfUrl)
     } catch (err: any) {
       if (err instanceof BookFileError) {
+        const fallback =
+          err.status === 404
+            ? planBookFileFallback({
+                storageKey,
+                privateStorageConfigured: isPrivateStorageConfigured(),
+              })
+            : "missing"
+
+        if (fallback === "private-s3" && storageKey) {
+          // The caller already passed the ownership checks above. The signed
+          // URL is only ever returned as this redirect's Location header.
+          const signedUrl = await getPrivateFileSignedUrl(storageKey, 60, {
+            contentDisposition: `${disposition}; filename="${safeFilename}"`,
+          })
+          return new NextResponse(null, {
+            status: 302,
+            headers: {
+              Location: signedUrl,
+              "Cache-Control": "private, no-store, no-cache, must-revalidate",
+            },
+          })
+        }
+
         return NextResponse.json({ error: err.message }, { status: err.status })
       }
       throw err
@@ -106,10 +140,6 @@ export async function GET(
       // Inactive by default. Watermark engine hook:
       // applyPdfWatermark(fileBuffer, { buyerEmail: user.email, orderNumber: validOrder?.orderNumber })
     }
-
-    const isDownload = searchParams.get("download") === "true"
-    const disposition = isDownload ? "attachment" : "inline"
-    const safeFilename = `${book.slug || "ebook"}.pdf`
 
     return new NextResponse(new Uint8Array(fileBuffer), {
       status: 200,

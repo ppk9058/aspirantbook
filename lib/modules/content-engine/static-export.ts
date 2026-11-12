@@ -196,7 +196,7 @@ function renderStaticQuestionHtml(
     </article>
 
     <footer>
-      <p>&copy; ${new Date().getFullYear()} TrillionSkill — Multilingual PYQ Repository</p>
+      <p>&copy; ${new Date().getFullYear()} AspirantBook — Multilingual PYQ Repository</p>
     </footer>
   </div>
 </body>
@@ -364,7 +364,7 @@ ${sitemapUrlsHi.map((url) => `  <url><loc>${url}</loc></url>`).join("\n")}
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Competitive Exam Question Repository | TrillionSkill</title>
+  <title>Competitive Exam Question Repository | AspirantBook</title>
   <meta name="description" content="Browse verified previous year questions (PYQs) for UPSC, State PSCs, SSC, and Banking exams with bilingual solutions." />
   <link rel="canonical" href="${baseUrl}/question-answer/" />
   <style>

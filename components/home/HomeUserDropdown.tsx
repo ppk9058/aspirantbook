@@ -19,6 +19,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import NotificationsMenu from "@/components/layout/NotificationsMenu"
 
 interface HomeUserDropdownProps {
     user: {
@@ -111,6 +112,13 @@ export default function HomeUserDropdown({ user }: HomeUserDropdownProps) {
                         <span>My Profile</span>
                     </Link>
                 </DropdownMenuItem>
+
+                {/* Notifications entry (real data only) — matches the dashboard
+                    avatar menus, which own this feature below lg. */}
+                <NotificationsMenu
+                    className="px-0.5"
+                    buttonClassName="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                />
 
                 <DropdownMenuItem asChild>
                     <Link

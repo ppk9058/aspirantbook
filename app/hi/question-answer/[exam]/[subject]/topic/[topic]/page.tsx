@@ -23,7 +23,7 @@ export async function generateMetadata({
   const topic = unslugify(topSlug)
 
   return {
-    title: `${topic} प्रश्नोत्तरी — ${exam} | TrillionSkill`,
+    title: `${topic} प्रश्नोत्तरी — ${exam} | AspirantBook`,
     description: `${exam} परीक्षा के ${topic} विषय पर आधारित बहुविकल्पीय प्रश्न और हिन्दी समाधान।`,
   }
 }

@@ -42,7 +42,7 @@ export async function generateMetadata({
   const label = isYear ? yearOrSubject : unslugify(yearOrSubject)
 
   return {
-    title: `${examName} ${label} प्रश्नोत्तर (हिन्दी) | TrillionSkill`,
+    title: `${examName} ${label} प्रश्नोत्तर (हिन्दी) | AspirantBook`,
     description: `${examName} परीक्षा के ${label} विषय पर आधारित पिछले वर्षों के प्रश्न और हिन्दी समाधान।`,
   }
 }

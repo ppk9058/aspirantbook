@@ -37,6 +37,7 @@ import { buildCoursesQueryKey } from "../../lib/query-keys";
 import { CourseSummaryDto } from "@aspirantbook/shared";
 import { cleanDescriptionPreview } from "../../lib/course-progress";
 import { useDebounce } from "../../lib/use-debounce";
+import { pluralize } from "../../lib/formatters";
 
 export { cleanDescriptionPreview };
 
@@ -130,7 +131,7 @@ export default function CoursesTabScreen() {
         <View style={styles.metaItem}>
           <PlayCircle size={14} color={colors.textMuted} />
           <Text style={[styles.metaText, { color: colors.textMuted }]}>
-            {course.lessonsCount} lessons
+            {pluralize(course.lessonsCount, "lesson")}
           </Text>
         </View>
 
@@ -144,7 +145,7 @@ export default function CoursesTabScreen() {
         <View style={styles.metaItem}>
           <Layers size={14} color={colors.textMuted} />
           <Text style={[styles.metaText, { color: colors.textMuted }]}>
-            {course.chaptersCount} chapters
+            {pluralize(course.chaptersCount, "chapter")}
           </Text>
         </View>
       </View>
@@ -275,7 +276,7 @@ export default function CoursesTabScreen() {
                       Career & Skill Tracks
                     </Text>
                     <Text style={[styles.tracksBannerSub, { color: colors.textSecondary }]}>
-                      {tracks.length} structured end-to-end paths
+                      {pluralize(tracks.length, "structured end-to-end path", "structured end-to-end paths")}
                     </Text>
                   </View>
                 </View>

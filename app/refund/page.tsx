@@ -1,6 +1,7 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
+import BrandLogo from "@/components/brand/BrandLogo"
 import { ArrowLeft, RefreshCw, AlertCircle, FileText, HelpCircle, Mail, ShieldAlert, ShieldCheck } from "lucide-react"
 import { getBrandConfig } from "@/lib/config/brand"
 
@@ -20,18 +21,7 @@ export default function RefundPolicyPage() {
       {/* Top Header */}
       <header className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 px-4 sm:px-8 py-3.5">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image
-              src="/aspirant-logo-square.jpg"
-              alt={brand.brandName}
-              width={32}
-              height={32}
-              className="rounded-lg object-cover"
-            />
-            <span className="font-extrabold text-base tracking-tight text-slate-950 dark:text-white">
-              {brand.brandName}
-            </span>
-          </Link>
+          <BrandLogo size="sm" href="/" />
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 min-h-[44px] px-3 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white transition-colors"
@@ -80,6 +70,9 @@ export default function RefundPolicyPage() {
             </p>
             <ul className="list-disc pl-5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-2">
               <li>
+                <strong>Pass (All-Access Pass):</strong> The Pass is ₹499 per year, valid for 365 days from purchase. The Pass is non-refundable once purchased, EXCEPT in the case of a technical failure where payment was captured but the Pass was not activated on your account. In such cases, contact our support desk (details below) for verification and refund processing within 5-7 working days.
+              </li>
+              <li>
                 <strong>Test Series / Mock Tests:</strong> Full refund within 48 hours of purchase provided no test has been started.
               </li>
               <li>
@@ -89,7 +82,7 @@ export default function RefundPolicyPage() {
                 <strong>Live Batches:</strong> Full refund before the first live class; within 7 days of batch start provided no more than 2 live classes were attended.
               </li>
               <li>
-                <strong>ePDF Books &amp; Study Notes:</strong> Non-refundable once downloaded or opened, EXCEPT in cases of duplicate payment, incorrect file delivered, or a corrupted/unopenable file that cannot be replaced.
+                <strong>ePDF Books &amp; Study Notes:</strong> ePDF books and study notes are delivered directly inside the user&apos;s logged-in account on the website, mobile web, and app (under &quot;Book&quot; at /books/orders &mdash; &quot;My Orders &amp; Purchased eBooks&quot;) and are not sent by email; &quot;downloaded or opened&quot; refers to accessing or opening the content within the account. Non-refundable once downloaded or opened, EXCEPT in cases of duplicate payment, incorrect file delivered, or a corrupted/unopenable file that cannot be replaced.
               </li>
             </ul>
           </section>

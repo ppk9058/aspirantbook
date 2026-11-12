@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { PROTECTED_ROLES } from "@/lib/payments/role-safety"
+import { resolveEffectivePlan } from "@/lib/payments/pass-plan"
 
 export interface FulfilPaymentParams {
     orderId: string
@@ -182,7 +183,16 @@ export async function fulfilPaymentOrder(params: FulfilPaymentParams): Promise<F
         }
 
         // 8. Fulfil Subscription Plan
-        const effectivePlan = plan || meta.plan
+        const isCourseOrder = Boolean(targetCourseId || meta.courseId)
+        const isPassOrder = !isCourseOrder && (orderRecord.amount === 499 || meta.amountPaise === 49900 || !meta.courseId)
+        const effectivePlan = resolveEffectivePlan(
+            {
+                plan: meta.plan,
+                courseId: targetCourseId,
+                isPassOrder,
+            },
+            plan
+        )
         if (effectivePlan === "MONTHLY" || effectivePlan === "YEARLY") {
             let subscription = await tx.subscription.findFirst({
                 where: { providerId: orderId, userId: orderRecord.userId },

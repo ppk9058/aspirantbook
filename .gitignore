@@ -75,3 +75,6 @@ reports/run2/
 reports/run3a/*.log
 
 apps/mobile/node_modules/
+
+.next-build/
+data/form-submissions.json

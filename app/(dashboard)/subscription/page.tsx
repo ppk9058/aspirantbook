@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Crown, Check, X, Calendar, CreditCard } from "lucide-react"
 import Link from "next/link"
+import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
+import { PASS_INCLUDED_FEATURES } from "@/lib/payments/pass-marketing"
 
 export default async function SubscriptionPage() {
     const session = await auth()
@@ -67,20 +69,15 @@ export default async function SubscriptionPage() {
         {
             name: "PREMIUM",
             price: "₹499",
-            period: "per month",
-            features: [
-                "Access to all courses",
-                "Unlimited coding exercises",
-                "All assessments and tutorials",
-                "Course completion certificates",
-                "Priority support",
-                "Downloadable resources",
-                "Ad-free experience",
-                "Early access to new content",
-            ],
+            period: "per year",
+            features: PASS_INCLUDED_FEATURES,
             limitations: [],
         },
     ]
+
+    const visiblePlans = SHOW_PREMIUM_PLAN
+        ? plans
+        : plans.filter((plan) => plan.name !== "PREMIUM")
 
     return (
         <div className="space-y-6 sm:space-y-8 pb-12">
@@ -131,7 +128,7 @@ export default async function SubscriptionPage() {
                                     <div className="flex items-center gap-2">
                                         <CreditCard className="h-4 w-4 text-slate-400 dark:text-slate-500 shrink-0" />
                                         <span>
-                                            {activeSubscription.plan === "MONTHLY" ? "₹499/month" : "₹4,999/year"}
+                                            {activeSubscription.plan === "MONTHLY" ? "₹499/month" : "₹499/year"}
                                         </span>
                                     </div>
                                 </div>
@@ -157,8 +154,8 @@ export default async function SubscriptionPage() {
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-4 sm:mb-6">
                     Choose Your Plan
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                    {plans.map((plan) => (
+                <div className={`grid grid-cols-1 gap-6 items-stretch ${SHOW_PREMIUM_PLAN ? "md:grid-cols-2" : "max-w-md mx-auto"}`}>
+                    {visiblePlans.map((plan) => (
                         <Card
                             key={plan.name}
                             className={`relative bg-white dark:bg-slate-900 border-2 rounded-3xl transition-all duration-300 flex flex-col justify-between overflow-hidden ${

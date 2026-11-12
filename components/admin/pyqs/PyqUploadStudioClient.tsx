@@ -170,8 +170,8 @@ export function PyqUploadStudioClient({ categories }: { categories: Category[] }
         solutionPdfUrl: solutionPdfUrl || undefined,
         pdfFileSizeKb: paperFileSizeKb || undefined,
         accessType,
-        unlockPrice: accessType === "PAID" ? Number(unlockPrice) : 0,
-        isPassIncluded,
+        unlockPrice: 0,
+        isPassIncluded: true,
         hasCbtMode,
         cbtTestId: cbtTestId.trim() || undefined,
         status,
@@ -590,9 +590,9 @@ export function PyqUploadStudioClient({ categories }: { categories: Category[] }
                 >
                   <div className="flex items-center gap-2 font-bold text-xs text-gray-900">
                     <Unlock className="w-3.5 h-3.5 text-emerald-600" />
-                    100% Free
+                    Free
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-1">Unlocked after phone verification</p>
+                  <p className="text-[11px] text-gray-500 mt-1">Open to all students</p>
                 </button>
 
                 <button
@@ -606,42 +606,11 @@ export function PyqUploadStudioClient({ categories }: { categories: Category[] }
                 >
                   <div className="flex items-center gap-2 font-bold text-xs text-gray-900">
                     <Lock className="w-3.5 h-3.5 text-amber-600" />
-                    Paid Unlock
+                    Pass required
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-1">Requires single-paper payment</p>
+                  <p className="text-[11px] text-gray-500 mt-1">Requires active Pass (₹499/year)</p>
                 </button>
               </div>
-
-              {accessType === "PAID" && (
-                <div className="pt-2">
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Unlock Price (₹ INR)
-                  </label>
-                  <div className="relative max-w-xs">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm">
-                      ₹
-                    </span>
-                    <input
-                      type="number"
-                      min={1}
-                      max={9999}
-                      value={unlockPrice}
-                      onChange={(e) => setUnlockPrice(Number(e.target.value))}
-                      className="w-full pl-8 pr-4 py-2 text-sm font-bold rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <label className="flex items-center gap-2 pt-1 text-xs text-gray-600 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isPassIncluded}
-                  onChange={(e) => setIsPassIncluded(e.target.checked)}
-                  className="rounded text-orange-600 focus:ring-orange-500"
-                />
-                Include in TrillionPass All-Access (₹499)
-              </label>
             </div>
 
             {/* CBT Engine Link */}

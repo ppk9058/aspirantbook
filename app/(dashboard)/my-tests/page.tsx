@@ -18,7 +18,7 @@ import {
 export const dynamic = "force-dynamic"
 
 export const metadata = {
-    title: "My Tests | aspirantbook",
+    title: "My Tests | AspirantBook",
     description: "Continue in-progress mock exams, access your enrolled test series, and review detailed score reports.",
 }
 
@@ -258,12 +258,13 @@ export default async function MyTestsPage() {
             })
         }
 
-        // ── 4. Browse catalog (published, excluding already attempted series) ──
+        // ── 4. Browse catalog (published, excluding already attempted series & 0-test series) ──
         const attemptedIds = new Set(enrolledSeries.map((s) => s.id))
         const dbCatalog = await prisma.examSeries.findMany({
             where: {
                 isPublished: true,
                 id: { notIn: [...attemptedIds] },
+                totalTests: { gt: 0 },
             },
             take: 8,
             orderBy: { createdAt: "desc" },

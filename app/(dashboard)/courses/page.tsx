@@ -6,14 +6,14 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 
 export const metadata: Metadata = {
-    title: "All Video Courses & Batches | aspirantbook",
-    description: "Explore all comprehensive video courses, academic foundations, and competitive batches on aspirantbook.",
+    title: "All Video Courses & Batches | AspirantBook",
+    description: "Explore all comprehensive video courses, academic foundations, and competitive batches on AspirantBook.",
     alternates: {
         canonical: "/courses",
     },
     openGraph: {
-        title: "All Video Courses & Batches | aspirantbook",
-        description: "Explore all comprehensive video courses, academic foundations, and competitive batches on aspirantbook.",
+        title: "All Video Courses & Batches | AspirantBook",
+        description: "Explore all comprehensive video courses, academic foundations, and competitive batches on AspirantBook.",
         url: "/courses",
     },
 }

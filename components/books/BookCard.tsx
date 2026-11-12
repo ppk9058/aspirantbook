@@ -91,8 +91,8 @@ export default function BookCard({ book }: BookCardProps) {
           {book.title}
         </h3>
 
-        {/* Edition Pill / Badge */}
-        <div className="mt-1.5 flex items-center justify-between gap-1">
+        {/* Edition Pill / Badge (gap 8 to 12px from title) */}
+        <div className="mt-2 sm:mt-2.5 flex items-center justify-between gap-1">
           <span className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
             {book.edition}
           </span>
@@ -106,8 +106,8 @@ export default function BookCard({ book }: BookCardProps) {
         </div>
       </Link>
 
-      {/* Pricing Row */}
-      <div className="mt-2.5 pt-2 border-t border-gray-100 dark:border-slate-700 flex items-baseline gap-1.5 flex-wrap">
+      {/* Pricing Row (gap 12px scale) */}
+      <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-slate-700 flex items-baseline gap-1.5 flex-wrap">
         <span className="text-sm sm:text-base font-black text-gray-950 dark:text-white">
           ₹{book.price.toLocaleString("en-IN")}
         </span>
@@ -119,22 +119,22 @@ export default function BookCard({ book }: BookCardProps) {
         </span>
       </div>
 
-      {/* Action Buttons: Add to Cart (turns into stepper) + Buy Now */}
-      <div className="mt-3 pt-2 grid grid-cols-2 gap-2">
+      {/* Action Buttons: Add to Cart (turns into stepper) + Buy Now (gap 12px scale, 44px tap target; full width per row on phones) */}
+      <div className="mt-3 pt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
         {cartItem ? (
           <div
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
             }}
-            className="flex items-center justify-between bg-white dark:bg-slate-800 border-2 border-indigo-600 rounded-xl px-1.5 py-1 shadow-sm h-9"
+            className="flex items-center justify-between bg-white dark:bg-slate-800 border-2 border-indigo-600 rounded-xl px-1.5 py-1 shadow-sm min-h-[44px] sm:min-h-[40px]"
           >
             <button
               type="button"
               onClick={handleDecrement}
-              className="w-5 h-5 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded font-bold"
+              className="w-7 h-7 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded font-bold"
             >
-              <Minus className="w-3 h-3" />
+              <Minus className="w-3.5 h-3.5" />
             </button>
             <span className="text-xs font-black text-indigo-950 dark:text-indigo-200 px-1">
               {cartItem.quantity}
@@ -142,9 +142,9 @@ export default function BookCard({ book }: BookCardProps) {
             <button
               type="button"
               onClick={handleIncrement}
-              className="w-5 h-5 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded font-bold"
+              className="w-7 h-7 flex items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded font-bold"
             >
-              <Plus className="w-3 h-3" />
+              <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
         ) : (
@@ -152,9 +152,9 @@ export default function BookCard({ book }: BookCardProps) {
             type="button"
             data-testid="book-card-add-to-cart-btn"
             onClick={handleAdd}
-            className="h-9 px-2.5 rounded-xl border-2 border-indigo-600 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 font-extrabold text-xs transition-all shadow-2xs active:scale-95 flex items-center justify-center gap-1"
+            className="w-full min-h-[44px] sm:min-h-[40px] px-2.5 rounded-xl border-2 border-indigo-600 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 font-extrabold text-xs transition-all shadow-2xs active:scale-95 flex items-center justify-center gap-1"
           >
-            <ShoppingCart className="w-3 h-3 shrink-0" />
+            <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
             <span>Add to Cart</span>
           </button>
         )}
@@ -163,9 +163,9 @@ export default function BookCard({ book }: BookCardProps) {
           type="button"
           data-testid="book-card-buy-now-btn"
           onClick={handleBuyNow}
-          className="h-9 px-2.5 rounded-xl bg-[#fb641b] hover:bg-[#e85813] text-white font-black text-xs transition-all shadow-sm active:scale-95 flex items-center justify-center gap-1"
+          className="w-full min-h-[44px] sm:min-h-[40px] px-2.5 rounded-xl bg-[#fb641b] hover:bg-[#e85813] text-white font-black text-xs transition-all shadow-sm active:scale-95 flex items-center justify-center gap-1"
         >
-          <Zap className="w-3 h-3 fill-white shrink-0" />
+          <Zap className="w-3.5 h-3.5 fill-white shrink-0" />
           <span>Buy Now</span>
         </button>
       </div>

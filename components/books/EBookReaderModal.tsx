@@ -87,7 +87,7 @@ export default function EBookReaderModal({
     setTimeout(() => {
       setIsDownloading(false)
       const blob = new Blob([
-        `%PDF-1.4\naspirantbook Official Verified eBook Sample\nTitle: ${book.title}\nPublisher: ${book.publisher}\nPages: ${book.pages}\n`
+        `%PDF-1.4\nAspirantBook Official Verified eBook Sample\nTitle: ${book.title}\nPublisher: ${book.publisher}\nPages: ${book.pages}\n`
       ], { type: "application/pdf" })
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")

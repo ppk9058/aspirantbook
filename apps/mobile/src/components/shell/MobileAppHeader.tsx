@@ -1,6 +1,6 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
-import { Menu, Search, Bell } from "lucide-react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Image } from "react-native";
+import { Menu, Search } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
@@ -26,10 +26,6 @@ export function MobileAppHeader({
 
   const handleSearchPress = () => {
     router.push("/search" as any);
-  };
-
-  const handleNotificationsPress = () => {
-    router.push("/notifications/preferences" as any);
   };
 
   const handleLoginPress = () => {
@@ -69,30 +65,27 @@ export function MobileAppHeader({
         <TouchableOpacity
           onPress={handleLogoPress}
           activeOpacity={0.8}
-          accessibilityLabel="Aspirantbook Home"
+          accessibilityLabel="AspirantBook Home"
           testID="mobile-header-logo"
           style={styles.brandRow}
         >
-          {/* Brand "T" Logo Box */}
-          <View
-            style={[
-              styles.logoBox,
-              {
-                backgroundColor: colors.brandFrom,
-                borderRadius: tokens.radius.lg,
-              },
-            ]}
-          >
-            <Text style={styles.logoLetter}>T</Text>
-          </View>
+          {/* Brand Logo Image */}
+          <Image
+            source={require("../../../../assets/brand/icon-192.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+          {/* The full wordmark must never be clipped: the bell that used to sit
+              here now lives in the profile sheet, and the text is not allowed to
+              shrink, so "aspirantBook" always renders in full at 320–390px. */}
           <Text testID="mobile-header-brand-name" style={styles.brandText}>
-            <Text style={{ color: colors.brandTextPrimary }}>aspirant</Text>
-            <Text style={{ color: colors.brandTextAccent }}>book</Text>
+            aspirantBook
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Right Controls: Search, Bell with Rose Dot, Profile Avatar / Login CTA */}
+      {/* Right Controls: Search, Profile Avatar / Login CTA (notifications moved
+          into the profile sheet so the brand wordmark is never clipped) */}
       <View style={styles.rightGroup}>
         {/* Search */}
         <TouchableOpacity
@@ -103,29 +96,6 @@ export function MobileAppHeader({
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Search size={20} color={colors.textSecondary} />
-        </TouchableOpacity>
-
-        {/* Bell with rose dot (shown only for authenticated users) */}
-        <TouchableOpacity
-          onPress={handleNotificationsPress}
-          accessibilityLabel="Notifications"
-          testID="mobile-header-bell"
-          style={styles.iconButton}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Bell size={20} color={colors.textSecondary} />
-          {isAuthenticated ? (
-            <View
-              testID="mobile-header-notification-dot"
-              style={[
-                styles.notificationDot,
-                {
-                  backgroundColor: colors.notificationDot,
-                  borderColor: colors.surface,
-                },
-              ]}
-            />
-          ) : null}
         </TouchableOpacity>
 
         {/* Profile Avatar if logged-in, Login CTA if guest */}
@@ -141,6 +111,7 @@ export function MobileAppHeader({
             onPress={onOpenProfile}
             accessibilityLabel="Account profile"
             testID="mobile-header-avatar"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={[
               styles.avatarButton,
               {
@@ -163,6 +134,7 @@ export function MobileAppHeader({
             onPress={handleLoginPress}
             accessibilityLabel="Login"
             testID="mobile-header-login-btn"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={[
               styles.loginButton,
               {
@@ -197,23 +169,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginLeft: 8,
+    flexShrink: 0,
   },
   logoBox: {
     width: 28,
     height: 28,
-    alignItems: "center",
-    justifyContent: "center",
+    borderRadius: 14,
     marginRight: 6,
   },
-  logoLetter: {
-    color: "#FFFFFF",
-    fontWeight: "900",
-    fontSize: 14,
+  logoImage: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    marginRight: 6,
   },
   brandText: {
     fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: -0.3,
+    fontWeight: "900",
+    letterSpacing: -0.4,
+    color: "#ff0031",
+    flexShrink: 0,
   },
   rightGroup: {
     flexDirection: "row",
@@ -223,15 +198,6 @@ const styles = StyleSheet.create({
     padding: 6,
     marginLeft: 4,
     position: "relative",
-  },
-  notificationDot: {
-    position: "absolute",
-    top: 4,
-    right: 4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    borderWidth: 1.5,
   },
   avatarButton: {
     width: 30,

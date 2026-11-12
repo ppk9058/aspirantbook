@@ -9,6 +9,6 @@
   <text x="200" y="300" fill="#fff" font-family="sans-serif" font-weight="800" font-size="20" text-anchor="middle">YEARS'</text>
   <rect x="50" y="330" width="300" height="50" rx="6" fill="#047857"/>
   <text x="200" y="355" fill="#fff" font-family="sans-serif" font-weight="bold" font-size="15" text-anchor="middle">SOCIAL SCIENCE</text>
-  <text x="200" y="372" fill="#d1fae5" font-family="sans-serif" font-size="11" text-anchor="middle">History &bull; Geography &bull; Civics &bull; Economics</text>
+  <text x="200" y="372" fill="#d1fae5" font-family="sans-serif" font-size="11" text-anchor="middle">History &#8226; Geography &#8226; Civics &#8226; Economics</text>
   <text x="200" y="450" fill="#facc15" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle">With 4 Sets of 2026 Board Papers &amp; Map Work</text>
 </svg>

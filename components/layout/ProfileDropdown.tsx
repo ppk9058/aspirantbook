@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react"
 import { User, ShoppingBag, Settings, LogOut } from "lucide-react"
 import { safeSignOut } from "@/lib/auth-client"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
+import NotificationsMenu from "@/components/layout/NotificationsMenu"
 
 export interface ProfileDropdownProps {
   hideMyPurchase?: boolean
@@ -152,6 +153,12 @@ export default function ProfileDropdown({
               <span>My Purchase</span>
             </Link>
           )}
+
+          <NotificationsMenu
+            onNavigate={() => setShowProfileMenu(false)}
+            className="px-1"
+            buttonClassName="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+          />
 
           <Link
             href="/settings"

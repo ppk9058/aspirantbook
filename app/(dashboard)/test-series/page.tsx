@@ -25,7 +25,7 @@ import dynamic from "next/dynamic"
 import { useSession } from "next-auth/react"
 import { useGoal, Goal } from "@/components/providers/GoalProvider"
 import GoalIcon from "@/components/layout/GoalIcon"
-import { cn } from "@/lib/utils"
+import { cn, formatCount } from "@/lib/utils"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -33,6 +33,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
+import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
+import { usePassPurchaseModal } from "@/lib/payments/usePassPurchaseModal"
 
 interface TestSeriesItem {
     id: string; slug?: string; title: string; category: string; description?: string
@@ -252,7 +255,11 @@ export default function TestSeriesPage() {
     const [filterByGoal, setFilterByGoal] = useState<boolean>(true)
     const [savedSeries, setSavedSeries] = useState<string[]>([])
     const [activeModalSeries, setActiveModalSeries] = useState<TestSeriesItem | null>(null)
-    const [isPassModalOpen, setIsPassModalOpen] = useState(false)
+    const {
+        isOpen: isPassModalOpen,
+        openPassModal,
+        closePassModal,
+    } = usePassPurchaseModal()
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [seriesPackages, setSeriesPackages] = useState<TestSeriesItem[]>([])
     const [seriesLoading, setSeriesLoading] = useState(true)
@@ -357,6 +364,9 @@ export default function TestSeriesPage() {
 
     const filteredSeries = useMemo(() => {
         return seriesPackages.filter((item) => {
+            // Hide series with 0 tests from public/student listings
+            if (item.totalTests <= 0) return false
+
             const matchesCategory =
                 selectedCategory === "All" ||
                 isItemMatchingChip(item, selectedCategory)
@@ -379,7 +389,7 @@ export default function TestSeriesPage() {
     }
 
     return (
-        <div className="space-y-6 pb-36 sm:pb-28 lg:pb-12">
+        <div className="space-y-4 sm:space-y-5">
             {/* Top Navigation Bar: Explore vs My Tests vs Leaderboards */}
             <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-gray-800">
                 <div data-scroll-x="true" className="w-full sm:w-auto flex items-center gap-1.5 p-1 rounded-2xl bg-gray-100 dark:bg-gray-800/80 overflow-x-auto no-scrollbar snap-x">
@@ -566,7 +576,8 @@ export default function TestSeriesPage() {
             </div>
 
             {/* Teacher Authored Tests Available Notification Banner */}
-            {/* Top Pass Hero Banner - Compact & Clean */}
+            {/* Top Pass Hero Banner - Compact & Clean (Premium only) */}
+            {SHOW_PREMIUM_PLAN && (
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#003B73] via-[#005B96] to-[#00A896] text-white shadow-lg p-4 sm:p-6 border border-white/10">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
                     <div className="space-y-1.5 min-w-0">
@@ -583,9 +594,12 @@ export default function TestSeriesPage() {
                         </p>
                     </div>
 
-                    <div className="shrink-0">
+                    <div className="shrink-0 flex items-center gap-3">
+                        <span className="text-xs sm:text-sm font-black text-amber-300">
+                            ₹499 / year
+                        </span>
                         <button
-                            onClick={() => setIsPassModalOpen(true)}
+                            onClick={(e) => openPassModal(e.currentTarget)}
                             className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
                         >
                             <span>Get Pass</span>
@@ -594,6 +608,7 @@ export default function TestSeriesPage() {
                     </div>
                 </div>
             </div>
+            )}
 
             {/* Section Header with Search Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -621,8 +636,8 @@ export default function TestSeriesPage() {
                 </div>
             </div>
 
-            {/* Dynamic Category Chips Row */}
-            <div className="flex flex-wrap items-center gap-2 py-1">
+            {/* Dynamic Category Chips Row (36 to 40px height) */}
+            <div className="flex flex-wrap items-center gap-2 py-0.5">
                 {dynamicChips.map((chip) => {
                     const isSelected =
                         selectedCategory === chip.id ||
@@ -634,7 +649,7 @@ export default function TestSeriesPage() {
                             type="button"
                             onClick={() => setSelectedCategory(chip.id)}
                             className={cn(
-                                "flex-shrink-0 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-white focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#071d33] min-h-[36px]",
+                                "flex-shrink-0 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-white focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#071d33] min-h-[38px] h-9 sm:h-10 flex items-center justify-center",
                                 isSelected
                                     ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs"
                                     : "bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
@@ -701,7 +716,7 @@ export default function TestSeriesPage() {
                             </div>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                        <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4 sm:gap-6">
                             {filteredSeries.map((item) => {
                                 const isSaved = savedSeries.includes(item.id)
 
@@ -710,10 +725,10 @@ export default function TestSeriesPage() {
                                         key={item.id}
                                         className="rounded-2xl border border-gray-200/90 dark:border-gray-800 bg-white dark:bg-[#071d33] shadow-xs hover:shadow-lg transition-all duration-200 overflow-hidden flex flex-col justify-between group"
                                     >
-                                        {/* Card Top Header with Soft Lavender / Purple Gradient */}
-                                        <div className="bg-gradient-to-b from-[#F3ECFF] via-[#F8F5FF] to-white dark:from-[#1E1938] dark:to-[#071d33] p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800/80">
+                                        {/* Card Top Header with Soft Lavender / Purple Gradient in Light Mode, Rich Dark Slate in Dark Mode */}
+                                        <div className="bg-gradient-to-b from-[#F3ECFF] via-[#F8F5FF] to-white dark:from-[#0a1f38] dark:via-[#0c2442] dark:to-[#071d33] p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800/80">
                                             {/* Top Row: Exam Logo + User Count Badge */}
-                                            <div className="flex items-center justify-between gap-2 mb-3.5">
+                                            <div className="flex items-center justify-between gap-2 mb-3">
                                                 <div className="w-12 h-12 rounded-full bg-white dark:bg-gray-900 shadow-2xs border border-purple-100 dark:border-purple-900/40 p-0.5 flex items-center justify-center flex-shrink-0">
                                                     <ExamLogo logoType={item.logoType} />
                                                 </div>
@@ -721,7 +736,7 @@ export default function TestSeriesPage() {
                                                 {item.users && item.users !== "0" ? (
                                                     <div className="bg-white/95 dark:bg-gray-800/90 border border-gray-200/80 dark:border-gray-700/80 px-2.5 py-1 rounded-full text-[11px] font-bold text-gray-700 dark:text-gray-200 flex items-center gap-1 shadow-2xs">
                                                         <Zap className="h-3 w-3 text-amber-500 fill-amber-500" />
-                                                        <span>{item.users} Users</span>
+                                                        <span>{formatCount(item.users, "User")}</span>
                                                     </div>
                                                 ) : null}
                                             </div>
@@ -731,12 +746,12 @@ export default function TestSeriesPage() {
                                                 {item.title}
                                             </h3>
 
-                                            {/* Total Tests | Free Tests Row */}
-                                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mt-2 flex items-center gap-1.5 flex-wrap">
-                                                <span>{item.totalTests} Total Tests</span>
+                                            {/* Total Tests | Free Tests Row (gap 8 to 12px from title) */}
+                                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mt-2.5 flex items-center gap-1.5 flex-wrap">
+                                                <span>{item.totalTests} {item.totalTests === 1 ? "Total Test" : "Total Tests"}</span>
                                                 <span className="text-gray-400">|</span>
                                                 <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">
-                                                    {item.freeTests} Free Tests
+                                                    {item.freeTests} {item.freeTests === 1 ? "Free Test" : "Free Tests"}
                                                 </span>
                                             </div>
 
@@ -747,29 +762,27 @@ export default function TestSeriesPage() {
                                             </div>
                                         </div>
 
-                                        {/* Card Body: Highlights List */}
-                                        <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
+                                        {/* Card Body: Highlights List (show first 3 bullets, then +N more) */}
+                                        <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
                                             <ul className="space-y-1.5 text-xs text-gray-700 dark:text-gray-300 font-medium">
-                                                {item.highlights.map((point, idx) => (
+                                                {item.highlights.slice(0, 3).map((point, idx) => (
                                                     <li key={idx} className="flex items-start gap-2">
                                                         <span className="text-gray-400 font-bold leading-none mt-1">•</span>
                                                         <span className="line-clamp-1">{point}</span>
                                                     </li>
                                                 ))}
+                                                {item.highlights.length > 3 && (
+                                                    <li className="text-[11px] font-bold text-sky-700 dark:text-sky-400 pl-3">
+                                                        +{item.highlights.length - 3} more
+                                                    </li>
+                                                )}
                                             </ul>
 
-                                            {/* Bottom Action Buttons: View Test Series + Add Button */}
-                                            <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-gray-800/80">
-                                                <Link
-                                                    href={`/test-series/${item.id}`}
-                                                    className="flex-1 py-2.5 px-4 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs sm:text-sm text-center shadow-xs transition-colors cursor-pointer flex items-center justify-center min-h-[44px]"
-                                                >
-                                                    View Test Series
-                                                </Link>
-
+                                            {/* Bottom Action Buttons: Save Button (left-aligned to prevent floating AI button overlap) + View Test Series (gap 12 to 16px) */}
+                                            <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-800/80">
                                                 <button
                                                     onClick={(e) => toggleSave(item.id, e)}
-                                                    className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer flex-shrink-0 ${
+                                                    className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer flex-shrink-0 min-h-[44px] min-w-[44px] ${
                                                         isSaved
                                                             ? "border-emerald-700 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                                                             : "border-sky-700 text-sky-700 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/20"
@@ -783,6 +796,13 @@ export default function TestSeriesPage() {
                                                         <Plus className="h-4 w-4 stroke-[2.5]" />
                                                     )}
                                                 </button>
+
+                                                <Link
+                                                    href={`/test-series/${item.id}`}
+                                                    className="flex-1 py-2.5 px-4 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs sm:text-sm text-center shadow-xs transition-colors cursor-pointer flex items-center justify-center min-h-[44px]"
+                                                >
+                                                    View Test Series
+                                                </Link>
                                             </div>
                                         </div>
                                     </div>
@@ -861,72 +881,28 @@ export default function TestSeriesPage() {
                             >
                                 Start Free Mock Test
                             </Link>
-                            <button
-                                onClick={() => {
-                                    setActiveModalSeries(null)
-                                    setIsPassModalOpen(true)
-                                }}
-                                className="py-3 px-5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm text-center shadow-md transition-colors"
-                            >
-                                Unlock Full Pass
-                            </button>
+                            {SHOW_PREMIUM_PLAN && (
+                                <button
+                                    onClick={() => {
+                                        setActiveModalSeries(null)
+                                        openPassModal()
+                                    }}
+                                    className="py-3 px-5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm text-center shadow-md transition-colors"
+                                >
+                                    Unlock Full Pass
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Pass Membership Modal */}
-            {isPassModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in-0">
-                    <div className="bg-white dark:bg-[#071d33] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6">
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-2">
-                                <span className="text-xl font-black text-gray-900 dark:text-white">aspirantbook</span>
-                                <span className="px-2 py-0.5 rounded-md bg-emerald-700 text-[10px] font-black text-white tracking-widest uppercase">
-                                    PASS PRO
-                                </span>
-                            </div>
-                            <button
-                                onClick={() => setIsPassModalOpen(false)}
-                                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-white"
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
-                        </div>
-
-                        <div className="p-4 rounded-2xl bg-gradient-to-r from-[#003B73] to-[#00A896] text-white space-y-2">
-                            <p className="text-xs uppercase font-extrabold tracking-wider text-cyan-200">All-In-One Pass</p>
-
-                            <p className="text-xs text-white/80">Unlimited access to UPSC, BPSC, School & Skill test series.</p>
-                        </div>
-
-                        <div className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300">
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>Mock tests for UPSC, BPSC, School & Skill exams</span>
-                            </div>
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>Previous Year Papers with instant detailed solutions</span>
-                            </div>
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>National Percentile and All India Rank Leaderboards</span>
-                            </div>
-                            <div className="flex items-center gap-2 font-semibold">
-                                <Check className="h-4 w-4 text-[#00D084]" />
-                                <span>Unlimited Re-attempts on all Mocks</span>
-                            </div>
-                        </div>
-
-                        <Link
-                            href="/subscription"
-                            className="block w-full py-3.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm text-center shadow-lg transition-transform active:scale-[0.99]"
-                        >
-                            Subscribe Now
-                        </Link>
-                    </div>
-                </div>
+            {/* Pass Membership Modal (Premium only) */}
+            {SHOW_PREMIUM_PLAN && (
+                <PassPurchaseModal
+                    isOpen={isPassModalOpen}
+                    onClose={closePassModal}
+                />
             )}
 
             {/* Create Test Series Package Modal */}

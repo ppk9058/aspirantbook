@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { pluralize } from '../../../lib/formatters';
 import {
   BookOpen,
   ChevronLeft,
@@ -119,7 +120,7 @@ export default function TutorialOutlineScreen() {
             <View style={styles.metaBadge}>
               <Layers size={14} color={theme.colors.primary} />
               <Text style={[styles.metaBadgeText, { color: theme.colors.primary }]}>
-                {chapters.length} Chapters
+                {pluralize(chapters.length, "Chapter")}
               </Text>
             </View>
             {tutorial.category ? (

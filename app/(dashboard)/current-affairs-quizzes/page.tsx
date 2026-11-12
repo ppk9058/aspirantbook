@@ -7,7 +7,7 @@ import CurrentAffairsQuizzesClient from "@/components/quizzes/CurrentAffairsQuiz
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Current Affairs and Quizzes | aspirantbook",
+  title: "Current Affairs and Quizzes | AspirantBook",
   description: "Daily speed tests, monthly current affairs roundups, and general awareness quizzes for competitive examinations.",
 }
 

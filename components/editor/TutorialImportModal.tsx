@@ -480,7 +480,7 @@ export function parseGenAiTutorialJson(data: any, rawSource: string): ParsedTuto
         meta: {
             id: data.meta?.id || data.id || title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
             title,
-            brand: data.meta?.brand || "aspirantbook",
+            brand: data.meta?.brand || "AspirantBook",
             subject: technology,
             level: data.meta?.level || difficulty,
             status: data.meta?.status || "Free",
@@ -637,7 +637,7 @@ export function parseTutorialInput(raw: string): ParsedTutorialData {
             meta: {
                 id: embedId,
                 title,
-                brand: "aspirantbook",
+                brand: "AspirantBook",
                 subject: "Web Development",
                 level: "INTERMEDIATE",
                 status: "Free",
@@ -727,7 +727,7 @@ export function parseTutorialInput(raw: string): ParsedTutorialData {
         meta: {
             id: mdxId,
             title,
-            brand: "aspirantbook",
+            brand: "AspirantBook",
             subject: technology,
             level: difficulty,
             status: "Free",
@@ -941,7 +941,7 @@ export function TutorialImportModal({
                                         objective:
                                             "How text transforms into numerical matrices, Byte-Pair Encoding (BPE), and why token awareness prevents silent truncation.",
                                         content:
-                                            "Modern Large Language Models do not read characters or words directly; they operate over ==discrete numerical tokens== produced by statistical tokenizers like Byte-Pair Encoding (BPE) or WordPiece.\n\nUnderstanding tokenization is the fundamental requirement for any serious GenAI Engineer, as every billing tier, context window boundary, and multi-lingual penalty is determined at the token level.\n\n## ● The Mathematics of Token Decomposition\n\n```python\nimport tiktoken\n\nenc = tiktoken.get_encoding('cl100k_base')\ntokens = enc.encode('TrillionSkill GenAI Masterclass')\nprint('Token IDs:', tokens)\nprint('Token Count:', len(tokens))\n```\n\n> [!TIP]\n> Always verify token lengths before transmitting user input to avoid silent context window clipping!",
+                                            "Modern Large Language Models do not read characters or words directly; they operate over ==discrete numerical tokens== produced by statistical tokenizers like Byte-Pair Encoding (BPE) or WordPiece.\n\nUnderstanding tokenization is the fundamental requirement for any serious GenAI Engineer, as every billing tier, context window boundary, and multi-lingual penalty is determined at the token level.\n\n## ● The Mathematics of Token Decomposition\n\n```python\nimport tiktoken\n\nenc = tiktoken.get_encoding('cl100k_base')\ntokens = enc.encode('AspirantBook GenAI Masterclass')\nprint('Token IDs:', tokens)\nprint('Token Count:', len(tokens))\n```\n\n> [!TIP]\n> Always verify token lengths before transmitting user input to avoid silent context window clipping!",
                                     },
                                     {
                                         title: "1.2 Advanced Prompt Architecture & Few-Shot Learning",

@@ -9,7 +9,7 @@ import type { SharedSeoOutput } from "../types"
 
 export function adaptCurrentAffairsCatalogSeo(baseUrl?: string): SharedSeoOutput {
   const canonicalPath = "/current-affairs-quizzes"
-  const title = "Daily Current Affairs Quizzes | aspirantbook"
+  const title = "Daily Current Affairs Quizzes | AspirantBook"
   const description =
     "Test your daily current affairs knowledge with high-yield MCQ speed quizzes for UPSC, BPSC, SSC, and state exams."
 
@@ -47,7 +47,7 @@ export function adaptCurrentAffairsQuizSeo(
   const totalQuestions = quiz.totalQuestions || 10
   const durationMinutes = quiz.durationMinutes || 10
 
-  const title = `${quiz.title} - Current Affairs Quiz | aspirantbook`
+  const title = `${quiz.title} - Current Affairs Quiz | AspirantBook`
   const description = `Practice ${quiz.title} with ${totalQuestions} questions in ${durationMinutes} minutes. Instant evaluation and detailed explanations.`
 
   const quizJsonLd = buildQuizJsonLd({
@@ -57,7 +57,7 @@ export function adaptCurrentAffairsQuizSeo(
     educationalLevel: "Competitive Examination (UPSC, BPSC, SSC)",
     url: canonicalUrl(canonicalPath, cleanBase),
     provider: {
-      name: "aspirantbook",
+      name: "AspirantBook",
       url: cleanBase,
     },
   })

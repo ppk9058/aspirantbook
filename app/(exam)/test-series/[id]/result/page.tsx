@@ -789,7 +789,7 @@ function ResultContent() {
             >
               <span style={{ color: "#fff", fontSize: 9, fontWeight: 900 }}>TS</span>
             </div>
-            <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 14 }}>aspirantbook</span>
+            <span style={{ color: "#0d9488", fontWeight: 900, fontSize: 14 }}>AspirantBook</span>
           </div>
           <div style={{ width: 1, height: 18, background: "#e5e7eb", margin: "0 4px", flexShrink: 0 }} />
           <span
@@ -1630,43 +1630,47 @@ function ResultContent() {
                         return (
                           <div
                             key={letter}
-                            className={`p-3 rounded-xl border text-xs flex items-start gap-2.5 transition-all print:border print:border-gray-300 print:bg-white ${borderBgClass}`}
+                            className={`p-3 rounded-xl border text-xs flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-2.5 transition-all print:border print:border-gray-300 print:bg-white ${borderBgClass}`}
                           >
-                            <span
-                              className={`w-5 h-5 rounded-md flex items-center justify-center font-black text-[11px] shrink-0 mt-0.5 ${
-                                isCorrectAnswer
-                                  ? "bg-emerald-600 text-white"
-                                  : isStudentAnswer
-                                  ? "bg-red-600 text-white"
-                                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                              }`}
-                            >
-                              {letter}
-                            </span>
-                            <div className="min-w-0 flex-1 space-y-0.5">
-                              {(languageMode === "both" || languageMode === "english") && (
-                                <div className="whitespace-pre-line">
-                                  <MathRenderer text={optEnglish || `(Option ${letter} empty)`} />
-                                </div>
-                              )}
-                              {(languageMode === "both" || languageMode === "hindi") && optHindi && (
-                                <div className="text-gray-500 dark:text-gray-400 text-[11px] whitespace-pre-line">
-                                  <MathRenderer text={optHindi} />
-                                </div>
-                              )}
+                            <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                              <span
+                                className={`w-5 h-5 rounded-md flex items-center justify-center font-black text-[11px] shrink-0 mt-0.5 ${
+                                  isCorrectAnswer
+                                    ? "bg-emerald-600 text-white"
+                                    : isStudentAnswer
+                                    ? "bg-red-600 text-white"
+                                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                                }`}
+                              >
+                                {letter}
+                              </span>
+                              <div className="min-w-0 flex-1 space-y-0.5">
+                                {(languageMode === "both" || languageMode === "english") && (
+                                  <div className="whitespace-pre-line break-words">
+                                    <MathRenderer text={optEnglish || `(Option ${letter} empty)`} />
+                                  </div>
+                                )}
+                                {(languageMode === "both" || languageMode === "hindi") && optHindi && (
+                                  <div className="text-gray-500 dark:text-gray-400 text-[11px] whitespace-pre-line break-words">
+                                    <MathRenderer text={optHindi} />
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex flex-col gap-1 items-end shrink-0">
-                              {isCorrectAnswer && (
-                                <span className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-black rounded-md print:border print:border-black print:text-black print:bg-gray-200">
-                                  Correct answer
-                                </span>
-                              )}
-                              {isStudentAnswer && (
-                                <span className={`px-2 py-0.5 text-white text-[10px] font-black rounded-md print:border print:border-black print:text-black print:bg-gray-100 ${isCorrectAnswer ? "bg-emerald-700" : "bg-red-600"}`}>
-                                  Your answer
-                                </span>
-                              )}
-                            </div>
+                            {(isCorrectAnswer || isStudentAnswer) && (
+                              <div className="flex flex-wrap gap-1 items-center self-start sm:self-auto sm:items-end shrink-0 pl-7 sm:pl-0">
+                                {isCorrectAnswer && (
+                                  <span className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-black rounded-md print:border print:border-black print:text-black print:bg-gray-200">
+                                    Correct answer
+                                  </span>
+                                )}
+                                {isStudentAnswer && (
+                                  <span className={`px-2 py-0.5 text-white text-[10px] font-black rounded-md print:border print:border-black print:text-black print:bg-gray-100 ${isCorrectAnswer ? "bg-emerald-700" : "bg-red-600"}`}>
+                                    Your answer
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         )
                       })}

@@ -23,6 +23,7 @@ import {
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import { pluralize } from "../../lib/formatters";
 import { openWebUrl } from "../../lib/web-links";
 import { Card } from "../../../src/components/primitives/Card";
 import { Button } from "../../../src/components/primitives/Button";
@@ -212,7 +213,7 @@ export default function PyqPdfViewScreen() {
               <View style={styles.metaItem}>
                 <CheckCircle size={14} color={colors.success} />
                 <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-                  {paper.totalQuestions} Questions
+                  {pluralize(paper.totalQuestions, "Question")}
                 </Text>
               </View>
             )}

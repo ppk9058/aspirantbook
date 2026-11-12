@@ -39,7 +39,7 @@ const DEFAULT_PRODUCT_DETAILS: BookProductDetail[] = [
   { label: "Format", value: "PDF" },
   { label: "Pages", value: "240" },
   { label: "Language", value: "English" },
-  { label: "Publisher", value: "aspirantbook Publications" },
+  { label: "Publisher", value: "AspirantBook Publications" },
   { label: "Edition", value: "2026 Edition" },
   { label: "Year", value: "2026" },
   { label: "File Size", value: "18.5 MB" },
@@ -54,7 +54,7 @@ export default function BookEditor({
   // Form State
   const [title, setTitle] = useState(initialBook?.title || "")
   const [subtitle, setSubtitle] = useState(initialBook?.subtitle || "")
-  const [author, setAuthor] = useState(initialBook?.author || (role === "ADMIN" ? "aspirantbook Academic Team" : "Faculty"))
+  const [author, setAuthor] = useState(initialBook?.author || (role === "ADMIN" ? "AspirantBook Academic Team" : "Faculty"))
   const [category, setCategory] = useState(initialBook?.category || "UPSC")
   const [subject, setSubject] = useState(initialBook?.subject || "General Studies")
   const [language, setLanguage] = useState(initialBook?.language || "English")
@@ -332,7 +332,7 @@ export default function BookEditor({
     title: title || "Your Book Name",
     subtitle,
     author: author || "Author Name",
-    publisher: "aspirantbook Publications",
+    publisher: "AspirantBook Publications",
     category,
     subject,
     edition,

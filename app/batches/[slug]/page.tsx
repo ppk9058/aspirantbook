@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getBatchBySlug, getAllBatches } from "@/lib/batches-service"
+import { hasRealBatchesAvailable } from "@/lib/home/has-real-batches"
 import BatchDetailClient from "./BatchDetailClient"
 
 interface BatchPageProps {
@@ -23,11 +24,11 @@ export async function generateMetadata({ params }: BatchPageProps): Promise<Meta
   const batch = await getBatchBySlug(slug)
   if (!batch) {
     return {
-      title: "Batch Not Found - aspirantbook",
+      title: "Batch Not Found - AspirantBook",
     }
   }
   return {
-    title: `${batch.title} - aspirantbook`,
+    title: `${batch.title} - AspirantBook`,
     description: batch.targetText || `Enroll in ${batch.title} with live classes, study material & tests.`,
   }
 }
@@ -40,5 +41,7 @@ export default async function BatchDetailPage({ params }: BatchPageProps) {
     notFound()
   }
 
-  return <BatchDetailClient batch={batch} />
+  const hasRealBatches = await hasRealBatchesAvailable()
+
+  return <BatchDetailClient batch={batch} hasRealBatches={hasRealBatches} />
 }

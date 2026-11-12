@@ -64,7 +64,7 @@ export function useSamePageBuyNow() {
             key: order.keyId,
             amount: Number(order.amount),
             currency: order.currency,
-            name: "aspirantbook",
+            name: "AspirantBook",
             description: item.title,
             image: item.image || logoUrl,
             order_id: order.orderId,
@@ -112,8 +112,8 @@ export function useSamePageBuyNow() {
             },
           })
         } else if (item.type === "subscription") {
-          const planTier = item.id.toUpperCase() === "YEARLY" ? "yearly" : "monthly"
-          const plan = (item.id.toUpperCase() === "YEARLY" ? "YEARLY" : "MONTHLY") as "MONTHLY" | "YEARLY"
+          const planTier = "yearly"
+          const plan = "YEARLY" as const
 
           const order = await createRazorpayOrder({
             plan,
@@ -124,7 +124,7 @@ export function useSamePageBuyNow() {
             key: order.keyId,
             amount: Number(order.amount),
             currency: order.currency,
-            name: "aspirantbook",
+            name: "AspirantBook",
             description: `PREMIUM PASS - Pro Learner (${planTier})`,
             image: item.image || logoUrl,
             order_id: order.orderId,
@@ -187,7 +187,7 @@ export function useSamePageBuyNow() {
             key: order.keyId,
             amount: Number(order.amount),
             currency: order.currency,
-            name: "aspirantbook",
+            name: "AspirantBook",
             description: item.title,
             image: item.image || logoUrl,
             order_id: order.orderId,
@@ -240,8 +240,11 @@ export function useSamePageBuyNow() {
           })
         }
       } catch (err: any) {
-        toast.error(err.message || "Failed to initiate checkout")
-        callbacks?.onError?.(err.message || "Failed to initiate checkout")
+        console.error("Order creation or checkout initiation failed:", err)
+        const friendlyMessage =
+          "We could not start the payment right now. Please try again in a few minutes or contact support."
+        toast.error(friendlyMessage)
+        callbacks?.onError?.(friendlyMessage)
       } finally {
         setIsProcessing(false)
       }

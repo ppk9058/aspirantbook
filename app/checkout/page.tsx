@@ -21,10 +21,13 @@ import {
 } from "lucide-react"
 import { createCheckoutSession } from "@/lib/actions/payment/stripe"
 import { createRazorpayOrder } from "@/lib/actions/payment/razorpay"
+import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
+import { PASS_SCOPE_SUMMARY } from "@/lib/payments/pass-marketing"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import { useRazorpayCheckout } from "@/lib/payments/useRazorpayCheckout"
+import { shouldRedirectPremiumCheckout } from "@/lib/config/premium"
 
 declare global {
     interface Window {
@@ -52,7 +55,7 @@ function CheckoutContent() {
     const { data: session, status: authStatus } = useSession()
 
     const rawCourseId = searchParams.get("courseId") || searchParams.get("slug") || searchParams.get("batchId")
-    const planParam = (searchParams.get("plan") || "monthly").toUpperCase() as "MONTHLY" | "YEARLY"
+    const planParam = (searchParams.get("plan") || "yearly").toUpperCase() as "MONTHLY" | "YEARLY"
     const couponParam = (searchParams.get("coupon") || "").trim().toUpperCase()
 
     const [course, setCourse] = useState<CourseCheckoutInfo | null>(null)
@@ -158,6 +161,19 @@ function CheckoutContent() {
     }, [rawCourseId, couponParam])
 
     const activeUser = session?.user || localUser
+
+    // The Premium (pass) plan is hidden until the Admin pass price exists, so a
+    // plan-only checkout (no product id) goes back to /pricing. Product checkouts
+    // (course, batch, test series, book) are untouched.
+    const redirectToPricing = shouldRedirectPremiumCheckout({
+        productId: rawCourseId,
+        plan: searchParams.get("plan"),
+    })
+    useEffect(() => {
+        if (redirectToPricing) {
+            router.replace("/pricing")
+        }
+    }, [redirectToPricing, router])
 
     // Quick mobile registration/login helper
     const handleQuickLogin = async (phone: string): Promise<string | null> => {
@@ -297,12 +313,12 @@ function CheckoutContent() {
             // ─── Razorpay Payment ────────────────────────────────────────────────
             const exactAmount = course
                 ? (appliedCoupon ? Math.round(appliedCoupon.finalPaise / 100) : course.price)
-                : (planParam === "YEARLY" ? 4999 : 499)
+                : PASS_PRICE_INR
             const order = await createRazorpayOrder({
                 amount: exactAmount,
                 courseId: course?.id,
                 courseTitle: course?.title,
-                plan: course ? undefined : planParam,
+                plan: course ? undefined : "YEARLY",
                 userId,
                 couponCode: appliedCoupon?.code || undefined,
             })
@@ -311,8 +327,8 @@ function CheckoutContent() {
                 key: order.keyId,
                 amount: Number(order.amount),
                 currency: order.currency,
-                name: "aspirantbook",
-                description: course ? course.title : `${planParam} Subscription`,
+                name: "AspirantBook",
+                description: course ? course.title : `${paymentMethod === "razorpay" ? "YEARLY" : planParam} Subscription`,
                 order_id: order.orderId,
                 prefill: {
                     name: activeUser?.name || "Student",
@@ -330,7 +346,7 @@ function CheckoutContent() {
                                 paymentId: response.razorpay_payment_id,
                                 signature: response.razorpay_signature,
                                 courseId: course?.id,
-                                plan: course ? undefined : planParam,
+                                plan: course ? undefined : "YEARLY",
                             }),
                         })
                         const verifyData = await verifyRes.json()
@@ -368,6 +384,11 @@ function CheckoutContent() {
         }
     }
 
+    if (redirectToPricing) {
+        // Redirect to /pricing is in flight (see effect above); render nothing.
+        return null
+    }
+
     if (isCourseLoading) {
         return (
             <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
@@ -387,7 +408,7 @@ function CheckoutContent() {
         : course
         ? `₹${finalCoursePrice.toLocaleString("en-IN")}`
         : paymentMethod === "razorpay"
-        ? (planParam === "YEARLY" ? "₹4,999" : "₹499")
+        ? "₹499"
         : (planParam === "YEARLY" ? "$190" : "$19")
 
     return (
@@ -400,7 +421,7 @@ function CheckoutContent() {
                 <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-100 text-xs font-bold text-[#F26522] mb-2">
-                            <span>aspirantbook Secure Checkout</span>
+                            <span>AspirantBook Secure Checkout</span>
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
                             {isFree ? "Complete Free Enrollment" : "Complete Your Order"}
@@ -743,14 +764,14 @@ function CheckoutContent() {
                                         <div className="p-4 rounded-xl bg-purple-50/70 border border-purple-100 space-y-1">
                                             <div className="flex items-center justify-between">
                                                 <span className="font-extrabold text-sm text-gray-900">
-                                                    aspirantbook Premium ({planParam})
+                                                    AspirantBook Premium ({paymentMethod === "razorpay" ? "YEARLY" : planParam})
                                                 </span>
                                                 <span className="font-black text-base text-[#5B47FB]">
-                                                    {displayPrice}
+                                                    {paymentMethod === "razorpay" ? "₹499 / year" : displayPrice}
                                                 </span>
                                             </div>
                                             <p className="text-xs text-gray-500">
-                                                Full unlimited access to all courses, question banks, and live doubts.
+                                                {PASS_SCOPE_SUMMARY}
                                             </p>
                                         </div>
                                     </div>
@@ -794,7 +815,7 @@ function CheckoutContent() {
                                 </li>
                                 <li className="flex items-start gap-2">
                                     <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                                    <span>Certificate of Completion verified by aspirantbook</span>
+                                    <span>Certificate of Completion verified by aspirantBook</span>
                                 </li>
                             </ul>
                         </div>

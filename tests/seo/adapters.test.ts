@@ -20,7 +20,7 @@ describe("SEO Module Adapters", () => {
       const res = adaptPyqsCatalogSeo(base)
       assert.equal(res.canonicalUrl, "https://aspirantbook.com/pyqs")
       assert.equal(res.robots, "index, follow")
-      assert.equal(res.title, "Previous Year Question Papers (PYQs) | TrillionSkill")
+      assert.equal(res.title, "Previous Year Question Papers (PYQs) | AspirantBook")
       assert.equal(res.breadcrumbs.length, 2)
     })
 
@@ -31,7 +31,7 @@ describe("SEO Module Adapters", () => {
       )
       assert.equal(res.canonicalUrl, "https://aspirantbook.com/pyqs/bpsc")
       assert.equal(res.robots, "index, follow")
-      assert.equal(res.title, "BPSC Previous Year Question Papers (PYQs) | TrillionSkill")
+      assert.equal(res.title, "BPSC Previous Year Question Papers (PYQs) | AspirantBook")
       assert.equal(res.breadcrumbs.length, 3)
     })
   })
@@ -50,7 +50,7 @@ describe("SEO Module Adapters", () => {
       )
       assert.equal(res.canonicalUrl, "https://aspirantbook.com/test-series/bpsc-70th-mock")
       assert.equal(res.robots, "index, follow")
-      assert.equal(res.title, "BPSC 70th Prelims Mock Test Series & Mock Tests | TrillionSkill")
+      assert.equal(res.title, "BPSC 70th Prelims Mock Test Series & Mock Tests | AspirantBook")
       assert.equal(res.jsonLd.some((s) => s["@type"] === "Product"), true)
     })
   })
@@ -75,7 +75,7 @@ describe("SEO Module Adapters", () => {
         base
       )
       // Must match snapshot format exactly
-      assert.equal(res.title, "UPSC Economy CA - Current Affairs Quiz | aspirantbook")
+      assert.equal(res.title, "UPSC Economy CA - Current Affairs Quiz | AspirantBook")
       assert.equal(
         res.description,
         "Practice UPSC Economy CA with 10 questions in 10 minutes. Instant evaluation and detailed explanations."
@@ -161,7 +161,7 @@ describe("SEO Module Adapters", () => {
       const courseDesc = "Comprehensive course covering history, geography, economy and polity."
       const canonical = `${base}/courses/upsc-general-studies`
       const res = {
-        title: `${courseTitle} | aspirantbook`,
+        title: `${courseTitle} | AspirantBook`,
         description: courseDesc,
         canonicalUrl: canonical,
         robots: "index, follow",
@@ -173,8 +173,8 @@ describe("SEO Module Adapters", () => {
       // Simulate books page metadata format
       const bookTitle = "Indian Polity 7th Edition"
       const author = "M. Laxmikanth"
-      const title = `${bookTitle} - ${author} | TrillionSkill eBook Store`
-      const description = "Buy and read authentic digital PDF notes and eBooks instantly on TrillionSkill."
+      const title = `${bookTitle} - ${author} | AspirantBook`
+      const description = "Buy and read authentic digital PDF notes and eBooks instantly on AspirantBook."
       const canonical = `${base}/books/indian-polity-7th-edition`
       const res = {
         title,
