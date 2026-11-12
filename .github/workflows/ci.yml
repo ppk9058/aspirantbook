@@ -4,20 +4,26 @@ on:
   push:
     branches:
       - main
-      - feat/*
-      - perf/*
   pull_request:
     branches:
       - main
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# NOTE (self-hosted runner): actions/setup-node's `cache: "npm"` is deliberately
+# NOT used. The npm cache tarball for this repo is ~846 MB and restoring it cost
+# ~8 minutes per job (measured: 6m51s download + 1m09s extract), which pushed
+# "Check Launch Placeholders" past its 10 minute timeout. The runner is a
+# persistent Mac, so ~/.npm already stays warm between jobs and a plain
+# `npm ci` takes ~90s. Removing the remote cache makes jobs faster and avoids
+# the flaky "Cache service responded with 400" failures seen on this runner.
 jobs:
   lint:
     name: Lint & Code Quality
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,7 +32,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -36,7 +41,8 @@ jobs:
 
   check-launch-placeholders:
     name: Check Launch Placeholders
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
+    timeout-minutes: 10
     continue-on-error: true
     steps:
       - name: Checkout repository
@@ -46,7 +52,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -56,7 +61,8 @@ jobs:
 
   tsc-ratchet:
     name: TypeScript Ratchet Check
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -65,7 +71,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -78,7 +83,8 @@ jobs:
 
   security-audit:
     name: Dependency Security Audit
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -99,7 +105,8 @@ jobs:
 
   gitleaks:
     name: Secret Leak Detection (gitleaks)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
+    timeout-minutes: 10
     continue-on-error: true
     permissions:
       contents: read
@@ -115,27 +122,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_REDACT: "true"
-
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+          # The runner's shared TMPDIR (/var/folders/.../T) is reused by every
+          # job, so a partially-downloaded "gitleaks.tmp" from an earlier run
+          # makes the installer abort with
+          #   "Destination file path .../gitleaks.tmp already exists".
+          # Point the action at this job's own (cleaned) temp directory.
+          TMPDIR: ${{ runner.temp }}
 
   migrations-check:
     name: Database Migrations Check
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres_password
-          POSTGRES_DB: trillionskill_migrations_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 5
-
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
+    timeout-minutes: 15
     steps:
+      - name: Docker preflight
+        run: |
+          docker compose version
+          docker info > /dev/null 2>&1 || { echo "Docker Desktop is not running on the runner Mac" >&2; exit 1; }
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -143,51 +147,65 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Start test database container
+        run: docker start trillionskill-test-db || npm run test:db:up
+
+      - name: Wait for database container
+        run: |
+          for i in $(seq 1 30); do
+            if docker exec trillionskill-test-db pg_isready -U postgres; then
+              echo "Postgres is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Postgres did not become ready in time" >&2
+          exit 1
+
+      - name: Prepare fresh migrations database
+        run: |
+          docker exec trillionskill-test-db psql -U postgres -d postgres -c "DROP DATABASE IF EXISTS trillionskill_migrations_test WITH (FORCE);"
+          docker exec trillionskill-test-db psql -U postgres -d postgres -c "CREATE DATABASE trillionskill_migrations_test;"
+
       - name: Verify strictly additive migrations
         run: node scripts/check-migrations-additive.mjs
 
-      - name: Deploy migrations on fresh service database
+      - name: Deploy migrations on fresh database
         env:
-          DATABASE_URL: "postgresql://postgres:postgres_password@localhost:5432/trillionskill_migrations_test"
-          DIRECT_URL: "postgresql://postgres:postgres_password@localhost:5432/trillionskill_migrations_test"
+          DATABASE_URL: "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_migrations_test"
+          DIRECT_URL: "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_migrations_test"
         run: npx prisma migrate deploy
+
+      - name: Cleanup migrations database
+        if: always()
+        run: docker exec trillionskill-test-db psql -U postgres -d postgres -c "DROP DATABASE IF EXISTS trillionskill_migrations_test WITH (FORCE);"
 
   test:
     name: Unit & Security Tests
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
+    timeout-minutes: 30
     # The test-database guard (lib/test-db-guard.ts) only accepts port 54329 for
-    # 127.0.0.1, so the service is published on 54329 and DATABASE_URL/DIRECT_URL
-    # below point at that port. Nothing here is a real secret.
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres_password
-          POSTGRES_DB: trillionskill_test
-        ports:
-          - 54329:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d trillionskill_test"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
+    # 127.0.0.1. The database is the local Docker test container (trillionskill-test-db)
+    # running on 127.0.0.1:54329 via npm run test:db:up.
     env:
       APP_ENV: test
       NODE_ENV: test
       AUTH_TRUST_HOST: "true"
       # Dummy CI-only value: long enough for next-auth, never a real secret.
       NEXTAUTH_SECRET: "ci-dummy-nextauth-secret-not-a-real-secret"
-      DATABASE_URL: "postgresql://postgres:postgres_password@127.0.0.1:54329/trillionskill_test?connection_limit=10"
-      DIRECT_URL: "postgresql://postgres:postgres_password@127.0.0.1:54329/trillionskill_test"
+      DATABASE_URL: "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test?connection_limit=10"
+      DIRECT_URL: "postgresql://postgres:testpassword123@127.0.0.1:54329/trillionskill_test"
 
     steps:
+      - name: Docker preflight
+        run: |
+          docker compose version
+          docker info > /dev/null 2>&1 || { echo "Docker Desktop is not running on the runner Mac" >&2; exit 1; }
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -195,10 +213,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Start test database container
+        run: docker start trillionskill-test-db || npm run test:db:up
 
       - name: Wait for Postgres
         run: |
@@ -211,6 +231,11 @@ jobs:
           done
           echo "Postgres did not become ready in time" >&2
           exit 1
+
+      - name: Reset test database
+        run: |
+          docker exec trillionskill-test-db psql -U postgres -d postgres -c "DROP DATABASE IF EXISTS trillionskill_test WITH (FORCE);"
+          docker exec trillionskill-test-db psql -U postgres -d postgres -c "CREATE DATABASE trillionskill_test;"
 
       - name: Apply schema to the test database
         run: npx prisma migrate deploy
@@ -229,7 +254,8 @@ jobs:
 
   build:
     name: Production Next.js Build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
+    timeout-minutes: 20
     needs: [lint, tsc-ratchet]
     steps:
       - name: Checkout repository
@@ -239,7 +265,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -255,21 +280,35 @@ jobs:
 
   docker-build:
     name: Docker Image Build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
+    timeout-minutes: 20
     needs: [lint, tsc-ratchet]
     steps:
+      - name: Docker preflight
+        run: |
+          docker compose version
+          docker info > /dev/null 2>&1 || { echo "Docker Desktop is not running on the runner Mac" >&2; exit 1; }
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build Docker image (no push, no secrets)
-        run: docker build -t trillionskill:ci -f Dockerfile .
+        run: |
+          # The runner is a LaunchAgent session with no interactive login, so the
+          # Docker Desktop credential helper (credsStore "desktop") cannot unlock
+          # the macOS keychain and BuildKit dies while resolving the public
+          # `docker/dockerfile:1` frontend image:
+          #   error getting credentials - keychain cannot be accessed ...
+          # Use an empty, job-local docker config so nothing queries the keychain
+          # and public Docker Hub images are pulled anonymously.
+          export DOCKER_CONFIG="${{ runner.temp }}/docker-config"
+          mkdir -p "$DOCKER_CONFIG"
+          printf '{}' > "$DOCKER_CONFIG/config.json"
+          docker build -t trillionskill:ci -f Dockerfile .
 
   deploy-staging:
     name: Deploy to Staging (Disabled Stub)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
     if: false
     needs: [lint, tsc-ratchet, test, build, migrations-check, security-audit, docker-build]
     steps:
@@ -278,7 +317,7 @@ jobs:
 
   deploy-prod:
     name: Deploy to Production (Disabled Stub)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64, mac-ci]
     if: false
     needs: [deploy-staging]
     steps:
