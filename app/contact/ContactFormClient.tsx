@@ -10,12 +10,21 @@ export function ContactFormClient() {
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const formData = new FormData(event.currentTarget)
+    const form = event.currentTarget
+    const formData = new FormData(form)
     startTransition(async () => {
-      const res = await submitContactForm(null, formData)
-      setResult(res)
-      if (res.success) {
-        ;(event.target as HTMLFormElement).reset()
+      try {
+        const res = await submitContactForm(null, formData)
+        setResult(res)
+        if (res?.success) {
+          form.reset()
+        }
+      } catch (err: any) {
+        console.error("[ContactFormClient] Submit error:", err)
+        setResult({
+          success: false,
+          error: err?.message || "Failed to submit message. Please try again.",
+        })
       }
     })
   }

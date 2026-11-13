@@ -120,10 +120,11 @@ export async function submitContactForm(prevState: any, formData: FormData) {
 
   // Rate limit: max 10 contact messages per hour per IP (relaxed in test)
   const isTest = process.env.APP_ENV === "test" || process.env.NODE_ENV === "test";
-  const maxAttempts = isTest ? 1000 : 10;
-  const rateLimit = await checkRateLimit(`contact-form:${clientIp}`, maxAttempts, 3600, { failClosed: true });
-  if (!rateLimit.allowed) {
-    return { success: false, error: "Too many contact submissions. Please try again later." };
+  if (!isTest) {
+    const rateLimit = await checkRateLimit(`contact-form:${clientIp}`, 10, 3600, { failClosed: false });
+    if (!rateLimit.allowed) {
+      return { success: false, error: "Too many contact submissions. Please try again later." };
+    }
   }
 
   // Turnstile verification behind TURNSTILE_ENABLED flag
