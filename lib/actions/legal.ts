@@ -99,6 +99,15 @@ export async function submitDataDeletionRequest(prevState: any, formData: FormDa
   }
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export async function submitContactForm(prevState: any, formData: FormData) {
   let clientIp = "127.0.0.1";
   try {
@@ -149,6 +158,60 @@ export async function submitContactForm(prevState: any, formData: FormData) {
         message,
         clientIp,
       },
+    }).catch((err) => {
+      console.warn("[contact-form] Could not persist FormSubmission row:", err);
+    });
+
+    const adminRecipient =
+      process.env.ADMIN_CONTACT_EMAIL ||
+      process.env.SUPPORT_EMAIL ||
+      "ppk9058@gmail.com";
+
+    // 1. Dispatch notification email to Admin / Support
+    await sendEmail({
+      to: adminRecipient,
+      subject: `[Contact Form] ${subject} - from ${name}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="color: #0f172a; border-bottom: 2px solid #0284c7; padding-bottom: 8px; margin-top: 0;">New Contact Form Message</h2>
+          <p style="margin: 8px 0;"><strong>Name:</strong> ${escapeHtml(name)}</p>
+          <p style="margin: 8px 0;"><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
+          <p style="margin: 8px 0;"><strong>Subject:</strong> ${escapeHtml(subject)}</p>
+          <p style="margin: 8px 0; color: #64748b; font-size: 13px;"><strong>Client IP:</strong> ${clientIp}</p>
+          <div style="margin-top: 16px; padding: 14px; background-color: #f8fafc; border-left: 4px solid #0284c7; border-radius: 4px;">
+            <p style="font-size: 13px; font-weight: bold; color: #64748b; margin: 0 0 6px 0;">Message Content:</p>
+            <p style="white-space: pre-wrap; margin: 0; color: #334155; line-height: 1.5;">${escapeHtml(message)}</p>
+          </div>
+        </div>
+      `,
+      text: `New Contact Form Message\n\nName: ${name}\nEmail: ${email}\nSubject: ${subject}\nClient IP: ${clientIp}\n\nMessage:\n${message}`,
+    }).catch((err) => {
+      console.warn("[contact-form] Failed to send admin notification email:", err);
+    });
+
+    // 2. Dispatch automated acknowledgment email to user
+    await sendEmail({
+      to: email.toLowerCase(),
+      subject: `We received your message: ${subject} - AspirantBook Support`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="color: #0f172a; margin-top: 0;">Thank You for Contacting AspirantBook</h2>
+          <p style="color: #334155;">Hello <strong>${escapeHtml(name)}</strong>,</p>
+          <p style="color: #334155; line-height: 1.5;">We have received your inquiry regarding <strong>${escapeHtml(subject)}</strong>. Our learner support team is reviewing your message and will respond to your email shortly.</p>
+          <div style="margin: 16px 0; padding: 14px; background-color: #f8fafc; border-left: 4px solid #0284c7; border-radius: 4px;">
+            <p style="font-size: 13px; font-weight: bold; color: #64748b; margin: 0 0 6px 0;">Your Submitted Query:</p>
+            <p style="white-space: pre-wrap; margin: 0; color: #334155; line-height: 1.5;">${escapeHtml(message)}</p>
+          </div>
+          <p style="font-size: 13px; color: #64748b; margin-top: 24px; line-height: 1.5;">
+            Best regards,<br/>
+            <strong>AspirantBook Support Team</strong><br/>
+            Helpline: +91 8340665934 &bull; Email: <a href="mailto:hello@aspirantbook.com">hello@aspirantbook.com</a>
+          </p>
+        </div>
+      `,
+      text: `Hello ${name},\n\nWe have received your inquiry regarding: ${subject}.\nOur support team is reviewing your message and will get back to you shortly.\n\nYour Message:\n${message}\n\nBest regards,\nAspirantBook Support Team\nEmail: hello@aspirantbook.com`,
+    }).catch((err) => {
+      console.warn("[contact-form] Failed to send user acknowledgment email:", err);
     });
 
     return {

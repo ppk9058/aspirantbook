@@ -62,7 +62,7 @@ export function getBrandConfig(): BrandConfig {
 
   const grievanceEmail =
     process.env.GRIEVANCE_EMAIL ||
-    "grievance@aspirantbook.com";
+    "support@aspirantbook.com";
 
   const registeredAddress =
     process.env.REGISTERED_ADDRESS ||

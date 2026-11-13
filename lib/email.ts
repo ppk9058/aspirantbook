@@ -33,7 +33,7 @@ const OUTBOX_DIR = path.join(process.cwd(), "logs")
 const OUTBOX_FILE = path.join(OUTBOX_DIR, "dev-email-outbox.jsonl")
 
 function parseFromAddress(): { name: string; email: string } {
-    const fromRaw = process.env.EMAIL_FROM || "AspirantBook <no-reply@aspirantbook.com>"
+    const fromRaw = process.env.EMAIL_FROM || "AspirantBook <hello@aspirantbook.com>"
     const match = fromRaw.match(/^(.*?)\s*<([^>]+)>$/)
     if (match) {
         return { name: match[1].trim(), email: match[2].trim() }
