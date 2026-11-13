@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
+import { hasActivePass } from "@/lib/auth/entitlements"
 
 export default async function CareerTrackDetailPage({
     params
@@ -29,7 +30,7 @@ export default async function CareerTrackDetailPage({
         notFound()
     }
 
-    const hasAccess = session?.user?.role === "ADMIN" || session?.user?.role === "PREMIUM"
+    const hasAccess = session?.user?.id ? await hasActivePass(session.user.id) : false
 
     return (
         <div className="space-y-6">

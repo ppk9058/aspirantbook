@@ -69,28 +69,12 @@ export async function POST(req: NextRequest) {
     } else {
         // PURCHASED: legacy path kept for existing paid-series purchases. The
         // payment is verified by /api/verify-payment/razorpay before this call.
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                role: true,
-                subscriptions: {
-                    where: {
-                        status: "ACTIVE",
-                        endDate: { gt: new Date() },
-                    },
-                    take: 1,
-                },
-            },
-        })
-
-        const hasEntitlement =
-            user?.role === "ADMIN" ||
-            user?.role === "PREMIUM" ||
-            (user?.subscriptions && user.subscriptions.length > 0)
+        // Pass/admin entitlement is checked via DB single source of truth (hasActivePass).
+        const hasEntitlement = await hasActivePass(userId)
 
         if (!hasEntitlement) {
             return NextResponse.json(
-                { error: "Payment or active subscription required to enroll with PASS/PURCHASED" },
+                { error: "Payment or active Pass required to enroll with PASS/PURCHASED" },
                 { status: 402 }
             )
         }
