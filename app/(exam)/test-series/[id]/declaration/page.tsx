@@ -147,42 +147,51 @@ function DeclarationContent() {
     if (safeReturnPath !== defaultReturnPath) {
         instructionsQuery.set("returnPath", safeReturnPath)
     }
-    const instructionsHref = `/test-series/${seriesId}/instructions?${instructionsQuery.toString()}`
+    const caQuizSlug = test?.title
+        ? test.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || test.id
+        : test?.id
+    const instructionsHref = isCurrentAffairs && caQuizSlug
+        ? `/current-affairs-quizzes/${encodeURIComponent(caQuizSlug)}/instructions`
+        : `/test-series/${seriesId}/instructions?${instructionsQuery.toString()}`
 
     const handleStartAttempt = async () => {
-        if (!agreed || starting) return
+        if (!agreed || starting || !test) return
         setStarting(true)
         setStartError(null)
 
+        const isRetake = searchParams.get("retake") === "true"
+
         try {
-            const res = await fetch(`/api/exam/${encodeURIComponent(test.id)}/start`, {
+            const res = await fetch("/api/exam/attempt/start", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ lang: selectedLang }),
+                body: JSON.stringify({
+                    testId: test.id,
+                    language: selectedLang,
+                    retake: isRetake,
+                }),
             })
 
-            const data = await res.json()
+            const json = await res.json()
 
-            if (!res.ok) {
+            if (!res.ok || !json.data?.attemptId) {
                 if (res.status === 401) {
                     setStartError("Session expired. Please sign in again to start the assessment.")
                     setStarting(false)
                     return
                 }
-                throw new Error(data.error || "Failed to initialize test attempt.")
+                throw new Error(json.error || "Failed to initialize test attempt.")
             }
 
             const attemptQuery = new URLSearchParams()
             attemptQuery.set("testId", test.id)
+            attemptQuery.set("attemptId", json.data.attemptId)
             attemptQuery.set("lang", selectedLang)
-            if (data.attemptId) {
-                attemptQuery.set("attemptId", data.attemptId)
-            }
             if (safeReturnPath !== defaultReturnPath) {
                 attemptQuery.set("returnPath", safeReturnPath)
             }
 
-            router.push(`/test-series/${seriesId}/attempt?${attemptQuery.toString()}`)
+            router.replace(`/test-series/${seriesId}/attempt?${attemptQuery.toString()}`)
         } catch (err: any) {
             setStartError(err.message || "An unexpected error occurred while starting the test.")
             setStarting(false)
