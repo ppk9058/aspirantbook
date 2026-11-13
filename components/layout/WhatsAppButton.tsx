@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation"
  */
 export const SUPPORT_WHATSAPP_NUMBER = "8340665934"
 const SUPPORT_WHATSAPP_E164 = `91${SUPPORT_WHATSAPP_NUMBER}`
-const DEFAULT_MESSAGE = "Hi aspirantBook team, I need help with my preparation."
+const DEFAULT_MESSAGE = "Hi AspirantBook team, I need help with my preparation."
 
 export function whatsappSupportHref(message: string = DEFAULT_MESSAGE): string {
     return `https://wa.me/${SUPPORT_WHATSAPP_E164}?text=${encodeURIComponent(message)}`
@@ -54,7 +54,7 @@ export function WhatsAppButton() {
             target="_blank"
             rel="noopener noreferrer"
             data-testid="whatsapp-fab"
-            aria-label={`Chat with aspirantBook support on WhatsApp (${SUPPORT_WHATSAPP_NUMBER})`}
+            aria-label={`Chat with AspirantBook support on WhatsApp (${SUPPORT_WHATSAPP_NUMBER})`}
             className={`fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-3 sm:right-5 z-40 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-[#25D366] text-white shadow-lg hover:bg-[#1EBE5A] hover:shadow-xl items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#25D366] ${
                 isStickyBarPage ? "hidden sm:flex" : "flex"
             }`}

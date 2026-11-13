@@ -766,7 +766,7 @@ export default function BatchDetailClient({ batch, hasRealBatches }: BatchDetail
                   </button>
 
                   <p className="text-[11px] text-center text-gray-500 font-medium">
-                    ⚡ Instant Course Access &bull; 100% Satisfaction Guarantee
+                    SSL Encrypted &bull; Verified Digital Content &bull; Instant Access
                   </p>
                 </div>
 

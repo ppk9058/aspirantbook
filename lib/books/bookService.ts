@@ -42,7 +42,7 @@ const INITIAL_ORDERS: BookOrder[] = [
         addedAt: "2026-09-26T07:45:00.000Z",
       },
       {
-        bookId: "cbse-10-rd-sharma-maths-2026",
+        bookId: "secondary-school-mathematics-class-10",
         book: BOOKS_DATA[3],
         quantity: 1,
         addedAt: "2026-09-26T07:46:00.000Z",

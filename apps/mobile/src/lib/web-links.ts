@@ -106,7 +106,7 @@ export const openWebLink = openWebUrl;
 export const SUPPORT_WHATSAPP_NUMBER = "8340665934";
 export const SUPPORT_WHATSAPP_E164 = `91${SUPPORT_WHATSAPP_NUMBER}`;
 export const DEFAULT_SUPPORT_MESSAGE =
-  "Hi aspirantBook team, I need help with my preparation.";
+  "Hi AspirantBook team, I need help with my preparation.";
 
 /** Builds the wa.me deep link (optionally with a pre-filled message). */
 export function buildWhatsAppSupportUrl(

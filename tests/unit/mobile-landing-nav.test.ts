@@ -9,7 +9,7 @@ import { execFileSync } from "node:child_process"
  *
  * Four changes, all below the lg breakpoint:
  *  1. The landing page gets the same hamburger/drawer the dashboard uses.
- *  2. The phone header shows the full "aspirantBook" wordmark; the bell moved
+ *  2. The phone header shows the full "AspirantBook" wordmark; the bell moved
  *     into the avatar pop-down.
  *  3. The landing pill row is removed below lg (its destinations live in the drawer).
  *  4. "Login" in the landing header is "Get Started", solid green, same href.
@@ -297,7 +297,7 @@ describe("mobile landing nav — protected surfaces stay identical to app/main",
     assert.match(launcher, /export const SUPPORT_WHATSAPP_NUMBER = "8340665934"/)
     assert.match(launcher, /https:\/\/wa\.me\/\$\{SUPPORT_WHATSAPP_E164\}/)
     assert.match(launcher, /data-testid="whatsapp-fab"/)
-    assert.match(launcher, /aria-label=\{`Chat with aspirantBook support on WhatsApp/)
+    assert.match(launcher, /aria-label=\{`Chat with AspirantBook support on WhatsApp/)
   })
 
   it("focus rules in app/globals.css are identical to app/main", () => {
@@ -316,6 +316,6 @@ describe("mobile landing nav — protected surfaces stay identical to app/main",
 
     assert.match(page, /Not just learn,/)
     assert.match(page, /from-orange-600 via-rose-500 to-fuchsia-600 bg-clip-text text-transparent/)
-    assert.doesNotMatch(page, /aspirantBook Store/)
+    assert.doesNotMatch(page, /AspirantBook Store/)
   })
 })

@@ -82,7 +82,7 @@ export default function BookEditor({
   )
   const [description, setDescription] = useState(
     initialBook?.description ||
-      "Comprehensive exam preparation eBook designed by top subject matter experts.\n\nIncludes chapter-wise breakdown, high-scoring revision notes, previous years questions with solutions and NCERT references."
+      "Comprehensive exam preparation eBook designed by top subject matter experts.\n\nIncludes chapter-wise breakdown, high-scoring revision notes, previous years questions with solutions and syllabus textbook references."
   )
 
   // Product Details key/value rows
@@ -106,7 +106,7 @@ export default function BookEditor({
       ? initialBook.highlights
       : [
           "Instant eBook Delivery: Searchable & printable high-res PDF",
-          "Complete syllabus coverage with NCERT references",
+          "Complete syllabus coverage with syllabus textbook references",
           "Detailed model answers with step-by-step marking breakdown",
         ]
   )

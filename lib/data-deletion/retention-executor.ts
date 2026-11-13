@@ -126,7 +126,7 @@ export async function executeDataDeletion(
         where: { id: userId },
         data: {
           isActive: false,
-          email: `deleted-${userId}@anonymized.trillionskill.local`,
+          email: `deleted-${userId}@anonymized.aspirantbook.local`,
           name: "Deleted User",
           phoneNumber: null,
           password: null,

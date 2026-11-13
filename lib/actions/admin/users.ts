@@ -532,7 +532,7 @@ export async function anonymizeUser(userId: string) {
         where: { id: userId },
         data: {
             name: "Anonymized User",
-            email: `anonymized-${userId}@anonymized.trillionskill.local`,
+            email: `anonymized-${userId}@anonymized.aspirantbook.local`,
             phoneNumber: null,
             password: null,
             isActive: false,

@@ -103,7 +103,7 @@ export default function LandingPassSection() {
               {/* Brand Wordmark + PASS Ticket Badge */}
               <div className="flex items-center gap-3 flex-wrap">
                 <span className="text-3xl sm:text-4xl font-black text-[#ff0031] tracking-tight">
-                  aspirantBook
+                  AspirantBook
                 </span>
 
                 <span className="relative inline-flex items-center justify-center bg-[#23B6F0] text-white text-xs font-black px-3.5 py-1 uppercase tracking-wider rounded-sm shadow-sm select-none">
@@ -122,7 +122,7 @@ export default function LandingPassSection() {
             {/* What you get label */}
             <div className="pt-2">
               <div className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-                What you get with aspirantBook Pass
+                What you get with AspirantBook Pass
               </div>
 
               {/* 2x2 Grid of Pastel Icon Boxes */}
@@ -175,7 +175,7 @@ export default function LandingPassSection() {
                 href="/pricing"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#00BAF2] hover:bg-[#00a3d4] px-8 py-3.5 text-sm sm:text-base font-extrabold text-white shadow-md shadow-sky-500/20 transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
               >
-                <span>Explore aspirantBook Pass</span>
+                <span>Explore AspirantBook Pass</span>
               </Link>
             </div>
           </div>

@@ -18,10 +18,10 @@ const read = (rel: string) =>
  * sign-in button lives on the login form), so change 4 is not applicable here.
  */
 describe("Expo — brand wordmark is never clipped and the header has no bell", () => {
-  it("MobileAppHeader renders the full aspirantBook wordmark", () => {
+  it("MobileAppHeader renders the full AspirantBook wordmark", () => {
     const header = read("src/components/shell/MobileAppHeader.tsx");
 
-    assert.ok(header.includes(">aspirantBook<") || header.includes("aspirantBook"), "brand text present");
+    assert.ok(header.includes(">AspirantBook<") || header.includes("AspirantBook"), "brand text present");
     assert.ok(
       !header.includes("numberOfLines={1}"),
       "the wordmark must not be limited to one ellipsised line"

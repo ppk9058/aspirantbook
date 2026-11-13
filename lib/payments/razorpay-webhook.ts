@@ -186,6 +186,67 @@ export async function handleRazorpayWebhook(request: NextRequest): Promise<NextR
                     })
                 }
             }
+        } else if (event.event === "refund.created" || event.event === "refund.processed") {
+            // Refund lifecycle: mark the original Payment REFUNDED and revoke Pass
+            // access by cancelling the linked Subscription. Signature verification
+            // and replay protection are already enforced above.
+            const refund = event.payload?.refund?.entity
+            const razorpayPaymentId = refund?.payment_id || event.payload?.payment?.entity?.id
+            const refundId = refund?.id
+
+            if (!razorpayPaymentId) {
+                console.error("Missing payment_id in Razorpay refund webhook payload")
+                return NextResponse.json({ received: true, warning: "Missing payment_id; refund not recorded" })
+            }
+
+            const refundedPayment = await prisma.payment.findFirst({
+                where: {
+                    OR: [
+                        { razorpayPaymentId },
+                        { externalId: razorpayPaymentId },
+                        { metadata: { path: ["paymentId"], equals: razorpayPaymentId } },
+                    ],
+                },
+                select: { id: true, subscriptionId: true, metadata: true },
+            })
+
+            if (!refundedPayment) {
+                console.warn(`Unknown payment "${razorpayPaymentId}" for refund ${refundId || "(no id)"}; nothing to update`)
+                return NextResponse.json({ received: true, warning: "Unknown payment for refund; no record updated" })
+            }
+
+            const existingMeta = (refundedPayment.metadata as any) || {}
+            const refundedMeta = {
+                ...existingMeta,
+                refundId: refundId ?? null,
+                refundStatus: refund?.status ?? event.event,
+                refundEvent: event.event,
+                refundAmountPaise: typeof refund?.amount === "number" ? refund.amount : null,
+                refundedAt: new Date().toISOString(),
+            }
+
+            await prisma.$transaction(async (tx) => {
+                await tx.payment.update({
+                    where: { id: refundedPayment.id },
+                    data: {
+                        status: "REFUNDED",
+                        metadata: refundedMeta,
+                    },
+                })
+
+                // Refunded Pass: cancel the subscription so entitlement is revoked.
+                if (refundedPayment.subscriptionId) {
+                    await tx.subscription.updateMany({
+                        where: { id: refundedPayment.subscriptionId },
+                        data: { status: "CANCELED", cancelAtPeriodEnd: false },
+                    })
+                }
+            })
+
+            console.info(
+                `[RazorpayWebhook] Refund ${refundId || "(no id)"} recorded for payment ${razorpayPaymentId}` +
+                (refundedPayment.subscriptionId ? `; subscription ${refundedPayment.subscriptionId} cancelled` : "")
+            )
         }
 
         return NextResponse.json({ received: true })

@@ -2,7 +2,7 @@ import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import BrandLogo from "@/components/brand/BrandLogo"
-import { ArrowLeft, Mail, Phone, MapPin, Clock, ShieldCheck } from "lucide-react"
+import { ArrowLeft, Building2, Mail, Phone, MapPin, Clock, ShieldCheck } from "lucide-react"
 import { ContactFormClient } from "./ContactFormClient"
 import { getBrandConfig } from "@/lib/config/brand"
 
@@ -58,6 +58,14 @@ export default function ContactPage() {
                 </h2>
 
                 <div className="flex items-start gap-3 text-xs sm:text-sm">
+                  <Building2 className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-slate-900 dark:text-slate-100">Legal Entity</p>
+                    <p className="text-slate-600 dark:text-slate-400">{brand.legalEntityName}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 text-xs sm:text-sm">
                   <Mail className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-bold text-slate-900 dark:text-slate-100">Learner Support</p>
@@ -92,7 +100,7 @@ export default function ContactPage() {
                 <div className="flex items-start gap-3 text-xs sm:text-sm">
                   <MapPin className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold text-slate-900 dark:text-slate-100">Registered Office</p>
+                    <p className="font-bold text-slate-900 dark:text-slate-100">Office</p>
                     <p className="text-slate-600 dark:text-slate-400">{brand.registeredAddress}</p>
                   </div>
                 </div>

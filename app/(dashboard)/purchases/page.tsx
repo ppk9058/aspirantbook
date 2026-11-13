@@ -77,7 +77,7 @@ export default async function MyPurchasesPage() {
     {
       id: "ts-upsc-csat",
       title: "UPSC Prelims GS & CSAT All India Speed Tests",
-      subtitle: "Strictly aligns with UPSC Civil Services Prelims trend analysis and NCERT foundation.",
+      subtitle: "Strictly aligns with UPSC Civil Services Prelims trend analysis and school foundation.",
       category: "UPSC Civil Services",
       testCount: 18,
       validity: "May 2027",

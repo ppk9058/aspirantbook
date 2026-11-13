@@ -94,9 +94,9 @@ describe("UX Pass 5 Fix 2 - Issue 5: Bottom nav order and Pass tab", () => {
     })
 })
 describe("UX Pass 5 Fix 2 - Issue 6: Redesigned /pricing page", () => {
-    it("Pricing page has aspirantBook Pass heading", () => {
+    it("Pricing page has AspirantBook Pass heading", () => {
         const pricing = readFile("app/pricing/page.tsx")
-        assert.match(pricing, /aspirantBook.*Pass/, "aspirantBook Pass heading missing")
+        assert.match(pricing, /AspirantBook.*Pass/, "AspirantBook Pass heading missing")
     })
     it("Pricing page imports PASS_PRICE_INR", () => {
         const pricing = readFile("app/pricing/page.tsx")
@@ -149,9 +149,9 @@ describe("UX Pass 5 Fix 2 - Hard exclusions check", () => {
         assert.match(code, /data-testid="drawer-close"/, "drawer-close testId missing")
         assert.match(code, /MobileDrawer/, "MobileDrawer component structure changed")
     })
-    it("Brand wordmark is exactly 'aspirantBook'", () => {
+    it("Brand wordmark is exactly 'AspirantBook'", () => {
         const pricing = readFile("app/pricing/page.tsx")
-        assert.match(pricing, /aspirantBook/, "brand wordmark must be exactly aspirantBook")
+        assert.match(pricing, /AspirantBook/, "brand wordmark must be exactly AspirantBook")
     })
 })
 

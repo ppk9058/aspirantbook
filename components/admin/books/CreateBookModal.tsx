@@ -16,7 +16,7 @@ const PRESET_COVERS = [
   { label: "CBSE 10 Solved Papers", url: "/images/books/cbse-10-solved-papers.svg" },
   { label: "CBSE 10 4-in-1 Combo", url: "/images/books/cbse-10-bundle.svg" },
   { label: "72nd BPSC Current Affairs", url: "/images/books/bpsc-current-affairs.svg" },
-  { label: "RD Sharma Mathematics", url: "/images/books/rd-sharma-maths.svg" },
+  { label: "Secondary School Mathematics", url: "/images/books/secondary-school-maths.svg" },
   { label: "UPSC Indian Polity", url: "/images/books/indian-polity.svg" },
   { label: "BPSC 25 Years Solved", url: "/images/books/bpsc-solved-papers.svg" },
   { label: "CBSE Social Science", url: "/images/books/cbse-10-social-science.svg" },
@@ -41,7 +41,7 @@ export default function CreateBookModal({ isOpen, onClose, onSuccess }: CreateBo
     coverImage: "/images/books/cbse-10-solved-papers.svg",
     description: "",
     shortDescription: "",
-    features: "100% Solved Papers with point-wise marking scheme\nNCERT textbook references for every question\nInstant eBook Delivery with interactive reader access\nSearchable and highlightable high-resolution PDF",
+    features: "100% Solved Papers with point-wise marking scheme\nSyllabus textbook references for every question\nInstant eBook Delivery with interactive reader access\nSearchable and highlightable high-resolution PDF",
     samplePdfUrl: "",
     fullPdfUrl: "",
     isBestseller: false,
@@ -179,7 +179,7 @@ export default function CreateBookModal({ isOpen, onClose, onSuccess }: CreateBo
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="e.g. PW UPSC CSE 2026: Indian Polity & Governance Chapter-wise Solved Mindmaps"
+                placeholder="e.g. AspirantBook UPSC CSE 2026: Indian Polity & Governance Chapter-wise Solved Mindmaps"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-xs text-gray-900 font-medium"
               />
             </div>
@@ -192,7 +192,7 @@ export default function CreateBookModal({ isOpen, onClose, onSuccess }: CreateBo
                 type="text"
                 value={formData.subtitle}
                 onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                placeholder="e.g. Complete 10 Years Previous Solved Papers with Concept Maps & NCERT references"
+                placeholder="e.g. Complete 10 Years Previous Solved Papers with Concept Maps & Syllabus References"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-xs text-gray-900 font-medium"
               />
             </div>

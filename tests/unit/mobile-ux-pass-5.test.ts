@@ -89,7 +89,7 @@ describe("Mobile UX pass 5 — WhatsApp replaces the floating AI launcher", () =
     assert.match(launcher, /rel="noopener noreferrer"/)
     assert.match(launcher, /data-testid="whatsapp-fab"/)
     // Accessible name announces the channel and the number.
-    assert.match(launcher, /aria-label=\{`Chat with aspirantBook support on WhatsApp/)
+    assert.match(launcher, /aria-label=\{`Chat with AspirantBook support on WhatsApp/)
     // Focus visible styling exists
     assert.match(launcher, /focus-visible:ring-2/)
   })
@@ -99,7 +99,7 @@ describe("Mobile UX pass 5 — WhatsApp replaces the floating AI launcher", () =
     const defaultUrl = whatsappSupportHref()
     assert.equal(
       defaultUrl,
-      "https://wa.me/918340665934?text=Hi%20aspirantBook%20team%2C%20I%20need%20help%20with%20my%20preparation."
+      "https://wa.me/918340665934?text=Hi%20AspirantBook%20team%2C%20I%20need%20help%20with%20my%20preparation."
     )
     const customUrl = whatsappSupportHref("Need batch help")
     assert.equal(customUrl, "https://wa.me/918340665934?text=Need%20batch%20help")

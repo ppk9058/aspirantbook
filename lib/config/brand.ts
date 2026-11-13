@@ -66,7 +66,7 @@ export function getBrandConfig(): BrandConfig {
 
   const registeredAddress =
     process.env.REGISTERED_ADDRESS ||
-    "Pawar View, RK Puram, Near IIT Delhi, Hauz Khas, New Delhi, Delhi - 110016";
+    "Pawar Shop, Ber Sarai Market, Near IIT Delhi, Hauz Khash, New Delhi-110016";
 
   const currentYear = new Date().getFullYear();
 

@@ -78,7 +78,7 @@ export default function AboutPage() {
             </p>
             <div className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 space-y-1 font-medium">
               <p><strong>Legal Entity:</strong> {brand.legalEntityName}</p>
-              <p><strong>Registered Address:</strong> {brand.registeredAddress}</p>
+              <p><strong>Office:</strong> {brand.registeredAddress}</p>
             </div>
           </section>
 
@@ -127,7 +127,7 @@ export default function AboutPage() {
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1">
                 <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100">
                   <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                  <span>Location</span>
+                  <span>Office</span>
                 </div>
                 <p className="text-slate-600 dark:text-slate-400">{brand.registeredAddress}</p>
               </div>
@@ -155,6 +155,10 @@ export default function AboutPage() {
             <span>&bull;</span>
             <Link href="/refund" className="hover:text-slate-950 dark:hover:text-white underline">
               Cancellation &amp; Refund Policy
+            </Link>
+            <span>&bull;</span>
+            <Link href="/shipping" className="hover:text-slate-950 dark:hover:text-white underline">
+              Shipping &amp; Digital Delivery Policy
             </Link>
           </section>
         </div>

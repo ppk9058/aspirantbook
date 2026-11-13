@@ -186,7 +186,7 @@ export default function StudentDashboardClient({
       </div>
 
       {/* DESKTOP-PRESERVED & FULL TABLET/DESKTOP VIEW: Identical to existing UI on >= 1024px */}
-      {/* Active Goal / Cohort Context Ribbon (PW Style) - slim 56px strip */}
+      {/* Active Goal / Cohort Context Ribbon  - slim 56px strip */}
       <div className="hidden lg:flex flex-wrap items-center justify-between gap-3 min-h-[56px] py-2 px-3.5 sm:px-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-indigo-500/10 to-blue-500/10 border border-teal-500/20 text-slate-800 dark:text-slate-200">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#1448d8] to-[#1DB954] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">

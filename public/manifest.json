@@ -1,6 +1,6 @@
 {
   "name": "AspirantBook",
-  "short_name": "aspirantBook",
+  "short_name": "AspirantBook",
   "description": "Exam-preparation platform for Indian competitive exams, with test series, previous year papers, and digital books.",
   "start_url": "/",
   "display": "standalone",

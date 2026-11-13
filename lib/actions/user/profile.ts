@@ -262,7 +262,7 @@ export async function deleteAccount(password: string) {
             where: { id: session.user.id },
             data: {
                 isActive: false,
-                email: `deleted-${user.id}@anonymized.trillionskill.local`,
+                email: `deleted-${user.id}@anonymized.aspirantbook.local`,
                 name: "Deleted User",
                 phoneNumber: null,
                 sessionVersion: { increment: 1 },

@@ -315,7 +315,7 @@ function DeclarationContent() {
                             {agreed && <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
                         </div>
                         <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed">
-                            I have read and understood the instructions and assessment guidelines. I confirm that all answers submitted during this session will be my own work, completed independently and without prohibited aids or unauthorized external assistance. I agree to abide by the assessment integrity regulations of aspirantBook.
+                            I have read and understood the instructions and assessment guidelines. I confirm that all answers submitted during this session will be my own work, completed independently and without prohibited aids or unauthorized external assistance. I agree to abide by the assessment integrity regulations of AspirantBook.
                         </span>
                     </label>
 

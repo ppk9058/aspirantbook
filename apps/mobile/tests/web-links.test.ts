@@ -74,7 +74,7 @@ describe("T5: Centralized Web Origin & Link Builder", () => {
     assert.equal(
       buildWhatsAppSupportUrl(),
       "https://wa.me/918340665934?text=" +
-        encodeURIComponent("Hi aspirantBook team, I need help with my preparation.")
+        encodeURIComponent("Hi AspirantBook team, I need help with my preparation.")
     );
     assert.equal(
       buildWhatsAppSupportUrl("Need help with BPSC batch"),

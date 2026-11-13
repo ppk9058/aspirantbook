@@ -160,7 +160,7 @@ export default function PassPurchaseModal({
         data-testid="pass-modal"
         className="relative w-full max-w-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden my-auto"
       >
-        {/* Left Panel: aspirantBook brand-blue gradient + benefits list */}
+        {/* Left Panel: AspirantBook brand-blue gradient + benefits list */}
         <div className="w-full md:w-5/12 bg-gradient-to-br from-[#003B73] via-[#004e92] to-[#00A896] text-white p-5 sm:p-7 flex flex-col justify-between shrink-0 md:shrink">
           <div>
             {/* Header Brand */}
@@ -177,7 +177,7 @@ export default function PassPurchaseModal({
               id="pass-modal-heading"
               className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug mb-1"
             >
-              aspirantBook Pass
+              AspirantBook Pass
             </h2>
             <p className="text-xs text-white/80 font-medium mb-6">
               One Pass to ace all exams. Complete access to test series, PYQs and mock assessments.
@@ -235,7 +235,7 @@ export default function PassPurchaseModal({
                   </div>
                   <div>
                     <h4 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
-                      Yearly aspirantBook Pass
+                      Yearly AspirantBook Pass
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
                       Valid for 365 days

@@ -62,7 +62,7 @@ export default function PrivacyPolicyPage() {
             <div className="space-y-1">
               <p className="font-bold text-slate-950 dark:text-white">Data Controller &amp; Legal Entity Information</p>
               <p>Entity Name: {brand.legalEntityName}</p>
-              <p>Registered Address: {brand.registeredAddress}</p>
+              <p>Office: {brand.registeredAddress}</p>
               <p>Support Email: <a href={`mailto:${brand.supportEmail}`} className="hover:underline">{brand.supportEmail}</a></p>
               <p>Helpline: <a href={`tel:${brand.supportPhone.replace(/\s+/g, "")}`} className="hover:underline">{brand.supportPhone}</a></p>
             </div>
@@ -171,7 +171,7 @@ export default function PrivacyPolicyPage() {
               <p><strong>Grievance Officer:</strong> {grievanceDisplay}</p>
               <p><strong>Support Email:</strong> <a href={`mailto:${brand.supportEmail}`} className="hover:underline">{brand.supportEmail}</a></p>
               <p><strong>Helpline:</strong> <a href={`tel:${brand.supportPhone.replace(/\s+/g, "")}`} className="hover:underline">{brand.supportPhone}</a></p>
-              <p><strong>Postal Address:</strong> {brand.registeredAddress}</p>
+              <p><strong>Office:</strong> {brand.registeredAddress}</p>
             </div>
             <div className="flex gap-4 pt-2 text-xs font-semibold text-sky-600 dark:text-sky-400">
               <Link href="/terms" className="hover:underline">Terms of Service</Link>

@@ -216,7 +216,7 @@ describe("R12-K: Data deletion and retention executor on real Postgres", () => {
     const wipedUser = await prisma.user.findUnique({ where: { id: targetUser.id } });
     assert.equal(wipedUser?.isActive, false);
     assert.equal(wipedUser?.name, "Deleted User");
-    assert.equal(wipedUser?.email, `deleted-${targetUser.id}@anonymized.trillionskill.local`);
+    assert.equal(wipedUser?.email, `deleted-${targetUser.id}@anonymized.aspirantbook.local`);
     assert.equal(wipedUser?.phoneNumber, null);
     assert.equal(wipedUser?.password, null);
     assert.equal(wipedUser?.image, null);

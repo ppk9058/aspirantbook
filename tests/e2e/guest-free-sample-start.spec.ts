@@ -92,7 +92,7 @@ test.describe("Guest start free sample, mobile OTP login and student attempt flo
     }
   });
 
-  test("guest sees Start Free Sample, click triggers mobile OTP popup, login redirects to instructions, student starts and submits", async ({
+  test("guest sees Start Test, click triggers mobile OTP popup, login redirects to instructions, student starts and submits", async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -101,14 +101,14 @@ test.describe("Guest start free sample, mobile OTP login and student attempt flo
     await page.goto(`/test-series/${seriesSlug}`);
     await expect(page.locator("text=Loading Test Series...")).not.toBeVisible({ timeout: 15000 });
 
-    // 2. Guest must see "Start Free Sample" button for the free published test
-    const startFreeBtn = page.getByRole("link", { name: "Start Free Sample" }).or(
-      page.locator("button, a").filter({ hasText: "Start Free Sample" })
+    // 2. Guest must see "Start Test" button for the free published test
+    const startFreeBtn = page.getByRole("link", { name: "Start Test" }).or(
+      page.locator("button, a").filter({ hasText: "Start Test" })
     );
 
     await expect(startFreeBtn.first()).toBeVisible({ timeout: 30000 });
 
-    // 3. Guest clicks "Start Free Sample" -> opens mobile OTP auth modal
+    // 3. Guest clicks "Start Test" -> opens mobile OTP auth modal
     await startFreeBtn.first().click();
 
     // Verify Mobile Auth modal is displayed

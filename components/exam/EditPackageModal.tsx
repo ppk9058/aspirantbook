@@ -31,7 +31,7 @@ const LOGO_OPTIONS = [
   { id: "upsc", label: "UPSC Emblem" },
   { id: "bpsc", label: "BPSC Bodhi Tree" },
   { id: "uppcs", label: "UPPSC Seal" },
-  { id: "ncert", label: "NCERT Birds" },
+  { id: "ncert", label: "School & Board Foundation" },
   { id: "ssc", label: "SSC Emblem" },
   { id: "sbi", label: "SBI Banking" },
   { id: "rrb", label: "RRB Railways" },

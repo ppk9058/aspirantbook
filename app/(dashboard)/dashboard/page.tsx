@@ -235,7 +235,7 @@ export default async function DashboardPage() {
         if (Array.isArray(promoCardsData)) promoCards = promoCardsData
         totalTimeSpentSecs = timeSpentData?._sum?.timeSpent ?? 0
 
-        const combinedCourses: any[] = [...ALL_GOAL_COURSES]
+        const combinedCourses: any[] = []
         if (recommendedData && recommendedData.length > 0) {
             recommendedData.forEach((dbc: any) => {
                 if (dbc.isTutorial) return

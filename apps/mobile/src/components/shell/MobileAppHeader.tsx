@@ -77,9 +77,9 @@ export function MobileAppHeader({
           />
           {/* The full wordmark must never be clipped: the bell that used to sit
               here now lives in the profile sheet, and the text is not allowed to
-              shrink, so "aspirantBook" always renders in full at 320–390px. */}
+              shrink, so "AspirantBook" always renders in full at 320–390px. */}
           <Text testID="mobile-header-brand-name" style={styles.brandText}>
-            aspirantBook
+            AspirantBook
           </Text>
         </TouchableOpacity>
       </View>

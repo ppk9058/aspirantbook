@@ -7,6 +7,7 @@ import { checkRateLimit } from "@/lib/rate-limit"
 import { getRazorpayClient, getRazorpayKeyId, isRazorpayTestMode } from "@/lib/payments/razorpay-config"
 import { toMinorUnits } from "@/lib/money"
 import { PASS_PRICE_PAISE } from "@/lib/payments/pass-plan"
+import { hasActivePass } from "@/lib/auth/entitlements"
 
 
 export interface CreateOrderParams {
@@ -44,6 +45,16 @@ export async function createRazorpayOrder(params: CreateOrderParams | "MONTHLY" 
     const rl = await checkRateLimit(`payment_create_order:${userId}`, 15, 60, { failClosed: true })
     if (!rl.allowed) {
         throw new Error("Too many order requests. Please wait a moment before trying again.")
+    }
+
+    // Duplicate Pass purchase guard (server-side). A user who already holds an
+    // active Pass must never be charged a second time, regardless of what the
+    // client shows. Course orders are unaffected (they are separate products).
+    if (!courseId) {
+        const alreadyHasPass = await hasActivePass(userId)
+        if (alreadyHasPass) {
+            throw new Error("You already have an active AspirantBook Pass")
+        }
     }
 
     const requireVerification =

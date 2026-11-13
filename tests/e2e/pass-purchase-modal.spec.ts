@@ -70,8 +70,8 @@ test.describe("Pass Purchase Modal: Same-Page Pop-up & Checkout Flow", () => {
     expect(page.url()).toBe(initialUrl)
 
     // 2. Real Pass benefits and Pay button
-    await expect(modal.getByText("aspirantBook Pass", { exact: false }).first()).toBeVisible()
-    await expect(modal.getByText("Yearly aspirantBook Pass")).toBeVisible()
+    await expect(modal.getByText("AspirantBook Pass", { exact: false }).first()).toBeVisible()
+    await expect(modal.getByText("Yearly AspirantBook Pass")).toBeVisible()
     const payBtn = page.locator('[data-testid="pass-modal-pay-btn"]')
     await expect(payBtn).toBeVisible()
     await expect(payBtn).toBeEnabled()

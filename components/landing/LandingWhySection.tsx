@@ -22,7 +22,7 @@ export default function LandingWhySection() {
               id="why-aspirantbook-heading"
               className="text-3xl sm:text-5xl font-black text-gray-950 dark:text-white tracking-tight leading-[1.15]"
             >
-              Why aspirantBook?
+              Why AspirantBook?
             </h2>
 
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed max-w-md">

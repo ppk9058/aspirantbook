@@ -408,7 +408,7 @@ export function CourseBundleView({
               </div>
             )}
 
-            {/* PW-Style Sticky In-Page Navigation Bar */}
+            {/* Sticky In-Page Navigation Bar */}
             <div data-scroll-x="true" className="sticky top-16 z-20 bg-white/95 backdrop-blur-md rounded-2xl border border-gray-200 shadow-xs p-1.5 flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
               {TABS.map((tab) => {
                 const isSelected = activeTab === tab.id

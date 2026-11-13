@@ -1,5 +1,7 @@
 import { auth } from "@/auth"
+import Link from "next/link"
 import { Check, Crown, Lock, Sparkles, ShieldCheck } from "lucide-react"
+import Footer from "@/components/layout/Footer"
 import PassBuyNowButton from "@/components/pricing/PassBuyNowButton"
 import PassFAQAccordion from "@/components/pricing/PassFAQAccordion"
 import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
@@ -7,8 +9,8 @@ import { PASS_INCLUDED_FEATURES } from "@/lib/payments/pass-marketing"
 import { hasActivePass } from "@/lib/auth/entitlements"
 
 export const metadata = {
-    title: "aspirantBook Pass - Unlock All Exams | aspirantBook",
-    description: "Get unlimited access to test series, PYQs, current affairs, quizzes and tutorials for all exams with aspirantBook Pass at Rs 499/year",
+    title: "AspirantBook Pass - Unlock All Exams | AspirantBook",
+    description: "Get unlimited access to test series, PYQs, current affairs, quizzes and tutorials for all exams with AspirantBook Pass at Rs 499/year",
 }
 
 export default async function PricingPage() {
@@ -19,7 +21,7 @@ export default async function PricingPage() {
     const isPremiumActive = await hasActivePass(user?.id)
 
     return (
-        <div className="min-h-dvh bg-white dark:bg-gray-950 pb-[calc(6rem+env(safe-area-inset-bottom,0px))] lg:pb-16">
+        <div className="min-h-dvh bg-white dark:bg-gray-950 lg:pb-16">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
                 {/* Main Heading */}
                 <div className="text-center mb-8 sm:mb-10">
@@ -28,7 +30,7 @@ export default async function PricingPage() {
                         <span>All-Access Annual Pass</span>
                     </div>
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white mb-3 tracking-tight">
-                        Get All Exams With <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-500">aspirantBook</span> Pass
+                        Get All Exams With <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-500">AspirantBook</span> Pass
                     </h1>
                     <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
                         One annual subscription for all your test prep needs across UPSC, State PSCs, SSC, and Foundation exams.
@@ -72,7 +74,7 @@ export default async function PricingPage() {
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mt-3 mb-6">
                             <div>
                                 <h3 className="text-2xl sm:text-3xl font-black text-white mb-1 tracking-tight">
-                                    Yearly aspirantBook Pass
+                                    Yearly AspirantBook Pass
                                 </h3>
                                 <p className="text-sm text-blue-200">
                                     Valid for 365 days from moment of activation
@@ -130,6 +132,23 @@ export default async function PricingPage() {
                             />
                         </div>
 
+                        {/* Consent Notice (desktop card) */}
+                        <p className="hidden lg:block pt-3 text-center text-[11px] leading-relaxed text-blue-200">
+                            By purchasing you agree to our{" "}
+                            <Link href="/terms" className="font-semibold text-white underline underline-offset-2 hover:text-amber-200">
+                                Terms &amp; Conditions
+                            </Link>
+                            ,{" "}
+                            <Link href="/refund" className="font-semibold text-white underline underline-offset-2 hover:text-amber-200">
+                                Refund Policy
+                            </Link>{" "}
+                            and{" "}
+                            <Link href="/shipping" className="font-semibold text-white underline underline-offset-2 hover:text-amber-200">
+                                Digital Delivery Policy
+                            </Link>
+                            .
+                        </p>
+
                         {/* Trust Line */}
                         <div className="flex items-center justify-center gap-2 pt-4 text-xs text-blue-200 border-t border-white/10">
                             <Lock className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
@@ -152,6 +171,12 @@ export default async function PricingPage() {
                 </div>
             </div>
 
+            {/* Site footer — extra bottom padding keeps it clear of the fixed
+                mobile Buy Now bar (below lg) so no link is hidden behind it. */}
+            <div className="pb-[calc(11.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
+                <Footer />
+            </div>
+
             {/* Sticky Bottom Buy Now Bar (Mobile Only - below lg) */}
             <div
                 className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] lg:hidden"
@@ -165,6 +190,22 @@ export default async function PricingPage() {
                         userEmail={user?.email}
                         userPhone={undefined}
                     />
+                    {/* Consent Notice (mobile sticky bar) */}
+                    <p className="pt-2 text-center text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+                        By purchasing you agree to our{" "}
+                        <Link href="/terms" className="font-semibold text-blue-600 dark:text-blue-400 underline underline-offset-2">
+                            Terms &amp; Conditions
+                        </Link>
+                        ,{" "}
+                        <Link href="/refund" className="font-semibold text-blue-600 dark:text-blue-400 underline underline-offset-2">
+                            Refund Policy
+                        </Link>{" "}
+                        and{" "}
+                        <Link href="/shipping" className="font-semibold text-blue-600 dark:text-blue-400 underline underline-offset-2">
+                            Digital Delivery Policy
+                        </Link>
+                        .
+                    </p>
                 </div>
             </div>
         </div>

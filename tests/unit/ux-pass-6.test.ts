@@ -14,7 +14,7 @@ describe("UX Pass 6 - Part A: /pricing Section Order & Content", () => {
         const pricing = readRepoFile("app/pricing/page.tsx")
 
         const benefitsIdx = pricing.indexOf("Pass Benefits")
-        const priceCardIdx = pricing.indexOf("Yearly aspirantBook Pass")
+        const priceCardIdx = pricing.indexOf("Yearly AspirantBook Pass")
         const faqIdx = pricing.indexOf("Frequently Asked Questions")
 
         assert.ok(benefitsIdx > 0, "Benefits Card heading missing")
@@ -61,7 +61,7 @@ describe("UX Pass 6 - Part B: Email Confirmation Alert Removed", () => {
 })
 
 describe("UX Pass 6 - Part C: CBT Instructions & Declaration", () => {
-    it("instructions page renders aspirantBook brand and declaration link", () => {
+    it("instructions page renders AspirantBook brand and declaration link", () => {
         const instructions = readRepoFile("app/(exam)/test-series/[id]/instructions/InstructionsClient.tsx")
         assert.match(instructions, /BrandLogo/, "BrandLogo must be used in CBT instructions header")
         assert.match(instructions, /General Assessment Guidelines/, "Guidelines title missing")

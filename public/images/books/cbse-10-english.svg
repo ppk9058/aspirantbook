@@ -2,7 +2,7 @@
   <rect width="400" height="560" rx="10" fill="#4c1d95"/>
   <rect x="15" y="15" width="370" height="530" rx="6" fill="#581c87" stroke="#a855f7" stroke-width="1.5"/>
   <circle cx="65" cy="55" r="20" fill="#000" stroke="#f6d365" stroke-width="2"/>
-  <text x="65" y="61" fill="#fff" font-family="sans-serif" font-weight="900" font-size="14" text-anchor="middle">PW</text>
+  <text x="65" y="61" fill="#fff" font-family="sans-serif" font-weight="900" font-size="14" text-anchor="middle">AB</text>
   <text x="65" y="120" fill="#d8b4fe" font-family="sans-serif" font-weight="bold" font-size="16">CBSE CLASS 10</text>
   <text x="65" y="150" fill="#fff" font-family="sans-serif" font-weight="900" font-size="24">CHAPTER-WISE</text>
   <text x="200" y="270" fill="#facc15" font-family="sans-serif" font-weight="900" font-size="96" text-anchor="middle">10</text>

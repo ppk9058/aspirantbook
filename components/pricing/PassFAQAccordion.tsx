@@ -11,15 +11,15 @@ interface FAQItem {
 
 const FAQS: FAQItem[] = [
     {
-        q: "What is the aspirantBook Pass?",
-        a: "The aspirantBook Pass is an all-inclusive annual membership providing 365 days of unlimited access to comprehensive test series, computer-based mock tests (CBT), previous year question papers (PYQs), daily current affairs, quizzes, and curated reading tutorials across all exams hosted on aspirantBook.",
+        q: "What is the AspirantBook Pass?",
+        a: "The AspirantBook Pass is an all-inclusive annual membership providing 365 days of unlimited access to comprehensive test series, computer-based mock tests (CBT), previous year question papers (PYQs), daily current affairs, quizzes, and curated reading tutorials across all exams hosted on AspirantBook.",
     },
     {
         q: "Which exams and study resources are covered under the Pass?",
         a: "Your Pass unlocks the entire examination catalog, including UPSC CSE, State PSCs (such as BPSC), SSC, Railways, Banking, and School Foundation exam test series, along with fully solved PYQ papers, timed speed drills, and reading tutorials. You do not need to buy separate test series for different exams.",
     },
     {
-        q: "What is excluded from the aspirantBook Pass?",
+        q: "What is excluded from the AspirantBook Pass?",
         a: "Recorded video lecture courses, live interactive classroom batches, and downloadable ePDF books are independent premium offerings authored by educators and are not included in the Pass. They can be purchased separately from their respective sections.",
     },
     {
@@ -28,7 +28,7 @@ const FAQS: FAQItem[] = [
     },
     {
         q: "Does the subscription auto-renew or charge my card automatically?",
-        a: "No. The aspirantBook Pass is strictly a single, upfront payment. It does not enroll you in automatic recurring billing. You retain full control over whether and when to renew upon expiration.",
+        a: "No. The AspirantBook Pass is strictly a single, upfront payment. It does not enroll you in automatic recurring billing. You retain full control over whether and when to renew upon expiration.",
     },
     {
         q: "Which payment options can I use at checkout?",
@@ -36,7 +36,7 @@ const FAQS: FAQItem[] = [
     },
     {
         q: "Can I use my Pass across multiple devices?",
-        a: "Yes. Your subscription is linked directly to your aspirantBook user profile. You can log in and practice seamlessly on desktop browsers, tablet screens, and our mobile web or native application.",
+        a: "Yes. Your subscription is linked directly to your AspirantBook user profile. You can log in and practice seamlessly on desktop browsers, tablet screens, and our mobile web or native application.",
     },
     {
         q: "Can I reattempt mock tests and view comprehensive solutions?",

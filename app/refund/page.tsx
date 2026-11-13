@@ -54,7 +54,7 @@ export default function RefundPolicyPage() {
             <div className="space-y-1">
               <p className="font-bold">Merchant Information &amp; Legal Address</p>
               <p>Legal Entity: {brand.legalEntityName}</p>
-              <p>Registered Office: {brand.registeredAddress}</p>
+              <p>Office: {brand.registeredAddress}</p>
               <p>Support Contact: <a href={`mailto:${brand.supportEmail}`} className="underline font-medium">{brand.supportEmail}</a></p>
             </div>
           </div>
@@ -144,6 +144,15 @@ export default function RefundPolicyPage() {
               <p><strong>Direct Escalation:</strong> <a href={`mailto:${brand.grievanceEmail}`} className="underline text-indigo-600 dark:text-indigo-400 font-medium">{brand.grievanceEmail}</a></p>
             </div>
           </section>
+
+          {/* Legal Footer Links */}
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400">
+            <Link href="/terms" className="hover:text-slate-950 dark:hover:text-white underline">Terms &amp; Conditions</Link>
+            <span>&bull;</span>
+            <Link href="/privacy" className="hover:text-slate-950 dark:hover:text-white underline">Privacy Policy</Link>
+            <span>&bull;</span>
+            <Link href="/shipping" className="hover:text-slate-950 dark:hover:text-white underline">Shipping &amp; Digital Delivery Policy</Link>
+          </div>
         </div>
       </main>
     </div>

@@ -17,7 +17,7 @@ export interface BrandLogoProps {
     priority?: boolean
     onClick?: () => void
     /**
-     * Extra classes for the "aspirantBook" wordmark. Defaults to `truncate`.
+     * Extra classes for the "AspirantBook" wordmark. Defaults to `truncate`.
      * Headers that must always show the full wordmark (the phone header, which
      * also carries search + avatar) pass a non-truncating class instead.
      */
@@ -46,7 +46,7 @@ const SIZE_CONFIG: Record<
     lg: {
         box: "h-9 w-9 sm:h-11 sm:w-11",
         img: 44,
-        // Phone wordmark is 16px so the full 12-character "aspirantBook" fits at
+        // Phone wordmark is 16px so the full 12-character "AspirantBook" fits at
         // 320px next to the hamburger and the header CTA; sm+ is unchanged.
         text: "text-base sm:text-2xl font-black tracking-tight",
     },
@@ -79,7 +79,7 @@ export default function BrandLogo({
             >
                 <Image
                     src="/aspirant-logo.png"
-                    alt="aspirantBook"
+                    alt="AspirantBook"
                     width={config.img}
                     height={config.img}
                     className="h-full w-full rounded-full object-contain"
@@ -91,7 +91,7 @@ export default function BrandLogo({
                     data-testid="brand-name"
                     className={`${wordmarkClassName} text-[#ff0031] dark:text-[#ff385c] ${config.text}`}
                 >
-                    aspirantBook
+                    AspirantBook
                 </span>
             )}
         </span>

@@ -25,11 +25,23 @@ export function PublicFooter({ lang = "en" }: { lang?: "en" | "hi" }) {
             <Link href="/hi/question-answer" className="hover:text-foreground transition-colors">
               हिन्दी प्रश्नोत्तर
             </Link>
+            <Link href="/about" className="hover:text-foreground transition-colors">
+              About
+            </Link>
             <Link href="/terms" className="hover:text-foreground transition-colors">
               Terms
             </Link>
             <Link href="/privacy" className="hover:text-foreground transition-colors">
               Privacy
+            </Link>
+            <Link href="/refund" className="hover:text-foreground transition-colors">
+              Refund Policy
+            </Link>
+            <Link href="/shipping" className="hover:text-foreground transition-colors">
+              Shipping &amp; Delivery
+            </Link>
+            <Link href="/contact" className="hover:text-foreground transition-colors">
+              Contact
             </Link>
           </div>
         </div>

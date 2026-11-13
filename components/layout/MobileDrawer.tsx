@@ -114,6 +114,18 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
         { name: "BPSC", href: "/dashboard?goal=bpsc", icon: Target, testId: "mobile-drawer-bpsc" },
     ]
 
+    // Legal, pricing and support pages. Razorpay live review requires every
+    // policy page to be reachable from any route on mobile (no desktop footer).
+    const policyItems = [
+        { name: "About Us", href: "/about", testId: "mobile-drawer-about" },
+        { name: "Pricing & Pass", href: "/pricing", testId: "mobile-drawer-pricing" },
+        { name: "Terms & Conditions", href: "/terms", testId: "mobile-drawer-terms" },
+        { name: "Privacy Policy", href: "/privacy", testId: "mobile-drawer-privacy" },
+        { name: "Refund Policy", href: "/refund", testId: "mobile-drawer-refund" },
+        { name: "Shipping & Delivery", href: "/shipping", testId: "mobile-drawer-shipping" },
+        { name: "Contact Us", href: "/contact", testId: "mobile-drawer-contact" },
+    ]
+
     const visibleNavItems = drawerNavItems.filter((item) => !isGuest || item.guestVisible !== false)
 
     return (
@@ -210,6 +222,31 @@ export default function MobileDrawer({ isOpen, onClose, hasActivePass }: MobileD
                             </Link>
                         )
                     })}
+
+                    {/* Policies & Support — reachable from every route on mobile */}
+                    <p className="px-3 pt-3 pb-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                        Policies &amp; Help
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5 py-1">
+                        {policyItems.map((item) => {
+                            const isActive = pathname === item.href
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={onClose}
+                                    data-testid={item.testId}
+                                    className={`flex items-center min-h-11 px-3 rounded-xl text-[11px] font-semibold transition-colors ${
+                                        isActive
+                                            ? "bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 font-bold"
+                                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                    }`}
+                                >
+                                    <span className="truncate">{item.name}</span>
+                                </Link>
+                            )
+                        })}
+                    </div>
 
                 </div>
 

@@ -136,12 +136,11 @@ function ExamLogo({ logoType }: { logoType: string }) {
         return (
             <div className="w-11 h-11 rounded-full bg-white border border-gray-300 dark:border-gray-700 flex items-center justify-center p-1 shadow-xs">
                 <svg className="w-8 h-8" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="47" fill="#FEFCE8" stroke="#854D0E" strokeWidth="2" strokeDasharray="3 2" />
-                    {/* NCERT 3 Interlocking Birds */}
-                    <circle cx="50" cy="38" r="13" fill="none" stroke="#713F12" strokeWidth="2.5" />
-                    <circle cx="39" cy="57" r="13" fill="none" stroke="#713F12" strokeWidth="2.5" />
-                    <circle cx="61" cy="57" r="13" fill="none" stroke="#713F12" strokeWidth="2.5" />
-                    <text x="50" y="90" textAnchor="middle" fontSize="8.5" fontWeight="900" fill="#713F12">NCERT</text>
+                    <circle cx="50" cy="50" r="47" fill="#F8FAFC" stroke="#047857" strokeWidth="2" />
+                    {/* AspirantBook academic emblem: open book */}
+                    <path d="M24 40 L50 30 L76 40 L76 64 L50 54 L24 64 Z" fill="none" stroke="#047857" strokeWidth="2.5" strokeLinejoin="round" />
+                    <line x1="50" y1="30" x2="50" y2="54" stroke="#047857" strokeWidth="2.5" />
+                    <text x="50" y="89" textAnchor="middle" fontSize="8.5" fontWeight="900" fill="#064E3B">SCHOOL</text>
                 </svg>
             </div>
         )

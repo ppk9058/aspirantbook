@@ -54,7 +54,7 @@ export default function PassBuyNowButton({
             {
                 type: "subscription",
                 id: "YEARLY",
-                title: "aspirantBook Pass (Yearly)",
+                title: "AspirantBook Pass (Yearly)",
                 price: PASS_PRICE_INR,
                 isFree: false,
             },

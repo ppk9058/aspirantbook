@@ -47,7 +47,7 @@ export default function CourseClient({
     const { selectedGoal, selectedGoals } = useGoal()
 
     const allCourses = useMemo(() => {
-        const combined: Course[] = [...ALL_GOAL_COURSES]
+        const combined: Course[] = []
         dbCourses.forEach((dbc) => {
             const classified = classifyCourse(dbc)
             // Text-based tutorials do NOT belong in the Video Courses catalog

@@ -360,7 +360,7 @@ export function MobileProfileSheet({
               onPress={handleWhatsAppSupport}
               testID="profile-sheet-whatsapp"
               accessibilityRole="button"
-              accessibilityLabel={`Chat with aspirantBook support on WhatsApp (${SUPPORT_WHATSAPP_NUMBER})`}
+              accessibilityLabel={`Chat with AspirantBook support on WhatsApp (${SUPPORT_WHATSAPP_NUMBER})`}
               style={[styles.linkItem, { borderRadius: tokens.radius.xl }]}
             >
               <View style={styles.linkLeft}>

@@ -127,7 +127,7 @@
     {
       "id": "cat-school-boards",
       "title": "Schools, Boards & Olympiads",
-      "description": "NCERT-aligned interactive classes for Classes 6th - 12th",
+      "description": "School syllabus-aligned interactive classes for Classes 6th - 12th",
       "icon": "GraduationCap",
       "goals": [
         {
@@ -244,7 +244,7 @@
   "otherOfferings": [
     {
       "id": "ncert-foundation",
-      "title": "Free NCERT Foundation Series",
+      "title": "Free School Foundation Series",
       "description": "6th to 12th General Studies summary lectures & notes",
       "badge": "Free Access",
       "icon": "BookOpen"

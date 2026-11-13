@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
+import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useSession, signIn } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -624,9 +625,25 @@ function CheckoutContent() {
                                 </Button>
                             )}
 
+                            <p className="text-center text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+                                By continuing with this payment you agree to our{" "}
+                                <Link href="/terms" className="font-semibold text-[#5B47FB] dark:text-indigo-400 underline underline-offset-2">
+                                    Terms &amp; Conditions
+                                </Link>
+                                ,{" "}
+                                <Link href="/refund" className="font-semibold text-[#5B47FB] dark:text-indigo-400 underline underline-offset-2">
+                                    Refund Policy
+                                </Link>{" "}
+                                and{" "}
+                                <Link href="/shipping" className="font-semibold text-[#5B47FB] dark:text-indigo-400 underline underline-offset-2">
+                                    Digital Delivery Policy
+                                </Link>
+                                .
+                            </p>
+
                             <div className="flex items-center justify-center gap-2 text-xs text-gray-400 font-medium">
                                 <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                                <span>SSL Encrypted &bull; 100% Satisfaction Guaranteed &bull; Instant Access</span>
+                                <span>SSL Encrypted &bull; Verified Digital Content &bull; Instant Access</span>
                             </div>
                         </div>
                     </div>
@@ -815,7 +832,7 @@ function CheckoutContent() {
                                 </li>
                                 <li className="flex items-start gap-2">
                                     <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                                    <span>Certificate of Completion verified by aspirantBook</span>
+                                    <span>Certificate of Completion verified by AspirantBook</span>
                                 </li>
                             </ul>
                         </div>

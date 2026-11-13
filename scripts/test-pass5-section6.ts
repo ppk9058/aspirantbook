@@ -108,9 +108,9 @@ async function main() {
             throw new Error('Expected at least one "Free sample" badge on Series Detail page!')
         }
 
-        const freeSampleButtons = page.locator('a:has-text("Start Free Sample"), button:has-text("Start Free Sample")')
+        const freeSampleButtons = page.locator('a:has-text("Start Test"), button:has-text("Start Test")')
         const buttonCount = await freeSampleButtons.count()
-        console.log(`✓ "Start Free Sample" buttons found on Series Detail page: ${buttonCount}`)
+        console.log(`✓ "Start Test" buttons found on Series Detail page: ${buttonCount}`)
 
         const seriesScreenshot = path.join(ARTIFACT_DIR, "tp1_series_detail_free_sample.png")
         await page.screenshot({ path: seriesScreenshot })
@@ -136,9 +136,9 @@ async function main() {
         // ── 4. FLOW (a): START AND SUBMIT FREE SAMPLE TEST ───────────────────
         console.log("\n--- Flow (a): Non-pro student starts and submits Free Sample test ---")
         await page.goto(`${BASE_URL}/test-series/upsc-2027`, { waitUntil: "networkidle" })
-        const startFreeBtn = page.locator('a:has-text("Start Free Sample")').first()
+        const startFreeBtn = page.locator('a:has-text("Start Test")').first()
         await startFreeBtn.waitFor({ state: "visible", timeout: 8000 })
-        console.log(`Clicking Start Free Sample button...`)
+        console.log(`Clicking Start Test button...`)
         await startFreeBtn.click()
 
         // Wait for instructions page

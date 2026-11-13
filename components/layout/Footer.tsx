@@ -1,7 +1,7 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ShieldCheck, Lock, Trash2, Heart, FileText, Info, CreditCard } from "lucide-react"
+import { ShieldCheck, Lock, Trash2, Heart, FileText, Info, CreditCard, Truck } from "lucide-react"
 import BrandLogo from "@/components/brand/BrandLogo"
 
 export default function Footer() {
@@ -85,6 +85,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/shipping" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
+                  <Truck className="w-3.5 h-3.5 text-violet-600" />
+                  <span>Shipping &amp; Delivery Policy</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/data-deletion" className="hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1.5">
                   <Trash2 className="w-3.5 h-3.5 text-rose-600" />
                   <span>Data Deletion Request</span>
@@ -126,6 +132,7 @@ export default function Footer() {
             <Link href="/privacy" className="hover:underline">Privacy</Link>
             <Link href="/terms" className="hover:underline">Terms</Link>
             <Link href="/refund" className="hover:underline">Refunds</Link>
+            <Link href="/shipping" className="hover:underline">Shipping &amp; Delivery</Link>
             <Link href="/contact" className="hover:underline">Contact</Link>
             <Link href="/data-deletion" className="hover:underline">Data Deletion</Link>
           </div>

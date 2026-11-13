@@ -165,7 +165,7 @@ export async function deleteViewerAccount(
     where: { id: userId },
     data: {
       isActive: false,
-      email: `deleted-${user.id}@anonymized.trillionskill.local`,
+      email: `deleted-${user.id}@anonymized.aspirantbook.local`,
       name: "Deleted User",
       phoneNumber: null,
       image: null,

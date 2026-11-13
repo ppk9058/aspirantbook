@@ -22,7 +22,7 @@ const VIEWPORTS = [
   { label: "phone", width: 390, height: 844 },
 ] as const;
 
-const BOOK_SLUG = "cbse-class-9th-ncert-exemplar-solutions-maths-science";
+const BOOK_SLUG = "cbse-class-9th-exemplar-solutions-maths-science";
 
 async function noHorizontalScroll(page: Page, label: string) {
   const overflow = await page.evaluate(

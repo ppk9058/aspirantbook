@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     },
 }
 import CourseClient from "@/components/courses/CourseClient"
+import Footer from "@/components/layout/Footer"
 import { classifyCourse } from "@/lib/course-classifier"
 import { cleanDescriptionSnippet } from "@/lib/utils"
 import { cookies } from "next/headers"
@@ -131,14 +132,19 @@ export default async function CoursesPage() {
     }
 
     return (
-        <CourseClient
-            key={goalIds.join(",") || "all"}
-            dbCourses={dbCourses}
-            enrolledCourseIds={enrolledCourseIds}
-            completedCourseIds={completedCourseIds}
-            bookmarkedCourseIds={bookmarkedCourseIds}
-            badgeMap={badgeMap}
-            serverGoalIds={goalIds}
-        />
+        <>
+            <CourseClient
+                key={goalIds.join(",") || "all"}
+                dbCourses={dbCourses}
+                enrolledCourseIds={enrolledCourseIds}
+                completedCourseIds={completedCourseIds}
+                bookmarkedCourseIds={bookmarkedCourseIds}
+                badgeMap={badgeMap}
+                serverGoalIds={goalIds}
+            />
+            <div className="mt-10">
+                <Footer />
+            </div>
+        </>
     )
 }

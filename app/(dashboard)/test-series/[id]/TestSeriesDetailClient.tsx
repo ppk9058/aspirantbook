@@ -642,10 +642,11 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                                     </svg>
                                 ) : currentSeries.logoType === "ncert" ? (
                                     <svg className="w-7 h-7 sm:w-9 sm:h-9" viewBox="0 0 100 100">
-                                        <circle cx="50" cy="50" r="47" fill="#F8FAFC" stroke="#2563EB" strokeWidth="2.5" />
-                                        <path d="M25 65 L50 25 L75 65 Z" fill="#2563EB" />
-                                        <circle cx="50" cy="48" r="8" fill="#FBBF24" />
-                                        <text x="50" y="85" textAnchor="middle" fontSize="9" fontWeight="900" fill="#1E40AF">NCERT</text>
+                                        <circle cx="50" cy="50" r="47" fill="#F8FAFC" stroke="#047857" strokeWidth="2.5" />
+                                        {/* AspirantBook academic emblem: open book */}
+                                        <path d="M24 40 L50 30 L76 40 L76 64 L50 54 L24 64 Z" fill="none" stroke="#047857" strokeWidth="2.5" strokeLinejoin="round" />
+                                        <line x1="50" y1="30" x2="50" y2="54" stroke="#047857" strokeWidth="2.5" />
+                                        <text x="50" y="88" textAnchor="middle" fontSize="9" fontWeight="900" fill="#064E3B">SCHOOL</text>
                                     </svg>
                                 ) : (
                                     <svg className="w-7 h-7 sm:w-9 sm:h-9" viewBox="0 0 100 100">
@@ -890,7 +891,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
 
                         <div className="space-y-1.5 mb-4">
                             <div className="flex flex-wrap items-center gap-2 min-w-0">
-                                <span className="text-lg sm:text-xl font-black tracking-tight text-white">aspirantBook</span>
+                                <span className="text-lg sm:text-xl font-black tracking-tight text-white">AspirantBook</span>
                                 <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-xs text-[10px] font-black tracking-widest uppercase">
                                     PASS
                                 </span>

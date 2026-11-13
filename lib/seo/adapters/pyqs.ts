@@ -6,7 +6,7 @@ export function adaptPyqsCatalogSeo(baseUrl?: string): SharedSeoOutput {
   const canonicalPath = "/pyqs"
   const title = "Previous Year Question Papers (PYQs) | AspirantBook"
   const description =
-    "Download and practice verified previous year examination papers for BPSC, UPSC, NCERT, and State Boards with answer keys and CBT simulations."
+    "Download and practice verified previous year examination papers for BPSC, UPSC, CBSE, and State Boards with answer keys and CBT simulations."
 
   return buildSeoPackage(
     {

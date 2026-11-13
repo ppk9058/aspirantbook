@@ -67,7 +67,7 @@ export default function MobileAppHeader({ hasActivePass }: MobileAppHeaderProps)
 
                     {/* Right Controls: Search & Avatar.
                         The notification bell moved into the avatar sheet
-                        (MobileProfileSheet) so the full "aspirantBook" wordmark
+                        (MobileProfileSheet) so the full "AspirantBook" wordmark
                         always fits at 320px. */}
                     <div className="flex items-center gap-0.5 sm:gap-2 flex-shrink-0">
                         {/* Search Icon */}

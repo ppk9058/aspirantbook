@@ -137,10 +137,10 @@ export async function ensureDefaultPyqData() {
       ],
     },
     {
-      name: "NCERT",
-      slug: "ncert",
-      fullName: "National Council of Educational Research and Training",
-      description: "Official NCERT exemplar and school final assessment past papers.",
+      name: "CBSE / School Boards",
+      slug: "cbse-school-boards",
+      fullName: "CBSE and School Board Assessment Papers",
+      description: "School and board exemplar and past assessment papers",
       badgeColor: "#10b981",
       order: 5,
       subExams: [

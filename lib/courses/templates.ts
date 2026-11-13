@@ -189,7 +189,7 @@ export const UPSC_PRELIMS_TEMPLATE = {
   slug: "upsc-prelims-2027-foundation",
   subtitle: "Comprehensive 500+ Hour Foundation Batch for UPSC Civil Services Prelims 2027 with PYQs and Test Series.",
   subtitleHi: "यूपीएससी सिविल सेवा प्रारंभिक परीक्षा 2027 के लिए 500+ घंटे का संपूर्ण फाउंडेशन बैच, पीवाईक्यू और टेस्ट सीरीज सहित।",
-  description: "Exhaustive classroom program covering General Studies Paper 1 and CSAT with concept lectures, NCERT coverage, and answer writing orientation.",
+  description: "Exhaustive classroom program covering General Studies Paper 1 and CSAT with concept lectures, standard textbook coverage, and answer writing orientation.",
   descriptionHi: "सामान्य अध्ययन पेपर 1 एवं सीसैट का संपूर्ण फाउंडेशन बैच, एनसीईआरटी कवरेज और पिछले वर्षों के प्रश्नों का गहन विश्लेषण।",
   price: 14999,
   mrp: 29999,
@@ -256,7 +256,7 @@ export const UPSC_PRELIMS_TEMPLATE = {
   ],
   whatYouGet: [
     { text: "500+ Hours Live Interactive Classes", textHi: "500+ घंटे की लाइव इंटरैक्टिव कक्षाएं" },
-    { text: "NCERT & Standard Reference Book Summaries", textHi: "एनसीईआरटी एवं मानक संदर्भ पुस्तकों का सार" },
+    { text: "Standard Textbook & Reference Book Summaries", textHi: "मानक पाठ्यपुस्तक एवं संदर्भ पुस्तकों का सार" },
     { text: "Weekly Mains Answer Writing & Prelims Tests", textHi: "साप्ताहिक मुख्य परीक्षा उत्तर लेखन व प्रारंभिक टेस्ट" },
     { text: "Daily Current Affairs & The Hindu Trend Maps", textHi: "दैनिक करंट अफेयर्स एवं ट्रेंड मैपिंग" },
   ],
@@ -359,7 +359,7 @@ export const UPSC_PRELIMS_TEMPLATE = {
     {
       q: "Is this batch suitable for beginners starting UPSC preparation for the first time?",
       qHi: "क्या यह बैच पहली बार यूपीएससी की तैयारी शुरू करने वाले शुरुआती छात्रों के लिए उपयुक्त है?",
-      a: "Yes. The batch starts with basic NCERT fundamentals before moving into advanced reference materials.",
+      a: "Yes. The batch starts with basic syllabus fundamentals before moving into advanced reference materials.",
       aHi: "हाँ, यह बैच बेसिक एनसीईआरटी से शुरू होता है और उसके बाद मानक पुस्तकों की ओर बढ़ता है।",
     },
   ],

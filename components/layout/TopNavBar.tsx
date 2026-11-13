@@ -38,7 +38,7 @@ export default function TopNavBar() {
                 <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
                     <BrandLogoLink />
 
-                    {/* Persistent PW-style Goal Switcher */}
+                    {/* Persistent Goal Switcher */}
                     <GoalSelectorButton />
                 </div>
 
@@ -111,7 +111,7 @@ export default function TopNavBar() {
                     <ProfileDropdown hideMyPurchase={false} />
                 </div>
             </div>
-            {/* PW-Style Select Your Goal Modal */}
+            {/* Select Your Goal Modal */}
             <GoalModal />
         </header>
     )

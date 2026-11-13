@@ -173,7 +173,7 @@ export function MobileDrawer({ isOpen, onClose, testID }: MobileDrawerProps) {
                 resizeMode="contain"
               />
               <Text style={styles.brandText}>
-                aspirantBook
+                AspirantBook
               </Text>
             </TouchableOpacity>
 
