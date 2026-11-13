@@ -1,7 +1,51 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
-import { createOrder } from "@/lib/books/bookService"
+import { createOrder, getUserCompletedBooks, getUserCompletedOrders } from "@/lib/books/bookService"
 
+export const dynamic = "force-dynamic"
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "private, no-store, no-cache, max-age=0, must-revalidate",
+}
+
+/**
+ * GET /api/books/orders
+ *
+ * The database is the only source of truth for book ownership. Auth required;
+ * the userId always comes from the session, never from the query/body.
+ * Returns the user's completed orders plus the derived owned book ids using the
+ * exact same ownership logic as getUserCompletedBooks().
+ */
+export async function GET() {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401, headers: NO_STORE_HEADERS }
+      )
+    }
+
+    const userId = session.user.id
+    const [orders, ownedBookIds] = await Promise.all([
+      getUserCompletedOrders(userId),
+      getUserCompletedBooks(userId),
+    ])
+
+    return NextResponse.json(
+      { success: true, data: orders, ownedBookIds },
+      { status: 200, headers: NO_STORE_HEADERS }
+    )
+  } catch (err: any) {
+    console.error("[GET /api/books/orders] failed:", err)
+    return NextResponse.json(
+      { error: "Failed to load orders" },
+      { status: 500, headers: NO_STORE_HEADERS }
+    )
+  }
+}
+
+/** POST unchanged: clients can never mark an order completed directly. */
 export async function POST(req: Request) {
   try {
     const session = await auth()

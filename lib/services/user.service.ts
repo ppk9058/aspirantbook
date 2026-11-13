@@ -9,6 +9,7 @@ import {
   DeleteAccountResponseDto,
 } from "@aspirantbook/shared";
 import { invalidateViewerCache } from "@/lib/api/v1/viewer";
+import { hasActivePass } from "@/lib/auth/entitlements";
 
 export async function getViewerProfile(userId: string): Promise<ViewerProfileDto> {
   const user = await prisma.user.findUnique({
@@ -31,13 +32,15 @@ export async function getViewerProfile(userId: string): Promise<ViewerProfileDto
   }
 
   // Count entitlements safely in parallel
-  const [enrolledCoursesCount, completedTestsCount] = await Promise.all([
+  const [enrolledCoursesCount, completedTestsCount, passActive] = await Promise.all([
     prisma.enrollment.count({
       where: { userId },
     }),
     prisma.examAttempt.count({
       where: { userId, status: "SUBMITTED" },
     }),
+    // Single source of truth for the Pass entitlement (database only).
+    hasActivePass(userId),
   ]);
 
   return {
@@ -50,9 +53,10 @@ export async function getViewerProfile(userId: string): Promise<ViewerProfileDto
     goal: user.selectedGoal,
     emailVerified: user.emailVerified,
     isActive: user.isActive,
+    hasActivePass: passActive,
     entitlements: {
       enrolledCoursesCount,
-      activePassesCount: enrolledCoursesCount > 0 ? 1 : 0,
+      activePassesCount: passActive ? 1 : 0,
       completedTestsCount,
       streakDays: completedTestsCount > 0 ? 3 : 1, // Deterministic learner streak
     },

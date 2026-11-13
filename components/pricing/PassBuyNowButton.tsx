@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Loader2, CheckCircle2, Zap } from "lucide-react"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
@@ -83,16 +84,17 @@ export default function PassBuyNowButton({
         )
     }
     if (isActive) {
-        // Show active state with expiry date (if available in user data)
-        // For now, show generic active state
+        // Pass holders keep the price card visible but get a dashboard CTA
+        // instead of a purchase button.
         return (
-            <button
-                disabled
-                className="w-full min-h-[52px] rounded-xl bg-emerald-600 text-white font-extrabold text-base flex items-center justify-center gap-2 cursor-not-allowed"
+            <Link
+                href="/dashboard"
+                data-testid="pass-go-to-dashboard"
+                className="w-full min-h-[52px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base flex items-center justify-center gap-2 transition-colors"
             >
                 <CheckCircle2 className="h-5 w-5" />
-                Pass Active
-            </button>
+                Go to Dashboard
+            </Link>
         )
     }
 

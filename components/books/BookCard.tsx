@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Book } from "@/lib/books/types"
 import { useBookCart } from "@/lib/books/cartContext"
 import { useWishlist } from "@/lib/books/wishlistContext"
-import { Star, Plus, Minus, Heart, Zap, ShoppingCart } from "lucide-react"
+import { Star, Plus, Minus, Heart, Zap, ShoppingCart, BookOpen } from "lucide-react"
 import Image from "next/image"
 
 interface BookCardProps {
@@ -13,9 +13,11 @@ interface BookCardProps {
 }
 
 export default function BookCard({ book }: BookCardProps) {
-  const { items, addToCart, updateQuantity, setIsCartOpen } = useBookCart()
+  const { items, addToCart, updateQuantity, setIsCartOpen, isOwned } = useBookCart()
   const { isWishlisted, toggleWishlist } = useWishlist()
 
+  // Server-derived ownership (GET /api/books/orders), never localStorage.
+  const owned = isOwned(book.id)
   const cartItem = items.find((i) => i.bookId === book.id)
   const wishlisted = isWishlisted(book.id)
 
@@ -113,7 +115,17 @@ export default function BookCard({ book }: BookCardProps) {
         </span>
       </div>
 
-      {/* Action Buttons: Add to Cart (turns into stepper) + Buy Now (gap 12px scale, 44px tap target; full width per row on phones) */}
+      {/* Action Buttons: owned books link to the reader instead of selling again */}
+      {owned ? (
+        <Link
+          href={`/books/read/${encodeURIComponent(book.id)}`}
+          data-testid="book-card-read-online-btn"
+          className="mt-3 pt-2.5 min-h-[44px] w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5"
+        >
+          <BookOpen className="w-3.5 h-3.5 shrink-0" />
+          <span>Read Online</span>
+        </Link>
+      ) : (
       <div className="mt-3 pt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
         {cartItem ? (
           <div
@@ -163,6 +175,7 @@ export default function BookCard({ book }: BookCardProps) {
           <span>Buy Now</span>
         </button>
       </div>
+      )}
     </div>
   )
 }

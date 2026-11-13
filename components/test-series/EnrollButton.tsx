@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { CheckCheck, Plus, Loader2, ShieldCheck, ArrowRight } from "lucide-react"
+import { CheckCheck, Plus, Loader2, ShieldCheck, ArrowRight, AlertCircle, Play } from "lucide-react"
 import { useSamePageBuyNow } from "@/lib/payments/useSamePageBuyNow"
 import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
 import { usePassPurchaseModal } from "@/lib/payments/usePassPurchaseModal"
+import { usePassStatus } from "@/lib/auth/usePassStatus"
 
 interface EnrollButtonProps {
     seriesId: string          // slug or id
@@ -27,15 +28,21 @@ export default function EnrollButton({
     const router = useRouter()
     const { handleBuyNow, isProcessing } = useSamePageBuyNow()
 
+    // Database-backed Pass entitlement (server resolved, never session role).
+    const passStatus = usePassStatus()
+    const passPending = passStatus.isLoading || passStatus.error
+
     const [enrolled, setEnrolled] = useState(false)
     const [loading, setLoading] = useState(true)
     const [effectiveIsFree, setEffectiveIsFree] = useState<boolean>(isFree)
+    const [enrollError, setEnrollError] = useState<string | null>(null)
 
     const {
         isOpen: isPassModalOpen,
         openPassModal,
         closePassModal,
     } = usePassPurchaseModal({
+        hasActivePass: passStatus.hasActivePass,
         onSuccess: () => {
             setEnrolled(true)
             onEnrolled?.()
@@ -60,7 +67,10 @@ export default function EnrollButton({
                     setEffectiveIsFree(serverFree)
                 }
             })
-            .catch(() => {})
+            .catch((err) => {
+                console.error("[EnrollButton] failed to load enrollment:", err)
+                if (isMounted) setEnrollError("Could not load this test series. Please retry.")
+            })
             .finally(() => {
                 if (isMounted) setLoading(false)
             })
@@ -70,11 +80,45 @@ export default function EnrollButton({
         }
     }, [seriesId, session?.user?.id])
 
+    /**
+     * Pass holder path: the server re-checks the entitlement from the database
+     * (POST /api/exam/series/enroll with enrollType PASS) and then we hand over
+     * to the existing test-series / attempt flow.
+     */
+    const enrollWithPass = async () => {
+        setEnrollError(null)
+        setLoading(true)
+        try {
+            const res = await fetch("/api/exam/series/enroll", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ seriesId, enrollType: "PASS" }),
+            })
+            const json = await res.json().catch(() => null)
+            if (!res.ok || !json?.success) {
+                throw new Error(json?.error || "Could not open this test series with your Pass.")
+            }
+            setEnrolled(true)
+            onEnrolled?.()
+            router.push(`/test-series/${seriesId}`)
+        } catch (err: any) {
+            console.error("[EnrollButton] pass enrollment failed:", err)
+            setEnrollError(err?.message || "Could not open this test series with your Pass.")
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const handleEnroll = async (e?: React.MouseEvent<HTMLButtonElement>) => {
         if (enrolled || isProcessing) return
 
+        if (passStatus.hasActivePass) {
+            await enrollWithPass()
+            return
+        }
+
         if (!effectiveIsFree) {
-            // Paid series / Pro pass: Open Pass Purchase Modal on the SAME page
+            // Paid series, no Pass: Open Pass Purchase Modal on the SAME page
             openPassModal(e?.currentTarget)
             return
         }
@@ -129,6 +173,23 @@ export default function EnrollButton({
         )
     }
 
+    // Paid series while the database pass value is still loading (or failed):
+    // neutral state, never a "Get Pass" flash at a real pass holder.
+    if (!effectiveIsFree && passPending) {
+        return (
+            <button
+                disabled
+                aria-busy="true"
+                className={`rounded-xl font-bold flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-wait ${sizeClasses[size]} ${className}`}
+            >
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Checking access…
+            </button>
+        )
+    }
+
+    const isPassHolder = passStatus.hasActivePass && !effectiveIsFree
+
     return (
         <>
             <button
@@ -136,22 +197,34 @@ export default function EnrollButton({
                 disabled={isProcessing}
                 data-testid="series-enroll-btn"
                 data-hydrated="true"
-                className={`rounded-xl font-extrabold flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
-                    effectiveIsFree
-                        ? "bg-[#1448d8] hover:bg-[#0f37a8] text-white shadow-md"
-                        : "bg-[#1448d8] hover:bg-[#0f37a8] text-white shadow-md"
-                } ${sizeClasses[size]} ${className}`}
-                aria-label={effectiveIsFree ? "Enroll Free" : "Get Pass"}
+                data-pass-holder={isPassHolder ? "true" : "false"}
+                className={`rounded-xl font-extrabold flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-[#1448d8] hover:bg-[#0f37a8] text-white shadow-md ${sizeClasses[size]} ${className}`}
+                aria-label={isPassHolder ? "Take Test" : effectiveIsFree ? "Enroll Free" : "Get Pass"}
             >
                 {isProcessing ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
+                ) : isPassHolder ? (
+                    <Play className="w-4 h-4 fill-current" />
                 ) : effectiveIsFree ? (
                     <Plus className="w-4 h-4 stroke-[2.5]" />
                 ) : (
                     <ShieldCheck className="w-4 h-4" />
                 )}
-                {isProcessing ? "Processing…" : effectiveIsFree ? "Enroll Free" : "Get Pass"}
+                {isProcessing
+                    ? "Processing…"
+                    : isPassHolder
+                    ? "Take Test"
+                    : effectiveIsFree
+                    ? "Enroll Free"
+                    : "Get Pass"}
             </button>
+
+            {enrollError && (
+                <p role="alert" className="mt-2 flex items-start gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                    <span>{enrollError}</span>
+                </p>
+            )}
 
             <PassPurchaseModal
                 isOpen={isPassModalOpen}

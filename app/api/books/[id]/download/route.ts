@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUserContext } from "@/lib/auth/rbac"
-import { getBookById, getAllOrders } from "@/lib/books/bookService"
+import { getBookById, getUserCompletedBooks } from "@/lib/books/bookService"
 import {
   BookFileError,
   normalizeBookStorageKey,
@@ -35,40 +35,15 @@ export async function GET(
       }
     }
 
-    // 2. Check purchased orders for this user (must be COMPLETED / completed)
-    if (!hasAccess && user.isAuthenticated && user.userId) {
-      const orders = await getAllOrders()
-      const userOrders = orders.filter(
-        (o) =>
-          o.userId === user.userId &&
-          (o.status === "completed" || o.status === "COMPLETED")
-      )
-      const hasPurchased = userOrders.some((o) =>
-        o.items?.some((item) => (item.bookId === book.id || item.book?.id === book.id))
-      )
-      if (hasPurchased) {
-        hasAccess = true
-      }
-    }
-
-    // 3. Fallback: Check if order parameter provided and belongs to user and is completed
+    // 2. Ownership comes from the DATABASE through the SAME helper used by
+    //    GET /api/books/orders and the storefront (case-insensitive status,
+    //    only the current user's completed orders). The optional `order` query
+    //    param is intentionally NOT trusted: ownership is per user and book.
     const { searchParams } = new URL(req.url)
-    const orderNum = searchParams.get("order")
-    if (!hasAccess && orderNum && user.isAuthenticated) {
-      const orders = await getAllOrders()
-      const validOrder = orders.find(
-        (o) =>
-          (o.orderNumber === orderNum || o.id === orderNum) &&
-          (o.status === "completed" || o.status === "COMPLETED") &&
-          o.userId === user.userId
-      )
-      if (validOrder) {
-        const itemInOrder = validOrder.items?.some(
-          (item) => item.bookId === book.id || item.book?.id === book.id
-        )
-        if (itemInOrder) {
-          hasAccess = true
-        }
+    if (!hasAccess && user.isAuthenticated && user.userId) {
+      const ownedBookIds = await getUserCompletedBooks(user.userId)
+      if (ownedBookIds.includes(book.id)) {
+        hasAccess = true
       }
     }
 

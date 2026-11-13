@@ -161,6 +161,16 @@ export default function ProfileDropdown({
           />
 
           <Link
+            href="/books/orders"
+            data-testid="profile-menu-orders"
+            onClick={() => setShowProfileMenu(false)}
+            className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+          >
+            <ShoppingBag className="h-4 w-4 text-gray-400" />
+            <span>Orders</span>
+          </Link>
+
+          <Link
             href="/settings"
             data-testid="profile-menu-settings"
             onClick={() => setShowProfileMenu(false)}

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react"
+import React, { createContext, useContext, useState, useEffect, useMemo, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { Book, CartItem, SavedItem, Coupon, BookOrder } from "./types"
 import { AVAILABLE_COUPONS } from "./data"
@@ -33,6 +33,11 @@ interface CartContextType {
   appliedCoupon: Coupon | null
   couponDiscount: number
   orders: BookOrder[]
+  /** Server-derived (database) owned book ids. Never read from localStorage. */
+  ownedBookIds: string[]
+  /** "loading" until GET /api/books/orders resolves; "error" if it failed. */
+  ordersStatus: "loading" | "ready" | "error"
+  isOwned: (bookId: string) => boolean
   isCartOpen: boolean
   setIsCartOpen: (open: boolean) => void
   addToCart: (book: Book, qty?: number) => void
@@ -67,10 +72,15 @@ export function BookCartProvider({ children }: { children: React.ReactNode }) {
   const [savedForLater, setSavedForLater] = useState<SavedItem[]>([])
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null)
   const [orders, setOrders] = useState<BookOrder[]>([])
+  const [ownedBookIds, setOwnedBookIds] = useState<string[]>([])
+  const [ordersStatus, setOrdersStatus] = useState<"loading" | "ready" | "error">("loading")
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
+  const previousUserIdRef = useRef<string | null>(null)
 
-  // Hydrate from localStorage on client mount (user-scoped)
+  // Hydrate the cart/saved/coupon cache from localStorage (user-scoped).
+  // Orders are only a cache here; the database (GET /api/books/orders) is
+  // authoritative and always overwrites them below.
   useEffect(() => {
     try {
       if (isLoggedIn && userId) {
@@ -116,6 +126,7 @@ export function BookCartProvider({ children }: { children: React.ReactNode }) {
         setItems([])
         setSavedForLater([])
         setOrders([])
+        setOwnedBookIds([])
         setAppliedCoupon(null)
       }
     } catch (e) {
@@ -124,6 +135,95 @@ export function BookCartProvider({ children }: { children: React.ReactNode }) {
       setIsHydrated(true)
     }
   }, [isLoggedIn, userId])
+
+  // Owned books + orders come from the DATABASE. localStorage is only a cache:
+  // - the server response always replaces what was cached,
+  // - ownership (ownedBookIds) is NEVER read from localStorage,
+  // - the cache is dropped on logout and on user switch.
+  useEffect(() => {
+    const previousUserId = previousUserIdRef.current
+
+    if (previousUserId !== (userId ?? null)) {
+      if (previousUserId) {
+        try {
+          localStorage.removeItem(getOrdersStorageKey(previousUserId))
+        } catch (e) {
+          console.error("Failed to clear cached orders for previous user:", e)
+        }
+      }
+      previousUserIdRef.current = userId ?? null
+      setOrders([])
+      setOwnedBookIds([])
+    }
+
+    if (!isLoggedIn || !userId) {
+      setOrders([])
+      setOwnedBookIds([])
+      setOrdersStatus("ready")
+      return
+    }
+
+    let cancelled = false
+    setOrdersStatus("loading")
+
+    const loadServerOrders = async () => {
+      try {
+        const res = await fetch("/api/books/orders", {
+          cache: "no-store",
+          credentials: "same-origin",
+          headers: { Accept: "application/json" },
+        })
+        const json = await res.json().catch(() => null)
+        if (cancelled) return
+
+        if (res.status === 401) {
+          setOrders([])
+          setOwnedBookIds([])
+          setOrdersStatus("ready")
+          return
+        }
+
+        if (!res.ok || !json?.success || !Array.isArray(json.data)) {
+          setOrdersStatus("error")
+          return
+        }
+
+        const serverOrders = json.data as BookOrder[]
+        const serverOwned = Array.isArray(json.ownedBookIds)
+          ? (json.ownedBookIds as string[])
+          : []
+
+        setOrders(serverOrders)
+        setOwnedBookIds(serverOwned)
+        setOrdersStatus("ready")
+
+        try {
+          writeStoredList(localStorage, getOrdersStorageKey(userId), serverOrders)
+        } catch (e) {
+          console.error("Failed to cache orders:", e)
+        }
+      } catch (err) {
+        if (cancelled) return
+        console.error("Failed to load orders from the server:", err)
+        setOrdersStatus("error")
+      }
+    }
+
+    void loadServerOrders()
+
+    return () => {
+      cancelled = true
+    }
+  }, [isLoggedIn, userId])
+
+  // Owned books can never sit in the cart.
+  useEffect(() => {
+    if (ownedBookIds.length === 0) return
+    setItems((prev) => {
+      const next = prev.filter((item) => !ownedBookIds.includes(item.bookId))
+      return next.length === prev.length ? prev : next
+    })
+  }, [ownedBookIds])
 
   // Sync items to localStorage (scoped to logged-in user only)
   useEffect(() => {
@@ -199,6 +299,8 @@ export function BookCartProvider({ children }: { children: React.ReactNode }) {
 
   // Actions
   const addToCart = (book: Book, qty = 1) => {
+    // Ownership is server-derived: an owned eBook can never be added again.
+    if (ownedBookIds.includes(book.id)) return
     setItems((prev) => {
       const existing = prev.find((i) => i.bookId === book.id)
       if (existing) {
@@ -313,6 +415,8 @@ export function BookCartProvider({ children }: { children: React.ReactNode }) {
     setOrders((prev) => [order, ...prev.filter((o) => o.id !== order.id)])
   }
 
+  const isOwned = (bookId: string) => Boolean(bookId) && ownedBookIds.includes(bookId)
+
   return (
     <CartContext.Provider
       value={{
@@ -321,6 +425,9 @@ export function BookCartProvider({ children }: { children: React.ReactNode }) {
         appliedCoupon,
         couponDiscount,
         orders,
+        ownedBookIds,
+        ordersStatus,
+        isOwned,
         isCartOpen,
         setIsCartOpen,
         addToCart,

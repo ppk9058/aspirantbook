@@ -213,6 +213,7 @@ export default async function ExamCategoryDetailPage({
         initialPapers={sanitizedPapers as any}
         categories={[{ id: category.id, name: category.name, slug: category.slug, badgeColor: category.badgeColor }]}
         isAuthenticated={Boolean(user)}
+        hasActivePass={passActive}
       />
     </div>
   )

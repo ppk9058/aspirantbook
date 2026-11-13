@@ -18,13 +18,16 @@ import {
   ShieldCheck,
   ShoppingBag,
   Zap,
+  AlertCircle,
 } from "lucide-react"
 
 function OrdersContent() {
-  const { orders } = useBookCart()
+  // Orders + ownership come from the database (GET /api/books/orders).
+  const { orders, ordersStatus } = useBookCart()
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
 
-  // Real orders only - guests or users without orders see empty state (never mock data)
+  // Real orders only - the empty state is shown ONLY when the API answered
+  // with an empty list, never while the request is still in flight.
   const displayOrders = orders
 
   const handleDownloadPdf = (book: Book, orderNumber?: string) => {
@@ -53,8 +56,8 @@ function OrdersContent() {
         {/* Breadcrumb Header */}
         <div className="flex items-center justify-between border-b border-gray-200 pb-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-              My Orders &amp; Purchased eBooks
+            <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+              Orders
             </h1>
             <p className="text-xs text-gray-500 mt-1">
               Access your digital library, download high-resolution PDFs, or read online anytime.
@@ -70,7 +73,32 @@ function OrdersContent() {
         </div>
 
         {/* Orders Listing or Compact Empty State */}
-        {displayOrders.length === 0 ? (
+        {ordersStatus === "loading" ? (
+          <div
+            data-testid="orders-loading"
+            aria-busy="true"
+            className="p-8 sm:p-12 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl space-y-3"
+          >
+            <div className="h-10 w-10 mx-auto rounded-full bg-slate-100 dark:bg-slate-700 animate-pulse" />
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Loading your orders…
+            </p>
+          </div>
+        ) : ordersStatus === "error" ? (
+          <div
+            data-testid="orders-error"
+            role="alert"
+            className="p-8 sm:p-12 text-center bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-2xl space-y-2"
+          >
+            <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
+            <h3 className="text-base font-bold text-rose-800 dark:text-rose-200">
+              Could not load your orders
+            </h3>
+            <p className="text-xs text-rose-700 dark:text-rose-300 max-w-sm mx-auto">
+              The order list is unavailable right now. Refresh the page to retry.
+            </p>
+          </div>
+        ) : displayOrders.length === 0 ? (
           <div className="p-8 sm:p-12 text-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl space-y-3">
             <PackageCheck className="w-12 h-12 text-slate-400 dark:text-slate-500 mx-auto" />
             <h3 className="text-base font-bold text-gray-800 dark:text-gray-200">No orders yet</h3>

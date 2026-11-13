@@ -18,6 +18,7 @@ import { getBaseUrl, safeJsonLdStringify } from "@/lib/seo/core"
 import { hasRealBatchesAvailable } from "@/lib/home/has-real-batches"
 import { resolveAnchorHref } from "@/lib/home/real-batches"
 import { auth } from "@/auth"
+import { hasActivePass } from "@/lib/auth/entitlements"
 
 export const revalidate = 60 // Revalidate every 60s
 
@@ -70,10 +71,8 @@ export default async function LandingHomePage() {
     
     // Get session for bottom nav pass status
     const session = await auth()
-    const hasActivePass = Boolean(
-        session?.user?.subscriptionStatus === "ACTIVE" ||
-        session?.user?.role === "PREMIUM"
-    )
+    // Database-only entitlement for the bottom nav ACTIVE badge.
+    const passActive = await hasActivePass(session?.user?.id)
     const homeJsonLd = baseUrl
         ? {
               "@context": "https://schema.org",
@@ -281,7 +280,7 @@ export default async function LandingHomePage() {
             <Footer />
             
             {/* Mobile Bottom Navigation (phones only) */}
-            <MobileNativeBottomBar hasActivePass={hasActivePass} />
+            <MobileNativeBottomBar hasActivePass={passActive} />
         </div>
     )
 }

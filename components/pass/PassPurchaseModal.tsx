@@ -145,7 +145,7 @@ export default function PassPurchaseModal({
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto"
+      className="fixed inset-0 z-[70] flex items-start justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose()
@@ -158,10 +158,10 @@ export default function PassPurchaseModal({
         aria-modal="true"
         aria-labelledby="pass-modal-heading"
         data-testid="pass-modal"
-        className="relative w-full max-w-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[92dvh] my-auto"
+        className="relative w-full max-w-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden my-auto"
       >
         {/* Left Panel: aspirantBook brand-blue gradient + benefits list */}
-        <div className="w-full md:w-5/12 bg-gradient-to-br from-[#003B73] via-[#004e92] to-[#00A896] text-white p-5 sm:p-7 flex flex-col justify-between shrink-0">
+        <div className="w-full md:w-5/12 bg-gradient-to-br from-[#003B73] via-[#004e92] to-[#00A896] text-white p-5 sm:p-7 flex flex-col justify-between shrink-0 md:shrink">
           <div>
             {/* Header Brand */}
             <div className="flex items-center gap-2 mb-3">
@@ -208,7 +208,7 @@ export default function PassPurchaseModal({
         </div>
 
         {/* Right Panel: Plan card + Pricing + Pay button */}
-        <div className="w-full md:w-7/12 p-5 sm:p-7 flex flex-col justify-between bg-white dark:bg-slate-900 text-slate-900 dark:text-white overflow-y-auto">
+        <div className="w-full md:w-7/12 p-5 sm:p-7 flex flex-col justify-between bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
           <div>
             {/* Top row with Title & Close (X) button */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
@@ -270,7 +270,8 @@ export default function PassPurchaseModal({
             )}
           </div>
 
-          {/* Sticky Bottom Area: To Pay + Pay button */}
+          {/* To Pay + Pay button. The whole modal scrolls as one unit, so this
+              block is intentionally NOT sticky. */}
           <div className="pt-5 mt-4 border-t border-slate-100 dark:border-slate-800 space-y-3 shrink-0">
             <div className="flex items-center justify-between">
               <span className="text-sm font-bold text-slate-600 dark:text-slate-400">

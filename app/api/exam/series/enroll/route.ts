@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { revalidateTag } from "next/cache"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { hasActivePass } from "@/lib/auth/entitlements"
 
 // POST /api/exam/series/enroll  — enroll in a free series or buy pass
 export async function POST(req: NextRequest) {
@@ -55,7 +56,19 @@ export async function POST(req: NextRequest) {
                 { status: 403 }
             )
         }
+    } else if (validType === "PASS") {
+        // Pass entitlement is checked against the DATABASE only (single source
+        // of truth: hasActivePass). No session-role shortcut.
+        const passActive = await hasActivePass(userId)
+        if (!passActive) {
+            return NextResponse.json(
+                { error: "An active Pass is required to enroll with PASS" },
+                { status: 402 }
+            )
+        }
     } else {
+        // PURCHASED: legacy path kept for existing paid-series purchases. The
+        // payment is verified by /api/verify-payment/razorpay before this call.
         const user = await prisma.user.findUnique({
             where: { id: userId },
             select: {

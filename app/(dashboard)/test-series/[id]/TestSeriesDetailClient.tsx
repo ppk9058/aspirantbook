@@ -36,6 +36,7 @@ import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
 import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
 import { usePassPurchaseModal } from "@/lib/payments/usePassPurchaseModal"
+import { usePassStatus } from "@/lib/auth/usePassStatus"
 import { resolveTestLockState, isPaidSeriesEnrolled } from "@/lib/test-series/lock-state"
 import { TEST_TYPE_LABELS } from "@/lib/exam/labels"
 import Image from "next/image"
@@ -80,6 +81,7 @@ function TestCardItem({
     statusLoading,
     isEnrolled,
     enrollmentLoading,
+    hasActivePass,
     setIsPassModalOpen,
 }: {
     test: TestItem
@@ -90,6 +92,8 @@ function TestCardItem({
     statusLoading: boolean
     isEnrolled: boolean
     enrollmentLoading: boolean
+    /** Database-backed Pass entitlement (server resolved). */
+    hasActivePass?: boolean
     setIsPassModalOpen: (open: boolean) => void
 }) {
     const [syllabusLang, setSyllabusLang] = useState<"en" | "hi">("en")
@@ -149,7 +153,9 @@ function TestCardItem({
         isFree: test.isFree,
         accessMode: (test as any).accessMode,
         isFreeSample,
-        isEnrolled,
+        // A database-backed active Pass unlocks paid tests without a series
+        // enrollment row. For pass holders the action is "Take Test".
+        isEnrolled: isEnrolled || Boolean(hasActivePass),
     })
 
     return (
@@ -452,11 +458,15 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
     const [activeTab, setActiveTab] = useState<"mock" | "pyp">("mock")
     const [isAdded, setIsAdded] = useState(false)
     const [tests, setTests] = useState<TestItem[]>([])
+    // Database-backed Pass entitlement (GET /api/pass-status). Never session role.
+    const passStatus = usePassStatus()
+    const passPending = passStatus.isLoading || passStatus.error
     const {
         isOpen: isPassModalOpen,
         openPassModal,
         closePassModal,
     } = usePassPurchaseModal({
+        hasActivePass: passStatus.hasActivePass,
         onSuccess: () => {
             fetchEnrollment()
         },
@@ -843,6 +853,7 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                                                 statusLoading={statusLoading}
                                                 isEnrolled={isEnrolled}
                                                 enrollmentLoading={enrollmentLoading}
+                                                hasActivePass={passStatus.hasActivePass}
                                                 setIsPassModalOpen={(open) => (open ? openPassModal() : closePassModal())}
                                             />
                                         ))}
@@ -868,8 +879,8 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
                 {/* Right Sticky Column (Get Pass card + More Testseries for you) */}
                 {(SHOW_PREMIUM_PLAN || moreTestSeries.length > 0) && (
                 <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-[76px] min-w-0">
-                    {/* Pass Widget (Premium only) */}
-                    {SHOW_PREMIUM_PLAN && (
+                    {/* Pass Widget (Premium only, hidden for database-verified pass holders) */}
+                    {SHOW_PREMIUM_PLAN && !passStatus.hasActivePass && (
                     <div className="bg-gradient-to-b from-[#003B73] via-[#005B96] to-[#00A896] text-white rounded-3xl p-5 sm:p-6 shadow-xl relative overflow-hidden border border-white/10">
                         <div className="mb-3">
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-700 text-white uppercase tracking-wider shadow-xs">
@@ -922,9 +933,11 @@ export default function TestSeriesDetailClient({ initialSeries }: TestSeriesDeta
 
                         <button
                             onClick={(e) => openPassModal(e.currentTarget)}
-                            className="w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] cursor-pointer text-center min-h-[44px] flex items-center justify-center gap-1.5"
+                            disabled={passPending}
+                            aria-busy={passPending}
+                            className={`w-full mt-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.99] text-center min-h-[44px] flex items-center justify-center gap-1.5 ${passPending ? "opacity-70 cursor-wait" : "cursor-pointer"}`}
                         >
-                            <span>Get Pass • ₹499 / year</span>
+                            <span>{passPending ? "Checking access…" : "Get Pass • ₹499 / year"}</span>
                         </button>
                     </div>
                     )}
