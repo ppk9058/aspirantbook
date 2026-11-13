@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { apiSuccess, apiError, handleApiError, getRequestId } from "@/lib/api/v1/response";
 import { getViewer } from "@/lib/api/v1/viewer";
 import { prisma } from "@/lib/prisma";
+import { hasActivePass, isActivePaidPass } from "@/lib/auth/entitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +27,11 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
-    // Active subscription check
-    const activeSub = subscriptions.find(
-      (s) => s.status === "ACTIVE" && new Date(s.endDate) > now
-    );
+    // Active subscription check: same rule as hasActivePass (ACTIVE + future
+    // endDate + plan != FREE). A FREE plan row is never a Pass.
+    const activeSub = subscriptions.find((s) => isActivePaidPass(s, now)) || null;
+
+    const hasPass = await hasActivePass(viewer.userId);
 
     const daysRemaining = activeSub
       ? Math.max(0, Math.ceil((new Date(activeSub.endDate).getTime() - now.getTime()) / (1000 * 3600 * 24)))
@@ -58,7 +60,7 @@ export async function GET(req: NextRequest) {
 
     return apiSuccess(
       {
-        hasActivePass: Boolean(activeSub),
+        hasActivePass: hasPass,
         activeSubscription: activeSub
           ? {
               id: activeSub.id,

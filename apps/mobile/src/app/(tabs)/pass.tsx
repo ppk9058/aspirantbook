@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { Zap, CheckCircle2, ExternalLink, ShieldCheck, Sparkles } from "lucide-react-native";
 import { AppShell } from "../../components/shell/AppShell";
 import { Card } from "../../../src/components/primitives/Card";
@@ -27,6 +28,7 @@ const PASS_BENEFITS = [
 export default function PassTabScreen() {
   const { colors, tokens } = useTheme();
   const { user, hasActivePass } = useAuth();
+  const router = useRouter();
   const [browserError, setBrowserError] = useState<string | null>(null);
 
   const handleOpenPricing = async () => {
@@ -104,7 +106,18 @@ export default function PassTabScreen() {
               : "One single pass unlocking full test series, PYQs, video lessons, and interactive tutorials."}
           </Text>
 
-          {!hasActivePass && (
+          {hasActivePass ? (
+            <View style={styles.actionRow}>
+              {/* Same conversion as web: holders go straight to the dashboard. */}
+              <Button
+                title="Go to Dashboard"
+                onPress={() => router.push("/(tabs)/home" as any)}
+                variant="primary"
+                size="md"
+                testID="pass-go-dashboard-btn"
+              />
+            </View>
+          ) : (
             <View style={styles.actionRow}>
               <Button
                 title="Get Pass on website"

@@ -4,6 +4,7 @@ import PassBuyNowButton from "@/components/pricing/PassBuyNowButton"
 import PassFAQAccordion from "@/components/pricing/PassFAQAccordion"
 import { PASS_PRICE_INR } from "@/lib/payments/pass-plan"
 import { PASS_INCLUDED_FEATURES } from "@/lib/payments/pass-marketing"
+import { hasActivePass } from "@/lib/auth/entitlements"
 
 export const metadata = {
     title: "aspirantBook Pass - Unlock All Exams | aspirantBook",
@@ -13,7 +14,9 @@ export const metadata = {
 export default async function PricingPage() {
     const session = await auth()
     const user = session?.user
-    const isPremiumActive = user?.subscriptionStatus === "ACTIVE" || user?.role === "PREMIUM"
+    // Database-only Pass entitlement (single source: hasActivePass). The price
+    // card stays visible; the button switches to "Go to Dashboard" for holders.
+    const isPremiumActive = await hasActivePass(user?.id)
 
     return (
         <div className="min-h-dvh bg-white dark:bg-gray-950 pb-[calc(6rem+env(safe-area-inset-bottom,0px))] lg:pb-16">

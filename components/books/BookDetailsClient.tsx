@@ -45,15 +45,12 @@ function BookDetailsContent({ initialBook, slug }: BookDetailsClientProps) {
   const [isReaderModalOpen, setIsReaderModalOpen] = useState(false)
   const [copiedShare, setCopiedShare] = useState(false)
 
-  const { items, addToCart, setIsCartOpen, orders } = useBookCart()
+  const { items, addToCart, setIsCartOpen, isOwned: isBookOwned } = useBookCart()
   const { isWishlisted, toggleWishlist } = useWishlist()
 
-  // Check if current user already owns this book
-  const isOwned = orders.some(
-    (o) =>
-      (o.status === "completed" || o.status === "COMPLETED") &&
-      o.items?.some((i) => i.bookId === book.id || i.book?.id === book.id)
-  )
+  // Ownership comes from the server-derived list (GET /api/books/orders).
+  // localStorage / local orders are never used to decide ownership.
+  const isOwned = isBookOwned(book.id)
 
   const isItemInCart = items.some((i) => i.bookId === book.id)
 
@@ -171,56 +168,63 @@ function BookDetailsContent({ initialBook, slug }: BookDetailsClientProps) {
               showHeart={true}
             />
 
-            {/* If user already owns this book: Verified Access Banner */}
-            {isOwned ? (
-              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 space-y-3">
+            {/* Owned (database-verified) informational banner - no extra buttons */}
+            {isOwned && (
+              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 space-y-1.5">
                 <div className="flex items-center gap-2 font-black text-sm">
                   <ShieldCheck className="w-5 h-5 text-emerald-600" />
                   <span>You already own this eBook</span>
                 </div>
                 <p className="text-xs text-emerald-700 dark:text-emerald-300">
-                  Instant online access is active. You can read online or download the full PDF anytime.
+                  Instant online access is active. Use Read Online or Download below.
                 </p>
-                <div className="flex items-center gap-2 pt-1">
+              </div>
+            )}
+
+            {/* Desktop Action Buttons.
+                Owned books convert the SAME two buttons: Download + Read Online. */}
+            <div className="hidden sm:grid grid-cols-2 gap-3 sm:gap-4 pt-1">
+              {isOwned ? (
+                <>
+                  <a
+                    href={`/api/books/${book.id}/download?download=true`}
+                    download
+                    className="py-3.5 px-4 rounded-xl border-2 border-emerald-600 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 font-black text-sm transition-all flex items-center justify-center gap-2 shadow-sm active:scale-98"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download</span>
+                  </a>
+
                   <Link
                     href={`/books/read/${encodeURIComponent(book.id)}`}
-                    className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+                    className="py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-98"
                   >
                     <BookOpen className="w-4 h-4" />
                     <span>Read Online</span>
                   </Link>
-                  <a
-                    href={`/api/books/${book.id}/download?download=true`}
-                    download
-                    className="flex-1 py-3 px-4 rounded-xl border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 font-bold text-xs flex items-center justify-center gap-2 transition-all"
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    className="py-3.5 px-4 rounded-xl border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 font-black text-sm transition-all flex items-center justify-center gap-2 shadow-sm active:scale-98"
                   >
-                    <Download className="w-4 h-4" />
-                    <span>Download PDF</span>
-                  </a>
-                </div>
-              </div>
-            ) : (
-              /* Desktop Action Buttons: Add to Cart + Buy Now */
-              <div className="hidden sm:grid grid-cols-2 gap-3 sm:gap-4 pt-1">
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  className="py-3.5 px-4 rounded-xl border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 font-black text-sm transition-all flex items-center justify-center gap-2 shadow-sm active:scale-98"
-                >
-                  <ShoppingCart className="w-4 h-4" />
-                  <span>{isItemInCart ? "In Cart (Add More)" : "Add to Cart"}</span>
-                </button>
+                    <ShoppingCart className="w-4 h-4" />
+                    <span>{isItemInCart ? "In Cart (Add More)" : "Add to Cart"}</span>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={handleBuyNow}
-                  className="py-3.5 px-4 rounded-xl bg-[#fb641b] hover:bg-[#e85813] text-white font-black text-sm transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-98"
-                >
-                  <Zap className="w-4 h-4 fill-white" />
-                  <span>Buy Now</span>
-                </button>
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={handleBuyNow}
+                    className="py-3.5 px-4 rounded-xl bg-[#fb641b] hover:bg-[#e85813] text-white font-black text-sm transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-98"
+                  >
+                    <Zap className="w-4 h-4 fill-white" />
+                    <span>Buy Now</span>
+                  </button>
+                </>
+              )}
+            </div>
 
             {/* Free Sample Actions */}
             <div className="grid grid-cols-2 gap-3">
@@ -494,28 +498,49 @@ function BookDetailsContent({ initialBook, slug }: BookDetailsClientProps) {
         )}
       </div>
 
-      {/* Mobile Sticky Bottom Bar with Add to Cart and Buy Now */}
-      {!isOwned && (
-        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 p-3 flex items-center gap-2 shadow-lg safe-area-bottom">
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className="flex-1 py-3 px-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-extrabold text-xs flex items-center justify-center gap-1 active:scale-95"
-          >
-            <ShoppingCart className="w-3.5 h-3.5" />
-            <span>{isItemInCart ? "In Cart" : "Add to Cart"}</span>
-          </button>
+      {/* Mobile Sticky Bottom Bar. Owned books convert the same two buttons. */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 p-3 flex items-center gap-2 shadow-lg safe-area-bottom">
+        {isOwned ? (
+          <>
+            <a
+              href={`/api/books/${book.id}/download?download=true`}
+              download
+              className="flex-1 py-3 px-3 rounded-xl border-2 border-emerald-600 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs flex items-center justify-center gap-1 active:scale-95"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download</span>
+            </a>
 
-          <button
-            type="button"
-            onClick={handleBuyNow}
-            className="flex-1 py-3 px-3 rounded-xl bg-[#fb641b] hover:bg-[#e85813] text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md active:scale-95"
-          >
-            <Zap className="w-3.5 h-3.5 fill-white" />
-            <span>Buy Now</span>
-          </button>
-        </div>
-      )}
+            <Link
+              href={`/books/read/${encodeURIComponent(book.id)}`}
+              className="flex-1 py-3 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md active:scale-95"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Read Online</span>
+            </Link>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className="flex-1 py-3 px-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-extrabold text-xs flex items-center justify-center gap-1 active:scale-95"
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+              <span>{isItemInCart ? "In Cart" : "Add to Cart"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              className="flex-1 py-3 px-3 rounded-xl bg-[#fb641b] hover:bg-[#e85813] text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md active:scale-95"
+            >
+              <Zap className="w-3.5 h-3.5 fill-white" />
+              <span>Buy Now</span>
+            </button>
+          </>
+        )}
+      </div>
 
       {/* Sample EBook Reader Modal (Free sample) */}
       <EBookReaderModal

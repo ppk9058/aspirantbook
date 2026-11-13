@@ -50,6 +50,7 @@ export default function CartDrawer() {
     totalDiscount,
     finalPayable,
     totalSavings,
+    isOwned,
   } = useBookCart()
 
   const [couponInput, setCouponInput] = useState("")
@@ -67,6 +68,15 @@ export default function CartDrawer() {
   } = useBookCheckout()
 
   if (!isCartOpen && !isSuccessModalOpen) return null
+
+  // "Already Owned" is driven by the SAME server-derived ownership list that
+  // gates the storefront, falling back to the checkout 409 payload.
+  const ownedCartItem = items.find((item) => isOwned(item.bookId)) || null
+  const ownedNotice = alreadyOwnedBook
+    ? { bookId: alreadyOwnedBook.bookId, bookTitle: alreadyOwnedBook.bookTitle }
+    : ownedCartItem
+    ? { bookId: ownedCartItem.bookId, bookTitle: ownedCartItem.book.title }
+    : null
 
   const handleApplyCoupon = (codeToApply?: string) => {
     const code = codeToApply || couponInput
@@ -435,12 +445,12 @@ export default function CartDrawer() {
           )}
 
           {/* Already Owned Alert Banner */}
-          {alreadyOwnedBook && (
+          {ownedNotice && (
             <div className="mx-5 mb-3 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between gap-3 shadow-2xs">
               <div className="min-w-0">
                 <p className="font-extrabold truncate">Already Owned</p>
                 <p className="text-[11px] text-amber-700 truncate">
-                  You already own &quot;{alreadyOwnedBook.bookTitle}&quot;.
+                  You already own &quot;{ownedNotice.bookTitle}&quot;.
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
@@ -449,7 +459,7 @@ export default function CartDrawer() {
                   onClick={() => {
                     clearAlreadyOwned()
                     setIsCartOpen(false)
-                    router.push(`/books/read/${encodeURIComponent(alreadyOwnedBook.bookId)}`)
+                    router.push(`/books/read/${encodeURIComponent(ownedNotice.bookId)}`)
                   }}
                   className="px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-black text-[11px] transition-colors"
                 >

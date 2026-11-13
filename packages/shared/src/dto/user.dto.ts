@@ -11,6 +11,11 @@ export const UpdateProfileRequestSchema = z.object({
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequestSchema>;
 
 export interface ViewerProfileDto extends UserSummaryDto {
+  /**
+   * Database-backed Pass entitlement (Subscription ACTIVE + endDate in the
+   * future + plan != FREE, or ADMIN). Never derived from the session role.
+   */
+  hasActivePass?: boolean;
   entitlements: {
     enrolledCoursesCount: number;
     activePassesCount: number;

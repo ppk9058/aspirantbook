@@ -110,7 +110,9 @@ export function AuthProvider({
           email: u.email,
           phoneNumber: (u as any).phoneNumber || null,
           role: u.role,
-          hasActivePass: Boolean((u as any).hasActivePass || (u as any).subscription?.status === "active"),
+          // Server-resolved (database) Pass entitlement from /api/v1/me.
+          // No session role or secondary field is consulted.
+          hasActivePass: u.hasActivePass === true,
           avatarUrl: (u as any).avatarUrl || null,
         };
         setUser(profile);

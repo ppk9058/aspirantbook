@@ -65,10 +65,13 @@ export function PyqStudentListingClient({
   initialPapers,
   categories,
   isAuthenticated = false,
+  hasActivePass = false,
 }: {
   initialPapers: PyqStudentPaper[]
   categories: PyqCategoryItem[]
   isAuthenticated?: boolean
+  /** Server-resolved database Pass entitlement (never session role). */
+  hasActivePass?: boolean
 }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -84,6 +87,7 @@ export function PyqStudentListingClient({
     closePassModal,
     handleModalSuccess,
   } = usePyqPassUnlock({
+    hasActivePass,
     autoOpenEnabled: hasLockedPapers,
     isAuthenticated,
   })

@@ -19,6 +19,79 @@ export interface EntitlementResult {
 }
 
 /**
+ * Pure predicate for a single Subscription row.
+ * A Pass is active only when: status ACTIVE, endDate in the future, plan not FREE.
+ */
+export function isActivePaidPass(
+  subscription?: {
+    status?: string | null
+    endDate?: Date | string | null
+    plan?: string | null
+  } | null,
+  now: Date = new Date()
+): boolean {
+  if (!subscription) return false
+  if (subscription.status !== "ACTIVE") return false
+  if (!subscription.endDate) return false
+
+  const endDate =
+    subscription.endDate instanceof Date ? subscription.endDate : new Date(subscription.endDate)
+  if (Number.isNaN(endDate.getTime()) || endDate.getTime() <= now.getTime()) return false
+
+  const plan = (subscription.plan || "").trim().toUpperCase()
+  if (!plan || plan === "FREE") return false
+
+  return true
+}
+
+/**
+ * THE single source of truth for "does this user hold an active Pass?".
+ *
+ * Rules:
+ * - No userId -> false (guests and free users never get access).
+ * - Database role ADMIN -> true (platform override).
+ * - The legacy `role === "PREMIUM"` shortcut is REMOVED: a PREMIUM role with no
+ *   active paid Subscription row is NOT a pass holder.
+ * - Otherwise: a Subscription row with status ACTIVE, endDate in the future and
+ *   plan != "FREE".
+ *
+ * Never derive pass entitlement from the session/JWT payload, localStorage or
+ * any client-supplied value.
+ */
+export async function hasActivePass(userId?: string | null): Promise<boolean> {
+  if (!userId) return false
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    })
+
+    // Unknown user: no entitlement.
+    if (!user) return false
+
+    if (normalizeAppRole(user.role) === "ADMIN") return true
+
+    const now = new Date()
+    const activeSub = await prisma.subscription.findFirst({
+      where: {
+        userId,
+        status: "ACTIVE",
+        endDate: { gt: now },
+        plan: { not: "FREE" },
+      },
+      select: { status: true, endDate: true, plan: true },
+    })
+
+    return isActivePaidPass(activeSub, now)
+  } catch (err) {
+    // Fail closed: a database error must never grant access.
+    console.error("[hasActivePass error]:", err)
+    return false
+  }
+}
+
+/**
  * Checks entitlement for taking a CBT test or assessment
  */
 export async function checkTestAccess(
@@ -27,9 +100,6 @@ export async function checkTestAccess(
   userRole?: AppRole
 ): Promise<EntitlementResult> {
   const role = userRole || "STUDENT"
-
-  if (role === "ADMIN") return { allowed: true, reason: "ADMIN_OVERRIDE" }
-  if (role === "TEACHER") return { allowed: true, reason: "TEACHER_ACCESS" }
 
   if (!userId) {
     return {
@@ -104,25 +174,10 @@ export async function checkTestAccess(
       return { allowed: true, reason: "FREE" }
     }
 
-    // Check user role (PREMIUM or ADMIN overrides)
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true },
-    })
-
-    if (user?.role === "PREMIUM" || user?.role === "ADMIN") {
-      return { allowed: true, reason: "SUBSCRIPTION_ACTIVE" }
-    }
-
-    // Check user active subscription with valid status and end date
-    const activeSub = await prisma.subscription.findFirst({
-      where: {
-        userId,
-        status: "ACTIVE",
-        endDate: { gt: new Date() },
-      },
-    })
-    if (activeSub) {
+    // Pass / subscription entitlement. Database only: the old
+    // `role === "PREMIUM"` shortcut is gone and the subscription query now
+    // requires plan != "FREE".
+    if (await hasActivePass(userId)) {
       return { allowed: true, reason: "SUBSCRIPTION_ACTIVE" }
     }
 

@@ -9,6 +9,7 @@ import { AuthwallGate } from "@/components/authwall/AuthwallGate"
 import { AuthwallUnlockToast } from "@/components/authwall/AuthwallUnlockToast"
 import { buildPassLoginHref } from "@/lib/pyqs/pass-popup"
 import { usePyqPassUnlock } from "@/lib/pyqs/usePyqPassUnlock"
+import { usePassStatus } from "@/lib/auth/usePassStatus"
 import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
 
 export default function PYQPDFViewerPage() {
@@ -27,6 +28,10 @@ export default function PYQPDFViewerPage() {
   // same page renders the unlocked viewer (no /subscription redirect).
   const [probeKey, setProbeKey] = useState(0)
 
+  // Database-backed Pass entitlement: a pass holder always opens/reads the
+  // paper and never gets the purchase modal.
+  const { hasActivePass } = usePassStatus()
+
   const {
     openPassCheckout,
     isProcessing: isPassProcessing,
@@ -37,6 +42,7 @@ export default function PYQPDFViewerPage() {
   } = usePyqPassUnlock({
     autoOpenEnabled: passRequired,
     isAuthenticated: !loginRequired,
+    hasActivePass,
     onUnlocked: () => setProbeKey((key) => key + 1),
   })
 

@@ -71,7 +71,7 @@ export function canAccessPaidPaper({
     return { allowed: true, reason: "UNLOCKED" }
   }
 
-  // 6. Active Pass holder (Subscription status ACTIVE, endDate > now, plan != FREE, or role PREMIUM)
+  // 6. Active Pass holder (database: Subscription ACTIVE, endDate > now, plan != FREE)
   if (hasPass) {
     return { allowed: true, reason: "PASS" }
   }
@@ -81,39 +81,20 @@ export function canAccessPaidPaper({
 }
 
 /**
- * Checks if the user currently holds an active Pass or subscription.
- * Mirrors the active Pass criteria in lib/auth/entitlements.ts (checkTestAccess):
- * - user.role === "PREMIUM" OR
- * - Subscription with status "ACTIVE", endDate in the future, and plan != "FREE".
+ * Checks if the user currently holds an active Pass.
+ *
+ * Delegates to the ONE implementation in lib/auth/entitlements.ts (database
+ * only: ADMIN override, or Subscription status ACTIVE + endDate in the future +
+ * plan != "FREE"; the legacy role === "PREMIUM" shortcut is gone).
+ *
+ * The import is resolved at call time on purpose: entitlements.ts imports
+ * isPaperPaid/checkPaperAccess from this module, so a static import would
+ * create a cycle.
  */
 export async function hasActivePass(userId?: string | null): Promise<boolean> {
   if (!userId) return false
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true },
-    })
-
-    if (user?.role === "PREMIUM" || user?.role === "ADMIN") {
-      return true
-    }
-
-    const activeSub = await prisma.subscription.findFirst({
-      where: {
-        userId,
-        status: "ACTIVE",
-        endDate: { gt: new Date() },
-        plan: { not: "FREE" },
-      },
-      select: { id: true },
-    })
-
-    return Boolean(activeSub)
-  } catch (err) {
-    console.error("[hasActivePass error]:", err)
-    return false
-  }
+  const { hasActivePass: checkActivePass } = await import("@/lib/auth/entitlements")
+  return checkActivePass(userId)
 }
 
 /**

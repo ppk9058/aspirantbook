@@ -24,6 +24,8 @@ interface UsePyqPassUnlockOptions {
   autoOpenEnabled?: boolean
   /** Gates the auto-open after a guest logs in through the passPopup return path. */
   isAuthenticated?: boolean
+  /** Database-backed Pass entitlement. When true the modal never opens. */
+  hasActivePass?: boolean
   /** Runs after the server verified the payment (e.g. re-probe a PDF). */
   onUnlocked?: () => void
 }
@@ -38,7 +40,7 @@ interface UsePyqPassUnlockOptions {
  * affordance, so `redirectGuests` is off to keep that behaviour.
  */
 export function usePyqPassUnlock(options: UsePyqPassUnlockOptions = {}) {
-  const { autoOpenEnabled = false, isAuthenticated, onUnlocked } = options
+  const { autoOpenEnabled = false, isAuthenticated, hasActivePass = false, onUnlocked } = options
   const router = useRouter()
   const { isProcessing } = useSamePageBuyNow()
   const [error] = useState<string | null>(null)
@@ -54,6 +56,7 @@ export function usePyqPassUnlock(options: UsePyqPassUnlockOptions = {}) {
   } = usePassPurchaseModal({
     autoOpenEnabled,
     isAuthenticated,
+    hasActivePass,
     redirectGuests: false,
   })
 

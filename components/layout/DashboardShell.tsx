@@ -12,6 +12,7 @@ import MobileNativeBottomBar from "@/components/layout/MobileNativeBottomBar"
 import Breadcrumbs from "@/components/layout/Breadcrumbs"
 import { IS_MOBILE_NATIVE_SHELL_ENABLED } from "@/lib/config/mobile-shell"
 import { isBooksRoute } from "@/components/layout/layout-utils"
+import { usePassStatus } from "@/lib/auth/usePassStatus"
 
 const WhatsAppButton = dynamic(
     () => import("@/components/layout/WhatsAppButton").then((m) => m.WhatsAppButton),
@@ -42,11 +43,13 @@ export default function DashboardShell({
     const isStudent = effectiveRole !== "TEACHER" && effectiveRole !== "ADMIN"
     const isMobileNativeActive = IS_MOBILE_NATIVE_SHELL_ENABLED && isStudent
 
-    // Check pass status from session if available
+    // Pass status comes from the database through GET /api/pass-status.
+    // Nothing here reads session.user.role or session.user.subscriptionStatus.
+    // `undefined` while resolving so the shell shows a neutral state instead of
+    // flashing "Get Pass" at a real pass holder.
+    const passStatus = usePassStatus()
     const hasActivePass =
-        session?.user?.subscriptionStatus === "ACTIVE" ||
-        effectiveRole === "PREMIUM" ||
-        (session?.user as any)?.role === "PREMIUM"
+        passStatus.isLoading || passStatus.error ? undefined : passStatus.hasActivePass
 
     // Video watch pages (/learn/... or /courses/.../learn) have their own focused player layout
     const isVideoWatchPage = Boolean(

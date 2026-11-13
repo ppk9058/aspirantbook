@@ -202,10 +202,11 @@ describe("hasActivePass: pass entitlement check against database", () => {
     ;(prisma.subscription as any).findFirst = origSubscriptionFindFirst
   })
 
-  it("returns true when user has role PREMIUM in database", async () => {
+  it("returns false when user has role PREMIUM but no subscription row (shortcut removed)", async () => {
     ;(prisma.user as any).findUnique = async () => ({ role: "PREMIUM" })
+    ;(prisma.subscription as any).findFirst = async () => null
     const result = await hasActivePass("premium-user-1")
-    assert.equal(result, true)
+    assert.equal(result, false)
   })
 
   it("returns true when user has role ADMIN in database", async () => {
@@ -226,7 +227,13 @@ describe("hasActivePass: pass entitlement check against database", () => {
     ;(prisma.user as any).findUnique = async () => ({ role: "STUDENT" })
     ;(prisma.subscription as any).findFirst = async (args: any) => {
       capturedArgs = args
-      return { id: "sub-1" }
+      // A real active paid Pass row (re-validated by isActivePaidPass).
+      return {
+        id: "sub-1",
+        status: "ACTIVE",
+        endDate: new Date(Date.now() + 30 * 86400000),
+        plan: "YEARLY",
+      }
     }
 
     const result = await hasActivePass("student-with-sub")
@@ -383,9 +390,14 @@ describe("checkTestAccess: integration gate for CBT tests linked to PYQ papers",
       creatorId: "teacher-creator",
     })
 
-    // Student has active subscription
+    // Student has an active paid subscription row
     ;(prisma.user as any).findUnique = async () => ({ role: "STUDENT" })
-    ;(prisma.subscription as any).findFirst = async () => ({ id: "sub-active-1" })
+    ;(prisma.subscription as any).findFirst = async () => ({
+      id: "sub-active-1",
+      status: "ACTIVE",
+      endDate: new Date(Date.now() + 30 * 86400000),
+      plan: "YEARLY",
+    })
     ;(prisma.pyqUnlock as any).findUnique = async () => null
 
     const result = await checkTestAccess("student-1", "test-cbt-1", "STUDENT")
@@ -393,21 +405,21 @@ describe("checkTestAccess: integration gate for CBT tests linked to PYQ papers",
     assert.equal(result.reason, "SUBSCRIPTION_ACTIVE")
   })
 
-  it("allows user with role PREMIUM on FREE-mode test linked to a PAID paper", async () => {
+  it("denies user with role PREMIUM but no subscription on a PAID paper test", async () => {
     ;(prisma.pyqPaper as any).findFirst = async () => ({
       id: "paper-paid-1",
       accessType: "PAID",
       creatorId: "teacher-creator",
     })
 
-    // User has role PREMIUM in database (hasActivePass resolves true without subscription row)
+    // Role PREMIUM alone is NOT a pass any more: a paid subscription row is required.
     ;(prisma.user as any).findUnique = async () => ({ role: "PREMIUM" })
     ;(prisma.subscription as any).findFirst = async () => null
     ;(prisma.pyqUnlock as any).findUnique = async () => null
 
     const result = await checkTestAccess("premium-user-1", "test-cbt-1", "STUDENT")
-    assert.equal(result.allowed, true)
-    assert.equal(result.reason, "SUBSCRIPTION_ACTIVE")
+    assert.equal(result.allowed, false)
+    assert.equal(result.reason, "LOCKED")
   })
 
   // Note: checkTestAccess evaluates `if (role === "ADMIN") return { allowed: true, reason: "ADMIN_OVERRIDE" }`

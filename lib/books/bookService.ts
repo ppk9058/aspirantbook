@@ -536,15 +536,27 @@ export async function getOrderByRazorpayId(rzpOrderId: string): Promise<BookOrde
   return row ? orderRowToOrder(row) : null
 }
 
-export async function getUserCompletedBooks(userId: string): Promise<string[]> {
+/**
+ * Completed orders for one user (status match is case-insensitive).
+ * Single query shape reused by getUserCompletedBooks / the ownership API.
+ */
+export async function getUserCompletedOrders(userId: string): Promise<BookOrder[]> {
   if (!userId) return []
   const rows = await prisma.bookOrder.findMany({
-    where: { userId, status: { in: ["completed", "COMPLETED"] } },
-    select: { data: true },
+    where: {
+      userId,
+      status: { in: ["completed", "COMPLETED"], mode: "insensitive" },
+    },
+    orderBy: { createdAt: "desc" },
   })
+  return rows.map(orderRowToOrder)
+}
+
+export async function getUserCompletedBooks(userId: string): Promise<string[]> {
+  if (!userId) return []
+  const orders = await getUserCompletedOrders(userId)
   const bookIds = new Set<string>()
-  for (const row of rows) {
-    const order = (row.data && typeof row.data === "object" ? row.data : {}) as unknown as BookOrder
+  for (const order of orders) {
     for (const item of order.items || []) {
       const bId = item.bookId || item.book?.id
       if (bId) bookIds.add(bId)

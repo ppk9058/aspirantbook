@@ -36,6 +36,7 @@ import {
 import { SHOW_PREMIUM_PLAN } from "@/lib/config/premium"
 import PassPurchaseModal from "@/components/pass/PassPurchaseModal"
 import { usePassPurchaseModal } from "@/lib/payments/usePassPurchaseModal"
+import { usePassStatus } from "@/lib/auth/usePassStatus"
 
 interface TestSeriesItem {
     id: string; slug?: string; title: string; category: string; description?: string
@@ -255,11 +256,16 @@ export default function TestSeriesPage() {
     const [filterByGoal, setFilterByGoal] = useState<boolean>(true)
     const [savedSeries, setSavedSeries] = useState<string[]>([])
     const [activeModalSeries, setActiveModalSeries] = useState<TestSeriesItem | null>(null)
+    // Database-backed pass entitlement (never session role / localStorage).
+    // While it is loading the surfaces below show a neutral state.
+    const passStatus = usePassStatus()
+    const passPending = passStatus.isLoading || passStatus.error
+
     const {
         isOpen: isPassModalOpen,
         openPassModal,
         closePassModal,
-    } = usePassPurchaseModal()
+    } = usePassPurchaseModal({ hasActivePass: passStatus.hasActivePass })
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [seriesPackages, setSeriesPackages] = useState<TestSeriesItem[]>([])
     const [seriesLoading, setSeriesLoading] = useState(true)
@@ -576,8 +582,10 @@ export default function TestSeriesPage() {
             </div>
 
             {/* Teacher Authored Tests Available Notification Banner */}
-            {/* Top Pass Hero Banner - Compact & Clean (Premium only) */}
-            {SHOW_PREMIUM_PLAN && (
+            {/* Top Pass Hero Banner - Compact & Clean (Premium only).
+                Hidden for pass holders and never rendered as "Get Pass" while
+                the database value is still loading. */}
+            {SHOW_PREMIUM_PLAN && !passStatus.hasActivePass && (
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#003B73] via-[#005B96] to-[#00A896] text-white shadow-lg p-4 sm:p-6 border border-white/10">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
                     <div className="space-y-1.5 min-w-0">
@@ -600,9 +608,11 @@ export default function TestSeriesPage() {
                         </span>
                         <button
                             onClick={(e) => openPassModal(e.currentTarget)}
-                            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px]"
+                            disabled={passPending}
+                            aria-busy={passPending}
+                            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-1.5 min-h-[44px] ${passPending ? "opacity-70 cursor-wait" : "cursor-pointer"}`}
                         >
-                            <span>Get Pass</span>
+                            <span>{passPending ? "Checking access…" : "Get Pass"}</span>
                             <ArrowRight className="h-3.5 w-3.5" />
                         </button>
                     </div>
@@ -868,15 +878,17 @@ export default function TestSeriesPage() {
                             >
                                 Start Free Mock Test
                             </Link>
-                            {SHOW_PREMIUM_PLAN && (
+                            {SHOW_PREMIUM_PLAN && !passStatus.hasActivePass && (
                                 <button
                                     onClick={() => {
                                         setActiveModalSeries(null)
                                         openPassModal()
                                     }}
-                                    className="py-3 px-5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm text-center shadow-md transition-colors"
+                                    disabled={passPending}
+                                    aria-busy={passPending}
+                                    className={`py-3 px-5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm text-center shadow-md transition-colors ${passPending ? "opacity-70 cursor-wait" : ""}`}
                                 >
-                                    Unlock Full Pass
+                                    {passPending ? "Checking access…" : "Unlock Full Pass"}
                                 </button>
                             )}
                         </div>

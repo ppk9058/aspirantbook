@@ -172,6 +172,7 @@ export default async function PreviousYearQuestionsPage() {
         initialPapers={sanitizedPapers as any}
         categories={filteredCategories as any}
         isAuthenticated={Boolean(user)}
+        hasActivePass={passActive}
       />
     </div>
   )
