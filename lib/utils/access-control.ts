@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { hasActivePass } from "@/lib/auth/entitlements"
 
 export async function canAccessCourse(userId: string, courseId: string): Promise<boolean> {
     const course = await prisma.course.findUnique({
@@ -11,13 +12,9 @@ export async function canAccessCourse(userId: string, courseId: string): Promise
     // Free courses are accessible to everyone
     if (!course.isPremium) return true
 
-    // Check if user has premium access
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { role: true },
-    })
-
-    return user?.role === "PREMIUM" || user?.role === "ADMIN"
+    // Pass entitlement is checked against the DATABASE only (single source of truth: hasActivePass).
+    // No legacy session/DB role === "PREMIUM" shortcut.
+    return hasActivePass(userId)
 }
 
 export async function canAccessLesson(userId: string, lessonId: string): Promise<boolean> {
@@ -39,13 +36,8 @@ export async function canAccessLesson(userId: string, lessonId: string): Promise
 
     if (!lesson) return false
 
-    // Check if user has premium access or is admin
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { role: true },
-    })
-
-    if (user?.role === "ADMIN" || user?.role === "PREMIUM") {
+    // Pass holders and admins have full access
+    if (await hasActivePass(userId)) {
         return true
     }
 

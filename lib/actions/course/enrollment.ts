@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { hasActivePass } from "@/lib/auth/entitlements"
 
 export async function enrollInCourse(courseId: string) {
     const session = await auth()
@@ -35,15 +36,11 @@ export async function enrollInCourse(courseId: string) {
         throw new Error("Course not found")
     }
 
-    // Check if user has premium access for premium courses
+    // Check if user has an active Pass (or admin role) for premium courses
     if (course.isPremium) {
-        const user = await prisma.user.findUnique({
-            where: { id: session.user.id },
-            select: { role: true },
-        })
-
-        if (user?.role !== "PREMIUM" && user?.role !== "ADMIN") {
-            throw new Error("Premium subscription required")
+        const isEntitled = await hasActivePass(session.user.id)
+        if (!isEntitled) {
+            throw new Error("Active Pass required")
         }
     }
 
