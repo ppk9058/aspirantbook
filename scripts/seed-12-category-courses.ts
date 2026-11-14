@@ -422,7 +422,8 @@ async function main() {
                         type: LessonType.VIDEO,
                         videoUrl: v.videoUrl,
                         durationText: v.durationText,
-                        duration: v.durationSecs,
+                        // `duration` is stored in MINUTES everywhere else in the app.
+                        duration: Math.round(v.durationSecs / 60),
                         isTrial: true,
                         content: `Watch this full video lecture on ${v.title}. Key lecture summary notes, definitions, and practice exercise questions are provided below.`,
                     },
@@ -434,7 +435,8 @@ async function main() {
                         type: LessonType.VIDEO,
                         videoUrl: v.videoUrl,
                         durationText: v.durationText,
-                        duration: v.durationSecs,
+                        // `duration` is stored in MINUTES everywhere else in the app.
+                        duration: Math.round(v.durationSecs / 60),
                         order,
                         chapterId: chapter.id,
                         isTrial: true,

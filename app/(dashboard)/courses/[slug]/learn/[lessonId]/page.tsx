@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation"
 import { CoursePlayerClient } from "@/components/course/CoursePlayerClient"
 import { toSafeCourseDto } from "@/lib/courses/course-dto"
 import { isCourseVisibleToUser } from "@/lib/courses/visibility"
+import { evaluateLessonAccess } from "@/lib/courses/lesson-access"
 
 export const dynamic = "force-dynamic"
 
@@ -115,19 +116,28 @@ export default async function CourseLearnPage({
     }
   }
 
-  const hasAccess = isEditor || isEnrolled || isFreeCourse
-
   // Find requested lesson to check if it's a trial lesson
   const currentLesson = course.chapters.flatMap((ch) => ch.lessons).find((l) => l.id === lessonId)
   if (!currentLesson) {
     notFound()
   }
 
-  if (!hasAccess && !currentLesson.isTrial) {
+  // Same access decision as /api/courses/lesson-file (single shared helper).
+  const lessonAccess = evaluateLessonAccess({
+    lesson: currentLesson,
+    course,
+    role: userRole,
+    isEnrolled,
+  })
+
+  if (!lessonAccess.allowed) {
     redirect(`/courses/${slug}?locked=true`)
   }
 
-  const safeCourse = toSafeCourseDto(course, hasAccess)
+  // The DTO is stripped by COURSE access, never by trial access: a guest previewing
+  // one trial lesson must not receive the media of the paid lessons.
+  const hasCourseAccess = isEditor || isEnrolled || isFreeCourse
+  const safeCourse = toSafeCourseDto(course, hasCourseAccess)
 
   return (
     <CoursePlayerClient

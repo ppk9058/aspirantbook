@@ -6,6 +6,7 @@ import type { Lang } from "@/lib/i18n/localized"
 import type { DetailChapter, DetailCourse, DetailLesson, DetailUnit } from "./types"
 import { fontStackFor } from "./theme"
 import { formatIstDate, formatLectureTime } from "@/lib/courses/derive"
+import { lessonDurationLabel } from "@/lib/courses/lesson-duration"
 import { pluralize } from "@/lib/i18n/pluralize"
 
 interface LecturesSectionProps {
@@ -87,8 +88,8 @@ export function LecturesSection({
               ? "आपकी नामांकित कक्षाएं। देखने के लिए किसी भी लेक्चर पर क्लिक करें।"
               : "Your enrolled lectures. Click any lecture to start learning."
             : lang === "hi"
-            ? "ये तब खुलते हैं जब आप कोर्स में शामिल होते हैं।"
-            : "These open when you join the course."}
+            ? "फ्री प्रीव्यू लेक्चर खुले हैं। बाकी कोर्स में शामिल होने पर खुलते हैं।"
+            : "Free preview lessons are open. The rest open when you join the course."}
         </p>
       </div>
 
@@ -218,7 +219,8 @@ export function LecturesSection({
                           {lessons.map((lesson: DetailLesson) => {
                             const { month, day } = parseMonthAndDay(lesson.scheduledAt)
                             const dateLabel = formatLectureDate(lesson.scheduledAt)
-                            const duration = lesson.durationText || `${lesson.duration || 90} minutes`
+                            const duration = lessonDurationLabel(lesson)
+                            const isOpen = isEnrolled || Boolean(lesson.isTrial)
                             const statusText = lesson.status === "live" ? "Live" : "Recording ready"
                             const lessonTitle = lang === "hi" && lesson.titleHi ? lesson.titleHi : lesson.title
 
@@ -261,17 +263,18 @@ export function LecturesSection({
                                         <span data-testid="lecture-scheduled-time">{formatIstDate(lesson.scheduledAt)} · {formatLectureTime(lesson.scheduledAt)}</span>
                                       ) : (
                                         <span>{dateLabel}</span>
-                                      )} • {duration} • <span className="font-medium text-emerald-800">{statusText}</span>
+                                      )} • {duration ? `${duration} • ` : ""}<span className="font-medium text-emerald-800">{statusText}</span>
                                     </p>
                                   </div>
                                 </div>
 
-                                {/* Lock / Play CTA */}
+                                {/* Lock / Play CTA. Trial lessons are open to everyone. */}
                                 <div className="shrink-0">
-                                  {isEnrolled ? (
+                                  {isOpen ? (
                                     <button
                                       type="button"
                                       onClick={() => onOpenLesson?.(lesson.id)}
+                                      data-testid={lesson.isTrial && !isEnrolled ? "trial-lesson-play" : undefined}
                                       className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--cd-gold)] text-[color:var(--cd-ink)] shadow-xs hover:scale-105 transition-transform"
                                       aria-label={`Play ${lessonTitle}`}
                                     >

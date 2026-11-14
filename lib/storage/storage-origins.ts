@@ -5,6 +5,8 @@
  * importing the AWS SDK. Reads env at call time only; no side effects.
  */
 
+import { getPrivateBucketNameOrNull } from "./bucket-name"
+
 export function isAllowedStorageFileUrl(value: string): boolean {
   if (typeof value !== "string") return false
   const trimmed = value.trim()
@@ -48,12 +50,7 @@ export function isAllowedStorageFileUrl(value: string): boolean {
 
   // Check bucket env: AWS_S3_BUCKET_NAME || AWS_S3_BUCKET || S3_BUCKET
   // If no bucket env is set, return false. Never hardcode any host or bucket name.
-  const bucket = (
-    process.env.AWS_S3_BUCKET_NAME ||
-    process.env.AWS_S3_BUCKET ||
-    process.env.S3_BUCKET ||
-    ""
-  ).trim()
+  const bucket = getPrivateBucketNameOrNull()
   if (!bucket) return false
 
   const s3Endpoint = (process.env.S3_ENDPOINT || process.env.AWS_ENDPOINT || "").trim()

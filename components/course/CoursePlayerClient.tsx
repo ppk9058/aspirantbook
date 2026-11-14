@@ -34,6 +34,8 @@ import { toggleLessonCompletion } from "@/lib/actions/course/progress"
 import { useSession } from "next-auth/react"
 import { useMobileAuth } from "@/components/auth/MobileAuthContext"
 import { buildPdfReaderHref } from "@/lib/pdf/reader-href"
+import { isDocumentLesson, lessonDurationLabel } from "@/lib/courses/lesson-duration"
+import { needsSignedVideoUrl, useLessonFileUrls } from "./useLessonFileUrl"
 import Image from "next/image"
 
 interface LessonItem {
@@ -288,6 +290,25 @@ export function CoursePlayerClient({
   const attachmentUrl = activeLesson.attachmentUrl || null
   const isExternalResource =
     activeLesson.attachmentType === "ARTICLE" || activeLesson.attachmentType === "LIVE"
+
+  // Lesson media is stored in a PRIVATE bucket, so the browser can never load the
+  // stored URL directly ("InvalidArgument Authorization"). The server signs a
+  // short-lived GET URL after re-checking access; document and video lessons share it.
+  const isDocument = isDocumentLesson(activeLesson)
+  const durationLabel = lessonDurationLabel(activeLesson)
+
+  const needAttachmentLink = Boolean(attachmentUrl) && !isExternalResource
+  const attachmentFiles = useLessonFileUrls(activeLesson.id, "attachment", needAttachmentLink)
+  const needVideoLink = needsSignedVideoUrl(activeLesson.videoUrl)
+  const videoFiles = useLessonFileUrls(activeLesson.id, "video", needVideoLink)
+
+  const playableVideoUrl = needVideoLink ? videoFiles.view : activeLesson.videoUrl
+  const attachmentViewUrl = isExternalResource
+    ? attachmentUrl
+    : attachmentFiles.view
+  const attachmentDownloadUrl = isExternalResource ? null : attachmentFiles.download
+  const attachmentError = isExternalResource ? null : attachmentFiles.error
+  const attachmentLoading = needAttachmentLink && attachmentFiles.loading
 
   const toggleChapter = (id: string) => {
     setExpandedChapters((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -555,9 +576,13 @@ export function CoursePlayerClient({
                                 </span>
 
                                 <div className="flex items-center gap-1.5 text-[11px] text-gray-500 mt-0.5">
-                                  <span>{lesson.type === "VIDEO" ? "Video" : "Document"}</span>
-                                  <span>&bull;</span>
-                                  <span>{lesson.durationText || "1h 14m"}</span>
+                                  <span>{isDocumentLesson(lesson) ? "Document" : "Video"}</span>
+                                  {lessonDurationLabel(lesson) && (
+                                    <>
+                                      <span>&bull;</span>
+                                      <span>{lessonDurationLabel(lesson)}</span>
+                                    </>
+                                  )}
                                   {lesson.attachmentName && (
                                     <>
                                       <span>&bull;</span>
@@ -610,20 +635,126 @@ export function CoursePlayerClient({
           {/* 16:9 Video Canvas / Paywall Container */}
           <div className="relative aspect-video min-h-[220px] w-full max-w-5xl mx-auto rounded-xl sm:rounded-2xl overflow-hidden bg-black shadow-xl border border-gray-800/80 flex items-center justify-center">
             {isUnlocked ? (
-              /* Unlocked / Trial Video Player */
-              isPlayingVideo ? (
-                activeLesson.videoUrl && (activeLesson.videoUrl.includes("youtube.com") || activeLesson.videoUrl.includes("youtu.be")) ? (
+              /* Unlocked: document lessons never render a video player */
+              isDocument ? (
+                <div
+                  data-testid="document-lesson-stage"
+                  className="w-full h-full flex flex-col items-center justify-center gap-3 sm:gap-4 px-4 py-6 text-center bg-gradient-to-b from-[#111a2e] to-black"
+                >
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-200 border border-indigo-400/40">
+                    <FileText className="w-3.5 h-3.5" />
+                    Document lesson
+                  </span>
+                  <div className="max-w-lg">
+                    <h3 className="text-base sm:text-xl font-extrabold text-white leading-snug">
+                      {activeLesson.attachmentName || activeLesson.title}
+                    </h3>
+                    <p className="mt-1 text-xs sm:text-sm text-gray-400">
+                      {isExternalResource
+                        ? "This lesson opens an external resource."
+                        : "Read this lesson's notes in the in-app reader, or download a copy."}
+                    </p>
+                  </div>
+
+                  {attachmentLoading && (
+                    <p data-testid="lesson-file-loading" className="text-xs font-semibold text-gray-300">
+                      Preparing a secure link…
+                    </p>
+                  )}
+
+                  {attachmentError && (
+                    <p data-testid="lesson-file-error" className="text-xs font-semibold text-red-300 max-w-sm">
+                      {attachmentError}
+                    </p>
+                  )}
+
+                  {attachmentViewUrl ? (
+                    <div className="flex flex-wrap items-center justify-center gap-2.5">
+                      {isExternalResource ? (
+                        <a
+                          href={attachmentViewUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-500 transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span>Open resource</span>
+                        </a>
+                      ) : (
+                        <>
+                          <Link
+                            href={buildPdfReaderHref({
+                              src: attachmentViewUrl,
+                              downloadUrl: attachmentDownloadUrl || undefined,
+                              title: activeLesson.attachmentName || "Lecture Notes & Study Material",
+                              subtitle: activeLesson.title,
+                              badge: "Lesson Attachment",
+                            })}
+                            data-testid="document-lesson-view"
+                            className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-500 transition-colors"
+                          >
+                            <Eye className="w-4 h-4" />
+                            <span>View document</span>
+                          </Link>
+                          {attachmentDownloadUrl && (
+                            <a
+                              href={attachmentDownloadUrl}
+                              download={activeLesson.attachmentName || undefined}
+                              data-testid="document-lesson-download"
+                              className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-indigo-400/60 bg-transparent px-5 py-2.5 text-xs font-bold text-indigo-200 hover:bg-white/5 transition-colors"
+                            >
+                              <Download className="w-4 h-4" />
+                              <span>Download</span>
+                            </a>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    !attachmentLoading &&
+                    !attachmentError && (
+                      <p className="text-xs font-semibold text-amber-300">
+                        No document attached to this lesson yet.
+                      </p>
+                    )
+                  )}
+
+                  {activeLesson.isTrial && (
+                    <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                      Free Preview Active
+                    </span>
+                  )}
+                </div>
+              ) : !playableVideoUrl ? (
+                <div
+                  data-testid="lesson-video-pending"
+                  className="w-full h-full flex flex-col items-center justify-center gap-2 px-6 text-center"
+                >
+                  <Video className="w-8 h-8 text-gray-500" />
+                  <p className="text-sm font-bold text-white">
+                    {needVideoLink && videoFiles.loading
+                      ? "Preparing your video…"
+                      : "This lecture's video is not available yet."}
+                  </p>
+                  {needVideoLink && videoFiles.error && (
+                    <p data-testid="lesson-file-error" className="text-xs font-semibold text-red-300 max-w-sm">
+                      {videoFiles.error}
+                    </p>
+                  )}
+                </div>
+              ) : isPlayingVideo ? (
+                playableVideoUrl.includes("youtube.com") || playableVideoUrl.includes("youtu.be") ? (
                   <iframe
                     id="youtube-player-frame"
                     src={(() => {
-                      const match = activeLesson.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
+                      const match = playableVideoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
                       const videoId = match ? match[1] : null
                       const savedTime = progressTimes[activeLesson.id] || 0
                       const originParam = typeof window !== "undefined" ? `&origin=${encodeURIComponent(window.location.origin)}` : ""
                       const startParam = savedTime > 0 ? `&start=${savedTime}` : ""
                       return videoId
                         ? `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&rel=0${originParam}${startParam}`
-                        : activeLesson.videoUrl.replace("watch?v=", "embed/") + `?enablejsapi=1&autoplay=1${startParam}`
+                        : playableVideoUrl.replace("watch?v=", "embed/") + `?enablejsapi=1&autoplay=1${startParam}`
                     })()}
                     title={activeLesson.title}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -632,7 +763,7 @@ export function CoursePlayerClient({
                   />
                 ) : (
                   <video
-                    src={activeLesson.videoUrl || undefined}
+                    src={playableVideoUrl}
                     controls
                     autoPlay
                     playsInline
@@ -680,7 +811,8 @@ export function CoursePlayerClient({
                     <Play className="w-6 h-6 sm:w-8 sm:h-8 fill-white ml-0.5 sm:ml-1" />
                   </div>
                   <span className="relative z-10 mt-3 sm:mt-4 text-xs sm:text-sm font-bold text-white drop-shadow text-center px-4">
-                    Play {activeLesson.title} ({activeLesson.durationText || "1h 45m"})
+                    Play {activeLesson.title}
+                    {durationLabel ? ` (${durationLabel})` : ""}
                   </span>
                   {activeLesson.isTrial && (
                     <span className="relative z-10 mt-1 px-3 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 drop-shadow">
@@ -771,8 +903,12 @@ export function CoursePlayerClient({
                       isDarkMode ? "bg-gray-800 text-gray-200" : "bg-gray-100 text-gray-800"
                     }`}
                   >
-                    <Video className="w-3.5 h-3.5 text-sky-600" />
-                    Video lesson
+                    {isDocument ? (
+                      <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                    ) : (
+                      <Video className="w-3.5 h-3.5 text-sky-600" />
+                    )}
+                    {isDocument ? "Document lesson" : "Video lesson"}
                   </span>
                   <span className="text-gray-500 font-medium text-[11px] sm:text-xs">
                     {activeChapter?.title} &bull; Lesson {activeLessonIndex} of {allLessons.length}
@@ -903,7 +1039,13 @@ export function CoursePlayerClient({
                   >
                     <span className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-sky-600 shrink-0" />
-                      <span>Duration: {activeLesson.durationText || "1h 45m 00s"}</span>
+                      <span>
+                        {durationLabel
+                          ? `Duration: ${durationLabel}`
+                          : isDocument
+                          ? "Document lesson · no watch time"
+                          : "Duration: not recorded yet"}
+                      </span>
                     </span>
                     <button
                       onClick={(e) => handleToggleLessonComplete(activeLesson.id, e)}
@@ -968,30 +1110,44 @@ export function CoursePlayerClient({
                         </div>
                       </div>
 
-                      {attachmentUrl ? (
+                      {attachmentViewUrl ? (
                         <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                          {/* Reuses the shared in-app PDF reader (/pdf/view) */}
-                          <Link
-                            href={buildPdfReaderHref({
-                              src: attachmentUrl,
-                              downloadUrl: attachmentUrl,
-                              title:
-                                activeLesson.attachmentName ||
-                                "Lecture Notes & Study Material",
-                              subtitle: activeLesson.title,
-                              badge: "Lesson Attachment",
-                            })}
-                            className="flex-1 sm:flex-none min-h-11 justify-center px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center gap-1.5 shadow-sm"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>View</span>
-                          </Link>
-                          {!isExternalResource && (
+                          {/* Reuses the shared in-app PDF reader (/pdf/view) with a
+                              short-lived signed URL: the private bucket URL is never used. */}
+                          {isExternalResource ? (
                             <a
-                              href={attachmentUrl}
-                              download={activeLesson.attachmentName || undefined}
+                              href={attachmentViewUrl}
                               target="_blank"
                               rel="noopener noreferrer"
+                              data-testid="resource-view-btn"
+                              className="flex-1 sm:flex-none min-h-11 justify-center px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center gap-1.5 shadow-sm"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>View</span>
+                            </a>
+                          ) : (
+                            <Link
+                              href={buildPdfReaderHref({
+                                src: attachmentViewUrl,
+                                downloadUrl: attachmentDownloadUrl || undefined,
+                                title:
+                                  activeLesson.attachmentName ||
+                                  "Lecture Notes & Study Material",
+                                subtitle: activeLesson.title,
+                                badge: "Lesson Attachment",
+                              })}
+                              data-testid="resource-view-btn"
+                              className="flex-1 sm:flex-none min-h-11 justify-center px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center gap-1.5 shadow-sm"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>View</span>
+                            </Link>
+                          )}
+                          {!isExternalResource && attachmentDownloadUrl && (
+                            <a
+                              href={attachmentDownloadUrl}
+                              download={activeLesson.attachmentName || undefined}
+                              data-testid="resource-download-btn"
                               className={`flex-1 sm:flex-none min-h-11 justify-center px-4 py-2 rounded-xl text-xs font-bold border transition-colors flex items-center gap-1.5 shadow-sm ${
                                 isDarkMode
                                   ? "bg-gray-900 border-indigo-700 text-indigo-300 hover:bg-gray-800"
@@ -1002,6 +1158,17 @@ export function CoursePlayerClient({
                               <span>Download</span>
                             </a>
                           )}
+                        </div>
+                      ) : attachmentLoading ? (
+                        <div className="shrink-0 w-full sm:w-auto sm:text-right">
+                          <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                            Preparing a secure link…
+                          </span>
+                        </div>
+                      ) : attachmentError ? (
+                        <div className="shrink-0 w-full sm:w-auto sm:text-right" data-testid="resource-error">
+                          <span className="text-xs font-bold text-red-700 dark:text-red-400">{attachmentError}</span>
+                          <p className="text-[11px] text-gray-500 dark:text-gray-400">Please try again or contact support.</p>
                         </div>
                       ) : (
                         <div className="shrink-0 w-full sm:w-auto sm:text-right">
@@ -1037,7 +1204,7 @@ export function CoursePlayerClient({
                         <span className="font-mono text-xs font-bold text-gray-400">{idx + 1}.</span>
                         <span className="text-xs font-bold">{l.title}</span>
                       </div>
-                      <span className="text-xs text-gray-400">{l.durationText || "1h 30m"}</span>
+                      <span className="text-xs text-gray-400">{lessonDurationLabel(l) || (isDocumentLesson(l) ? "Document" : "—")}</span>
                     </div>
                   ))}
                 </div>

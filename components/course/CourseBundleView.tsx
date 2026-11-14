@@ -38,6 +38,7 @@ import { CourseTeachersSection } from "./CourseTeachersSection"
 import ScheduleDemoModal from "./ScheduleDemoModal"
 import Image from "next/image"
 import { pluralize } from "@/lib/utils"
+import { lessonDurationLabel } from "@/lib/courses/lesson-duration"
 
 interface LessonItem {
   id: string
@@ -217,9 +218,6 @@ export function CourseBundleView({
       break
     }
   }
-  if (!firstTrialLesson && course.chapters[0]?.lessons[0]) {
-    firstTrialLesson = course.chapters[0].lessons[0]
-  }
 
   const toggleChapter = (id: string) => {
     setExpandedChapters((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -235,10 +233,13 @@ export function CourseBundleView({
   }
 
   const handleStartTrial = () => {
-    if (firstTrialLesson) {
+    if (isEnrolled) {
+      // Resume the last-watched lesson through the /learn entry point.
+      router.push(`/courses/${course.slug}/learn`)
+    } else if (firstTrialLesson) {
       router.push(`/courses/${course.slug}/learn/${firstTrialLesson.id}`)
     } else {
-      router.push(`/courses/${course.slug}/learn/start`)
+      router.push(`/courses/${course.slug}/learn`)
     }
   }
 
@@ -546,7 +547,11 @@ export function CourseBundleView({
                                     </div>
                                     <div className="flex items-center gap-2 mt-0.5 text-[11px] text-gray-600 dark:text-gray-300 font-medium">
                                       {isLive && <span className="text-red-700 font-semibold">Live</span>}
-                                      {isVideo && <span>Video {lesson.durationText && `• ${lesson.durationText}`}</span>}
+                                      {isVideo && (
+                                        <span>
+                                          Video {lessonDurationLabel(lesson) ? `• ${lessonDurationLabel(lesson)}` : ""}
+                                        </span>
+                                      )}
                                       {isPdf && <span>PDF</span>}
                                       {lesson.attachmentName && (
                                         <span>• Attachment</span>
