@@ -422,7 +422,9 @@ export function CourseDetailV2(props: CourseDetailV2Props) {
             isEnrolled={isEnrolled}
             onOpenLesson={(lessonId) => {
               if (typeof window !== "undefined") {
-                window.location.href = `/courses/${course.slug}/learn?lesson=${lessonId}`
+                // lessonId is a PATH segment on the player route
+                // (app/(dashboard)/courses/[slug]/learn/[lessonId]/page.tsx).
+                window.location.href = `/courses/${course.slug}/learn/${lessonId}`
               }
             }}
           />

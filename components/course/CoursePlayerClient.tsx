@@ -283,6 +283,12 @@ export function CoursePlayerClient({
   const isFreeCourse = !course.price || course.price === 0
   const isUnlocked = isFreeCourse || isEnrolled || activeLesson.isTrial || userRole === "ADMIN" || userRole === "TEACHER"
 
+  // Resources tab: only a stored attachment URL can produce a working View/Download link.
+  // The server (toSafeCourseDto) already strips attachmentUrl for locked lessons.
+  const attachmentUrl = activeLesson.attachmentUrl || null
+  const isExternalResource =
+    activeLesson.attachmentType === "ARTICLE" || activeLesson.attachmentType === "LIVE"
+
   const toggleChapter = (id: string) => {
     setExpandedChapters((prev) => ({ ...prev, [id]: !prev[id] }))
   }
@@ -944,7 +950,7 @@ export function CoursePlayerClient({
                 <div className="pt-2 space-y-3">
                   {activeLesson.attachmentName || activeLesson.attachmentUrl ? (
                     <div
-                      className={`p-4 rounded-xl border flex items-center justify-between gap-3 ${
+                      className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                         isDarkMode ? "bg-gray-800/40 border-gray-700" : "bg-indigo-50/60 border-indigo-200"
                       }`}
                     >
@@ -957,36 +963,53 @@ export function CoursePlayerClient({
                             {activeLesson.attachmentName || "Lecture Notes & Study Material"}
                           </h4>
                           <span className="text-xs text-indigo-700 dark:text-indigo-400 font-medium">
-                            PDF Document Attachment
+                            {isExternalResource ? "External Resource Link" : "PDF Document Attachment"}
                           </span>
                         </div>
                       </div>
 
-                      {activeLesson.attachmentUrl ? (
-                        <Link
-                          href={buildPdfReaderHref({
-                            src: activeLesson.attachmentUrl,
-                            downloadUrl: activeLesson.attachmentUrl,
-                            title:
-                              activeLesson.attachmentName ||
-                              "Lecture Notes & Study Material",
-                            subtitle: activeLesson.title,
-                            badge: "Lesson Attachment",
-                          })}
-                          className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center gap-1.5 shrink-0 shadow-sm"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>View PDF</span>
-                        </Link>
+                      {attachmentUrl ? (
+                        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                          {/* Reuses the shared in-app PDF reader (/pdf/view) */}
+                          <Link
+                            href={buildPdfReaderHref({
+                              src: attachmentUrl,
+                              downloadUrl: attachmentUrl,
+                              title:
+                                activeLesson.attachmentName ||
+                                "Lecture Notes & Study Material",
+                              subtitle: activeLesson.title,
+                              badge: "Lesson Attachment",
+                            })}
+                            className="flex-1 sm:flex-none min-h-11 justify-center px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors flex items-center gap-1.5 shadow-sm"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>View</span>
+                          </Link>
+                          {!isExternalResource && (
+                            <a
+                              href={attachmentUrl}
+                              download={activeLesson.attachmentName || undefined}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`flex-1 sm:flex-none min-h-11 justify-center px-4 py-2 rounded-xl text-xs font-bold border transition-colors flex items-center gap-1.5 shadow-sm ${
+                                isDarkMode
+                                  ? "bg-gray-900 border-indigo-700 text-indigo-300 hover:bg-gray-800"
+                                  : "bg-white border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                              }`}
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>Download</span>
+                            </a>
+                          )}
+                        </div>
                       ) : (
-                        <button
-                          type="button"
-                          disabled
-                          className="px-4 py-2 rounded-xl text-xs font-bold text-gray-400 bg-gray-100 dark:bg-slate-800 cursor-not-allowed flex items-center gap-1.5 shrink-0"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Unavailable</span>
-                        </button>
+                        <div className="shrink-0 w-full sm:w-auto sm:text-right">
+                          <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
+                            File not uploaded correctly.
+                          </span>
+                          <p className="text-[11px] text-gray-500 dark:text-gray-400">Please contact support.</p>
+                        </div>
                       )}
                     </div>
                   ) : (
