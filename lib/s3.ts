@@ -6,6 +6,7 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { buildPublicUrl, getPublicBaseUrl, getPublicBucketName } from './storage/public-url'
+import { getPrivateBucketName, getPrivateBucketNameOrNull } from './storage/bucket-name'
 
 // Lazily resolve S3 client with S3 / MinIO compatibility
 export function getS3Client(): S3Client {
@@ -15,8 +16,21 @@ export function getS3Client(): S3Client {
         process.env.AWS_S3_FORCE_PATH_STYLE === 'true' ||
         Boolean(s3Endpoint && (s3Endpoint.includes('127.0.0.1') || s3Endpoint.includes('localhost')))
 
+    // Cloudflare R2 only accepts the pseudo-region "auto". Signing with
+    // "us-east-1" against an R2 endpoint produces SignatureDoesNotMatch.
+    let isR2Endpoint = false
+    if (s3Endpoint) {
+        try {
+            isR2Endpoint = /\.r2\.cloudflarestorage\.com$/i.test(new URL(s3Endpoint).hostname)
+        } catch {
+            isR2Endpoint = false
+        }
+    }
+
+    const region = process.env.AWS_REGION || process.env.S3_REGION || (isR2Endpoint ? 'auto' : 'us-east-1')
+
     return new S3Client({
-        region: process.env.AWS_REGION || process.env.S3_REGION || 'us-east-1',
+        region,
         endpoint: s3Endpoint || undefined,
         forcePathStyle: s3ForcePathStyle,
         credentials: {
@@ -27,21 +41,15 @@ export function getS3Client(): S3Client {
 }
 
 export function getBucketName(): string {
-    return (
-        process.env.AWS_S3_BUCKET_NAME ||
-        process.env.AWS_S3_BUCKET ||
-        process.env.S3_BUCKET ||
-        'aspirantbook-uploads'
-    )
+    // Single source of truth lives in lib/storage/bucket-name.ts
+    return getPrivateBucketName()
 }
 
 /** True when the private bucket and credentials are present. */
 export function isPrivateStorageConfigured(): boolean {
     const hasKey = Boolean(process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY)
     const hasSecret = Boolean(process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY)
-    const hasBucket = Boolean(
-        process.env.AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || process.env.S3_BUCKET
-    )
+    const hasBucket = Boolean(getPrivateBucketNameOrNull())
     return hasKey && hasSecret && hasBucket
 }
 

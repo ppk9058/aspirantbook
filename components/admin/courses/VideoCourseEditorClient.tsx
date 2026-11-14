@@ -69,11 +69,14 @@ import { readSectionFlags, type SectionFlags } from "@/lib/courses/metadata-sche
 import { hindiCompletenessForList, hindiBadgeLabel } from "@/lib/i18n/localized"
 import { DEFAULT_COURSE_LANGUAGE, COURSE_LANGUAGES } from "@/lib/courses/languages"
 import { EXAM_CATEGORIES, EXAM_CATEGORY_GROUPS, isKnownExamCategory } from "@/lib/courses/categories"
+import { readVideoDurationMinutes } from "@/lib/media/video-metadata"
+import { formatDurationMinutes, lessonDurationLabel } from "@/lib/courses/lesson-duration"
 
 interface LessonItem {
   id: string
   title: string
   type: string
+  duration?: number | null
   durationText?: string | null
   attachmentType?: string | null
   attachmentName?: string | null
@@ -472,7 +475,8 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
   // Form Fields for Add/Edit Lesson
   const [lessonTitle, setLessonTitle] = useState("")
   const [lessonType, setLessonType] = useState<"VIDEO" | "READING">("VIDEO")
-  const [lessonDurationText, setLessonDurationText] = useState("1h 45m 00s")
+  const [lessonDuration, setLessonDuration] = useState<number | null>(null)
+  const [lessonDurationText, setLessonDurationText] = useState("")
   const [lessonVideoUrl, setLessonVideoUrl] = useState("")
   const [isTrial, setIsTrial] = useState(false)
   const [lessonScheduledAt, setLessonScheduledAt] = useState("")
@@ -1083,6 +1087,15 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
 
       setLessonVideoUrl(data.url)
       setLessonType("VIDEO")
+
+      // Real duration from the file's metadata (no hard-coded guess). Keeps the
+      // admin's typed value if the browser cannot read the file.
+      const minutes = await readVideoDurationMinutes(file)
+      if (minutes) {
+        setLessonDuration(minutes)
+        setLessonDurationText(formatDurationMinutes(minutes) || "")
+      }
+
       setSuccessMsg(`Video file "${file.name}" uploaded successfully!`)
       setTimeout(() => setSuccessMsg(null), 3000)
     } catch (err: any) {
@@ -1149,8 +1162,9 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     setTargetChapterId(chapterId)
     setLessonTitle("")
     setLessonType("VIDEO")
-    setLessonDurationText("1h 30m 00s")
-    setLessonVideoUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+    setLessonDuration(null)
+    setLessonDurationText("")
+    setLessonVideoUrl("")
     setIsTrial(false)
     setAttachmentType("PDF")
     setAttachmentName("")
@@ -1176,6 +1190,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
     // Populate active form state
     setLessonTitle(lesson.title)
     setLessonType((lesson.type as any) || "VIDEO")
+    setLessonDuration(typeof lesson.duration === "number" ? lesson.duration : null)
     setLessonDurationText(lesson.durationText || "")
     setLessonVideoUrl(lesson.videoUrl || "")
     setIsTrial(Boolean(lesson.isTrial))
@@ -1198,7 +1213,8 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           chapterId: targetChapterId,
           title: lessonTitle,
           type: lessonType,
-          durationText: lessonDurationText,
+          duration: lessonType === "VIDEO" ? lessonDuration : null,
+          durationText: lessonType === "VIDEO" ? lessonDurationText : null,
           videoUrl: lessonVideoUrl || null,
           isTrial,
           scheduledAt: lessonScheduledAt ? new Date(lessonScheduledAt).toISOString() : null,
@@ -1242,7 +1258,8 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
           lessonId: editingLesson.id,
           title: lessonTitle,
           type: lessonType,
-          durationText: lessonDurationText,
+          duration: lessonType === "VIDEO" ? lessonDuration : null,
+          durationText: lessonType === "VIDEO" ? lessonDurationText : null,
           videoUrl: lessonVideoUrl || null,
           isTrial,
           scheduledAt: lessonScheduledAt ? new Date(lessonScheduledAt).toISOString() : null,
@@ -2079,7 +2096,7 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                                           {isLive ? "Live Session" : isVideo ? "Video Lecture" : "Article"}
                                         </span>
 
-                                        {lesson.durationText && <span>&bull; {lesson.durationText}</span>}
+                                        {lessonDurationLabel(lesson) && <span>&bull; {lessonDurationLabel(lesson)}</span>}
 
                                         {/* Video status indicator with quick delete */}
                                         {hasVideo && (
@@ -3285,7 +3302,14 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   <label className="block font-semibold text-gray-700 mb-1">Lesson Type</label>
                   <select
                     value={lessonType}
-                    onChange={(e) => setLessonType(e.target.value as any)}
+                    onChange={(e) => {
+                      const nextType = e.target.value as "VIDEO" | "READING"
+                      setLessonType(nextType)
+                      if (nextType !== "VIDEO") {
+                        setLessonDuration(null)
+                        setLessonDurationText("")
+                      }
+                    }}
                     className="w-full px-3 py-2 rounded-xl border border-gray-200"
                   >
                     <option value="VIDEO">Video Lecture</option>
@@ -3293,14 +3317,29 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Duration Text</label>
-                  <input
-                    type="text"
-                    value={lessonDurationText}
-                    onChange={(e) => setLessonDurationText(e.target.value)}
-                    placeholder="1h 45m 00s"
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
-                  />
+                  <label className="block font-semibold text-gray-700 mb-1">
+                    Duration
+                  </label>
+                  {lessonType === "VIDEO" ? (
+                    <>
+                      <input
+                        type="text"
+                        value={lessonDurationText}
+                        onChange={(e) => setLessonDurationText(e.target.value)}
+                        placeholder="Read from the uploaded video"
+                        className="w-full px-3 py-2 rounded-xl border border-gray-200"
+                      />
+                      <p className="mt-1 text-[10px] font-medium text-gray-500">
+                        {lessonDuration
+                          ? "Auto-filled from the uploaded video's real length (minutes)."
+                          : "Upload a video to fill this automatically, or type it yourself."}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="px-1 py-2 text-[11px] font-medium text-gray-500">
+                      Documents have no playing time, so no duration is stored.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -3544,7 +3583,14 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   <label className="block font-semibold text-gray-700 mb-1">Lesson Type</label>
                   <select
                     value={lessonType}
-                    onChange={(e) => setLessonType(e.target.value as any)}
+                    onChange={(e) => {
+                      const nextType = e.target.value as "VIDEO" | "READING"
+                      setLessonType(nextType)
+                      if (nextType !== "VIDEO") {
+                        setLessonDuration(null)
+                        setLessonDurationText("")
+                      }
+                    }}
                     className="w-full px-3 py-2 rounded-xl border border-gray-200"
                   >
                     <option value="VIDEO">Video Lecture</option>
@@ -3552,14 +3598,29 @@ export function VideoCourseEditorClient({ course: initialCourse }: CourseEditPro
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold text-gray-700 mb-1">Duration Text</label>
-                  <input
-                    type="text"
-                    value={lessonDurationText}
-                    onChange={(e) => setLessonDurationText(e.target.value)}
-                    placeholder="1h 45m 00s"
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200"
-                  />
+                  <label className="block font-semibold text-gray-700 mb-1">
+                    Duration
+                  </label>
+                  {lessonType === "VIDEO" ? (
+                    <>
+                      <input
+                        type="text"
+                        value={lessonDurationText}
+                        onChange={(e) => setLessonDurationText(e.target.value)}
+                        placeholder="Read from the uploaded video"
+                        className="w-full px-3 py-2 rounded-xl border border-gray-200"
+                      />
+                      <p className="mt-1 text-[10px] font-medium text-gray-500">
+                        {lessonDuration
+                          ? "Auto-filled from the uploaded video's real length (minutes)."
+                          : "Upload a video to fill this automatically, or type it yourself."}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="px-1 py-2 text-[11px] font-medium text-gray-500">
+                      Documents have no playing time, so no duration is stored.
+                    </p>
+                  )}
                 </div>
               </div>
 

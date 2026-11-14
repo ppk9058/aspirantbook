@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Calendar, Check, Copy, Share2 } from "lucide-react"
+import Link from "next/link"
+import { Calendar, Check, Copy, Play, Share2 } from "lucide-react"
 import type { CalendarLecture } from "./CalendarMenu"
 import type { DetailCourse } from "./types"
 import { fontStackFor } from "./theme"
@@ -187,9 +188,15 @@ export function StickyCard({
             {isProcessing ? (lang === "hi" ? "कृपया प्रतीक्षा करें…" : "Please wait…") : enrollCta}
           </button>
         ) : (
-          <div className="mt-4 flex min-h-[48px] w-full items-center justify-center rounded-xl bg-emerald-700 px-6 py-3.5 text-base font-extrabold text-white shadow-sm">
-            {lang === "hi" ? "नामांकित" : "Enrolled"}
-          </div>
+          <Link
+            href={`/courses/${course.slug}/learn`}
+            data-testid="start-learning-btn"
+            className="mt-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-6 py-3.5 text-base font-extrabold text-white shadow-[0_4px_0_0_#065f46] transition hover:translate-y-[1px] hover:brightness-105 active:translate-y-[3px] active:shadow-none"
+            style={{ fontFamily: "var(--cd-font-heading)" }}
+          >
+            <Play className="h-4 w-4 fill-current" aria-hidden="true" />
+            <span>{lang === "hi" ? "सीखना शुरू करें" : "Start learning"}</span>
+          </Link>
         )}
 
         {/* Helper text */}

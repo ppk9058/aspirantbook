@@ -37,6 +37,13 @@ export async function POST(req: Request) {
 
     const newOrder = (highestLesson?.order || 0) + 1
 
+    // Duration is stored in minutes for video lessons only (documents have no
+    // playing time). The admin form fills it from the uploaded video's metadata.
+    const durationMinutes =
+      typeof body.duration === "number" && Number.isFinite(body.duration) && body.duration > 0
+        ? Math.round(body.duration)
+        : null
+
     const lesson = await prisma.lesson.create({
       data: {
         chapterId: body.chapterId,
@@ -44,6 +51,7 @@ export async function POST(req: Request) {
         type: body.type || (body.videoUrl ? "VIDEO" : "READING"),
         order: body.order || newOrder,
         videoUrl: body.videoUrl || null,
+        duration: (body.type || "").toUpperCase() === "VIDEO" ? durationMinutes : null,
         durationText: body.durationText || null,
         isTrial: Boolean(body.isTrial),
         attachmentType: body.attachmentType || null,
@@ -82,6 +90,16 @@ export async function PUT(req: Request) {
     if (body.title !== undefined) data.title = body.title.trim()
     if (body.type !== undefined) data.type = body.type
     if (body.videoUrl !== undefined) data.videoUrl = body.videoUrl || null
+    if (body.duration !== undefined) {
+      const minutes =
+        typeof body.duration === "number" && Number.isFinite(body.duration) && body.duration > 0
+          ? Math.round(body.duration)
+          : null
+      data.duration = minutes
+    } else if (body.type !== undefined && String(body.type).toUpperCase() !== "VIDEO") {
+      // A lesson switched to a document type must not keep a video duration.
+      data.duration = null
+    }
     if (body.durationText !== undefined) data.durationText = body.durationText || null
     if (body.isTrial !== undefined) data.isTrial = Boolean(body.isTrial)
     if (body.attachmentType !== undefined) data.attachmentType = body.attachmentType || null
