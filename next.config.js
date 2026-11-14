@@ -37,6 +37,10 @@ const nextConfig = {
     },
     reactStrictMode: true,
     experimental: {
+        // Admin PYQ PDF uploads go through middleware; the default 10MB body clone
+        // limit truncated larger PDFs. Keep in sync with MAX_SIZE in
+        // app/api/admin/pyqs/upload/route.ts (50MB).
+        middlewareClientMaxBodySize: "50mb",
         staleTimes: {
             dynamic: 30,
             static: 180,
